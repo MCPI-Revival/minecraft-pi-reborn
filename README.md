@@ -22,4 +22,4 @@ kill "${PID}"
 ```
 
 ## Tweaks
-The included version of Minecraft: Pi Ediiton is slightly modified so it uses the old touchscreen UI.
+The included version of Minecraft: Pi Ediiton is slightly modified to use the touchscreen UI.
