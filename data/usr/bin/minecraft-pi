@@ -1,0 +1,15 @@
+#!/bin/sh
+
+set -e
+
+virgl_test_server &
+PID="$!"
+
+xhost local:root
+
+DOCKER_COMPOSE="docker-compose -f /usr/share/minecraft-pi/docker-compose.yml"
+
+${DOCKER_COMPOSE} up
+${DOCKER_COMPOSE} down
+
+kill "${PID}"

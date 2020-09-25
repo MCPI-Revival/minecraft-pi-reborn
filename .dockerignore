@@ -2,4 +2,6 @@
 .gitignore
 Dockerfile
 README.md
-docker-compose.yml
+data
+install.sh
+build.sh

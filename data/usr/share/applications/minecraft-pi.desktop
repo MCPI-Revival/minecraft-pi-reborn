@@ -1,0 +1,10 @@
+[Desktop Entry]
+Name=Minecraft: Pi Edition
+Comment=Fun with Blocks
+Icon=/usr/share/pixmaps/minecraft-pi.png
+StartupNotify=false
+StartupWMClass=minecraft-pi
+Exec=/usr/bin/minecraft-pi
+Terminal=false
+Type=Application
+Categories=Application;Game;
