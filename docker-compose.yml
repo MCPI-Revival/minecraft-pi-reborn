@@ -1,0 +1,10 @@
+version: '3.7'
+services:
+    minecraft-pi:
+        image: thebrokenrail/minecraft-pi
+        volumes:
+            - '/tmp/.X11-unix:/tmp/.X11-unix'
+            - '/tmp/.virgl_test:/tmp/.virgl_test'
+            - '~/.minecraft-pi:/root/.minecraft'
+        environment:
+            - 'DISPLAY=unix${DISPLAY}'
