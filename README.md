@@ -16,7 +16,7 @@ PID="$!"
 
 xhost local:root
 
-sudo docker run -v /tmp/.X11-unix:/tmp/.X11-unix -v /tmp/.virgl_test:/tmp/.virgl_test -v ~/.minecraft-pi:/root/.minecraft -e DISPLAY=unix${DISPLAY} thebrokenrail/minecraft-pi
+sudo docker run -v /tmp/.X11-unix:/tmp/.X11-unix -v /tmp/.virgl_test:/tmp/.virgl_test -v ~/.minecraft-pi:/root/.minecraft -p 4711:4711/tcp -e DISPLAY=unix${DISPLAY} thebrokenrail/minecraft-pi
 
 kill "${PID}"
 ```
