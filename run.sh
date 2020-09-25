@@ -8,5 +8,6 @@ PID="$!"
 xhost local:root
 
 sudo docker-compose up
+sudo docker-compose down
 
 kill "${PID}"

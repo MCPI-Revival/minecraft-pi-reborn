@@ -22,6 +22,11 @@ static int ends_with(const char *s, const char *t) {
 #define MODS_FOLDER "./mods/"
 
 static void set_and_print_env(char *name, char *value) {
+    int length = strlen(value);
+    if (value[length - 1] == ':') {
+        value[length - 1] = '\0';
+    }
+
     fprintf(stderr, "Set %s = %s\n", name, value);
     setenv(name, value, 1);
 }
