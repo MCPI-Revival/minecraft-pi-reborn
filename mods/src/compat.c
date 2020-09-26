@@ -16,6 +16,7 @@ static EGLConfig egl_config;
 static int window_loaded = 0;
 static EGLContext egl_context;
 static EGLSurface egl_surface;
+static SDL_Surface *sdl_surface;
 
 HOOK(eglGetDisplay, EGLDisplay, (__attribute__((unused)) NativeDisplayType native_display)) {
     // Handled In ensure_x11_window()
@@ -100,10 +101,13 @@ EGLint const set_attrib_list[] = {
     EGL_NONE
 };
 
+#define WINDOW_VIDEO_FLAGS SDL_RESIZABLE
+#define FULLSCREEN_VIDEO_FLAGS SDL_FULLSCREEN
+
 // Init EGL
 HOOK(SDL_WM_SetCaption, void, (const char *title, const char *icon)) {
     ensure_SDL_SetVideoMode();
-    (*real_SDL_SetVideoMode)(848, 480, 32, 16);
+    sdl_surface = (*real_SDL_SetVideoMode)(848, 480, 32, WINDOW_VIDEO_FLAGS);
     
     ensure_SDL_WM_SetCaption();
     (*real_SDL_WM_SetCaption)(title, icon);
@@ -133,34 +137,87 @@ HOOK(SDL_WM_SetCaption, void, (const char *title, const char *icon)) {
 }
 
 HOOK(eglSwapBuffers, EGLBoolean, (__attribute__((unused)) EGLDisplay display, __attribute__((unused)) EGLSurface surface)) {
-    ensure_x11_window();
-
     ensure_eglSwapBuffers();
     EGLBoolean ret = (*real_eglSwapBuffers)(egl_display, egl_surface);
-    
+
     return ret;
 }
 
+static void resize(int width, int height, int fullscreen) {
+    fprintf(stderr, "W: %i H: %i FS: %i\n", width, height, fullscreen);
+    Uint32 flags = fullscreen ? FULLSCREEN_VIDEO_FLAGS : WINDOW_VIDEO_FLAGS;
+
+    ensure_SDL_SetVideoMode();
+    sdl_surface = (*real_SDL_SetVideoMode)(width, height, 32, flags);
+
+    // OpenGL state modification for resizing
+    glViewport(0, 0, width, height);
+    glMatrixMode(GL_PROJECTION);
+    glOrthox(0, width, 0, height, -1, 1);
+    glLoadIdentity();
+    glMatrixMode(GL_MODELVIEW);
+    glLoadIdentity();
+    glClear(GL_COLOR_BUFFER_BIT);
+    glLoadIdentity();
+}
+
+static int is_fullscreen = 0;
+
+static int old_width = 0;
+static int old_height = 0;
+
+static void push_resize_event(int width, int height) {
+    SDL_ResizeEvent resize;
+    resize.type = SDL_VIDEORESIZE;
+    resize.w = width;
+    resize.h = height;
+
+    SDL_Event event;
+    event.type = SDL_VIDEORESIZE;
+    event.resize = resize;
+
+    SDL_PushEvent(&event);
+}
+
+static void toggle_fullscreen() {
+    if (is_fullscreen) {
+        push_resize_event(old_width, old_height);
+
+        old_width = 0;
+        old_height = 0;
+    } else {
+        old_width = sdl_surface->w;
+        old_height = sdl_surface->h;
+
+        Screen *screen = DefaultScreenOfDisplay(x11_display);
+        push_resize_event(WidthOfScreen(screen), HeightOfScreen(screen));
+    }
+    is_fullscreen = !is_fullscreen;
+}
+
 HOOK(SDL_PollEvent, int, (SDL_Event *event)) {
+    // Poll Events
     ensure_SDL_PollEvent();
     int ret = (*real_SDL_PollEvent)(event);
-    
-    // Resize EGL
-    if (event != NULL && event->type == SDL_VIDEORESIZE) {
-        ensure_SDL_SetVideoMode();
-        (*real_SDL_SetVideoMode)(event->resize.w, event->resize.h, 32, 16);
 
-        // OpenGL state modification for resizing
-        glViewport(0, 0, event->resize.w, event->resize.h);
-        glMatrixMode(GL_PROJECTION);
-        glOrthox(0, event->resize.w, 0, event->resize.h, -1, 1);
-        glLoadIdentity();
-        glMatrixMode(GL_MODELVIEW);
-        glLoadIdentity();
-        glClear(GL_COLOR_BUFFER_BIT);
-        glLoadIdentity();
+    // Resize EGL
+    if (event != NULL) {
+        int handled = 0;
+
+        if (event->type == SDL_VIDEORESIZE) {
+            resize(event->resize.w, event->resize.h, is_fullscreen);
+            handled = 1;
+        } else if (event->type == SDL_KEYDOWN && event->key.keysym.sym == SDLK_F11) {
+            toggle_fullscreen();
+            handled = 1;
+        }
+
+        if (handled) {
+            // Event Was Handled
+            return SDL_PollEvent(event);
+        }
     }
-    
+
     return ret;
 }
 
