@@ -2,4 +2,4 @@
 
 set -e
 
-sudo docker build --tag thebrokenrail/minecraft-pi:latest .
+docker build --tag thebrokenrail/minecraft-pi:latest .
