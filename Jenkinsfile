@@ -13,7 +13,7 @@ pipeline {
         }
         stage('Build') {
             steps {
-                sh './build.sh'
+                sh './scripts/build.sh'
             }
         }
         stage('Publish') {
@@ -22,6 +22,16 @@ pipeline {
                     sh 'docker login -u "${DOCKER_HUB_USERNAME}" -p "${DOCKER_HUB_PASSWORD}"'
                 }
                 sh 'docker push thebrokenrail/minecraft-pi'
+            }
+        }
+        stage('Package') {
+            steps {
+                sh './scripts/package.sh'
+            }
+            post {
+                success {
+                    archiveArtifacts artifacts: 'out/*', fingerprint: true
+                }
             }
         }
     }

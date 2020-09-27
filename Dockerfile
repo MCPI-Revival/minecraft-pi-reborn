@@ -14,12 +14,12 @@ ADD . /app
 
 WORKDIR /app
 
-RUN ./scripts/download-minecraft-pi.sh
+RUN ./build/download-minecraft-pi.sh
 
-RUN ./scripts/build-mods.sh
+RUN ./build/build-mods.sh
 
-RUN ./scripts/build-libpng12.sh
+RUN ./build/build-libpng12.sh
 
-WORKDIR /app/minecraft-pi
+WORKDIR ./minecraft-pi
 
 ENTRYPOINT ./launcher
