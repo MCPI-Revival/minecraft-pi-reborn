@@ -41,6 +41,32 @@ static void handle_input_injection(unsigned char *param_1, unsigned char *param_
     }
 }
 
+typedef void (*tickItemDrop_t)(unsigned char *);
+static tickItemDrop_t tickItemDrop = (tickItemDrop_t) 0x27778;
+static void *tickItemDrop_original = NULL;
+
+#include <SDL/SDL_events.h>
+
+static void tickItemDrop_injection(unsigned char *this) {
+    if (SDL_ShowCursor(SDL_QUERY) == SDL_ENABLE) {
+        revert_overwrite((void *) tickItemDrop, tickItemDrop_original);
+        (*tickItemDrop)(this);
+        revert_overwrite((void *) tickItemDrop, tickItemDrop_original);
+    }
+}
+
+typedef void (*handleClick_t)(unsigned char *, unsigned char *, unsigned char *, unsigned char *);
+static handleClick_t handleClick = (handleClick_t) 0x2599c;
+static void *handleClick_original = NULL;
+
+static void handleClick_injection(unsigned char *this, unsigned char *param_2, unsigned char *param_3, unsigned char *param_4) {
+    if (SDL_ShowCursor(SDL_QUERY) == SDL_ENABLE) {
+        revert_overwrite((void *) handleClick, handleClick_original);
+        (*handleClick)(this, param_2, param_3, param_4);
+        revert_overwrite((void *) handleClick, handleClick_original);
+    }
+}
+
 static int has_feature(const char *name) {
     char *env = getenv("FEATURES");
     char *features = strdup(env != NULL ? env : "");
@@ -81,6 +107,11 @@ __attribute__((constructor)) static void init() {
         // Force GameType To 0 (Required For Day-Night Cycle)
         overwrite((void *) 0xbabdc, get_game_type);
     }
+
+    // Disable Item Dropping When Cursor Is Hidden
+    tickItemDrop_original = overwrite((void *) tickItemDrop, tickItemDrop_injection);
+    // Disable Opening Inventory Using The Cursor When Cursor Is Hidden
+    handleClick_original = overwrite((void *) handleClick, handleClick_injection);
 
     if (has_feature("Fix Bow & Arrow")) {
         // Fix Bow
