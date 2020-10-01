@@ -3,11 +3,8 @@
 set -e
 
 # Ensure Features Are Selected
-USER_LAUNCH=1
-if [ -z "${MCPI_FEATURES}" ]; then
+if [ -z "${MCPI_SUBSHELL}" ]; then
     MCPI_FEATURES="$(zenity --class minecraft-pi --list --checklist --column 'Enabled' --column 'Feature' FALSE 'Touch GUI' FALSE 'Survival Mode' FALSE 'Fix Bow & Arrow' FALSE 'Fix Attacking' FALSE 'Mob Spawning')"
-else
-    USER_LAUNCH=0
 fi
 export MCPI_FEATURES
 
@@ -16,13 +13,11 @@ virgl_test_server &
 VIRGL_PID="$!"
 
 # Ensure Groups Are Correct
-if [ "${USER_LAUNCH}" = "1" ]; then
+if [ -z "${MCPI_SUBSHELL}" ]; then
     if ! id -Gn "$(whoami)" | grep '\bdocker\b' > /dev/null; then
         pkexec adduser "$(whoami)" docker
     fi
-
-    su -p "$(whoami)" "$(realpath -e "$0")"
-    exit "$?"
+    exec sg docker "env MCPI_SUBSHELL=1 \"$(realpath -e "$0")\""
 fi
 
 # Allow X11 Connections From Root
