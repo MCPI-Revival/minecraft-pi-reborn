@@ -4,4 +4,4 @@ Maintainer: TheBrokenRail <connor24nolan@live.com>
 Description: Fun with Blocks
 Homepage: https://www.minecraft.net/en-us/edition/pi
 Architecture: amd64
-Depends: docker.io, docker-compose, virgl-server, zenity, policykit-1
+Depends: docker.io, docker-compose, virgl-server, zenity, policykit-1, adduser

@@ -9,4 +9,4 @@ services:
             - '~/.minecraft-pi:/root/.minecraft'
         environment:
             - 'DISPLAY=unix${DISPLAY}'
-            - 'FEATURES=${FEATURES}'
+            - 'MCPI_FEATURES=${MCPI_FEATURES}'

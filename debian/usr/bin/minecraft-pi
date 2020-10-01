@@ -2,21 +2,36 @@
 
 set -e
 
-FEATURES="$(zenity --class minecraft-pi --list --checklist --column 'Enabled' --column 'Feature' FALSE 'Touch GUI' FALSE 'Survival Mode' FALSE 'Fix Bow & Arrow' FALSE 'Fix Attacking' FALSE 'Mob Spawning')"
-export FEATURES
+# Ensure Features Are Selected
+USER_LAUNCH=1
+if [ -z "${MCPI_FEATURES}" ]; then
+    MCPI_FEATURES="$(zenity --class minecraft-pi --list --checklist --column 'Enabled' --column 'Feature' FALSE 'Touch GUI' FALSE 'Survival Mode' FALSE 'Fix Bow & Arrow' FALSE 'Fix Attacking' FALSE 'Mob Spawning')"
+else
+    USER_LAUNCH=0
+fi
+export MCPI_FEATURES
 
+# Start VirGL
 virgl_test_server &
-PID="$!"
+VIRGL_PID="$!"
 
-if ! id -Gn "$(whoami)" | grep '\bdocker\b' > /dev/null; then
-    pkexec adduser "$(whoami)" docker
+# Ensure Groups Are Correct
+if [ "${USER_LAUNCH}" = "1" ]; then
+    if ! id -Gn "$(whoami)" | grep '\bdocker\b' > /dev/null; then
+        pkexec adduser "$(whoami)" docker
+    fi
+
+    su -p "$(whoami)" "$(realpath -e "$0")"
+    exit "$?"
 fi
 
+# Allow X11 Connections From Root
 xhost local:root
 
+# Launch Minecraft
 DOCKER_COMPOSE="docker-compose -f /usr/share/minecraft-pi/docker-compose.yml"
-
 ${DOCKER_COMPOSE} up
 ${DOCKER_COMPOSE} down
 
-kill "${PID}"
+# Kill VirGL
+kill "${VIRGL_PID}"

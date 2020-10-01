@@ -68,7 +68,7 @@ static void handleClick_injection(unsigned char *this, unsigned char *param_2, u
 }
 
 static int has_feature(const char *name) {
-    char *env = getenv("FEATURES");
+    char *env = getenv("MCPI_FEATURES");
     char *features = strdup(env != NULL ? env : "");
     char *tok = strtok(features, "|");
     int ret = 0;
