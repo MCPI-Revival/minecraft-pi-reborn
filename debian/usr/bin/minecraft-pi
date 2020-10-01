@@ -2,10 +2,15 @@
 
 set -e
 
-export FEATURES="$(zenity --class minecraft-pi --list --checklist --column 'Enabled' --column 'Feature' FALSE 'Touch GUI' FALSE 'Survival Mode' FALSE 'Fix Bow & Arrow' FALSE 'Fix Attacking' FALSE 'Mob Spawning')"
+FEATURES="$(zenity --class minecraft-pi --list --checklist --column 'Enabled' --column 'Feature' FALSE 'Touch GUI' FALSE 'Survival Mode' FALSE 'Fix Bow & Arrow' FALSE 'Fix Attacking' FALSE 'Mob Spawning')"
+export FEATURES
 
 virgl_test_server &
 PID="$!"
+
+if ! id -Gn "$(whoami)" | grep '\bdocker\b' > /dev/null; then
+    pkexec adduser "$(whoami)" docker
+fi
 
 xhost local:root
 
