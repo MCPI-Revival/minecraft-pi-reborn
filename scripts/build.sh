@@ -2,4 +2,4 @@
 
 set -e
 
-docker build --no-cache --tag thebrokenrail/minecraft-pi:latest .
+docker build ${DOCKER_BUILD_OPTIONS} --tag thebrokenrail/minecraft-pi:latest .

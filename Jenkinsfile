@@ -13,7 +13,7 @@ pipeline {
         }
         stage('Build') {
             steps {
-                sh './scripts/build.sh'
+                sh 'DOCKER_BUILD_OPTIONS="--no-cache" ./scripts/build.sh'
             }
         }
         stage('Publish') {

@@ -144,7 +144,6 @@ HOOK(eglSwapBuffers, EGLBoolean, (__attribute__((unused)) EGLDisplay display, __
 }
 
 static void resize(int width, int height, int fullscreen) {
-    fprintf(stderr, "W: %i H: %i FS: %i\n", width, height, fullscreen);
     Uint32 flags = fullscreen ? FULLSCREEN_VIDEO_FLAGS : WINDOW_VIDEO_FLAGS;
 
     ensure_SDL_SetVideoMode();

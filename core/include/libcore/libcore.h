@@ -27,7 +27,8 @@ extern "C" {
     \
     __attribute__((__used__)) return_type name args
 
-void overwrite(void *start, void *target);
+void *overwrite(void *start, void *target);
+void revert_overwrite(void *start, void *original);
 void patch(void *start, unsigned char patch[]);
 
 #ifdef __cplusplus
