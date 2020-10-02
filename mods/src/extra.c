@@ -85,7 +85,8 @@ static int has_feature(const char *name) {
 }
 
 // Defined In extra.cpp
-extern void readAssetFile(unsigned char *target, unsigned char *app_platform, unsigned char *path);
+extern unsigned char *readAssetFile(unsigned char *app_platform, unsigned char *path);
+extern void openTextEdit(unsigned char *local_player, unsigned char *sign);
 
 __attribute__((constructor)) static void init() {
     if (has_feature("Touch GUI")) {
@@ -142,4 +143,10 @@ __attribute__((constructor)) static void init() {
 
     // Implement AppPlatform::readAssetFile So Translations Work
     overwrite((void *) 0x12b10, readAssetFile);
+    
+    if (has_feature("Show Clouds")) {
+        // Show Clouds
+        unsigned char patch_data_8[4] = {0x01, 0x30, 0xa0, 0xe3};
+        patch((void *) 0x49fcc, patch_data_8);
+    }
 }
