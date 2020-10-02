@@ -149,4 +149,8 @@ __attribute__((constructor)) static void init() {
         unsigned char patch_data_8[4] = {0x01, 0x30, 0xa0, 0xe3};
         patch((void *) 0x49fcc, patch_data_8);
     }
+
+    // Allow Connecting To Non-Pi Servers
+    unsigned char patch_data_9[4] = {0x0f, 0x00, 0x00, 0xea};
+    patch((void *) 0x6dc70, patch_data_9);
 }
