@@ -84,6 +84,9 @@ static int has_feature(const char *name) {
     return ret;
 }
 
+// Defined In extra.cpp
+extern void readAssetFile(unsigned char *target, unsigned char *app_platform, unsigned char *path);
+
 __attribute__((constructor)) static void init() {
     if (has_feature("Touch GUI")) {
         // Use Touch UI
@@ -120,16 +123,23 @@ __attribute__((constructor)) static void init() {
 
     if (has_feature("Fix Attacking")) {
         // Allow Attacking Mobs
-        unsigned char patch_data_5[4] = {0x00, 0xf0, 0x20, 0xe3};
-        patch((void *) 0x162d4, patch_data_5);
+        unsigned char patch_data_6[4] = {0x00, 0xf0, 0x20, 0xe3};
+        patch((void *) 0x162d4, patch_data_6);
     }
 
     if (has_feature("Mob Spawning")) {
         // Enable Mob Spawning
         overwrite((void *) 0xbabec, can_spawn_mobs);
-
-        // Replace CreatorLevel With Level
-        unsigned char patch_data_4[4] = {0x96, 0x3d, 0x02, 0xeb};
-        patch((void *) 0x16f84, patch_data_4);
     }
+
+    // Replace CreatorLevel With ServerLevel (This Fixes Beds And Mob Spawning)
+    unsigned char patch_data_4[4] = {0x68, 0x7e, 0x01, 0xeb};
+    patch((void *) 0x16f84, patch_data_4);
+
+    // Allocate Correct Size For ServerLevel
+    unsigned char patch_data_5[4] = {0x94, 0x0b, 0x00, 0x00};
+    patch((void *) 0x17004, patch_data_5);
+
+    // Implement AppPlatform::readAssetFile So Translations Work
+    overwrite((void *) 0x12b10, readAssetFile);
 }
