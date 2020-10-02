@@ -4,4 +4,4 @@ set -e
 
 docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
 
-docker-compose -f /usr/share/minecraft-pi/docker-compose.yml pull
+MCPI_FEATURES='' docker-compose -f /usr/share/minecraft-pi/docker-compose.yml pull
