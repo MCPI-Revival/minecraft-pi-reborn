@@ -118,6 +118,14 @@ static void setIsCreativeMode_injection(unsigned char *this, int32_t new_game_mo
     revert_overwrite((void *) setIsCreativeMode, setIsCreativeMode_original);
 }
 
+static char *get_username() {
+    char *username = getenv("MCPI_USERNAME");
+    if (username == NULL) {
+        username = "StevePi";
+    }
+    return username;
+}
+
 __attribute__((constructor)) static void init() {
     if (has_feature("Touch GUI")) {
         // Use Touch UI
@@ -174,4 +182,11 @@ __attribute__((constructor)) static void init() {
     // Allow Connecting To Non-Pi Servers
     unsigned char patch_data_9[4] = {0x0f, 0x00, 0x00, 0xea};
     patch((void *) 0x6dc70, patch_data_9);
+
+    // Change Username
+    const char *username = get_username();
+    uint32_t username_addr = (uint32_t) username;
+    fprintf(stderr, "0x%08x", username_addr);
+    unsigned char username_patch[4] = {username_addr & 0xff, (username_addr >> 8) & 0xff, (username_addr >> 16) & 0xff, (username_addr >> 24) & 0xff};
+    patch((void *) 0x18fd4, username_patch);
 }

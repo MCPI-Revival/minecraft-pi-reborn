@@ -10,3 +10,4 @@ services:
         environment:
             - 'DISPLAY=unix${DISPLAY}'
             - 'MCPI_FEATURES=${MCPI_FEATURES}'
+            - 'MCPI_USERNAME=${MCPI_USERNAME}'
