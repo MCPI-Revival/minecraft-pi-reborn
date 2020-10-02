@@ -185,8 +185,5 @@ __attribute__((constructor)) static void init() {
 
     // Change Username
     const char *username = get_username();
-    uint32_t username_addr = (uint32_t) username;
-    fprintf(stderr, "0x%08x", username_addr);
-    unsigned char username_patch[4] = {username_addr & 0xff, (username_addr >> 8) & 0xff, (username_addr >> 16) & 0xff, (username_addr >> 24) & 0xff};
-    patch((void *) 0x18fd4, username_patch);
+    patch_address((void *) 0x18fd4, username);
 }

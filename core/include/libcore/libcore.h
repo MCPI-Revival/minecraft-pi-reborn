@@ -30,6 +30,7 @@ extern "C" {
 void *overwrite(void *start, void *target);
 void revert_overwrite(void *start, void *original);
 void patch(void *start, unsigned char patch[]);
+void patch_address(void *start, void *target);
 
 #ifdef __cplusplus
 }

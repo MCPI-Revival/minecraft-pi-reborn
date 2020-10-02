@@ -66,3 +66,8 @@ void patch(void *start, unsigned char patch[]) {
     memcpy(data, patch, 4);
     END_PATCH(1);
 }
+
+void patch_address(void *start, void *target) {
+    unsigned char patch_data[4] = {target & 0xff, (target >> 8) & 0xff, (target >> 16) & 0xff, (target >> 24) & 0xff};
+    patch(start, patch_data);
+}
