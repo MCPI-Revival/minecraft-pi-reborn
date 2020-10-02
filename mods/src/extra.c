@@ -3,11 +3,7 @@
 
 #include <libcore/libcore.h>
 
-static int32_t get_game_type(__attribute__((unused)) int32_t level_data) {
-    return 0;
-}
-
-static uint32_t can_spawn_mobs(__attribute__((unused)) int32_t obj) {
+static uint32_t getSpawnMobs_injection(__attribute__((unused)) int32_t obj) {
     return 1;
 }
 
@@ -21,7 +17,7 @@ typedef void (*handle_input_t)(unsigned char *, unsigned char *, unsigned char *
 static handle_input_t handle_input = (handle_input_t) 0x15ffc;
 static void *handle_input_original = NULL;
 
-static int is_survival = 0;
+static int is_survival = -1;
 
 static void handle_input_injection(unsigned char *param_1, unsigned char *param_2, unsigned char *param_3, unsigned char *param_4) {
     // Call Original Method
@@ -88,29 +84,54 @@ static int has_feature(const char *name) {
 extern unsigned char *readAssetFile(unsigned char *app_platform, unsigned char *path);
 extern void openTextEdit(unsigned char *local_player, unsigned char *sign);
 
+// Patch Game Mode
+static void set_is_survival(int new_is_survival) {
+    if (is_survival != new_is_survival) {
+        fprintf(stderr, "Setting Game Mode: %s\n", new_is_survival ? "Survival" : "Creative");
+
+        // Correct Inventpry UI
+        unsigned char inventory_patch[4] = {new_is_survival ? 0x00 : 0x01, 0x30, 0xa0, 0xe3};
+        patch((void *) 0x16efc, inventory_patch);
+
+        // Replace Creative Mode VTable With Correct VTable
+        unsigned char creative_vtable_patch[4] = {0x00, 0x2d, 0x10, 0x00};
+        unsigned char survival_vtable_patch[4] = {0x60, 0x2f, 0x10, 0x00};
+        patch((void *) 0x1a0d8, new_is_survival ? survival_vtable_patch : creative_vtable_patch);
+
+        // Use Correct Size For Game Mode Object
+        unsigned char size_patch[4] = {new_is_survival ? 0x24 : 0x20, 0x00, 0xa0, 0xe3};
+        patch((void *) 0x1a054, size_patch);
+
+        is_survival = new_is_survival;
+    }
+}
+
+typedef void (*setIsCreativeMode_t)(unsigned char *, int32_t);
+static setIsCreativeMode_t setIsCreativeMode = (setIsCreativeMode_t) 0x16ec4;
+static void *setIsCreativeMode_original = NULL;
+
+static void setIsCreativeMode_injection(unsigned char *this, int32_t new_game_mode) {
+    set_is_survival(!new_game_mode);
+
+    revert_overwrite((void *) setIsCreativeMode, setIsCreativeMode_original);
+    (*setIsCreativeMode)(this, new_game_mode);
+    revert_overwrite((void *) setIsCreativeMode, setIsCreativeMode_original);
+}
+
 __attribute__((constructor)) static void init() {
     if (has_feature("Touch GUI")) {
         // Use Touch UI
-        unsigned char patch_data[4] = {0x01, 0x00, 0x50, 0xe3};
-        patch((void *) 0x292fc, patch_data);
+        unsigned char touch_gui_patch[4] = {0x01, 0x00, 0x50, 0xe3};
+        patch((void *) 0x292fc, touch_gui_patch);
     }
 
-    is_survival = has_feature("Survival Mode");
-    if (is_survival) {
-        // Survival Mode Inventpry UI
-        unsigned char patch_data_2[4] = {0x00, 0x30, 0xa0, 0xe3};
-        patch((void *) 0x16efc, patch_data_2);
+    // Dyanmic Game Mode Switching
+    set_is_survival(0);
+    setIsCreativeMode_original = overwrite((void *) setIsCreativeMode, setIsCreativeMode_injection);
 
-        // Replace Creative Mode VTable With Survival Mode VTable
-        patch((void *) 0x1a0d8, (unsigned char *) 0x1b804);
-
-        // Use Correct Size For Survival Mode Object
-        unsigned char patch_data_3[4] = {0x24, 0x00, 0xa0, 0xe3};
-        patch((void *) 0x1a054, patch_data_3);
-
-        // Force GameType To 0 (Required For Day-Night Cycle)
-        overwrite((void *) 0xbabdc, get_game_type);
-    }
+    // Set Default Game Mode
+    unsigned char default_game_mode_patch[4] = {has_feature("Survival Mode") ? 0x00 : 0x01, 0x30, 0xa0, 0xe3};
+    patch((void *) 0xba744, default_game_mode_patch);
 
     // Disable Item Dropping When Cursor Is Hidden
     tickItemDrop_original = overwrite((void *) tickItemDrop, tickItemDrop_injection);
@@ -130,7 +151,7 @@ __attribute__((constructor)) static void init() {
 
     if (has_feature("Mob Spawning")) {
         // Enable Mob Spawning
-        overwrite((void *) 0xbabec, can_spawn_mobs);
+        overwrite((void *) 0xbabec, getSpawnMobs_injection);
     }
 
     // Replace CreatorLevel With ServerLevel (This Fixes Beds And Mob Spawning)
