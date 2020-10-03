@@ -185,4 +185,10 @@ __attribute__((constructor)) static void init() {
     // Change Username
     const char *username = get_username();
     patch_address((void *) 0x18fd4, (void *) username);
+
+    if (has_feature("Disable Autojump By Default")) {
+        // Disable Autojump By Default
+        unsigned char autojump_patch[4] = {0x00, 0x30, 0xa0, 0xe3};
+        patch((void *) 0x44b90, autojump_patch);
+    }
 }
