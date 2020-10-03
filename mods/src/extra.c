@@ -125,6 +125,18 @@ static char *get_username() {
     return username;
 }
 
+typedef void (*minecraft_init_t)(unsigned char *);
+static minecraft_init_t minecraft_init = (minecraft_init_t) 0x1700c;
+static void *minecraft_init_original = NULL;
+
+static void minecraft_init_injection(unsigned char *this) {
+    revert_overwrite((void *) minecraft_init, minecraft_init_original);
+    (*minecraft_init)(this);
+    revert_overwrite((void *) minecraft_init, minecraft_init_original);
+
+    *(this + 83) = 1;
+}
+
 __attribute__((constructor)) static void init() {
     if (has_feature("Touch GUI")) {
         // Use Touch UI
@@ -172,10 +184,9 @@ __attribute__((constructor)) static void init() {
     // Implement AppPlatform::readAssetFile So Translations Work
     overwrite((void *) 0x12b10, readAssetFile);
     
-    if (has_feature("Show Clouds")) {
-        // Show Clouds
-        unsigned char patch_data_8[4] = {0x01, 0x30, 0xa0, 0xe3};
-        patch((void *) 0x49fcc, patch_data_8);
+    if (has_feature("Fancy Graphics")) {
+        // Enable Fancy Graphics
+        minecraft_init_original = overwrite((void *) minecraft_init, minecraft_init_injection);
     }
 
     // Allow Connecting To Non-Pi Servers
