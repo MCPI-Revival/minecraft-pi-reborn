@@ -195,6 +195,7 @@ __attribute__((constructor)) static void init() {
 
     // Change Username
     const char *username = get_username();
+    fprintf(stderr, "Setting Username: %s\n", username);
     patch_address((void *) 0x18fd4, (void *) username);
 
     if (has_feature("Disable Autojump By Default")) {

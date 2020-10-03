@@ -3,3 +3,6 @@ This is a project allowing Minecraft: Pi Edition to be run without a Raspberry P
 
 ## Setup
 [View Binaries](https://jenkins.thebrokenrail.com/job/minecraft-pi-docker/job/master/lastSuccessfulBuild/artifact/out/)
+
+## Modding
+[View Modding](MODDING.md)
