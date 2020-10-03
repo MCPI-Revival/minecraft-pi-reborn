@@ -82,7 +82,6 @@ static int has_feature(const char *name) {
 
 // Defined In extra.cpp
 extern unsigned char *readAssetFile(unsigned char *app_platform, unsigned char *path);
-extern void openTextEdit(unsigned char *local_player, unsigned char *sign);
 
 // Patch Game Mode
 static void set_is_survival(int new_is_survival) {
@@ -185,5 +184,5 @@ __attribute__((constructor)) static void init() {
 
     // Change Username
     const char *username = get_username();
-    patch_address((void *) 0x18fd4, username);
+    patch_address((void *) 0x18fd4, (void *) username);
 }

@@ -68,6 +68,7 @@ void patch(void *start, unsigned char patch[]) {
 }
 
 void patch_address(void *start, void *target) {
-    unsigned char patch_data[4] = {target & 0xff, (target >> 8) & 0xff, (target >> 16) & 0xff, (target >> 24) & 0xff};
+    uint32_t addr = (uint32_t) target;
+    unsigned char patch_data[4] = {addr & 0xff, (addr >> 8) & 0xff, (addr >> 16) & 0xff, (addr >> 24) & 0xff};
     patch(start, patch_data);
 }
