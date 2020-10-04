@@ -166,8 +166,8 @@ __attribute__((constructor)) static void init() {
         // Allow Attacking Mobs
         unsigned char attacking_patch[4] = {0x00, 0xf0, 0x20, 0xe3};
         patch((void *) 0x162d4, attacking_patch);
-        unsigned char instamine_patch[4] = {0x52, 0x00, 0x00, 0xea};
-        patch((void *) 0x15ac0, instamine_patch);
+        unsigned char instamine_patch[4] = {0x61, 0x00, 0x00, 0xea};
+        patch((void *) 0x15b0c, instamine_patch);
     }
 
     if (has_feature("Mob Spawning")) {
