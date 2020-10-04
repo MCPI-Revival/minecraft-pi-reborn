@@ -1,13 +1,14 @@
 #include <stdint.h>
 #include <stdio.h>
+#include <SDL/SDL_mouse.h>
 
 #include <libcore/libcore.h>
+
+#include "extra.h"
 
 static uint32_t getSpawnMobs_injection(__attribute__((unused)) int32_t obj) {
     return 1;
 }
-
-#include <SDL/SDL_mouse.h>
 
 typedef void (*releaseUsingItem_t)(unsigned char *t, unsigned char *player);
 static releaseUsingItem_t survival_releaseUsingItem = (releaseUsingItem_t) 0x1a598;
@@ -35,6 +36,8 @@ static void handle_input_injection(unsigned char *param_1, unsigned char *param_
             (*(is_survival ? survival_releaseUsingItem : creative_releaseUsingItem))(game_mode, player);
         }
     }
+
+    clear_input();
 }
 
 typedef void (*tickItemDrop_t)(unsigned char *);
@@ -63,7 +66,7 @@ static void handleClick_injection(unsigned char *this, unsigned char *param_2, u
     }
 }
 
-static int has_feature(const char *name) {
+int has_feature(const char *name) {
     char *env = getenv("MCPI_FEATURES");
     char *features = strdup(env != NULL ? env : "");
     char *tok = strtok(features, "|");
@@ -79,9 +82,6 @@ static int has_feature(const char *name) {
     fprintf(stderr, "Feature: %s: %s\n", name, ret ? "Enabled" : "Disabled");
     return ret;
 }
-
-// Defined In extra.cpp
-extern unsigned char *readAssetFile(unsigned char *app_platform, unsigned char *path);
 
 // Patch Game Mode
 static void set_is_survival(int new_is_survival) {
@@ -180,9 +180,6 @@ __attribute__((constructor)) static void init() {
     // Allocate Correct Size For ServerLevel
     unsigned char patch_data_5[4] = {0x94, 0x0b, 0x00, 0x00};
     patch((void *) 0x17004, patch_data_5);
-
-    // Implement AppPlatform::readAssetFile So Translations Work
-    overwrite((void *) 0x12b10, readAssetFile);
     
     if (has_feature("Fancy Graphics")) {
         // Enable Fancy Graphics

@@ -10,7 +10,7 @@
 
 #define ORIGINAL_SIZE 8
 
-void *_overwrite(char *file, int line, void *start, void *target) {
+void *_overwrite(const char *file, int line, void *start, void *target) {
     void *original = malloc(ORIGINAL_SIZE);
     memcpy(original, start, ORIGINAL_SIZE);
 
@@ -50,7 +50,7 @@ void revert_overwrite(void *start, void *original) {
     free(temp);
 }
 
-void _patch(char *file, int line, void *start, unsigned char patch[]) {
+void _patch(const char *file, int line, void *start, unsigned char patch[]) {
     size_t page_size = sysconf(_SC_PAGESIZE);
     uintptr_t end = ((uintptr_t) start) + 4;
     uintptr_t page_start = ((uintptr_t) start) & -page_size;
@@ -72,7 +72,7 @@ void _patch(char *file, int line, void *start, unsigned char patch[]) {
     __clear_cache(start, (void *) end);
 }
 
-void _patch_address(char *file, int line, void *start, void *target) {
+void _patch_address(const char *file, int line, void *start, void *target) {
     uint32_t addr = (uint32_t) target;
     unsigned char patch_data[4] = {addr & 0xff, (addr >> 8) & 0xff, (addr >> 16) & 0xff, (addr >> 24) & 0xff};
     _patch(file, line, start, patch_data);

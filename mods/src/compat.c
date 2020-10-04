@@ -8,6 +8,8 @@
 
 #include <libcore/libcore.h>
 
+#include "extra.h"
+
 static Display *x11_display;
 static EGLDisplay egl_display;
 static Window x11_window;
@@ -106,6 +108,9 @@ EGLint const set_attrib_list[] = {
 
 // Init EGL
 HOOK(SDL_WM_SetCaption, void, (const char *title, const char *icon)) {
+    // Enable Unicode
+    SDL_EnableUNICODE(SDL_ENABLE);
+
     ensure_SDL_SetVideoMode();
     sdl_surface = (*real_SDL_SetVideoMode)(848, 480, 32, WINDOW_VIDEO_FLAGS);
     
@@ -206,9 +211,13 @@ HOOK(SDL_PollEvent, int, (SDL_Event *event)) {
         if (event->type == SDL_VIDEORESIZE) {
             resize(event->resize.w, event->resize.h, is_fullscreen);
             handled = 1;
-        } else if (event->type == SDL_KEYDOWN && event->key.keysym.sym == SDLK_F11) {
-            toggle_fullscreen();
-            handled = 1;
+        } else if (event->type == SDL_KEYDOWN) {
+            if (event->key.keysym.sym == SDLK_F11) {
+                toggle_fullscreen();
+                handled = 1;
+            } else {
+                key_press((char) event->key.keysym.unicode);
+            }
         }
 
         if (handled) {

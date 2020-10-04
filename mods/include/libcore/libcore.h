@@ -27,15 +27,15 @@ extern "C" {
     \
     __attribute__((__used__)) return_type name args
 
-void *_overwrite(char *file, int line, void *start, void *target);
+void *_overwrite(const char *file, int line, void *start, void *target);
 #define overwrite(start, target) _overwrite(__FILE__, __LINE__, start, target);
 
 void revert_overwrite(void *start, void *original);
 
-void _patch(char *file, int line, void *start, unsigned char patch[]);
+void _patch(const char *file, int line, void *start, unsigned char patch[]);
 #define patch(start, patch) _patch(__FILE__, __LINE__, start, patch);
 
-void _patch_address(char *file, int line, void *start, void *target);
+void _patch_address(const char *file, int line, void *start, void *target);
 #define patch_address(start, target) _patch_address(__FILE__, __LINE__, start, target);
 
 #ifdef __cplusplus

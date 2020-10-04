@@ -11,13 +11,13 @@ include_directories(include)
 add_library(core SHARED src/core.c)
 target_link_libraries(core dl)
 
-add_library(compat SHARED src/compat.c)
-target_link_libraries(compat core SDL EGL GLESv1_CM GLESv2 X11 dl)
-# Force GLESv1 Link
-target_link_options(compat PRIVATE "-Wl,--no-as-needed")
-
 add_library(extra SHARED src/extra.c src/extra.cpp)
 target_link_libraries(extra core dl)
+
+add_library(compat SHARED src/compat.c)
+target_link_libraries(compat core extra SDL EGL GLESv1_CM GLESv2 X11 dl)
+# Force GLESv1 Link
+target_link_options(compat PRIVATE "-Wl,--no-as-needed")
 
 add_library(readdir SHARED src/readdir.c)
 target_link_libraries(readdir core)
