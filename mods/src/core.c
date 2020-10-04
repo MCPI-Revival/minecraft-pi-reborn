@@ -44,7 +44,7 @@ void revert_overwrite(void *start, void *original) {
     // Insert Original Value
     _patch(NULL, -1, start, original);
     _patch(NULL, -1, start + 4, original + 4);
-    
+
     // Complete Memory Swap
     memcpy(original, temp, ORIGINAL_SIZE);
     free(temp);

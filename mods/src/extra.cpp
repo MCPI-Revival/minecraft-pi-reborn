@@ -40,16 +40,9 @@ extern "C" {
     }
 
     std::vector<char> input;
-    int count = 0;
     void key_press(char key) {
         if (is_valid_key(key)) {
-            // Keys Are Sent Twice
-            if (count > 0) {
-                count = 0;
-            } else {
-                input.push_back(key);
-                count++;
-            }
+            input.push_back(key);
         }
     }
     void clear_input() {

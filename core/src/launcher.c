@@ -102,6 +102,12 @@ static void load(char **ld_path, char **ld_preload, char *folder) {
 int main(__attribute__((unused)) int argc, char *argv[]) {
     fprintf(stderr, "Configuring Game...\n");
 
+    // Create Screenshots Folder
+    char *screenshots_cmd = NULL;
+    asprintf(&screenshots_cmd, "mkdir -p %s/.minecraft/screenshots", getenv("HOME"));
+    system(screenshots_cmd);
+    free(screenshots_cmd);
+
     char *ld_path = NULL;
 
     // Start Configuring LD_LIBRARY_PATH

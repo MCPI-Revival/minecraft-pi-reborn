@@ -202,4 +202,8 @@ __attribute__((constructor)) static void init() {
         unsigned char autojump_patch[4] = {0x00, 0x30, 0xa0, 0xe3};
         patch((void *) 0x44b90, autojump_patch);
     }
+
+    // Fix Segmentation Fault
+    unsigned char segfault_patch[4] = {0x03, 0x00, 0x00, 0xea};
+    patch((void *) 0x4a630, segfault_patch);
 }

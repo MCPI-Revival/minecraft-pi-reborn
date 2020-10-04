@@ -15,7 +15,7 @@ add_library(extra SHARED src/extra.c src/extra.cpp)
 target_link_libraries(extra core dl)
 
 add_library(compat SHARED src/compat.c)
-target_link_libraries(compat core extra SDL EGL GLESv1_CM GLESv2 X11 dl)
+target_link_libraries(compat core extra SDL EGL GLESv1_CM GLESv2 X11 dl freeimage)
 # Force GLESv1 Link
 target_link_options(compat PRIVATE "-Wl,--no-as-needed")
 

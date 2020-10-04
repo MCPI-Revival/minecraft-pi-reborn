@@ -1,5 +1,10 @@
 #define _GNU_SOURCE
 
+#include <time.h>
+#include <unistd.h>
+
+#include <FreeImage.h>
+
 #include <SDL/SDL.h>
 #include <SDL/SDL_syswm.h>
 #include <EGL/egl.h>
@@ -88,7 +93,7 @@ HOOK(eglTerminate, EGLBoolean, (__attribute__((unused)) EGLDisplay display)) {
 }
 
 // Handled In SDL_WM_SetCaption
-HOOK(SDL_SetVideoMode, SDL_Surface *, (__attribute__((unused)) int width, __attribute__((unused)) int height, __attribute__((unused)) int bpp, __attribute__((unused)) Uint32 flags)) {
+HOOK(SDL_SetVideoMode, SDL_Surface *, (__attribute__((unused)) int width, __attribute__((unused)) int height, __attribute__((unused)) int bpp, __attribute__((unused)) uint32_t flags)) {
     // Return Value Is Only Used For A NULL-Check
     return (SDL_Surface *) 1;
 }
@@ -106,13 +111,17 @@ EGLint const set_attrib_list[] = {
 #define WINDOW_VIDEO_FLAGS SDL_RESIZABLE
 #define FULLSCREEN_VIDEO_FLAGS SDL_FULLSCREEN
 
+#define BPP 32
+
 // Init EGL
 HOOK(SDL_WM_SetCaption, void, (const char *title, const char *icon)) {
     // Enable Unicode
     SDL_EnableUNICODE(SDL_ENABLE);
 
+    FreeImage_Initialise(0);
+
     ensure_SDL_SetVideoMode();
-    sdl_surface = (*real_SDL_SetVideoMode)(848, 480, 32, WINDOW_VIDEO_FLAGS);
+    sdl_surface = (*real_SDL_SetVideoMode)(848, 480, BPP, WINDOW_VIDEO_FLAGS);
     
     ensure_SDL_WM_SetCaption();
     (*real_SDL_WM_SetCaption)(title, icon);
@@ -149,10 +158,10 @@ HOOK(eglSwapBuffers, EGLBoolean, (__attribute__((unused)) EGLDisplay display, __
 }
 
 static void resize(int width, int height, int fullscreen) {
-    Uint32 flags = fullscreen ? FULLSCREEN_VIDEO_FLAGS : WINDOW_VIDEO_FLAGS;
+    uint32_t flags = fullscreen ? FULLSCREEN_VIDEO_FLAGS : WINDOW_VIDEO_FLAGS;
 
     ensure_SDL_SetVideoMode();
-    sdl_surface = (*real_SDL_SetVideoMode)(width, height, 32, flags);
+    sdl_surface = (*real_SDL_SetVideoMode)(width, height, BPP, flags);
 
     // OpenGL state modification for resizing
     glViewport(0, 0, width, height);
@@ -199,13 +208,65 @@ static void toggle_fullscreen() {
     is_fullscreen = !is_fullscreen;
 }
 
+// 4 (Year + 1 (Hyphen) + 2 (Month) + 1 (Hyphen) + 2 (Day) + 1 (Underscore) + 2 (Hour) + 1 (Period) + 2 (Minute) + 1 (Period) + 2 (Second) + 1 (Terminator)
+#define TIME_SIZE 20
+
+static void screenshot() {
+    time_t rawtime;
+    struct tm *timeinfo;
+
+    time(&rawtime);
+    timeinfo = localtime(&rawtime);
+    char time[TIME_SIZE];
+    strftime(time, TIME_SIZE, "%Y-%m-%d_%H.%M.%S", timeinfo);
+
+    char *screenshots = NULL;
+    asprintf(&screenshots, "%s/.minecraft/screenshots", getenv("HOME"));
+
+    int num = 1;
+    char *file = NULL;
+    asprintf(&file, "%s/%s.png", screenshots, time);
+    while (access(file, F_OK) != -1) {
+        asprintf(&file, "%s/%s-%i.png", screenshots, time, num);
+        num++;
+    }
+
+    int line_size = sdl_surface->w * 3;
+    int size = sdl_surface->h * line_size;
+
+    unsigned char pixels[size];
+    glReadPixels(0, 0, sdl_surface->w, sdl_surface->h, GL_RGB, GL_UNSIGNED_BYTE, pixels);
+
+#if SDL_BYTEORDER == SDL_LIL_ENDIAN
+    // Swap Red And Blue
+    for (int i = 0; i < (size / 3); i++) {
+        int pixel = i * 3;
+        int red = pixels[pixel];
+        int blue = pixels[pixel + 2];
+        pixels[pixel] = blue;
+        pixels[pixel + 2] = red;
+    }
+#endif
+
+    FIBITMAP *image = FreeImage_ConvertFromRawBits(pixels, sdl_surface->w, sdl_surface->h, line_size, 24, FI_RGBA_RED_MASK, FI_RGBA_GREEN_MASK, FI_RGBA_BLUE_MASK, 0);
+    if (!FreeImage_Save(FIF_PNG, image, file, 0)) {
+        fprintf(stderr, "Screenshot Failed: %s\n", file);
+    } else {
+        fprintf(stderr, "Screenshot Saved: %s\n", file);
+    }
+    FreeImage_Unload(image);
+
+    free(file);
+    free(screenshots);
+}
+
 HOOK(SDL_PollEvent, int, (SDL_Event *event)) {
     // Poll Events
     ensure_SDL_PollEvent();
     int ret = (*real_SDL_PollEvent)(event);
 
     // Resize EGL
-    if (event != NULL) {
+    if (event != NULL && ret == 1) {
         int handled = 0;
 
         if (event->type == SDL_VIDEORESIZE) {
@@ -214,6 +275,9 @@ HOOK(SDL_PollEvent, int, (SDL_Event *event)) {
         } else if (event->type == SDL_KEYDOWN) {
             if (event->key.keysym.sym == SDLK_F11) {
                 toggle_fullscreen();
+                handled = 1;
+            } else if (event->key.keysym.sym == SDLK_F2) {
+                screenshot();
                 handled = 1;
             } else {
                 key_press((char) event->key.keysym.unicode);
