@@ -4,7 +4,7 @@ set -e
 
 # Ensure Features Are Selected
 if [ -z "${MCPI_SUBSHELL}" ]; then
-    MCPI_FEATURES="$(zenity --class minecraft-pi --list --checklist --column 'Enabled' --column 'Feature' FALSE 'Touch GUI' FALSE 'Survival Mode' FALSE 'Fix Bow & Arrow' FALSE 'Fix Attacking' FALSE 'Mob Spawning' FALSE 'Fancy Graphics' FALSE 'Disable Autojump By Default' FALSE 'Fix Sign Placement')"
+    MCPI_FEATURES="$(zenity --class minecraft-pi --list --checklist --column 'Enabled' --column 'Feature' TRUE 'Touch GUI' FALSE 'Survival Mode' TRUE 'Fix Bow & Arrow' TRUE 'Fix Attacking' TRUE 'Mob Spawning' TRUE 'Fancy Graphics' TRUE 'Disable Autojump By Default' TRUE 'Fix Sign Placement' TRUE 'Show Block Outlines')"
     MCPI_USERNAME="$(zenity --class minecraft-pi --entry --text 'Minecraft Username:' --entry-text 'StevePi')"
 fi
 export MCPI_FEATURES

@@ -182,7 +182,7 @@ __attribute__((constructor)) static void init() {
     // Allocate Correct Size For ServerLevel
     unsigned char patch_data_5[4] = {0x94, 0x0b, 0x00, 0x00};
     patch((void *) 0x17004, patch_data_5);
-    
+
     if (has_feature("Fancy Graphics")) {
         // Enable Fancy Graphics
         minecraft_init_original = overwrite((void *) minecraft_init, minecraft_init_injection);
@@ -206,4 +206,10 @@ __attribute__((constructor)) static void init() {
     // Fix Segmentation Fault
     unsigned char segfault_patch[4] = {0x03, 0x00, 0x00, 0xea};
     patch((void *) 0x4a630, segfault_patch);
+
+    if (has_feature("Show Block Outlines")) {
+        // Show Block Outlines
+        unsigned char outline_patch[4] = {0x00, 0xf0, 0x20, 0xe3};
+        patch((void *) 0x4a214, outline_patch);
+    }
 }
