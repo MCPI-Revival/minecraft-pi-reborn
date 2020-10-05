@@ -5,6 +5,13 @@
 
 #include <FreeImage.h>
 
+#define GLFW_EXPOSE_NATIVE_X11
+#define GLFW_INCLUDE_ES1
+#include <GLFW/glfw3.h>
+#include <GLFW/glfw3native.h>
+
+#include <X11/extensions/Xfixes.h>
+
 #include <SDL/SDL.h>
 #include <SDL/SDL_syswm.h>
 #include <EGL/egl.h>
@@ -15,15 +22,11 @@
 
 #include "extra.h"
 
+static GLFWwindow *glfw_window;
 static Display *x11_display;
-static EGLDisplay egl_display;
 static Window x11_window;
 static Window x11_root_window;
-static EGLConfig egl_config;
 static int window_loaded = 0;
-static EGLContext egl_context;
-static EGLSurface egl_surface;
-static SDL_Surface *sdl_surface;
 
 HOOK(eglGetDisplay, EGLDisplay, (__attribute__((unused)) NativeDisplayType native_display)) {
     // Handled In ensure_x11_window()
@@ -31,20 +34,12 @@ HOOK(eglGetDisplay, EGLDisplay, (__attribute__((unused)) NativeDisplayType nativ
 }
 
 // Get Reference To X Window
-static void ensure_x11_window() {
-    if (!window_loaded) {
-        SDL_SysWMinfo info;
-        SDL_VERSION(&info.version);
-        SDL_GetWMInfo(&info);
+static void store_x11_window() {
+    x11_display = glfwGetX11Display();
+    x11_window = glfwGetX11Window(glfw_window);
+    x11_root_window = RootWindow(x11_display, DefaultScreen(x11_display));
 
-        x11_display = info.info.x11.display;
-        x11_window = info.info.x11.window;
-        x11_root_window = RootWindow(x11_display, DefaultScreen(x11_display));
-        ensure_eglGetDisplay();
-        egl_display = (*real_eglGetDisplay)(x11_display);
-        
-        window_loaded = 1;
-    }
+    window_loaded = 1;
 }
 
 // Handled In SDL_WM_SetCaption
@@ -98,112 +93,188 @@ HOOK(SDL_SetVideoMode, SDL_Surface *, (__attribute__((unused)) int width, __attr
     return (SDL_Surface *) 1;
 }
 
-// EGL Config
-EGLint const set_attrib_list[] = {
-    EGL_RED_SIZE, 8,
-    EGL_GREEN_SIZE, 8,
-    EGL_BLUE_SIZE, 8,
-    EGL_DEPTH_SIZE, 16,
-    EGL_SURFACE_TYPE, EGL_WINDOW_BIT,
-    EGL_NONE
-};
+// Handle GLFW Error
+static void glfw_error(__attribute__((unused)) int error, const char *description) {
+    fprintf(stderr, "GLFW Error: %s\n", description);
+    exit(1);
+}
 
-#define WINDOW_VIDEO_FLAGS SDL_RESIZABLE
-#define FULLSCREEN_VIDEO_FLAGS SDL_FULLSCREEN
+// Convert GLFW Key To SDL Key
+static SDLKey glfw_key_to_sdl_key(int key) {
+    switch (key) {
+        // Movement
+        case GLFW_KEY_W:
+            return SDLK_w;
+        case GLFW_KEY_A:
+            return SDLK_a;
+        case GLFW_KEY_S:
+            return SDLK_s;
+        case GLFW_KEY_D:
+            return SDLK_d;
+        case GLFW_KEY_SPACE:
+            return SDLK_SPACE;
+        case GLFW_KEY_LEFT_SHIFT:
+            return SDLK_LSHIFT;
+        case GLFW_KEY_RIGHT_SHIFT:
+            return SDLK_RSHIFT;
+        // Inventory
+        case GLFW_KEY_E:
+            return SDLK_e;
+        // Hotbar
+        case GLFW_KEY_1:
+            return SDLK_1;
+        case GLFW_KEY_2:
+            return SDLK_2;
+        case GLFW_KEY_3:
+            return SDLK_3;
+        case GLFW_KEY_4:
+            return SDLK_4;
+        case GLFW_KEY_5:
+            return SDLK_5;
+        case GLFW_KEY_6:
+            return SDLK_6;
+        case GLFW_KEY_7:
+            return SDLK_7;
+        case GLFW_KEY_8:
+            return SDLK_8;
+        // UI Control
+        case GLFW_KEY_ESCAPE:
+            return SDLK_ESCAPE;
+        case GLFW_KEY_UP:
+            return SDLK_UP;
+        case GLFW_KEY_DOWN:
+            return SDLK_DOWN;
+        case GLFW_KEY_LEFT:
+            return SDLK_LEFT;
+        case GLFW_KEY_RIGHT:
+            return SDLK_RIGHT;
+        case GLFW_KEY_TAB:
+            return SDLK_TAB;
+        case GLFW_KEY_ENTER:
+            return SDLK_RETURN;
+        case GLFW_KEY_BACKSPACE:
+            return SDLK_BACKSPACE;
+        // Fullscreen
+        case GLFW_KEY_F11:
+            return SDLK_F11;
+        // Screenshot
+        case GLFW_KEY_F2:
+            return SDLK_F2;
+        // Unknown
+        default:
+            return SDLK_UNKNOWN;
+    }
+}
 
-#define BPP 32
+// Pass Key Presses To SDL
+static void glfw_key(__attribute__((unused)) GLFWwindow *window, int key, int scancode, int action, __attribute__((unused)) int mods) {
+    SDL_Event event;
+    int up = action == GLFW_RELEASE;
+    event.type = up ? SDL_KEYUP : SDL_KEYDOWN;
+    event.key.state = up ? SDL_RELEASED : SDL_PRESSED;
+    event.key.keysym.scancode = scancode;
+    event.key.keysym.mod = KMOD_NONE;
+    event.key.keysym.sym = glfw_key_to_sdl_key(key);
+    SDL_PushEvent(&event);
+    if (key == GLFW_KEY_BACKSPACE && !up) {
+        key_press((char) '\b');
+    }
+}
 
-// Init EGL
-HOOK(SDL_WM_SetCaption, void, (const char *title, const char *icon)) {
-    // Enable Unicode
-    SDL_EnableUNICODE(SDL_ENABLE);
+// Pass Text To Minecraft
+static void glfw_char(__attribute__((unused)) GLFWwindow *window, unsigned int codepoint) {
+    key_press((char) codepoint);
+}
 
+static double last_mouse_x = 0;
+static double last_mouse_y = 0;
+
+// Pass Mouse Movement To SDL
+static void glfw_motion(__attribute__((unused)) GLFWwindow *window, double xpos, double ypos) {
+    SDL_Event event;
+    event.type = SDL_MOUSEMOTION;
+    event.motion.x = xpos;
+    event.motion.y = ypos;
+    event.motion.xrel = (xpos - last_mouse_x);
+    event.motion.yrel = (ypos - last_mouse_y);
+    last_mouse_x = xpos;
+    last_mouse_y = ypos;
+    SDL_PushEvent(&event);
+}
+
+// Pass Mouse Click To SDL
+static void glfw_click(__attribute__((unused)) GLFWwindow *window, int button, int action, __attribute__((unused)) int mods) {
+    int up = action == GLFW_RELEASE;
+    SDL_Event event;
+    event.type = up ? SDL_MOUSEBUTTONUP : SDL_MOUSEBUTTONDOWN;
+    event.button.x = last_mouse_x;
+    event.button.y = last_mouse_y;
+    event.button.state = up ? SDL_RELEASED : SDL_PRESSED;
+    event.button.button = button == GLFW_MOUSE_BUTTON_RIGHT ? SDL_BUTTON_RIGHT : (button == GLFW_MOUSE_BUTTON_LEFT ? SDL_BUTTON_LEFT : SDL_BUTTON_MIDDLE);
+    SDL_PushEvent(&event);
+}
+
+// Init GLFW
+HOOK(SDL_WM_SetCaption, void, (const char *title, __attribute__((unused)) const char *icon)) {
     FreeImage_Initialise(0);
 
-    ensure_SDL_SetVideoMode();
-    sdl_surface = (*real_SDL_SetVideoMode)(848, 480, BPP, WINDOW_VIDEO_FLAGS);
-    
-    ensure_SDL_WM_SetCaption();
-    (*real_SDL_WM_SetCaption)(title, icon);
+    glfwSetErrorCallback(glfw_error);
 
-    ensure_x11_window();
+    if (!glfwInit()) {
+        fprintf(stderr, "Unable To Initialize GLFW\n");
+        exit(1);
+    }
 
-    ensure_eglInitialize();
-    (*real_eglInitialize)(egl_display, NULL, NULL);
+    glfwWindowHint(GLFW_CLIENT_API, GLFW_OPENGL_ES_API);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 1);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 1);
+    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-    EGLint number_of_config;
-    ensure_eglChooseConfig();
-    (*real_eglChooseConfig)(egl_display, set_attrib_list, &egl_config, 1, &number_of_config);
+    glfw_window = glfwCreateWindow(840, 480, title, NULL, NULL);
+    if (!glfw_window) {
+        fprintf(stderr, "Unable To Create GLFW Window\n");
+        exit(1);
+    }
 
-    ensure_eglBindAPI();
-    (*real_eglBindAPI)(EGL_OPENGL_ES_API);
+    glfwSetKeyCallback(glfw_window, glfw_key);
+    glfwSetCharCallback(glfw_window, glfw_char);
+    glfwSetCursorPosCallback(glfw_window, glfw_motion);
+    glfwSetMouseButtonCallback(glfw_window, glfw_click);
 
-    ensure_eglCreateContext();
-    egl_context = (*real_eglCreateContext)(egl_display, egl_config, EGL_NO_CONTEXT, NULL);
-    
-    ensure_eglCreateWindowSurface();
-    egl_surface = (*real_eglCreateWindowSurface)(egl_display, egl_config, x11_window, NULL);
+    store_x11_window();
 
-    ensure_eglMakeCurrent();
-    (*real_eglMakeCurrent)(egl_display, egl_surface, egl_surface, egl_context);
-    
-    eglSwapInterval(egl_display, 1);
+    glfwMakeContextCurrent(glfw_window);
 }
 
 HOOK(eglSwapBuffers, EGLBoolean, (__attribute__((unused)) EGLDisplay display, __attribute__((unused)) EGLSurface surface)) {
-    ensure_eglSwapBuffers();
-    EGLBoolean ret = (*real_eglSwapBuffers)(egl_display, egl_surface);
+    glfwSwapBuffers(glfw_window);
 
-    return ret;
-}
-
-static void resize(int width, int height, int fullscreen) {
-    uint32_t flags = fullscreen ? FULLSCREEN_VIDEO_FLAGS : WINDOW_VIDEO_FLAGS;
-
-    ensure_SDL_SetVideoMode();
-    sdl_surface = (*real_SDL_SetVideoMode)(width, height, BPP, flags);
-
-    // OpenGL state modification for resizing
-    glViewport(0, 0, width, height);
-    glMatrixMode(GL_PROJECTION);
-    glOrthox(0, width, 0, height, -1, 1);
-    glLoadIdentity();
-    glMatrixMode(GL_MODELVIEW);
-    glLoadIdentity();
-    glClear(GL_COLOR_BUFFER_BIT);
-    glLoadIdentity();
+    return EGL_TRUE;
 }
 
 static int is_fullscreen = 0;
 
-static int old_width = 0;
-static int old_height = 0;
+static int old_width = -1;
+static int old_height = -1;
 
-static void push_resize_event(int width, int height) {
-    SDL_ResizeEvent resize;
-    resize.type = SDL_VIDEORESIZE;
-    resize.w = width;
-    resize.h = height;
+static int old_x = -1;
+static int old_y = -1;
 
-    SDL_Event event;
-    event.type = SDL_VIDEORESIZE;
-    event.resize = resize;
-
-    SDL_PushEvent(&event);
-}
-
+// Toggle Fullscreen
 static void toggle_fullscreen() {
     if (is_fullscreen) {
-        push_resize_event(old_width, old_height);
+        glfwSetWindowMonitor(glfw_window, NULL, old_x, old_y, old_width, old_height, GLFW_DONT_CARE);
 
-        old_width = 0;
-        old_height = 0;
+        old_width = -1;
+        old_height = -1;
+        old_x = -1;
+        old_y = -1;
     } else {
-        old_width = sdl_surface->w;
-        old_height = sdl_surface->h;
-
+        glfwGetWindowSize(glfw_window, &old_width, &old_height);
+        glfwGetWindowPos(glfw_window, &old_x, &old_y);
         Screen *screen = DefaultScreenOfDisplay(x11_display);
-        push_resize_event(WidthOfScreen(screen), HeightOfScreen(screen));
+
+        glfwSetWindowMonitor(glfw_window, glfwGetPrimaryMonitor(), 0, 0, WidthOfScreen(screen), HeightOfScreen(screen), GLFW_DONT_CARE);
     }
     is_fullscreen = !is_fullscreen;
 }
@@ -211,6 +282,7 @@ static void toggle_fullscreen() {
 // 4 (Year + 1 (Hyphen) + 2 (Month) + 1 (Hyphen) + 2 (Day) + 1 (Underscore) + 2 (Hour) + 1 (Period) + 2 (Minute) + 1 (Period) + 2 (Second) + 1 (Terminator)
 #define TIME_SIZE 20
 
+// Take Screenshot
 static void screenshot() {
     time_t rawtime;
     struct tm *timeinfo;
@@ -231,11 +303,15 @@ static void screenshot() {
         num++;
     }
 
-    int line_size = sdl_surface->w * 3;
-    int size = sdl_surface->h * line_size;
+    int width;
+    int height;
+    glfwGetWindowSize(glfw_window, &width, &height);
+
+    int line_size = width * 3;
+    int size = height * line_size;
 
     unsigned char pixels[size];
-    glReadPixels(0, 0, sdl_surface->w, sdl_surface->h, GL_RGB, GL_UNSIGNED_BYTE, pixels);
+    glReadPixels(0, 0, width, height, GL_RGB, GL_UNSIGNED_BYTE, pixels);
 
 #if SDL_BYTEORDER == SDL_LIL_ENDIAN
     // Swap Red And Blue
@@ -248,7 +324,7 @@ static void screenshot() {
     }
 #endif
 
-    FIBITMAP *image = FreeImage_ConvertFromRawBits(pixels, sdl_surface->w, sdl_surface->h, line_size, 24, FI_RGBA_RED_MASK, FI_RGBA_GREEN_MASK, FI_RGBA_BLUE_MASK, 0);
+    FIBITMAP *image = FreeImage_ConvertFromRawBits(pixels, width, height, line_size, 24, FI_RGBA_RED_MASK, FI_RGBA_GREEN_MASK, FI_RGBA_BLUE_MASK, 0);
     if (!FreeImage_Save(FIF_PNG, image, file, 0)) {
         fprintf(stderr, "Screenshot Failed: %s\n", file);
     } else {
@@ -260,27 +336,34 @@ static void screenshot() {
     free(screenshots);
 }
 
+// Intercept SDL Events
 HOOK(SDL_PollEvent, int, (SDL_Event *event)) {
+    // Process GLFW Events
+    glfwPollEvents();
+
+    // Close Window
+    if (glfwWindowShouldClose(glfw_window)) {
+        SDL_Event event;
+        event.type = SDL_QUIT;
+        SDL_PushEvent(&event);
+        glfwSetWindowShouldClose(glfw_window, 0);
+    }
+
     // Poll Events
     ensure_SDL_PollEvent();
     int ret = (*real_SDL_PollEvent)(event);
 
-    // Resize EGL
-    if (event != NULL && ret == 1) {
+    // Handle Events
+    if (ret == 1 && event != NULL) {
         int handled = 0;
 
-        if (event->type == SDL_VIDEORESIZE) {
-            resize(event->resize.w, event->resize.h, is_fullscreen);
-            handled = 1;
-        } else if (event->type == SDL_KEYDOWN) {
+        if (event->type == SDL_KEYDOWN) {
             if (event->key.keysym.sym == SDLK_F11) {
                 toggle_fullscreen();
                 handled = 1;
             } else if (event->key.keysym.sym == SDLK_F2) {
                 screenshot();
                 handled = 1;
-            } else {
-                key_press((char) event->key.keysym.unicode);
             }
         }
 
@@ -298,12 +381,32 @@ HOOK(SDL_Quit, void, ()) {
     ensure_SDL_Quit();
     (*real_SDL_Quit)();
 
-    ensure_eglDestroyContext();
-    (*real_eglDestroyContext)(egl_display, egl_context);
-    ensure_eglDestroySurface();
-    (*real_eglDestroySurface)(egl_display, egl_surface);
-    ensure_eglTerminate();
-    (*real_eglTerminate)(egl_display);
+    glfwDestroyWindow(glfw_window);
+    glfwTerminate();
+}
+
+// Fix SDL Cursor Visibility/Grabbing
+HOOK(SDL_WM_GrabInput, SDL_GrabMode, (SDL_GrabMode mode)) {
+    if (mode != SDL_GRAB_QUERY && mode != SDL_WM_GrabInput(SDL_GRAB_QUERY)) {
+        glfwSetInputMode(glfw_window, GLFW_CURSOR, mode == SDL_GRAB_OFF ? GLFW_CURSOR_NORMAL : GLFW_CURSOR_DISABLED);
+        glfwSetInputMode(glfw_window, GLFW_RAW_MOUSE_MOTION, mode == SDL_GRAB_OFF ? GLFW_FALSE : GLFW_TRUE);
+
+        // GLFW Cursor Hiding is Broken
+        if (window_loaded) {
+            if (mode == SDL_GRAB_OFF) {
+                XFixesShowCursor(x11_display, x11_window);
+            } else {
+                XFixesHideCursor(x11_display, x11_window);
+            }
+            XFlush(x11_display);
+        }
+    }
+    return mode == SDL_GRAB_QUERY ? (glfwGetInputMode(glfw_window, GLFW_CURSOR) == GLFW_CURSOR_NORMAL ? SDL_GRAB_OFF : SDL_GRAB_ON) : mode;
+}
+
+// Stub SDL Cursor Visibility
+HOOK(SDL_ShowCursor, int, (int toggle)) {
+    return toggle == SDL_QUERY ? (glfwGetInputMode(glfw_window, GLFW_CURSOR) == GLFW_CURSOR_NORMAL ? SDL_ENABLE : SDL_DISABLE) : toggle;
 }
 
 HOOK(XTranslateCoordinates, int, (Display *display, Window src_w, Window dest_w, int src_x, int src_y, int *dest_x_return, int *dest_y_return, Window *child_return)) {

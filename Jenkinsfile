@@ -30,7 +30,7 @@ pipeline {
             }
             post {
                 success {
-                    archiveArtifacts artifacts: 'out/*', fingerprint: true
+                    archiveArtifacts artifacts: 'out/**', fingerprint: true
                 }
             }
         }
