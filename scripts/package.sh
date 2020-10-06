@@ -19,4 +19,6 @@ mkdir -p out/lib
 cp -r mods/include out/lib/include
 
 # Copy Shared Library
-docker run -v "$(pwd)/out/lib:/out" --entrypoint sh thebrokenrail/minecraft-pi -c 'cp ./mods/lib*.so /out'
+IMG_ID="$(docker create thebrokenrail/minecraft-pi)"
+docker cp "${IMG_ID}":/app/minecraft-pi/mods/. ./out/lib/.
+docker rm -v "${IMG_ID}"

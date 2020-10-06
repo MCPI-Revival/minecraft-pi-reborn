@@ -28,11 +28,6 @@ static Window x11_window;
 static Window x11_root_window;
 static int window_loaded = 0;
 
-HOOK(eglGetDisplay, EGLDisplay, (__attribute__((unused)) NativeDisplayType native_display)) {
-    // Handled In ensure_x11_window()
-    return 0;
-}
-
 // Get Reference To X Window
 static void store_x11_window() {
     x11_display = glfwGetX11Display();
@@ -40,57 +35,6 @@ static void store_x11_window() {
     x11_root_window = RootWindow(x11_display, DefaultScreen(x11_display));
 
     window_loaded = 1;
-}
-
-// Handled In SDL_WM_SetCaption
-HOOK(eglInitialize, EGLBoolean, (__attribute__((unused)) EGLDisplay display, __attribute__((unused)) EGLint *major, __attribute__((unused)) EGLint *minor)) {
-    return EGL_TRUE;
-}
-
-// Handled In SDL_WM_SetCaption
-HOOK(eglChooseConfig, EGLBoolean, (__attribute__((unused)) EGLDisplay display, __attribute__((unused)) EGLint const *attrib_list, __attribute__((unused)) EGLConfig *configs, __attribute__((unused)) EGLint config_size, __attribute__((unused)) EGLint *num_config)) {
-    return EGL_TRUE;
-}
-
-// Handled In SDL_WM_SetCaption
-HOOK(eglBindAPI, EGLBoolean, (__attribute__((unused)) EGLenum api)) {
-    return EGL_TRUE;
-}
-
-// Handled In SDL_WM_SetCaption
-HOOK(eglCreateContext, EGLContext, (__attribute__((unused)) EGLDisplay display, __attribute__((unused)) EGLConfig config, __attribute__((unused)) EGLContext share_context, __attribute__((unused)) EGLint const *attrib_list)) {
-    return 0;
-}
-
-// Handled In SDL_WM_SetCaption
-HOOK(eglCreateWindowSurface, EGLSurface, (__attribute__((unused)) EGLDisplay display, __attribute__((unused)) EGLConfig config, __attribute__((unused)) NativeWindowType native_window, __attribute__((unused)) EGLint const *attrib_list)) {
-    return 0;
-}
-
-// Handled In SDL_WM_SetCaption
-HOOK(eglMakeCurrent, EGLBoolean, (__attribute__((unused)) EGLDisplay display, __attribute__((unused)) EGLSurface draw, __attribute__((unused)) EGLSurface read, __attribute__((unused)) EGLContext context)) {
-    return EGL_TRUE;
-}
-
-// Handled In SDL_Quit
-HOOK(eglDestroySurface, EGLBoolean, (__attribute__((unused)) EGLDisplay display, __attribute__((unused)) EGLSurface surface)) {
-    return EGL_TRUE;
-}
-
-// Handled In SDL_Quit
-HOOK(eglDestroyContext, EGLBoolean, (__attribute__((unused)) EGLDisplay display, __attribute__((unused)) EGLContext context)) {
-    return EGL_TRUE;
-}
-
-// Handled In SDL_Quit
-HOOK(eglTerminate, EGLBoolean, (__attribute__((unused)) EGLDisplay display)) {
-    return EGL_TRUE;
-}
-
-// Handled In SDL_WM_SetCaption
-HOOK(SDL_SetVideoMode, SDL_Surface *, (__attribute__((unused)) int width, __attribute__((unused)) int height, __attribute__((unused)) int bpp, __attribute__((unused)) uint32_t flags)) {
-    // Return Value Is Only Used For A NULL-Check
-    return (SDL_Surface *) 1;
 }
 
 // Handle GLFW Error
@@ -392,7 +336,7 @@ HOOK(SDL_PollEvent, int, (SDL_Event *event)) {
     return ret;
 }
 
-// Terminate EGL
+// Terminate GLFW
 HOOK(SDL_Quit, void, ()) {
     ensure_SDL_Quit();
     (*real_SDL_Quit)();
@@ -425,6 +369,12 @@ HOOK(SDL_ShowCursor, int, (int toggle)) {
     return toggle == SDL_QUERY ? (glfwGetInputMode(glfw_window, GLFW_CURSOR) == GLFW_CURSOR_NORMAL ? SDL_ENABLE : SDL_DISABLE) : toggle;
 }
 
+// SDL Stub
+HOOK(SDL_SetVideoMode, SDL_Surface *, (__attribute__((unused)) int width, __attribute__((unused)) int height, __attribute__((unused)) int bpp, __attribute__((unused)) uint32_t flags)) {
+    // Return Value Is Only Used For A NULL-Check
+    return (SDL_Surface *) 1;
+}
+
 HOOK(XTranslateCoordinates, int, (Display *display, Window src_w, Window dest_w, int src_x, int src_y, int *dest_x_return, int *dest_y_return, Window *child_return)) {
     ensure_XTranslateCoordinates();
     if (window_loaded) {
@@ -441,6 +391,39 @@ HOOK(XGetWindowAttributes, int, (Display *display, Window w, XWindowAttributes *
     } else {
         return (*real_XGetWindowAttributes)(display, w, window_attributes_return);
     }
+}
+
+// EGL Stubs
+
+HOOK(eglGetDisplay, EGLDisplay, (__attribute__((unused)) NativeDisplayType native_display)) {
+    return 0;
+}
+HOOK(eglInitialize, EGLBoolean, (__attribute__((unused)) EGLDisplay display, __attribute__((unused)) EGLint *major, __attribute__((unused)) EGLint *minor)) {
+    return EGL_TRUE;
+}
+HOOK(eglChooseConfig, EGLBoolean, (__attribute__((unused)) EGLDisplay display, __attribute__((unused)) EGLint const *attrib_list, __attribute__((unused)) EGLConfig *configs, __attribute__((unused)) EGLint config_size, __attribute__((unused)) EGLint *num_config)) {
+    return EGL_TRUE;
+}
+HOOK(eglBindAPI, EGLBoolean, (__attribute__((unused)) EGLenum api)) {
+    return EGL_TRUE;
+}
+HOOK(eglCreateContext, EGLContext, (__attribute__((unused)) EGLDisplay display, __attribute__((unused)) EGLConfig config, __attribute__((unused)) EGLContext share_context, __attribute__((unused)) EGLint const *attrib_list)) {
+    return 0;
+}
+HOOK(eglCreateWindowSurface, EGLSurface, (__attribute__((unused)) EGLDisplay display, __attribute__((unused)) EGLConfig config, __attribute__((unused)) NativeWindowType native_window, __attribute__((unused)) EGLint const *attrib_list)) {
+    return 0;
+}
+HOOK(eglMakeCurrent, EGLBoolean, (__attribute__((unused)) EGLDisplay display, __attribute__((unused)) EGLSurface draw, __attribute__((unused)) EGLSurface read, __attribute__((unused)) EGLContext context)) {
+    return EGL_TRUE;
+}
+HOOK(eglDestroySurface, EGLBoolean, (__attribute__((unused)) EGLDisplay display, __attribute__((unused)) EGLSurface surface)) {
+    return EGL_TRUE;
+}
+HOOK(eglDestroyContext, EGLBoolean, (__attribute__((unused)) EGLDisplay display, __attribute__((unused)) EGLContext context)) {
+    return EGL_TRUE;
+}
+HOOK(eglTerminate, EGLBoolean, (__attribute__((unused)) EGLDisplay display)) {
+    return EGL_TRUE;
 }
 
 #include <stdlib.h>
