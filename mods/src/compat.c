@@ -202,16 +202,31 @@ static void glfw_motion(__attribute__((unused)) GLFWwindow *window, double xpos,
     SDL_PushEvent(&event);
 }
 
-// Pass Mouse Click To SDL
-static void glfw_click(__attribute__((unused)) GLFWwindow *window, int button, int action, __attribute__((unused)) int mods) {
-    int up = action == GLFW_RELEASE;
+// Create And Push SDL Mouse Click Event
+static void click(int button, int up) {
     SDL_Event event;
     event.type = up ? SDL_MOUSEBUTTONUP : SDL_MOUSEBUTTONDOWN;
     event.button.x = last_mouse_x;
     event.button.y = last_mouse_y;
     event.button.state = up ? SDL_RELEASED : SDL_PRESSED;
-    event.button.button = button == GLFW_MOUSE_BUTTON_RIGHT ? SDL_BUTTON_RIGHT : (button == GLFW_MOUSE_BUTTON_LEFT ? SDL_BUTTON_LEFT : SDL_BUTTON_MIDDLE);
+    event.button.button = button;
     SDL_PushEvent(&event);
+}
+
+// Pass Mouse Click To SDL
+static void glfw_click(__attribute__((unused)) GLFWwindow *window, int button, int action, __attribute__((unused)) int mods) {
+    int up = action == GLFW_RELEASE;
+    int sdl_button = button == GLFW_MOUSE_BUTTON_RIGHT ? SDL_BUTTON_RIGHT : (button == GLFW_MOUSE_BUTTON_LEFT ? SDL_BUTTON_LEFT : SDL_BUTTON_MIDDLE);
+    click(sdl_button, up);
+}
+
+// Pass Mouse Scroll To SDL
+static void glfw_scroll(__attribute__((unused)) GLFWwindow *window, __attribute__((unused)) double xoffset, double yoffset) {
+    if (yoffset != 0) {
+        int sdl_button = yoffset > 0 ? SDL_BUTTON_WHEELUP : SDL_BUTTON_WHEELDOWN;
+        click(sdl_button, 0);
+        click(sdl_button, 1);
+    }
 }
 
 // Init GLFW
@@ -240,6 +255,7 @@ HOOK(SDL_WM_SetCaption, void, (const char *title, __attribute__((unused)) const 
     glfwSetCharCallback(glfw_window, glfw_char);
     glfwSetCursorPosCallback(glfw_window, glfw_motion);
     glfwSetMouseButtonCallback(glfw_window, glfw_click);
+    glfwSetScrollCallback(glfw_window, glfw_scroll);
 
     store_x11_window();
 
