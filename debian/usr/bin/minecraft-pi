@@ -27,6 +27,7 @@ xhost local:root
 
 # Launch Minecraft
 DOCKER_COMPOSE="docker-compose -f /usr/share/minecraft-pi/docker-compose.yml"
+${DOCKER_COMPOSE} pull | zenity --class 'Minecraft - Pi edition' --progress --pulsate --no-cancel --auto-close --text 'Updating Minecraft...'
 ${DOCKER_COMPOSE} up
 ${DOCKER_COMPOSE} down
 
