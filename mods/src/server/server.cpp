@@ -35,7 +35,7 @@ static ProgressScreen_t ProgressScreen = (ProgressScreen_t) 0x37044;
 typedef void (*Minecraft_setScreen_t)(unsigned char *minecraft, unsigned char *screen);
 static Minecraft_setScreen_t Minecraft_setScreen = (Minecraft_setScreen_t) 0x15d6c;
 
-#define INFO(msg, ...) printf("[INFO]: " msg "\n", __VA_ARGS__);
+#define INFO(msg, ...) fprintf(stderr, "[INFO]: " msg "\n", __VA_ARGS__);
 
 // Store Minecraft For Exit
 static unsigned char *stored_minecraft = NULL;
@@ -159,7 +159,7 @@ static void *Gui_addMessage_original = NULL;
 
 static void Gui_addMessage_injection(unsigned char *gui, std::string const& text) {
     // Print Log Message
-    printf("[CHAT]: %s\n", text.c_str());
+    fprintf(stderr, "[CHAT]: %s\n", text.c_str());
     
     // Call Original Method
     revert_overwrite((void *) Gui_addMessage, Gui_addMessage_original);
@@ -214,7 +214,7 @@ void server_init() {
     }
 
     if (!properties_file.is_open()) {
-        printf("[ERR]: Unable To Open server.properties\n");
+        fprintf(stderr, "[ERR]: Unable To Open server.properties\n");
         exit(1);
     }
 
