@@ -10,7 +10,8 @@ rm -rf out
 mkdir -p out/deb
 
 # Generate DEB
-dpkg -b debian out/deb
+dpkg -b debian/client out/deb
+dpkg -b debian/server out/deb
 
 # Export Libraries
 mkdir -p out/lib
@@ -19,6 +20,6 @@ mkdir -p out/lib
 cp -r mods/include out/lib/include
 
 # Copy Shared Library
-IMG_ID="$(docker create thebrokenrail/minecraft-pi)"
+IMG_ID="$(docker create thebrokenrail/minecraft-pi:client)"
 docker cp "${IMG_ID}":/app/minecraft-pi/mods/. ./out/lib/.
 docker rm -v "${IMG_ID}"

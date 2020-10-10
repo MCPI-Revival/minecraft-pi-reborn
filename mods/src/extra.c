@@ -5,6 +5,7 @@
 #include <libcore/libcore.h>
 
 #include "extra.h"
+#include "server/server.h"
 
 static uint32_t getSpawnMobs_injection(__attribute__((unused)) int32_t obj) {
     return 1;
@@ -66,23 +67,6 @@ static void handleClick_injection(unsigned char *this, unsigned char *param_2, u
     }
 }
 
-int has_feature(const char *name) {
-    char *env = getenv("MCPI_FEATURES");
-    char *features = strdup(env != NULL ? env : "");
-    char *tok = strtok(features, "|");
-    int ret = 0;
-    while (tok != NULL) {
-        if (strcmp(tok, name) == 0) {
-            ret = 1;
-            break;
-        }
-        tok = strtok(NULL, "|");
-    }
-    free(features);
-    fprintf(stderr, "Feature: %s: %s\n", name, ret ? "Enabled" : "Disabled");
-    return ret;
-}
-
 // Patch Game Mode
 static void set_is_survival(int new_is_survival) {
     if (is_survival != new_is_survival) {
@@ -137,19 +121,62 @@ static void minecraft_init_injection(unsigned char *this) {
     *(this + 83) = 1;
 }
 
+// Is Dedicated Server
+static int is_server = 0;
+
+// Check For Feature
+int has_feature(const char *name) {
+    if (is_server) {
+        // Enable All Features In Server
+        return 1;
+    } else {
+        char *env = getenv("MCPI_FEATURES");
+        char *features = strdup(env != NULL ? env : "");
+        char *tok = strtok(features, "|");
+        int ret = 0;
+        while (tok != NULL) {
+            if (strcmp(tok, name) == 0) {
+                ret = 1;
+                break;
+            }
+            tok = strtok(NULL, "|");
+        }
+        free(features);
+        fprintf(stderr, "Feature: %s: %s\n", name, ret ? "Enabled" : "Disabled");
+        return ret;
+    }
+}
+
+int get_is_server() {
+    return getenv("MCPI_SERVER") != NULL;
+}
+
 __attribute__((constructor)) static void init() {
+    is_server = get_is_server();
+    if (is_server) {
+        server_init();
+    }
+
     if (has_feature("Touch GUI")) {
         // Use Touch UI
         unsigned char touch_gui_patch[4] = {0x01, 0x00, 0x50, 0xe3};
         patch((void *) 0x292fc, touch_gui_patch);
     }
 
+    // Get Default Game Mode
+    int default_game_mode;
+    if (is_server) {
+        default_game_mode = server_get_default_game_mode();
+    } else {
+        default_game_mode = !has_feature("Survival Mode");
+    }
+
     // Dyanmic Game Mode Switching
-    set_is_survival(0);
+    set_is_survival(!default_game_mode);
     setIsCreativeMode_original = overwrite((void *) setIsCreativeMode, setIsCreativeMode_injection);
 
     // Set Default Game Mode
-    unsigned char default_game_mode_patch[4] = {has_feature("Survival Mode") ? 0x00 : 0x01, 0x30, 0xa0, 0xe3};
+    unsigned char default_game_mode_patch[4] = {default_game_mode ? 0x01 : 0x00, 0x30, 0xa0, 0xe3};
     patch((void *) 0xba744, default_game_mode_patch);
 
     // Disable Item Dropping When Cursor Is Hidden
@@ -170,7 +197,13 @@ __attribute__((constructor)) static void init() {
         patch((void *) 0x15b0c, instamine_patch);
     }
 
-    if (has_feature("Mob Spawning")) {
+    int mob_spawning;
+    if (is_server) {
+        mob_spawning = server_get_mob_spawning();
+    } else {
+        mob_spawning = has_feature("Mob Spawning");
+    }
+    if (mob_spawning) {
         // Enable Mob Spawning
         overwrite((void *) 0xbabec, getSpawnMobs_injection);
     }
@@ -193,8 +226,14 @@ __attribute__((constructor)) static void init() {
     patch((void *) 0x6dc70, patch_data_9);
 
     // Change Username
-    const char *username = get_username();
-    fprintf(stderr, "Setting Username: %s\n", username);
+    const char *username;
+    if (is_server) {
+        // MOTD is Username
+        username = server_get_motd();
+    } else {
+        username = get_username();
+        fprintf(stderr, "Setting Username: %s\n", username);
+    }
     patch_address((void *) 0x18fd4, (void *) username);
 
     if (has_feature("Disable Autojump By Default")) {

@@ -1,0 +1,7 @@
+#!/bin/sh
+
+set -e
+
+docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
+
+MCPI_FEATURES='' MCPI_USERNAME='' docker-compose -f /usr/share/minecraft-pi/client/docker-compose.yml pull

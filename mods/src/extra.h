@@ -7,6 +7,7 @@ extern "C" {
 #endif
 
 int has_feature(const char *name);
+int get_is_server();
 
 void key_press(char key);
 void clear_input();

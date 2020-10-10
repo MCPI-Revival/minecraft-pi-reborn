@@ -28,6 +28,8 @@ static Window x11_window;
 static Window x11_root_window;
 static int window_loaded = 0;
 
+static int is_server = 0;
+
 // Get Reference To X Window
 static void store_x11_window() {
     x11_display = glfwGetX11Display();
@@ -184,10 +186,17 @@ HOOK(SDL_WM_SetCaption, void, (const char *title, __attribute__((unused)) const 
         exit(1);
     }
 
-    glfwWindowHint(GLFW_CLIENT_API, GLFW_OPENGL_ES_API);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 1);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 1);
-    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+    if (is_server) {
+        // Don't Show Window In Server Mode
+        glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE);
+        glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
+    } else {
+        // Create OpenGL ES 1.1 Context
+        glfwWindowHint(GLFW_CLIENT_API, GLFW_OPENGL_ES_API);
+        glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 1);
+        glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 1);
+        glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+    }
 
     glfw_window = glfwCreateWindow(840, 480, title, NULL, NULL);
     if (!glfw_window) {
@@ -195,19 +204,27 @@ HOOK(SDL_WM_SetCaption, void, (const char *title, __attribute__((unused)) const 
         exit(1);
     }
 
-    glfwSetKeyCallback(glfw_window, glfw_key);
-    glfwSetCharCallback(glfw_window, glfw_char);
-    glfwSetCursorPosCallback(glfw_window, glfw_motion);
-    glfwSetMouseButtonCallback(glfw_window, glfw_click);
-    glfwSetScrollCallback(glfw_window, glfw_scroll);
+    if (!is_server) {
+        // Don't Process Events In Server Mode
+        glfwSetKeyCallback(glfw_window, glfw_key);
+        glfwSetCharCallback(glfw_window, glfw_char);
+        glfwSetCursorPosCallback(glfw_window, glfw_motion);
+        glfwSetMouseButtonCallback(glfw_window, glfw_click);
+        glfwSetScrollCallback(glfw_window, glfw_scroll);
+    }
 
     store_x11_window();
 
-    glfwMakeContextCurrent(glfw_window);
+    if (!is_server) {
+        glfwMakeContextCurrent(glfw_window);
+    }
 }
 
 HOOK(eglSwapBuffers, EGLBoolean, (__attribute__((unused)) EGLDisplay display, __attribute__((unused)) EGLSurface surface)) {
-    glfwSwapBuffers(glfw_window);
+    if (!is_server) {
+        // Don't Swap Buffers In A Context-Less Window
+        glfwSwapBuffers(glfw_window);
+    }
 
     return EGL_TRUE;
 }
@@ -345,28 +362,42 @@ HOOK(SDL_Quit, void, ()) {
     glfwTerminate();
 }
 
+static SDL_GrabMode fake_grab_mode = SDL_GRAB_OFF;
+
 // Fix SDL Cursor Visibility/Grabbing
 HOOK(SDL_WM_GrabInput, SDL_GrabMode, (SDL_GrabMode mode)) {
-    if (mode != SDL_GRAB_QUERY && mode != SDL_WM_GrabInput(SDL_GRAB_QUERY)) {
-        glfwSetInputMode(glfw_window, GLFW_CURSOR, mode == SDL_GRAB_OFF ? GLFW_CURSOR_NORMAL : GLFW_CURSOR_DISABLED);
-        glfwSetInputMode(glfw_window, GLFW_RAW_MOUSE_MOTION, mode == SDL_GRAB_OFF ? GLFW_FALSE : GLFW_TRUE);
-
-        // GLFW Cursor Hiding is Broken
-        if (window_loaded) {
-            if (mode == SDL_GRAB_OFF) {
-                XFixesShowCursor(x11_display, x11_window);
-            } else {
-                XFixesHideCursor(x11_display, x11_window);
-            }
-            XFlush(x11_display);
+    if (is_server) {
+        // Don't Grab Input In Server/Headless Mode
+        if (mode != SDL_GRAB_QUERY) {
+            fake_grab_mode = mode;
         }
+        return fake_grab_mode;
+    } else {
+        if (mode != SDL_GRAB_QUERY && mode != SDL_WM_GrabInput(SDL_GRAB_QUERY)) {
+            glfwSetInputMode(glfw_window, GLFW_CURSOR, mode == SDL_GRAB_OFF ? GLFW_CURSOR_NORMAL : GLFW_CURSOR_DISABLED);
+            glfwSetInputMode(glfw_window, GLFW_RAW_MOUSE_MOTION, mode == SDL_GRAB_OFF ? GLFW_FALSE : GLFW_TRUE);
+
+            // GLFW Cursor Hiding is Broken
+            if (window_loaded) {
+                if (mode == SDL_GRAB_OFF) {
+                    XFixesShowCursor(x11_display, x11_window);
+                } else {
+                    XFixesHideCursor(x11_display, x11_window);
+                }
+                XFlush(x11_display);
+            }
+        }
+        return mode == SDL_GRAB_QUERY ? (glfwGetInputMode(glfw_window, GLFW_CURSOR) == GLFW_CURSOR_NORMAL ? SDL_GRAB_OFF : SDL_GRAB_ON) : mode;
     }
-    return mode == SDL_GRAB_QUERY ? (glfwGetInputMode(glfw_window, GLFW_CURSOR) == GLFW_CURSOR_NORMAL ? SDL_GRAB_OFF : SDL_GRAB_ON) : mode;
 }
 
 // Stub SDL Cursor Visibility
 HOOK(SDL_ShowCursor, int, (int toggle)) {
-    return toggle == SDL_QUERY ? (glfwGetInputMode(glfw_window, GLFW_CURSOR) == GLFW_CURSOR_NORMAL ? SDL_ENABLE : SDL_DISABLE) : toggle;
+    if (is_server) {
+        return toggle == SDL_QUERY ? (fake_grab_mode == SDL_GRAB_OFF ? SDL_ENABLE : SDL_DISABLE) : toggle;
+    } else {
+        return toggle == SDL_QUERY ? (glfwGetInputMode(glfw_window, GLFW_CURSOR) == GLFW_CURSOR_NORMAL ? SDL_ENABLE : SDL_DISABLE) : toggle;
+    }
 }
 
 // SDL Stub
@@ -430,6 +461,9 @@ HOOK(eglTerminate, EGLBoolean, (__attribute__((unused)) EGLDisplay display)) {
 
 // Use VirGL
 __attribute__((constructor)) static void init() {
+    is_server = get_is_server();
     setenv("LIBGL_ALWAYS_SOFTWARE", "1", 1); 
-    setenv("GALLIUM_DRIVER", "virpipe", 1);
+    if (!is_server) {
+        setenv("GALLIUM_DRIVER", "virpipe", 1);
+    }
 }

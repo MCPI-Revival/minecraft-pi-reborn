@@ -1,0 +1,7 @@
+version: '3.7'
+services:
+    minecraft-pi:
+        image: 'thebrokenrail/minecraft-pi:server'
+        network_mode: 'host'
+        volumes:
+            - '${MCPI_ROOT}:/root/.minecraft'

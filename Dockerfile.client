@@ -1,4 +1,4 @@
-FROM arm64v8/debian:bullseye
+FROM debian:bullseye
 
 RUN dpkg --add-architecture armhf
 

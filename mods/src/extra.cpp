@@ -8,14 +8,17 @@
 #include <libcore/libcore.h>
 
 #include "extra.h"
+#include "cxx11_util.h"
+
+#include <cstdio>
 
 extern "C" {
-    static std::string readAssetFile(__attribute__((unused)) unsigned char *obj, const std::string& path) {
+    static cxx11_string readAssetFile(__attribute__((unused)) unsigned char *obj, std::string const& path) {
         std::string full_path("./data/");
-        full_path.append(path.c_str());
+        full_path.append(path);
         std::ifstream stream(full_path);
         std::string str((std::istreambuf_iterator<char>(stream)), std::istreambuf_iterator<char>());
-        return str;
+        return create_cxx11_string(str.c_str());
     }
 
     typedef unsigned char *(*TextEditScreen_t)(unsigned char *, unsigned char *);
