@@ -17,7 +17,12 @@ VIRGL_PID="$!"
 # Ensure Groups Are Correct
 if [ -z "${MCPI_SUBSHELL}" ]; then
     if ! id -Gn "$(whoami)" | grep '\bdocker\b' > /dev/null; then
-        pkexec adduser "$(whoami)" docker
+        if ! command -v adduser &> /dev/null
+        then
+            pkexec usermod -aG "$(whoami)" docker
+        else
+            pkexec adduser "$(whoami)" docker
+        fi
     fi
     exec sg docker "env MCPI_SUBSHELL=1 \"$(realpath -e "$0")\""
 fi
