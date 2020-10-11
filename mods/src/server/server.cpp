@@ -167,11 +167,6 @@ static void Gui_addMessage_injection(unsigned char *gui, std::string const& text
     revert_overwrite((void *) Gui_addMessage, Gui_addMessage_original);
 }
 
-static uint32_t RakNet_RakPeer_IsBanned_injection(__attribute__((unused)) unsigned char *rak_peer, __attribute__((unused)) char const *ip) {
-    INFO("%s", ip);
-    return 0;
-}
-
 static void exit_handler(__attribute__((unused)) int data) {
     INFO("%s", "Stopping Server");
     if (stored_minecraft != NULL) {
@@ -240,5 +235,6 @@ void server_init() {
     // Print Chat To Log
     Gui_addMessage_original = overwrite((void *) Gui_addMessage, (void *) Gui_addMessage_injection);
     // Allow All IPs To Join
-    overwrite((void *) 0xda3b4, (void *) RakNet_RakPeer_IsBanned_injection);
+    unsigned char allow_all_ip_patch[4] = {0x00, 0xf0, 0x20, 0xe3};
+    patch((void *) 0xe1f6c, allow_all_ip_patch);
 }
