@@ -53,6 +53,7 @@ static ServerProperties &get_server_properties() {
 #define DEFAULT_SEED ""
 #define DEFAULT_MOB_SPAWNING "true"
 #define DEFAULT_WORLD_NAME "world"
+#define DEFAULT_MAX_PLAYERS "4"
 
 typedef const char *(*Minecraft_getProgressMessage_t)(unsigned char *minecraft);
 static Minecraft_getProgressMessage_t Minecraft_getProgressMessage = (Minecraft_getProgressMessage_t) 0x16e58;
@@ -191,6 +192,16 @@ int server_get_default_game_mode() {
 int server_get_mob_spawning() {
     return get_server_properties().get_bool("spawn-mobs", DEFAULT_MOB_SPAWNING);
 }
+static unsigned char server_get_max_players() {
+    int val = get_server_properties().get_int("max-players", DEFAULT_MAX_PLAYERS);
+    if (val < 0) {
+        val = 0;
+    }
+    if (val > 255) {
+        val = 255;
+    }
+    return (unsigned char) val;
+}
 
 void server_init() {
     // Open Properties File
@@ -208,6 +219,7 @@ void server_init() {
         properties_file_output << "seed=" DEFAULT_SEED "\n";
         properties_file_output << "spawn-mobs=" DEFAULT_MOB_SPAWNING "\n";
         properties_file_output << "world-name=" DEFAULT_WORLD_NAME "\n";
+        properties_file_output << "max-players=" DEFAULT_MAX_PLAYERS "\n";
         properties_file_output.close();
         // Re-Open File
         properties_file = std::ifstream(file);
@@ -237,4 +249,7 @@ void server_init() {
     // Allow All IPs To Join
     unsigned char allow_all_ip_patch[4] = {0x00, 0xf0, 0x20, 0xe3};
     patch((void *) 0xe1f6c, allow_all_ip_patch);
+    // Set Max Players
+    unsigned char max_players_patch[4] = {server_get_max_players(), 0x30, 0xa0, 0xe3};
+    patch((void *) 0x166d0, max_players_patch);
 }
