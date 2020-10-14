@@ -1,14 +1,19 @@
 #include <stdint.h>
 #include <stdio.h>
-#include <SDL/SDL_mouse.h>
 
 #include <libcore/libcore.h>
 
 #include "extra.h"
 #include "server/server.h"
 
+static int mob_spawning = 0;
 static uint32_t getSpawnMobs_injection(__attribute__((unused)) int32_t obj) {
-    return 1;
+    return mob_spawning;
+}
+
+static int is_right_click = 0;
+void extra_set_is_right_click(int val) {
+    is_right_click = val;
 }
 
 typedef void (*releaseUsingItem_t)(unsigned char *t, unsigned char *player);
@@ -29,8 +34,7 @@ static void handle_input_injection(unsigned char *param_1, unsigned char *param_
 
     // GameMode Is Offset From param_1 By 0x160
     // Player Is Offset From param_1 By 0x18c
-    int using_item = SDL_GetMouseState(NULL, NULL) & SDL_BUTTON(SDL_BUTTON_RIGHT);
-    if (!using_item) {
+    if (!is_right_click) {
         unsigned char *game_mode = *(unsigned char **) (param_1 + 0x160);
         unsigned char *player = *(unsigned char **) (param_1 + 0x18c);
         if (player != NULL && game_mode != NULL) {
@@ -38,7 +42,7 @@ static void handle_input_injection(unsigned char *param_1, unsigned char *param_
         }
     }
 
-    clear_input();
+    extra_clear_input();
 }
 
 typedef void (*tickItemDrop_t)(unsigned char *);
@@ -67,6 +71,10 @@ static void handleClick_injection(unsigned char *this, unsigned char *param_2, u
     }
 }
 
+static void *Creator = (void *) 0x1a044;
+static void *SurvivalMode = (void *) 0x1b7d8;
+static void *CreativeMode = (void *) 0x1b258;
+
 // Patch Game Mode
 static void set_is_survival(int new_is_survival) {
     if (is_survival != new_is_survival) {
@@ -76,14 +84,12 @@ static void set_is_survival(int new_is_survival) {
         unsigned char inventory_patch[4] = {new_is_survival ? 0x00 : 0x01, 0x30, 0xa0, 0xe3};
         patch((void *) 0x16efc, inventory_patch);
 
-        // Replace Creative Mode VTable With Correct VTable
-        unsigned char creative_vtable_patch[4] = {0x00, 0x2d, 0x10, 0x00};
-        unsigned char survival_vtable_patch[4] = {0x60, 0x2f, 0x10, 0x00};
-        patch((void *) 0x1a0d8, new_is_survival ? survival_vtable_patch : creative_vtable_patch);
+        // Use Correct Size For GameMode Object
+        unsigned char size_patch[4] = {new_is_survival ? 0x24 : 0x18, 0x00, 0xa0, 0xe3};
+        patch((void *) 0x16ee4, size_patch);
 
-        // Use Correct Size For Game Mode Object
-        unsigned char size_patch[4] = {new_is_survival ? 0x24 : 0x20, 0x00, 0xa0, 0xe3};
-        patch((void *) 0x1a054, size_patch);
+        // Replace Creator Constructor With CreatorMode Or SurvivalMode Constructor
+        overwrite(Creator, new_is_survival ? SurvivalMode : CreativeMode);
 
         is_survival = new_is_survival;
     }
@@ -118,6 +124,7 @@ static void minecraft_init_injection(unsigned char *this) {
     (*minecraft_init)(this);
     revert_overwrite((void *) minecraft_init, minecraft_init_original);
 
+    // Enable Fancy Graphics
     *(this + 83) = 1;
 }
 
@@ -125,7 +132,7 @@ static void minecraft_init_injection(unsigned char *this) {
 static int is_server = 0;
 
 // Check For Feature
-int has_feature(const char *name) {
+int extra_has_feature(const char *name) {
     if (is_server) {
         // Enable All Features In Server
         return 1;
@@ -147,17 +154,17 @@ int has_feature(const char *name) {
     }
 }
 
-int get_is_server() {
+int extra_get_is_server() {
     return getenv("MCPI_SERVER") != NULL;
 }
 
 __attribute__((constructor)) static void init() {
-    is_server = get_is_server();
+    is_server = extra_get_is_server();
     if (is_server) {
         server_init();
     }
 
-    if (has_feature("Touch GUI")) {
+    if (extra_has_feature("Touch GUI")) {
         // Use Touch UI
         unsigned char touch_gui_patch[4] = {0x01, 0x00, 0x50, 0xe3};
         patch((void *) 0x292fc, touch_gui_patch);
@@ -168,7 +175,7 @@ __attribute__((constructor)) static void init() {
     if (is_server) {
         default_game_mode = server_get_default_game_mode();
     } else {
-        default_game_mode = !has_feature("Survival Mode");
+        default_game_mode = !extra_has_feature("Survival Mode");
     }
 
     // Dyanmic Game Mode Switching
@@ -184,12 +191,12 @@ __attribute__((constructor)) static void init() {
     // Disable Opening Inventory Using The Cursor When Cursor Is Hidden
     handleClick_original = overwrite((void *) handleClick, handleClick_injection);
 
-    if (has_feature("Fix Bow & Arrow")) {
+    if (extra_has_feature("Fix Bow & Arrow")) {
         // Fix Bow
         handle_input_original = overwrite((void *) handle_input, handle_input_injection);
     }
 
-    if (has_feature("Fix Attacking")) {
+    if (extra_has_feature("Fix Attacking")) {
         // Allow Attacking Mobs
         unsigned char attacking_patch[4] = {0x00, 0xf0, 0x20, 0xe3};
         patch((void *) 0x162d4, attacking_patch);
@@ -197,16 +204,13 @@ __attribute__((constructor)) static void init() {
         patch((void *) 0x15b0c, instamine_patch);
     }
 
-    int mob_spawning;
     if (is_server) {
         mob_spawning = server_get_mob_spawning();
     } else {
-        mob_spawning = has_feature("Mob Spawning");
+        mob_spawning = extra_has_feature("Mob Spawning");
     }
-    if (mob_spawning) {
-        // Enable Mob Spawning
-        overwrite((void *) 0xbabec, getSpawnMobs_injection);
-    }
+    // Set Mob Spawning
+    overwrite((void *) 0xbabec, getSpawnMobs_injection);
 
     // Replace CreatorLevel With ServerLevel (This Fixes Beds And Mob Spawning)
     unsigned char patch_data_4[4] = {0x68, 0x7e, 0x01, 0xeb};
@@ -216,7 +220,7 @@ __attribute__((constructor)) static void init() {
     unsigned char patch_data_5[4] = {0x94, 0x0b, 0x00, 0x00};
     patch((void *) 0x17004, patch_data_5);
 
-    if (has_feature("Fancy Graphics")) {
+    if (extra_has_feature("Fancy Graphics")) {
         // Enable Fancy Graphics
         minecraft_init_original = overwrite((void *) minecraft_init, minecraft_init_injection);
     }
@@ -236,17 +240,13 @@ __attribute__((constructor)) static void init() {
     }
     patch_address((void *) 0x18fd4, (void *) username);
 
-    if (has_feature("Disable Autojump By Default")) {
+    if (extra_has_feature("Disable Autojump By Default")) {
         // Disable Autojump By Default
         unsigned char autojump_patch[4] = {0x00, 0x30, 0xa0, 0xe3};
         patch((void *) 0x44b90, autojump_patch);
     }
 
-    // Fix Segmentation Fault
-    unsigned char segfault_patch[4] = {0x03, 0x00, 0x00, 0xea};
-    patch((void *) 0x4a630, segfault_patch);
-
-    if (has_feature("Show Block Outlines")) {
+    if (extra_has_feature("Show Block Outlines")) {
         // Show Block Outlines
         unsigned char outline_patch[4] = {0x00, 0xf0, 0x20, 0xe3};
         patch((void *) 0x4a214, outline_patch);

@@ -43,12 +43,12 @@ extern "C" {
     }
 
     std::vector<char> input;
-    void key_press(char key) {
+    void extra_key_press(char key) {
         if (is_valid_key(key)) {
             input.push_back(key);
         }
     }
-    void clear_input() {
+    void extra_clear_input() {
         input.clear();
     }
 
@@ -77,14 +77,14 @@ extern "C" {
                 }
             }
         }
-        clear_input();
+        extra_clear_input();
     }
 
     __attribute((constructor)) static void init() {
         // Implement AppPlatform::readAssetFile So Translations Work
         overwrite((void *) 0x12b10, (void *) readAssetFile);
 
-        if (has_feature("Fix Sign Placement")) {
+        if (extra_has_feature("Fix Sign Placement")) {
             // Fix Signs
             patch_address((void *) 0x106460, (void *) openTextEdit);
             updateEvents_original = overwrite((void *) updateEvents, (void *) updateEvents_injection);

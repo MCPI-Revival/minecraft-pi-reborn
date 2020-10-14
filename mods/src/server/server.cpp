@@ -213,12 +213,19 @@ void server_init() {
     if (!properties_file || !properties_file.is_open()) {
         // Write Defaults
         std::ofstream properties_file_output(file);
+        properties_file_output << "# Message Of The Day\n";
         properties_file_output << "motd=" DEFAULT_MOTD "\n";
+        properties_file_output << "# Game Mode (0 = Survival, 1 = Creative)\n";
         properties_file_output << "game-mode=" DEFAULT_GAME_MODE "\n";
+        properties_file_output << "# Port\n";
         properties_file_output << "port=" DEFAULT_PORT "\n";
+        properties_file_output << "# World Seed (Blank = Random Seed)\n";
         properties_file_output << "seed=" DEFAULT_SEED "\n";
+        properties_file_output << "# Mob Spawning (false = Disabled, true = Enabled)\n";
         properties_file_output << "spawn-mobs=" DEFAULT_MOB_SPAWNING "\n";
+        properties_file_output << "# World To Select\n";
         properties_file_output << "world-name=" DEFAULT_WORLD_NAME "\n";
+        properties_file_output << "# Maximum Player\n";
         properties_file_output << "max-players=" DEFAULT_MAX_PLAYERS "\n";
         properties_file_output.close();
         // Re-Open File

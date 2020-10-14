@@ -6,11 +6,13 @@
 extern "C" {
 #endif
 
-int has_feature(const char *name);
-int get_is_server();
+int extra_has_feature(const char *name);
+int extra_get_is_server();
 
-void key_press(char key);
-void clear_input();
+void extra_key_press(char key);
+void extra_clear_input();
+
+void extra_set_is_right_click(int val);
 
 #ifdef __cplusplus
 }

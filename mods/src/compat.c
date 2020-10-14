@@ -123,13 +123,13 @@ static void glfw_key(__attribute__((unused)) GLFWwindow *window, int key, int sc
     event.key.keysym.sym = glfw_key_to_sdl_key(key);
     SDL_PushEvent(&event);
     if (key == GLFW_KEY_BACKSPACE && !up) {
-        key_press((char) '\b');
+        extra_key_press((char) '\b');
     }
 }
 
 // Pass Text To Minecraft
 static void glfw_char(__attribute__((unused)) GLFWwindow *window, unsigned int codepoint) {
-    key_press((char) codepoint);
+    extra_key_press((char) codepoint);
 }
 
 static double last_mouse_x = 0;
@@ -157,6 +157,10 @@ static void click(int button, int up) {
     event.button.state = up ? SDL_RELEASED : SDL_PRESSED;
     event.button.button = button;
     SDL_PushEvent(&event);
+
+    if (button == SDL_BUTTON_RIGHT) {
+        extra_set_is_right_click(!up);
+    }
 }
 
 // Pass Mouse Click To SDL
@@ -323,7 +327,7 @@ HOOK(SDL_PollEvent, int, (SDL_Event *event)) {
         SDL_Event event;
         event.type = SDL_QUIT;
         SDL_PushEvent(&event);
-        glfwSetWindowShouldClose(glfw_window, 0);
+        glfwSetWindowShouldClose(glfw_window, GLFW_FALSE);
     }
 
     // Poll Events
@@ -461,7 +465,7 @@ HOOK(eglTerminate, EGLBoolean, (__attribute__((unused)) EGLDisplay display)) {
 
 // Use VirGL
 __attribute__((constructor)) static void init() {
-    is_server = get_is_server();
+    is_server = extra_get_is_server();
     setenv("LIBGL_ALWAYS_SOFTWARE", "1", 1); 
     if (!is_server) {
         setenv("GALLIUM_DRIVER", "virpipe", 1);
