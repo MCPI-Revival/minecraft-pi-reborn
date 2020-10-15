@@ -7,4 +7,4 @@ export MCPI_ROOT="${PWD}"
 # Launch Minecraft
 DOCKER_COMPOSE="docker-compose -f /usr/share/minecraft-pi/server/docker-compose.yml"
 ${DOCKER_COMPOSE} pull || :
-${DOCKER_COMPOSE} run --rm -T minecraft-pi
+${DOCKER_COMPOSE} run --rm minecraft-pi-server
