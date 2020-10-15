@@ -184,7 +184,8 @@ __attribute__((constructor)) static void init() {
 
     // Set Default Game Mode
     unsigned char default_game_mode_patch[4] = {default_game_mode ? 0x01 : 0x00, 0x30, 0xa0, 0xe3};
-    patch((void *) 0xba744, default_game_mode_patch);
+    patch((void *) 0x3d9b8, default_game_mode_patch);
+    patch((void *) 0x38a78, default_game_mode_patch);
 
     // Disable Item Dropping When Cursor Is Hidden
     tickItemDrop_original = overwrite((void *) tickItemDrop, tickItemDrop_injection);
