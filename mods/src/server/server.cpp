@@ -225,7 +225,7 @@ void server_init() {
         properties_file_output << "spawn-mobs=" DEFAULT_MOB_SPAWNING "\n";
         properties_file_output << "# World To Select\n";
         properties_file_output << "world-name=" DEFAULT_WORLD_NAME "\n";
-        properties_file_output << "# Maximum Player\n";
+        properties_file_output << "# Maximum Player Count\n";
         properties_file_output << "max-players=" DEFAULT_MAX_PLAYERS "\n";
         properties_file_output.close();
         // Re-Open File
