@@ -21,5 +21,7 @@ cp -r mods/include out/lib/include
 
 # Copy Shared Library
 IMG_ID="$(docker create thebrokenrail/minecraft-pi:client)"
-docker cp "${IMG_ID}":/app/minecraft-pi/mods/. ./out/lib/.
+docker cp "${IMG_ID}":/app/minecraft-pi/mods/. ./out/lib/. || :
+RET="$?"
 docker rm -v "${IMG_ID}"
+exit "${RET}"
