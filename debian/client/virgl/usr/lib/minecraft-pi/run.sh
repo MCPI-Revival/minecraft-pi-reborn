@@ -2,9 +2,6 @@
 
 set -e
 
-# Enable VirGL
-export MCPI_MODE=virgl
-
 # Start VirGL
 virgl_test_server &
 VIRGL_PID="$!"

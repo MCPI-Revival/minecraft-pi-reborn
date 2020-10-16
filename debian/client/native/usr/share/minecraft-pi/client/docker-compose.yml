@@ -1,0 +1,15 @@
+version: '3.7'
+services:
+    minecraft-pi:
+        image: 'thebrokenrail/minecraft-pi:client'
+        network_mode: 'host'
+        volumes:
+            - '/tmp/.X11-unix:/tmp/.X11-unix'
+            - '~/.minecraft-pi:/root/.minecraft'
+        devices:
+            - '/dev/dri:/dev/dri'
+        environment:
+            - 'DISPLAY=unix${DISPLAY}'
+            - 'MCPI_FEATURES=${MCPI_FEATURES}'
+            - 'MCPI_USERNAME=${MCPI_USERNAME}'
+            - 'MCPI_MODE=native'
