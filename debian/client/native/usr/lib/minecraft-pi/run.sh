@@ -3,4 +3,4 @@
 set -e
 
 # Launch Minecraft
-${DOCKER_COMPOSE} run --rm  minecraft-pi
+${DOCKER_COMPOSE} run --rm minecraft-pi

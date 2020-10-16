@@ -7,7 +7,7 @@ virgl_test_server &
 VIRGL_PID="$!"
 
 # Launch Minecraft
-${DOCKER_COMPOSE} run --rm  minecraft-pi || :
+${DOCKER_COMPOSE} run --rm minecraft-pi || :
 RET="$?"
 
 # Kill VirGL
