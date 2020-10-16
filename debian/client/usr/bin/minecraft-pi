@@ -17,7 +17,7 @@ VIRGL_PID="$!"
 # Ensure Groups Are Correct
 if [ -z "${MCPI_SUBSHELL}" ]; then
     if ! id -Gn "$(whoami)" | grep '\bdocker\b' > /dev/null; then
-        pkexec usermod -aG "$(whoami)" docker
+        pkexec usermod -aG docker "$(whoami)"
     fi
     exec sg docker "env MCPI_SUBSHELL=1 \"$(realpath -e "$0")\""
 fi
@@ -34,4 +34,4 @@ RET="$?"
 # Kill VirGL
 kill "${VIRGL_PID}"
 
-ecit "${RET}"
+exit "${RET}"
