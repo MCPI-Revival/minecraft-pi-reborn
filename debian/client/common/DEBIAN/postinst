@@ -1,0 +1,5 @@
+#!/bin/sh
+
+set -e
+
+MCPI_MODE='' MCPI_FEATURES='' MCPI_USERNAME='' docker-compose -f /usr/share/minecraft-pi/client/docker-compose.yml pull

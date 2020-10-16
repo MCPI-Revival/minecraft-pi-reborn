@@ -41,7 +41,7 @@ static void store_x11_window() {
 
 // Handle GLFW Error
 static void glfw_error(__attribute__((unused)) int error, const char *description) {
-    fprintf(stderr, "GLFW Error: %s\n", description);
+    fprintf(stderr, "[ERR] GLFW Error: %s\n", description);
     exit(1);
 }
 
@@ -465,9 +465,12 @@ HOOK(eglTerminate, EGLBoolean, (__attribute__((unused)) EGLDisplay display)) {
 
 // Use VirGL
 __attribute__((constructor)) static void init() {
-    is_server = extra_get_is_server();
-    setenv("LIBGL_ALWAYS_SOFTWARE", "1", 1);
-    if (!is_server) {
-        setenv("GALLIUM_DRIVER", "virpipe", 1);
+    int mode = extra_get_mode();
+    if (mode == 0) {
+        setenv("LIBGL_ALWAYS_SOFTWARE", "1", 1);
+        if (!is_server) {
+            setenv("GALLIUM_DRIVER", "virpipe", 1);
+        }
     }
+    is_server = mode == 2;
 }

@@ -10,10 +10,6 @@ fi
 export MCPI_FEATURES
 export MCPI_USERNAME
 
-# Start VirGL
-virgl_test_server &
-VIRGL_PID="$!"
-
 # Ensure Groups Are Correct
 if [ -z "${MCPI_SUBSHELL}" ]; then
     if ! id -Gn "$(whoami)" | grep '\bdocker\b' > /dev/null; then
@@ -25,13 +21,9 @@ fi
 # Allow X11 Connections From Root
 xhost local:root
 
-# Launch Minecraft
-DOCKER_COMPOSE="docker-compose -f /usr/share/minecraft-pi/client/docker-compose.yml"
+# Update Docker Container
+export DOCKER_COMPOSE="docker-compose -f /usr/share/minecraft-pi/client/docker-compose.yml"
 (${DOCKER_COMPOSE} pull || :) | zenity --class 'Minecraft - Pi edition' --progress --pulsate --no-cancel --auto-close --text 'Updating Minecraft...'
-${DOCKER_COMPOSE} run --rm  minecraft-pi || :
-RET="$?"
 
-# Kill VirGL
-kill "${VIRGL_PID}"
-
-exit "${RET}"
+# Run
+/usr/lib/minecraft-pi/run.sh

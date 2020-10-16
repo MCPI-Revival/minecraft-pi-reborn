@@ -11,3 +11,4 @@ services:
             - 'DISPLAY=unix${DISPLAY}'
             - 'MCPI_FEATURES=${MCPI_FEATURES}'
             - 'MCPI_USERNAME=${MCPI_USERNAME}'
+            - 'MCPI_MODE=${MCPI_MODE}'

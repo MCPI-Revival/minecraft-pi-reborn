@@ -1,7 +1,8 @@
-Package: minecraft-pi
+Package: minecraft-pi-virgl
 Version: 1.0.0
 Maintainer: TheBrokenRail <connor24nolan@live.com>
 Description: Fun with Blocks
 Homepage: https://www.minecraft.net/en-us/edition/pi
 Architecture: all
 Depends: docker.io, docker-compose, virgl-server, zenity, policykit-1, passwd, login, qemu-user-static, binfmt-support
+Conflicts: minecraft-pi-native

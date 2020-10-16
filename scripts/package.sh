@@ -9,8 +9,18 @@ chmod -R g-s debian
 rm -rf out
 mkdir -p out/deb
 
-# Generate DEB
-dpkg -b debian/client out/deb
+# Package Client DEBs
+package_client() {
+    rm -rf debian/tmp
+    rsync -r debian/client/common/ debian/tmp
+    rsync -r "debian/client/$1/" debian/tmp
+    dpkg -b debian/tmp out/deb
+    rm -rf debian/tmp
+}
+package_client virgl
+package_client native
+
+# Package Server DEB
 dpkg -b debian/server out/deb
 
 # Export Libraries

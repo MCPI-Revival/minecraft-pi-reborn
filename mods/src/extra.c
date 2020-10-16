@@ -154,12 +154,22 @@ int extra_has_feature(const char *name) {
     }
 }
 
-int extra_get_is_server() {
-    return getenv("MCPI_SERVER") != NULL;
+int extra_get_mode() {
+    char *mode = getenv("MCPI_MODE");
+    if (strcmp("virgl", mode) == 0) {
+        return 0;
+    } else if (strcmp("native", mode) == 0) {
+        return 1;
+    } else if (strcmp("server", mode) == 0) {
+        return 2;
+    } else {
+        fprintf(stderr, "[ERR] Inavlid MCPI_MODE: %s\n", mode);
+        exit(1);
+    }
 }
 
 __attribute__((constructor)) static void init() {
-    is_server = extra_get_is_server();
+    is_server = extra_get_mode() == 2;
     if (is_server) {
         server_init();
     }

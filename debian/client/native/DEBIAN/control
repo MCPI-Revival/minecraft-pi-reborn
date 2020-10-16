@@ -1,0 +1,8 @@
+Package: minecraft-pi-native
+Version: 1.0.0
+Maintainer: TheBrokenRail <connor24nolan@live.com>
+Description: Fun with Blocks
+Homepage: https://www.minecraft.net/en-us/edition/pi
+Architecture: all
+Depends: docker.io, docker-compose, zenity, policykit-1, passwd, login, qemu-user-static, binfmt-support
+Conflicts: minecraft-pi-virgl
