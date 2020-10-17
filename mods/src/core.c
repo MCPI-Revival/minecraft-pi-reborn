@@ -70,7 +70,7 @@ void _patch(const char *file, int line, void *start, unsigned char patch[]) {
 
     mprotect((void *) page_start, end - page_start, PROT_READ | PROT_EXEC);
 
-    __clear_cache(start, end);
+    __clear_cache(start, (void *) end);
 }
 
 void _patch_address(const char *file, int line, void *start, void *target) {
