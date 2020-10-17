@@ -3,8 +3,6 @@
 #include <unistd.h>
 #include <sys/mman.h>
 #include <stdint.h>
-#include <asm/cachectl.h>
-#include <errno.h>
 
 #include <libcore/libcore.h>
 
@@ -72,10 +70,7 @@ void _patch(const char *file, int line, void *start, unsigned char patch[]) {
 
     mprotect((void *) page_start, end - page_start, PROT_READ | PROT_EXEC);
 
-    if (cacheflush(start, 4, ICACHE) != 0) {
-        fprintf(stderr, "Error Flushing Cache: %s\n", strerror(errno));
-        exit(1);
-    }
+    __builtin___clear_cache(start, (void *) end);
 }
 
 void _patch_address(const char *file, int line, void *start, void *target) {
