@@ -466,11 +466,11 @@ HOOK(eglTerminate, EGLBoolean, (__attribute__((unused)) EGLDisplay display)) {
 // Use VirGL
 __attribute__((constructor)) static void init() {
     int mode = extra_get_mode();
-    if (mode == 0) {
+    if (mode != 1) {
         setenv("LIBGL_ALWAYS_SOFTWARE", "1", 1);
-        if (!is_server) {
-            setenv("GALLIUM_DRIVER", "virpipe", 1);
-        }
+    }
+    if (mode == 0) {
+        setenv("GALLIUM_DRIVER", "virpipe", 1);
     }
     is_server = mode == 2;
 }
