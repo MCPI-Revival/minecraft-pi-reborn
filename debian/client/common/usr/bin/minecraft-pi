@@ -11,11 +11,8 @@ export MCPI_FEATURES
 export MCPI_USERNAME
 
 # Ensure Groups Are Correct
-if [ -z "${MCPI_SUBSHELL}" ]; then
-    if ! id -Gn "$(whoami)" | grep '\bdocker\b' > /dev/null; then
-        pkexec usermod -aG docker "$(whoami)"
-    fi
-    exec sg docker "env MCPI_SUBSHELL=1 \"$(realpath -e "$0")\""
+if ! id -Gn "$(whoami)" | grep '\bdocker\b' > /dev/null; then
+    pkexec usermod -aG docker "$(whoami)"
 fi
 
 # Allow X11 Connections From Root
@@ -26,4 +23,4 @@ export DOCKER_COMPOSE="docker-compose -f /usr/share/minecraft-pi/client/docker-c
 (${DOCKER_COMPOSE} pull || :) | zenity --class 'Minecraft - Pi edition' --progress --pulsate --no-cancel --auto-close --text 'Updating Minecraft...'
 
 # Run
-/usr/lib/minecraft-pi/run.sh
+exec sg docker /usr/lib/minecraft-pi/run.sh
