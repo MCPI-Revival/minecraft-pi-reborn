@@ -35,8 +35,6 @@ static ProgressScreen_t ProgressScreen = (ProgressScreen_t) 0x37044;
 typedef void (*Minecraft_setScreen_t)(unsigned char *minecraft, unsigned char *screen);
 static Minecraft_setScreen_t Minecraft_setScreen = (Minecraft_setScreen_t) 0x15d6c;
 
-#define INFO(msg, ...) fprintf(stderr, "[INFO]: " msg "\n", __VA_ARGS__);
-
 // Store Minecraft For Exit
 static unsigned char *stored_minecraft = NULL;
 
@@ -233,8 +231,7 @@ void server_init() {
     }
 
     if (!properties_file.is_open()) {
-        fprintf(stderr, "[ERR]: Unable To Open server.properties\n");
-        exit(1);
+        ERR("%s", "Unable To Open server.properties");
     }
 
     // Load Properties

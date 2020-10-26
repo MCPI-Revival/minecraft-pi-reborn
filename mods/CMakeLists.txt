@@ -1,8 +1,9 @@
-cmake_minimum_required(VERSION 3.1.0)
+cmake_minimum_required(VERSION 3.13.0)
 
 project(mods)
 
 add_compile_options(-Wall -Wextra -Werror)
+add_link_options(-Wl,--no-undefined)
 add_definitions(-D_GLIBCXX_USE_CXX11_ABI=0)
 
 add_subdirectory(../core core)

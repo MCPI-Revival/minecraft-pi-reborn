@@ -70,6 +70,7 @@ void _patch(const char *file, int line, void *start, unsigned char patch[]) {
 
     mprotect((void *) page_start, end - page_start, PROT_READ | PROT_EXEC);
 
+    // Clear ARM Instruction Cache
     __clear_cache(start, (void *) end);
 }
 

@@ -7,6 +7,8 @@
 
 #include <libcore/libcore.h>
 
+// Minecraft: Pi Edition Was Not Compiled With 64-Bit Filesystem Support, So This Shims readdir() To Read Directories Properly
+
 #define FILENAME_SIZE 256
 
 HOOK(readdir, struct dirent *, (DIR *dirp)) {

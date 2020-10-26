@@ -163,8 +163,7 @@ int extra_get_mode() {
     } else if (strcmp("server", mode) == 0) {
         return 2;
     } else {
-        fprintf(stderr, "[ERR] Inavlid MCPI_MODE: %s\n", mode);
-        exit(1);
+        ERR("Inavlid MCPI_MODE: %s", mode);
     }
 }
 
@@ -249,7 +248,11 @@ __attribute__((constructor)) static void init() {
         username = get_username();
         fprintf(stderr, "Setting Username: %s\n", username);
     }
-    patch_address((void *) 0x18fd4, (void *) username);
+    char **default_username = (char **) 0x18fd4;
+    if (strcmp(*default_username, "StevePi") != 0) {
+        ERR("%s", "Default Username Is Invalid");
+    }
+    patch_address((void *) default_username, (void *) username);
 
     if (extra_has_feature("Disable Autojump By Default")) {
         // Disable Autojump By Default

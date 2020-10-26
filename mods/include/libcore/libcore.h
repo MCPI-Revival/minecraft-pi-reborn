@@ -27,6 +27,9 @@ extern "C" {
     \
     __attribute__((__used__)) return_type name args
 
+#define INFO(msg, ...) fprintf(stderr, "[INFO]: " msg "\n", __VA_ARGS__);
+#define ERR(msg, ...) fprintf(stderr, "[ERR]: " msg "\n", __VA_ARGS__); exit(1);
+
 void *_overwrite(const char *file, int line, void *start, void *target);
 #define overwrite(start, target) _overwrite(__FILE__, __LINE__, start, target);
 

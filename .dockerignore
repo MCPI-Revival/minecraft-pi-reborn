@@ -1,7 +1,9 @@
-.git
-.gitignore
-Dockerfile
-README.md
-data
-install.sh
-build.sh
+/.git
+/.gitignore
+/Dockerfile*
+/Jenkinsfile
+/out
+/LICENSE
+*.md
+/debian
+/scripts
