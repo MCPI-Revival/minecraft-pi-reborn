@@ -179,6 +179,10 @@ __attribute__((constructor)) static void init() {
         patch((void *) 0x292fc, touch_gui_patch);
     }
 
+    // Dyanmic Game Mode Switching
+    set_is_survival(1);
+    Minecraft_setIsCreativeMode_original = overwrite((void *) Minecraft_setIsCreativeMode, Minecraft_setIsCreativeMode_injection);
+
     // Get Default Game Mode
     int default_game_mode;
     if (is_server) {
@@ -186,10 +190,6 @@ __attribute__((constructor)) static void init() {
     } else {
         default_game_mode = !extra_has_feature("Survival Mode");
     }
-
-    // Dyanmic Game Mode Switching
-    set_is_survival(!default_game_mode);
-    Minecraft_setIsCreativeMode_original = overwrite((void *) Minecraft_setIsCreativeMode, Minecraft_setIsCreativeMode_injection);
 
     // Set Default Game Mode
     unsigned char default_game_mode_patch[4] = {default_game_mode ? 0x01 : 0x00, 0x30, 0xa0, 0xe3};
