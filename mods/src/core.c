@@ -25,7 +25,7 @@ void *_overwrite(const char *file, int line, void *start, void *target) {
     }
 
     _patch(file, line, start, patch_data);
-    _patch(file, line, start + 4, (unsigned char *) &target);
+    _patch_address(file, line, start + 4, target);
 
     return original;
 }

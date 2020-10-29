@@ -7,7 +7,7 @@
 #include "server/server.h"
 
 static int mob_spawning = 0;
-static uint32_t getSpawnMobs_injection(__attribute__((unused)) int32_t obj) {
+static uint32_t LevelData_getSpawnMobs_injection(__attribute__((unused)) int32_t obj) {
     return mob_spawning;
 }
 
@@ -45,29 +45,29 @@ static void handle_input_injection(unsigned char *param_1, unsigned char *param_
     extra_clear_input();
 }
 
-typedef void (*tickItemDrop_t)(unsigned char *);
-static tickItemDrop_t tickItemDrop = (tickItemDrop_t) 0x27778;
-static void *tickItemDrop_original = NULL;
+typedef void (*Gui_tickItemDrop_t)(unsigned char *);
+static Gui_tickItemDrop_t Gui_tickItemDrop = (Gui_tickItemDrop_t) 0x27778;
+static void *Gui_tickItemDrop_original = NULL;
 
 #include <SDL/SDL_events.h>
 
-static void tickItemDrop_injection(unsigned char *this) {
+static void Gui_tickItemDrop_injection(unsigned char *this) {
     if (SDL_ShowCursor(SDL_QUERY) == SDL_ENABLE) {
-        revert_overwrite((void *) tickItemDrop, tickItemDrop_original);
-        (*tickItemDrop)(this);
-        revert_overwrite((void *) tickItemDrop, tickItemDrop_original);
+        revert_overwrite((void *) Gui_tickItemDrop, Gui_tickItemDrop_original);
+        (*Gui_tickItemDrop)(this);
+        revert_overwrite((void *) Gui_tickItemDrop, Gui_tickItemDrop_original);
     }
 }
 
-typedef void (*handleClick_t)(unsigned char *, unsigned char *, unsigned char *, unsigned char *);
-static handleClick_t handleClick = (handleClick_t) 0x2599c;
-static void *handleClick_original = NULL;
+typedef void (*Gui_handleClick_t)(unsigned char *, unsigned char *, unsigned char *, unsigned char *);
+static Gui_handleClick_t Gui_handleClick = (Gui_handleClick_t) 0x2599c;
+static void *Gui_handleClick_original = NULL;
 
-static void handleClick_injection(unsigned char *this, unsigned char *param_2, unsigned char *param_3, unsigned char *param_4) {
+static void Gui_handleClick_injection(unsigned char *this, unsigned char *param_2, unsigned char *param_3, unsigned char *param_4) {
     if (SDL_ShowCursor(SDL_QUERY) == SDL_ENABLE) {
-        revert_overwrite((void *) handleClick, handleClick_original);
-        (*handleClick)(this, param_2, param_3, param_4);
-        revert_overwrite((void *) handleClick, handleClick_original);
+        revert_overwrite((void *) Gui_handleClick, Gui_handleClick_original);
+        (*Gui_handleClick)(this, param_2, param_3, param_4);
+        revert_overwrite((void *) Gui_handleClick, Gui_handleClick_original);
     }
 }
 
@@ -95,16 +95,16 @@ static void set_is_survival(int new_is_survival) {
     }
 }
 
-typedef void (*setIsCreativeMode_t)(unsigned char *, int32_t);
-static setIsCreativeMode_t setIsCreativeMode = (setIsCreativeMode_t) 0x16ec4;
-static void *setIsCreativeMode_original = NULL;
+typedef void (*Minecraft_setIsCreativeMode_t)(unsigned char *, int32_t);
+static Minecraft_setIsCreativeMode_t Minecraft_setIsCreativeMode = (Minecraft_setIsCreativeMode_t) 0x16ec4;
+static void *Minecraft_setIsCreativeMode_original = NULL;
 
-static void setIsCreativeMode_injection(unsigned char *this, int32_t new_game_mode) {
+static void Minecraft_setIsCreativeMode_injection(unsigned char *this, int32_t new_game_mode) {
     set_is_survival(!new_game_mode);
 
-    revert_overwrite((void *) setIsCreativeMode, setIsCreativeMode_original);
-    (*setIsCreativeMode)(this, new_game_mode);
-    revert_overwrite((void *) setIsCreativeMode, setIsCreativeMode_original);
+    revert_overwrite((void *) Minecraft_setIsCreativeMode, Minecraft_setIsCreativeMode_original);
+    (*Minecraft_setIsCreativeMode)(this, new_game_mode);
+    revert_overwrite((void *) Minecraft_setIsCreativeMode, Minecraft_setIsCreativeMode_original);
 }
 
 static char *get_username() {
@@ -115,14 +115,14 @@ static char *get_username() {
     return username;
 }
 
-typedef void (*minecraft_init_t)(unsigned char *);
-static minecraft_init_t minecraft_init = (minecraft_init_t) 0x1700c;
-static void *minecraft_init_original = NULL;
+typedef void (*Minecraft_init_t)(unsigned char *);
+static Minecraft_init_t Minecraft_init = (Minecraft_init_t) 0x1700c;
+static void *Minecraft_init_original = NULL;
 
-static void minecraft_init_injection(unsigned char *this) {
-    revert_overwrite((void *) minecraft_init, minecraft_init_original);
-    (*minecraft_init)(this);
-    revert_overwrite((void *) minecraft_init, minecraft_init_original);
+static void Minecraft_init_injection(unsigned char *this) {
+    revert_overwrite((void *) Minecraft_init, Minecraft_init_original);
+    (*Minecraft_init)(this);
+    revert_overwrite((void *) Minecraft_init, Minecraft_init_original);
 
     // Enable Fancy Graphics
     *(this + 83) = 1;
@@ -189,7 +189,7 @@ __attribute__((constructor)) static void init() {
 
     // Dyanmic Game Mode Switching
     set_is_survival(!default_game_mode);
-    setIsCreativeMode_original = overwrite((void *) setIsCreativeMode, setIsCreativeMode_injection);
+    Minecraft_setIsCreativeMode_original = overwrite((void *) Minecraft_setIsCreativeMode, Minecraft_setIsCreativeMode_injection);
 
     // Set Default Game Mode
     unsigned char default_game_mode_patch[4] = {default_game_mode ? 0x01 : 0x00, 0x30, 0xa0, 0xe3};
@@ -197,9 +197,9 @@ __attribute__((constructor)) static void init() {
     patch((void *) 0x38a78, default_game_mode_patch);
 
     // Disable Item Dropping When Cursor Is Hidden
-    tickItemDrop_original = overwrite((void *) tickItemDrop, tickItemDrop_injection);
+    Gui_tickItemDrop_original = overwrite((void *) Gui_tickItemDrop, Gui_tickItemDrop_injection);
     // Disable Opening Inventory Using The Cursor When Cursor Is Hidden
-    handleClick_original = overwrite((void *) handleClick, handleClick_injection);
+    Gui_handleClick_original = overwrite((void *) Gui_handleClick, Gui_handleClick_injection);
 
     if (extra_has_feature("Fix Bow & Arrow")) {
         // Fix Bow
@@ -210,8 +210,12 @@ __attribute__((constructor)) static void init() {
         // Allow Attacking Mobs
         unsigned char attacking_patch[4] = {0x00, 0xf0, 0x20, 0xe3};
         patch((void *) 0x162d4, attacking_patch);
+        // Fix Instamining When Using This Patch
         unsigned char instamine_patch[4] = {0x61, 0x00, 0x00, 0xea};
         patch((void *) 0x15b0c, instamine_patch);
+        // Fix Excessive Hand Swinging When Using This Patch
+        unsigned char excessive_swing_patch[4] = {0x06, 0x00, 0x00, 0xea};
+        patch((void *) 0x1593c, excessive_swing_patch);
     }
 
     if (is_server) {
@@ -220,7 +224,7 @@ __attribute__((constructor)) static void init() {
         mob_spawning = extra_has_feature("Mob Spawning");
     }
     // Set Mob Spawning
-    overwrite((void *) 0xbabec, getSpawnMobs_injection);
+    overwrite((void *) 0xbabec, LevelData_getSpawnMobs_injection);
 
     // Replace CreatorLevel With ServerLevel (This Fixes Beds And Mob Spawning)
     unsigned char patch_data_4[4] = {0x68, 0x7e, 0x01, 0xeb};
@@ -232,7 +236,7 @@ __attribute__((constructor)) static void init() {
 
     if (extra_has_feature("Fancy Graphics")) {
         // Enable Fancy Graphics
-        minecraft_init_original = overwrite((void *) minecraft_init, minecraft_init_injection);
+        Minecraft_init_original = overwrite((void *) Minecraft_init, Minecraft_init_injection);
     }
 
     // Allow Connecting To Non-Pi Servers
