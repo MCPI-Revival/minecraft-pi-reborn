@@ -177,6 +177,10 @@ static void glfw_scroll(__attribute__((unused)) GLFWwindow *window, __attribute_
     }
 }
 
+// Default Window Size
+#define DEFAULT_WIDTH 840
+#define DEFAULT_HEIGHT 480
+
 // Init GLFW
 HOOK(SDL_WM_SetCaption, void, (const char *title, __attribute__((unused)) const char *icon)) {
     FreeImage_Initialise(0);
@@ -196,7 +200,7 @@ HOOK(SDL_WM_SetCaption, void, (const char *title, __attribute__((unused)) const 
         glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 1);
         glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-        glfw_window = glfwCreateWindow(840, 480, title, NULL, NULL);
+        glfw_window = glfwCreateWindow(DEFAULT_WIDTH, DEFAULT_HEIGHT, title, NULL, NULL);
         if (!glfw_window) {
             fprintf(stderr, "Unable To Create GLFW Window\n");
             exit(1);
@@ -227,9 +231,9 @@ HOOK(eglSwapBuffers, EGLBoolean, (__attribute__((unused)) EGLDisplay display, __
 
 static int is_fullscreen = 0;
 
+// Old Size And Position To Use When Exiting Fullscreen
 static int old_width = -1;
 static int old_height = -1;
-
 static int old_x = -1;
 static int old_y = -1;
 
@@ -434,8 +438,8 @@ HOOK(XGetWindowAttributes, int, (Display *display, Window w, XWindowAttributes *
         XWindowAttributes attributes;
         attributes.x = 0;
         attributes.y = 0;
-        attributes.width = 640;
-        attributes.height = 480;
+        attributes.width = DEFAULT_WIDTH;
+        attributes.height = DEFAULT_HEIGHT;
         *window_attributes_return = attributes;
         return 1;
     }
@@ -472,6 +476,6 @@ __attribute__((constructor)) static void init() {
         setenv("GALLIUM_DRIVER", "virpipe", 1);
     }
     is_server = mode == 2;
-    // Disable X11 When In Server Mode
-    setenv("SDL_VIDEODRIVER", is_server ? "dummy" : "x11", 1);
+    // Video is Handled By GLFW Not SDL
+    setenv("SDL_VIDEODRIVER", "dummy", 1);
 }
