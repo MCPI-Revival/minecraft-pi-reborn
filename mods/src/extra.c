@@ -156,7 +156,9 @@ int extra_has_feature(const char *name) {
 
 int extra_get_mode() {
     char *mode = getenv("MCPI_MODE");
-    if (strcmp("virgl", mode) == 0) {
+    if (mode == NULL) {
+        ERR("%s", "MCPI Mode Not Specified");
+    } else if (strcmp("virgl", mode) == 0) {
         return 0;
     } else if (strcmp("native", mode) == 0) {
         return 1;
