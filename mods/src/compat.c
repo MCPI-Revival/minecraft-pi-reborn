@@ -14,7 +14,6 @@
 
 #include <SDL/SDL.h>
 #include <SDL/SDL_syswm.h>
-#include <EGL/egl.h>
 #include <GLES/gl.h>
 #include <X11/Xlib.h>
 
@@ -182,47 +181,41 @@ static void glfw_scroll(__attribute__((unused)) GLFWwindow *window, __attribute_
 HOOK(SDL_WM_SetCaption, void, (const char *title, __attribute__((unused)) const char *icon)) {
     FreeImage_Initialise(0);
 
-    glfwSetErrorCallback(glfw_error);
+    // Don't Enable GLFW In Server Mode
+    if (!is_server) {
+        glfwSetErrorCallback(glfw_error);
 
-    if (!glfwInit()) {
-        fprintf(stderr, "Unable To Initialize GLFW\n");
-        exit(1);
-    }
+        if (!glfwInit()) {
+            fprintf(stderr, "Unable To Initialize GLFW\n");
+            exit(1);
+        }
 
-    if (is_server) {
-        // Don't Show Window In Server Mode
-        glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE);
-        glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
-    } else {
         // Create OpenGL ES 1.1 Context
         glfwWindowHint(GLFW_CLIENT_API, GLFW_OPENGL_ES_API);
         glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 1);
         glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 1);
         glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-    }
 
-    glfw_window = glfwCreateWindow(840, 480, title, NULL, NULL);
-    if (!glfw_window) {
-        fprintf(stderr, "Unable To Create GLFW Window\n");
-        exit(1);
-    }
+        glfw_window = glfwCreateWindow(840, 480, title, NULL, NULL);
+        if (!glfw_window) {
+            fprintf(stderr, "Unable To Create GLFW Window\n");
+            exit(1);
+        }
 
-    if (!is_server) {
         // Don't Process Events In Server Mode
         glfwSetKeyCallback(glfw_window, glfw_key);
         glfwSetCharCallback(glfw_window, glfw_char);
         glfwSetCursorPosCallback(glfw_window, glfw_motion);
         glfwSetMouseButtonCallback(glfw_window, glfw_click);
         glfwSetScrollCallback(glfw_window, glfw_scroll);
-    }
 
-    store_x11_window();
+        store_x11_window();
 
-    if (!is_server) {
         glfwMakeContextCurrent(glfw_window);
     }
 }
 
+#include <EGL/egl.h>
 HOOK(eglSwapBuffers, EGLBoolean, (__attribute__((unused)) EGLDisplay display, __attribute__((unused)) EGLSurface surface)) {
     if (!is_server) {
         // Don't Swap Buffers In A Context-Less Window
@@ -321,8 +314,8 @@ HOOK(SDL_PollEvent, int, (SDL_Event *event)) {
     // Process GLFW Events
     glfwPollEvents();
 
-    // Close Window
-    if (glfwWindowShouldClose(glfw_window)) {
+    // Close Window (Ignore In Server Mode)
+    if (!is_server && glfwWindowShouldClose(glfw_window)) {
         SDL_Event event;
         event.type = SDL_QUIT;
         SDL_PushEvent(&event);
@@ -361,8 +354,11 @@ HOOK(SDL_Quit, void, ()) {
     ensure_SDL_Quit();
     (*real_SDL_Quit)();
 
-    glfwDestroyWindow(glfw_window);
-    glfwTerminate();
+    // GLFW Is Disabled In Server Mode
+    if (!is_server) {
+        glfwDestroyWindow(glfw_window);
+        glfwTerminate();
+    }
 }
 
 static SDL_GrabMode fake_grab_mode = SDL_GRAB_OFF;
@@ -370,7 +366,7 @@ static SDL_GrabMode fake_grab_mode = SDL_GRAB_OFF;
 // Fix SDL Cursor Visibility/Grabbing
 HOOK(SDL_WM_GrabInput, SDL_GrabMode, (SDL_GrabMode mode)) {
     if (is_server) {
-        // Don't Grab Input In Server/Headless Mode
+        // Don't Grab Input In Server Mode
         if (mode != SDL_GRAB_QUERY) {
             fake_grab_mode = mode;
         }
@@ -410,54 +406,56 @@ HOOK(SDL_SetVideoMode, SDL_Surface *, (__attribute__((unused)) int width, __attr
 }
 
 HOOK(XTranslateCoordinates, int, (Display *display, Window src_w, Window dest_w, int src_x, int src_y, int *dest_x_return, int *dest_y_return, Window *child_return)) {
-    ensure_XTranslateCoordinates();
-    if (window_loaded) {
-        return (*real_XTranslateCoordinates)(x11_display, x11_window, x11_root_window, src_x, src_y, dest_x_return, dest_y_return, child_return);
+    if (!is_server) {
+        ensure_XTranslateCoordinates();
+        if (window_loaded) {
+            return (*real_XTranslateCoordinates)(x11_display, x11_window, x11_root_window, src_x, src_y, dest_x_return, dest_y_return, child_return);
+        } else {
+            return (*real_XTranslateCoordinates)(display, src_w, dest_w, src_x, src_y, dest_x_return, dest_y_return, child_return);
+        }
     } else {
-        return (*real_XTranslateCoordinates)(display, src_w, dest_w, src_x, src_y, dest_x_return, dest_y_return, child_return);
+        // No X11
+        *dest_x_return = src_x;
+        *dest_y_return = src_y;
+        return 1;
     }
 }
 
 HOOK(XGetWindowAttributes, int, (Display *display, Window w, XWindowAttributes *window_attributes_return)) {
-    ensure_XGetWindowAttributes();
-    if (window_loaded) {
-        return (*real_XGetWindowAttributes)(x11_display, x11_window, window_attributes_return);
+    if (!is_server) {
+        ensure_XGetWindowAttributes();
+        if (window_loaded) {
+            return (*real_XGetWindowAttributes)(x11_display, x11_window, window_attributes_return);
+        } else {
+            return (*real_XGetWindowAttributes)(display, w, window_attributes_return);
+        }
     } else {
-        return (*real_XGetWindowAttributes)(display, w, window_attributes_return);
+        // No X11
+        XWindowAttributes attributes;
+        attributes.x = 0;
+        attributes.y = 0;
+        attributes.width = 640;
+        attributes.height = 480;
+        *window_attributes_return = attributes;
+        return 1;
     }
 }
 
-// EGL Stubs
-
-HOOK(eglGetDisplay, EGLDisplay, (__attribute__((unused)) NativeDisplayType native_display)) {
-    return 0;
+static void x11_nop() {
+    // NOP
 }
-HOOK(eglInitialize, EGLBoolean, (__attribute__((unused)) EGLDisplay display, __attribute__((unused)) EGLint *major, __attribute__((unused)) EGLint *minor)) {
-    return EGL_TRUE;
-}
-HOOK(eglChooseConfig, EGLBoolean, (__attribute__((unused)) EGLDisplay display, __attribute__((unused)) EGLint const *attrib_list, __attribute__((unused)) EGLConfig *configs, __attribute__((unused)) EGLint config_size, __attribute__((unused)) EGLint *num_config)) {
-    return EGL_TRUE;
-}
-HOOK(eglBindAPI, EGLBoolean, (__attribute__((unused)) EGLenum api)) {
-    return EGL_TRUE;
-}
-HOOK(eglCreateContext, EGLContext, (__attribute__((unused)) EGLDisplay display, __attribute__((unused)) EGLConfig config, __attribute__((unused)) EGLContext share_context, __attribute__((unused)) EGLint const *attrib_list)) {
-    return 0;
-}
-HOOK(eglCreateWindowSurface, EGLSurface, (__attribute__((unused)) EGLDisplay display, __attribute__((unused)) EGLConfig config, __attribute__((unused)) NativeWindowType native_window, __attribute__((unused)) EGLint const *attrib_list)) {
-    return 0;
-}
-HOOK(eglMakeCurrent, EGLBoolean, (__attribute__((unused)) EGLDisplay display, __attribute__((unused)) EGLSurface draw, __attribute__((unused)) EGLSurface read, __attribute__((unused)) EGLContext context)) {
-    return EGL_TRUE;
-}
-HOOK(eglDestroySurface, EGLBoolean, (__attribute__((unused)) EGLDisplay display, __attribute__((unused)) EGLSurface surface)) {
-    return EGL_TRUE;
-}
-HOOK(eglDestroyContext, EGLBoolean, (__attribute__((unused)) EGLDisplay display, __attribute__((unused)) EGLContext context)) {
-    return EGL_TRUE;
-}
-HOOK(eglTerminate, EGLBoolean, (__attribute__((unused)) EGLDisplay display)) {
-    return EGL_TRUE;
+HOOK(SDL_GetWMInfo, int, (SDL_SysWMinfo *info)) {
+    if (!is_server) {
+        ensure_SDL_GetWMInfo();
+        return (*real_SDL_GetWMInfo)(info);
+    } else {
+        // Return Fake Lock Functions In Server Mode Since X11 Is Disabled
+        SDL_SysWMinfo ret;
+        ret.info.x11.lock_func = x11_nop;
+        ret.info.x11.unlock_func = x11_nop;
+        *info = ret;
+        return 1;
+    }
 }
 
 #include <stdlib.h>
@@ -466,10 +464,14 @@ HOOK(eglTerminate, EGLBoolean, (__attribute__((unused)) EGLDisplay display)) {
 __attribute__((constructor)) static void init() {
     int mode = extra_get_mode();
     if (mode != 1) {
+        // Force Software Rendering When Not In Native Mode
         setenv("LIBGL_ALWAYS_SOFTWARE", "1", 1);
     }
     if (mode == 0) {
+        // Use VirGL When In VirGL Mode
         setenv("GALLIUM_DRIVER", "virpipe", 1);
     }
     is_server = mode == 2;
+    // Disable X11 When In Server Mode
+    setenv("SDL_VIDEODRIVER", is_server ? "dummy" : "x11", 1);
 }

@@ -1,7 +1,3 @@
 FROM thebrokenrail/minecraft-pi:client
 
 ENV MCPI_MODE=server
-
-RUN apt-get install -y xvfb
-
-ENTRYPOINT xvfb-run ./launcher
