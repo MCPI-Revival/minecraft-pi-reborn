@@ -14,7 +14,7 @@ add_library(core SHARED src/core.c)
 target_link_libraries(core dl)
 
 add_library(server SHARED src/server/server.cpp src/server/server_properties.cpp)
-target_link_libraries(server core dl SDL)
+target_link_libraries(server core dl SDL pthread)
 
 add_library(extra SHARED src/extra.c src/extra.cpp src/cxx11_util.cpp)
 target_link_libraries(extra core dl server)

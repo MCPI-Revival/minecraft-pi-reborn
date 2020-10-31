@@ -4,6 +4,7 @@
 #include <cstdio>
 #include <csignal>
 #include <fstream>
+#include <pthread.h>
 
 #include <unistd.h>
 
@@ -76,6 +77,34 @@ static bool is_progress_difference_significant(int32_t new_val, int32_t old_val)
     }
 }
 
+// Read STDIN Thread
+static volatile bool stdin_buffer_complete = false;
+static volatile char *stdin_buffer = NULL;
+static void *read_stdin_thread(__attribute__((unused)) void *data) {
+    while (1) {
+        if (!stdin_buffer_complete) {
+            int x = getchar();
+            if (x != EOF) {
+                if (x == '\n') {
+                    if (stdin_buffer == NULL) {
+                        stdin_buffer = strdup("");
+                    }
+                    stdin_buffer_complete = true;
+                } else {
+                    if (stdin_buffer == NULL) {
+                        asprintf((char **) &stdin_buffer, "%c", (char) x);
+                    } else {
+                        asprintf((char **) &stdin_buffer, "%s%c", stdin_buffer, (char) x);
+                    }
+                }
+            }
+        }
+    }
+}
+
+typedef void (*ServerSideNetworkHandler_displayGameMessage_t)(unsigned char *server_side_network_handler, std::string const& message);
+static ServerSideNetworkHandler_displayGameMessage_t ServerSideNetworkHandler_displayGameMessage = (ServerSideNetworkHandler_displayGameMessage_t) 0x750c4;
+
 // Runs Every Tick
 static int last_progress = -1;
 static const char *last_message = NULL;
@@ -136,6 +165,25 @@ static void Minecraft_update_injection(unsigned char *minecraft) {
     revert_overwrite((void *) Minecraft_update, Minecraft_update_original);
     (*Minecraft_update)(minecraft);
     revert_overwrite((void *) Minecraft_update, Minecraft_update_original);
+
+    // Use STDIN
+    if (stdin_buffer_complete) {
+        if (stdin_buffer != NULL) {
+            unsigned char *server_side_network_handler = *(unsigned char **) (minecraft + 0x174);
+            if (server_side_network_handler != NULL) {
+                char *message = NULL;
+                // Format Message
+                asprintf(&message, "[Server] %s", stdin_buffer);
+                // Post Message To Chat
+                (*ServerSideNetworkHandler_displayGameMessage)(server_side_network_handler, message);
+                free(message);
+            }
+
+            free((void *) stdin_buffer);
+            stdin_buffer = NULL;
+        }
+        stdin_buffer_complete = false;
+    }
 }
 
 typedef void (*Level_saveLevelData_t)(unsigned char *level);
@@ -256,4 +304,8 @@ void server_init() {
     // Set Max Players
     unsigned char max_players_patch[4] = {server_get_max_players(), 0x30, 0xa0, 0xe3};
     patch((void *) 0x166d0, max_players_patch);
+
+    // Start Reading STDIN
+    pthread_t read_stdin_thread_obj;
+    pthread_create(&read_stdin_thread_obj, NULL, read_stdin_thread, NULL);
 }
