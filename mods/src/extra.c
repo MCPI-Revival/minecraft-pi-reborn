@@ -16,9 +16,7 @@ void extra_set_is_right_click(int val) {
     is_right_click = val;
 }
 
-typedef void (*releaseUsingItem_t)(unsigned char *t, unsigned char *player);
-static releaseUsingItem_t survival_releaseUsingItem = (releaseUsingItem_t) 0x1a598;
-static releaseUsingItem_t creative_releaseUsingItem = (releaseUsingItem_t) 0x1b1a0;
+typedef void (*releaseUsingItem_t)(unsigned char *game_mode, unsigned char *player);
 
 typedef void (*handle_input_t)(unsigned char *, unsigned char *, unsigned char *, unsigned char *);
 static handle_input_t handle_input = (handle_input_t) 0x15ffc;
@@ -38,7 +36,9 @@ static void handle_input_injection(unsigned char *param_1, unsigned char *param_
         unsigned char *game_mode = *(unsigned char **) (param_1 + 0x160);
         unsigned char *player = *(unsigned char **) (param_1 + 0x18c);
         if (player != NULL && game_mode != NULL) {
-            (*(is_survival ? survival_releaseUsingItem : creative_releaseUsingItem))(game_mode, player);
+            unsigned char *game_mode_vtable = *(unsigned char **) game_mode;
+            releaseUsingItem_t releaseUsingItem = *(releaseUsingItem_t *) (game_mode_vtable + 0x5c);
+            (*releaseUsingItem)(game_mode, player);
         }
     }
 
