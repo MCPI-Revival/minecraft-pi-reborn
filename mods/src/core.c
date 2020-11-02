@@ -6,7 +6,7 @@
 
 #include <libcore/libcore.h>
 
-#define PATCH_PRINTF(file, line, start, str) if (file != NULL) fprintf(stderr, "[%s:%i] Patching (0x%04x) - "str": 0x%02x 0x%02x 0x%02x 0x%02x\n", file, line, (uint32_t) start, data[0], data[1], data[2], data[3]);
+#define PATCH_PRINTF(file, line, start, str) if (file != NULL) fprintf(stderr, "[PATCH]: (%s:%i) Patching (0x%04x) - "str": 0x%02x 0x%02x 0x%02x 0x%02x\n", file, line, (uint32_t) start, data[0], data[1], data[2], data[3]);
 
 #define ORIGINAL_SIZE 8
 

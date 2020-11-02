@@ -81,7 +81,7 @@ static void *CreativeMode = (void *) 0x1b258;
 // Patch Game Mode
 static void set_is_survival(int new_is_survival) {
     if (is_survival != new_is_survival) {
-        fprintf(stderr, "Setting Game Mode: %s\n", new_is_survival ? "Survival" : "Creative");
+        INFO("Setting Game Mode: %s", new_is_survival ? "Survival" : "Creative");
 
         // Correct Inventpry UI
         unsigned char inventory_patch[4] = {new_is_survival ? 0x00 : 0x01, 0x30, 0xa0, 0xe3};
@@ -152,7 +152,7 @@ int extra_has_feature(const char *name) {
             tok = strtok(NULL, "|");
         }
         free(features);
-        fprintf(stderr, "Feature: %s: %s\n", name, ret ? "Enabled" : "Disabled");
+        INFO("Feature: %s: %s", name, ret ? "Enabled" : "Disabled");
         return ret;
     }
 }
@@ -252,7 +252,7 @@ __attribute__((constructor)) static void init() {
         username = server_get_motd();
     } else {
         username = get_username();
-        fprintf(stderr, "Setting Username: %s\n", username);
+        INFO("Setting Username: %s", username);
     }
     char **default_username = (char **) 0x18fd4;
     if (strcmp(*default_username, "StevePi") != 0) {
