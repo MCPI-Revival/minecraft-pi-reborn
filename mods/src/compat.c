@@ -303,9 +303,9 @@ static void screenshot() {
 
     FIBITMAP *image = FreeImage_ConvertFromRawBits(pixels, width, height, line_size, 24, FI_RGBA_RED_MASK, FI_RGBA_GREEN_MASK, FI_RGBA_BLUE_MASK, 0);
     if (!FreeImage_Save(FIF_PNG, image, file, 0)) {
-        INFO("Screenshot Failed: %s\n", file);
+        INFO("Screenshot Failed: %s", file);
     } else {
-        INFO("Screenshot Saved: %s\n", file);
+        INFO("Screenshot Saved: %s", file);
     }
     FreeImage_Unload(image);
 
