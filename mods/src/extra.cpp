@@ -84,7 +84,7 @@ extern "C" {
     static ItemInstance_t ItemInstance_item = (ItemInstance_t) 0x9992c;
     static ItemInstance_t ItemInstance_tile = (ItemInstance_t) 0x998e4;
 
-    typedef void (*FillingContainer_addItem_t)(unsigned char *filling_container, unsigned char *item_instance);
+    typedef int32_t (*FillingContainer_addItem_t)(unsigned char *filling_container, unsigned char *item_instance);
     static FillingContainer_addItem_t FillingContainer_addItem = (FillingContainer_addItem_t) 0x92aa0;
     static void *FillingContainer_addItem_original = NULL;
 
@@ -105,10 +105,10 @@ extern "C" {
     static unsigned char **tile_glowing_obsidian = (unsigned char **) 0x181dcc;
     static unsigned char **tile_invisible_bedrock = (unsigned char **) 0x181d94;
 
-    static void FillingContainer_addItem_injection(unsigned char *filling_container, unsigned char *item_instance) {
+    static int32_t FillingContainer_addItem_injection(unsigned char *filling_container, unsigned char *item_instance) {
         // Call Original
         revert_overwrite((void *) FillingContainer_addItem, FillingContainer_addItem_original);
-        (*FillingContainer_addItem)(filling_container, item_instance);
+        int32_t ret = (*FillingContainer_addItem)(filling_container, item_instance);
         revert_overwrite((void *) FillingContainer_addItem, FillingContainer_addItem_original);
 
         // Add After Sign
@@ -123,6 +123,8 @@ extern "C" {
             inventory_add_item(filling_container, *tile_glowing_obsidian, true);
             inventory_add_item(filling_container, *tile_invisible_bedrock, true);
         }
+
+        return ret;
     }
 
     __attribute((constructor)) static void init() {
