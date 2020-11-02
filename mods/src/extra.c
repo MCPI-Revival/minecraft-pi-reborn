@@ -18,24 +18,25 @@ void extra_set_is_right_click(int val) {
 
 typedef void (*releaseUsingItem_t)(unsigned char *game_mode, unsigned char *player);
 
-typedef void (*handle_input_t)(unsigned char *, unsigned char *, unsigned char *, unsigned char *);
-static handle_input_t handle_input = (handle_input_t) 0x15ffc;
-static void *handle_input_original = NULL;
+typedef void (*Minecraft_tickInput_t)(unsigned char *minecraft, uint32_t param_1);
+static Minecraft_tickInput_t Minecraft_tickInput = (Minecraft_tickInput_t) 0x15ffc;
+static void *Minecraft_tickInput_original = NULL;
 
-static int is_survival = -1;
+typedef int (*Player_isUsingItem_t)(unsigned char *player);
+static Player_isUsingItem_t Player_isUsingItem = (Player_isUsingItem_t) 0x8f15c;
 
-static void handle_input_injection(unsigned char *param_1, unsigned char *param_2, unsigned char *param_3, unsigned char *param_4) {
+static void Minecraft_tickInput_injection(unsigned char *minecraft, uint32_t param_1) {
     // Call Original Method
-    revert_overwrite((void *) handle_input, handle_input_original);
-    (*handle_input)(param_1, param_2, param_3, param_4);
-    revert_overwrite((void *) handle_input, handle_input_original);
+    revert_overwrite((void *) Minecraft_tickInput, Minecraft_tickInput_original);
+    (*Minecraft_tickInput)(minecraft, param_1);
+    revert_overwrite((void *) Minecraft_tickInput, Minecraft_tickInput_original);
 
     // GameMode Is Offset From param_1 By 0x160
     // Player Is Offset From param_1 By 0x18c
     if (!is_right_click) {
-        unsigned char *game_mode = *(unsigned char **) (param_1 + 0x160);
-        unsigned char *player = *(unsigned char **) (param_1 + 0x18c);
-        if (player != NULL && game_mode != NULL) {
+        unsigned char *game_mode = *(unsigned char **) (minecraft + 0x160);
+        unsigned char *player = *(unsigned char **) (minecraft + 0x18c);
+        if (player != NULL && game_mode != NULL && (*Player_isUsingItem)(player)) {
             unsigned char *game_mode_vtable = *(unsigned char **) game_mode;
             releaseUsingItem_t releaseUsingItem = *(releaseUsingItem_t *) (game_mode_vtable + 0x5c);
             (*releaseUsingItem)(game_mode, player);
@@ -70,6 +71,8 @@ static void Gui_handleClick_injection(unsigned char *this, unsigned char *param_
         revert_overwrite((void *) Gui_handleClick, Gui_handleClick_original);
     }
 }
+
+static int is_survival = -1;
 
 static void *Creator = (void *) 0x1a044;
 static void *SurvivalMode = (void *) 0x1b7d8;
@@ -205,7 +208,7 @@ __attribute__((constructor)) static void init() {
 
     if (extra_has_feature("Fix Bow & Arrow")) {
         // Fix Bow
-        handle_input_original = overwrite((void *) handle_input, handle_input_injection);
+        Minecraft_tickInput_original = overwrite((void *) Minecraft_tickInput, Minecraft_tickInput_injection);
     }
 
     if (extra_has_feature("Fix Attacking")) {
