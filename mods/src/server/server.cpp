@@ -115,7 +115,7 @@ static void Minecraft_update_injection(unsigned char *minecraft) {
         INFO("%s", "Starting Minecraft: Pi Edition Dedicated Server");
 
         LevelSettings settings;
-        settings.game_type = 0; // Patched By MCPI-Docker
+        settings.game_type = get_server_properties().get_int("game-mode", DEFAULT_GAME_MODE);;
         std::string seed_str = get_server_properties().get_string("seed", DEFAULT_SEED);
         int32_t seed = seed_str.length() > 0 ? std::stoi(seed_str) : time(NULL);
         settings.seed = seed;
@@ -231,9 +231,6 @@ static void exit_handler(__attribute__((unused)) int data) {
 
 const char *server_get_motd() {
     return get_server_properties().get_string("motd", DEFAULT_MOTD).c_str();
-}
-int server_get_default_game_mode() {
-    return get_server_properties().get_int("game-mode", DEFAULT_GAME_MODE);
 }
 int server_get_mob_spawning() {
     return get_server_properties().get_bool("spawn-mobs", DEFAULT_MOB_SPAWNING);

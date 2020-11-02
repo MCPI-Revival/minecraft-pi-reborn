@@ -9,7 +9,6 @@ extern "C" {
 void server_init();
 
 const char *server_get_motd();
-int server_get_default_game_mode();
 int server_get_mob_spawning();
 
 #ifdef __cplusplus

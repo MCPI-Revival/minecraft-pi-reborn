@@ -189,19 +189,16 @@ __attribute__((constructor)) static void init() {
     Minecraft_setIsCreativeMode_original = overwrite((void *) Minecraft_setIsCreativeMode, Minecraft_setIsCreativeMode_injection);
 
     // Get Default Game Mode
-    int default_game_mode;
-    if (is_server) {
-        default_game_mode = server_get_default_game_mode();
-    } else {
-        default_game_mode = !extra_has_feature("Survival Mode");
+    if (!is_server) {
+        int default_game_mode = !extra_has_feature("Survival Mode");
+
+        // Set Default Game Mode
+        unsigned char default_game_mode_patch[4] = {default_game_mode ? 0x01 : 0x00, 0x30, 0xa0, 0xe3};
+        patch((void *) 0x3d9b8, default_game_mode_patch);
+        patch((void *) 0x38a78, default_game_mode_patch);
     }
 
-    // Set Default Game Mode
-    unsigned char default_game_mode_patch[4] = {default_game_mode ? 0x01 : 0x00, 0x30, 0xa0, 0xe3};
-    patch((void *) 0x3d9b8, default_game_mode_patch);
-    patch((void *) 0x38a78, default_game_mode_patch);
-
-    // Disable Item Dropping When Cursor Is Hidden
+    // Disable Item Dropping Using The Cursor When Cursor Is Hidden
     Gui_tickItemDrop_original = overwrite((void *) Gui_tickItemDrop, Gui_tickItemDrop_injection);
     // Disable Opening Inventory Using The Cursor When Cursor Is Hidden
     Gui_handleClick_original = overwrite((void *) Gui_handleClick, Gui_handleClick_injection);
