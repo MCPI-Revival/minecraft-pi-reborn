@@ -449,17 +449,12 @@ static void x11_nop() {
     // NOP
 }
 HOOK(SDL_GetWMInfo, int, (SDL_SysWMinfo *info)) {
-    if (!is_server) {
-        ensure_SDL_GetWMInfo();
-        return (*real_SDL_GetWMInfo)(info);
-    } else {
-        // Return Fake Lock Functions In Server Mode Since X11 Is Disabled
-        SDL_SysWMinfo ret;
-        ret.info.x11.lock_func = x11_nop;
-        ret.info.x11.unlock_func = x11_nop;
-        *info = ret;
-        return 1;
-    }
+    // Return Fake Lock Functions In Server Mode Since SDL X11 Is Disabled
+    SDL_SysWMinfo ret;
+    ret.info.x11.lock_func = x11_nop;
+    ret.info.x11.unlock_func = x11_nop;
+    *info = ret;
+    return 1;
 }
 
 #include <stdlib.h>
