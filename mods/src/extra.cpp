@@ -102,7 +102,7 @@ extern "C" {
     // Tiles
     static unsigned char **tile_water = (unsigned char **) 0x181b3c;
     static unsigned char **tile_lava = (unsigned char **) 0x181cc8;
-    static unsigned char **tile_glowing_obsidian = (unsigned char **) 0x181dcc;
+    static unsigned char **tile_glowingObsidian = (unsigned char **) 0x181dcc;
     static unsigned char **tile_invisible_bedrock = (unsigned char **) 0x181d94;
 
     static int32_t FillingContainer_addItem_injection(unsigned char *filling_container, unsigned char *item_instance) {
@@ -120,7 +120,7 @@ extern "C" {
             // Add Tiles
             inventory_add_item(filling_container, *tile_water, true);
             inventory_add_item(filling_container, *tile_lava, true);
-            inventory_add_item(filling_container, *tile_glowing_obsidian, true);
+            inventory_add_item(filling_container, *tile_glowingObsidian, true);
             inventory_add_item(filling_container, *tile_invisible_bedrock, true);
         }
 
