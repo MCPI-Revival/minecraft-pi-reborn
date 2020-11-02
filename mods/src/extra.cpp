@@ -24,15 +24,15 @@ extern "C" {
     typedef unsigned char *(*TextEditScreen_t)(unsigned char *, unsigned char *);
     static TextEditScreen_t TextEditScreen = (TextEditScreen_t) 0x3a840;
 
-    typedef void (*setScreen_t)(unsigned char *, unsigned char *);
-    static setScreen_t setScreen = (setScreen_t) 0x15d6c;
+    typedef void (*Minecraft_setScreen_t)(unsigned char *, unsigned char *);
+    static Minecraft_setScreen_t Minecraft_setScreen = (Minecraft_setScreen_t) 0x15d6c;
 
     static void openTextEdit(unsigned char *local_player, unsigned char *sign) {
         if (*(int *)(sign + 0x18) == 4) {
             unsigned char *minecraft = *(unsigned char **) (local_player + 0xc90);
             unsigned char *screen = (unsigned char *) ::operator new(0xd0);
             screen = (*TextEditScreen)(screen, sign);
-            (*setScreen)(minecraft, screen);
+            (*Minecraft_setScreen)(minecraft, screen);
         }
     }
 
@@ -52,28 +52,28 @@ extern "C" {
         input.clear();
     }
 
-    typedef void (*updateEvents_t)(unsigned char *screen);
-    static updateEvents_t updateEvents = (updateEvents_t) 0x28eb8;
-    static void *updateEvents_original = NULL;
+    typedef void (*Screen_updateEvents_t)(unsigned char *screen);
+    static Screen_updateEvents_t Screen_updateEvents = (Screen_updateEvents_t) 0x28eb8;
+    static void *Screen_updateEvents_original = NULL;
 
-    typedef void (*keyboardNewChar_t)(unsigned char *screen, char key);
-    typedef void (*keyPressed_t)(unsigned char *screen, int32_t key);
+    typedef void (*Screen_keyboardNewChar_t)(unsigned char *screen, char key);
+    typedef void (*Screen_keyPressed_t)(unsigned char *screen, int32_t key);
 
-    static void updateEvents_injection(unsigned char *screen) {
+    static void Screen_updateEvents_injection(unsigned char *screen) {
         // Call Original
-        revert_overwrite((void *) updateEvents, updateEvents_original);
-        (*updateEvents)(screen);
-        revert_overwrite((void *) updateEvents, updateEvents_original);
+        revert_overwrite((void *) Screen_updateEvents, Screen_updateEvents_original);
+        (*Screen_updateEvents)(screen);
+        revert_overwrite((void *) Screen_updateEvents, Screen_updateEvents_original);
 
         if (*(char *)(screen + 4) == '\0') {
             uint32_t vtable = *((uint32_t *) screen);
             for (char key : input) {
                 if (key == BACKSPACE_KEY) {
                     // Handle Backspace
-                    (*(keyPressed_t *) (vtable + 0x6c))(screen, BACKSPACE_KEY);
+                    (*(Screen_keyPressed_t *) (vtable + 0x6c))(screen, BACKSPACE_KEY);
                 } else {
                     // Handle Nrmal Key
-                    (*(keyboardNewChar_t *) (vtable + 0x70))(screen, key);
+                    (*(Screen_keyboardNewChar_t *) (vtable + 0x70))(screen, key);
                 }
             }
         }
@@ -87,7 +87,7 @@ extern "C" {
         if (extra_has_feature("Fix Sign Placement")) {
             // Fix Signs
             patch_address((void *) 0x106460, (void *) openTextEdit);
-            updateEvents_original = overwrite((void *) updateEvents, (void *) updateEvents_injection);
+            Screen_updateEvents_original = overwrite((void *) Screen_updateEvents, (void *) Screen_updateEvents_injection);
         }
     }
 }
