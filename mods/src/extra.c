@@ -178,13 +178,28 @@ __attribute__((constructor)) static void init() {
         server_init();
     }
 
-    if (extra_has_feature("Touch GUI")) {
-        // Use Touch UI
+    if (!is_server && extra_has_feature("Touch GUI")) {
+        // Main UI
         unsigned char touch_gui_patch[4] = {0x01, 0x00, 0x50, 0xe3};
         patch((void *) 0x292fc, touch_gui_patch);
+        // Invalid License UI
+        patch((void *) 0x3a008, touch_gui_patch);
+        // Disconnection UI
+        patch((void *) 0x371f0, touch_gui_patch);
+        // Pause UI
+        patch((void *) 0x36824, touch_gui_patch);
+        // Bed UI
+        patch((void *) 0x336d0, touch_gui_patch);
+        // Game Mode UI
+        patch((void *) 0x31474, touch_gui_patch);
+        // Death UI
+        patch((void *) 0x3055c, touch_gui_patch);
+        // Delete UI
+        unsigned char delete_touch_gui[4] = {0x01, 0x70, 0x50, 0xe2};
+        patch((void *) 0x2ad04, delete_touch_gui);
     }
 
-    // Dyanmic Game Mode Switching
+    // Dynamic Game Mode Switching
     set_is_survival(1);
     Minecraft_setIsCreativeMode_original = overwrite((void *) Minecraft_setIsCreativeMode, Minecraft_setIsCreativeMode_injection);
 
