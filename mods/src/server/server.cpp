@@ -4,9 +4,12 @@
 #include <cstdio>
 #include <csignal>
 #include <fstream>
+#include <vector>
+
 #include <pthread.h>
 
 #include <unistd.h>
+#include <netinet/in.h>
 
 #include <SDL/SDL_events.h>
 
@@ -102,41 +105,34 @@ static void *read_stdin_thread(__attribute__((unused)) void *data) {
     }
 }
 
-typedef void (*ServerSideNetworkHandler_displayGameMessage_t)(unsigned char *server_side_network_handler, std::string const& message);
-static ServerSideNetworkHandler_displayGameMessage_t ServerSideNetworkHandler_displayGameMessage = (ServerSideNetworkHandler_displayGameMessage_t) 0x750c4;
+// Create/Start World
+static void start_world(unsigned char *minecraft) {
+    INFO("%s", "Starting Minecraft: Pi Edition Dedicated Server");
 
-// Runs Every Tick
+    LevelSettings settings;
+    settings.game_type = get_server_properties().get_int("game-mode", DEFAULT_GAME_MODE);;
+    std::string seed_str = get_server_properties().get_string("seed", DEFAULT_SEED);
+    int32_t seed = seed_str.length() > 0 ? std::stoi(seed_str) : time(NULL);
+    settings.seed = seed;
+
+    std::string world_name = get_server_properties().get_string("world-name", DEFAULT_WORLD_NAME);
+    (*Minecraft_selectLevel)(minecraft, world_name, world_name, settings);
+
+    int port = get_server_properties().get_int("port", DEFAULT_PORT);
+    (*Minecraft_hostMultiplayer)(minecraft, port);
+    INFO("Listening On: %i", port);
+
+    void *screen = ::operator new(0x4c);
+    screen = (*ProgressScreen)((unsigned char *) screen);
+    (*Minecraft_setScreen)(minecraft, (unsigned char *) screen);
+
+    stored_minecraft = minecraft;
+}
+
+// Print Progress Reports
 static int last_progress = -1;
 static const char *last_message = NULL;
-static bool loaded = false;
-static void Minecraft_update_injection(unsigned char *minecraft) {
-    // Create/Start World
-    if (!loaded) {
-        INFO("%s", "Starting Minecraft: Pi Edition Dedicated Server");
-
-        LevelSettings settings;
-        settings.game_type = get_server_properties().get_int("game-mode", DEFAULT_GAME_MODE);;
-        std::string seed_str = get_server_properties().get_string("seed", DEFAULT_SEED);
-        int32_t seed = seed_str.length() > 0 ? std::stoi(seed_str) : time(NULL);
-        settings.seed = seed;
-
-        std::string world_name = get_server_properties().get_string("world-name", DEFAULT_WORLD_NAME);
-        (*Minecraft_selectLevel)(minecraft, world_name, world_name, settings);
-
-        int port = get_server_properties().get_int("port", DEFAULT_PORT);
-        (*Minecraft_hostMultiplayer)(minecraft, port);
-        INFO("Listening On: %i", port);
-
-        void *screen = ::operator new(0x4c);
-        screen = (*ProgressScreen)((unsigned char *) screen);
-        (*Minecraft_setScreen)(minecraft, (unsigned char *) screen);
-
-        stored_minecraft = minecraft;
-
-        loaded = true;
-    }
-    
-    // Print Progress Message
+static void print_progress(unsigned char *minecraft) {
     const char *message = (*Minecraft_getProgressMessage)(minecraft);
     int32_t progress = *(int32_t *) (minecraft + 0xc60);
     if ((*Minecraft_isLevelGenerated)(minecraft)) {
@@ -160,30 +156,100 @@ static void Minecraft_update_injection(unsigned char *minecraft) {
             }
         }
     }
+}
 
-    // Call Original Method
-    revert_overwrite((void *) Minecraft_update, Minecraft_update_original);
-    (*Minecraft_update)(minecraft);
-    revert_overwrite((void *) Minecraft_update, Minecraft_update_original);
+struct RakNet_RakNetGUID {
+    uint64_t g;
+    unsigned short SystemIndex;
+};
+struct RakNet_SystemAddress {
+    union {
+        sockaddr_in addr4;
+    } address;
+    unsigned short debugPort;
+};
+typedef RakNet_SystemAddress (*RakNet_RakPeer_GetSystemAddressFromGuid_t)(unsigned char *rak_peer, RakNet_RakNetGUID guid);
 
-    // Use STDIN
-    if (stdin_buffer_complete) {
-        if (stdin_buffer != NULL) {
-            unsigned char *server_side_network_handler = *(unsigned char **) (minecraft + 0x174);
-            if (server_side_network_handler != NULL) {
-                char *message = NULL;
-                // Format Message
-                asprintf(&message, "[Server] %s", stdin_buffer);
-                // Post Message To Chat
-                (*ServerSideNetworkHandler_displayGameMessage)(server_side_network_handler, message);
-                free(message);
-            }
+typedef void (*ServerSideNetworkHandler_displayGameMessage_t)(unsigned char *server_side_network_handler, std::string const& message);
+static ServerSideNetworkHandler_displayGameMessage_t ServerSideNetworkHandler_displayGameMessage = (ServerSideNetworkHandler_displayGameMessage_t) 0x750c4;
 
-            free((void *) stdin_buffer);
-            stdin_buffer = NULL;
+typedef char *(*RakNet_SystemAddress_ToString_t)(RakNet_SystemAddress *system_address, bool print_delimiter, char delimiter);
+static RakNet_SystemAddress_ToString_t RakNet_SystemAddress_ToString = (RakNet_SystemAddress_ToString_t) 0xd6198;
+
+typedef void (*ServerSideNetworkHandler_onDisconnect_t)(unsigned char *server_side_network_handler, RakNet_RakNetGUID const& guid);
+
+static std::string get_banned_ips_file() {
+    std::string file(getenv("HOME"));
+    file.append("/.minecraft/banned-ips.txt");
+    return file;
+}
+
+typedef void (*player_callback_t)(unsigned char *minecraft, std::string username, unsigned char *player);
+
+// Find Players With Username And Run Callback
+static void find_players(unsigned char *minecraft, std::string target_username, player_callback_t callback) {
+    unsigned char *level = *(unsigned char **) (minecraft + 0x188);
+    std::vector<unsigned char *> players = *(std::vector<unsigned char *> *) (level + 0x60);
+    bool found_player = false;
+    for (std::size_t i = 0; i < players.size(); i++) {
+        // Iterate Players
+        unsigned char *player = players[i];
+        std::string username = *(std::string *) (player + 0xbf4);
+        if (target_username == "" || username == target_username) {
+            // Run Callback
+            (*callback)(minecraft, username, player);
+            found_player = true;
         }
-        stdin_buffer_complete = false;
     }
+    if (!found_player && target_username != "") {
+        INFO("Invalid Player: %s", target_username.c_str());
+    }
+}
+
+// Get IP From Player
+static char *get_player_ip(unsigned char *minecraft, unsigned char *player) {
+    RakNet_RakNetGUID guid = *(RakNet_RakNetGUID *) (player + 0xc08);
+    unsigned char *rak_net_instance = *(unsigned char **) (minecraft + 0x170);
+    unsigned char *rak_peer = *(unsigned char **) (rak_net_instance + 0x4);
+    unsigned char *rak_peer_vtable = *(unsigned char **) rak_peer;
+    RakNet_RakPeer_GetSystemAddressFromGuid_t RakNet_RakPeer_GetSystemAddressFromGuid = *(RakNet_RakPeer_GetSystemAddressFromGuid_t *) (rak_peer_vtable + 0xd0);
+    // Get SystemAddress
+    RakNet_SystemAddress address = (*RakNet_RakPeer_GetSystemAddressFromGuid)(rak_peer, guid);
+    // Get IP
+    return (*RakNet_SystemAddress_ToString)(&address, false, '|');
+}
+
+// Ban Player
+static void ban_callback(unsigned char *minecraft, std::string username, unsigned char *player) {
+    // Get IP
+    char *ip = get_player_ip(minecraft, player);
+
+    // Ban Player
+    INFO("Banned: %s (%s)", username.c_str(), ip);
+    // Write To File
+    std::ofstream banned_ips_output(get_banned_ips_file(), std::ios_base::app);
+    if (banned_ips_output) {
+        if (banned_ips_output.good()) {
+            banned_ips_output << ip <<'\n';
+        }
+        if (banned_ips_output.is_open()) {
+            banned_ips_output.close();
+        }
+    }
+}
+
+// Kill Player
+typedef void (*Entity_die_t)(unsigned char *entity, unsigned char *cause);
+static void kill_callback(__attribute__((unused)) unsigned char *minecraft, __attribute__((unused)) std::string username, unsigned char *player) {
+    unsigned char *player_vtable = *(unsigned char **) player;
+    Entity_die_t Entity_die = *(Entity_die_t *) (player_vtable + 0x130);
+    (*Entity_die)(player, NULL);
+    INFO("Killed: %s", username.c_str());
+}
+
+// List Player
+static void list_callback(unsigned char *minecraft, std::string username, unsigned char *player) {
+    INFO(" - %s (%s)", username.c_str(), get_player_ip(minecraft, player));
 }
 
 typedef void (*Level_saveLevelData_t)(unsigned char *level);
@@ -200,20 +266,7 @@ static void Level_saveLevelData_injection(unsigned char *level) {
     revert_overwrite((void *) Level_saveLevelData, Level_saveLevelData_original);
 }
 
-typedef void (*Gui_addMessage_t)(unsigned char *gui, std::string const& text);
-static Gui_addMessage_t Gui_addMessage = (Gui_addMessage_t) 0x27820;
-static void *Gui_addMessage_original = NULL;
-
-static void Gui_addMessage_injection(unsigned char *gui, std::string const& text) {
-    // Print Log Message
-    fprintf(stderr, "[CHAT]: %s\n", text.c_str());
-    
-    // Call Original Method
-    revert_overwrite((void *) Gui_addMessage, Gui_addMessage_original);
-    (*Gui_addMessage)(gui, text);
-    revert_overwrite((void *) Gui_addMessage, Gui_addMessage_original);
-}
-
+// Stop Server
 static void exit_handler(__attribute__((unused)) int data) {
     INFO("%s", "Stopping Server");
     if (stored_minecraft != NULL) {
@@ -227,6 +280,137 @@ static void exit_handler(__attribute__((unused)) int data) {
     SDL_Event event;
     event.type = SDL_QUIT;
     SDL_PushEvent(&event);
+}
+
+// Handle Commands
+static void handle_commands(unsigned char *minecraft) {
+    if (stdin_buffer_complete) {
+        if (stdin_buffer != NULL) {
+            unsigned char *server_side_network_handler = *(unsigned char **) (minecraft + 0x174);
+            if (server_side_network_handler != NULL) {
+                std::string data((char *) stdin_buffer);
+
+                static std::string ban_command("ban ");
+                static std::string say_command("say ");
+                static std::string kill_command("kill ");
+                static std::string list_command("list");
+                static std::string stop_command("stop");
+                static std::string help_command("help");
+                if (data.rfind(ban_command, 0) == 0) {
+                    // IP-Ban Target Username
+                    std::string ban_username = data.substr(ban_command.length());
+                    find_players(minecraft, ban_username, ban_callback);
+                } else if (data.rfind(kill_command, 0) == 0) {
+                    // Kill Target Username
+                    std::string kill_username = data.substr(kill_command.length());
+                    find_players(minecraft, kill_username, kill_callback);
+                } else if (data.rfind(say_command, 0) == 0) {
+                    // Format Message
+                    std::string message = "[Server] " + data.substr(say_command.length());
+                    // Post Message To Chat
+                    (*ServerSideNetworkHandler_displayGameMessage)(server_side_network_handler, message);
+                } else if (data == list_command) {
+                    // List Players
+                    INFO("%s", "All Players:");
+                    find_players(minecraft, "", list_callback);
+                } else if (data == stop_command) {
+                    // Stop Server
+                    exit_handler(-1);
+                } else if (data == help_command) {
+                    INFO("%s", "All Commands:");
+                    INFO("%s", "    ban <Username>  - IP-Ban All Players With Specifed Username");
+                    INFO("%s", "    kill <Username> - Kill All Players With Specifed Username");
+                    INFO("%s", "    say <Message>   - Print Specified Message To Chat");
+                    INFO("%s", "    list            - List All Players");
+                    INFO("%s", "    stop            - Stop Server");
+                    INFO("%s", "    help            - Print This Message");
+                } else {
+                    INFO("Invalid Command: %s", data.c_str());
+                }
+            }
+
+            free((void *) stdin_buffer);
+            stdin_buffer = NULL;
+        }
+        stdin_buffer_complete = false;
+    }
+}
+
+// Runs Every Tick
+static bool loaded = false;
+static void Minecraft_update_injection(unsigned char *minecraft) {
+    // Create/Start World
+    if (!loaded) {
+        start_world(minecraft);
+        loaded = true;
+    }
+
+    // Print Progress Reports
+    print_progress(minecraft);
+
+    // Call Original Method
+    revert_overwrite((void *) Minecraft_update, Minecraft_update_original);
+    (*Minecraft_update)(minecraft);
+    revert_overwrite((void *) Minecraft_update, Minecraft_update_original);
+
+    // Handle Commands
+    handle_commands(minecraft);
+}
+
+typedef void (*Gui_addMessage_t)(unsigned char *gui, std::string const& text);
+static Gui_addMessage_t Gui_addMessage = (Gui_addMessage_t) 0x27820;
+static void *Gui_addMessage_original = NULL;
+
+static void Gui_addMessage_injection(unsigned char *gui, std::string const& text) {
+    // Print Log Message
+    fprintf(stderr, "[CHAT]: %s\n", text.c_str());
+
+    // Call Original Method
+    revert_overwrite((void *) Gui_addMessage, Gui_addMessage_original);
+    (*Gui_addMessage)(gui, text);
+    revert_overwrite((void *) Gui_addMessage, Gui_addMessage_original);
+}
+
+typedef bool (*RakNet_RakPeer_IsBanned_t)(unsigned char *rakpeer, const char *ip);
+static RakNet_RakPeer_IsBanned_t RakNet_RakPeer_IsBanned = (RakNet_RakPeer_IsBanned_t) 0xda3b4;
+static void *RakNet_RakPeer_IsBanned_original = NULL;
+
+static bool RakNet_RakPeer_IsBanned_injection(unsigned char *rakpeer, const char *ip) {
+    // Call Original
+    revert_overwrite((void *) RakNet_RakPeer_IsBanned, RakNet_RakPeer_IsBanned_original);
+    bool ret = (*RakNet_RakPeer_IsBanned)(rakpeer, ip);
+    revert_overwrite((void *) RakNet_RakPeer_IsBanned, RakNet_RakPeer_IsBanned_original);
+
+    if (ret) {
+        return true;
+    } else {
+        // Check banned-ips.txt
+        std::string banned_ips_file_path = get_banned_ips_file();
+        std::ifstream banned_ips_file(banned_ips_file_path);
+        if (banned_ips_file) {
+            bool ret = false;
+            if (banned_ips_file.good()) {
+                std::string line;
+                while (std::getline(banned_ips_file, line)) {
+                    if (line.length() > 0) {
+                        if (line[0] == '#') {
+                            continue;
+                        }
+                        if (strcmp(line.c_str(), ip) == 0) {
+                            ret = true;
+                            break;
+                        }
+                    }
+                }
+            }
+            if (banned_ips_file.is_open()) {
+                banned_ips_file.close();
+            }
+            return ret;
+        } else {
+            ERR("%s", "Unable To Read banned-ips.txt");
+        }
+    }
 }
 
 const char *server_get_motd() {
@@ -253,7 +437,7 @@ void server_init() {
 
     std::ifstream properties_file(file);
 
-    if (!properties_file || !properties_file.is_open()) {
+    if (!properties_file || !properties_file.good()) {
         // Write Defaults
         std::ofstream properties_file_output(file);
         properties_file_output << "# Message Of The Day\n";
@@ -284,6 +468,19 @@ void server_init() {
 
     properties_file.close();
 
+    // Create Empty Banned IPs File
+    std::string banned_ips_file_path = get_banned_ips_file();
+    std::ifstream banned_ips_file(banned_ips_file_path);
+    if (!banned_ips_file || !banned_ips_file.good()) {
+        // Write Default
+        std::ofstream banned_ips_output(banned_ips_file_path);
+        banned_ips_output << "# List Of Banned IPs; Each Line Is One IP Address\n";
+        banned_ips_output.close();
+    }
+    if (banned_ips_file.is_open()) {
+        banned_ips_file.close();
+    }
+
     // Prevent Main Player From Loading
     unsigned char player_patch[4] = {0x00, 0x20, 0xa0, 0xe3};
     patch((void *) 0x1685c, player_patch);
@@ -301,6 +498,8 @@ void server_init() {
     // Set Max Players
     unsigned char max_players_patch[4] = {server_get_max_players(), 0x30, 0xa0, 0xe3};
     patch((void *) 0x166d0, max_players_patch);
+    // Custom Banned IP List
+    RakNet_RakPeer_IsBanned_original = overwrite((void *) RakNet_RakPeer_IsBanned, (void *) RakNet_RakPeer_IsBanned_injection);
 
     // Start Reading STDIN
     pthread_t read_stdin_thread_obj;

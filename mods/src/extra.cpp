@@ -83,6 +83,8 @@ extern "C" {
     typedef unsigned char *(*ItemInstance_t)(unsigned char *item_instance, unsigned char *item);
     static ItemInstance_t ItemInstance_item = (ItemInstance_t) 0x9992c;
     static ItemInstance_t ItemInstance_tile = (ItemInstance_t) 0x998e4;
+    typedef unsigned char *(*ItemInstance_damage_t)(unsigned char *item_instance, unsigned char *item, int32_t count, int32_t damage);
+    static ItemInstance_damage_t ItemInstance_damage = (ItemInstance_damage_t) 0x99960;
 
     typedef int32_t (*FillingContainer_addItem_t)(unsigned char *filling_container, unsigned char *item_instance);
     static FillingContainer_addItem_t FillingContainer_addItem = (FillingContainer_addItem_t) 0x92aa0;
@@ -95,16 +97,20 @@ extern "C" {
     }
 
     // Items
+    static unsigned char **item_sign = (unsigned char **) 0x17bba4;
     static unsigned char **item_flintAndSteel = (unsigned char **) 0x17ba70;
     static unsigned char **item_snowball = (unsigned char **) 0x17bbb0;
     static unsigned char **item_shears = (unsigned char **) 0x17bbf0;
-    static unsigned char **item_sign = (unsigned char **) 0x17bba4;
+    static unsigned char **item_egg = (unsigned char **) 0x17bbd0;
+    static unsigned char **item_dye_powder = (unsigned char **) 0x17bbe0;
     // Tiles
     static unsigned char **tile_water = (unsigned char **) 0x181b3c;
     static unsigned char **tile_lava = (unsigned char **) 0x181cc8;
     static unsigned char **tile_calmWater = (unsigned char **) 0x181b40;
     static unsigned char **tile_calmLava = (unsigned char **) 0x181ccc;
     static unsigned char **tile_glowingObsidian = (unsigned char **) 0x181dcc;
+    static unsigned char **tile_topSnow = (unsigned char **) 0x181b30;
+    static unsigned char **tile_ice = (unsigned char **) 0x181d80;
     static unsigned char **tile_invisible_bedrock = (unsigned char **) 0x181d94;
 
     static int32_t FillingContainer_addItem_injection(unsigned char *filling_container, unsigned char *item_instance) {
@@ -118,13 +124,21 @@ extern "C" {
             // Add Items
             inventory_add_item(filling_container, *item_flintAndSteel, false);
             inventory_add_item(filling_container, *item_snowball, false);
+            inventory_add_item(filling_container, *item_egg, false);
             inventory_add_item(filling_container, *item_shears, false);
+            for (int i = 0; i < 15; i++) {
+                unsigned char *item_instance = (unsigned char *) ::operator new(0xc);
+                item_instance = (*ItemInstance_damage)(item_instance, *item_dye_powder, 1, i);
+                (*FillingContainer_addItem)(filling_container, item_instance);
+            }
             // Add Tiles
             inventory_add_item(filling_container, *tile_water, true);
             inventory_add_item(filling_container, *tile_lava, true);
             inventory_add_item(filling_container, *tile_calmWater, true);
             inventory_add_item(filling_container, *tile_calmLava, true);
             inventory_add_item(filling_container, *tile_glowingObsidian, true);
+            inventory_add_item(filling_container, *tile_topSnow, true);
+            inventory_add_item(filling_container, *tile_ice, true);
             inventory_add_item(filling_container, *tile_invisible_bedrock, true);
         }
 
