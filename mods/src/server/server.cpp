@@ -57,29 +57,6 @@ static ServerProperties &get_server_properties() {
 #define DEFAULT_WORLD_NAME "world"
 #define DEFAULT_MAX_PLAYERS "4"
 
-typedef const char *(*Minecraft_getProgressMessage_t)(unsigned char *minecraft);
-static Minecraft_getProgressMessage_t Minecraft_getProgressMessage = (Minecraft_getProgressMessage_t) 0x16e58;
-
-typedef int32_t (*Minecraft_isLevelGenerated_t)(unsigned char *minecraft);
-static Minecraft_isLevelGenerated_t Minecraft_isLevelGenerated = (Minecraft_isLevelGenerated_t) 0x16e6c;
-
-#define SIGNIFICANT_PROGRESS 5
-
-// Check If Two Percentages Are Different Enough To Be Logged
-static bool is_progress_difference_significant(int32_t new_val, int32_t old_val) {
-    if (new_val != old_val) {
-        if (new_val == -1 || old_val == -1) {
-            return true;
-        } else if (new_val == 0 || new_val == 100) {
-            return true;
-        } else {
-            return new_val - old_val >= SIGNIFICANT_PROGRESS;
-        }
-    } else {
-        return false;
-    }
-}
-
 // Read STDIN Thread
 static volatile bool stdin_buffer_complete = false;
 static volatile char *stdin_buffer = NULL;
@@ -127,6 +104,29 @@ static void start_world(unsigned char *minecraft) {
     (*Minecraft_setScreen)(minecraft, (unsigned char *) screen);
 
     stored_minecraft = minecraft;
+}
+
+typedef const char *(*Minecraft_getProgressMessage_t)(unsigned char *minecraft);
+static Minecraft_getProgressMessage_t Minecraft_getProgressMessage = (Minecraft_getProgressMessage_t) 0x16e58;
+
+typedef int32_t (*Minecraft_isLevelGenerated_t)(unsigned char *minecraft);
+static Minecraft_isLevelGenerated_t Minecraft_isLevelGenerated = (Minecraft_isLevelGenerated_t) 0x16e6c;
+
+#define SIGNIFICANT_PROGRESS 5
+
+// Check If Two Percentages Are Different Enough To Be Logged
+static bool is_progress_difference_significant(int32_t new_val, int32_t old_val) {
+    if (new_val != old_val) {
+        if (new_val == -1 || old_val == -1) {
+            return true;
+        } else if (new_val == 0 || new_val == 100) {
+            return true;
+        } else {
+            return new_val - old_val >= SIGNIFICANT_PROGRESS;
+        }
+    } else {
+        return false;
+    }
 }
 
 // Print Progress Reports
@@ -187,7 +187,7 @@ static std::string get_banned_ips_file() {
 typedef void (*player_callback_t)(unsigned char *minecraft, std::string username, unsigned char *player);
 
 // Find Players With Username And Run Callback
-static void find_players(unsigned char *minecraft, std::string target_username, player_callback_t callback) {
+static void find_players(unsigned char *minecraft, std::string target_username, player_callback_t callback, bool all_players) {
     unsigned char *level = *(unsigned char **) (minecraft + 0x188);
     std::vector<unsigned char *> players = *(std::vector<unsigned char *> *) (level + 0x60);
     bool found_player = false;
@@ -195,13 +195,13 @@ static void find_players(unsigned char *minecraft, std::string target_username, 
         // Iterate Players
         unsigned char *player = players[i];
         std::string username = *(std::string *) (player + 0xbf4);
-        if (target_username == "" || username == target_username) {
+        if (all_players || username == target_username) {
             // Run Callback
             (*callback)(minecraft, username, player);
             found_player = true;
         }
     }
-    if (!found_player && target_username != "") {
+    if (!all_players && !found_player) {
         INFO("Invalid Player: %s", target_username.c_str());
     }
 }
@@ -299,11 +299,11 @@ static void handle_commands(unsigned char *minecraft) {
                 if (data.rfind(ban_command, 0) == 0) {
                     // IP-Ban Target Username
                     std::string ban_username = data.substr(ban_command.length());
-                    find_players(minecraft, ban_username, ban_callback);
+                    find_players(minecraft, ban_username, ban_callback, false);
                 } else if (data.rfind(kill_command, 0) == 0) {
                     // Kill Target Username
                     std::string kill_username = data.substr(kill_command.length());
-                    find_players(minecraft, kill_username, kill_callback);
+                    find_players(minecraft, kill_username, kill_callback, false);
                 } else if (data.rfind(say_command, 0) == 0) {
                     // Format Message
                     std::string message = "[Server] " + data.substr(say_command.length());
@@ -312,7 +312,7 @@ static void handle_commands(unsigned char *minecraft) {
                 } else if (data == list_command) {
                     // List Players
                     INFO("%s", "All Players:");
-                    find_players(minecraft, "", list_callback);
+                    find_players(minecraft, "", list_callback, true);
                 } else if (data == stop_command) {
                     // Stop Server
                     exit_handler(-1);
