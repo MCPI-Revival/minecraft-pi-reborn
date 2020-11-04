@@ -9,7 +9,6 @@
 #include <pthread.h>
 
 #include <unistd.h>
-#include <netinet/in.h>
 
 #include <SDL/SDL_events.h>
 
@@ -17,30 +16,6 @@
 
 #include "server.h"
 #include "server_properties.h"
-
-typedef void (*Minecraft_update_t)(unsigned char *minecraft);
-static Minecraft_update_t Minecraft_update = (Minecraft_update_t) 0x16b74;
-static void *Minecraft_update_original = NULL;
-
-struct LevelSettings {
-    unsigned long seed;
-    int32_t game_type;
-};
-
-typedef void (*Minecraft_selectLevel_t)(unsigned char *minecraft, std::string const& level_dir, std::string const& level_name, LevelSettings const& vsettings);
-static Minecraft_selectLevel_t Minecraft_selectLevel = (Minecraft_selectLevel_t) 0x16f38;
-
-typedef void (*Minecraft_hostMultiplayer_t)(unsigned char *minecraft, int32_t port);
-static Minecraft_hostMultiplayer_t Minecraft_hostMultiplayer = (Minecraft_hostMultiplayer_t) 0x16664;
-
-typedef void *(*ProgressScreen_t)(unsigned char *obj);
-static ProgressScreen_t ProgressScreen = (ProgressScreen_t) 0x37044;
-
-typedef void (*Minecraft_setScreen_t)(unsigned char *minecraft, unsigned char *screen);
-static Minecraft_setScreen_t Minecraft_setScreen = (Minecraft_setScreen_t) 0x15d6c;
-
-// Store Minecraft For Exit
-static unsigned char *stored_minecraft = NULL;
 
 // Server Properties
 static ServerProperties &get_server_properties() {
@@ -82,6 +57,27 @@ static void *read_stdin_thread(__attribute__((unused)) void *data) {
     }
 }
 
+typedef void (*Minecraft_update_t)(unsigned char *minecraft);
+static Minecraft_update_t Minecraft_update = (Minecraft_update_t) 0x16b74;
+static void *Minecraft_update_original = NULL;
+
+struct LevelSettings {
+    unsigned long seed;
+    int32_t game_type;
+};
+
+typedef void (*Minecraft_selectLevel_t)(unsigned char *minecraft, std::string const& level_dir, std::string const& level_name, LevelSettings const& vsettings);
+static Minecraft_selectLevel_t Minecraft_selectLevel = (Minecraft_selectLevel_t) 0x16f38;
+
+typedef void (*Minecraft_hostMultiplayer_t)(unsigned char *minecraft, int32_t port);
+static Minecraft_hostMultiplayer_t Minecraft_hostMultiplayer = (Minecraft_hostMultiplayer_t) 0x16664;
+
+typedef void *(*ProgressScreen_t)(unsigned char *obj);
+static ProgressScreen_t ProgressScreen = (ProgressScreen_t) 0x37044;
+
+typedef void (*Minecraft_setScreen_t)(unsigned char *minecraft, unsigned char *screen);
+static Minecraft_setScreen_t Minecraft_setScreen = (Minecraft_setScreen_t) 0x15d6c;
+
 // Create/Start World
 static void start_world(unsigned char *minecraft) {
     INFO("%s", "Starting Minecraft: Pi Edition Dedicated Server");
@@ -102,8 +98,6 @@ static void start_world(unsigned char *minecraft) {
     void *screen = ::operator new(0x4c);
     screen = (*ProgressScreen)((unsigned char *) screen);
     (*Minecraft_setScreen)(minecraft, (unsigned char *) screen);
-
-    stored_minecraft = minecraft;
 }
 
 typedef const char *(*Minecraft_getProgressMessage_t)(unsigned char *minecraft);
@@ -159,14 +153,10 @@ static void print_progress(unsigned char *minecraft) {
 }
 
 struct RakNet_RakNetGUID {
-    uint64_t g;
-    unsigned short SystemIndex;
+    unsigned char data[10];
 };
 struct RakNet_SystemAddress {
-    union {
-        sockaddr_in addr4;
-    } address;
-    unsigned short debugPort;
+    unsigned char data[20];
 };
 typedef RakNet_SystemAddress (*RakNet_RakPeer_GetSystemAddressFromGuid_t)(unsigned char *rak_peer, RakNet_RakNetGUID guid);
 
@@ -175,8 +165,6 @@ static ServerSideNetworkHandler_displayGameMessage_t ServerSideNetworkHandler_di
 
 typedef char *(*RakNet_SystemAddress_ToString_t)(RakNet_SystemAddress *system_address, bool print_delimiter, char delimiter);
 static RakNet_SystemAddress_ToString_t RakNet_SystemAddress_ToString = (RakNet_SystemAddress_ToString_t) 0xd6198;
-
-typedef void (*ServerSideNetworkHandler_onDisconnect_t)(unsigned char *server_side_network_handler, RakNet_RakNetGUID const& guid);
 
 static std::string get_banned_ips_file() {
     std::string file(getenv("HOME"));
@@ -206,15 +194,25 @@ static void find_players(unsigned char *minecraft, std::string target_username, 
     }
 }
 
-// Get IP From Player
-static char *get_player_ip(unsigned char *minecraft, unsigned char *player) {
-    RakNet_RakNetGUID guid = *(RakNet_RakNetGUID *) (player + 0xc08);
-    unsigned char *rak_net_instance = *(unsigned char **) (minecraft + 0x170);
-    unsigned char *rak_peer = *(unsigned char **) (rak_net_instance + 0x4);
+static RakNet_RakNetGUID *get_rak_net_guid(unsigned char *player) {
+    return (RakNet_RakNetGUID *) (player + 0xc08);
+}
+static RakNet_SystemAddress get_system_address(unsigned char *rak_peer, RakNet_RakNetGUID guid) {
     unsigned char *rak_peer_vtable = *(unsigned char **) rak_peer;
     RakNet_RakPeer_GetSystemAddressFromGuid_t RakNet_RakPeer_GetSystemAddressFromGuid = *(RakNet_RakPeer_GetSystemAddressFromGuid_t *) (rak_peer_vtable + 0xd0);
     // Get SystemAddress
-    RakNet_SystemAddress address = (*RakNet_RakPeer_GetSystemAddressFromGuid)(rak_peer, guid);
+    return (*RakNet_RakPeer_GetSystemAddressFromGuid)(rak_peer, guid);
+}
+static unsigned char *get_rak_peer(unsigned char *minecraft) {
+    unsigned char *rak_net_instance = *(unsigned char **) (minecraft + 0x170);
+    return *(unsigned char **) (rak_net_instance + 0x4);
+}
+
+// Get IP From Player
+static char *get_player_ip(unsigned char *minecraft, unsigned char *player) {
+    RakNet_RakNetGUID guid = *get_rak_net_guid(player);
+    unsigned char *rak_peer = get_rak_peer(minecraft);
+    RakNet_SystemAddress address = get_system_address(rak_peer, guid);
     // Get IP
     return (*RakNet_SystemAddress_ToString)(&address, false, '|');
 }
@@ -266,27 +264,40 @@ static void Level_saveLevelData_injection(unsigned char *level) {
     revert_overwrite((void *) Level_saveLevelData, Level_saveLevelData_original);
 }
 
+typedef void (*Minecraft_leaveGame_t)(unsigned char *minecraft, bool save_remote_level);
+static Minecraft_leaveGame_t Minecraft_leaveGame = (Minecraft_leaveGame_t) 0x15ea0;
+
 // Stop Server
+static bool exit_requested = false;
 static void exit_handler(__attribute__((unused)) int data) {
-    INFO("%s", "Stopping Server");
-    if (stored_minecraft != NULL) {
-        unsigned char *level = *(unsigned char **) (stored_minecraft + 0x188);
-        if (level != NULL) {
-            // Save Game
-            (*Level_saveLevelData)(level);
-        }
+    exit_requested = true;
+}
+static void handle_server_stop(unsigned char *minecraft) {
+    if (exit_requested) {
+        INFO("%s", "Stopping Server");
+        // Save And Exit
+        unsigned char *level = *(unsigned char **) (minecraft + 0x188);
+        (*Level_saveLevelData)(level);
+        (*Minecraft_leaveGame)(minecraft, false);
+        // Stop Game
+        SDL_Event event;
+        event.type = SDL_QUIT;
+        SDL_PushEvent(&event);
+
+        exit_requested = false;
     }
-    // Stop Game
-    SDL_Event event;
-    event.type = SDL_QUIT;
-    SDL_PushEvent(&event);
+}
+
+// Get ServerSideNetworkHandler From Minecraft
+static unsigned char *get_server_side_network_handler(unsigned char *minecraft) {
+    return *(unsigned char **) (minecraft + 0x174);
 }
 
 // Handle Commands
 static void handle_commands(unsigned char *minecraft) {
-    if (stdin_buffer_complete) {
+    if ((*Minecraft_isLevelGenerated)(minecraft) && stdin_buffer_complete) {
         if (stdin_buffer != NULL) {
-            unsigned char *server_side_network_handler = *(unsigned char **) (minecraft + 0x174);
+            unsigned char *server_side_network_handler = get_server_side_network_handler(minecraft);
             if (server_side_network_handler != NULL) {
                 std::string data((char *) stdin_buffer);
 
@@ -355,6 +366,9 @@ static void Minecraft_update_injection(unsigned char *minecraft) {
 
     // Handle Commands
     handle_commands(minecraft);
+
+    // Server Stop
+    handle_server_stop(minecraft);
 }
 
 typedef void (*Gui_addMessage_t)(unsigned char *gui, std::string const& text);
