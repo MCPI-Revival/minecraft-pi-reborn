@@ -25,6 +25,7 @@ static ServerProperties &get_server_properties() {
 
 // Default Server Properties
 #define DEFAULT_MOTD "Minecraft Server"
+#define DEFAULT_SHOW_MINECON_ICON "false"
 #define DEFAULT_GAME_MODE "0"
 #define DEFAULT_PORT "19132"
 #define DEFAULT_SEED ""
@@ -456,6 +457,8 @@ void server_init() {
         std::ofstream properties_file_output(file);
         properties_file_output << "# Message Of The Day\n";
         properties_file_output << "motd=" DEFAULT_MOTD "\n";
+        properties_file_output << "# Show The MineCon Icon Next To MOTD In Server List\n";
+        properties_file_output << "show-minecon-icon=" DEFAULT_SHOW_MINECON_ICON "\n";
         properties_file_output << "# Game Mode (0 = Survival, 1 = Creative)\n";
         properties_file_output << "game-mode=" DEFAULT_GAME_MODE "\n";
         properties_file_output << "# Port\n";
@@ -514,6 +517,12 @@ void server_init() {
     patch((void *) 0x166d0, max_players_patch);
     // Custom Banned IP List
     RakNet_RakPeer_IsBanned_original = overwrite((void *) RakNet_RakPeer_IsBanned, (void *) RakNet_RakPeer_IsBanned_injection);
+
+    if (get_server_properties().get_bool("show-minecon-icon", DEFAULT_SHOW_MINECON_ICON)) {
+        // Show The MineCon Icon Next To MOTD In Server List
+        unsigned char minecon_icon_patch[4] = {0x04, 0x1a, 0x9f, 0xe5};
+        patch((void *) 0x737e4, minecon_icon_patch);
+    }
 
     // Start Reading STDIN
     pthread_t read_stdin_thread_obj;
