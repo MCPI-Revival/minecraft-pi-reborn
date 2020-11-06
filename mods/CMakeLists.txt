@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.13.0)
 
 project(mods)
 
-add_compile_options(-Wall -Wextra -Werror)
+add_compile_options(-g -Wall -Wextra -Werror)
 add_link_options(-Wl,--no-undefined)
 add_definitions(-D_GLIBCXX_USE_CXX11_ABI=0)
 
@@ -13,7 +13,7 @@ include_directories(include)
 add_library(core SHARED src/core.c)
 target_link_libraries(core dl)
 
-add_library(server SHARED src/server/server.cpp src/server/server_properties.cpp)
+add_library(server SHARED src/server/server.cpp src/server/server_properties.cpp src/server/playerdata.cpp)
 target_link_libraries(server core dl SDL pthread)
 
 add_library(extra SHARED src/extra.c src/extra.cpp src/cxx11_util.cpp)

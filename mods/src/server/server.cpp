@@ -15,7 +15,9 @@
 #include <libcore/libcore.h>
 
 #include "server.h"
+#include "server_internal.h"
 #include "server_properties.h"
+#include "playerdata.h"
 
 // Server Properties
 static ServerProperties &get_server_properties() {
@@ -79,6 +81,11 @@ static ProgressScreen_t ProgressScreen = (ProgressScreen_t) 0x37044;
 typedef void (*Minecraft_setScreen_t)(unsigned char *minecraft, unsigned char *screen);
 static Minecraft_setScreen_t Minecraft_setScreen = (Minecraft_setScreen_t) 0x15d6c;
 
+// Get World Name
+std::string server_internal_get_world_name() {
+    return get_server_properties().get_string("world-name", DEFAULT_WORLD_NAME);
+}
+
 // Create/Start World
 static void start_world(unsigned char *minecraft) {
     INFO("%s", "Starting Minecraft: Pi Edition Dedicated Server");
@@ -89,7 +96,7 @@ static void start_world(unsigned char *minecraft) {
     int32_t seed = seed_str.length() > 0 ? std::stoi(seed_str) : time(NULL);
     settings.seed = seed;
 
-    std::string world_name = get_server_properties().get_string("world-name", DEFAULT_WORLD_NAME);
+    std::string world_name = server_internal_get_world_name();
     (*Minecraft_selectLevel)(minecraft, world_name, world_name, settings);
 
     int port = get_server_properties().get_int("port", DEFAULT_PORT);
@@ -175,15 +182,28 @@ static std::string get_banned_ips_file() {
 
 typedef void (*player_callback_t)(unsigned char *minecraft, std::string username, unsigned char *player);
 
+// Get Vector Of Players In Level
+std::vector<unsigned char *> server_internal_get_players(unsigned char *level) {
+    return *(std::vector<unsigned char *> *) (level + 0x60);
+}
+// Get Player's Username
+std::string server_internal_get_player_username(unsigned char *player) {
+    return *(char **) (player + 0xbf4);
+}
+// Get Level From Minecraft
+unsigned char *server_internal_get_level(unsigned char *minecraft) {
+    return *(unsigned char **) (minecraft + 0x188);
+}
+
 // Find Players With Username And Run Callback
 static void find_players(unsigned char *minecraft, std::string target_username, player_callback_t callback, bool all_players) {
-    unsigned char *level = *(unsigned char **) (minecraft + 0x188);
-    std::vector<unsigned char *> players = *(std::vector<unsigned char *> *) (level + 0x60);
+    unsigned char *level = server_internal_get_level(minecraft);
+    std::vector<unsigned char *> players = server_internal_get_players(level);
     bool found_player = false;
     for (std::size_t i = 0; i < players.size(); i++) {
         // Iterate Players
         unsigned char *player = players[i];
-        std::string username = *(std::string *) (player + 0xbf4);
+        std::string username = server_internal_get_player_username(player);
         if (all_players || username == target_username) {
             // Run Callback
             (*callback)(minecraft, username, player);
@@ -263,6 +283,9 @@ static void Level_saveLevelData_injection(unsigned char *level) {
     revert_overwrite((void *) Level_saveLevelData, Level_saveLevelData_original);
     (*Level_saveLevelData)(level);
     revert_overwrite((void *) Level_saveLevelData, Level_saveLevelData_original);
+
+    // Save Player Data
+    playerdata_save(level);
 }
 
 typedef void (*Minecraft_leaveGame_t)(unsigned char *minecraft, bool save_remote_level);
@@ -277,7 +300,7 @@ static void handle_server_stop(unsigned char *minecraft) {
     if (exit_requested) {
         INFO("%s", "Stopping Server");
         // Save And Exit
-        unsigned char *level = *(unsigned char **) (minecraft + 0x188);
+        unsigned char *level = server_internal_get_level(minecraft);
         (*Level_saveLevelData)(level);
         (*Minecraft_leaveGame)(minecraft, false);
         // Stop Game
@@ -517,6 +540,9 @@ void server_init() {
     patch((void *) 0x166d0, max_players_patch);
     // Custom Banned IP List
     RakNet_RakPeer_IsBanned_original = overwrite((void *) RakNet_RakPeer_IsBanned, (void *) RakNet_RakPeer_IsBanned_injection);
+
+    // Load Player Data
+    playerdata_init();
 
     if (get_server_properties().get_bool("show-minecon-icon", DEFAULT_SHOW_MINECON_ICON)) {
         // Show The MineCon Icon Next To MOTD In Server List

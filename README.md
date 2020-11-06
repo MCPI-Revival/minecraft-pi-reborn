@@ -19,7 +19,7 @@ To use, install the ``minecraft-pi-server`` package and run ``minecraft-pi-serve
 This is also compatible with MCPE 0.6.1.
 
 ### Limitations
-- Player data is not saved because of limitations with MCPE LAN worlds
+- Player inventories are not saved because of limitations with MCPE LAN worlds
   - An easy workaround is to place your inventory in a chest before logging off
 - Survival mode servers are only compatible with ``minecraft-pi-docker`` clients
 
