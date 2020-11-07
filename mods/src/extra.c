@@ -7,7 +7,7 @@
 #include "server/server.h"
 
 static int mob_spawning = 0;
-static uint32_t LevelData_getSpawnMobs_injection(__attribute__((unused)) int32_t obj) {
+static uint32_t LevelData_getSpawnMobs_injection(__attribute__((unused)) unsigned char *level_data) {
     return mob_spawning;
 }
 
@@ -18,21 +18,21 @@ void extra_set_is_right_click(int val) {
 
 typedef void (*releaseUsingItem_t)(unsigned char *game_mode, unsigned char *player);
 
-typedef void (*Minecraft_tickInput_t)(unsigned char *minecraft, uint32_t param_1);
+typedef void (*Minecraft_tickInput_t)(unsigned char *minecraft);
 static Minecraft_tickInput_t Minecraft_tickInput = (Minecraft_tickInput_t) 0x15ffc;
 static void *Minecraft_tickInput_original = NULL;
 
 typedef int (*Player_isUsingItem_t)(unsigned char *player);
 static Player_isUsingItem_t Player_isUsingItem = (Player_isUsingItem_t) 0x8f15c;
 
-static void Minecraft_tickInput_injection(unsigned char *minecraft, uint32_t param_1) {
+static void Minecraft_tickInput_injection(unsigned char *minecraft) {
     // Call Original Method
     revert_overwrite((void *) Minecraft_tickInput, Minecraft_tickInput_original);
-    (*Minecraft_tickInput)(minecraft, param_1);
+    (*Minecraft_tickInput)(minecraft);
     revert_overwrite((void *) Minecraft_tickInput, Minecraft_tickInput_original);
 
-    // GameMode Is Offset From param_1 By 0x160
-    // Player Is Offset From param_1 By 0x18c
+    // GameMode Is Offset From minecraft By 0x160
+    // Player Is Offset From minecraft By 0x18c
     if (!is_right_click) {
         unsigned char *game_mode = *(unsigned char **) (minecraft + 0x160);
         unsigned char *player = *(unsigned char **) (minecraft + 0x18c);
@@ -54,18 +54,20 @@ static void *Gui_tickItemDrop_original = NULL;
 
 static void Gui_tickItemDrop_injection(unsigned char *this) {
     if (SDL_ShowCursor(SDL_QUERY) == SDL_ENABLE) {
+        // Call Original Method
         revert_overwrite((void *) Gui_tickItemDrop, Gui_tickItemDrop_original);
         (*Gui_tickItemDrop)(this);
         revert_overwrite((void *) Gui_tickItemDrop, Gui_tickItemDrop_original);
     }
 }
 
-typedef void (*Gui_handleClick_t)(unsigned char *, unsigned char *, unsigned char *, unsigned char *);
+typedef void (*Gui_handleClick_t)(unsigned char *this, int32_t param_2, int32_t param_3, int32_t param_4);
 static Gui_handleClick_t Gui_handleClick = (Gui_handleClick_t) 0x2599c;
 static void *Gui_handleClick_original = NULL;
 
-static void Gui_handleClick_injection(unsigned char *this, unsigned char *param_2, unsigned char *param_3, unsigned char *param_4) {
+static void Gui_handleClick_injection(unsigned char *this, int32_t param_2, int32_t param_3, int32_t param_4) {
     if (SDL_ShowCursor(SDL_QUERY) == SDL_ENABLE) {
+        // Call Original Method
         revert_overwrite((void *) Gui_handleClick, Gui_handleClick_original);
         (*Gui_handleClick)(this, param_2, param_3, param_4);
         revert_overwrite((void *) Gui_handleClick, Gui_handleClick_original);
@@ -105,6 +107,7 @@ static void *Minecraft_setIsCreativeMode_original = NULL;
 static void Minecraft_setIsCreativeMode_injection(unsigned char *this, int32_t new_game_mode) {
     set_is_survival(!new_game_mode);
 
+    // Call Original Method
     revert_overwrite((void *) Minecraft_setIsCreativeMode, Minecraft_setIsCreativeMode_original);
     (*Minecraft_setIsCreativeMode)(this, new_game_mode);
     revert_overwrite((void *) Minecraft_setIsCreativeMode, Minecraft_setIsCreativeMode_original);
@@ -123,6 +126,7 @@ static Minecraft_init_t Minecraft_init = (Minecraft_init_t) 0x1700c;
 static void *Minecraft_init_original = NULL;
 
 static void Minecraft_init_injection(unsigned char *this) {
+    // Call Original Method
     revert_overwrite((void *) Minecraft_init, Minecraft_init_original);
     (*Minecraft_init)(this);
     revert_overwrite((void *) Minecraft_init, Minecraft_init_original);
@@ -170,6 +174,10 @@ int extra_get_mode() {
     } else {
         ERR("Inavlid MCPI_MODE: %s", mode);
     }
+}
+
+static int32_t Minecraft_getLicenseId_injection(__attribute__((unused)) unsigned char *minecraft) {
+    return 0;
 }
 
 __attribute__((constructor)) static void init() {
@@ -244,12 +252,12 @@ __attribute__((constructor)) static void init() {
     overwrite((void *) 0xbabec, LevelData_getSpawnMobs_injection);
 
     // Replace CreatorLevel With ServerLevel (This Fixes Beds And Mob Spawning)
-    unsigned char patch_data_4[4] = {0x68, 0x7e, 0x01, 0xeb};
-    patch((void *) 0x16f84, patch_data_4);
+    unsigned char level_patch[4] = {0x68, 0x7e, 0x01, 0xeb};
+    patch((void *) 0x16f84, level_patch);
 
     // Allocate Correct Size For ServerLevel
-    unsigned char patch_data_5[4] = {0x94, 0x0b, 0x00, 0x00};
-    patch((void *) 0x17004, patch_data_5);
+    unsigned char level_size_patch[4] = {0x94, 0x0b, 0x00, 0x00};
+    patch((void *) 0x17004, level_size_patch);
 
     if (extra_has_feature("Fancy Graphics")) {
         // Enable Fancy Graphics
@@ -257,8 +265,8 @@ __attribute__((constructor)) static void init() {
     }
 
     // Allow Connecting To Non-Pi Servers
-    unsigned char patch_data_9[4] = {0x0f, 0x00, 0x00, 0xea};
-    patch((void *) 0x6dc70, patch_data_9);
+    unsigned char server_patch[4] = {0x0f, 0x00, 0x00, 0xea};
+    patch((void *) 0x6dc70, server_patch);
 
     // Change Username
     const char *username;
@@ -286,4 +294,7 @@ __attribute__((constructor)) static void init() {
         unsigned char outline_patch[4] = {0x00, 0xf0, 0x20, 0xe3};
         patch((void *) 0x4a214, outline_patch);
     }
+
+    // Fix License
+    overwrite((void *) 0x16e8c, Minecraft_getLicenseId_injection);
 }

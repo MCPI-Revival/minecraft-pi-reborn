@@ -13,7 +13,7 @@
 #include <cstdio>
 
 extern "C" {
-    static cxx11_string readAssetFile(__attribute__((unused)) unsigned char *obj, std::string const& path) {
+    static cxx11_string AppPlatform_readAssetFile(__attribute__((unused)) unsigned char *app_platform, std::string const& path) {
         std::string full_path("./data/");
         full_path.append(path);
         std::ifstream stream(full_path);
@@ -27,7 +27,7 @@ extern "C" {
     typedef void (*Minecraft_setScreen_t)(unsigned char *, unsigned char *);
     static Minecraft_setScreen_t Minecraft_setScreen = (Minecraft_setScreen_t) 0x15d6c;
 
-    static void openTextEdit(unsigned char *local_player, unsigned char *sign) {
+    static void LocalPlayer_openTextEdit(unsigned char *local_player, unsigned char *sign) {
         if (*(int *)(sign + 0x18) == 4) {
             unsigned char *minecraft = *(unsigned char **) (local_player + 0xc90);
             unsigned char *screen = (unsigned char *) ::operator new(0xd0);
@@ -146,12 +146,12 @@ extern "C" {
     }
 
     __attribute((constructor)) static void init() {
-        // Implement AppPlatform::readAssetFile So Translations Work
-        overwrite((void *) 0x12b10, (void *) readAssetFile);
+        // Implement AppPlatform::AppPlatform_AppPlatform_readAssetFile So Translations Work
+        overwrite((void *) 0x12b10, (void *) AppPlatform_readAssetFile);
 
         if (extra_has_feature("Fix Sign Placement")) {
             // Fix Signs
-            patch_address((void *) 0x106460, (void *) openTextEdit);
+            patch_address((void *) 0x106460, (void *) LocalPlayer_openTextEdit);
             Screen_updateEvents_original = overwrite((void *) Screen_updateEvents, (void *) Screen_updateEvents_injection);
         }
 
