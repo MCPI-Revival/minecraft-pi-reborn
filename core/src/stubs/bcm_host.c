@@ -10,18 +10,6 @@ int32_t graphics_get_display_size(__attribute__((unused)) const uint16_t display
     return -1;
 }
 
-unsigned bcm_host_get_peripheral_address(void) {
-    return 0x20000000;
-}
-
-unsigned bcm_host_get_peripheral_size(void) {
-    return 0x01000000;
-}
-
-unsigned bcm_host_get_sdram_address(void) {
-    return 0x40000000;
-}
-
 uint32_t vc_dispmanx_display_open(__attribute__((unused)) uint32_t device) {
     return 0;
 }

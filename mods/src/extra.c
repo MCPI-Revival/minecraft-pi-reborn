@@ -176,10 +176,6 @@ int extra_get_mode() {
     }
 }
 
-static int32_t Minecraft_getLicenseId_injection(__attribute__((unused)) unsigned char *minecraft) {
-    return 0;
-}
-
 __attribute__((constructor)) static void init() {
     is_server = extra_get_mode() == 2;
     if (is_server) {
@@ -294,7 +290,4 @@ __attribute__((constructor)) static void init() {
         unsigned char outline_patch[4] = {0x00, 0xf0, 0x20, 0xe3};
         patch((void *) 0x4a214, outline_patch);
     }
-
-    // Fix License
-    overwrite((void *) 0x16e8c, Minecraft_getLicenseId_injection);
 }

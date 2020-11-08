@@ -5,13 +5,11 @@
 #include <stdint.h>
 #include <dirent.h>
 
-#include <libcore/libcore.h>
-
 // Minecraft: Pi Edition Was Not Compiled With 64-Bit Filesystem Support, So This Shims readdir() To Read Directories Properly
 
 #define FILENAME_SIZE 256
 
-HOOK(readdir, struct dirent *, (DIR *dirp)) {
+struct dirent *readdir(DIR *dirp) {
     struct dirent64 *original = readdir64(dirp);
     if (original == NULL) {
         return NULL;
