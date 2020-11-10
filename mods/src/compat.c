@@ -41,7 +41,6 @@ static void store_x11_window() {
 // Handle GLFW Error
 static void glfw_error(__attribute__((unused)) int error, const char *description) {
     ERR("GLFW Error: %s", description);
-    exit(1);
 }
 
 // Convert GLFW Key To SDL Key
@@ -191,8 +190,7 @@ HOOK(SDL_WM_SetCaption, void, (const char *title, __attribute__((unused)) const 
         glfwSetErrorCallback(glfw_error);
 
         if (!glfwInit()) {
-            fprintf(stderr, "Unable To Initialize GLFW\n");
-            exit(1);
+            ERR("%s", "Unable To Initialize GLFW");
         }
 
         // Create OpenGL ES 1.1 Context
@@ -203,8 +201,7 @@ HOOK(SDL_WM_SetCaption, void, (const char *title, __attribute__((unused)) const 
 
         glfw_window = glfwCreateWindow(DEFAULT_WIDTH, DEFAULT_HEIGHT, title, NULL, NULL);
         if (!glfw_window) {
-            fprintf(stderr, "Unable To Create GLFW Window\n");
-            exit(1);
+            ERR("%s", "Unable To Create GLFW Window");
         }
 
         // Don't Process Events In Server Mode

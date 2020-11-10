@@ -10,6 +10,9 @@ extern "C" {
 #include <stdlib.h>
 #include <dlfcn.h>
 
+#define INFO(msg, ...) fprintf(stderr, "[INFO]: " msg "\n", __VA_ARGS__);
+#define ERR(msg, ...) fprintf(stderr, "[ERR]: " msg "\n", __VA_ARGS__); exit(1);
+
 #define HOOK(name, return_type, args) \
     typedef return_type (*name##_t)args; \
     static name##_t real_##name = NULL; \
@@ -19,16 +22,12 @@ extern "C" {
             dlerror(); \
             real_##name = (name##_t) dlsym(RTLD_NEXT, #name); \
             if (!real_##name) { \
-                fprintf(stderr, "Error Resolving Symbol: "#name": %s\n", dlerror()); \
-                exit(1); \
+                ERR("Error Resolving Symbol: "#name": %s", dlerror()); \
             } \
         } \
     }; \
     \
     __attribute__((__used__)) return_type name args
-
-#define INFO(msg, ...) fprintf(stderr, "[INFO]: " msg "\n", __VA_ARGS__);
-#define ERR(msg, ...) fprintf(stderr, "[ERR]: " msg "\n", __VA_ARGS__); exit(1);
 
 void _overwrite_calls(const char *file, int line, void *start, void *target);
 #define overwrite_calls(start, target) _overwrite_calls(__FILE__, __LINE__, start, target);

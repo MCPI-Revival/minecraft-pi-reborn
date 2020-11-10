@@ -5,6 +5,7 @@
 #include <sys/mman.h>
 #include <stdint.h>
 #include <elf.h>
+#include <errno.h>
 
 #include <libcore/libcore.h>
 
@@ -75,18 +76,20 @@ struct overwrite_data {
     int line;
     void *target;
     void *replacement;
+    int found;
 };
 static void overwrite_calls_callback(void *section, Elf32_Word size, void *data) {
-    struct overwrite_data args = *(struct overwrite_data *) data;
+    struct overwrite_data *args = (struct overwrite_data *) data;
 
     for (uint32_t i = 0; i < size; i = i + 4) {
         unsigned char *addr = ((unsigned char *) section) + i;
         if (addr[3] == BL_INSTRUCTION) {
-            uint32_t check_instruction = generate_bl_instruction(addr, args.target);
+            uint32_t check_instruction = generate_bl_instruction(addr, args->target);
             unsigned char *check_instruction_array = (unsigned char *) &check_instruction;
             if (addr[0] == check_instruction_array[0] && addr[1] == check_instruction_array[1] && addr[2] == check_instruction_array[2]) {
-                uint32_t new_instruction = generate_bl_instruction(addr, args.replacement);
-                _patch(args.file, args.line, addr, (unsigned char *) &new_instruction);
+                uint32_t new_instruction = generate_bl_instruction(addr, args->replacement);
+                _patch(args->file, args->line, addr, (unsigned char *) &new_instruction);
+                args->found++;
             }
         }
     }
@@ -95,13 +98,21 @@ static void overwrite_calls_callback(void *section, Elf32_Word size, void *data)
 // Limit To 512 overwrite_calls() Uses
 #define CODE_BLOCK_SIZE 4096
 static unsigned char *code_block = NULL;
+#define CODE_SIZE 8
+static int code_block_remaining = CODE_BLOCK_SIZE;
 
 // Overwrite Function Calls
 void _overwrite_calls(const char *file, int line, void *start, void *target) {
     // BL Instructions Can Only Access A Limited Portion of Memory, So This Allocates Memory Closer To The Original Instruction, That When Run, Will Jump Into The Actual Target
     if (code_block == NULL) {
         code_block = mmap((void *) 0x200000, CODE_BLOCK_SIZE, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
+        if (code_block == MAP_FAILED) {
+            ERR("Unable To Allocate Code Block: %s", strerror(errno));
+        }
         INFO("Code Block Allocated At: 0x%08x", (uint32_t) code_block);
+    }
+    if (code_block_remaining < CODE_SIZE) {
+        ERR("%s", "Maximum Amount Of overwrite_calls() Uses Reached");
     }
     _overwrite(NULL, -1, code_block, target);
 
@@ -110,9 +121,16 @@ void _overwrite_calls(const char *file, int line, void *start, void *target) {
     data.line = line;
     data.target = start;
     data.replacement = code_block;
+    data.found = 0;
+
     iterate_text_section(overwrite_calls_callback, &data);
 
-    code_block = code_block + 8;
+    code_block = code_block + CODE_SIZE;
+    code_block_remaining = code_block_remaining - CODE_SIZE;
+
+    if (data.found < 1) {
+        ERR("(%s:%i) Unable To Find Callsites For 0x%08x", file, line, (uint32_t) start);
+    }
 }
 
 // Overwrite Function
