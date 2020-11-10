@@ -149,7 +149,8 @@ extern "C" {
             patch_address((void *) 0x10531c, (void *) Screen_updateEvents_injection);
         }
 
-        if (extra_has_feature("Expand Creative Inventory")) {
+        int is_server = extra_get_mode() == 2;
+        if (!is_server && extra_has_feature("Expand Creative Inventory")) {
             // Add Extra Items To Creative Inventory
             overwrite_calls((void *) FillingContainer_addItem, (void *) FillingContainer_addItem_injection);
         }

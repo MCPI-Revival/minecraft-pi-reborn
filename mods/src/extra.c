@@ -24,13 +24,16 @@ static Minecraft_tickInput_t Minecraft_tickInput = (Minecraft_tickInput_t) 0x15f
 typedef int (*Player_isUsingItem_t)(unsigned char *player);
 static Player_isUsingItem_t Player_isUsingItem = (Player_isUsingItem_t) 0x8f15c;
 
+// Enable Bow & Arrow Fix
+static int fix_bow = 0;
+
 static void Minecraft_tickInput_injection(unsigned char *minecraft) {
     // Call Original Method
     (*Minecraft_tickInput)(minecraft);
 
-    // GameMode Is Offset From minecraft By 0x160
-    // Player Is Offset From minecraft By 0x18c
-    if (!is_right_click) {
+    if (fix_bow && !is_right_click) {
+        // GameMode Is Offset From minecraft By 0x160
+        // Player Is Offset From minecraft By 0x18c
         unsigned char *game_mode = *(unsigned char **) (minecraft + 0x160);
         unsigned char *player = *(unsigned char **) (minecraft + 0x18c);
         if (player != NULL && game_mode != NULL && (*Player_isUsingItem)(player)) {
@@ -40,6 +43,7 @@ static void Minecraft_tickInput_injection(unsigned char *minecraft) {
         }
     }
 
+    // Clear Unused Sign Input
     extra_clear_input();
 }
 
@@ -207,10 +211,10 @@ __attribute__((constructor)) static void init() {
     // Disable Opening Inventory Using The Cursor When Cursor Is Hidden
     overwrite_calls((void *) Gui_handleClick, Gui_handleClick_injection);
 
-    if (extra_has_feature("Fix Bow & Arrow")) {
-        // Fix Bow
-        overwrite_calls((void *) Minecraft_tickInput, Minecraft_tickInput_injection);
-    }
+    // Enable Bow & Arrow Fix
+    fix_bow = extra_has_feature("Fix Bow & Arrow");
+    // Fix Bow & Arrow + Clear Unused Sign Input
+    overwrite_calls((void *) Minecraft_tickInput, Minecraft_tickInput_injection);
 
     if (extra_has_feature("Fix Attacking")) {
         // Allow Attacking Mobs
