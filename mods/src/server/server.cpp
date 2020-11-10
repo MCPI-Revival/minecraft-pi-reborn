@@ -62,7 +62,6 @@ static void *read_stdin_thread(__attribute__((unused)) void *data) {
 
 typedef void (*Minecraft_update_t)(unsigned char *minecraft);
 static Minecraft_update_t Minecraft_update = (Minecraft_update_t) 0x16b74;
-static void *Minecraft_update_original = NULL;
 
 struct LevelSettings {
     unsigned long seed;
@@ -273,16 +272,13 @@ static void list_callback(unsigned char *minecraft, std::string username, unsign
 
 typedef void (*Level_saveLevelData_t)(unsigned char *level);
 static Level_saveLevelData_t Level_saveLevelData = (Level_saveLevelData_t) 0xa2e94;
-static void *Level_saveLevelData_original = NULL;
 
 static void Level_saveLevelData_injection(unsigned char *level) {
     // Print Log Message
     INFO("%s", "Saving Game");
 
     // Call Original Method
-    revert_overwrite((void *) Level_saveLevelData, Level_saveLevelData_original);
     (*Level_saveLevelData)(level);
-    revert_overwrite((void *) Level_saveLevelData, Level_saveLevelData_original);
 
     // Save Player Data
     playerdata_save(level);
@@ -384,9 +380,7 @@ static void Minecraft_update_injection(unsigned char *minecraft) {
     print_progress(minecraft);
 
     // Call Original Method
-    revert_overwrite((void *) Minecraft_update, Minecraft_update_original);
     (*Minecraft_update)(minecraft);
-    revert_overwrite((void *) Minecraft_update, Minecraft_update_original);
 
     // Handle Commands
     handle_commands(minecraft);
@@ -397,57 +391,44 @@ static void Minecraft_update_injection(unsigned char *minecraft) {
 
 typedef void (*Gui_addMessage_t)(unsigned char *gui, std::string const& text);
 static Gui_addMessage_t Gui_addMessage = (Gui_addMessage_t) 0x27820;
-static void *Gui_addMessage_original = NULL;
 
 static void Gui_addMessage_injection(unsigned char *gui, std::string const& text) {
     // Print Log Message
     fprintf(stderr, "[CHAT]: %s\n", text.c_str());
 
     // Call Original Method
-    revert_overwrite((void *) Gui_addMessage, Gui_addMessage_original);
     (*Gui_addMessage)(gui, text);
-    revert_overwrite((void *) Gui_addMessage, Gui_addMessage_original);
 }
 
 typedef bool (*RakNet_RakPeer_IsBanned_t)(unsigned char *rakpeer, const char *ip);
 static RakNet_RakPeer_IsBanned_t RakNet_RakPeer_IsBanned = (RakNet_RakPeer_IsBanned_t) 0xda3b4;
-static void *RakNet_RakPeer_IsBanned_original = NULL;
 
-static bool RakNet_RakPeer_IsBanned_injection(unsigned char *rakpeer, const char *ip) {
-    // Call Original
-    revert_overwrite((void *) RakNet_RakPeer_IsBanned, RakNet_RakPeer_IsBanned_original);
-    bool ret = (*RakNet_RakPeer_IsBanned)(rakpeer, ip);
-    revert_overwrite((void *) RakNet_RakPeer_IsBanned, RakNet_RakPeer_IsBanned_original);
-
-    if (ret) {
-        return true;
-    } else {
-        // Check banned-ips.txt
-        std::string banned_ips_file_path = get_banned_ips_file();
-        std::ifstream banned_ips_file(banned_ips_file_path);
-        if (banned_ips_file) {
-            bool ret = false;
-            if (banned_ips_file.good()) {
-                std::string line;
-                while (std::getline(banned_ips_file, line)) {
-                    if (line.length() > 0) {
-                        if (line[0] == '#') {
-                            continue;
-                        }
-                        if (strcmp(line.c_str(), ip) == 0) {
-                            ret = true;
-                            break;
-                        }
+static bool RakNet_RakPeer_IsBanned_injection(__attribute__((unused)) unsigned char *rakpeer, const char *ip) {
+    // Check banned-ips.txt
+    std::string banned_ips_file_path = get_banned_ips_file();
+    std::ifstream banned_ips_file(banned_ips_file_path);
+    if (banned_ips_file) {
+        bool ret = false;
+        if (banned_ips_file.good()) {
+            std::string line;
+            while (std::getline(banned_ips_file, line)) {
+                if (line.length() > 0) {
+                    if (line[0] == '#') {
+                        continue;
+                    }
+                    if (strcmp(line.c_str(), ip) == 0) {
+                        ret = true;
+                        break;
                     }
                 }
             }
-            if (banned_ips_file.is_open()) {
-                banned_ips_file.close();
-            }
-            return ret;
-        } else {
-            ERR("%s", "Unable To Read banned-ips.txt");
         }
+        if (banned_ips_file.is_open()) {
+            banned_ips_file.close();
+        }
+        return ret;
+    } else {
+        ERR("%s", "Unable To Read banned-ips.txt");
     }
 }
 
@@ -525,13 +506,13 @@ void server_init() {
     unsigned char player_patch[4] = {0x00, 0x20, 0xa0, 0xe3};
     patch((void *) 0x1685c, player_patch);
     // Start World On Launch
-    Minecraft_update_original = overwrite((void *) Minecraft_update, (void *) Minecraft_update_injection);
+    overwrite_calls((void *) Minecraft_update, (void *) Minecraft_update_injection);
     // Print Log On Game Save
-    Level_saveLevelData_original = overwrite((void *) Level_saveLevelData, (void *) Level_saveLevelData_injection);
+    overwrite_calls((void *) Level_saveLevelData, (void *) Level_saveLevelData_injection);
     // Exit handler
     signal(SIGINT, exit_handler);
     // Print Chat To Log
-    Gui_addMessage_original = overwrite((void *) Gui_addMessage, (void *) Gui_addMessage_injection);
+    overwrite_calls((void *) Gui_addMessage, (void *) Gui_addMessage_injection);
     // Allow All IPs To Join
     unsigned char allow_all_ip_patch[4] = {0x00, 0xf0, 0x20, 0xe3};
     patch((void *) 0xe1f6c, allow_all_ip_patch);
@@ -539,7 +520,7 @@ void server_init() {
     unsigned char max_players_patch[4] = {server_get_max_players(), 0x30, 0xa0, 0xe3};
     patch((void *) 0x166d0, max_players_patch);
     // Custom Banned IP List
-    RakNet_RakPeer_IsBanned_original = overwrite((void *) RakNet_RakPeer_IsBanned, (void *) RakNet_RakPeer_IsBanned_injection);
+    overwrite((void *) RakNet_RakPeer_IsBanned, (void *) RakNet_RakPeer_IsBanned_injection);
 
     // Load Player Data
     playerdata_init();

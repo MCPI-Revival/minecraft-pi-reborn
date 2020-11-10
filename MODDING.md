@@ -13,7 +13,7 @@ Minecraft: Pi Edition was compiled with an old version of GCC, so when interacti
 ## ``libcore.so`` API
 Header files and the shared library can be download from [Jenkins](https://jenkins.thebrokenrail.com/job/minecraft-pi-docker/job/master/lastSuccessfulBuild/artifact/out/lib).
 
-### ``void *overwrite(void *start, void *target)``
+### ``void overwrite(void *start, void *target)``
 This method replaces a function with another function.
 
 #### Parameters
@@ -21,7 +21,7 @@ This method replaces a function with another function.
 - **target:** The function you are replacing it with.
 
 #### Return Value
-The original contents of the function.
+None
 
 #### Warning
 This should never be used on functions that are only 1 byte long because it overwrites 2 bytes.
@@ -37,15 +37,18 @@ __attribute__((constructor)) static void init() {
 }
 ```
 
-### ``void revert_overwrite(void *start, void *original)``
-This allows you to revert ``overwrite()``. This can be used to call the original version of a function.
+### ``void overwrite_calls(void *start, void *original)``
+This allows you to overwrite all calls of a function rather than the function itself. This allows you to call the original function. However, this does not effect VTables.
 
 #### Parameters
-- **start:** The function that was overwritten.
-- **original:** The return value of ``overwrite()``.
+- **start:** The function call to overwrite;
+- **target:** The function call you are replacing it with.
 
 #### Return Value
 None
+
+#### Warning
+This method can only be safely used 512 times in total.
 
 #### Example
 ```c
@@ -54,15 +57,13 @@ static func_t func = (func_t) 0xabcde;
 static void *func_original = NULL;
 
 static int func_injection(int a, int b) {
-    revert_overwrite((void *) func, func_original);
     (*func)(a, b);
-    revert_overwrite((void *) func, func_original);
 
     return a + 4;
 }
 
 __attribute__((constructor)) static void init() {
-    func_original = overwrite((void *) func, func_injection);
+    overwrite_calls((void *) func, func_injection);
 }
 ```
 

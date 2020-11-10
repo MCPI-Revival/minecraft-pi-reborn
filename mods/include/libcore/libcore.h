@@ -30,10 +30,11 @@ extern "C" {
 #define INFO(msg, ...) fprintf(stderr, "[INFO]: " msg "\n", __VA_ARGS__);
 #define ERR(msg, ...) fprintf(stderr, "[ERR]: " msg "\n", __VA_ARGS__); exit(1);
 
-void *_overwrite(const char *file, int line, void *start, void *target);
-#define overwrite(start, target) _overwrite(__FILE__, __LINE__, start, target);
+void _overwrite_calls(const char *file, int line, void *start, void *target);
+#define overwrite_calls(start, target) _overwrite_calls(__FILE__, __LINE__, start, target);
 
-void revert_overwrite(void *start, void *original);
+void _overwrite(const char *file, int line, void *start, void *target);
+#define overwrite(start, target) _overwrite(__FILE__, __LINE__, start, target);
 
 void _patch(const char *file, int line, void *start, unsigned char patch[]);
 #define patch(start, patch) _patch(__FILE__, __LINE__, start, patch);

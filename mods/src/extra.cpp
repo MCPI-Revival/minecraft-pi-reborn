@@ -54,16 +54,13 @@ extern "C" {
 
     typedef void (*Screen_updateEvents_t)(unsigned char *screen);
     static Screen_updateEvents_t Screen_updateEvents = (Screen_updateEvents_t) 0x28eb8;
-    static void *Screen_updateEvents_original = NULL;
 
     typedef void (*Screen_keyboardNewChar_t)(unsigned char *screen, char key);
     typedef void (*Screen_keyPressed_t)(unsigned char *screen, int32_t key);
 
     static void Screen_updateEvents_injection(unsigned char *screen) {
         // Call Original
-        revert_overwrite((void *) Screen_updateEvents, Screen_updateEvents_original);
         (*Screen_updateEvents)(screen);
-        revert_overwrite((void *) Screen_updateEvents, Screen_updateEvents_original);
 
         if (*(char *)(screen + 4) == '\0') {
             uint32_t vtable = *((uint32_t *) screen);
@@ -88,7 +85,6 @@ extern "C" {
 
     typedef int32_t (*FillingContainer_addItem_t)(unsigned char *filling_container, unsigned char *item_instance);
     static FillingContainer_addItem_t FillingContainer_addItem = (FillingContainer_addItem_t) 0x92aa0;
-    static void *FillingContainer_addItem_original = NULL;
 
     static void inventory_add_item(unsigned char *inventory, unsigned char *item, bool is_tile) {
         unsigned char *item_instance = (unsigned char *) ::operator new(0xc);
@@ -115,9 +111,7 @@ extern "C" {
 
     static int32_t FillingContainer_addItem_injection(unsigned char *filling_container, unsigned char *item_instance) {
         // Call Original
-        revert_overwrite((void *) FillingContainer_addItem, FillingContainer_addItem_original);
         int32_t ret = (*FillingContainer_addItem)(filling_container, item_instance);
-        revert_overwrite((void *) FillingContainer_addItem, FillingContainer_addItem_original);
 
         // Add After Sign
         if (*(int32_t *) (item_instance + 0x4) == *(int32_t *) (*item_sign + 0x4)) {
@@ -152,12 +146,12 @@ extern "C" {
         if (extra_has_feature("Fix Sign Placement")) {
             // Fix Signs
             patch_address((void *) 0x106460, (void *) LocalPlayer_openTextEdit);
-            Screen_updateEvents_original = overwrite((void *) Screen_updateEvents, (void *) Screen_updateEvents_injection);
+            patch_address((void *) 0x10531c, (void *) Screen_updateEvents_injection);
         }
 
         if (extra_has_feature("Expand Creative Inventory")) {
             // Add Extra Items To Creative Inventory
-            FillingContainer_addItem_original = overwrite((void *) FillingContainer_addItem, (void *) FillingContainer_addItem_injection);
+            overwrite_calls((void *) FillingContainer_addItem, (void *) FillingContainer_addItem_injection);
         }
     }
 }

@@ -20,16 +20,13 @@ typedef void (*releaseUsingItem_t)(unsigned char *game_mode, unsigned char *play
 
 typedef void (*Minecraft_tickInput_t)(unsigned char *minecraft);
 static Minecraft_tickInput_t Minecraft_tickInput = (Minecraft_tickInput_t) 0x15ffc;
-static void *Minecraft_tickInput_original = NULL;
 
 typedef int (*Player_isUsingItem_t)(unsigned char *player);
 static Player_isUsingItem_t Player_isUsingItem = (Player_isUsingItem_t) 0x8f15c;
 
 static void Minecraft_tickInput_injection(unsigned char *minecraft) {
     // Call Original Method
-    revert_overwrite((void *) Minecraft_tickInput, Minecraft_tickInput_original);
     (*Minecraft_tickInput)(minecraft);
-    revert_overwrite((void *) Minecraft_tickInput, Minecraft_tickInput_original);
 
     // GameMode Is Offset From minecraft By 0x160
     // Player Is Offset From minecraft By 0x18c
@@ -48,29 +45,23 @@ static void Minecraft_tickInput_injection(unsigned char *minecraft) {
 
 typedef void (*Gui_tickItemDrop_t)(unsigned char *);
 static Gui_tickItemDrop_t Gui_tickItemDrop = (Gui_tickItemDrop_t) 0x27778;
-static void *Gui_tickItemDrop_original = NULL;
 
 #include <SDL/SDL_events.h>
 
 static void Gui_tickItemDrop_injection(unsigned char *this) {
     if (SDL_ShowCursor(SDL_QUERY) == SDL_ENABLE) {
         // Call Original Method
-        revert_overwrite((void *) Gui_tickItemDrop, Gui_tickItemDrop_original);
         (*Gui_tickItemDrop)(this);
-        revert_overwrite((void *) Gui_tickItemDrop, Gui_tickItemDrop_original);
     }
 }
 
 typedef void (*Gui_handleClick_t)(unsigned char *this, int32_t param_2, int32_t param_3, int32_t param_4);
 static Gui_handleClick_t Gui_handleClick = (Gui_handleClick_t) 0x2599c;
-static void *Gui_handleClick_original = NULL;
 
 static void Gui_handleClick_injection(unsigned char *this, int32_t param_2, int32_t param_3, int32_t param_4) {
     if (SDL_ShowCursor(SDL_QUERY) == SDL_ENABLE) {
         // Call Original Method
-        revert_overwrite((void *) Gui_handleClick, Gui_handleClick_original);
         (*Gui_handleClick)(this, param_2, param_3, param_4);
-        revert_overwrite((void *) Gui_handleClick, Gui_handleClick_original);
     }
 }
 
@@ -102,15 +93,12 @@ static void set_is_survival(int new_is_survival) {
 
 typedef void (*Minecraft_setIsCreativeMode_t)(unsigned char *, int32_t);
 static Minecraft_setIsCreativeMode_t Minecraft_setIsCreativeMode = (Minecraft_setIsCreativeMode_t) 0x16ec4;
-static void *Minecraft_setIsCreativeMode_original = NULL;
 
 static void Minecraft_setIsCreativeMode_injection(unsigned char *this, int32_t new_game_mode) {
     set_is_survival(!new_game_mode);
 
     // Call Original Method
-    revert_overwrite((void *) Minecraft_setIsCreativeMode, Minecraft_setIsCreativeMode_original);
     (*Minecraft_setIsCreativeMode)(this, new_game_mode);
-    revert_overwrite((void *) Minecraft_setIsCreativeMode, Minecraft_setIsCreativeMode_original);
 }
 
 static char *get_username() {
@@ -121,15 +109,12 @@ static char *get_username() {
     return username;
 }
 
-typedef void (*Minecraft_init_t)(unsigned char *);
+typedef void (*Minecraft_init_t)(unsigned char *this);
 static Minecraft_init_t Minecraft_init = (Minecraft_init_t) 0x1700c;
-static void *Minecraft_init_original = NULL;
 
 static void Minecraft_init_injection(unsigned char *this) {
     // Call Original Method
-    revert_overwrite((void *) Minecraft_init, Minecraft_init_original);
     (*Minecraft_init)(this);
-    revert_overwrite((void *) Minecraft_init, Minecraft_init_original);
 
     // Enable Fancy Graphics
     *(this + 83) = 1;
@@ -205,7 +190,7 @@ __attribute__((constructor)) static void init() {
 
     // Dynamic Game Mode Switching
     set_is_survival(1);
-    Minecraft_setIsCreativeMode_original = overwrite((void *) Minecraft_setIsCreativeMode, Minecraft_setIsCreativeMode_injection);
+    overwrite_calls((void *) Minecraft_setIsCreativeMode, Minecraft_setIsCreativeMode_injection);
 
     // Get Default Game Mode
     if (!is_server) {
@@ -218,13 +203,13 @@ __attribute__((constructor)) static void init() {
     }
 
     // Disable Item Dropping Using The Cursor When Cursor Is Hidden
-    Gui_tickItemDrop_original = overwrite((void *) Gui_tickItemDrop, Gui_tickItemDrop_injection);
+    overwrite_calls((void *) Gui_tickItemDrop, Gui_tickItemDrop_injection);
     // Disable Opening Inventory Using The Cursor When Cursor Is Hidden
-    Gui_handleClick_original = overwrite((void *) Gui_handleClick, Gui_handleClick_injection);
+    overwrite_calls((void *) Gui_handleClick, Gui_handleClick_injection);
 
     if (extra_has_feature("Fix Bow & Arrow")) {
         // Fix Bow
-        Minecraft_tickInput_original = overwrite((void *) Minecraft_tickInput, Minecraft_tickInput_injection);
+        overwrite_calls((void *) Minecraft_tickInput, Minecraft_tickInput_injection);
     }
 
     if (extra_has_feature("Fix Attacking")) {
@@ -257,7 +242,7 @@ __attribute__((constructor)) static void init() {
 
     if (extra_has_feature("Fancy Graphics")) {
         // Enable Fancy Graphics
-        Minecraft_init_original = overwrite((void *) Minecraft_init, Minecraft_init_injection);
+        overwrite_calls((void *) Minecraft_init, Minecraft_init_injection);
     }
 
     // Allow Connecting To Non-Pi Servers

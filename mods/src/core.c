@@ -1,55 +1,132 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
 #include <sys/mman.h>
 #include <stdint.h>
+#include <elf.h>
 
 #include <libcore/libcore.h>
 
-#define PATCH_PRINTF(file, line, start, str) if (file != NULL) fprintf(stderr, "[PATCH]: (%s:%i) Patching (0x%04x) - "str": 0x%02x 0x%02x 0x%02x 0x%02x\n", file, line, (uint32_t) start, data[0], data[1], data[2], data[3]);
+// Find And Iterate Over All .text Sections In Current Binary
+typedef void (*text_section_callback)(void *section, Elf32_Word size, void *data);
+static void iterate_text_section(text_section_callback callback, void *data) {
+    // Load Main Binary
+    char *real_path = realpath("/proc/self/exe", NULL);
+    FILE *file_obj = fopen(real_path, "rb");
+    free(real_path);
 
-#define ORIGINAL_SIZE 8
+    // Get File Size
+    fseek(file_obj, 0L, SEEK_END);
+    long int size = ftell(file_obj);
+    fseek(file_obj, 0L, SEEK_SET);
 
-void *_overwrite(const char *file, int line, void *start, void *target) {
-    void *original = malloc(ORIGINAL_SIZE);
-    memcpy(original, start, ORIGINAL_SIZE);
+    // Map File To Pointer
+    unsigned char *file_map = mmap(0, size, PROT_READ, MAP_PRIVATE, fileno(file_obj), 0);
 
-    int thumb = ((uint32_t) start) & 1;
-    unsigned char *patch_data;
-    if (thumb) {
-        unsigned char patch_data_temp[4] = {0xdf, 0xf8, 0x00, 0xf0};
-        patch_data = patch_data_temp;
-    } else {
-        unsigned char patch_data_temp[4] = {0x04, 0xf0, 0x1f, 0xe5};
-        patch_data = patch_data_temp;
+    // Parse ELF
+    Elf32_Ehdr *elf_header = (Elf32_Ehdr *) file_map;
+    Elf32_Shdr *elf_section_headers = (Elf32_Shdr *) (file_map + elf_header->e_shoff);
+    int elf_section_header_count = elf_header->e_shnum;
+
+    // Locate Section Names
+    Elf32_Shdr elf_strtab = elf_section_headers[elf_header->e_shstrndx];
+    unsigned char *elf_strtab_p = file_map + elf_strtab.sh_offset;
+
+    // Iterate Sections
+    for (int i = 0; i < elf_section_header_count; ++i) {
+        Elf32_Shdr header = elf_section_headers[i];
+        char *name = (char *) (elf_strtab_p + header.sh_name);
+        if (strcmp(name, ".text") == 0) {
+            (*callback)((void *) header.sh_addr, header.sh_size, data);
+        }
     }
+
+    // Unmap And Close File
+    munmap(file_map, size);
+    fclose(file_obj);
+}
+
+// BL Instruction Magic Number
+#define BL_INSTRUCTION 0xeb
+
+// Generate A BL Instruction
+static uint32_t generate_bl_instruction(void *from, void *to) {
+    uint32_t instruction;
+    unsigned char *instruction_array = (unsigned char *) &instruction;
+
+    instruction_array[3] = BL_INSTRUCTION;
+
+    unsigned char *pc = ((unsigned char *) from) + 8;
+    int32_t offset = (int32_t) to - (int32_t) pc;
+    int32_t target = offset >> 2;
+
+    unsigned char *target_array = (unsigned char *) &target;
+    instruction_array[0] = target_array[0];
+    instruction_array[1] = target_array[1];
+    instruction_array[2] = target_array[2];
+
+    return instruction;
+}
+
+// Run For Every .text Section
+struct overwrite_data {
+    const char *file;
+    int line;
+    void *target;
+    void *replacement;
+};
+static void overwrite_calls_callback(void *section, Elf32_Word size, void *data) {
+    struct overwrite_data args = *(struct overwrite_data *) data;
+
+    for (uint32_t i = 0; i < size; i = i + 4) {
+        unsigned char *addr = ((unsigned char *) section) + i;
+        if (addr[3] == BL_INSTRUCTION) {
+            uint32_t check_instruction = generate_bl_instruction(addr, args.target);
+            unsigned char *check_instruction_array = (unsigned char *) &check_instruction;
+            if (addr[0] == check_instruction_array[0] && addr[1] == check_instruction_array[1] && addr[2] == check_instruction_array[2]) {
+                uint32_t new_instruction = generate_bl_instruction(addr, args.replacement);
+                _patch(args.file, args.line, addr, (unsigned char *) &new_instruction);
+            }
+        }
+    }
+}
+
+// Limit To 512 overwrite_calls() Uses
+#define CODE_BLOCK_SIZE 4096
+static unsigned char *code_block = NULL;
+
+// Overwrite Function Calls
+void _overwrite_calls(const char *file, int line, void *start, void *target) {
+    // BL Instructions Can Only Access A Limited Portion of Memory, So This Allocates Memory Closer To The Original Instruction, That When Run, Will Jump Into The Actual Target
+    if (code_block == NULL) {
+        code_block = mmap((void *) 0x200000, CODE_BLOCK_SIZE, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
+        INFO("Code Block Allocated At: 0x%08x", (uint32_t) code_block);
+    }
+    _overwrite(NULL, -1, code_block, target);
+
+    struct overwrite_data data;
+    data.file = file;
+    data.line = line;
+    data.target = start;
+    data.replacement = code_block;
+    iterate_text_section(overwrite_calls_callback, &data);
+
+    code_block = code_block + 8;
+}
+
+// Overwrite Function
+void _overwrite(const char *file, int line, void *start, void *target) {
+    unsigned char patch_data[4] = {0x04, 0xf0, 0x1f, 0xe5};
 
     _patch(file, line, start, patch_data);
     _patch_address(file, line, start + 4, target);
-
-    return original;
 }
 
-void revert_overwrite(void *start, void *original) {
-    unsigned char *data = (unsigned char *) start;
-    int thumb = ((uint32_t) start) & 1;
-    if (thumb) {
-        data--;
-    }
+// Print Patch Debug Data
+#define PATCH_PRINTF(file, line, start, str) if (file != NULL) fprintf(stderr, "[PATCH]: (%s:%i) Patching (0x%08x) - "str": 0x%02x 0x%02x 0x%02x 0x%02x\n", file, line, (uint32_t) start, data[0], data[1], data[2], data[3]);
 
-    // Store Current Value In Temp
-    void *temp = malloc(ORIGINAL_SIZE);
-    memcpy(temp, data, ORIGINAL_SIZE);
-
-    // Insert Original Value
-    _patch(NULL, -1, start, original);
-    _patch(NULL, -1, start + 4, original + 4);
-
-    // Complete Memory Swap
-    memcpy(original, temp, ORIGINAL_SIZE);
-    free(temp);
-}
-
+// Patch Instruction
 void _patch(const char *file, int line, void *start, unsigned char patch[]) {
     size_t page_size = sysconf(_SC_PAGESIZE);
     uintptr_t end = ((uintptr_t) start) + 4;
@@ -57,10 +134,6 @@ void _patch(const char *file, int line, void *start, unsigned char patch[]) {
     mprotect((void *) page_start, end - page_start, PROT_READ | PROT_WRITE);
 
     unsigned char *data = (unsigned char *) start;
-    int thumb = ((uint32_t) start) & 1;
-    if (thumb) {
-        data--;
-    }
 
     PATCH_PRINTF(file, line, start, "original");
 
@@ -74,6 +147,7 @@ void _patch(const char *file, int line, void *start, unsigned char patch[]) {
     __clear_cache(start, (void *) end);
 }
 
+// Patch Address
 void _patch_address(const char *file, int line, void *start, void *target) {
     uint32_t addr = (uint32_t) target;
     unsigned char patch_data[4] = {addr & 0xff, (addr >> 8) & 0xff, (addr >> 16) & 0xff, (addr >> 24) & 0xff};

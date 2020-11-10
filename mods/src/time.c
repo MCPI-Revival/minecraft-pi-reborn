@@ -1,6 +1,7 @@
 #include <sys/time.h>
 #include <time.h>
 
+// Replace gettimeofday() With clock_gettime()
 int gettimeofday(struct timeval *tv, __attribute__((unused)) void *tz) {
     struct timespec tp;
     int ret = clock_gettime(CLOCK_MONOTONIC, &tp);
