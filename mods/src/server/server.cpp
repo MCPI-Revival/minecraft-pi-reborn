@@ -297,7 +297,9 @@ static void handle_server_stop(unsigned char *minecraft) {
         INFO("%s", "Stopping Server");
         // Save And Exit
         unsigned char *level = server_internal_get_level(minecraft);
-        (*Level_saveLevelData)(level);
+        if (level != NULL) {
+            Level_saveLevelData_injection(level);
+        }
         (*Minecraft_leaveGame)(minecraft, false);
         // Stop Game
         SDL_Event event;
@@ -433,7 +435,8 @@ static bool RakNet_RakPeer_IsBanned_injection(__attribute__((unused)) unsigned c
 }
 
 const char *server_get_motd() {
-    return get_server_properties().get_string("motd", DEFAULT_MOTD).c_str();
+    std::string *motd = new std::string(get_server_properties().get_string("motd", DEFAULT_MOTD));
+    return motd->c_str();
 }
 int server_get_mob_spawning() {
     return get_server_properties().get_bool("spawn-mobs", DEFAULT_MOB_SPAWNING);
