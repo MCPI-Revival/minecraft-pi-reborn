@@ -41,6 +41,7 @@ static void store_x11_window() {
 // Handle GLFW Error
 static void glfw_error(__attribute__((unused)) int error, const char *description) {
     ERR("GLFW Error: %s", description);
+    exit(1);
 }
 
 // Convert GLFW Key To SDL Key
