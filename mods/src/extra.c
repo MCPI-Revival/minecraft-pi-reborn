@@ -116,12 +116,19 @@ static char *get_username() {
 typedef void (*Minecraft_init_t)(unsigned char *this);
 static Minecraft_init_t Minecraft_init = (Minecraft_init_t) 0x1700c;
 
+static int fancy_graphics;
+static int peaceful_mode;
 static void Minecraft_init_injection(unsigned char *this) {
     // Call Original Method
     (*Minecraft_init)(this);
 
+    unsigned char *options = this + 0x3c;
     // Enable Fancy Graphics
-    *(this + 83) = 1;
+    *(options + 0x17) = fancy_graphics;
+    // Enable Crosshair In Touch GUI
+    *(options + 0x105) = 1;
+    // Peaceful Mode
+    *(int32_t *) (options + 0xe8) = peaceful_mode ? 0 : 2;
 }
 
 // Is Dedicated Server
@@ -165,31 +172,23 @@ int extra_get_mode() {
     }
 }
 
+static int32_t Minecraft_isTouchscreen(__attribute__((unused)) unsigned char *minecraft) {
+    return 1;
+}
+
 __attribute__((constructor)) static void init() {
     is_server = extra_get_mode() == 2;
     if (is_server) {
         server_init();
     }
 
-    if (!is_server && extra_has_feature("Touch GUI")) {
+    int touch_gui = !is_server && extra_has_feature("Touch GUI");
+    if (touch_gui) {
         // Main UI
-        unsigned char touch_gui_patch[4] = {0x01, 0x00, 0x50, 0xe3};
-        patch((void *) 0x292fc, touch_gui_patch);
-        // Invalid License UI
-        patch((void *) 0x3a008, touch_gui_patch);
-        // Disconnection UI
-        patch((void *) 0x371f0, touch_gui_patch);
-        // Pause UI
-        patch((void *) 0x36824, touch_gui_patch);
-        // Bed UI
-        patch((void *) 0x336d0, touch_gui_patch);
-        // Game Mode UI
-        patch((void *) 0x31474, touch_gui_patch);
-        // Death UI
-        patch((void *) 0x3055c, touch_gui_patch);
-        // Delete UI
-        unsigned char delete_touch_gui[4] = {0x01, 0x70, 0x50, 0xe2};
-        patch((void *) 0x2ad04, delete_touch_gui);
+        overwrite((void *) 0x1639c, Minecraft_isTouchscreen);
+        // Force Correct Toolbar Size
+        unsigned char toolbar_patch[4] = {0x01, 0x00, 0x50, 0xe3};
+        patch((void *) 0x257b0, toolbar_patch);
     }
 
     // Dynamic Game Mode Switching
@@ -244,10 +243,13 @@ __attribute__((constructor)) static void init() {
     unsigned char level_size_patch[4] = {0x94, 0x0b, 0x00, 0x00};
     patch((void *) 0x17004, level_size_patch);
 
-    if (extra_has_feature("Fancy Graphics")) {
-        // Enable Fancy Graphics
-        overwrite_calls((void *) Minecraft_init, Minecraft_init_injection);
-    }
+    // Enable Fancy Graphics
+    fancy_graphics = extra_has_feature("Fancy Graphics");
+    // Peaceful Mode
+    peaceful_mode = extra_has_feature("Peaceful Mode");
+
+    // Set Options
+    overwrite_calls((void *) Minecraft_init, Minecraft_init_injection);
 
     // Allow Connecting To Non-Pi Servers
     unsigned char server_patch[4] = {0x0f, 0x00, 0x00, 0xea};
@@ -274,9 +276,8 @@ __attribute__((constructor)) static void init() {
         patch((void *) 0x44b90, autojump_patch);
     }
 
-    if (extra_has_feature("Show Block Outlines")) {
-        // Show Block Outlines
-        unsigned char outline_patch[4] = {0x00, 0xf0, 0x20, 0xe3};
-        patch((void *) 0x4a214, outline_patch);
-    }
+    // Show Block Outlines
+    int block_outlines = extra_has_feature("Show Block Outlines");
+    unsigned char outline_patch[4] = {block_outlines ? touch_gui : !touch_gui, 0xf0, 0x20, 0xe3};
+    patch((void *) 0x4a214, outline_patch);
 }
