@@ -27,6 +27,3 @@ target_link_libraries(compat core extra SDL GLESv1_CM GLESv2 X11 dl freeimage gl
 target_link_options(compat PRIVATE "-Wl,--no-as-needed")
 
 add_library(readdir SHARED src/readdir.c)
-
-add_library(time SHARED src/time.c)
-target_link_libraries(time rt)
