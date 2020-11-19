@@ -11,7 +11,7 @@ extern "C" {
 #include <dlfcn.h>
 
 #define INFO(msg, ...) fprintf(stderr, "[INFO]: " msg "\n", __VA_ARGS__);
-#define ERR(msg, ...) fprintf(stderr, "[ERR]: " msg "\n", __VA_ARGS__); exit(1);
+#define ERR(msg, ...) fprintf(stderr, "[ERR]: " msg "\n", __VA_ARGS__); exit(EXIT_FAILURE);
 
 #define HOOK(name, return_type, args) \
     typedef return_type (*name##_t)args; \

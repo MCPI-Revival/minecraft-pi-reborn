@@ -1,6 +1,6 @@
 #ifndef CXX_11_UTIL_H
 
-#define CXX_11_UTIL
+#define CXX_11_UTIL_H
 
 #ifdef __cplusplus
 extern "C" {

@@ -72,7 +72,7 @@ static void load(char **ld_path, char **ld_preload, char *folder) {
                 } else if (errno != 0) {
                     // Error Reading Contents Of Folder
                     fprintf(stderr, "Error Reading Directory: %s\n", strerror(errno));
-                    exit(1);
+                    exit(EXIT_FAILURE);
                 } else {
                     break;
                 }
@@ -94,7 +94,7 @@ static void load(char **ld_path, char **ld_preload, char *folder) {
         } else {
             // Unable To Open Folder
             fprintf(stderr, "Error Opening Directory: %s\n", strerror(errno));
-            exit(1);
+            exit(EXIT_FAILURE);
         }
     }
 }
