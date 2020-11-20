@@ -25,3 +25,6 @@ This is also compatible with MCPE 0.6.1.
 
 ## Modding
 [View Modding](MODDING.md)
+
+## Credits
+[View Credits](CREDITS.md)
