@@ -37,6 +37,36 @@ __attribute__((constructor)) static void init() {
 }
 ```
 
+### ``void overwrite_call(void *start, void *original)``
+This allows you to overwrite a specific call of a function rather than the function itself. This allows you to call the original function. However, this does not effect VTables.
+
+#### Parameters
+- **start:** The address of the function call to overwrite.
+- **target:** The function call you are replacing it with.
+
+#### Return Value
+None
+
+#### Warning
+This method can only be safely used 512 times in total.
+
+#### Example
+```c
+typedef int (*func_t)(int a, int b);
+static func_t func = (func_t) 0xabcde;
+static void *func_original = NULL;
+
+static int func_injection(int a, int b) {
+    (*func)(a, b);
+
+    return a + 4;
+}
+
+__attribute__((constructor)) static void init() {
+    overwrite_call((void *) 0xabcd, func_injection);
+}
+```
+
 ### ``void overwrite_calls(void *start, void *original)``
 This allows you to overwrite all calls of a function rather than the function itself. This allows you to call the original function. However, this does not effect VTables.
 

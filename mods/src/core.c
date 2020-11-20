@@ -101,8 +101,7 @@ static unsigned char *code_block = NULL;
 #define CODE_SIZE 8
 static int code_block_remaining = CODE_BLOCK_SIZE;
 
-// Overwrite Function Calls
-void _overwrite_calls(const char *file, int line, void *start, void *target) {
+static void update_code_block(void *target) {
     // BL Instructions Can Only Access A Limited Portion of Memory, So This Allocates Memory Closer To The Original Instruction, That When Run, Will Jump Into The Actual Target
     if (code_block == NULL) {
         code_block = mmap((void *) 0x200000, CODE_BLOCK_SIZE, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
@@ -115,6 +114,19 @@ void _overwrite_calls(const char *file, int line, void *start, void *target) {
         ERR("%s", "Maximum Amount Of overwrite_calls() Uses Reached");
     }
     _overwrite(NULL, -1, code_block, target);
+}
+
+// Overwrite Specific BL Instruction
+void _overwrite_call(const char *file, int line, void *start, void *target) {
+    update_code_block(target);
+
+    uint32_t new_instruction = generate_bl_instruction(start, code_block);
+    _patch(file, line, start, (unsigned char *) &new_instruction);
+}
+
+// Overwrite Function Calls
+void _overwrite_calls(const char *file, int line, void *start, void *target) {
+    update_code_block(target);
 
     struct overwrite_data data;
     data.file = file;

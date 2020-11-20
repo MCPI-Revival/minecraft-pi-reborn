@@ -93,7 +93,6 @@ extern "C" {
     }
 
     // Items
-    static unsigned char **item_sign = (unsigned char **) 0x17bba4;
     static unsigned char **item_flintAndSteel = (unsigned char **) 0x17ba70;
     static unsigned char **item_snowball = (unsigned char **) 0x17bbb0;
     static unsigned char **item_shears = (unsigned char **) 0x17bbf0;
@@ -113,30 +112,44 @@ extern "C" {
         // Call Original
         int32_t ret = (*FillingContainer_addItem)(filling_container, item_instance);
 
-        // Add After Sign
-        if (*(int32_t *) (item_instance + 0x4) == *(int32_t *) (*item_sign + 0x4)) {
-            // Add Items
-            inventory_add_item(filling_container, *item_flintAndSteel, false);
-            inventory_add_item(filling_container, *item_snowball, false);
-            inventory_add_item(filling_container, *item_egg, false);
-            inventory_add_item(filling_container, *item_shears, false);
-            for (int i = 0; i < 15; i++) {
-                unsigned char *item_instance = (unsigned char *) ::operator new(0xc);
-                item_instance = (*ItemInstance_damage)(item_instance, *item_dye_powder, 1, i);
-                (*FillingContainer_addItem)(filling_container, item_instance);
-            }
-            // Add Tiles
-            inventory_add_item(filling_container, *tile_water, true);
-            inventory_add_item(filling_container, *tile_lava, true);
-            inventory_add_item(filling_container, *tile_calmWater, true);
-            inventory_add_item(filling_container, *tile_calmLava, true);
-            inventory_add_item(filling_container, *tile_glowingObsidian, true);
-            inventory_add_item(filling_container, *tile_topSnow, true);
-            inventory_add_item(filling_container, *tile_ice, true);
-            inventory_add_item(filling_container, *tile_invisible_bedrock, true);
+        // Add Items
+        inventory_add_item(filling_container, *item_flintAndSteel, false);
+        inventory_add_item(filling_container, *item_snowball, false);
+        inventory_add_item(filling_container, *item_egg, false);
+        inventory_add_item(filling_container, *item_shears, false);
+        for (int i = 0; i < 15; i++) {
+            unsigned char *item_instance = (unsigned char *) ::operator new(0xc);
+            item_instance = (*ItemInstance_damage)(item_instance, *item_dye_powder, 1, i);
+            (*FillingContainer_addItem)(filling_container, item_instance);
         }
+        // Add Tiles
+        inventory_add_item(filling_container, *tile_water, true);
+        inventory_add_item(filling_container, *tile_lava, true);
+        inventory_add_item(filling_container, *tile_calmWater, true);
+        inventory_add_item(filling_container, *tile_calmLava, true);
+        inventory_add_item(filling_container, *tile_glowingObsidian, true);
+        inventory_add_item(filling_container, *tile_topSnow, true);
+        inventory_add_item(filling_container, *tile_ice, true);
+        inventory_add_item(filling_container, *tile_invisible_bedrock, true);
 
         return ret;
+    }
+
+    typedef void (*Minecraft_tick_t)(unsigned char *minecraft, int32_t param_1, int32_t param_2);
+    static Minecraft_tick_t Minecraft_tick = (Minecraft_tick_t) 0x16934;
+
+    typedef void (*Textures_tick_t)(unsigned char *textures, bool param_1);
+    static Textures_tick_t Textures_tick = (Textures_tick_t) 0x531c4;
+
+    static void Minecraft_tick_injection(unsigned char *minecraft, int32_t param_1, int32_t param_2) {
+        // Call Original Method
+        (*Minecraft_tick)(minecraft, param_1, param_2);
+
+        // Tick Dynamic Textures
+        unsigned char *textures = *(unsigned char **) (minecraft + 0x164);
+        if (textures != NULL) {
+            (*Textures_tick)(textures, true);
+        }
     }
 
     __attribute((constructor)) static void init() {
@@ -149,10 +162,14 @@ extern "C" {
             patch_address((void *) 0x10531c, (void *) Screen_updateEvents_injection);
         }
 
-        int is_server = extra_get_mode() == 2;
-        if (!is_server && extra_has_feature("Expand Creative Inventory")) {
-            // Add Extra Items To Creative Inventory
-            overwrite_calls((void *) FillingContainer_addItem, (void *) FillingContainer_addItem_injection);
+        if (extra_has_feature("Expand Creative Inventory")) {
+            // Add Extra Items To Creative Inventory (Only Replace Specific Function Call)
+            overwrite_call((void *) 0x8e0fc, (void *) FillingContainer_addItem_injection);
+        }
+
+        if (extra_has_feature("Animated Watter")) {
+            // Tick Dynamic Textures (Animated Water)
+            overwrite_calls((void *) Minecraft_tick, (void *) Minecraft_tick_injection);
         }
     }
 }

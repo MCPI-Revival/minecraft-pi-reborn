@@ -29,6 +29,9 @@ extern "C" {
     \
     __attribute__((__used__)) return_type name args
 
+void _overwrite_call(const char *file, int line, void *start, void *target);
+#define overwrite_call(start, target) _overwrite_call(__FILE__, __LINE__, start, target);
+
 void _overwrite_calls(const char *file, int line, void *start, void *target);
 #define overwrite_calls(start, target) _overwrite_calls(__FILE__, __LINE__, start, target);
 
