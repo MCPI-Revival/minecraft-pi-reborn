@@ -167,7 +167,7 @@ extern "C" {
             overwrite_call((void *) 0x8e0fc, (void *) FillingContainer_addItem_injection);
         }
 
-        if (extra_has_feature("Animated Watter")) {
+        if (extra_has_feature("Animated Water")) {
             // Tick Dynamic Textures (Animated Water)
             overwrite_calls((void *) Minecraft_tick, (void *) Minecraft_tick_injection);
         }
