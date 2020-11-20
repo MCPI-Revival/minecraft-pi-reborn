@@ -280,4 +280,10 @@ __attribute__((constructor)) static void init() {
     int block_outlines = extra_has_feature("Show Block Outlines");
     unsigned char outline_patch[4] = {block_outlines ? !touch_gui : touch_gui, 0x00, 0x50, 0xe3};
     patch((void *) 0x4a210, outline_patch);
+
+    if (extra_has_feature("Remove Invalid Item Background")) {
+        // Remove Invalid Item Background (A Red Background That Appears For Items That Are Not Obtainable Without Modding/Inventory Editing)
+        unsigned char invalid_item_background_patch[4] = {0x00, 0xf0, 0x20, 0xe3};
+        patch((void *) 0x63c98, invalid_item_background_patch);
+    }
 }
