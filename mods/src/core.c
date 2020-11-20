@@ -115,17 +115,26 @@ static void update_code_block(void *target) {
     }
     _overwrite(NULL, -1, code_block, target);
 }
+static void increment_code_block() {
+    code_block = code_block + CODE_SIZE;
+    code_block_remaining = code_block_remaining - CODE_SIZE;
+}
 
 // Overwrite Specific BL Instruction
 void _overwrite_call(const char *file, int line, void *start, void *target) {
+    // Add New Target To Code Block
     update_code_block(target);
 
     uint32_t new_instruction = generate_bl_instruction(start, code_block);
     _patch(file, line, start, (unsigned char *) &new_instruction);
+
+    // Increment Code Block Position
+    increment_code_block();
 }
 
 // Overwrite Function Calls
 void _overwrite_calls(const char *file, int line, void *start, void *target) {
+    // Add New Target To Code Block
     update_code_block(target);
 
     struct overwrite_data data;
@@ -137,8 +146,8 @@ void _overwrite_calls(const char *file, int line, void *start, void *target) {
 
     iterate_text_section(overwrite_calls_callback, &data);
 
-    code_block = code_block + CODE_SIZE;
-    code_block_remaining = code_block_remaining - CODE_SIZE;
+    // Increment Code Block Position
+    increment_code_block();
 
     if (data.found < 1) {
         ERR("(%s:%i) Unable To Find Callsites For 0x%08x", file, line, (uint32_t) start);
