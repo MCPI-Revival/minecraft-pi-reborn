@@ -278,6 +278,6 @@ __attribute__((constructor)) static void init() {
 
     // Show Block Outlines
     int block_outlines = extra_has_feature("Show Block Outlines");
-    unsigned char outline_patch[4] = {block_outlines ? touch_gui : !touch_gui, 0xf0, 0x20, 0xe3};
-    patch((void *) 0x4a214, outline_patch);
+    unsigned char outline_patch[4] = {block_outlines ? !touch_gui : touch_gui, 0x00, 0x50, 0xe3};
+    patch((void *) 0x4a210, outline_patch);
 }
