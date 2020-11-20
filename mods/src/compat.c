@@ -455,6 +455,12 @@ HOOK(SDL_GetWMInfo, int, (SDL_SysWMinfo *info)) {
     return 1;
 }
 
+// Force Smooth Shading In Smooth Lighting Mode
+HOOK(glShadeModel, void, (GLenum mode)) {
+    ensure_glShadeModel();
+    (*real_glShadeModel)(extra_get_smooth_lighting() ?  GL_SMOOTH : mode);
+}
+
 #include <stdlib.h>
 
 // Use VirGL

@@ -7,10 +7,12 @@
 #include "server/server.h"
 
 static int mob_spawning = 0;
+// Override Mob Spawning
 static uint32_t LevelData_getSpawnMobs_injection(__attribute__((unused)) unsigned char *level_data) {
     return mob_spawning;
 }
 
+// Store Right-Click Status
 static int is_right_click = 0;
 void extra_set_is_right_click(int val) {
     is_right_click = val;
@@ -27,6 +29,7 @@ static Player_isUsingItem_t Player_isUsingItem = (Player_isUsingItem_t) 0x8f15c;
 // Enable Bow & Arrow Fix
 static int fix_bow = 0;
 
+// Handle Input Fixes
 static void Minecraft_tickInput_injection(unsigned char *minecraft) {
     // Call Original Method
     (*Minecraft_tickInput)(minecraft);
@@ -52,6 +55,7 @@ static Gui_tickItemDrop_t Gui_tickItemDrop = (Gui_tickItemDrop_t) 0x27778;
 
 #include <SDL/SDL_events.h>
 
+// Block UI Interaction When Mouse Is Locked
 static void Gui_tickItemDrop_injection(unsigned char *this) {
     if (SDL_ShowCursor(SDL_QUERY) == SDL_ENABLE) {
         // Call Original Method
@@ -62,6 +66,7 @@ static void Gui_tickItemDrop_injection(unsigned char *this) {
 typedef void (*Gui_handleClick_t)(unsigned char *this, int32_t param_2, int32_t param_3, int32_t param_4);
 static Gui_handleClick_t Gui_handleClick = (Gui_handleClick_t) 0x2599c;
 
+// Block UI Interaction When Mouse Is Locked
 static void Gui_handleClick_injection(unsigned char *this, int32_t param_2, int32_t param_3, int32_t param_4) {
     if (SDL_ShowCursor(SDL_QUERY) == SDL_ENABLE) {
         // Call Original Method
@@ -98,6 +103,7 @@ static void set_is_survival(int new_is_survival) {
 typedef void (*Minecraft_setIsCreativeMode_t)(unsigned char *, int32_t);
 static Minecraft_setIsCreativeMode_t Minecraft_setIsCreativeMode = (Minecraft_setIsCreativeMode_t) 0x16ec4;
 
+// Handle Gamemode Switching
 static void Minecraft_setIsCreativeMode_injection(unsigned char *this, int32_t new_game_mode) {
     set_is_survival(!new_game_mode);
 
@@ -105,6 +111,7 @@ static void Minecraft_setIsCreativeMode_injection(unsigned char *this, int32_t n
     (*Minecraft_setIsCreativeMode)(this, new_game_mode);
 }
 
+// Get Custom Username
 static char *get_username() {
     char *username = getenv("MCPI_USERNAME");
     if (username == NULL) {
@@ -118,6 +125,7 @@ static Minecraft_init_t Minecraft_init = (Minecraft_init_t) 0x1700c;
 
 static int fancy_graphics;
 static int peaceful_mode;
+// Configure Options
 static void Minecraft_init_injection(unsigned char *this) {
     // Call Original Method
     (*Minecraft_init)(this);
@@ -157,6 +165,7 @@ int extra_has_feature(const char *name) {
     }
 }
 
+// Get Graphics Mode
 int extra_get_mode() {
     char *mode = getenv("MCPI_MODE");
     if (mode == NULL) {
@@ -172,8 +181,15 @@ int extra_get_mode() {
     }
 }
 
+// Enable Touch GUI
 static int32_t Minecraft_isTouchscreen(__attribute__((unused)) unsigned char *minecraft) {
     return 1;
+}
+
+// Store Smooth Lighting
+static int smooth_lighting;
+int extra_get_smooth_lighting() {
+    return smooth_lighting;
 }
 
 __attribute__((constructor)) static void init() {
@@ -285,5 +301,12 @@ __attribute__((constructor)) static void init() {
         // Remove Invalid Item Background (A Red Background That Appears For Items That Are Not Obtainable Without Modding/Inventory Editing)
         unsigned char invalid_item_background_patch[4] = {0x00, 0xf0, 0x20, 0xe3};
         patch((void *) 0x63c98, invalid_item_background_patch);
+    }
+
+    smooth_lighting = extra_has_feature("Smooth Lighting");
+    if (smooth_lighting) {
+        // Enable Smooth Lighting
+        unsigned char smooth_lighting_patch[4] = {0x01, 0x00, 0x53, 0xe3};
+        patch((void *) 0x59ea4, smooth_lighting_patch);
     }
 }

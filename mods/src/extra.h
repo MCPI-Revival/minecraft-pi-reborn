@@ -14,6 +14,8 @@ void extra_clear_input();
 
 void extra_set_is_right_click(int val);
 
+int extra_get_smooth_lighting();
+
 #ifdef __cplusplus
 }
 #endif

@@ -13,6 +13,7 @@
 #include <cstdio>
 
 extern "C" {
+    // Read Asset File
     static cxx11_string AppPlatform_readAssetFile(__attribute__((unused)) unsigned char *app_platform, std::string const& path) {
         std::string full_path("./data/");
         full_path.append(path);
@@ -27,6 +28,7 @@ extern "C" {
     typedef void (*Minecraft_setScreen_t)(unsigned char *, unsigned char *);
     static Minecraft_setScreen_t Minecraft_setScreen = (Minecraft_setScreen_t) 0x15d6c;
 
+    // Open Sign Screen
     static void LocalPlayer_openTextEdit(unsigned char *local_player, unsigned char *sign) {
         if (*(int *)(sign + 0x18) == 4) {
             unsigned char *minecraft = *(unsigned char **) (local_player + 0xc90);
@@ -42,6 +44,7 @@ extern "C" {
         return (key >= 32 && key <= 126) || key == BACKSPACE_KEY;
     }
 
+    // Store Text Input
     std::vector<char> input;
     void extra_key_press(char key) {
         if (is_valid_key(key)) {
@@ -58,8 +61,9 @@ extern "C" {
     typedef void (*Screen_keyboardNewChar_t)(unsigned char *screen, char key);
     typedef void (*Screen_keyPressed_t)(unsigned char *screen, int32_t key);
 
+    // Handle Text Input
     static void Screen_updateEvents_injection(unsigned char *screen) {
-        // Call Original
+        // Call Original Method
         (*Screen_updateEvents)(screen);
 
         if (*(char *)(screen + 4) == '\0') {
