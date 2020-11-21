@@ -206,15 +206,22 @@ void extra_set_is_left_click(int val) {
 }
 
 // Add Attacking To MouseBuildInput
-static int32_t MouseBuildInput_tickBuild_injection(unsigned char *mouse_build_input, unsigned char *player, uint32_t *build_action_intention_return) {
+static int32_t MouseBuildInput_tickBuild_injection(unsigned char *mouse_build_input, unsigned char *local_player, uint32_t *build_action_intention_return) {
     // Call Original Method
-    int32_t ret = (*MouseBuildInput_tickBuild)(mouse_build_input, player, build_action_intention_return);
+    int32_t ret = (*MouseBuildInput_tickBuild)(mouse_build_input, local_player, build_action_intention_return);
 
-    // Use Attack BuildActionIntention If No Other Valid BuildActionIntention Is Available And The Stored Left Click Mode Is Pressed (Not Repeat)
+    // Use Attack/Place BuildActionIntention If No Other Valid BuildActionIntention Was Selected And This Was Not A Repeated Left Click
     if (ret != 0 && is_left_click == 1 && *build_action_intention_return == 0xa) {
-        // Change BuildActionIntention To Attack On First Left Click
-        *build_action_intention_return = 0x8;
-        // Block Repeat Attacks Without Releasing Button
+        // Get Target HitResult
+        unsigned char *minecraft = *(unsigned char **) (local_player + 0xc90);
+        unsigned char *hit_result = minecraft + 0xc38;
+        int32_t hit_result_type = *(int32_t *) hit_result;
+        // Check if The Target Is An Entity Using HitResult
+        if (hit_result_type == 1) {
+            // Change BuildActionIntention To Attack/Place Mode (Place Will Not Happen Because The HitResult Is An Entity)
+            *build_action_intention_return = 0x8;
+        }
+        // Block Repeat Changes Without Releasing Left Click
         is_left_click = 2;
     }
 
