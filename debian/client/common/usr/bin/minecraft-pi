@@ -18,7 +18,8 @@ if [ -z "${MCPI_SUBSHELL}" ]; then
         FALSE 'Peaceful Mode' \
         TRUE 'Animated Water' \
         TRUE 'Remove Invalid Item Background' \
-        TRUE 'Smooth Lighting')"
+        TRUE 'Smooth Lighting' \
+        FALSE '3D Anaglyph')"
     MCPI_USERNAME="$(zenity --class 'Minecraft - Pi edition' --entry --text 'Minecraft Username:' --entry-text 'StevePi')"
 fi
 export MCPI_FEATURES

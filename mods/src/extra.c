@@ -29,6 +29,16 @@ static Player_isUsingItem_t Player_isUsingItem = (Player_isUsingItem_t) 0x8f15c;
 // Enable Bow & Arrow Fix
 static int fix_bow = 0;
 
+// Store Function Input
+static int hide_gui_toggle = 0;
+void extra_hide_gui() {
+    hide_gui_toggle++;
+}
+static int third_person_toggle = 0;
+void extra_third_person() {
+    third_person_toggle++;
+}
+
 // Handle Input Fixes
 static void Minecraft_tickInput_injection(unsigned char *minecraft) {
     // Call Original Method
@@ -48,6 +58,19 @@ static void Minecraft_tickInput_injection(unsigned char *minecraft) {
 
     // Clear Unused Sign Input
     extra_clear_input();
+
+    // Handle Functions
+    unsigned char *options = minecraft + 0x3c;
+    if (hide_gui_toggle % 2 != 0) {
+        // Toggle Hide GUI
+        *(options + 0xec) = *(options + 0xec) ^ 1;
+    }
+    hide_gui_toggle = 0;
+    if (third_person_toggle % 2 != 0) {
+        // Toggle Third Person
+        *(options + 0xed) = *(options + 0xed) ^ 1;
+    }
+    third_person_toggle = 0;
 }
 
 typedef void (*Gui_tickItemDrop_t)(unsigned char *);
@@ -125,6 +148,7 @@ static Minecraft_init_t Minecraft_init = (Minecraft_init_t) 0x1700c;
 
 static int fancy_graphics;
 static int peaceful_mode;
+static int anaglyph;
 // Configure Options
 static void Minecraft_init_injection(unsigned char *this) {
     // Call Original Method
@@ -137,6 +161,8 @@ static void Minecraft_init_injection(unsigned char *this) {
     *(options + 0x105) = 1;
     // Peaceful Mode
     *(int32_t *) (options + 0xe8) = peaceful_mode ? 0 : 2;
+    // 3D Anaglyph
+    *(options + 0x15) = anaglyph;
 }
 
 // Is Dedicated Server
@@ -263,6 +289,8 @@ __attribute__((constructor)) static void init() {
     fancy_graphics = extra_has_feature("Fancy Graphics");
     // Peaceful Mode
     peaceful_mode = extra_has_feature("Peaceful Mode");
+    // 3D Anaglyph
+    anaglyph = extra_has_feature("3D Anaglyph");
 
     // Set Options
     overwrite_calls((void *) Minecraft_init, Minecraft_init_injection);

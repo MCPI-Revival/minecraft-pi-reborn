@@ -13,6 +13,8 @@ void extra_key_press(char key);
 void extra_clear_input();
 
 void extra_set_is_right_click(int val);
+void extra_hide_gui();
+void extra_third_person();
 
 int extra_get_smooth_lighting();
 

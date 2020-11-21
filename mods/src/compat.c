@@ -104,6 +104,12 @@ static SDLKey glfw_key_to_sdl_key(int key) {
         // Screenshot
         case GLFW_KEY_F2:
             return SDLK_F2;
+        // Hide GUI
+        case GLFW_KEY_F1:
+            return SDLK_F1;
+        // Third Person
+        case GLFW_KEY_F5:
+            return SDLK_F5;
         // Unknown
         default:
             return SDLK_UNKNOWN;
@@ -338,6 +344,12 @@ HOOK(SDL_PollEvent, int, (SDL_Event *event)) {
                 handled = 1;
             } else if (event->key.keysym.sym == SDLK_F2) {
                 screenshot();
+                handled = 1;
+            } else if (event->key.keysym.sym == SDLK_F1) {
+                extra_hide_gui();
+                handled = 1;
+            } else if (event->key.keysym.sym == SDLK_F5) {
+                extra_third_person();
                 handled = 1;
             }
         }
