@@ -161,10 +161,6 @@ static void click(int button, int up) {
     event.button.state = up ? SDL_RELEASED : SDL_PRESSED;
     event.button.button = button;
     SDL_PushEvent(&event);
-
-    if (button == SDL_BUTTON_RIGHT) {
-        extra_set_is_right_click(!up);
-    }
 }
 
 // Pass Mouse Click To SDL
@@ -351,6 +347,12 @@ HOOK(SDL_PollEvent, int, (SDL_Event *event)) {
             } else if (event->key.keysym.sym == SDLK_F5) {
                 extra_third_person();
                 handled = 1;
+            }
+        } else if (event->type == SDL_MOUSEBUTTONDOWN || event->type == SDL_MOUSEBUTTONUP) {
+            if (event->button.button == SDL_BUTTON_RIGHT) {
+                extra_set_is_right_click(event->button.state != SDL_RELEASED);
+            } else if (event->button.button == SDL_BUTTON_LEFT) {
+                extra_set_is_left_click(event->button.state != SDL_RELEASED);
             }
         }
 

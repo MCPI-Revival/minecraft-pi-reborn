@@ -19,6 +19,8 @@
 #include "server_properties.h"
 #include "playerdata.h"
 
+#include "../minecraft.h"
+
 // Server Properties
 static ServerProperties &get_server_properties() {
     static ServerProperties properties;
@@ -60,26 +62,6 @@ static void *read_stdin_thread(__attribute__((unused)) void *data) {
     }
 }
 
-typedef void (*Minecraft_update_t)(unsigned char *minecraft);
-static Minecraft_update_t Minecraft_update = (Minecraft_update_t) 0x16b74;
-
-struct LevelSettings {
-    unsigned long seed;
-    int32_t game_type;
-};
-
-typedef void (*Minecraft_selectLevel_t)(unsigned char *minecraft, std::string const& level_dir, std::string const& level_name, LevelSettings const& vsettings);
-static Minecraft_selectLevel_t Minecraft_selectLevel = (Minecraft_selectLevel_t) 0x16f38;
-
-typedef void (*Minecraft_hostMultiplayer_t)(unsigned char *minecraft, int32_t port);
-static Minecraft_hostMultiplayer_t Minecraft_hostMultiplayer = (Minecraft_hostMultiplayer_t) 0x16664;
-
-typedef void *(*ProgressScreen_t)(unsigned char *obj);
-static ProgressScreen_t ProgressScreen = (ProgressScreen_t) 0x37044;
-
-typedef void (*Minecraft_setScreen_t)(unsigned char *minecraft, unsigned char *screen);
-static Minecraft_setScreen_t Minecraft_setScreen = (Minecraft_setScreen_t) 0x15d6c;
-
 // Get World Name
 std::string server_internal_get_world_name() {
     return get_server_properties().get_string("world-name", DEFAULT_WORLD_NAME);
@@ -107,15 +89,8 @@ static void start_world(unsigned char *minecraft) {
     (*Minecraft_setScreen)(minecraft, (unsigned char *) screen);
 }
 
-typedef const char *(*Minecraft_getProgressMessage_t)(unsigned char *minecraft);
-static Minecraft_getProgressMessage_t Minecraft_getProgressMessage = (Minecraft_getProgressMessage_t) 0x16e58;
-
-typedef int32_t (*Minecraft_isLevelGenerated_t)(unsigned char *minecraft);
-static Minecraft_isLevelGenerated_t Minecraft_isLevelGenerated = (Minecraft_isLevelGenerated_t) 0x16e6c;
-
-#define SIGNIFICANT_PROGRESS 5
-
 // Check If Two Percentages Are Different Enough To Be Logged
+#define SIGNIFICANT_PROGRESS 5
 static bool is_progress_difference_significant(int32_t new_val, int32_t old_val) {
     if (new_val != old_val) {
         if (new_val == -1 || old_val == -1) {
@@ -158,20 +133,6 @@ static void print_progress(unsigned char *minecraft) {
         }
     }
 }
-
-struct RakNet_RakNetGUID {
-    unsigned char data[10];
-};
-struct RakNet_SystemAddress {
-    unsigned char data[20];
-};
-typedef RakNet_SystemAddress (*RakNet_RakPeer_GetSystemAddressFromGuid_t)(unsigned char *rak_peer, RakNet_RakNetGUID guid);
-
-typedef void (*ServerSideNetworkHandler_displayGameMessage_t)(unsigned char *server_side_network_handler, std::string const& message);
-static ServerSideNetworkHandler_displayGameMessage_t ServerSideNetworkHandler_displayGameMessage = (ServerSideNetworkHandler_displayGameMessage_t) 0x750c4;
-
-typedef char *(*RakNet_SystemAddress_ToString_t)(RakNet_SystemAddress *system_address, bool print_delimiter, char delimiter);
-static RakNet_SystemAddress_ToString_t RakNet_SystemAddress_ToString = (RakNet_SystemAddress_ToString_t) 0xd6198;
 
 static std::string get_banned_ips_file() {
     std::string file(getenv("HOME"));
@@ -270,9 +231,6 @@ static void list_callback(unsigned char *minecraft, std::string username, unsign
     INFO(" - %s (%s)", username.c_str(), get_player_ip(minecraft, player));
 }
 
-typedef void (*Level_saveLevelData_t)(unsigned char *level);
-static Level_saveLevelData_t Level_saveLevelData = (Level_saveLevelData_t) 0xa2e94;
-
 static void Level_saveLevelData_injection(unsigned char *level) {
     // Print Log Message
     INFO("%s", "Saving Game");
@@ -283,9 +241,6 @@ static void Level_saveLevelData_injection(unsigned char *level) {
     // Save Player Data
     playerdata_save(level);
 }
-
-typedef void (*Minecraft_leaveGame_t)(unsigned char *minecraft, bool save_remote_level);
-static Minecraft_leaveGame_t Minecraft_leaveGame = (Minecraft_leaveGame_t) 0x15ea0;
 
 // Stop Server
 static bool exit_requested = false;
@@ -391,9 +346,6 @@ static void Minecraft_update_injection(unsigned char *minecraft) {
     handle_server_stop(minecraft);
 }
 
-typedef void (*Gui_addMessage_t)(unsigned char *gui, std::string const& text);
-static Gui_addMessage_t Gui_addMessage = (Gui_addMessage_t) 0x27820;
-
 static void Gui_addMessage_injection(unsigned char *gui, std::string const& text) {
     // Print Log Message
     fprintf(stderr, "[CHAT]: %s\n", text.c_str());
@@ -401,9 +353,6 @@ static void Gui_addMessage_injection(unsigned char *gui, std::string const& text
     // Call Original Method
     (*Gui_addMessage)(gui, text);
 }
-
-typedef bool (*RakNet_RakPeer_IsBanned_t)(unsigned char *rakpeer, const char *ip);
-static RakNet_RakPeer_IsBanned_t RakNet_RakPeer_IsBanned = (RakNet_RakPeer_IsBanned_t) 0xda3b4;
 
 static bool RakNet_RakPeer_IsBanned_injection(__attribute__((unused)) unsigned char *rakpeer, const char *ip) {
     // Check banned-ips.txt

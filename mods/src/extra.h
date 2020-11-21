@@ -16,6 +16,8 @@ void extra_set_is_right_click(int val);
 void extra_hide_gui();
 void extra_third_person();
 
+void extra_set_is_left_click(int val);
+
 int extra_get_smooth_lighting();
 
 #ifdef __cplusplus

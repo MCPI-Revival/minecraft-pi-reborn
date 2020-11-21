@@ -3,29 +3,7 @@
 #include "playerdata.h"
 #include "server_internal.h"
 
-struct RakNet_BitStream {
-    unsigned char data[273];
-};
-typedef unsigned char *(*RakNet_BitStream_constructor_t)(RakNet_BitStream *stream);
-static RakNet_BitStream_constructor_t RakNet_BitStream_constructor = (RakNet_BitStream_constructor_t) 0xd3b84;
-typedef void (*RakNet_BitStream_destructor_t)(RakNet_BitStream *stream);
-static RakNet_BitStream_destructor_t RakNet_BitStream_destructor = (RakNet_BitStream_destructor_t) 0xd3ce8;
-
-struct RakDataOutput {
-    unsigned char data[8];
-};
-static unsigned char *RakDataOutput_vtable = (unsigned char *) 0x109628;
-
-typedef unsigned char *(*CompoundTag_t)(unsigned char *tag);
-static CompoundTag_t CompoundTag = (CompoundTag_t) 0xb9920;
-
-typedef void (*Tag_writeNamedTag_t)(unsigned char *tag, RakDataOutput *output);
-static Tag_writeNamedTag_t Tag_writeNamedTag = (Tag_writeNamedTag_t) 0x6850c;
-
-typedef void (*Entity_saveWithoutId_t)(unsigned char *entity, unsigned char *tag);
-
-typedef void (*Tag_deleteChildren_t)(unsigned char *tag);
-typedef void (*Tag_destructor_t)(unsigned char *tag);
+#include "../minecraft.h"
 
 // Execute Command Without LD_PRELOAD
 static void exec_without_preload(std::string str) {
@@ -104,21 +82,14 @@ static void save_player_callback(std::string username, unsigned char *player) {
     fclose(file);
 }
 
-struct RakDataInput {
-    unsigned char data[8];
-};
-static unsigned char *RakDataInput_vtable = (unsigned char *) 0x1095c8;
-
-typedef long int (*getRemainingFileSize_t)(FILE *file);
-static getRemainingFileSize_t getRemainingFileSize = (getRemainingFileSize_t) 0xba520;
-
-typedef RakNet_BitStream *(*RakNet_BitStream_constructor_with_data_t)(RakNet_BitStream *stream, unsigned char *data, uint32_t size, bool copyData);
-static RakNet_BitStream_constructor_with_data_t RakNet_BitStream_constructor_with_data = (RakNet_BitStream_constructor_with_data_t) 0xd3c30;
-
-typedef unsigned char *(*NbtIo_read_t)(RakDataInput *input);
-static NbtIo_read_t NbtIo_read = (NbtIo_read_t) 0xb98cc;
-
-typedef void (*Entity_load_t)(unsigned char *entity, unsigned char *tag);
+// Clear Player Inventory And Armor
+static void clear_inventory(unsigned char *player) {
+    unsigned char *inventory = *(unsigned char **) (player + 0xbe0);
+    (*Inventory_clearInventoryWithDefault)(inventory);
+    for (int i = 0; i < 4; i++) {
+        (*Player_setArmor)(player, i, NULL);
+    }
+}
 
 // Load Player Callback
 static void load_player_callback(std::string username, unsigned char *player) {
@@ -168,6 +139,9 @@ static void load_player_callback(std::string username, unsigned char *player) {
                         Entity_load_t Entity_load = *(Entity_load_t *) (player_vtable + 0xd0);
                         (*Entity_load)(player, tag);
 
+                        // Clear Inventory Because The Client Will Also Have An Empty Inventory
+                        clear_inventory(player);
+
                         // Destruct tag
                         destruct_tag(tag);
                     }
@@ -185,9 +159,6 @@ static void load_player_callback(std::string username, unsigned char *player) {
         fclose(file);
     }
 }
-
-typedef void (*Entity_moveTo_t)(unsigned char *entity, float param_1, float param_2, float param_3, float param_4, float param_5);
-static Entity_moveTo_t Entity_moveTo = (Entity_moveTo_t) 0x7a834;
 
 static uint32_t get_entity_id(unsigned char *entity) {
     return *(uint32_t *) (entity + 0x1c);
@@ -226,12 +197,6 @@ void playerdata_save(unsigned char *level) {
     }
 }
 
-typedef void (*ServerSideNetworkHandler_onDisconnect_t)(unsigned char *server_side_network_handler, unsigned char *guid);
-static ServerSideNetworkHandler_onDisconnect_t ServerSideNetworkHandler_onDisconnect = (ServerSideNetworkHandler_onDisconnect_t) 0x75164;
-
-typedef unsigned char *(*ServerSideNetworkHandler_getPlayer_t)(unsigned char *server_side_network_handler, unsigned char *guid);
-static ServerSideNetworkHandler_getPlayer_t ServerSideNetworkHandler_getPlayer = (ServerSideNetworkHandler_getPlayer_t) 0x75464;
-
 static void ServerSideNetworkHandler_onDisconnect_injection(unsigned char *server_side_network_handler, unsigned char *guid) {
     // Save Player Data
     unsigned char *player = (*ServerSideNetworkHandler_getPlayer)(server_side_network_handler, guid);
@@ -246,7 +211,7 @@ static void ServerSideNetworkHandler_onDisconnect_injection(unsigned char *serve
 
 void playerdata_init() {
     // Load Player NBT
-    patch_address((void *) 0x109e54, (void *) ServerPlayer_moveTo_injection);
+    patch_address(ServerPlayer_moveTo_vtable_addr, (void *) ServerPlayer_moveTo_injection);
     // Save On Logout
-    patch_address((void *) 0x109bb0, (void *) ServerSideNetworkHandler_onDisconnect_injection);
+    patch_address(ServerSideNetworkHandler_onDisconnect_vtable_addr, (void *) ServerSideNetworkHandler_onDisconnect_injection);
 }

@@ -6,6 +6,8 @@
 #include "extra.h"
 #include "server/server.h"
 
+#include "minecraft.h"
+
 static int mob_spawning = 0;
 // Override Mob Spawning
 static uint32_t LevelData_getSpawnMobs_injection(__attribute__((unused)) unsigned char *level_data) {
@@ -17,14 +19,6 @@ static int is_right_click = 0;
 void extra_set_is_right_click(int val) {
     is_right_click = val;
 }
-
-typedef void (*releaseUsingItem_t)(unsigned char *game_mode, unsigned char *player);
-
-typedef void (*Minecraft_tickInput_t)(unsigned char *minecraft);
-static Minecraft_tickInput_t Minecraft_tickInput = (Minecraft_tickInput_t) 0x15ffc;
-
-typedef int (*Player_isUsingItem_t)(unsigned char *player);
-static Player_isUsingItem_t Player_isUsingItem = (Player_isUsingItem_t) 0x8f15c;
 
 // Enable Bow & Arrow Fix
 static int fix_bow = 0;
@@ -51,8 +45,8 @@ static void Minecraft_tickInput_injection(unsigned char *minecraft) {
         unsigned char *player = *(unsigned char **) (minecraft + 0x18c);
         if (player != NULL && game_mode != NULL && (*Player_isUsingItem)(player)) {
             unsigned char *game_mode_vtable = *(unsigned char **) game_mode;
-            releaseUsingItem_t releaseUsingItem = *(releaseUsingItem_t *) (game_mode_vtable + 0x5c);
-            (*releaseUsingItem)(game_mode, player);
+            GameMode_releaseUsingItem_t GameMode_releaseUsingItem = *(GameMode_releaseUsingItem_t *) (game_mode_vtable + 0x5c);
+            (*GameMode_releaseUsingItem)(game_mode, player);
         }
     }
 
@@ -73,9 +67,6 @@ static void Minecraft_tickInput_injection(unsigned char *minecraft) {
     third_person_toggle = 0;
 }
 
-typedef void (*Gui_tickItemDrop_t)(unsigned char *);
-static Gui_tickItemDrop_t Gui_tickItemDrop = (Gui_tickItemDrop_t) 0x27778;
-
 #include <SDL/SDL_events.h>
 
 // Block UI Interaction When Mouse Is Locked
@@ -86,9 +77,6 @@ static void Gui_tickItemDrop_injection(unsigned char *this) {
     }
 }
 
-typedef void (*Gui_handleClick_t)(unsigned char *this, int32_t param_2, int32_t param_3, int32_t param_4);
-static Gui_handleClick_t Gui_handleClick = (Gui_handleClick_t) 0x2599c;
-
 // Block UI Interaction When Mouse Is Locked
 static void Gui_handleClick_injection(unsigned char *this, int32_t param_2, int32_t param_3, int32_t param_4) {
     if (SDL_ShowCursor(SDL_QUERY) == SDL_ENABLE) {
@@ -98,10 +86,6 @@ static void Gui_handleClick_injection(unsigned char *this, int32_t param_2, int3
 }
 
 static int is_survival = -1;
-
-static void *Creator = (void *) 0x1a044;
-static void *SurvivalMode = (void *) 0x1b7d8;
-static void *CreativeMode = (void *) 0x1b258;
 
 // Patch Game Mode
 static void set_is_survival(int new_is_survival) {
@@ -116,15 +100,12 @@ static void set_is_survival(int new_is_survival) {
         unsigned char size_patch[4] = {new_is_survival ? 0x24 : 0x18, 0x00, 0xa0, 0xe3};
         patch((void *) 0x16ee4, size_patch);
 
-        // Replace Creator Constructor With CreatorMode Or SurvivalMode Constructor
+        // Replace Creator Constructor With CreativeMode Or SurvivalMode Constructor
         overwrite(Creator, new_is_survival ? SurvivalMode : CreativeMode);
 
         is_survival = new_is_survival;
     }
 }
-
-typedef void (*Minecraft_setIsCreativeMode_t)(unsigned char *, int32_t);
-static Minecraft_setIsCreativeMode_t Minecraft_setIsCreativeMode = (Minecraft_setIsCreativeMode_t) 0x16ec4;
 
 // Handle Gamemode Switching
 static void Minecraft_setIsCreativeMode_injection(unsigned char *this, int32_t new_game_mode) {
@@ -142,9 +123,6 @@ static char *get_username() {
     }
     return username;
 }
-
-typedef void (*Minecraft_init_t)(unsigned char *this);
-static Minecraft_init_t Minecraft_init = (Minecraft_init_t) 0x1700c;
 
 static int fancy_graphics;
 static int peaceful_mode;
@@ -208,7 +186,7 @@ int extra_get_mode() {
 }
 
 // Enable Touch GUI
-static int32_t Minecraft_isTouchscreen(__attribute__((unused)) unsigned char *minecraft) {
+static int32_t Minecraft_isTouchscreen_injection(__attribute__((unused)) unsigned char *minecraft) {
     return 1;
 }
 
@@ -216,6 +194,31 @@ static int32_t Minecraft_isTouchscreen(__attribute__((unused)) unsigned char *mi
 static int smooth_lighting;
 int extra_get_smooth_lighting() {
     return smooth_lighting;
+}
+
+// Store Left Click (0 = Not Pressed, 1 = Pressed, 2 = Repeat)
+// This Is Set To Repeat After First Attempted Left-Click Build Interaction
+static int is_left_click = 0;
+void extra_set_is_left_click(int val) {
+    if ((is_left_click == 0 && val == 1) || (is_left_click != 0 && val == 0) || (is_left_click == 1 && val == 2)) {
+        is_left_click = val;
+    }
+}
+
+// Add Attacking To MouseBuildInput
+static int32_t MouseBuildInput_tickBuild_injection(unsigned char *mouse_build_input, unsigned char *player, uint32_t *build_action_intention_return) {
+    // Call Original Method
+    int32_t ret = (*MouseBuildInput_tickBuild)(mouse_build_input, player, build_action_intention_return);
+
+    // Use Attack BuildActionIntention If No Other Valid BuildActionIntention Is Available And The Stored Left Click Mode Is Pressed (Not Repeat)
+    if (ret != 0 && is_left_click == 1 && *build_action_intention_return == 0xa) {
+        // Change BuildActionIntention To Attack On First Left Click
+        *build_action_intention_return = 0x8;
+        // Block Repeat Attacks Without Releasing Button
+        is_left_click = 2;
+    }
+
+    return ret;
 }
 
 __attribute__((constructor)) static void init() {
@@ -227,7 +230,7 @@ __attribute__((constructor)) static void init() {
     int touch_gui = !is_server && extra_has_feature("Touch GUI");
     if (touch_gui) {
         // Main UI
-        overwrite((void *) 0x1639c, Minecraft_isTouchscreen);
+        overwrite((void *) Minecraft_isTouchscreen, Minecraft_isTouchscreen_injection);
         // Force Correct Toolbar Size
         unsigned char toolbar_patch[4] = {0x01, 0x00, 0x50, 0xe3};
         patch((void *) 0x257b0, toolbar_patch);
@@ -259,14 +262,7 @@ __attribute__((constructor)) static void init() {
 
     if (extra_has_feature("Fix Attacking")) {
         // Allow Attacking Mobs
-        unsigned char attacking_patch[4] = {0x00, 0xf0, 0x20, 0xe3};
-        patch((void *) 0x162d4, attacking_patch);
-        // Fix Instamining When Using This Patch
-        unsigned char instamine_patch[4] = {0x61, 0x00, 0x00, 0xea};
-        patch((void *) 0x15b0c, instamine_patch);
-        // Fix Excessive Hand Swinging When Using This Patch
-        unsigned char excessive_swing_patch[4] = {0x06, 0x00, 0x00, 0xea};
-        patch((void *) 0x1593c, excessive_swing_patch);
+        patch_address(MouseBuildInput_tickBuild_vtable_addr, (void *) MouseBuildInput_tickBuild_injection);
     }
 
     if (is_server) {
@@ -275,7 +271,7 @@ __attribute__((constructor)) static void init() {
         mob_spawning = extra_has_feature("Mob Spawning");
     }
     // Set Mob Spawning
-    overwrite((void *) 0xbabec, LevelData_getSpawnMobs_injection);
+    overwrite((void *) LevelData_getSpawnMobs, LevelData_getSpawnMobs_injection);
 
     // Replace CreatorLevel With ServerLevel (This Fixes Beds And Mob Spawning)
     unsigned char level_patch[4] = {0x68, 0x7e, 0x01, 0xeb};
@@ -308,7 +304,6 @@ __attribute__((constructor)) static void init() {
         username = get_username();
         INFO("Setting Username: %s", username);
     }
-    char **default_username = (char **) 0x18fd4;
     if (strcmp(*default_username, "StevePi") != 0) {
         ERR("%s", "Default Username Is Invalid");
     }
