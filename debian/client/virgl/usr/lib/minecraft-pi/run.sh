@@ -3,7 +3,7 @@
 set -e
 
 # Start VirGL
-virgl_test_server & &> /tmp/virgl.log
+virgl_test_server > /tmp/virgl.log 2>&1 &
 VIRGL_PID="$!"
 
 # Launch Minecraft
