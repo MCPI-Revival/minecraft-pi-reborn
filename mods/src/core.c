@@ -15,7 +15,11 @@ static void iterate_text_section(text_section_callback callback, void *data) {
     // Load Main Binary
     char *real_path = realpath("/proc/self/exe", NULL);
     FILE *file_obj = fopen(real_path, "rb");
-    free(real_path);
+
+    // Verify Binary
+    if (!file_obj) {
+        ERR("Unable To Open Binary: %s", real_path);
+    }
 
     // Get File Size
     fseek(file_obj, 0L, SEEK_END);
@@ -34,14 +38,26 @@ static void iterate_text_section(text_section_callback callback, void *data) {
     Elf32_Shdr elf_strtab = elf_section_headers[elf_header->e_shstrndx];
     unsigned char *elf_strtab_p = file_map + elf_strtab.sh_offset;
 
+    // Track .text Sections
+    int text_sections = 0;
+
     // Iterate Sections
     for (int i = 0; i < elf_section_header_count; ++i) {
         Elf32_Shdr header = elf_section_headers[i];
         char *name = (char *) (elf_strtab_p + header.sh_name);
         if (strcmp(name, ".text") == 0) {
             (*callback)((void *) header.sh_addr, header.sh_size, data);
+            text_sections++;
         }
     }
+
+    // Ensure At Least .text Section Was Scanned
+    if (text_sections < 1) {
+        ERR("Unable To Find .text Sectons On: %s", real_path);
+    }
+
+    // Free Binary Path
+    free(real_path);
 
     // Unmap And Close File
     munmap(file_map, size);
