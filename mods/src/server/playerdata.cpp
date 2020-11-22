@@ -168,7 +168,7 @@ static void ServerPlayer_moveTo_injection(unsigned char *player, float param_1, 
     (*Entity_moveTo)(player, param_1, param_2, param_3, param_4, param_5);
 
     // Check If Player Is Spawned
-    unsigned char *minecraft = *(unsigned char **) (player + 0xc8c);
+    unsigned char *minecraft = server_internal_get_minecraft(player);
     unsigned char *level = server_internal_get_level(minecraft);
     std::vector<unsigned char *> players = server_internal_get_players(level);
     bool spawned = false;
@@ -182,7 +182,7 @@ static void ServerPlayer_moveTo_injection(unsigned char *player, float param_1, 
     
     // Load Data
     if (!spawned) {
-        load_player_callback(server_internal_get_player_username(player), player);
+        load_player_callback(server_internal_get_server_player_username(player), player);
     }
 }
 
@@ -192,7 +192,7 @@ void playerdata_save(unsigned char *level) {
     for (std::size_t i = 0; i < players.size(); i++) {
         // Iterate Players
         unsigned char *player = players[i];
-        std::string username = server_internal_get_player_username(player);
+        std::string username = server_internal_get_server_player_username(player);
         save_player_callback(username, player);
     }
 }
@@ -201,7 +201,7 @@ static void ServerSideNetworkHandler_onDisconnect_injection(unsigned char *serve
     // Save Player Data
     unsigned char *player = (*ServerSideNetworkHandler_getPlayer)(server_side_network_handler, guid);
     if (player != NULL) {
-        std::string username = server_internal_get_player_username(player);
+        std::string username = server_internal_get_server_player_username(player);
         save_player_callback(username, player);
     }
 

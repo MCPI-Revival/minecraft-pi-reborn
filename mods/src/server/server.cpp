@@ -147,12 +147,16 @@ std::vector<unsigned char *> server_internal_get_players(unsigned char *level) {
     return *(std::vector<unsigned char *> *) (level + 0x60);
 }
 // Get Player's Username
-std::string server_internal_get_player_username(unsigned char *player) {
+std::string server_internal_get_server_player_username(unsigned char *player) {
     return *(char **) (player + 0xbf4);
 }
 // Get Level From Minecraft
 unsigned char *server_internal_get_level(unsigned char *minecraft) {
     return *(unsigned char **) (minecraft + 0x188);
+}
+// Get minecraft from ServerPlayer
+unsigned char *server_internal_get_minecraft(unsigned char *player) {
+    return *(unsigned char **) (player + 0xc8c);
 }
 
 // Find Players With Username And Run Callback
@@ -163,7 +167,7 @@ static void find_players(unsigned char *minecraft, std::string target_username, 
     for (std::size_t i = 0; i < players.size(); i++) {
         // Iterate Players
         unsigned char *player = players[i];
-        std::string username = server_internal_get_player_username(player);
+        std::string username = server_internal_get_server_player_username(player);
         if (all_players || username == target_username) {
             // Run Callback
             (*callback)(minecraft, username, player);
@@ -218,7 +222,6 @@ static void ban_callback(unsigned char *minecraft, std::string username, unsigne
 }
 
 // Kill Player
-typedef void (*Entity_die_t)(unsigned char *entity, unsigned char *cause);
 static void kill_callback(__attribute__((unused)) unsigned char *minecraft, __attribute__((unused)) std::string username, unsigned char *player) {
     unsigned char *player_vtable = *(unsigned char **) player;
     Entity_die_t Entity_die = *(Entity_die_t *) (player_vtable + 0x130);

@@ -218,6 +218,8 @@ typedef void (*Entity_load_t)(unsigned char *entity, unsigned char *tag);
 typedef void (*Entity_moveTo_t)(unsigned char *entity, float param_1, float param_2, float param_3, float param_4, float param_5);
 static Entity_moveTo_t Entity_moveTo = (Entity_moveTo_t) 0x7a834;
 
+typedef void (*Entity_die_t)(unsigned char *entity, unsigned char *cause);
+
 // ServerPlayer
 
 static void *ServerPlayer_moveTo_vtable_addr = (void *) 0x109e54;
