@@ -5,7 +5,6 @@ set -e
 # Ensure Features Are Selected
 MCPI_FEATURES="$(zenity --class 'Minecraft - Pi edition' --list --checklist --column 'Enabled' --column 'Feature' \
     TRUE 'Touch GUI' \
-    FALSE 'Survival Mode' \
     TRUE 'Fix Bow & Arrow' \
     TRUE 'Fix Attacking' \
     TRUE 'Mob Spawning' \

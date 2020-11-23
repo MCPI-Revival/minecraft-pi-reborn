@@ -154,6 +154,18 @@ static Screen_updateEvents_t Screen_updateEvents = (Screen_updateEvents_t) 0x28e
 typedef void (*Screen_keyboardNewChar_t)(unsigned char *screen, char key);
 typedef void (*Screen_keyPressed_t)(unsigned char *screen, int32_t key);
 
+typedef void (*Screen_tick_t)(unsigned char *screen);
+
+// SelectWorldScreen
+
+static Screen_tick_t SelectWorldScreen_tick = (Screen_tick_t) 0x38a2c;
+static void *SelectWorldScreen_tick_vtable_addr = (void *) 0x104f78;
+
+// Touch::SelectWorldScreen
+
+static Screen_tick_t Touch_SelectWorldScreen_tick = (Screen_tick_t) 0x3d96c;
+static void *Touch_SelectWorldScreen_tick_vtable_addr = (void *) 0x105780;
+
 // ItemInstance
 
 typedef unsigned char *(*ItemInstance_t)(unsigned char *item_instance, unsigned char *item);
@@ -283,6 +295,20 @@ static RakNet_SystemAddress_ToString_t RakNet_SystemAddress_ToString = (RakNet_S
 
 typedef void (*ServerSideNetworkHandler_displayGameMessage_t)(unsigned char *server_side_network_handler, std::string const& message);
 static ServerSideNetworkHandler_displayGameMessage_t ServerSideNetworkHandler_displayGameMessage = (ServerSideNetworkHandler_displayGameMessage_t) 0x750c4;
+
+// SimpleChooseLevelScreen
+
+typedef unsigned char *(*SimpleChooseLevelScreen_t)(unsigned char *simple_choose_level_screen, std::string const& world_name);
+static SimpleChooseLevelScreen_t SimpleChooseLevelScreen = (SimpleChooseLevelScreen_t) 0x31404;
+
+// SelectWorldScreen
+
+typedef std::string &(*SelectWorldScreen_getUniqueLevelName_t)(std::string &new_name, unsigned char *screen, std::string const& name);
+static SelectWorldScreen_getUniqueLevelName_t SelectWorldScreen_getUniqueLevelName = (SelectWorldScreen_getUniqueLevelName_t) 0x388ec;
+
+// Touch::SelectWorldScreen
+
+static SelectWorldScreen_getUniqueLevelName_t Touch_SelectWorldScreen_getUniqueLevelName = (SelectWorldScreen_getUniqueLevelName_t) 0x3d82c;
 
 #endif
 
