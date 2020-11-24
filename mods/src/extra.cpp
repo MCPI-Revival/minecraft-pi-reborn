@@ -9,6 +9,7 @@
 
 #include "extra.h"
 #include "cxx11_util.h"
+#include "screenshot/screenshot.h"
 
 #include "minecraft.h"
 
@@ -22,6 +23,11 @@ extern "C" {
         std::ifstream stream(full_path);
         std::string str((std::istreambuf_iterator<char>(stream)), std::istreambuf_iterator<char>());
         return create_cxx11_string(str.c_str());
+    }
+
+    // Take Screenshot Using TripodCamera
+    static void AppPlatform_linux_saveScreenshot_injection(__attribute__((unused)) unsigned char *app_platform, __attribute__((unused)) std::string const& param1, __attribute__((unused)) std::string const& param_2) {
+        take_screenshot();
     }
 
     // Open Sign Screen
@@ -91,6 +97,7 @@ extern "C" {
             item_instance = (*ItemInstance_damage)(item_instance, *item_dye_powder, 1, i);
             (*FillingContainer_addItem)(filling_container, item_instance);
         }
+        inventory_add_item(filling_container, *item_camera, false);
         // Add Tiles
         inventory_add_item(filling_container, *tile_water, true);
         inventory_add_item(filling_container, *tile_lava, true);
@@ -160,9 +167,27 @@ extern "C" {
         }
     }
 
+    // Enable TripodCameraRenderer
+    static unsigned char *EntityRenderDispatcher_injection(unsigned char *dispatcher) {
+        // Call Original Method
+        (*EntityRenderDispatcher)(dispatcher);
+
+        // Register TripodCameraRenderer
+        unsigned char *renderer = (unsigned char *) ::operator new(0x193);
+        (*TripodCameraRenderer)(renderer);
+        (*EntityRenderDispatcher_assign)(dispatcher, (unsigned char) 0x5, renderer);
+
+        return dispatcher;
+    }
+
     __attribute((constructor)) static void init() {
         // Implement AppPlatform::readAssetFile So Translations Work
         overwrite((void *) AppPlatform_readAssetFile, (void *) AppPlatform_readAssetFile_injection);
+        // Implement AppPlatform_linux::saveScreenshot So Cameras Work
+        patch_address(AppPlatform_linux_saveScreenshot_vtable_addr, (void *) AppPlatform_linux_saveScreenshot_injection);
+
+        // Enable TripodCameraRenderer
+        overwrite_calls((void *) EntityRenderDispatcher, (void *) EntityRenderDispatcher_injection);
 
         if (extra_has_feature("Fix Sign Placement")) {
             // Fix Signs

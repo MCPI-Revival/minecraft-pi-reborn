@@ -16,13 +16,16 @@ target_link_libraries(core dl)
 add_library(server SHARED src/server/server.cpp src/server/server_properties.cpp src/server/playerdata.cpp)
 target_link_libraries(server core dl SDL pthread)
 
+add_library(screenshot SHARED src/screenshot/screenshot.c)
+target_link_libraries(screenshot GLESv1_CM freeimage)
+
 add_library(extra SHARED src/extra.c src/extra.cpp src/cxx11_util.cpp)
-target_link_libraries(extra core dl server)
+target_link_libraries(extra core dl server screenshot)
 
 find_package(glfw3 3.3 REQUIRED)
 
 add_library(compat SHARED src/compat.c)
-target_link_libraries(compat core extra SDL GLESv1_CM GLESv2 X11 dl freeimage glfw Xfixes)
+target_link_libraries(compat core extra screenshot SDL GLESv1_CM GLESv2 X11 dl glfw Xfixes)
 # Force GLESv1 Link
 target_link_options(compat PRIVATE "-Wl,--no-as-needed")
 

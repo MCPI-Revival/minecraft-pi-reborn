@@ -16,6 +16,7 @@ static unsigned char **item_snowball = (unsigned char **) 0x17bbb0;
 static unsigned char **item_shears = (unsigned char **) 0x17bbf0;
 static unsigned char **item_egg = (unsigned char **) 0x17bbd0;
 static unsigned char **item_dye_powder = (unsigned char **) 0x17bbe0;
+static unsigned char **item_camera = (unsigned char **) 0x17bc14;
 
 static unsigned char **tile_water = (unsigned char **) 0x181b3c;
 static unsigned char **tile_lava = (unsigned char **) 0x181cc8;
@@ -246,6 +247,19 @@ static NbtIo_read_t NbtIo_read = (NbtIo_read_t) 0xb98cc;
 typedef void (*Inventory_clearInventoryWithDefault_t)(unsigned char *inventory);
 static Inventory_clearInventoryWithDefault_t Inventory_clearInventoryWithDefault = (Inventory_clearInventoryWithDefault_t) 0x8e7c8;
 
+// TripodCameraRenderer
+
+typedef unsigned char *(*TripodCameraRenderer_t)(unsigned char *renderer);
+static TripodCameraRenderer_t TripodCameraRenderer = (TripodCameraRenderer_t) 0x6583c;
+
+// EntityRenderDispatcher
+
+typedef unsigned char *(*EntityRenderDispatcher_t)(unsigned char *dispatcher);
+static EntityRenderDispatcher_t EntityRenderDispatcher = (EntityRenderDispatcher_t) 0x6096c;
+
+typedef void (*EntityRenderDispatcher_assign_t)(unsigned char *dispatcher, unsigned char entity_id, unsigned char *renderer);
+static EntityRenderDispatcher_assign_t EntityRenderDispatcher_assign = (EntityRenderDispatcher_assign_t) 0x6094c;
+
 // Method That Require C++ Types
 #ifdef __cplusplus
 
@@ -254,6 +268,9 @@ static Inventory_clearInventoryWithDefault_t Inventory_clearInventoryWithDefault
 #include "cxx11_util.h"
 
 // AppPlatform
+
+typedef void (*AppPlatform_saveScreenshot_t)(unsigned char *app_platform, std::string const& param1, std::string const& param_2);
+static void *AppPlatform_linux_saveScreenshot_vtable_addr = (void *) 0x102160;
 
 typedef cxx11_string (*AppPlatform_readAssetFile_t)(unsigned char *app_platform, std::string const& path);
 static AppPlatform_readAssetFile_t AppPlatform_readAssetFile = (AppPlatform_readAssetFile_t) 0x12b10;
