@@ -283,6 +283,11 @@ static Minecraft_selectLevel_t Minecraft_selectLevel = (Minecraft_selectLevel_t)
 typedef void (*Minecraft_leaveGame_t)(unsigned char *minecraft, bool save_remote_level);
 static Minecraft_leaveGame_t Minecraft_leaveGame = (Minecraft_leaveGame_t) 0x15ea0;
 
+// Level
+
+typedef void (*Level_addParticle_t)(unsigned char *level, std::string const& particle, float x, float y, float z, float deltaX, float deltaY, float deltaZ, int count);
+static Level_addParticle_t Level_addParticle = (Level_addParticle_t) 0xa449c;
+
 // Gui
 
 typedef void (*Gui_addMessage_t)(unsigned char *gui, std::string const& text);

@@ -179,6 +179,11 @@ extern "C" {
 
         return dispatcher;
     }
+    // Display Smoke From TripodCamera Higher
+    static void Level_addParticle_injection(unsigned char *level, std::string const& particle, float x, float y, float z, float deltaX, float deltaY, float deltaZ, int count) {
+        // Call Original Method
+        (*Level_addParticle)(level, particle, x, y + 0.5, z, deltaX, deltaY, deltaZ, count);
+    }
 
     __attribute((constructor)) static void init() {
         // Implement AppPlatform::readAssetFile So Translations Work
@@ -188,6 +193,8 @@ extern "C" {
 
         // Enable TripodCameraRenderer
         overwrite_calls((void *) EntityRenderDispatcher, (void *) EntityRenderDispatcher_injection);
+        // Display Smoke From TripodCamera Higher
+        overwrite_call((void *) 0x87dc4, (void *) Level_addParticle_injection);
 
         if (extra_has_feature("Fix Sign Placement")) {
             // Fix Signs
