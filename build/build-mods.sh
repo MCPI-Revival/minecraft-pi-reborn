@@ -7,7 +7,7 @@ cd mods
 mkdir build
 cd build
 
-cmake -DCMAKE_TOOLCHAIN_FILE=../../cmake/toolchain.cmake ..
+cmake ..
 make -j$(nproc)
 
 cd ../../

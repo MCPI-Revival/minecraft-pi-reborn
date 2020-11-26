@@ -1,13 +1,9 @@
-FROM arm64v8/debian:bullseye
-
-# Add ARM 32Bit
-RUN dpkg --add-architecture armhf
+FROM arm32v7/debian:bullseye
 
 # Install Dependencies
 RUN \
     apt-get update && \
-    apt-get dist-upgrade -y && \
-    apt-get install -y libglvnd-dev:armhf libsdl1.2-dev:armhf libx11-dev:armhf build-essential zlib1g-dev:armhf git cmake curl gcc-arm-linux-gnueabihf g++-arm-linux-gnueabihf libfreeimage-dev:armhf libglfw3-dev:armhf xinput:armhf libxfixes-dev:armhf
+    apt-get install -y libglvnd-dev libsdl1.2-dev libx11-dev build-essential cmake zlib1g-dev git curl libfreeimage-dev libglfw3-dev xinput libxfixes-dev
 
 # Setup GLES Location
 RUN ln -s /usr/lib/arm-linux-gnueabihf/libGLESv2.so.2 /usr/lib/libGLESv2.so
