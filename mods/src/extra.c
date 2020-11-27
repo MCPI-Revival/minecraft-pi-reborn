@@ -127,6 +127,7 @@ static char *get_username() {
 static int fancy_graphics;
 static int peaceful_mode;
 static int anaglyph;
+static int smooth_lighting;
 // Configure Options
 static void Minecraft_init_injection(unsigned char *this) {
     // Call Original Method
@@ -141,6 +142,8 @@ static void Minecraft_init_injection(unsigned char *this) {
     *(int32_t *) (options + 0xe8) = peaceful_mode ? 0 : 2;
     // 3D Anaglyph
     *(options + 0x15) = anaglyph;
+    // Smooth Lighting
+    *(options + 0x18) = smooth_lighting;
 }
 
 // Is Dedicated Server
@@ -188,12 +191,6 @@ int extra_get_mode() {
 // Enable Touch GUI
 static int32_t Minecraft_isTouchscreen_injection(__attribute__((unused)) unsigned char *minecraft) {
     return 1;
-}
-
-// Store Smooth Lighting
-static int smooth_lighting;
-int extra_get_smooth_lighting() {
-    return smooth_lighting;
 }
 
 // Store Left Click (0 = Not Pressed, 1 = Pressed, 2 = Repeat)
