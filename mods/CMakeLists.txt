@@ -22,6 +22,9 @@ target_link_libraries(screenshot GLESv1_CM freeimage)
 add_library(extra SHARED src/extra.c src/extra.cpp src/cxx11_util.cpp)
 target_link_libraries(extra core dl server screenshot)
 
+add_library(override SHARED src/override.c)
+target_link_libraries(override dl)
+
 find_package(glfw3 3.3 REQUIRED)
 
 add_library(compat SHARED src/compat.c)
