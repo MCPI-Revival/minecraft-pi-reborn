@@ -320,6 +320,12 @@ __attribute__((constructor)) static void init() {
         patch((void *) 0x63c98, invalid_item_background_patch);
     }
 
+    if (extra_has_feature("Disable gui_blocks Atlas")) {
+        // Disable gui_blocks Atlas Which Contains Pre-Rendered Textures For Blocks In The Inventory
+        unsigned char disable_gui_blocks_atlas_patch[4] = {0x00, 0xf0, 0x20, 0xe3};
+        patch((void *) 0x63c2c, disable_gui_blocks_atlas_patch);
+    }
+
     smooth_lighting = extra_has_feature("Smooth Lighting");
     if (smooth_lighting) {
         // Enable Smooth Lighting
