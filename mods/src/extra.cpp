@@ -88,25 +88,26 @@ extern "C" {
         int32_t ret = (*FillingContainer_addItem)(filling_container, item_instance);
 
         // Add Items
-        inventory_add_item(filling_container, *item_flintAndSteel, false);
-        inventory_add_item(filling_container, *item_snowball, false);
-        inventory_add_item(filling_container, *item_egg, false);
-        inventory_add_item(filling_container, *item_shears, false);
+        inventory_add_item(filling_container, *Item_flintAndSteel, false);
+        inventory_add_item(filling_container, *Item_snowball, false);
+        inventory_add_item(filling_container, *Item_egg, false);
+        inventory_add_item(filling_container, *Item_shears, false);
         for (int i = 0; i < 15; i++) {
             unsigned char *item_instance = (unsigned char *) ::operator new(0xc);
-            item_instance = (*ItemInstance_damage)(item_instance, *item_dye_powder, 1, i);
+            item_instance = (*ItemInstance_damage)(item_instance, *Item_dye_powder, 1, i);
             (*FillingContainer_addItem)(filling_container, item_instance);
         }
-        inventory_add_item(filling_container, *item_camera, false);
+        inventory_add_item(filling_container, *Item_camera, false);
         // Add Tiles
-        inventory_add_item(filling_container, *tile_water, true);
-        inventory_add_item(filling_container, *tile_lava, true);
-        inventory_add_item(filling_container, *tile_calmWater, true);
-        inventory_add_item(filling_container, *tile_calmLava, true);
-        inventory_add_item(filling_container, *tile_glowingObsidian, true);
-        inventory_add_item(filling_container, *tile_topSnow, true);
-        inventory_add_item(filling_container, *tile_ice, true);
-        inventory_add_item(filling_container, *tile_invisible_bedrock, true);
+        inventory_add_item(filling_container, *Tile_water, true);
+        inventory_add_item(filling_container, *Tile_lava, true);
+        inventory_add_item(filling_container, *Tile_calmWater, true);
+        inventory_add_item(filling_container, *Tile_calmLava, true);
+        inventory_add_item(filling_container, *Tile_glowingObsidian, true);
+        inventory_add_item(filling_container, *Tile_web, true);
+        inventory_add_item(filling_container, *Tile_topSnow, true);
+        inventory_add_item(filling_container, *Tile_ice, true);
+        inventory_add_item(filling_container, *Tile_invisible_bedrock, true);
 
         return ret;
     }

@@ -11,21 +11,22 @@
 
 static char **default_username = (char **) 0x18fd4;
 
-static unsigned char **item_flintAndSteel = (unsigned char **) 0x17ba70;
-static unsigned char **item_snowball = (unsigned char **) 0x17bbb0;
-static unsigned char **item_shears = (unsigned char **) 0x17bbf0;
-static unsigned char **item_egg = (unsigned char **) 0x17bbd0;
-static unsigned char **item_dye_powder = (unsigned char **) 0x17bbe0;
-static unsigned char **item_camera = (unsigned char **) 0x17bc14;
+static unsigned char **Item_flintAndSteel = (unsigned char **) 0x17ba70;
+static unsigned char **Item_snowball = (unsigned char **) 0x17bbb0;
+static unsigned char **Item_shears = (unsigned char **) 0x17bbf0;
+static unsigned char **Item_egg = (unsigned char **) 0x17bbd0;
+static unsigned char **Item_dye_powder = (unsigned char **) 0x17bbe0;
+static unsigned char **Item_camera = (unsigned char **) 0x17bc14;
 
-static unsigned char **tile_water = (unsigned char **) 0x181b3c;
-static unsigned char **tile_lava = (unsigned char **) 0x181cc8;
-static unsigned char **tile_calmWater = (unsigned char **) 0x181b40;
-static unsigned char **tile_calmLava = (unsigned char **) 0x181ccc;
-static unsigned char **tile_glowingObsidian = (unsigned char **) 0x181dcc;
-static unsigned char **tile_topSnow = (unsigned char **) 0x181b30;
-static unsigned char **tile_ice = (unsigned char **) 0x181d80;
-static unsigned char **tile_invisible_bedrock = (unsigned char **) 0x181d94;
+static unsigned char **Tile_water = (unsigned char **) 0x181b3c;
+static unsigned char **Tile_lava = (unsigned char **) 0x181cc8;
+static unsigned char **Tile_calmWater = (unsigned char **) 0x181b40;
+static unsigned char **Tile_calmLava = (unsigned char **) 0x181ccc;
+static unsigned char **Tile_glowingObsidian = (unsigned char **) 0x181dcc;
+static unsigned char **Tile_web = (unsigned char **) 0x181d08;
+static unsigned char **Tile_topSnow = (unsigned char **) 0x181b30;
+static unsigned char **Tile_ice = (unsigned char **) 0x181d80;
+static unsigned char **Tile_invisible_bedrock = (unsigned char **) 0x181d94;
 
 typedef long int (*getRemainingFileSize_t)(FILE *file);
 static getRemainingFileSize_t getRemainingFileSize = (getRemainingFileSize_t) 0xba520;
