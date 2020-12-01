@@ -34,6 +34,7 @@ static ServerProperties &get_server_properties() {
 #define DEFAULT_PORT "19132"
 #define DEFAULT_SEED ""
 #define DEFAULT_MOB_SPAWNING "true"
+#define DEFAULT_PEACEFUL_MODE "false"
 #define DEFAULT_WORLD_NAME "world"
 #define DEFAULT_MAX_PLAYERS "4"
 
@@ -390,10 +391,25 @@ const char *server_get_motd() {
     std::string *motd = new std::string(get_server_properties().get_string("motd", DEFAULT_MOTD));
     return motd->c_str();
 }
-int server_get_mob_spawning() {
-    return get_server_properties().get_bool("spawn-mobs", DEFAULT_MOB_SPAWNING);
+
+static bool loaded_features = false;
+const char *server_get_features() {
+    static std::string features;
+    if (!loaded_features) {
+        loaded_features = true;
+
+        features = "";
+        if (get_server_properties().get_bool("spawn-mobs", DEFAULT_MOB_SPAWNING)) {
+            features += "Mob Spawning|";
+        }
+        if (get_server_properties().get_bool("peaceful-mode", DEFAULT_PEACEFUL_MODE)) {
+            features += "Peaceful Mode|";
+        }
+    }
+    return features.c_str();
 }
-static unsigned char server_get_max_players() {
+
+static unsigned char get_max_players() {
     int val = get_server_properties().get_int("max-players", DEFAULT_MAX_PLAYERS);
     if (val < 0) {
         val = 0;
@@ -426,6 +442,8 @@ void server_init() {
         properties_file_output << "seed=" DEFAULT_SEED "\n";
         properties_file_output << "# Mob Spawning (false = Disabled, true = Enabled)\n";
         properties_file_output << "spawn-mobs=" DEFAULT_MOB_SPAWNING "\n";
+        properties_file_output << "# Peaceful Mode (false = Disabled, true = Enabled)\n";
+        properties_file_output << "peaceful-mode=" DEFAULT_PEACEFUL_MODE "\n";
         properties_file_output << "# World To Select\n";
         properties_file_output << "world-name=" DEFAULT_WORLD_NAME "\n";
         properties_file_output << "# Maximum Player Count\n";
@@ -472,7 +490,7 @@ void server_init() {
     unsigned char allow_all_ip_patch[4] = {0x00, 0xf0, 0x20, 0xe3};
     patch((void *) 0xe1f6c, allow_all_ip_patch);
     // Set Max Players
-    unsigned char max_players_patch[4] = {server_get_max_players(), 0x30, 0xa0, 0xe3};
+    unsigned char max_players_patch[4] = {get_max_players(), 0x30, 0xa0, 0xe3};
     patch((void *) 0x166d0, max_players_patch);
     // Custom Banned IP List
     overwrite((void *) RakNet_RakPeer_IsBanned, (void *) RakNet_RakPeer_IsBanned_injection);

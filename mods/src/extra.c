@@ -151,25 +151,22 @@ static int is_server = 0;
 
 // Check For Feature
 int extra_has_feature(const char *name) {
-    if (is_server) {
-        // Enable All Features In Server
-        return 1;
-    } else {
-        char *env = getenv("MCPI_FEATURES");
-        char *features = strdup(env != NULL ? env : "");
-        char *tok = strtok(features, "|");
-        int ret = 0;
-        while (tok != NULL) {
-            if (strcmp(tok, name) == 0) {
-                ret = 1;
-                break;
-            }
-            tok = strtok(NULL, "|");
+    char *env = is_server ? (char *) server_get_features() : getenv("MCPI_FEATURES");
+    char *features = strdup(env != NULL ? env : "");
+    char *tok = strtok(features, "|");
+    int ret = 0;
+    while (tok != NULL) {
+        if (strcmp(tok, name) == 0) {
+            ret = 1;
+            break;
         }
-        free(features);
-        INFO("Feature: %s: %s", name, ret ? "Enabled" : "Disabled");
-        return ret;
+        tok = strtok(NULL, "|");
     }
+    free(features);
+    if (!is_server) {
+        INFO("Feature: %s: %s", name, ret ? "Enabled" : "Disabled");
+    }
+    return ret;
 }
 
 // Get Graphics Mode
@@ -259,11 +256,7 @@ __attribute__((constructor)) static void init() {
         patch_address(MouseBuildInput_tickBuild_vtable_addr, (void *) MouseBuildInput_tickBuild_injection);
     }
 
-    if (is_server) {
-        mob_spawning = server_get_mob_spawning();
-    } else {
-        mob_spawning = extra_has_feature("Mob Spawning");
-    }
+    mob_spawning = extra_has_feature("Mob Spawning");
     // Set Mob Spawning
     overwrite((void *) LevelData_getSpawnMobs, LevelData_getSpawnMobs_injection);
 

@@ -9,7 +9,8 @@ extern "C" {
 void server_init();
 
 const char *server_get_motd();
-int server_get_mob_spawning();
+
+const char *server_get_features();
 
 #ifdef __cplusplus
 }
