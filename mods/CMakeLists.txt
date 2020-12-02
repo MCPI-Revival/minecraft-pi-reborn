@@ -20,7 +20,7 @@ add_library(screenshot SHARED src/screenshot/screenshot.c)
 target_link_libraries(screenshot GLESv1_CM freeimage)
 
 add_library(extra SHARED src/extra.c src/extra.cpp src/cxx11_util.cpp)
-target_link_libraries(extra core dl server screenshot)
+target_link_libraries(extra core dl server screenshot GLESv1_CM)
 
 add_library(override SHARED src/override.c)
 target_link_libraries(override dl)

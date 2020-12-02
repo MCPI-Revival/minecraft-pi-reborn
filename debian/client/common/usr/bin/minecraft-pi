@@ -16,7 +16,7 @@ MCPI_FEATURES="$(zenity --class 'Minecraft - Pi edition' --list --checklist --co
     FALSE 'Peaceful Mode' \
     TRUE 'Animated Water' \
     TRUE 'Remove Invalid Item Background' \
-    FALSE 'Disable gui_blocks Atlas' \
+    TRUE 'Disable gui_blocks Atlas' \
     TRUE 'Smooth Lighting' \
     FALSE '3D Anaglyph')"
 MCPI_USERNAME="$(zenity --class 'Minecraft - Pi edition' --entry --text 'Minecraft Username:' --entry-text 'StevePi')"

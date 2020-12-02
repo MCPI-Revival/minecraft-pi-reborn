@@ -70,10 +70,13 @@ static void Minecraft_tickInput_injection(unsigned char *minecraft) {
 #include <SDL/SDL_events.h>
 
 // Block UI Interaction When Mouse Is Locked
-static void Gui_tickItemDrop_injection(unsigned char *this) {
+static int32_t Gui_tickItemDrop_Minecraft_isCreativeMode_call_injection(unsigned char *minecraft) {
     if (SDL_ShowCursor(SDL_QUERY) == SDL_ENABLE) {
         // Call Original Method
-        (*Gui_tickItemDrop)(this);
+        return (*Minecraft_isCreativeMode)(minecraft);
+    } else {
+        // Disable Item Drop Ticking
+        return 1;
     }
 }
 
@@ -242,7 +245,7 @@ __attribute__((constructor)) static void init() {
     overwrite_calls((void *) Minecraft_setIsCreativeMode, Minecraft_setIsCreativeMode_injection);
 
     // Disable Item Dropping Using The Cursor When Cursor Is Hidden
-    overwrite_calls((void *) Gui_tickItemDrop, Gui_tickItemDrop_injection);
+    overwrite_call((void *) 0x27800, Gui_tickItemDrop_Minecraft_isCreativeMode_call_injection);
     // Disable Opening Inventory Using The Cursor When Cursor Is Hidden
     overwrite_calls((void *) Gui_handleClick, Gui_handleClick_injection);
 
@@ -311,12 +314,6 @@ __attribute__((constructor)) static void init() {
         // Remove Invalid Item Background (A Red Background That Appears For Items That Are Not Obtainable Without Modding/Inventory Editing)
         unsigned char invalid_item_background_patch[4] = {0x00, 0xf0, 0x20, 0xe3};
         patch((void *) 0x63c98, invalid_item_background_patch);
-    }
-
-    if (extra_has_feature("Disable gui_blocks Atlas")) {
-        // Disable gui_blocks Atlas Which Contains Pre-Rendered Textures For Blocks In The Inventory
-        unsigned char disable_gui_blocks_atlas_patch[4] = {0x00, 0xf0, 0x20, 0xe3};
-        patch((void *) 0x63c2c, disable_gui_blocks_atlas_patch);
     }
 
     smooth_lighting = extra_has_feature("Smooth Lighting");

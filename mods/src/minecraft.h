@@ -28,6 +28,13 @@ static unsigned char **Tile_topSnow = (unsigned char **) 0x181b30;
 static unsigned char **Tile_ice = (unsigned char **) 0x181d80;
 static unsigned char **Tile_invisible_bedrock = (unsigned char **) 0x181d94;
 
+static unsigned char **Tile_leaves = (unsigned char **) 0x18120c;
+static unsigned char **Tile_leaves_carried = (unsigned char **) 0x181dd8;
+static unsigned char **Tile_grass = (unsigned char **) 0x181b14;
+static unsigned char **Tile_grass_carried = (unsigned char **) 0x181dd4;
+
+static float *InvGuiScale = (float *) 0x135d98;
+
 typedef long int (*getRemainingFileSize_t)(FILE *file);
 static getRemainingFileSize_t getRemainingFileSize = (getRemainingFileSize_t) 0xba520;
 
@@ -94,6 +101,9 @@ static Minecraft_getProgressMessage_t Minecraft_getProgressMessage = (Minecraft_
 typedef uint32_t (*Minecraft_isLevelGenerated_t)(unsigned char *minecraft);
 static Minecraft_isLevelGenerated_t Minecraft_isLevelGenerated = (Minecraft_isLevelGenerated_t) 0x16e6c;
 
+typedef int32_t (*Minecraft_isCreativeMode_t)(unsigned char *minecraft);
+static Minecraft_isCreativeMode_t Minecraft_isCreativeMode = (Minecraft_isCreativeMode_t) 0x17270;
+
 // MouseBuildInput
 
 typedef int32_t (*MouseBuildInput_tickBuild_t)(unsigned char *mouse_build_input, unsigned char *player, uint32_t *build_action_intention_return);
@@ -114,11 +124,14 @@ static void *LocalPlayer_openTextEdit_vtable_addr = (void *) 0x106460;
 
 // Gui
 
-typedef void (*Gui_tickItemDrop_t)(unsigned char *gui);
-static Gui_tickItemDrop_t Gui_tickItemDrop = (Gui_tickItemDrop_t) 0x27778;
+typedef void (*Gui_tick_t)(unsigned char *gui);
+static Gui_tick_t Gui_tick = (Gui_tick_t) 0x27778;
 
 typedef void (*Gui_handleClick_t)(unsigned char *gui, int32_t param_2, int32_t param_3, int32_t param_4);
 static Gui_handleClick_t Gui_handleClick = (Gui_handleClick_t) 0x2599c;
+
+typedef void (*Gui_renderOnSelectItemNameText_t)(unsigned char *gui, int32_t param_1, unsigned char *font, int32_t param_2);
+static Gui_renderOnSelectItemNameText_t Gui_renderOnSelectItemNameText = (Gui_renderOnSelectItemNameText_t) 0x26aec;
 
 // GameMode Constructors
 
@@ -170,11 +183,13 @@ static void *Touch_SelectWorldScreen_tick_vtable_addr = (void *) 0x105780;
 
 // ItemInstance
 
-typedef unsigned char *(*ItemInstance_t)(unsigned char *item_instance, unsigned char *item);
-static ItemInstance_t ItemInstance_item = (ItemInstance_t) 0x9992c;
-static ItemInstance_t ItemInstance_tile = (ItemInstance_t) 0x998e4;
-typedef unsigned char *(*ItemInstance_damage_t)(unsigned char *item_instance, unsigned char *item, int32_t count, int32_t damage);
-static ItemInstance_damage_t ItemInstance_damage = (ItemInstance_damage_t) 0x99960;
+typedef unsigned char *(*ItemInstance_constructor_t)(unsigned char *item_instance, unsigned char *item);
+static ItemInstance_constructor_t ItemInstance_constructor_item = (ItemInstance_constructor_t) 0x9992c;
+static ItemInstance_constructor_t ItemInstance_constructor_tile = (ItemInstance_constructor_t) 0x998e4;
+
+typedef unsigned char *(*ItemInstance_constructor_extra_t)(unsigned char *item_instance, unsigned char *item, int32_t count, int32_t auxilary);
+static ItemInstance_constructor_extra_t ItemInstance_constructor_title_extra = (ItemInstance_constructor_extra_t) 0x99918;
+static ItemInstance_constructor_extra_t ItemInstance_constructor_item_extra = (ItemInstance_constructor_extra_t) 0x99960;
 
 // FillingContainer
 
@@ -248,6 +263,9 @@ static NbtIo_read_t NbtIo_read = (NbtIo_read_t) 0xb98cc;
 typedef void (*Inventory_clearInventoryWithDefault_t)(unsigned char *inventory);
 static Inventory_clearInventoryWithDefault_t Inventory_clearInventoryWithDefault = (Inventory_clearInventoryWithDefault_t) 0x8e7c8;
 
+typedef void (*Inventory_selectSlot_t)(unsigned char *inventory, int32_t slot);
+static Inventory_selectSlot_t Inventory_selectSlot = (Inventory_selectSlot_t) 0x8d13c;
+
 // TripodCameraRenderer
 
 typedef unsigned char *(*TripodCameraRenderer_t)(unsigned char *renderer);
@@ -260,6 +278,11 @@ static EntityRenderDispatcher_t EntityRenderDispatcher = (EntityRenderDispatcher
 
 typedef void (*EntityRenderDispatcher_assign_t)(unsigned char *dispatcher, unsigned char entity_id, unsigned char *renderer);
 static EntityRenderDispatcher_assign_t EntityRenderDispatcher_assign = (EntityRenderDispatcher_assign_t) 0x6094c;
+
+// ItemRenderer
+
+typedef float (*ItemRenderer_renderGuiItemCorrect_t)(unsigned char *font, unsigned char *textures, unsigned char *item_instance, int32_t param_1, int32_t param_2);
+static ItemRenderer_renderGuiItemCorrect_t ItemRenderer_renderGuiItemCorrect = (ItemRenderer_renderGuiItemCorrect_t) 0x639a0;
 
 // Method That Require C++ Types
 #ifdef __cplusplus
@@ -293,6 +316,9 @@ static Level_addParticle_t Level_addParticle = (Level_addParticle_t) 0xa449c;
 
 typedef void (*Gui_addMessage_t)(unsigned char *gui, std::string const& text);
 static Gui_addMessage_t Gui_addMessage = (Gui_addMessage_t) 0x27820;
+
+typedef void (*Gui_renderChatMessages_t)(unsigned char *gui, int32_t param_1, uint32_t param_2, bool param_3, unsigned char *font);
+static Gui_renderChatMessages_t Gui_renderChatMessages = (Gui_renderChatMessages_t) 0x273d8;
 
 // Textures
 

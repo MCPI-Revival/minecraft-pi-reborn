@@ -5,6 +5,8 @@
 
 #include <unistd.h>
 
+#include <GLES/gl.h>
+
 #include <libcore/libcore.h>
 
 #include "extra.h"
@@ -77,13 +79,15 @@ extern "C" {
         extra_clear_input();
     }
 
+    #define ITEM_INSTANCE_SIZE 0xc
+
     static void inventory_add_item(unsigned char *inventory, unsigned char *item, bool is_tile) {
-        unsigned char *item_instance = (unsigned char *) ::operator new(0xc);
-        item_instance = (*(is_tile ? ItemInstance_tile : ItemInstance_item))(item_instance, item);
+        unsigned char *item_instance = (unsigned char *) ::operator new(ITEM_INSTANCE_SIZE);
+        item_instance = (*(is_tile ? ItemInstance_constructor_tile : ItemInstance_constructor_item))(item_instance, item);
         (*FillingContainer_addItem)(inventory, item_instance);
     }
 
-    static int32_t FillingContainer_addItem_injection(unsigned char *filling_container, unsigned char *item_instance) {
+    static int32_t Inventory_setupDefault_FillingContainer_addItem_call_injection(unsigned char *filling_container, unsigned char *item_instance) {
         // Call Original
         int32_t ret = (*FillingContainer_addItem)(filling_container, item_instance);
 
@@ -94,7 +98,7 @@ extern "C" {
         inventory_add_item(filling_container, *Item_shears, false);
         for (int i = 0; i < 15; i++) {
             unsigned char *item_instance = (unsigned char *) ::operator new(0xc);
-            item_instance = (*ItemInstance_damage)(item_instance, *Item_dye_powder, 1, i);
+            item_instance = (*ItemInstance_constructor_item_extra)(item_instance, *Item_dye_powder, 1, i);
             (*FillingContainer_addItem)(filling_container, item_instance);
         }
         inventory_add_item(filling_container, *Item_camera, false);
@@ -186,6 +190,73 @@ extern "C" {
         (*Level_addParticle)(level, particle, x, y + 0.5, z, deltaX, deltaY, deltaZ, count);
     }
 
+    // Fix Grass And Leaves Inventory Rendering When The gui_blocks Atlas Is Disabled
+    static float ItemRenderer_renderGuiItemCorrect_injection(unsigned char *font, unsigned char *textures, unsigned char *item_instance, int32_t param_1, int32_t param_2) {
+        int32_t leaves_id = *(int32_t *) (*Tile_leaves + 0x8);
+        int32_t grass_id = *(int32_t *) (*Tile_grass + 0x8);
+        // Replace Rendered Item With Carried Variant
+        unsigned char *carried_item_instance = NULL;
+        if (item_instance != NULL) {
+            int32_t id = *(int32_t *) (item_instance + 0x4);
+            int32_t count = *(int32_t *) item_instance;
+            int32_t auxilary = *(int32_t *) (item_instance + 0x8);
+            if (id == leaves_id) {
+                carried_item_instance = (unsigned char *) ::operator new(ITEM_INSTANCE_SIZE);
+                (*ItemInstance_constructor_title_extra)(carried_item_instance, *Tile_leaves_carried, count, auxilary);
+            } else if (id == grass_id) {
+                carried_item_instance = (unsigned char *) ::operator new(ITEM_INSTANCE_SIZE);
+                (*ItemInstance_constructor_title_extra)(carried_item_instance, *Tile_grass_carried, count, auxilary);
+            }
+        }
+        // Fix Toolbar Rendering
+        GLboolean depth_test_was_enabled = glIsEnabled(GL_DEPTH_TEST);
+        glDisable(GL_DEPTH_TEST);
+        // Call Original Method
+        float ret = (*ItemRenderer_renderGuiItemCorrect)(font, textures, carried_item_instance != NULL ? carried_item_instance : item_instance, param_1, param_2);
+        // Revert GL State Changes
+        if (depth_test_was_enabled) {
+            glEnable(GL_DEPTH_TEST);
+        }
+        // Free Carried Item Instance Variant
+        if (carried_item_instance != NULL) {
+            ::operator delete(carried_item_instance);
+        }
+        // Return
+        return ret;
+    }
+
+    // Render Selected Item Text
+    static void Gui_renderChatMessages_injection(unsigned char *gui, int32_t param_1, uint32_t param_2, bool param_3, unsigned char *font) {
+        // Call Original Method
+        (*Gui_renderChatMessages)(gui, param_1, param_2, param_3, font);
+        // Calculate Selected Item Text Scale
+        unsigned char *minecraft = *(unsigned char **) (gui + 0x9f4);
+        int32_t screen_width = *(int32_t *) (minecraft + 0x20);
+        float scale = ((float) screen_width) * *InvGuiScale;
+        // Render Selected Item Text
+        (*Gui_renderOnSelectItemNameText)(gui, (int32_t) scale, font, param_1 - 0x13);
+    }
+    // Reset Selected Item Text Timer On Slot Select
+    static bool reset_selected_item_text_timer = false;
+    static void Gui_tick_injection(unsigned char *gui) {
+        // Call Original Method
+        (*Gui_tick)(gui);
+        // Handle Reset
+        float *selected_item_text_timer = (float *) (gui + 0x9fc);
+        if (reset_selected_item_text_timer) {
+            // Reset
+            *selected_item_text_timer = 0;
+            reset_selected_item_text_timer = false;
+        }
+    }
+    // Trigger Reset Selected Item Text Timer On Slot Select
+    static void Inventory_selectSlot_injection(unsigned char *inventory, int32_t slot) {
+        // Call Original Method
+        (*Inventory_selectSlot)(inventory, slot);
+        // Trigger Reset Selected Item Text Timer
+        reset_selected_item_text_timer = true;
+    }
+
     __attribute((constructor)) static void init() {
         // Implement AppPlatform::readAssetFile So Translations Work
         overwrite((void *) AppPlatform_readAssetFile, (void *) AppPlatform_readAssetFile_injection);
@@ -205,7 +276,7 @@ extern "C" {
 
         if (extra_has_feature("Expand Creative Inventory")) {
             // Add Extra Items To Creative Inventory (Only Replace Specific Function Call)
-            overwrite_call((void *) 0x8e0fc, (void *) FillingContainer_addItem_injection);
+            overwrite_call((void *) 0x8e0fc, (void *) Inventory_setupDefault_FillingContainer_addItem_call_injection);
         }
 
         if (extra_has_feature("Animated Water")) {
@@ -219,5 +290,18 @@ extern "C" {
         // Make The SimpleChooseLevelScreen Back Button Go To SelectWorldScreen Instead Of StartMenuScreen
         unsigned char simple_choose_level_screen_back_button_patch[4] = {0x05, 0x10, 0xa0, 0xe3};
         patch((void *) 0x31144, simple_choose_level_screen_back_button_patch);
+
+        if (extra_has_feature("Disable gui_blocks Atlas")) {
+            // Disable gui_blocks Atlas Which Contains Pre-Rendered Textures For Blocks In The Inventory
+            unsigned char disable_gui_blocks_atlas_patch[4] = {0x00, 0xf0, 0x20, 0xe3};
+            patch((void *) 0x63c2c, disable_gui_blocks_atlas_patch);
+            // Fix Grass And Leaves Inventory Rendering When The gui_blocks Atlas Is Disabled
+            overwrite_calls((void *) ItemRenderer_renderGuiItemCorrect, (void *) ItemRenderer_renderGuiItemCorrect_injection);
+        }
+
+        // Fix Selected Item Text
+        overwrite_calls((void *) Gui_renderChatMessages, (void *) Gui_renderChatMessages_injection);
+        overwrite_calls((void *) Gui_tick, (void *) Gui_tick_injection);
+        overwrite_calls((void *) Inventory_selectSlot, (void *) Inventory_selectSlot_injection);
     }
 }
