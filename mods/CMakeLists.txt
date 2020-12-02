@@ -10,26 +10,48 @@ add_subdirectory(../core core)
 
 include_directories(include)
 
-add_library(core SHARED src/core.c)
+find_package(glfw3 3.3 REQUIRED)
+
+add_library(compat SHARED src/compat/compat.c)
+target_link_libraries(compat feature input screenshot SDL GLESv1_CM GLESv2 X11 dl glfw Xfixes)
+# Force GLESv1 Link
+target_link_options(compat PRIVATE "-Wl,--no-as-needed")
+
+add_library(readdir SHARED src/compat/readdir.c)
+
+add_library(core SHARED src/core/core.c)
 target_link_libraries(core dl)
 
+add_library(feature SHARED src/feature/feature.c)
+
 add_library(server SHARED src/server/server.cpp src/server/server_properties.cpp src/server/playerdata.cpp)
-target_link_libraries(server core dl SDL pthread)
+target_link_libraries(server core feature dl SDL pthread)
 
 add_library(screenshot SHARED src/screenshot/screenshot.c)
 target_link_libraries(screenshot GLESv1_CM freeimage)
 
-add_library(extra SHARED src/extra.c src/extra.cpp src/cxx11_util.cpp)
-target_link_libraries(extra core dl server screenshot GLESv1_CM)
+add_library(camera SHARED src/camera/camera.cpp)
+target_link_libraries(camera core screenshot)
 
-add_library(override SHARED src/override.c)
+add_library(game_mode SHARED src/game_mode/game_mode.c src/game_mode/game_mode.cpp)
+target_link_libraries(game_mode core)
+
+add_library(input SHARED src/input/input.c src/input/input.cpp)
+target_link_libraries(input core feature SDL)
+
+add_library(util SHARED src/util/cxx11_util.cpp)
+
+add_library(misc SHARED src/misc/misc.c src/misc/misc.cpp)
+target_link_libraries(misc core feature util)
+
+add_library(options SHARED src/options/options.c)
+target_link_libraries(options core feature)
+
+add_library(override SHARED src/override/override.c)
 target_link_libraries(override dl)
 
-find_package(glfw3 3.3 REQUIRED)
+add_library(textures SHARED src/textures/textures.cpp)
+target_link_libraries(textures core feature GLESv1_CM)
 
-add_library(compat SHARED src/compat.c)
-target_link_libraries(compat core extra screenshot SDL GLESv1_CM GLESv2 X11 dl glfw Xfixes)
-# Force GLESv1 Link
-target_link_options(compat PRIVATE "-Wl,--no-as-needed")
-
-add_library(readdir SHARED src/readdir.c)
+add_library(init SHARED src/init/init.c)
+target_link_libraries(init compat server game_mode camera input misc options textures)

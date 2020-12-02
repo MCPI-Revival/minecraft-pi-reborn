@@ -183,6 +183,8 @@ static void *Touch_SelectWorldScreen_tick_vtable_addr = (void *) 0x105780;
 
 // ItemInstance
 
+#define ITEM_INSTANCE_SIZE 0xc
+
 typedef unsigned char *(*ItemInstance_constructor_t)(unsigned char *item_instance, unsigned char *item);
 static ItemInstance_constructor_t ItemInstance_constructor_item = (ItemInstance_constructor_t) 0x9992c;
 static ItemInstance_constructor_t ItemInstance_constructor_tile = (ItemInstance_constructor_t) 0x998e4;
@@ -289,7 +291,7 @@ static ItemRenderer_renderGuiItemCorrect_t ItemRenderer_renderGuiItemCorrect = (
 
 #include <string>
 
-#include "cxx11_util.h"
+#include "util/cxx11_util.h"
 
 // AppPlatform
 

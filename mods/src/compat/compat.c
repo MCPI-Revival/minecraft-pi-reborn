@@ -16,8 +16,10 @@
 
 #include <libcore/libcore.h>
 
-#include "extra.h"
-#include "screenshot/screenshot.h"
+#include "../feature/feature.h"
+#include "../input/input.h"
+#include "../screenshot/screenshot.h"
+#include "../init/init.h"
 
 static GLFWwindow *glfw_window;
 static Display *x11_display;
@@ -125,13 +127,13 @@ static void glfw_key(__attribute__((unused)) GLFWwindow *window, int key, int sc
     event.key.keysym.sym = glfw_key_to_sdl_key(key);
     SDL_PushEvent(&event);
     if (key == GLFW_KEY_BACKSPACE && !up) {
-        extra_key_press((char) '\b');
+        input_key_press((char) '\b');
     }
 }
 
 // Pass Text To Minecraft
 static void glfw_char(__attribute__((unused)) GLFWwindow *window, unsigned int codepoint) {
-    extra_key_press((char) codepoint);
+    input_key_press((char) codepoint);
 }
 
 static double last_mouse_x = 0;
@@ -281,17 +283,17 @@ HOOK(SDL_PollEvent, int, (SDL_Event *event)) {
                 take_screenshot();
                 handled = 1;
             } else if (event->key.keysym.sym == SDLK_F1) {
-                extra_hide_gui();
+                input_hide_gui();
                 handled = 1;
             } else if (event->key.keysym.sym == SDLK_F5) {
-                extra_third_person();
+                input_third_person();
                 handled = 1;
             }
         } else if (event->type == SDL_MOUSEBUTTONDOWN || event->type == SDL_MOUSEBUTTONUP) {
             if (event->button.button == SDL_BUTTON_RIGHT) {
-                extra_set_is_right_click(event->button.state != SDL_RELEASED);
+                input_set_is_right_click(event->button.state != SDL_RELEASED);
             } else if (event->button.button == SDL_BUTTON_LEFT) {
-                extra_set_is_left_click(event->button.state != SDL_RELEASED);
+                input_set_is_left_click(event->button.state != SDL_RELEASED);
             }
         }
 
@@ -411,8 +413,8 @@ HOOK(SDL_GetWMInfo, int, (SDL_SysWMinfo *info)) {
 #include <stdlib.h>
 
 // Use VirGL
-__attribute__((constructor)) static void init() {
-    int mode = extra_get_mode();
+void init_compat() {
+    int mode = feature_get_mode();
     if (mode != 1) {
         // Force Software Rendering When Not In Native Mode
         setenv("LIBGL_ALWAYS_SOFTWARE", "1", 1);

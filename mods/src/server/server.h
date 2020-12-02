@@ -4,13 +4,9 @@
 
 #ifdef __cplusplus
 extern "C" {
-#endif
-
-void server_init();
+#endif\
 
 const char *server_get_motd();
-
-const char *server_get_features();
 
 #ifdef __cplusplus
 }

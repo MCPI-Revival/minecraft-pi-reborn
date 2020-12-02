@@ -19,6 +19,9 @@
 #include "server_properties.h"
 #include "playerdata.h"
 
+#include "../feature/feature.h"
+#include "../init/init.h"
+
 #include "../minecraft.h"
 
 // Server Properties
@@ -387,13 +390,13 @@ static bool RakNet_RakPeer_IsBanned_injection(__attribute__((unused)) unsigned c
     }
 }
 
-const char *server_get_motd() {
-    std::string *motd = new std::string(get_server_properties().get_string("motd", DEFAULT_MOTD));
-    return motd->c_str();
+static std::string get_motd() {
+    std::string motd(get_server_properties().get_string("motd", DEFAULT_MOTD));
+    return motd;
 }
 
 static bool loaded_features = false;
-const char *server_get_features() {
+static const char *get_features() {
     static std::string features;
     if (!loaded_features) {
         loaded_features = true;
@@ -420,7 +423,7 @@ static unsigned char get_max_players() {
     return (unsigned char) val;
 }
 
-void server_init() {
+static void server_init() {
     // Open Properties File
     std::string file(getenv("HOME"));
     file.append("/.minecraft/server.properties");
@@ -507,4 +510,12 @@ void server_init() {
     // Start Reading STDIN
     pthread_t read_stdin_thread_obj;
     pthread_create(&read_stdin_thread_obj, NULL, read_stdin_thread, NULL);
+}
+
+void init_server() {
+    if (feature_get_mode() == 2) {
+        server_init();
+        setenv("MCPI_FEATURES", get_features(), 1);
+        setenv("MCPI_USERNAME", get_motd().c_str(), 1);
+    }
 }
