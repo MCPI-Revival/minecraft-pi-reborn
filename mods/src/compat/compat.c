@@ -22,21 +22,8 @@
 #include "../init/init.h"
 
 static GLFWwindow *glfw_window;
-static Display *x11_display;
-static Window x11_window;
-static Window x11_root_window;
-static int window_loaded = 0;
 
 static int is_server = 0;
-
-// Get Reference To X Window
-static void store_x11_window() {
-    x11_display = glfwGetX11Display();
-    x11_window = glfwGetX11Window(glfw_window);
-    x11_root_window = RootWindow(x11_display, DefaultScreen(x11_display));
-
-    window_loaded = 1;
-}
 
 // Handle GLFW Error
 static void glfw_error(__attribute__((unused)) int error, const char *description) {
@@ -211,8 +198,6 @@ HOOK(SDL_WM_SetCaption, void, (const char *title, __attribute__((unused)) const 
         glfwSetMouseButtonCallback(glfw_window, glfw_click);
         glfwSetScrollCallback(glfw_window, glfw_scroll);
 
-        store_x11_window();
-
         glfwMakeContextCurrent(glfw_window);
     }
 }
@@ -247,7 +232,7 @@ static void toggle_fullscreen() {
     } else {
         glfwGetWindowSize(glfw_window, &old_width, &old_height);
         glfwGetWindowPos(glfw_window, &old_x, &old_y);
-        Screen *screen = DefaultScreenOfDisplay(x11_display);
+        Screen *screen = DefaultScreenOfDisplay(glfwGetX11Display());
 
         glfwSetWindowMonitor(glfw_window, glfwGetPrimaryMonitor(), 0, 0, WidthOfScreen(screen), HeightOfScreen(screen), GLFW_DONT_CARE);
     }
@@ -334,14 +319,14 @@ HOOK(SDL_WM_GrabInput, SDL_GrabMode, (SDL_GrabMode mode)) {
             glfwSetInputMode(glfw_window, GLFW_RAW_MOUSE_MOTION, mode == SDL_GRAB_OFF ? GLFW_FALSE : GLFW_TRUE);
 
             // GLFW Cursor Hiding is Broken
-            if (window_loaded) {
-                if (mode == SDL_GRAB_OFF) {
-                    XFixesShowCursor(x11_display, x11_window);
-                } else {
-                    XFixesHideCursor(x11_display, x11_window);
-                }
-                XFlush(x11_display);
+            Display *x11_display = glfwGetX11Display();
+            Window x11_window = glfwGetX11Window(glfw_window);
+            if (mode == SDL_GRAB_OFF) {
+                XFixesShowCursor(x11_display, x11_window);
+            } else {
+                XFixesHideCursor(x11_display, x11_window);
             }
+            XFlush(x11_display);
         }
         return mode == SDL_GRAB_QUERY ? (glfwGetInputMode(glfw_window, GLFW_CURSOR) == GLFW_CURSOR_NORMAL ? SDL_GRAB_OFF : SDL_GRAB_ON) : mode;
     }
@@ -364,12 +349,9 @@ HOOK(SDL_SetVideoMode, SDL_Surface *, (__attribute__((unused)) int width, __attr
 
 HOOK(XTranslateCoordinates, int, (Display *display, Window src_w, Window dest_w, int src_x, int src_y, int *dest_x_return, int *dest_y_return, Window *child_return)) {
     if (!is_server) {
+        // Use X11
         ensure_XTranslateCoordinates();
-        if (window_loaded) {
-            return (*real_XTranslateCoordinates)(x11_display, x11_window, x11_root_window, src_x, src_y, dest_x_return, dest_y_return, child_return);
-        } else {
-            return (*real_XTranslateCoordinates)(display, src_w, dest_w, src_x, src_y, dest_x_return, dest_y_return, child_return);
-        }
+        return (*real_XTranslateCoordinates)(display, src_w, dest_w, src_x, src_y, dest_x_return, dest_y_return, child_return);
     } else {
         // No X11
         *dest_x_return = src_x;
@@ -380,12 +362,9 @@ HOOK(XTranslateCoordinates, int, (Display *display, Window src_w, Window dest_w,
 
 HOOK(XGetWindowAttributes, int, (Display *display, Window w, XWindowAttributes *window_attributes_return)) {
     if (!is_server) {
+        // Use X11
         ensure_XGetWindowAttributes();
-        if (window_loaded) {
-            return (*real_XGetWindowAttributes)(x11_display, x11_window, window_attributes_return);
-        } else {
-            return (*real_XGetWindowAttributes)(display, w, window_attributes_return);
-        }
+        return (*real_XGetWindowAttributes)(display, w, window_attributes_return);
     } else {
         // No X11
         XWindowAttributes attributes;
@@ -406,6 +385,9 @@ HOOK(SDL_GetWMInfo, int, (SDL_SysWMinfo *info)) {
     SDL_SysWMinfo ret;
     ret.info.x11.lock_func = x11_nop;
     ret.info.x11.unlock_func = x11_nop;
+    ret.info.x11.display = glfwGetX11Display();
+    ret.info.x11.window = glfwGetX11Window(glfw_window);
+    ret.info.x11.wmwindow = ret.info.x11.window;
     *info = ret;
     return 1;
 }

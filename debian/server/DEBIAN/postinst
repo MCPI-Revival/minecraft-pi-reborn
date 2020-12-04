@@ -2,4 +2,4 @@
 
 set -e
 
-MCPI_ROOT='' docker-compose -f /usr/share/minecraft-pi/server/docker-compose.yml pull
+docker load < /usr/share/minecraft-pi/server/image.tar.gz

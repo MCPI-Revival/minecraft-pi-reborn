@@ -2,20 +2,24 @@ cmake_minimum_required(VERSION 3.13.0)
 
 project(mods)
 
-add_compile_options(-g -Wall -Wextra -Werror)
+add_compile_options(-Wall -Wextra -Werror)
 add_link_options(-Wl,--no-undefined)
+# Disable C++11 String ABI
 add_definitions(-D_GLIBCXX_USE_CXX11_ABI=0)
 
 add_subdirectory(../core core)
 
+# Include Libraries Exported To Runtime Environment
+include_directories(/app/export/include)
+
+# Include Headers
 include_directories(include)
 
+# Find GLFW
 find_package(glfw3 3.3 REQUIRED)
 
 add_library(compat SHARED src/compat/compat.c)
-target_link_libraries(compat feature input screenshot SDL GLESv1_CM GLESv2 X11 dl glfw Xfixes)
-# Force GLESv1 Link
-target_link_options(compat PRIVATE "-Wl,--no-as-needed")
+target_link_libraries(compat feature input screenshot SDL GLESv1_CM X11 dl glfw Xfixes)
 
 add_library(readdir SHARED src/compat/readdir.c)
 

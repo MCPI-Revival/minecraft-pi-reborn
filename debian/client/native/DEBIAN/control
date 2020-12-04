@@ -1,5 +1,5 @@
 Package: minecraft-pi-native
-Version: 1.0.0
+Version: ${VERSION}
 Maintainer: TheBrokenRail <connor24nolan@live.com>
 Description: Fun with Blocks
 Homepage: https://www.minecraft.net/en-us/edition/pi

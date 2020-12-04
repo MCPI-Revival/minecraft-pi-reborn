@@ -1,23 +1,33 @@
-FROM arm32v7/debian:bullseye
+# Runtime Base Environment
+FROM arm32v7/debian:bullseye-slim AS runtime-base
 
-# Install Dependencies
+ENV DEBIAN_FRONTEND noninteractive
 RUN \
+    # Install Runtime Dependencies
     apt-get update && \
-    apt-get install -y libglvnd-dev libsdl1.2-dev libx11-dev build-essential cmake zlib1g-dev git curl libfreeimage-dev libglfw3-dev xinput libxfixes-dev
+    apt-get install -y --no-install-recommends libgles1 libx11-6 libsdl1.2debian zlib1g libfreeimage3 libglfw3 xinput libxfixes3 && \
+    rm -rf /var/lib/apt/lists/*
 
-# Setup GLES Location
-RUN ln -s /usr/lib/arm-linux-gnueabihf/libGLESv2.so.2 /usr/lib/libGLESv2.so
+# Compile Environment
+FROM runtime-base AS build
+
+ENV DEBIAN_FRONTEND noninteractive
+RUN \
+    # Install Dependencies
+    apt-get update && \
+    apt-get install -y --no-install-recommends libgles-dev libx11-dev libxrandr-dev libsdl1.2-dev gcc g++ libc-dev make cmake zlib1g-dev git wget ca-certificates libfreeimage-dev libglfw3-dev xinput libxfixes-dev && \
+    rm -rf /var/lib/apt/lists/*
 
 # Add Build Scripts
 ADD ./build /app/build
 
 WORKDIR /app
 
-# Download MCPI
-RUN ./build/download-minecraft-pi.sh
-
-# Build LibPNG12
-RUN ./build/build-libpng12.sh
+RUN \
+    # Download MCPI
+    ./build/download-minecraft-pi.sh && \
+    # Build LibPNG12
+    ./build/build-libpng12.sh
 
 # Add Code
 ADD . /app
@@ -25,6 +35,14 @@ ADD . /app
 # Build Mods
 RUN ./build/build-mods.sh
 
-WORKDIR ./minecraft-pi
+# Runtime Environment
+FROM runtime-base AS runtime
+
+# Include Exported Libraries
+COPY --from=build /app/export /
+# Include Mods
+COPY --from=build /app/minecraft-pi /app/minecraft-pi
+
+WORKDIR /app/minecraft-pi
 
 ENTRYPOINT ./launcher

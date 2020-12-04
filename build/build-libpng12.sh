@@ -9,7 +9,7 @@ cd libpng
 ./configure --prefix /usr
 
 make -j$(nproc)
-make install
+make install DESTDIR=/app/export
 
 cd ../
 

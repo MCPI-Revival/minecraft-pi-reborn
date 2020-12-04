@@ -33,7 +33,6 @@ xhost local:root
 
 # Update Docker Container
 export DOCKER_COMPOSE="docker-compose -f /usr/share/minecraft-pi/client/docker-compose.yml"
-(${DOCKER_COMPOSE} pull || :) | zenity --class 'Minecraft - Pi edition' --progress --pulsate --no-cancel --auto-close --text 'Updating Minecraft...'
 
 # Run
 exec sg docker /usr/lib/minecraft-pi/run.sh
