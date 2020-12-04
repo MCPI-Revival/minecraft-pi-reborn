@@ -39,8 +39,6 @@ target_link_libraries(game_mode core)
 add_library(input SHARED src/input/input.c src/input/input.cpp)
 target_link_libraries(input core feature SDL)
 
-add_library(util SHARED src/util/cxx11_util.cpp)
-
 add_library(misc SHARED src/misc/misc.c src/misc/misc.cpp)
 target_link_libraries(misc core feature util)
 

@@ -2,9 +2,9 @@
 #include <fstream>
 #include <streambuf>
 
-#include <libcore/libcore.h>
+#include <cstring>
 
-#include "../util/cxx11_util.h"
+#include <libcore/libcore.h>
 
 #include "../feature/feature.h"
 #include "misc.h"
@@ -12,12 +12,17 @@
 #include "../minecraft.h"
 
 // Read Asset File
-static cxx11_string AppPlatform_readAssetFile_injection(__attribute__((unused)) unsigned char *app_platform, std::string const& path) {
+static AppPlatform_readAssetFile_return_value AppPlatform_readAssetFile_injection(__attribute__((unused)) unsigned char *app_platform, std::string const& path) {
+    // Read File
     std::string full_path("./data/");
     full_path.append(path);
     std::ifstream stream(full_path);
     std::string str((std::istreambuf_iterator<char>(stream)), std::istreambuf_iterator<char>());
-    return create_cxx11_string(str.c_str());
+    // Return String
+    AppPlatform_readAssetFile_return_value ret;
+    ret.length = str.length();
+    ret.data = strdup(str.c_str());
+    return ret;
 }
 
 static void inventory_add_item(unsigned char *inventory, unsigned char *item, bool is_tile) {
@@ -35,7 +40,11 @@ static int32_t Inventory_setupDefault_FillingContainer_addItem_call_injection(un
     inventory_add_item(filling_container, *Item_snowball, false);
     inventory_add_item(filling_container, *Item_egg, false);
     inventory_add_item(filling_container, *Item_shears, false);
-    for (int i = 0; i < 15; i++) {
+    for (int i = 0; i < 16; i++) {
+        if (i == 15) {
+            // Bonemeal Is Already In The Creative Inventory
+            continue;
+        }
         unsigned char *item_instance = (unsigned char *) ::operator new(0xc);
         item_instance = (*ItemInstance_constructor_item_extra)(item_instance, *Item_dye_powder, 1, i);
         (*FillingContainer_addItem)(filling_container, item_instance);

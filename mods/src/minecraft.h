@@ -291,14 +291,16 @@ static ItemRenderer_renderGuiItemCorrect_t ItemRenderer_renderGuiItemCorrect = (
 
 #include <string>
 
-#include "util/cxx11_util.h"
-
 // AppPlatform
 
 typedef void (*AppPlatform_saveScreenshot_t)(unsigned char *app_platform, std::string const& param1, std::string const& param_2);
 static void *AppPlatform_linux_saveScreenshot_vtable_addr = (void *) 0x102160;
 
-typedef cxx11_string (*AppPlatform_readAssetFile_t)(unsigned char *app_platform, std::string const& path);
+struct AppPlatform_readAssetFile_return_value {
+    char *data;
+    int32_t length;
+};
+typedef AppPlatform_readAssetFile_return_value (*AppPlatform_readAssetFile_t)(unsigned char *app_platform, std::string const& path);
 static AppPlatform_readAssetFile_t AppPlatform_readAssetFile = (AppPlatform_readAssetFile_t) 0x12b10;
 
 // Minecraft
