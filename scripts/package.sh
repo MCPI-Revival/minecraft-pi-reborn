@@ -18,7 +18,7 @@ mkdir debian/tmp
 
 # Set Version
 prepare_version() {
-    sed -i 's/${VERSION}/'"${DEB_VERSION}.$(date '+%Y%m%d.%H%M')"'/g' "$1/DEBIAN/control"
+    sed -i 's/${VERSION}/'"${DEB_VERSION}.$(date --utc '+%Y%m%d.%H%M')"'/g' "$1/DEBIAN/control"
 }
 
 # Package Client DEBs
