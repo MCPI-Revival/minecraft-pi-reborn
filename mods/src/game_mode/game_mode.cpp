@@ -16,8 +16,7 @@ static void SelectWorldScreen_tick_injection(unsigned char *screen) {
     bool create_world = *(bool *) (screen + 0xfc);
     if (create_world) {
         // Get New World Name
-        std::string new_name;
-        (*SelectWorldScreen_getUniqueLevelName)(new_name, screen, WORLD_NAME);
+        std::string new_name = (*SelectWorldScreen_getUniqueLevelName)(screen, WORLD_NAME);
         // Create SimpleLevelChooseScreen
         unsigned char *new_screen = (unsigned char *) ::operator new(SIMPLE_LEVEL_CHOOSE_SCREEN_SIZE);
         (*SimpleChooseLevelScreen)(new_screen, new_name);
@@ -34,8 +33,7 @@ static void Touch_SelectWorldScreen_tick_injection(unsigned char *screen) {
     bool create_world = *(bool *) (screen + 0x154);
     if (create_world) {
         // Get New World Name
-        std::string new_name;
-        (*Touch_SelectWorldScreen_getUniqueLevelName)(new_name, screen, WORLD_NAME);
+        std::string new_name = (*Touch_SelectWorldScreen_getUniqueLevelName)(screen, WORLD_NAME);
         // Create SimpleLevelChooseScreen
         unsigned char *new_screen = (unsigned char *) ::operator new(SIMPLE_LEVEL_CHOOSE_SCREEN_SIZE);
         (*SimpleChooseLevelScreen)(new_screen, new_name);

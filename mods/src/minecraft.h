@@ -356,7 +356,7 @@ static SimpleChooseLevelScreen_t SimpleChooseLevelScreen = (SimpleChooseLevelScr
 
 // SelectWorldScreen
 
-typedef std::string &(*SelectWorldScreen_getUniqueLevelName_t)(std::string &new_name, unsigned char *screen, std::string const& name);
+typedef std::string (*SelectWorldScreen_getUniqueLevelName_t)(unsigned char *screen, std::string const& name);
 static SelectWorldScreen_getUniqueLevelName_t SelectWorldScreen_getUniqueLevelName = (SelectWorldScreen_getUniqueLevelName_t) 0x388ec;
 
 // Touch::SelectWorldScreen
