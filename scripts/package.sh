@@ -3,6 +3,11 @@
 # Current Version
 DEB_VERSION='1.0.0'
 
+# Dependencies
+REQUIRED_DOCKER_VERSION='19.03'
+COMMON_DEPENDENCIES="docker.io (>=${REQUIRED_DOCKER_VERSION}) | docker-ce (>=${REQUIRED_DOCKER_VERSION}), libseccomp2 (>=2.4.2), docker-compose, qemu-user-static, binfmt-support"
+CLIENT_DEPENDENCIES="zenity, policykit-1, passwd, login"
+
 set -e
 
 # Docker Messes With SetGID
@@ -16,9 +21,10 @@ mkdir -p out/deb
 rm -rf debian/tmp
 mkdir debian/tmp
 
-# Set Version
-prepare_version() {
+# Prepare DEBIAN/control
+prepare_control() {
     sed -i 's/${VERSION}/'"${DEB_VERSION}.$(date --utc '+%Y%m%d.%H%M')"'/g' "$1/DEBIAN/control"
+    sed -i 's/${DEPENDENCIES}/'"${COMMON_DEPENDENCIES}$2"'/g' "$1/DEBIAN/control"
 }
 
 # Package Client DEBs
@@ -30,7 +36,7 @@ package_client() {
     rsync -r debian/client/common/ "debian/tmp/$1"
     rsync -r "debian/client/$1/" "debian/tmp/$1"
     cp debian/tmp/client-image.tar.gz "debian/tmp/$1/usr/share/minecraft-pi/client/image.tar.gz"
-    prepare_version "debian/tmp/$1"
+    prepare_control "debian/tmp/$1" ", ${CLIENT_DEPENDENCIES}"
     # Build
     dpkg -b "debian/tmp/$1" out/deb
 }
@@ -45,7 +51,7 @@ package_server() {
     # Prepare
     rsync -r debian/server/ debian/tmp/server
     cp debian/tmp/server-image.tar.gz debian/tmp/server/usr/share/minecraft-pi/server/image.tar.gz
-    prepare_version debian/tmp/server
+    prepare_control debian/tmp/server ''
     # Build
     dpkg -b debian/tmp/server out/deb
 }
