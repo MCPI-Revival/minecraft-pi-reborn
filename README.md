@@ -21,7 +21,7 @@ While the distribution-provided version of Docker works fine on most systems, in
 #### Raspbian Buster
 By default Raspbian Buster ships an older version of the package ``libseccomp2``. This package is used to block certain dangerous system calls from running inside Docker containers. The included version accidentally blocks the system call ``clock_gettime64``, this causes bugs inside Minecraft: Pi Edition. However, the Debian ``buster-backports`` repo includes an updated version. You can enable the ``buster-backports`` repo and update ``libseccomp2`` by running:
 ```sh
-echo 'deb http://deb.debian.org/debian buster-backports main' | sudo tee /etc/apt/sources.list
+echo 'deb http://deb.debian.org/debian buster-backports main' | sudo tee -a /etc/apt/sources.list
 sudo apt update && sudo apt install libseccomp2
 ```
 
