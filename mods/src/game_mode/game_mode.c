@@ -20,8 +20,8 @@ static void set_is_survival(int new_is_survival) {
         unsigned char size_patch[4] = {new_is_survival ? 0x24 : 0x18, 0x00, 0xa0, 0xe3};
         patch((void *) 0x16ee4, size_patch);
 
-        // Replace Creator Constructor With CreativeMode Or SurvivalMode Constructor
-        overwrite(Creator, new_is_survival ? SurvivalMode : CreativeMode);
+        // Replace Default CreatorMode Constructor With CreatorMode Or SurvivalMode Constructor
+        overwrite_call((void *) 0x16ef4, new_is_survival ? SurvivalMode : CreatorMode);
 
         is_survival = new_is_survival;
     }

@@ -135,9 +135,8 @@ static Gui_renderOnSelectItemNameText_t Gui_renderOnSelectItemNameText = (Gui_re
 
 // GameMode Constructors
 
-static void *Creator = (void *) 0x1a044;
+static void *CreatorMode = (void *) 0x1a044;
 static void *SurvivalMode = (void *) 0x1b7d8;
-static void *CreativeMode = (void *) 0x1b258;
 
 // LevelData
 

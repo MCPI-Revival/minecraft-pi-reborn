@@ -2,8 +2,8 @@
 
 set -e
 
-# Ensure Features Are Selected
-MCPI_FEATURES="$(zenity --class 'Minecraft - Pi edition' --list --checklist --column 'Enabled' --column 'Feature' \
+# All Feature Flags
+export AVAILABLE_FEATURES=" \
     TRUE 'Touch GUI' \
     TRUE 'Fix Bow & Arrow' \
     TRUE 'Fix Attacking' \
@@ -18,7 +18,16 @@ MCPI_FEATURES="$(zenity --class 'Minecraft - Pi edition' --list --checklist --co
     TRUE 'Remove Invalid Item Background' \
     TRUE 'Disable gui_blocks Atlas' \
     TRUE 'Smooth Lighting' \
-    FALSE '3D Anaglyph')"
+    FALSE '3D Anaglyph'"
+
+# Print Feature Flags Option
+if [ "$1" = "--print-features" ]; then
+    echo "${AVAILABLE_FEATURES}"
+    exit 0
+fi
+
+# Ensure Features Are Selected
+MCPI_FEATURES="$(sh -c "zenity --class 'Minecraft - Pi edition' --list --checklist --column 'Enabled' --column 'Feature' ${AVAILABLE_FEATURES}")"
 MCPI_USERNAME="$(zenity --class 'Minecraft - Pi edition' --entry --text 'Minecraft Username:' --entry-text 'StevePi')"
 export MCPI_FEATURES
 export MCPI_USERNAME
