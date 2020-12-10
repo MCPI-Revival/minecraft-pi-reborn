@@ -489,9 +489,6 @@ static void server_init() {
     signal(SIGINT, exit_handler);
     // Print Chat To Log
     overwrite_calls((void *) Gui_addMessage, (void *) Gui_addMessage_injection);
-    // Allow All IPs To Join
-    unsigned char allow_all_ip_patch[4] = {0x00, 0xf0, 0x20, 0xe3};
-    patch((void *) 0xe1f6c, allow_all_ip_patch);
     // Set Max Players
     unsigned char max_players_patch[4] = {get_max_players(), 0x30, 0xa0, 0xe3};
     patch((void *) 0x166d0, max_players_patch);

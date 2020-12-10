@@ -4,6 +4,7 @@ services:
         image: 'thebrokenrail/minecraft-pi:client'
         network_mode: 'host'
         volumes:
+            - /usr/bin/qemu-arm-static:/usr/bin/qemu-arm-static
             - '/tmp/.X11-unix:/tmp/.X11-unix'
             - '/tmp/.virgl_test:/tmp/.virgl_test'
             - '~/.minecraft-pi:/root/.minecraft'

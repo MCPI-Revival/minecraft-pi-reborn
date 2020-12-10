@@ -4,4 +4,5 @@ services:
         image: 'thebrokenrail/minecraft-pi:server'
         network_mode: 'host'
         volumes:
+            - /usr/bin/qemu-arm-static:/usr/bin/qemu-arm-static
             - '${MCPI_ROOT}:/root/.minecraft'
