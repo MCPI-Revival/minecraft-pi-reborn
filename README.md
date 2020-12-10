@@ -2,12 +2,13 @@
 This is a project allowing Minecraft: Pi Edition to be run without a Raspberry Pi using Docker.
 
 ## Setup
-[View Binaries](https://jenkins.thebrokenrail.com/job/minecraft-pi-docker/job/master/lastSuccessfulBuild/artifact/out/)
+1. Download Appropriate Package (See Table Below) From [Here](https://jenkins.thebrokenrail.com/job/minecraft-pi-docker/job/master/lastSuccessfulBuild/artifact/out/deb/)
+2. Install With ``sudo apt install ./<Path To File>``
 
 ### Packages
 | Package | Description |
 | --- | --- |
-| ``minecraft-pi-server`` | Dedicated Server |
+| ``minecraft-pi-server`` | Minecraft Pi Edition Modded Into A Dedicated Server |
 | ``minecraft-pi-virgl`` | Minecraft Pi Edition Using VirGL For Hardware Acceleration (Recommended For Desktop) |
 | ``minecraft-pi-native`` | Minecraft: Pi Edition Using Docker Device Mounting For GPU Acceleration (Recommended For Raspberry Pi) |
 
@@ -20,9 +21,17 @@ While the distribution-provided version of Docker works fine on most systems, in
 
 #### Raspbian Buster
 By default Raspbian Buster ships an older version of the package ``libseccomp2``. This package is used to block certain dangerous system calls from running inside Docker containers. The included version accidentally blocks the system call ``clock_gettime64``, this causes bugs inside Minecraft: Pi Edition. However, the Debian ``buster-backports`` repo includes an updated version. You can enable the ``buster-backports`` repo and update ``libseccomp2`` by running:
+
 ```sh
+# Install Backports Key
+sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 04EE7237B7D453EC
+sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 648ACFD622F3D138
+# Install Backports Repository
 echo 'deb http://deb.debian.org/debian buster-backports main' | sudo tee -a /etc/apt/sources.list
-sudo apt update && sudo apt install libseccomp2
+# Update APT Index
+sudo apt update
+# Install Updated libseccomp2
+sudo apt install -t buster-backports libseccomp2
 ```
 
 ## Dedicated Server
