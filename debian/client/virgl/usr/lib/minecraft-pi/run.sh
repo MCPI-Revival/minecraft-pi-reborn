@@ -3,14 +3,16 @@
 set -e
 
 # Start VirGL
-virgl_test_server > /tmp/virgl.log 2>&1 &
-VIRGL_PID="$!"
+virgl_test_server > /tmp/minecraft-pi/virgl.log 2>&1 &
+VIRGL_PID=$!
 
 # Launch Minecraft
-${DOCKER_COMPOSE} run --rm minecraft-pi || :
-RET="$?"
+set +e
+${DOCKER_COMPOSE} run --rm minecraft-pi
+RET=$?
+set -e
 
 # Kill VirGL
-kill "${VIRGL_PID}"
+kill ${VIRGL_PID}
 
-exit "${RET}"
+exit ${RET}

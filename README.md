@@ -34,6 +34,16 @@ sudo apt update
 sudo apt install -t buster-backports libseccomp2
 ```
 
+## Troubleshooting Crashes
+Game logs are located in ``/tmp/minecraft-pi``.
+
+### ``Error response from daemon: error gathering device information while adding custom device "/dev/dri": no such file or directory``
+Make sure you are using the correct GPU drivers for your system. If you are using a Raspberry Pi, make sure you have set your GPU driver to ``Full KMS`` or ``Fake KMS`` in ``raspi-config``.
+
+### ``Segmentation Fault``
+1. Attempt To Reproduce Issue And Record Instructions
+2. Report On Issue Tracker Including The Instructions To Reproduce
+
 ## Dedicated Server
 The dedicated server is a version of Minecraft: Pi Edition modified to run in a headless environment. It loads settings from a ``server.properties`` file.
 

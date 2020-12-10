@@ -26,12 +26,16 @@ if [ "$1" = "--print-features" ]; then
     exit 0
 fi
 
+# Export Important Variables
+export ZENITY_CLASS='Minecraft - Pi edition'
+export DOCKER_COMPOSE="docker-compose -f /usr/share/minecraft-pi/client/docker-compose.yml"
+
 # Ensure Features Are Selected
 if [ -z "${MCPI_FEATURES+x}" ]; then
-    MCPI_FEATURES="$(sh -c "zenity --class 'Minecraft - Pi edition' --list --checklist --column 'Enabled' --column 'Feature' ${AVAILABLE_FEATURES}")"
+    MCPI_FEATURES="$(sh -c "zenity --class \"${ZENITY_CLASS}\" --list --checklist --column 'Enabled' --column 'Feature' ${AVAILABLE_FEATURES}")"
 fi
 if [ -z "${MCPI_USERNAME+x}" ]; then
-    MCPI_USERNAME="$(zenity --class 'Minecraft - Pi edition' --entry --text 'Minecraft Username:' --entry-text 'StevePi')"
+    MCPI_USERNAME="$(zenity --class "${ZENITY_CLASS}" --entry --text 'Minecraft Username:' --entry-text 'StevePi')"
 fi
 export MCPI_FEATURES
 export MCPI_USERNAME
@@ -44,8 +48,5 @@ fi
 # Allow X11 Connections From Root
 xhost local:root
 
-# Update Docker Container
-export DOCKER_COMPOSE="docker-compose -f /usr/share/minecraft-pi/client/docker-compose.yml"
-
 # Run
-exec sg docker /usr/lib/minecraft-pi/run.sh
+sg docker /usr/lib/minecraft-pi/pre-launch.sh
