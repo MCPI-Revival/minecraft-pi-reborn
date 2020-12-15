@@ -28,7 +28,7 @@ target_link_libraries(core dl)
 
 add_library(feature SHARED src/feature/feature.c)
 
-add_library(server SHARED src/server/server.cpp src/server/server_properties.cpp src/server/playerdata.cpp)
+add_library(server SHARED src/server/server.cpp src/server/server_properties.cpp)
 target_link_libraries(server core feature dl SDL pthread)
 
 add_library(screenshot SHARED src/screenshot/screenshot.c)

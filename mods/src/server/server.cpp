@@ -17,7 +17,6 @@
 #include "server.h"
 #include "server_internal.h"
 #include "server_properties.h"
-#include "playerdata.h"
 
 #include "../feature/feature.h"
 #include "../init/init.h"
@@ -244,9 +243,6 @@ static void Level_saveLevelData_injection(unsigned char *level) {
 
     // Call Original Method
     (*Level_saveLevelData)(level);
-
-    // Save Player Data
-    playerdata_save(level);
 }
 
 // Stop Server
@@ -494,9 +490,6 @@ static void server_init() {
     patch((void *) 0x166d0, max_players_patch);
     // Custom Banned IP List
     overwrite((void *) RakNet_RakPeer_IsBanned, (void *) RakNet_RakPeer_IsBanned_injection);
-
-    // Load Player Data
-    playerdata_init();
 
     if (get_server_properties().get_bool("show-minecon-badge", DEFAULT_SHOW_MINECON_BADGE)) {
         // Show The MineCon Icon Next To MOTD In Server List

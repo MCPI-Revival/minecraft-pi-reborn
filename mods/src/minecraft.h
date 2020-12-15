@@ -35,9 +35,6 @@ static unsigned char **Tile_grass_carried = (unsigned char **) 0x181dd4;
 
 static float *InvGuiScale = (float *) 0x135d98;
 
-typedef long int (*getRemainingFileSize_t)(FILE *file);
-static getRemainingFileSize_t getRemainingFileSize = (getRemainingFileSize_t) 0xba520;
-
 // Structures
 
 struct LevelSettings {
@@ -48,21 +45,8 @@ struct LevelSettings {
 struct RakNet_RakNetGUID {
     unsigned char data[10];
 };
-
 struct RakNet_SystemAddress {
     unsigned char data[20];
-};
-
-struct RakNet_BitStream {
-    unsigned char data[273];
-};
-
-struct RakDataOutput {
-    unsigned char data[8];
-};
-
-struct RakDataInput {
-    unsigned char data[8];
 };
 
 // GameMode
@@ -114,9 +98,6 @@ static void *MouseBuildInput_tickBuild_vtable_addr = (void *) 0x102564;
 
 typedef int (*Player_isUsingItem_t)(unsigned char *player);
 static Player_isUsingItem_t Player_isUsingItem = (Player_isUsingItem_t) 0x8f15c;
-
-typedef void (*Player_setArmor_t)(unsigned char *player, int32_t slot, unsigned char *item);
-static Player_setArmor_t Player_setArmor = (Player_setArmor_t) 0x8fde0;
 
 // Player
 
@@ -201,22 +182,6 @@ static FillingContainer_addItem_t FillingContainer_addItem = (FillingContainer_a
 
 typedef struct RakNet_SystemAddress (*RakNet_RakPeer_GetSystemAddressFromGuid_t)(unsigned char *rak_peer, struct RakNet_RakNetGUID guid);
 
-// RakNet::BitStream
-
-typedef unsigned char *(*RakNet_BitStream_constructor_t)(struct RakNet_BitStream *stream);
-static RakNet_BitStream_constructor_t RakNet_BitStream_constructor = (RakNet_BitStream_constructor_t) 0xd3b84;
-
-typedef void (*RakNet_BitStream_destructor_t)(struct RakNet_BitStream *stream);
-static RakNet_BitStream_destructor_t RakNet_BitStream_destructor = (RakNet_BitStream_destructor_t) 0xd3ce8;
-
-// RakDataOutput
-
-static unsigned char *RakDataOutput_vtable = (unsigned char *) 0x109628;
-
-// RakDataInput
-
-static unsigned char *RakDataInput_vtable = (unsigned char *) 0x1095c8;
-
 // ServerSideNetworkHandler
 
 typedef void (*ServerSideNetworkHandler_onDisconnect_t)(unsigned char *server_side_network_handler, unsigned char *guid);
@@ -226,43 +191,11 @@ static void *ServerSideNetworkHandler_onDisconnect_vtable_addr = (void *) 0x109b
 typedef unsigned char *(*ServerSideNetworkHandler_getPlayer_t)(unsigned char *server_side_network_handler, unsigned char *guid);
 static ServerSideNetworkHandler_getPlayer_t ServerSideNetworkHandler_getPlayer = (ServerSideNetworkHandler_getPlayer_t) 0x75464;
 
-// CompoundTag
-
-typedef unsigned char *(*CompoundTag_t)(unsigned char *tag);
-static CompoundTag_t CompoundTag = (CompoundTag_t) 0xb9920;
-
-// Tag
-
-typedef void (*Tag_writeNamedTag_t)(unsigned char *tag, struct RakDataOutput *output);
-static Tag_writeNamedTag_t Tag_writeNamedTag = (Tag_writeNamedTag_t) 0x6850c;
-
-typedef void (*Tag_deleteChildren_t)(unsigned char *tag);
-typedef void (*Tag_destructor_t)(unsigned char *tag);
-
 // Entity
-
-typedef void (*Entity_saveWithoutId_t)(unsigned char *entity, unsigned char *tag);
-
-typedef void (*Entity_load_t)(unsigned char *entity, unsigned char *tag);
-
-typedef void (*Entity_moveTo_t)(unsigned char *entity, float param_1, float param_2, float param_3, float param_4, float param_5);
-static Entity_moveTo_t Entity_moveTo = (Entity_moveTo_t) 0x7a834;
 
 typedef void (*Entity_die_t)(unsigned char *entity, unsigned char *cause);
 
-// ServerPlayer
-
-static void *ServerPlayer_moveTo_vtable_addr = (void *) 0x109e54;
-
-// NbtIo
-
-typedef unsigned char *(*NbtIo_read_t)(struct RakDataInput *input);
-static NbtIo_read_t NbtIo_read = (NbtIo_read_t) 0xb98cc;
-
 // Inventory
-
-typedef void (*Inventory_clearInventoryWithDefault_t)(unsigned char *inventory);
-static Inventory_clearInventoryWithDefault_t Inventory_clearInventoryWithDefault = (Inventory_clearInventoryWithDefault_t) 0x8e7c8;
 
 typedef void (*Inventory_selectSlot_t)(unsigned char *inventory, int32_t slot);
 static Inventory_selectSlot_t Inventory_selectSlot = (Inventory_selectSlot_t) 0x8d13c;
@@ -332,11 +265,6 @@ static Textures_tick_t Textures_tick = (Textures_tick_t) 0x531c4;
 
 typedef bool (*RakNet_RakPeer_IsBanned_t)(unsigned char *rakpeer, const char *ip);
 static RakNet_RakPeer_IsBanned_t RakNet_RakPeer_IsBanned = (RakNet_RakPeer_IsBanned_t) 0xda3b4;
-
-// RakNet::BitStream
-
-typedef struct RakNet_BitStream *(*RakNet_BitStream_constructor_with_data_t)(struct RakNet_BitStream *stream, unsigned char *data, uint32_t size, bool copyData);
-static RakNet_BitStream_constructor_with_data_t RakNet_BitStream_constructor_with_data = (RakNet_BitStream_constructor_with_data_t) 0xd3c30;
 
 // RakNet::SystemAddress
 
