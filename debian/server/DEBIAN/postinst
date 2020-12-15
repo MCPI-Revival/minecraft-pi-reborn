@@ -3,3 +3,4 @@
 set -e
 
 docker load < /usr/share/minecraft-pi/server/image.tar.gz
+rm /usr/share/minecraft-pi/server/image.tar.gz
