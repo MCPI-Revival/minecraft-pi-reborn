@@ -42,7 +42,7 @@ export MCPI_USERNAME
 
 # Ensure Groups Are Correct
 if ! id -Gn "$(whoami)" | grep '\bdocker\b' > /dev/null; then
-    pkexec usermod -aG docker "$(whoami)"
+    pkexec /sbin/usermod -aG docker "$(whoami)"
 fi
 
 # Allow X11 Connections From Root

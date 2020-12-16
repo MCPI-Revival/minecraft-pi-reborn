@@ -6,7 +6,7 @@ DEB_VERSION='1.0.0'
 # Dependencies
 REQUIRED_DOCKER_VERSION='19.03'
 COMMON_DEPENDENCIES="docker.io (>=${REQUIRED_DOCKER_VERSION}) | docker-ce (>=${REQUIRED_DOCKER_VERSION}), libseccomp2 (>=2.4.2), docker-compose, qemu-user-static, binfmt-support"
-CLIENT_DEPENDENCIES="zenity, policykit-1, passwd, login"
+CLIENT_DEPENDENCIES="zenity, policykit-1, passwd, login, x11-xserver-utils"
 
 set -e
 
