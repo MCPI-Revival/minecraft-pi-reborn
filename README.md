@@ -10,14 +10,14 @@ This is a project allowing Minecraft: Pi Edition to be run without a Raspberry P
 | --- | --- |
 | ``minecraft-pi-server`` | Minecraft Pi Edition Modded Into A Dedicated Server |
 | ``minecraft-pi-virgl`` | Minecraft Pi Edition Using VirGL For Hardware Acceleration (Recommended For Desktop) |
-| ``minecraft-pi-native`` | Minecraft: Pi Edition Using Docker Device Mounting For GPU Acceleration (Recommended For Raspberry Pi) |
+| ``minecraft-pi-native`` | Minecraft: Pi Edition Using Docker Device Mounting For GPU Acceleration (Recommended For ARM Devices (ie. Raspberry Pi, PinePhone, etc)) |
 
 ### General Notes
 
 #### Docker Versions
 While the distribution-provided version of Docker works fine on most systems, in rare cases it can be outdated and cause bugs. Before reporting a bug, try using the official builds of Docker. These can be installed by following your distribution's instructions at https://docs.docker.com/engine/install.
 
-### Distribution-Specific Notes
+### Specific Notes
 
 #### Raspbian Buster
 By default Raspbian Buster ships an older version of the package ``libseccomp2``. This package is used to block certain dangerous system calls from running inside Docker containers. The included version accidentally blocks the system call ``clock_gettime64``, this causes bugs inside Minecraft: Pi Edition. However, the Debian ``buster-backports`` repo includes an updated version. You can enable the ``buster-backports`` repo and update ``libseccomp2`` by running:
@@ -33,6 +33,9 @@ sudo apt update
 # Install Updated libseccomp2
 sudo apt install -t buster-backports libseccomp2
 ```
+
+### PinePhone (Mobian)
+This supports running on a PinePhone using Mobian. However, you will need to attach a keyboard and mouse as Minecraft: Pi Edition does not have touch support.
 
 ## Troubleshooting Crashes
 Game logs are located in ``/tmp/minecraft-pi``.
