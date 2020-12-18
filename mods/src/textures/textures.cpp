@@ -12,7 +12,7 @@ static void Minecraft_tick_injection(unsigned char *minecraft, int32_t param_1, 
     (*Minecraft_tick)(minecraft, param_1, param_2);
 
     // Tick Dynamic Textures
-    unsigned char *textures = *(unsigned char **) (minecraft + 0x164);
+    unsigned char *textures = *(unsigned char **) (minecraft + Minecraft_textures_property_offset);
     if (textures != NULL) {
         (*Textures_tick)(textures, true);
     }
@@ -20,14 +20,14 @@ static void Minecraft_tick_injection(unsigned char *minecraft, int32_t param_1, 
 
 // Fix Grass And Leaves Inventory Rendering When The gui_blocks Atlas Is Disabled
 static float ItemRenderer_renderGuiItemCorrect_injection(unsigned char *font, unsigned char *textures, unsigned char *item_instance, int32_t param_1, int32_t param_2) {
-    int32_t leaves_id = *(int32_t *) (*Tile_leaves + 0x8);
-    int32_t grass_id = *(int32_t *) (*Tile_grass + 0x8);
+    int32_t leaves_id = *(int32_t *) (*Tile_leaves + Tile_id_property_offset);
+    int32_t grass_id = *(int32_t *) (*Tile_grass + Tile_id_property_offset);
     // Replace Rendered Item With Carried Variant
     unsigned char *carried_item_instance = NULL;
     if (item_instance != NULL) {
-        int32_t id = *(int32_t *) (item_instance + 0x4);
-        int32_t count = *(int32_t *) item_instance;
-        int32_t auxilary = *(int32_t *) (item_instance + 0x8);
+        int32_t id = *(int32_t *) (item_instance + ItemInstance_id_property_offset);
+        int32_t count = *(int32_t *) (item_instance + ItemInstance_count_property_offset);
+        int32_t auxilary = *(int32_t *) (item_instance + ItemInstance_auxilary_property_offset);
         if (id == leaves_id) {
             carried_item_instance = (unsigned char *) ::operator new(ITEM_INSTANCE_SIZE);
             (*ItemInstance_constructor_title_extra)(carried_item_instance, *Tile_leaves_carried, count, auxilary);

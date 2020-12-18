@@ -69,8 +69,8 @@ static void Gui_renderChatMessages_injection(unsigned char *gui, int32_t param_1
     // Call Original Method
     (*Gui_renderChatMessages)(gui, param_1, param_2, param_3, font);
     // Calculate Selected Item Text Scale
-    unsigned char *minecraft = *(unsigned char **) (gui + 0x9f4);
-    int32_t screen_width = *(int32_t *) (minecraft + 0x20);
+    unsigned char *minecraft = *(unsigned char **) (gui + Gui_minecraft_property_offset);
+    int32_t screen_width = *(int32_t *) (minecraft + Minecraft_screen_width_property_offset);
     float scale = ((float) screen_width) * *InvGuiScale;
     // Render Selected Item Text
     (*Gui_renderOnSelectItemNameText)(gui, (int32_t) scale, font, param_1 - 0x13);
@@ -81,7 +81,7 @@ static void Gui_tick_injection(unsigned char *gui) {
     // Call Original Method
     (*Gui_tick)(gui);
     // Handle Reset
-    float *selected_item_text_timer = (float *) (gui + 0x9fc);
+    float *selected_item_text_timer = (float *) (gui + Gui_selected_item_text_timer_property_offset);
     if (reset_selected_item_text_timer) {
         // Reset
         *selected_item_text_timer = 0;

@@ -9,9 +9,9 @@
 
 // Open Sign Screen
 static void LocalPlayer_openTextEdit_injection(unsigned char *local_player, unsigned char *sign) {
-    if (*(int *)(sign + 0x18) == 4) {
-        unsigned char *minecraft = *(unsigned char **) (local_player + 0xc90);
-        unsigned char *screen = (unsigned char *) ::operator new(0xd0);
+    if (*(int32_t *) (sign + TileEntity_id_property_offset) == 4) {
+        unsigned char *minecraft = *(unsigned char **) (local_player + LocalPlayer_minecraft_property_offset);
+        unsigned char *screen = (unsigned char *) ::operator new(TEXT_EDIT_SCREEN_SIZE);
         screen = (*TextEditScreen)(screen, sign);
         (*Minecraft_setScreen)(minecraft, screen);
     }
@@ -44,10 +44,10 @@ static void TextEditScreen_updateEvents_injection(unsigned char *screen) {
         for (char key : input) {
             if (key == BACKSPACE_KEY) {
                 // Handle Backspace
-                (*(Screen_keyPressed_t *) (vtable + 0x6c))(screen, BACKSPACE_KEY);
+                (*(Screen_keyPressed_t *) (vtable + Screen_keyPressed_vtable_offset))(screen, BACKSPACE_KEY);
             } else {
                 // Handle Nrmal Key
-                (*(Screen_keyboardNewChar_t *) (vtable + 0x70))(screen, key);
+                (*(Screen_keyboardNewChar_t *) (vtable + Screen_keyboardNewChar_vtable_offset))(screen, key);
             }
         }
     }

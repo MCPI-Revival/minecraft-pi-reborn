@@ -113,7 +113,7 @@ static int last_progress = -1;
 static const char *last_message = NULL;
 static void print_progress(unsigned char *minecraft) {
     const char *message = (*Minecraft_getProgressMessage)(minecraft);
-    int32_t progress = *(int32_t *) (minecraft + 0xc60);
+    int32_t progress = *(int32_t *) (minecraft + Minecraft_progress_property_offset);
     if ((*Minecraft_isLevelGenerated)(minecraft)) {
         message = "Ready";
         progress = -1;
@@ -147,19 +147,19 @@ typedef void (*player_callback_t)(unsigned char *minecraft, std::string username
 
 // Get Vector Of Players In Level
 std::vector<unsigned char *> server_internal_get_players(unsigned char *level) {
-    return *(std::vector<unsigned char *> *) (level + 0x60);
+    return *(std::vector<unsigned char *> *) (level + Level_players_property_offset);
 }
 // Get Player's Username
-std::string server_internal_get_server_player_username(unsigned char *player) {
-    return *(char **) (player + 0xbf4);
+std::string server_internal_get_player_username(unsigned char *player) {
+    return *(char **) (player + Player_username_property_offset);
 }
 // Get Level From Minecraft
 unsigned char *server_internal_get_level(unsigned char *minecraft) {
-    return *(unsigned char **) (minecraft + 0x188);
+    return *(unsigned char **) (minecraft + Minecraft_level_property_offset);
 }
 // Get minecraft from ServerPlayer
 unsigned char *server_internal_get_minecraft(unsigned char *player) {
-    return *(unsigned char **) (player + 0xc8c);
+    return *(unsigned char **) (player + ServerPlayer_minecraft_property_offset);
 }
 
 // Find Players With Username And Run Callback
@@ -170,7 +170,7 @@ static void find_players(unsigned char *minecraft, std::string target_username, 
     for (std::size_t i = 0; i < players.size(); i++) {
         // Iterate Players
         unsigned char *player = players[i];
-        std::string username = server_internal_get_server_player_username(player);
+        std::string username = server_internal_get_player_username(player);
         if (all_players || username == target_username) {
             // Run Callback
             (*callback)(minecraft, username, player);
@@ -182,23 +182,23 @@ static void find_players(unsigned char *minecraft, std::string target_username, 
     }
 }
 
-static RakNet_RakNetGUID *get_rak_net_guid(unsigned char *player) {
-    return (RakNet_RakNetGUID *) (player + 0xc08);
+static RakNet_RakNetGUID get_rak_net_guid(unsigned char *player) {
+    return *(RakNet_RakNetGUID *) (player + ServerPlayer_guid_property_offset);
 }
 static RakNet_SystemAddress get_system_address(unsigned char *rak_peer, RakNet_RakNetGUID guid) {
     unsigned char *rak_peer_vtable = *(unsigned char **) rak_peer;
-    RakNet_RakPeer_GetSystemAddressFromGuid_t RakNet_RakPeer_GetSystemAddressFromGuid = *(RakNet_RakPeer_GetSystemAddressFromGuid_t *) (rak_peer_vtable + 0xd0);
+    RakNet_RakPeer_GetSystemAddressFromGuid_t RakNet_RakPeer_GetSystemAddressFromGuid = *(RakNet_RakPeer_GetSystemAddressFromGuid_t *) (rak_peer_vtable + RakNet_RakPeer_GetSystemAddressFromGuid_vtable_offset);
     // Get SystemAddress
     return (*RakNet_RakPeer_GetSystemAddressFromGuid)(rak_peer, guid);
 }
 static unsigned char *get_rak_peer(unsigned char *minecraft) {
-    unsigned char *rak_net_instance = *(unsigned char **) (minecraft + 0x170);
-    return *(unsigned char **) (rak_net_instance + 0x4);
+    unsigned char *rak_net_instance = *(unsigned char **) (minecraft + Minecraft_rak_net_instance_property_offset);
+    return *(unsigned char **) (rak_net_instance + RakNetInstance_peer_property_offset);
 }
 
 // Get IP From Player
 static char *get_player_ip(unsigned char *minecraft, unsigned char *player) {
-    RakNet_RakNetGUID guid = *get_rak_net_guid(player);
+    RakNet_RakNetGUID guid = get_rak_net_guid(player);
     unsigned char *rak_peer = get_rak_peer(minecraft);
     RakNet_SystemAddress address = get_system_address(rak_peer, guid);
     // Get IP
@@ -227,7 +227,7 @@ static void ban_callback(unsigned char *minecraft, std::string username, unsigne
 // Kill Player
 static void kill_callback(__attribute__((unused)) unsigned char *minecraft, __attribute__((unused)) std::string username, unsigned char *player) {
     unsigned char *player_vtable = *(unsigned char **) player;
-    Entity_die_t Entity_die = *(Entity_die_t *) (player_vtable + 0x130);
+    Entity_die_t Entity_die = *(Entity_die_t *) (player_vtable + Entity_die_vtable_offset);
     (*Entity_die)(player, NULL);
     INFO("Killed: %s", username.c_str());
 }
@@ -270,7 +270,7 @@ static void handle_server_stop(unsigned char *minecraft) {
 
 // Get ServerSideNetworkHandler From Minecraft
 static unsigned char *get_server_side_network_handler(unsigned char *minecraft) {
-    return *(unsigned char **) (minecraft + 0x174);
+    return *(unsigned char **) (minecraft + Minecraft_server_side_network_handler_property_offset);
 }
 
 // Handle Commands
@@ -483,6 +483,7 @@ static void server_init() {
     overwrite_calls((void *) Level_saveLevelData, (void *) Level_saveLevelData_injection);
     // Exit handler
     signal(SIGINT, exit_handler);
+    signal(SIGTERM, exit_handler);
     // Print Chat To Log
     overwrite_calls((void *) Gui_addMessage, (void *) Gui_addMessage_injection);
     // Set Max Players

@@ -33,11 +33,11 @@ static void Minecraft_tickInput_injection(unsigned char *minecraft) {
     if (fix_bow && !is_right_click) {
         // GameMode Is Offset From minecraft By 0x160
         // Player Is Offset From minecraft By 0x18c
-        unsigned char *game_mode = *(unsigned char **) (minecraft + 0x160);
-        unsigned char *player = *(unsigned char **) (minecraft + 0x18c);
+        unsigned char *game_mode = *(unsigned char **) (minecraft + Minecraft_game_mode_property_offset);
+        unsigned char *player = *(unsigned char **) (minecraft + Minecraft_player_property_offset);
         if (player != NULL && game_mode != NULL && (*Player_isUsingItem)(player)) {
             unsigned char *game_mode_vtable = *(unsigned char **) game_mode;
-            GameMode_releaseUsingItem_t GameMode_releaseUsingItem = *(GameMode_releaseUsingItem_t *) (game_mode_vtable + 0x5c);
+            GameMode_releaseUsingItem_t GameMode_releaseUsingItem = *(GameMode_releaseUsingItem_t *) (game_mode_vtable + GameMode_releaseUsingItem_vtable_offset);
             (*GameMode_releaseUsingItem)(game_mode, player);
         }
     }
@@ -46,15 +46,15 @@ static void Minecraft_tickInput_injection(unsigned char *minecraft) {
     input_clear_input();
 
     // Handle Functions
-    unsigned char *options = minecraft + 0x3c;
+    unsigned char *options = minecraft + Minecraft_options_property_offset;
     if (hide_gui_toggle % 2 != 0) {
         // Toggle Hide GUI
-        *(options + 0xec) = *(options + 0xec) ^ 1;
+        *(options + Options_hide_gui_property_offset) = *(options + Options_hide_gui_property_offset) ^ 1;
     }
     hide_gui_toggle = 0;
     if (third_person_toggle % 2 != 0) {
         // Toggle Third Person
-        *(options + 0xed) = *(options + 0xed) ^ 1;
+        *(options + Options_third_person_property_offset) = *(options + Options_third_person_property_offset) ^ 1;
     }
     third_person_toggle = 0;
 }
@@ -97,9 +97,9 @@ static int32_t MouseBuildInput_tickBuild_injection(unsigned char *mouse_build_in
     // Use Attack/Place BuildActionIntention If No Other Valid BuildActionIntention Was Selected And This Was Not A Repeated Left Click
     if (ret != 0 && is_left_click == 1 && *build_action_intention_return == 0xa) {
         // Get Target HitResult
-        unsigned char *minecraft = *(unsigned char **) (local_player + 0xc90);
-        unsigned char *hit_result = minecraft + 0xc38;
-        int32_t hit_result_type = *(int32_t *) hit_result;
+        unsigned char *minecraft = *(unsigned char **) (local_player + LocalPlayer_minecraft_property_offset);
+        unsigned char *hit_result = minecraft + Minecraft_hit_result_property_offset;
+        int32_t hit_result_type = *(int32_t *) (hit_result + HitResult_type_property_offset);
         // Check if The Target Is An Entity Using HitResult
         if (hit_result_type == 1) {
             // Change BuildActionIntention To Attack/Place Mode (Place Will Not Happen Because The HitResult Is An Entity)

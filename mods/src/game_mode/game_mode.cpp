@@ -6,14 +6,13 @@
 
 // Get Minecraft From Screen
 static unsigned char *get_minecraft_from_screen(unsigned char *screen) {
-    return *(unsigned char **) (screen + 0x14);
+    return *(unsigned char **) (screen + Screen_minecraft_property_offset);
 }
 
 // Redirect Create World Button To SimpleLevelChooseScreen
 #define WORLD_NAME "world"
-#define SIMPLE_LEVEL_CHOOSE_SCREEN_SIZE 0x68
 static void SelectWorldScreen_tick_injection(unsigned char *screen) {
-    bool create_world = *(bool *) (screen + 0xfc);
+    bool create_world = *(bool *) (screen + SelectWorldScreen_should_create_world_property_offset);
     if (create_world) {
         // Get New World Name
         std::string new_name = (*SelectWorldScreen_getUniqueLevelName)(screen, WORLD_NAME);
@@ -24,13 +23,13 @@ static void SelectWorldScreen_tick_injection(unsigned char *screen) {
         unsigned char *minecraft = get_minecraft_from_screen(screen);
         (*Minecraft_setScreen)(minecraft, new_screen);
         // Finish
-        *(bool *) (screen + 0xf9) = true;
+        *(bool *) (screen + SelectWorldScreen_world_created_property_offset) = true;
     } else {
         (*SelectWorldScreen_tick)(screen);
     }
 }
 static void Touch_SelectWorldScreen_tick_injection(unsigned char *screen) {
-    bool create_world = *(bool *) (screen + 0x154);
+    bool create_world = *(bool *) (screen + Touch_SelectWorldScreen_should_create_world_property_offset);
     if (create_world) {
         // Get New World Name
         std::string new_name = (*Touch_SelectWorldScreen_getUniqueLevelName)(screen, WORLD_NAME);
@@ -41,7 +40,7 @@ static void Touch_SelectWorldScreen_tick_injection(unsigned char *screen) {
         unsigned char *minecraft = get_minecraft_from_screen(screen);
         (*Minecraft_setScreen)(minecraft, new_screen);
         // Finish
-        *(bool *) (screen + 0x151) = true;
+        *(bool *) (screen + Touch_SelectWorldScreen_world_created_property_offset) = true;
     } else {
         (*Touch_SelectWorldScreen_tick)(screen);
     }

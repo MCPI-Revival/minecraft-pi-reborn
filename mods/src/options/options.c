@@ -31,17 +31,17 @@ static void Minecraft_init_injection(unsigned char *this) {
     // Call Original Method
     (*Minecraft_init)(this);
 
-    unsigned char *options = this + 0x3c;
+    unsigned char *options = this + Minecraft_options_property_offset;
     // Enable Fancy Graphics
-    *(options + 0x17) = fancy_graphics;
+    *(options + Options_fancy_graphics_property_offset) = fancy_graphics;
     // Enable Crosshair In Touch GUI
-    *(options + 0x105) = 1;
+    *(options + Options_split_controls_property_offset) = 1;
     // Peaceful Mode
-    *(int32_t *) (options + 0xe8) = peaceful_mode ? 0 : 2;
+    *(int32_t *) (options + Options_split_controls_property_offset) = peaceful_mode ? 0 : 2;
     // 3D Anaglyph
-    *(options + 0x15) = anaglyph;
+    *(options + Options_3d_anaglyph_property_offset) = anaglyph;
     // Smooth Lighting
-    *(options + 0x18) = smooth_lighting;
+    *(options + Options_ambient_occlusion_property_offset) = smooth_lighting;
 }
 
 // Enable Touch GUI

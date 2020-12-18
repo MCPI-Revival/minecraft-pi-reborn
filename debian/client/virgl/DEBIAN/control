@@ -5,4 +5,4 @@ Description: Fun with Blocks
 Homepage: https://www.minecraft.net/en-us/edition/pi
 Architecture: all
 Depends: ${DEPENDENCIES}, virgl-server
-Conflicts: minecraft-pi-native
+Conflicts: minecraft-pi, minecraft-pi-native

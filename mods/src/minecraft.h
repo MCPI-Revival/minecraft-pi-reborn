@@ -35,6 +35,10 @@ static unsigned char **Tile_grass_carried = (unsigned char **) 0x181dd4;
 
 static float *InvGuiScale = (float *) 0x135d98;
 
+// Tile
+
+static uint32_t Tile_id_property_offset = 0x8;
+
 // Structures
 
 struct LevelSettings {
@@ -52,6 +56,7 @@ struct RakNet_SystemAddress {
 // GameMode
 
 typedef void (*GameMode_releaseUsingItem_t)(unsigned char *game_mode, unsigned char *player);
+static uint32_t GameMode_releaseUsingItem_vtable_offset = 0x5c;
 
 // Minecraft
 
@@ -88,6 +93,31 @@ static Minecraft_isLevelGenerated_t Minecraft_isLevelGenerated = (Minecraft_isLe
 typedef int32_t (*Minecraft_isCreativeMode_t)(unsigned char *minecraft);
 static Minecraft_isCreativeMode_t Minecraft_isCreativeMode = (Minecraft_isCreativeMode_t) 0x17270;
 
+static uint32_t Minecraft_screen_width_property_offset = 0x20; // int32_t
+static uint32_t Minecraft_server_side_network_handler_property_offset = 0x174; // ServerSideNetworkHandler *
+static uint32_t Minecraft_rak_net_instance_property_offset = 0x170; // RakNetInstance *
+static uint32_t Minecraft_level_property_offset = 0x188; // Level *
+static uint32_t Minecraft_textures_property_offset = 0x164; // Textures *
+static uint32_t Minecraft_game_mode_property_offset = 0x160; // GameMode *
+static uint32_t Minecraft_player_property_offset = 0x18c; // LocalPlayer *
+static uint32_t Minecraft_options_property_offset = 0x3c; // Options
+static uint32_t Minecraft_hit_result_property_offset = 0xc38; // HitResult
+static uint32_t Minecraft_progress_property_offset = 0xc60; // int32_t
+
+// HitResult
+
+static uint32_t HitResult_type_property_offset = 0x0;
+
+// Options
+
+static uint32_t Options_fancy_graphics_property_offset = 0x17; // unsigned char / bool
+static uint32_t Options_split_controls_property_offset = 0x105; // int32_t
+static uint32_t Options_peaceful_mode_property_offset = 0xe8; // unsigned char / bool
+static uint32_t Options_3d_anaglyph_property_offset = 0x15; // unsigned char / bool
+static uint32_t Options_ambient_occlusion_property_offset = 0x18; // unsigned char / bool
+static uint32_t Options_hide_gui_property_offset = 0xec; // unsigned char / bool
+static uint32_t Options_third_person_property_offset = 0xed; // unsigned char / bool
+
 // MouseBuildInput
 
 typedef int32_t (*MouseBuildInput_tickBuild_t)(unsigned char *mouse_build_input, unsigned char *player, uint32_t *build_action_intention_return);
@@ -99,9 +129,18 @@ static void *MouseBuildInput_tickBuild_vtable_addr = (void *) 0x102564;
 typedef int (*Player_isUsingItem_t)(unsigned char *player);
 static Player_isUsingItem_t Player_isUsingItem = (Player_isUsingItem_t) 0x8f15c;
 
-// Player
+static uint32_t Player_username_property_offset = 0xbf4; // char *
+
+// LocalPlayer
 
 static void *LocalPlayer_openTextEdit_vtable_addr = (void *) 0x106460;
+
+static uint32_t LocalPlayer_minecraft_property_offset = 0xc90; // Minecraft *
+
+// ServerPlayer
+
+static uint32_t ServerPlayer_minecraft_property_offset = 0xc8c; // Minecraft *
+static uint32_t ServerPlayer_guid_property_offset = 0xc08; // RakNetGUID
 
 // Gui
 
@@ -113,6 +152,9 @@ static Gui_handleClick_t Gui_handleClick = (Gui_handleClick_t) 0x2599c;
 
 typedef void (*Gui_renderOnSelectItemNameText_t)(unsigned char *gui, int32_t param_1, unsigned char *font, int32_t param_2);
 static Gui_renderOnSelectItemNameText_t Gui_renderOnSelectItemNameText = (Gui_renderOnSelectItemNameText_t) 0x26aec;
+
+static uint32_t Gui_minecraft_property_offset = 0x9f4; // Minecraft *
+static uint32_t Gui_selected_item_text_timer_property_offset = 0x9fc; // float
 
 // GameMode Constructors
 
@@ -129,7 +171,11 @@ static LevelData_getSpawnMobs_t LevelData_getSpawnMobs = (LevelData_getSpawnMobs
 typedef void (*Level_saveLevelData_t)(unsigned char *level);
 static Level_saveLevelData_t Level_saveLevelData = (Level_saveLevelData_t) 0xa2e94;
 
+static uint32_t Level_players_property_offset = 0x60; // std::vector<ServerPlayer *>
+
 // TextEditScreen
+
+#define TEXT_EDIT_SCREEN_SIZE 0xd0
 
 typedef unsigned char *(*TextEditScreen_t)(unsigned char *text_edit_screen, unsigned char *sign);
 static TextEditScreen_t TextEditScreen = (TextEditScreen_t) 0x3a840;
@@ -147,19 +193,30 @@ typedef void (*Screen_updateEvents_t)(unsigned char *screen);
 static Screen_updateEvents_t Screen_updateEvents = (Screen_updateEvents_t) 0x28eb8;
 
 typedef void (*Screen_keyboardNewChar_t)(unsigned char *screen, char key);
+static uint32_t Screen_keyboardNewChar_vtable_offset = 0x70;
+
 typedef void (*Screen_keyPressed_t)(unsigned char *screen, int32_t key);
+static uint32_t Screen_keyPressed_vtable_offset = 0x6c;
 
 typedef void (*Screen_tick_t)(unsigned char *screen);
+
+static uint32_t Screen_minecraft_property_offset = 0x14; // Minecraft *
 
 // SelectWorldScreen
 
 static Screen_tick_t SelectWorldScreen_tick = (Screen_tick_t) 0x38a2c;
 static void *SelectWorldScreen_tick_vtable_addr = (void *) 0x104f78;
 
+static uint32_t SelectWorldScreen_should_create_world_property_offset = 0xfc; // bool
+static uint32_t SelectWorldScreen_world_created_property_offset = 0xf9; // bool
+
 // Touch::SelectWorldScreen
 
 static Screen_tick_t Touch_SelectWorldScreen_tick = (Screen_tick_t) 0x3d96c;
 static void *Touch_SelectWorldScreen_tick_vtable_addr = (void *) 0x105780;
+
+static uint32_t Touch_SelectWorldScreen_should_create_world_property_offset = 0x154; // bool
+static uint32_t Touch_SelectWorldScreen_world_created_property_offset = 0x151; // bool
 
 // ItemInstance
 
@@ -173,14 +230,23 @@ typedef unsigned char *(*ItemInstance_constructor_extra_t)(unsigned char *item_i
 static ItemInstance_constructor_extra_t ItemInstance_constructor_title_extra = (ItemInstance_constructor_extra_t) 0x99918;
 static ItemInstance_constructor_extra_t ItemInstance_constructor_item_extra = (ItemInstance_constructor_extra_t) 0x99960;
 
+static uint32_t ItemInstance_count_property_offset = 0x0;
+static uint32_t ItemInstance_id_property_offset = 0x4;
+static uint32_t ItemInstance_auxilary_property_offset = 0x8;
+
 // FillingContainer
 
 typedef int32_t (*FillingContainer_addItem_t)(unsigned char *filling_container, unsigned char *item_instance);
 static FillingContainer_addItem_t FillingContainer_addItem = (FillingContainer_addItem_t) 0x92aa0;
 
+// RakNetInstance
+
+static uint32_t RakNetInstance_peer_property_offset = 0x4;
+
 // RakNet::RakPeer
 
 typedef struct RakNet_SystemAddress (*RakNet_RakPeer_GetSystemAddressFromGuid_t)(unsigned char *rak_peer, struct RakNet_RakNetGUID guid);
+static uint32_t RakNet_RakPeer_GetSystemAddressFromGuid_vtable_offset = 0xd0;
 
 // ServerSideNetworkHandler
 
@@ -194,6 +260,7 @@ static ServerSideNetworkHandler_getPlayer_t ServerSideNetworkHandler_getPlayer =
 // Entity
 
 typedef void (*Entity_die_t)(unsigned char *entity, unsigned char *cause);
+static uint32_t Entity_die_vtable_offset = 0x130;
 
 // Inventory
 
@@ -201,6 +268,8 @@ typedef void (*Inventory_selectSlot_t)(unsigned char *inventory, int32_t slot);
 static Inventory_selectSlot_t Inventory_selectSlot = (Inventory_selectSlot_t) 0x8d13c;
 
 // TripodCameraRenderer
+
+#define TRIPOD_CAMERA_RENDERER_SIZE 0x193
 
 typedef unsigned char *(*TripodCameraRenderer_t)(unsigned char *renderer);
 static TripodCameraRenderer_t TripodCameraRenderer = (TripodCameraRenderer_t) 0x6583c;
@@ -212,6 +281,10 @@ static EntityRenderDispatcher_t EntityRenderDispatcher = (EntityRenderDispatcher
 
 typedef void (*EntityRenderDispatcher_assign_t)(unsigned char *dispatcher, unsigned char entity_id, unsigned char *renderer);
 static EntityRenderDispatcher_assign_t EntityRenderDispatcher_assign = (EntityRenderDispatcher_assign_t) 0x6094c;
+
+// TileEntity
+
+static uint32_t TileEntity_id_property_offset = 0x18; // int32_t
 
 // ItemRenderer
 
@@ -277,6 +350,8 @@ typedef void (*ServerSideNetworkHandler_displayGameMessage_t)(unsigned char *ser
 static ServerSideNetworkHandler_displayGameMessage_t ServerSideNetworkHandler_displayGameMessage = (ServerSideNetworkHandler_displayGameMessage_t) 0x750c4;
 
 // SimpleChooseLevelScreen
+
+#define SIMPLE_LEVEL_CHOOSE_SCREEN_SIZE 0x68
 
 typedef unsigned char *(*SimpleChooseLevelScreen_t)(unsigned char *simple_choose_level_screen, std::string const& world_name);
 static SimpleChooseLevelScreen_t SimpleChooseLevelScreen = (SimpleChooseLevelScreen_t) 0x31404;
