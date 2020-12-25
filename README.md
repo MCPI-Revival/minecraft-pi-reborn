@@ -2,8 +2,9 @@
 This is a project allowing Minecraft: Pi Edition to be run without a Raspberry Pi using Docker.
 
 ## Setup
-1. Download Appropriate Package (See Table Below) From [Here](https://jenkins.thebrokenrail.com/job/minecraft-pi-docker/job/master/lastSuccessfulBuild/artifact/out/deb/)
-2. Install With ``sudo apt install ./<Path To File>``
+1. Remove Old Minecraft: Pi Edition Package If Installed (``sudo apt remove minecraft-pi``)
+2. Download Appropriate Package (See Table Below) From [Here](https://jenkins.thebrokenrail.com/job/minecraft-pi-docker/job/master/lastSuccessfulBuild/artifact/out/deb/)
+3. Install With ``sudo apt install ./<Path To File>``
 
 ### Packages
 | Package | Description |
