@@ -32,7 +32,7 @@ export DOCKER_COMPOSE="docker-compose -f /usr/share/minecraft-pi/client/docker-c
 
 # Ensure Features Are Selected
 if [ -z "${MCPI_FEATURES+x}" ]; then
-    MCPI_FEATURES="$(sh -c "zenity --class \"${ZENITY_CLASS}\" --list --checklist --column 'Enabled' --column 'Feature' ${AVAILABLE_FEATURES}")"
+    MCPI_FEATURES="$(sh -c "zenity --class \"${ZENITY_CLASS}\" --list --checklist --column 'Enabled' --column 'Feature' ${AVAILABLE_FEATURES} --width=600 --height=600")"
 fi
 if [ -z "${MCPI_USERNAME+x}" ]; then
     MCPI_USERNAME="$(zenity --class "${ZENITY_CLASS}" --entry --text 'Minecraft Username:' --entry-text 'StevePi')"
