@@ -5,8 +5,9 @@ DEB_VERSION='1.0.0'
 
 # Dependencies
 REQUIRED_DOCKER_VERSION='19.03'
-COMMON_DEPENDENCIES="docker.io (>=${REQUIRED_DOCKER_VERSION}) | docker-ce (>=${REQUIRED_DOCKER_VERSION}), libseccomp2 (>=2.4.2), docker-compose, qemu-user-static, binfmt-support"
+COMMON_DEPENDENCIES="docker.io (>=${REQUIRED_DOCKER_VERSION}) | docker-ce (>=${REQUIRED_DOCKER_VERSION}), libseccomp2 (>=2.4.2), docker-compose, binfmt-support"
 CLIENT_DEPENDENCIES="zenity, policykit-1, passwd, login, x11-xserver-utils"
+RECOMMENDED_DEPENDENCIES="qemu-user-static"
 
 set -e
 
@@ -25,6 +26,7 @@ mkdir debian/tmp
 prepare_control() {
     sed -i 's/${VERSION}/'"${DEB_VERSION}.$(date --utc '+%Y%m%d.%H%M')"'/g' "$1/DEBIAN/control"
     sed -i 's/${DEPENDENCIES}/'"${COMMON_DEPENDENCIES}$2"'/g' "$1/DEBIAN/control"
+    sed -i 's/${RECOMMENDED_DEPENDENCIES}/'"${RECOMMENDED_DEPENDENCIES}$2"'/g' "$1/DEBIAN/control"
 }
 
 # Package Client DEBs
