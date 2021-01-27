@@ -2,37 +2,38 @@
 Minecraft: Pi Edition Modding Project
 
 ## Getting Started
-1. Remove Old Minecraft: Pi Edition Package If Installed (``sudo apt remove minecraft-pi``)
-2. Download Appropriate Package From [Here](https://jenkins.thebrokenrail.com/job/minecraft-pi-reborn/job/master/lastSuccessfulBuild/artifact/out/deb/) (See Table Below)
-3. Install With ``sudo apt install ./<Path To File>``
-4. Have Fun!
 
-### Packages
+### Debian/Raspbian Buster Users
+1. Install Newer ``libseccomp2``
+   ```sh
+   # Install Backports Key
+   sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 04EE7237B7D453EC
+   sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 648ACFD622F3D138
+   # Install Backports Repository
+   echo 'deb http://deb.debian.org/debian buster-backports main' | sudo tee -a /etc/apt/sources.list
+   # Update APT Index
+   sudo apt update
+   # Install Updated libseccomp2
+   sudo apt install -t buster-backports libseccomp2
+   ```
+2. Install Official Docker Build
+   ```sh
+   curl -fsSL https://get.docker.com -o get-docker.sh
+   sudo sh get-docker.sh
+   ```
+3. Remove Old Minecraft: Pi Edition Package If Installed (``sudo apt remove minecraft-pi``)
+
+### Installation Instructions
+1. Download Appropriate Package From [Here](https://jenkins.thebrokenrail.com/job/minecraft-pi-reborn/job/master/lastSuccessfulBuild/artifact/out/deb/) (See Table Below)
+2. Install With ``sudo apt install ./<Path To File>``
+3. Have Fun!
+
+#### Package Table
 | Package | Description |
 | --- | --- |
 | ``minecraft-pi-reborn-server`` | Minecraft Pi Edition Modded Into A Dedicated Server |
 | ``minecraft-pi-reborn-virgl`` | Minecraft Pi Edition Using VirGL For Hardware Acceleration (Recommended For Desktop) |
 | ``minecraft-pi-reborn-native`` | Minecraft: Pi Edition Using Docker Device Mounting For GPU Acceleration (Recommended For ARM Devices (ie. Raspberry Pi, PinePhone, etc)) |
-
-## General Notes
-
-### Docker Versions
-While the distribution-provided version of Docker is fine for most systems, in rare cases it can be outdated and cause bugs. Before reporting a bug, try using the official builds of Docker. These can be installed by following your distribution's instructions at https://docs.docker.com/engine/install.
-
-### Debian/Raspbian Buster And ``libseccomp2``
-By default Debian/Raspbian Buster ships an older version of the package ``libseccomp2``. This package is used to block certain dangerous system calls from running inside Docker containers. Buster's version accidentally blocks the system call ``clock_gettime64``, this causes bugs inside of Minecraft: Pi Edition. However, the Debian ``buster-backports`` repo includes an updated version. You can enable the ``buster-backports`` repo and update ``libseccomp2`` by running:
-
-```sh
-# Install Backports Key
-sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 04EE7237B7D453EC
-sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 648ACFD622F3D138
-# Install Backports Repository
-echo 'deb http://deb.debian.org/debian buster-backports main' | sudo tee -a /etc/apt/sources.list
-# Update APT Index
-sudo apt update
-# Install Updated libseccomp2
-sudo apt install -t buster-backports libseccomp2
-```
 
 ## Troubleshooting Crashes
 Game logs are located in ``/tmp/minecraft-pi``.
