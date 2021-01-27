@@ -1,7 +1,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include <libcore/libcore.h>
+#include <libreborn/libreborn.h>
 
 #include "feature.h"
 

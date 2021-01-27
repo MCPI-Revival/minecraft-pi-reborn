@@ -1,6 +1,4 @@
-#ifndef INPUT_H
-
-#define INPUT_H
+#pragma once
 
 #ifdef __cplusplus
 extern "C" {
@@ -19,6 +17,4 @@ void init_input_cpp();
 
 #ifdef __cplusplus
 }
-#endif
-
 #endif

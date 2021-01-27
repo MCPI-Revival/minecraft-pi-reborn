@@ -111,9 +111,7 @@ int main(__attribute__((unused)) int argc, char *argv[]) {
     char *ld_path = NULL;
 
     // Start Configuring LD_LIBRARY_PATH
-    char *cwd = getcwd(NULL, 0);
-    asprintf(&ld_path, "%s:/usr/arm-linux-gnueabihf/lib", cwd);
-    free(cwd);
+    asprintf(&ld_path, "/usr/arm-linux-gnueabihf/lib");
 
     // Start Configuring LD_PRELOAD
     char *ld_preload = NULL;
@@ -127,7 +125,7 @@ int main(__attribute__((unused)) int argc, char *argv[]) {
     asprintf(&home_mods, "%s/.minecraft/mods/", getenv("HOME"));
     load(&ld_path, &ld_preload, home_mods);
     free(home_mods);
-    
+
     // Add Existing LD_LIBRARY_PATH
     asprintf(&ld_path, "%s:%s", ld_path, get_env_safe("LD_LIBRARY_PATH"));
 

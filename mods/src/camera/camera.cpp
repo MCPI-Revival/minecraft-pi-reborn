@@ -1,4 +1,4 @@
-#include <libcore/libcore.h>
+#include <libreborn/libreborn.h>
 
 #include "../screenshot/screenshot.h"
 #include "../init/init.h"

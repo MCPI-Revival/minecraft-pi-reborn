@@ -1,6 +1,4 @@
-#ifndef SCREENSHOT_H
-
-#define SCREENSHOT_H
+#pragma once
 
 #ifdef __cplusplus
 extern "C" {
@@ -10,6 +8,4 @@ void take_screenshot();
 
 #ifdef __cplusplus
 }
-#endif
-
 #endif

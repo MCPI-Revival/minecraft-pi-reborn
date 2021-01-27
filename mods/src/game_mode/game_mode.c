@@ -1,4 +1,4 @@
-#include <libcore/libcore.h>
+#include <libreborn/libreborn.h>
 
 #include "game_mode.h"
 #include "../init/init.h"

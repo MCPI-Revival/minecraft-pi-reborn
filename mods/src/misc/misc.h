@@ -1,6 +1,4 @@
-#ifndef MISC_H
-
-#define MISC_H
+#pragma once
 
 #ifdef __cplusplus
 extern "C" {
@@ -10,6 +8,4 @@ void init_misc_cpp();
 
 #ifdef __cplusplus
 }
-#endif
-
 #endif

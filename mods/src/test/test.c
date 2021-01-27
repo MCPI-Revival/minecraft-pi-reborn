@@ -5,7 +5,7 @@
 #include <sys/syscall.h>
 #include <time.h>
 
-#include <libcore/libcore.h>
+#include <libreborn/libreborn.h>
 
 #include "../init/init.h"
 

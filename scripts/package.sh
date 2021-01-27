@@ -30,7 +30,7 @@ prepare_control() {
 }
 
 # Package Client DEBs
-docker save thebrokenrail/minecraft-pi:client | gzip > debian/tmp/client-image.tar.gz
+docker save thebrokenrail/minecraft-pi-reborn:client | gzip > debian/tmp/client-image.tar.gz
 package_client() {
     # Clean
     rm -rf "debian/tmp/$1"
@@ -46,7 +46,7 @@ package_client virgl
 package_client native
 
 # Package Server DEB
-docker save thebrokenrail/minecraft-pi:server | gzip > debian/tmp/server-image.tar.gz
+docker save thebrokenrail/minecraft-pi-reborn:server | gzip > debian/tmp/server-image.tar.gz
 package_server() {
     # Clean
     rm -rf debian/tmp/server
@@ -69,7 +69,7 @@ mkdir -p out/lib
 cp -r mods/include out/lib/include
 
 # Copy Shared Library
-IMG_ID="$(docker create thebrokenrail/minecraft-pi:client)"
+IMG_ID="$(docker create thebrokenrail/minecraft-pi-reborn:client)"
 docker cp "${IMG_ID}":/app/minecraft-pi/mods/. ./out/lib/. || :
 RET="$?"
 docker rm -v "${IMG_ID}"

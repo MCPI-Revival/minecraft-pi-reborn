@@ -9,7 +9,7 @@
 
 #include <GLES/gl.h>
 
-#include <libcore/libcore.h>
+#include <libreborn/libreborn.h>
 
 #include "screenshot.h"
 

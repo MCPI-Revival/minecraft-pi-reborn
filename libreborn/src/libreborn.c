@@ -7,7 +7,7 @@
 #include <elf.h>
 #include <errno.h>
 
-#include <libcore/libcore.h>
+#include <libreborn/libreborn.h>
 
 // Find And Iterate Over All .text Sections In Current Binary
 typedef void (*text_section_callback)(void *section, Elf32_Word size, void *data);

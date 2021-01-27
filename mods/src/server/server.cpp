@@ -12,9 +12,8 @@
 
 #include <SDL/SDL_events.h>
 
-#include <libcore/libcore.h>
+#include <libreborn/libreborn.h>
 
-#include "server.h"
 #include "server_internal.h"
 #include "server_properties.h"
 

@@ -8,7 +8,7 @@
 #include <unistd.h>
 #include <fcntl.h>
 
-#include <libcore/libcore.h>
+#include <libreborn/libreborn.h>
 
 static int starts_with(const char *s, const char *t) {
     return strncmp(s, t, strlen(t)) == 0;

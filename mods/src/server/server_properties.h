@@ -1,6 +1,4 @@
-#ifndef SERVER_PROPERTIES_H
-
-#define SERVER_PROPERTIES_H
+#pragma once
 
 #include <string>
 #include <istream>
@@ -18,5 +16,3 @@ public:
     int get_int(std::string const& name, std::string const& def);
     bool get_bool(std::string const& name, std::string const& def);
 };
-
-#endif

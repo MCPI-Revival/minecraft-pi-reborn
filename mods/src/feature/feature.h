@@ -1,6 +1,4 @@
-#ifndef FEATURE_H
-
-#define FEATURE_H
+#pragma once
 
 #ifdef __cplusplus
 extern "C" {
@@ -11,6 +9,4 @@ int feature_get_mode();
 
 #ifdef __cplusplus
 }
-#endif
-
 #endif

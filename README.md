@@ -1,10 +1,11 @@
 # Minecraft: Pi Edition: Reborn
 Minecraft: Pi Edition Modding Project
 
-## Setup
+## Getting Started
 1. Remove Old Minecraft: Pi Edition Package If Installed (``sudo apt remove minecraft-pi``)
-2. Download Appropriate Package (See Table Below) From [Here](https://jenkins.thebrokenrail.com/job/minecraft-pi-reborn/job/master/lastSuccessfulBuild/artifact/out/deb/)
+2. Download Appropriate Package From [Here](https://jenkins.thebrokenrail.com/job/minecraft-pi-reborn/job/master/lastSuccessfulBuild/artifact/out/deb/) (See Table Below)
 3. Install With ``sudo apt install ./<Path To File>``
+4. Have Fun!
 
 ### Packages
 | Package | Description |
@@ -18,9 +19,7 @@ Minecraft: Pi Edition Modding Project
 #### Docker Versions
 While the distribution-provided version of Docker is fine for most systems, in rare cases it can be outdated and cause bugs. Before reporting a bug, try using the official builds of Docker. These can be installed by following your distribution's instructions at https://docs.docker.com/engine/install.
 
-### Specific Notes
-
-#### Debian/Raspbian Buster
+#### Debian/Raspbian Buster And ``libseccomp2``
 By default Raspbian Buster ships an older version of the package ``libseccomp2``. This package is used to block certain dangerous system calls from running inside Docker containers. The included version accidentally blocks the system call ``clock_gettime64``, this causes bugs inside Minecraft: Pi Edition. However, the Debian ``buster-backports`` repo includes an updated version. You can enable the ``buster-backports`` repo and update ``libseccomp2`` by running:
 
 ```sh
@@ -34,9 +33,6 @@ sudo apt update
 # Install Updated libseccomp2
 sudo apt install -t buster-backports libseccomp2
 ```
-
-### PinePhone (Mobian)
-This supports running on a PinePhone using Mobian. However, you will need to attach a keyboard and mouse because Minecraft: Pi Edition does not have touch support.
 
 ## Troubleshooting Crashes
 Game logs are located in ``/tmp/minecraft-pi``.

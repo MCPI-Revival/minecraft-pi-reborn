@@ -1,6 +1,4 @@
-#ifndef INIT_H
-
-#define INIT_H
+#pragma once
 
 #ifdef __cplusplus
 extern "C" {
@@ -18,6 +16,4 @@ void init_textures();
 
 #ifdef __cplusplus
 }
-#endif
-
 #endif

@@ -14,12 +14,14 @@
 #include <GLES/gl.h>
 #include <X11/Xlib.h>
 
-#include <libcore/libcore.h>
+#include <libreborn/libreborn.h>
 
 #include "../feature/feature.h"
 #include "../input/input.h"
 #include "../screenshot/screenshot.h"
 #include "../init/init.h"
+
+#include "compat.h"
 
 static GLFWwindow *glfw_window;
 
@@ -202,14 +204,11 @@ HOOK(SDL_WM_SetCaption, void, (const char *title, __attribute__((unused)) const 
     }
 }
 
-#include <EGL/egl.h>
-HOOK(eglSwapBuffers, EGLBoolean, (__attribute__((unused)) EGLDisplay display, __attribute__((unused)) EGLSurface surface)) {
+void compat_eglSwapBuffers() {
     if (!is_server) {
         // Don't Swap Buffers In A Context-Less Window
         glfwSwapBuffers(glfw_window);
     }
-
-    return EGL_TRUE;
 }
 
 static int is_fullscreen = 0;

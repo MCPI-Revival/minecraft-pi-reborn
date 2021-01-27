@@ -1,6 +1,6 @@
 #include <vector>
 
-#include <libcore/libcore.h>
+#include <libreborn/libreborn.h>
 
 #include "../feature/feature.h"
 #include "input.h"

@@ -1,6 +1,4 @@
-#ifndef MINECRAFT_H
-
-#define MINECRAFT_H
+#pragma once
 
 #include <stdint.h>
 
@@ -368,5 +366,3 @@ static SelectWorldScreen_getUniqueLevelName_t Touch_SelectWorldScreen_getUniqueL
 #endif
 
 #pragma GCC diagnostic pop
-
-#endif

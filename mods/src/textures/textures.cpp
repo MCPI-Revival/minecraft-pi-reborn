@@ -1,6 +1,6 @@
 #include <GLES/gl.h>
 
-#include <libcore/libcore.h>
+#include <libreborn/libreborn.h>
 
 #include "../feature/feature.h"
 #include "../init/init.h"

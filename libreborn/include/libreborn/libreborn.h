@@ -1,6 +1,4 @@
-#ifndef LIBLOADER_H
-
-#define LIBLOADER_H
+#pragma once
 
 #ifdef __cplusplus
 extern "C" {
@@ -46,6 +44,4 @@ void _patch_address(const char *file, int line, void *start, void *target);
 
 #ifdef __cplusplus
 }
-#endif
-
 #endif
