@@ -1,26 +1,26 @@
-# Minecraft: Pi Edition For Docker
-This is a project allowing Minecraft: Pi Edition to be run without a Raspberry Pi using Docker.
+# Minecraft: Pi Edition: Reborn
+Minecraft: Pi Edition Modding Project
 
 ## Setup
 1. Remove Old Minecraft: Pi Edition Package If Installed (``sudo apt remove minecraft-pi``)
-2. Download Appropriate Package (See Table Below) From [Here](https://jenkins.thebrokenrail.com/job/minecraft-pi-docker/job/master/lastSuccessfulBuild/artifact/out/deb/)
+2. Download Appropriate Package (See Table Below) From [Here](https://jenkins.thebrokenrail.com/job/minecraft-pi-reborn/job/master/lastSuccessfulBuild/artifact/out/deb/)
 3. Install With ``sudo apt install ./<Path To File>``
 
 ### Packages
 | Package | Description |
 | --- | --- |
-| ``minecraft-pi-server`` | Minecraft Pi Edition Modded Into A Dedicated Server |
-| ``minecraft-pi-virgl`` | Minecraft Pi Edition Using VirGL For Hardware Acceleration (Recommended For Desktop) |
-| ``minecraft-pi-native`` | Minecraft: Pi Edition Using Docker Device Mounting For GPU Acceleration (Recommended For ARM Devices (ie. Raspberry Pi, PinePhone, etc)) |
+| ``minecraft-pi-reborn-server`` | Minecraft Pi Edition Modded Into A Dedicated Server |
+| ``minecraft-pi-reborn-virgl`` | Minecraft Pi Edition Using VirGL For Hardware Acceleration (Recommended For Desktop) |
+| ``minecraft-pi-reborn-native`` | Minecraft: Pi Edition Using Docker Device Mounting For GPU Acceleration (Recommended For ARM Devices (ie. Raspberry Pi, PinePhone, etc)) |
 
 ### General Notes
 
 #### Docker Versions
-While the distribution-provided version of Docker works fine on most systems, in rare cases it can be outdated and cause bugs. Before reporting a bug, try using the official builds of Docker. These can be installed by following your distribution's instructions at https://docs.docker.com/engine/install.
+While the distribution-provided version of Docker is fine for most systems, in rare cases it can be outdated and cause bugs. Before reporting a bug, try using the official builds of Docker. These can be installed by following your distribution's instructions at https://docs.docker.com/engine/install.
 
 ### Specific Notes
 
-#### Raspbian Buster
+#### Debian/Raspbian Buster
 By default Raspbian Buster ships an older version of the package ``libseccomp2``. This package is used to block certain dangerous system calls from running inside Docker containers. The included version accidentally blocks the system call ``clock_gettime64``, this causes bugs inside Minecraft: Pi Edition. However, the Debian ``buster-backports`` repo includes an updated version. You can enable the ``buster-backports`` repo and update ``libseccomp2`` by running:
 
 ```sh
@@ -36,7 +36,7 @@ sudo apt install -t buster-backports libseccomp2
 ```
 
 ### PinePhone (Mobian)
-This supports running on a PinePhone using Mobian. However, you will need to attach a keyboard and mouse as Minecraft: Pi Edition does not have touch support.
+This supports running on a PinePhone using Mobian. However, you will need to attach a keyboard and mouse because Minecraft: Pi Edition does not have touch support.
 
 ## Troubleshooting Crashes
 Game logs are located in ``/tmp/minecraft-pi``.
@@ -58,7 +58,7 @@ This is also compatible with MCPE 0.6.1.
 ### Limitations
 - Player data is not saved because of limitations with MCPE LAN worlds
   - An easy workaround is to place your inventory in a chest before logging off
-- Survival mode servers are only compatible with ``minecraft-pi-docker`` clients
+- Survival mode servers are only compatible with ``minecraft-pi-reborn`` clients
 
 ## Modding
 [View Modding](MODDING.md)

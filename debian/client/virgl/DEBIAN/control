@@ -1,4 +1,4 @@
-Package: minecraft-pi-virgl
+Package: minecraft-pi-reborn-virgl
 Version: ${VERSION}
 Maintainer: TheBrokenRail <connor24nolan@live.com>
 Description: Fun with Blocks
@@ -6,4 +6,4 @@ Homepage: https://www.minecraft.net/en-us/edition/pi
 Architecture: all
 Depends: ${DEPENDENCIES}, virgl-server
 Recommends: ${RECOMMENDED_DEPENDENCIES}
-Conflicts: minecraft-pi, minecraft-pi-native
+Conflicts: minecraft-pi, minecraft-pi-reborn-native

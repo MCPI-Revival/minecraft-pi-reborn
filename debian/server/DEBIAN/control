@@ -1,4 +1,4 @@
-Package: minecraft-pi-server
+Package: minecraft-pi-reborn-server
 Version: ${VERSION}
 Maintainer: TheBrokenRail <connor24nolan@live.com>
 Description: Fun with Blocks

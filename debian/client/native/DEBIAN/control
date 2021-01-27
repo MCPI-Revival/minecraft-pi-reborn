@@ -1,4 +1,4 @@
-Package: minecraft-pi-native
+Package: minecraft-pi-reborn-native
 Version: ${VERSION}
 Maintainer: TheBrokenRail <connor24nolan@live.com>
 Description: Fun with Blocks
@@ -6,4 +6,4 @@ Homepage: https://www.minecraft.net/en-us/edition/pi
 Architecture: all
 Depends: ${DEPENDENCIES}
 Recommends: ${RECOMMENDED_DEPENDENCIES}
-Conflicts: minecraft-pi, minecraft-pi-virgl
+Conflicts: minecraft-pi, minecraft-pi-reborn-virgl

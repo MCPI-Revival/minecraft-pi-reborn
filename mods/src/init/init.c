@@ -1,6 +1,7 @@
 #include "init.h"
 
 __attribute__((constructor)) static void init() {
+    run_tests();
     init_compat();
     init_server();
     init_game_mode();

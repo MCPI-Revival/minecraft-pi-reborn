@@ -1,17 +1,17 @@
 # Modding
-Modding Minecraft: Pi Edition is possible by patching the binary at runtime. To make this easier ``minecraft-pi-docker`` includes a libary called ``libcore.so`` which provides several functions to help you patch the game.
+Modding Minecraft: Pi Edition is possible by patching the binary at runtime. To make this easier ``minecraft-pi-reborn`` includes a library called ``libcore.so`` which provides several functions to help you patch the game.
 
 ## Hex Addresses
 Minecraft: Pi Edition has no symbols so you must patch the hex address of an instruction instead of using a function name. Hex addresses can be found using tools like [Ghidra](https://ghidra-sre.org) or [RetDec](https://retdec.com). To find out what a function does, you can find its equivalent in Minecraft: Pocket Edition 0.6.1 and use its name for reference because Minecraft: Pocket Edition 0.6.1 includes symbols.
 
 ## Loading Directories
-``minecraft-pi-docker`` loads mods from two locations, ``/app/minecraft-pi/mods``, and ``~/.minecraft/mods``. The first location only exists in the Docker container and is immutable, so you should place your mods in ``~/.minecraft/mods`` which is mounted on the host as ``~/.minecraft-pi/mods``.
+``minecraft-pi-reborn`` loads mods from two locations, ``/app/minecraft-pi/mods``, and ``~/.minecraft/mods``. The first location only exists in the Docker container and is immutable, so you should place your mods in ``~/.minecraft/mods`` which is mounted on the host as ``~/.minecraft-pi/mods``.
 
 ## C++ Strings
 Minecraft: Pi Edition was compiled with an old version of GCC, so when interacting with C++ strings, make sure you set ``-D_GLIBCXX_USE_CXX11_ABI=0``.
 
 ## ``libcore.so`` API
-Header files and the shared library can be download from [Jenkins](https://jenkins.thebrokenrail.com/job/minecraft-pi-docker/job/master/lastSuccessfulBuild/artifact/out/lib).
+Header files and the shared library can be download from [Jenkins](https://jenkins.thebrokenrail.com/job/minecraft-pi-reborn/job/master/lastSuccessfulBuild/artifact/out/lib).
 
 ### ``void overwrite(void *start, void *target)``
 This method replaces a function with another function.

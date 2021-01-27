@@ -55,5 +55,7 @@ target_link_libraries(override dl)
 add_library(textures SHARED src/textures/textures.cpp)
 target_link_libraries(textures core feature GLESv1_CM)
 
+add_library(test SHARED src/test/test.c)
+
 add_library(init SHARED src/init/init.c)
-target_link_libraries(init compat server game_mode camera input misc options textures)
+target_link_libraries(init compat server game_mode camera input misc options textures test)

@@ -6,6 +6,7 @@
 extern "C" {
 #endif
 
+void run_tests();
 void init_compat();
 void init_server();
 void init_game_mode();
