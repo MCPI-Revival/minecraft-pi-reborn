@@ -14,13 +14,13 @@ Minecraft: Pi Edition Modding Project
 | ``minecraft-pi-reborn-virgl`` | Minecraft Pi Edition Using VirGL For Hardware Acceleration (Recommended For Desktop) |
 | ``minecraft-pi-reborn-native`` | Minecraft: Pi Edition Using Docker Device Mounting For GPU Acceleration (Recommended For ARM Devices (ie. Raspberry Pi, PinePhone, etc)) |
 
-### General Notes
+## General Notes
 
-#### Docker Versions
+### Docker Versions
 While the distribution-provided version of Docker is fine for most systems, in rare cases it can be outdated and cause bugs. Before reporting a bug, try using the official builds of Docker. These can be installed by following your distribution's instructions at https://docs.docker.com/engine/install.
 
-#### Debian/Raspbian Buster And ``libseccomp2``
-By default Raspbian Buster ships an older version of the package ``libseccomp2``. This package is used to block certain dangerous system calls from running inside Docker containers. The included version accidentally blocks the system call ``clock_gettime64``, this causes bugs inside Minecraft: Pi Edition. However, the Debian ``buster-backports`` repo includes an updated version. You can enable the ``buster-backports`` repo and update ``libseccomp2`` by running:
+### Debian/Raspbian Buster And ``libseccomp2``
+By default Debian/Raspbian Buster ships an older version of the package ``libseccomp2``. This package is used to block certain dangerous system calls from running inside Docker containers. Buster's version accidentally blocks the system call ``clock_gettime64``, this causes bugs inside of Minecraft: Pi Edition. However, the Debian ``buster-backports`` repo includes an updated version. You can enable the ``buster-backports`` repo and update ``libseccomp2`` by running:
 
 ```sh
 # Install Backports Key
@@ -47,9 +47,9 @@ Make sure you are using the correct GPU drivers for your system. If you are usin
 ## Dedicated Server
 The dedicated server is a version of Minecraft: Pi Edition modified to run in a headless environment. It loads settings from a ``server.properties`` file.
 
-To use, install the ``minecraft-pi-server`` package and run ``minecraft-pi-server``. It will generate the world and ``server.properties`` in the current directory.
+To use, install the ``minecraft-pi-reborn-server`` package and run ``minecraft-pi-reborn-server``. It will generate the world and ``server.properties`` in the current directory.
 
-This is also compatible with MCPE 0.6.1.
+This server is also compatible with MCPE Alpha 0.6.1.
 
 ### Limitations
 - Player data is not saved because of limitations with MCPE LAN worlds
