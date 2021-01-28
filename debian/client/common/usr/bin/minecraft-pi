@@ -3,22 +3,7 @@
 set -e
 
 # All Feature Flags
-export AVAILABLE_FEATURES="$(echo \
-    "TRUE 'Touch GUI'" \
-    "TRUE 'Fix Bow & Arrow'" \
-    "TRUE 'Fix Attacking'" \
-    "TRUE 'Mob Spawning'" \
-    "TRUE 'Fancy Graphics'" \
-    "TRUE 'Disable Autojump By Default'" \
-    "TRUE 'Fix Sign Placement'" \
-    "TRUE 'Show Block Outlines'" \
-    "FALSE 'Expand Creative Inventory'" \
-    "FALSE 'Peaceful Mode'" \
-    "TRUE 'Animated Water'" \
-    "TRUE 'Remove Invalid Item Background'" \
-    "TRUE 'Disable gui_blocks Atlas'" \
-    "TRUE 'Smooth Lighting'" \
-    "FALSE '3D Anaglyph'")"
+export AVAILABLE_FEATURES="$(tr '\n' ' ' < /usr/share/minecraft-pi/client/features)"
 
 # Print Feature Flags Option
 if [ "$1" = "--print-features" ]; then
@@ -32,7 +17,7 @@ export DOCKER_COMPOSE="docker-compose -f /usr/share/minecraft-pi/client/docker-c
 
 # Ensure Features Are Selected
 if [ -z "${MCPI_FEATURES+x}" ]; then
-    MCPI_FEATURES="$(sh -c "zenity --class \"${ZENITY_CLASS}\" --list --checklist --width=600 --height=600 --column 'Enabled' --column 'Feature' ${AVAILABLE_FEATURES}")"
+    MCPI_FEATURES="$(eval "zenity --class \"${ZENITY_CLASS}\" --list --checklist --width=600 --height=600 --column 'Enabled' --column 'Feature' ${AVAILABLE_FEATURES}")"
 fi
 if [ -z "${MCPI_USERNAME+x}" ]; then
     MCPI_USERNAME="$(zenity --class "${ZENITY_CLASS}" --entry --text 'Minecraft Username:' --entry-text 'StevePi')"
