@@ -186,7 +186,8 @@ void _patch(const char *file, int line, void *start, unsigned char patch[]) {
     size_t page_size = sysconf(_SC_PAGESIZE);
     uintptr_t end = ((uintptr_t) start) + 4;
     uintptr_t page_start = ((uintptr_t) start) & -page_size;
-    mprotect((void *) page_start, end - page_start, PROT_READ | PROT_WRITE);
+    // Allow Writing To Code Memory
+    mprotect((void *) page_start, end - page_start, PROT_READ | PROT_WRITE | PROT_EXEC); // PROT_EXEC Is Needed Because Other Code In The Page May Be Being Executed
 
     unsigned char *data = (unsigned char *) start;
 
@@ -196,6 +197,7 @@ void _patch(const char *file, int line, void *start, unsigned char patch[]) {
 
     PATCH_PRINTF(file, line, start, "result");
 
+    // Reset Code Memory Permissions
     mprotect((void *) page_start, end - page_start, PROT_READ | PROT_EXEC);
 
     // Clear ARM Instruction Cache
