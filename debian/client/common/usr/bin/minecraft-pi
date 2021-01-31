@@ -13,7 +13,7 @@ fi
 
 # Export Important Variables
 export ZENITY_CLASS='Minecraft - Pi edition'
-export DOCKER_COMPOSE="docker-compose -f /usr/share/minecraft-pi/client/docker-compose.yml"
+export DOCKER_COMPOSE_YML="/usr/share/minecraft-pi/client/docker-compose.yml"
 
 # Ensure Features Are Selected
 if [ -z "${MCPI_FEATURES+x}" ]; then
@@ -25,13 +25,21 @@ fi
 export MCPI_FEATURES
 export MCPI_USERNAME
 
-# Ensure Groups Are Correct
-if ! id -Gn "$(whoami)" | grep '\bdocker\b' > /dev/null; then
-    pkexec /sbin/usermod -aG docker "$(whoami)"
-fi
-
 # Allow X11 Connections From Root
 xhost local:root
 
+# Prepare Environment
+export USER_HOME="${HOME}"
+export USER_UID="$(id -u)"
+
 # Run
-sg docker /usr/lib/minecraft-pi/pre-launch.sh
+set +e
+/usr/lib/minecraft-pi/pre-launch.sh
+RET=$?
+set -e
+
+# Handle Crash
+if [ ${RET} -ne 0 ]; then
+    zenity --class "${ZENITY_CLASS}" --error --no-wrap --text 'Minecraft: Pi Edition has crashed!\n\nExit Code: '${RET}'\n\n<a href="file:///tmp/minecraft-pi">Open Log Folder</a>\n<a href="https://gitea.thebrokenrail.com/TheBrokenRail/minecraft-pi-reborn#troubleshooting">Open Troubleshooting Guide</a>'
+    exit ${RET}
+fi

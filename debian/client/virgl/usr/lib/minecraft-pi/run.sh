@@ -8,7 +8,7 @@ VIRGL_PID=$!
 
 # Launch Minecraft
 set +e
-${DOCKER_COMPOSE} run --rm minecraft-pi
+docker-compose -f "${DOCKER_COMPOSE_YML}" run --rm minecraft-pi
 RET=$?
 set -e
 

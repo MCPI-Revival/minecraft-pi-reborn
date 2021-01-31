@@ -35,15 +35,22 @@ Minecraft: Pi Edition Modding Project
 | ``minecraft-pi-reborn-virgl`` | Minecraft Pi Edition Using VirGL For Hardware Acceleration (Recommended For Desktop) |
 | ``minecraft-pi-reborn-native`` | Minecraft: Pi Edition Using Docker Device Mounting For GPU Acceleration (Recommended For ARM Devices (ie. Raspberry Pi, PinePhone, etc)) |
 
-## Troubleshooting Crashes
+## Troubleshooting
 Game logs are located in ``/tmp/minecraft-pi``.
 
 ### ``Error response from daemon: error gathering device information while adding custom device "/dev/dri": no such file or directory``
-Make sure you are using the correct GPU drivers for your system. If you are using a Raspberry Pi, make sure you have set your GPU driver to ``Full KMS`` or ``Fake KMS`` in ``raspi-config``.
+Make sure you are using the correct GPU drivers for your system. If you are using a Raspberry Pi, make sure your GPU driver is set to ``Full KMS`` or ``Fake KMS`` in ``raspi-config``.
 
-### ``Segmentation Fault``
+### ``Segmentation Fault`` (Exit Code: ``139``)
 1. Attempt To Reproduce Issue And Record Instructions
 2. Report On Issue Tracker Including The Instructions To Reproduce
+
+### ``[ERR]: Invalid ~/.minecraft-pi Permissions``
+Run:
+```sh
+sudo chown -R "$(id -u):$(id -g)" ~/.minecraft-pi
+chmod -R u+rw ~/.minecraft-pi
+```
 
 ## Dedicated Server
 The dedicated server is a version of Minecraft: Pi Edition modified to run in a headless environment. It loads settings from a ``server.properties`` file.

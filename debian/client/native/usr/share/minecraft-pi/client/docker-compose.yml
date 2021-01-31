@@ -3,13 +3,15 @@ services:
     minecraft-pi:
         image: 'thebrokenrail/minecraft-pi-reborn:client'
         network_mode: 'host'
+        user: '${USER_UID}'
         volumes:
             - /usr/bin/qemu-arm-static:/usr/bin/qemu-arm-static
             - '/tmp/.X11-unix:/tmp/.X11-unix'
-            - '~/.minecraft-pi:/root/.minecraft'
+            - '${USER_HOME}/.minecraft-pi:/root/.minecraft'
         devices:
             - '/dev/dri:/dev/dri'
         environment:
+            - 'HOME=/root'
             - 'DISPLAY=unix${DISPLAY}'
             - 'MCPI_FEATURES=${MCPI_FEATURES}'
             - 'MCPI_USERNAME=${MCPI_USERNAME}'

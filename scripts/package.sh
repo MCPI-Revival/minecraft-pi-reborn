@@ -6,7 +6,7 @@ DEB_VERSION='1.0.0'
 # Dependencies
 REQUIRED_DOCKER_VERSION='19.03'
 COMMON_DEPENDENCIES="docker.io (>=${REQUIRED_DOCKER_VERSION}) | docker-ce (>=${REQUIRED_DOCKER_VERSION}), libseccomp2 (>=2.4.2), docker-compose, binfmt-support"
-CLIENT_DEPENDENCIES="zenity, policykit-1, passwd, login, x11-xserver-utils"
+CLIENT_DEPENDENCIES="zenity, x11-xserver-utils"
 RECOMMENDED_DEPENDENCIES="qemu-user-static"
 
 set -e
@@ -40,7 +40,7 @@ package_client() {
     cp debian/tmp/client-image.tar.gz "debian/tmp/$1/usr/share/minecraft-pi/client/image.tar.gz"
     prepare_control "debian/tmp/$1" ", ${CLIENT_DEPENDENCIES}"
     # Build
-    dpkg -b "debian/tmp/$1" out/deb
+    dpkg-deb -b --root-owner-group "debian/tmp/$1" out/deb
 }
 package_client virgl
 package_client native
@@ -55,7 +55,7 @@ package_server() {
     cp debian/tmp/server-image.tar.gz debian/tmp/server/usr/share/minecraft-pi/server/image.tar.gz
     prepare_control debian/tmp/server ''
     # Build
-    dpkg -b debian/tmp/server out/deb
+    dpkg-deb -b --root-owner-group debian/tmp/server out/deb
 }
 package_server
 

@@ -2,6 +2,9 @@
 
 set -e
 
+# Prepare Data Folder
+mkdir -p "${USER_HOME}/.minecraft-pi"
+
 # Create Log Folder
 rm -rf /tmp/minecraft-pi
 mkdir -p /tmp/minecraft-pi
@@ -20,8 +23,5 @@ set -e
 # Kill Logging
 kill ${TAIL_PID}
 
-# Handle Crash
-if [ ${RET} -ne 0 ]; then
-    zenity --class "${ZENITY_CLASS}" --error --no-wrap --text 'Minecraft: Pi Edition has crashed!\nLogs are located in /tmp/minecraft-pi.\n\nExit Code: '${RET}
-    exit ${RET}
-fi
+# Exit
+exit ${RET}

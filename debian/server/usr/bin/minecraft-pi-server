@@ -2,8 +2,10 @@
 
 set -e
 
+# Prepare Environment
 export MCPI_ROOT="${PWD}"
+export USER_UID="${UID}"
 
 # Launch Minecraft
-DOCKER_COMPOSE="docker-compose -f /usr/share/minecraft-pi/server/docker-compose.yml"
-${DOCKER_COMPOSE} run --rm minecraft-pi-server
+DOCKER_COMPOSE_YML='/usr/share/minecraft-pi/server/docker-compose.yml'
+docker-compose -f "${DOCKER_COMPOSE_YML}" run --rm minecraft-pi-server

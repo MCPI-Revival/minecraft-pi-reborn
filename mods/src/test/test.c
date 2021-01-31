@@ -1,3 +1,5 @@
+#define _GNU_SOURCE
+
 #include <stdlib.h>
 #include <string.h>
 #include <errno.h>
@@ -23,20 +25,35 @@ struct timespec32 {
 
 void run_tests() {
     // Test clock_gettime64
-    struct timespec64 ts64;
-    long out = syscall(SYS_clock_gettime64, CLOCK_MONOTONIC, &ts64);
-    if (out != 0) {
-        if (errno == ENOSYS) {
-            // clock_gettime64 Unsupported, Testing clock_gettime
-            struct timespec32 ts32;
-            out = syscall(SYS_clock_gettime, CLOCK_MONOTONIC, &ts32);
-            if (out != 0) {
+    {
+        struct timespec64 ts64;
+        long out = syscall(SYS_clock_gettime64, CLOCK_MONOTONIC, &ts64);
+        if (out != 0) {
+            if (errno == ENOSYS) {
+                // clock_gettime64 Unsupported, Testing clock_gettime
+                struct timespec32 ts32;
+                out = syscall(SYS_clock_gettime, CLOCK_MONOTONIC, &ts32);
+                if (out != 0) {
+                    // Failure
+                    ERR("Unable To Run clock_gettime Syscall: %s", strerror(errno));
+                }
+            } else {
                 // Failure
-                ERR("Unable To Run clock_gettime Syscall: %s", strerror(errno));
+                ERR("Unable To Run clock_gettime64 Syscall: %s", strerror(errno));
             }
-        } else {
+        }
+    }
+
+    // Test ~/.minecraft Permissions
+    {
+        char *path = NULL;
+        asprintf(&path, "%s/.minecraft", getenv("HOME"));
+        int ret = access(path, R_OK | W_OK);
+        free(path);
+
+        if (ret != 0) {
             // Failure
-            ERR("Unable To Run clock_gettime64 Syscall: %s", strerror(errno));
+            ERR("%s", "Invalid ~/.minecraft-pi Permissions");
         }
     }
 }
