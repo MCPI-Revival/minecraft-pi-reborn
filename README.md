@@ -38,6 +38,16 @@ Minecraft: Pi Edition Modding Project
 ## Troubleshooting
 Game logs are located in ``/tmp/minecraft-pi``.
 
+### ``Couldn't connect to Docker daemon at http+docker://localhost - is it running?``
+- Make Sure Your User Is In The ``docker`` Group
+  ```sh
+  sudo usermod -aG docker "$(id -un)"
+  ```
+- Make Sure Docker Is Running
+  ```sh
+  sudo service docker start
+  ```
+
 ### ``Error response from daemon: error gathering device information while adding custom device "/dev/dri": no such file or directory``
 Make sure you are using the correct GPU drivers for your system. If you are using a Raspberry Pi, make sure your GPU driver is set to ``Full KMS`` or ``Fake KMS`` in ``raspi-config``.
 
