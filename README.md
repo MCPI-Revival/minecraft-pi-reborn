@@ -43,6 +43,7 @@ Game logs are located in ``/tmp/minecraft-pi``.
   ```sh
   sudo usermod -aG docker "$(id -un)"
   ```
+  Then Log Out And Log Back In
 - Make Sure Docker Is Running
   ```sh
   sudo service docker start
