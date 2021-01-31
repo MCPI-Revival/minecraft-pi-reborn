@@ -2,6 +2,11 @@
 
 set -e
 
+# Esnure User Is In docker Group
+if ! id -nGz | grep -qzxF 'docker'; then
+    pkexec /usr/sbin/usermod -aG docker "$(id -un)"
+fi
+
 # All Feature Flags
 export AVAILABLE_FEATURES="$(tr '\n' ' ' < /usr/share/minecraft-pi/client/features)"
 
@@ -34,7 +39,7 @@ export USER_UID="$(id -u)"
 
 # Run
 set +e
-/usr/lib/minecraft-pi/pre-launch.sh
+sg docker /usr/lib/minecraft-pi/pre-launch.sh
 RET=$?
 set -e
 
