@@ -7,11 +7,11 @@ services:
         volumes:
             - /usr/bin/qemu-arm-static:/usr/bin/qemu-arm-static
             - '/tmp/.X11-unix:/tmp/.X11-unix'
-            - '${USER_HOME}/.minecraft-pi:/root/.minecraft'
+            - '${USER_HOME}/.minecraft-pi:/home/.minecraft'
         devices:
             - '/dev/dri:/dev/dri'
         environment:
-            - 'HOME=/root'
+            - 'HOME=/home'
             - 'DISPLAY=unix${DISPLAY}'
             - 'MCPI_FEATURES=${MCPI_FEATURES}'
             - 'MCPI_USERNAME=${MCPI_USERNAME}'
