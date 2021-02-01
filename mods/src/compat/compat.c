@@ -326,6 +326,9 @@ HOOK(SDL_WM_GrabInput, SDL_GrabMode, (SDL_GrabMode mode)) {
                 XFixesHideCursor(x11_display, x11_window);
             }
             XFlush(x11_display);
+
+            // Set Last Mouse Position
+            glfwGetCursorPos(glfw_window, &last_mouse_x, &last_mouse_y);
         }
         return mode == SDL_GRAB_QUERY ? (glfwGetInputMode(glfw_window, GLFW_CURSOR) == GLFW_CURSOR_NORMAL ? SDL_GRAB_OFF : SDL_GRAB_ON) : mode;
     }
