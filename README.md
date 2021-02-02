@@ -21,7 +21,8 @@ Minecraft: Pi Edition Modding Project
    curl -fsSL https://get.docker.com -o get-docker.sh
    sudo sh get-docker.sh
    ```
-3. Remove Old Minecraft: Pi Edition Package If Installed (``sudo apt remove minecraft-pi``)
+3. Remove Vanilla Minecraft: Pi Edition Package If Installed (``sudo apt remove minecraft-pi``)
+4. Transfer Vanilla Minecraft: Pi Edition Worlds (``mv ~/.minecraft ~/.minecraft-pi``)
 
 ### Installation Instructions
 1. Download Appropriate Package From [Here](https://jenkins.thebrokenrail.com/job/minecraft-pi-reborn/job/master/lastSuccessfulBuild/artifact/out/deb/) (See Table Below)
@@ -39,20 +40,21 @@ Minecraft: Pi Edition Modding Project
 Game logs are located in ``/tmp/minecraft-pi``.
 
 ### ``Couldn't connect to Docker daemon at http+docker://localhost - is it running?``
-Make Sure Docker Is Running:
+Start Docker if it isn't running:
 ```sh
 sudo service docker start
 ```
 
 ### ``Error response from daemon: error gathering device information while adding custom device "/dev/dri": no such file or directory``
-Make sure you are using the correct GPU drivers for your system. If you are using a Raspberry Pi, make sure your GPU driver is set to ``Full KMS`` or ``Fake KMS`` in ``raspi-config``.
+Make sure you are using the correct GPU drivers for your system.
+
+If you are using a Raspberry Pi, make sure your GPU driver is set to ``Full KMS`` or ``Fake KMS`` in ``raspi-config``.
 
 ### ``Segmentation Fault`` (Exit Code: ``139``)
-1. Attempt To Reproduce Issue And Record Instructions
-2. Report On Issue Tracker Including The Instructions To Reproduce
+Report an issue with reproduction instructions and system details.
 
 ### ``[ERR]: Invalid ~/.minecraft-pi Permissions``
-Run:
+Update ``~/.minecraft-pi`` permissions:
 ```sh
 sudo chown -R "$(id -u):$(id -g)" ~/.minecraft-pi
 chmod -R u+rw ~/.minecraft-pi
@@ -63,12 +65,12 @@ The dedicated server is a version of Minecraft: Pi Edition modified to run in a 
 
 To use, install the ``minecraft-pi-reborn-server`` package and run ``minecraft-pi-reborn-server``. It will generate the world and ``server.properties`` in the current directory.
 
-This server is also compatible with MCPE Alpha 0.6.1.
+This server is also compatible with MCPE Alpha v0.6.1.
 
 ### Limitations
 - Player data is not saved because of limitations with MCPE LAN worlds
   - An easy workaround is to place your inventory in a chest before logging off
-- Survival mode servers are only compatible with ``minecraft-pi-reborn`` clients
+- Survival Mode servers are only compatible with ``minecraft-pi-reborn`` clients
 
 ## Modding
 [View Modding](MODDING.md)
