@@ -22,7 +22,7 @@ Minecraft: Pi Edition Modding Project
    sudo sh get-docker.sh
    ```
 3. Remove Vanilla Minecraft: Pi Edition Package If Installed (``sudo apt remove minecraft-pi``)
-4. Transfer Vanilla Minecraft: Pi Edition Worlds (``mv ~/.minecraft ~/.minecraft-pi``)
+4. Transfer Vanilla Minecraft: Pi Edition Worlds If Present (``mv ~/.minecraft ~/.minecraft-pi``)
 
 ### Installation Instructions
 1. Download Appropriate Package From [Here](https://jenkins.thebrokenrail.com/job/minecraft-pi-reborn/job/master/lastSuccessfulBuild/artifact/out/deb/) (See Table Below)
