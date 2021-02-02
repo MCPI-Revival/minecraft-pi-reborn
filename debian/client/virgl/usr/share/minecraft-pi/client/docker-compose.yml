@@ -13,5 +13,6 @@ services:
             - 'HOME=/home'
             - 'DISPLAY=unix${DISPLAY}'
             - 'MCPI_FEATURES=${MCPI_FEATURES}'
+            - 'MCPI_RENDER_DISTANCE=${MCPI_RENDER_DISTANCE}'
             - 'MCPI_USERNAME=${MCPI_USERNAME}'
             - 'MCPI_MODE=virgl'

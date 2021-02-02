@@ -22,12 +22,16 @@ export DOCKER_COMPOSE_YML="/usr/share/minecraft-pi/client/docker-compose.yml"
 
 # Ensure Features Are Selected
 if [ -z "${MCPI_FEATURES+x}" ]; then
-    MCPI_FEATURES="$(eval "zenity --class \"${ZENITY_CLASS}\" --list --checklist --width=600 --height=600 --column 'Enabled' --column 'Feature' ${AVAILABLE_FEATURES}")"
+    MCPI_FEATURES="$(eval "zenity --class \"${ZENITY_CLASS}\" --list --checklist --width 400 --height 400 --column 'Enabled' --column 'Feature' ${AVAILABLE_FEATURES}")"
+fi
+if [ -z "${MCPI_RENDER_DISTANCE+x}" ]; then
+    MCPI_RENDER_DISTANCE="$(zenity --class "${ZENITY_CLASS}" --list --radiolist --width 400 --height 400 --text 'Minecraft Render Distance:' --column 'Selected' --column 'Name' FALSE 'Far' FALSE 'Normal' TRUE 'Short' FALSE 'Tiny')"
 fi
 if [ -z "${MCPI_USERNAME+x}" ]; then
     MCPI_USERNAME="$(zenity --class "${ZENITY_CLASS}" --entry --text 'Minecraft Username:' --entry-text 'StevePi')"
 fi
 export MCPI_FEATURES
+export MCPI_RENDER_DISTANCE
 export MCPI_USERNAME
 
 # Allow X11 Connections From Root

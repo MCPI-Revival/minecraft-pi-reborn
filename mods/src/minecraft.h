@@ -115,6 +115,7 @@ static uint32_t Options_3d_anaglyph_property_offset = 0x15; // unsigned char / b
 static uint32_t Options_ambient_occlusion_property_offset = 0x18; // unsigned char / bool
 static uint32_t Options_hide_gui_property_offset = 0xec; // unsigned char / bool
 static uint32_t Options_third_person_property_offset = 0xed; // unsigned char / bool
+static uint32_t Options_render_distance_property_offset = 0x10; // int32_t
 
 // MouseBuildInput
 

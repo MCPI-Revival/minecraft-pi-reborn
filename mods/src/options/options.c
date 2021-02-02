@@ -13,6 +13,24 @@ static uint32_t LevelData_getSpawnMobs_injection(__attribute__((unused)) unsigne
     return mob_spawning;
 }
 
+// Get Custom Render Distance
+static int get_render_distance() {
+    char *distance_str = getenv("MCPI_RENDER_DISTANCE");
+    if (distance_str == NULL) {
+        distance_str = "Short";
+    }
+    if (strcmp("Far", distance_str) == 0) {
+        return 0;
+    } else if (strcmp("Normal", distance_str) == 0) {
+        return 1;
+    } else if (strcmp("Short", distance_str) == 0) {
+        return 2;
+    } else if (strcmp("Tiny", distance_str) == 0) {
+        return 3;
+    } else {
+        ERR("Invalid Render Distance: %s", distance_str);
+    }
+}
 // Get Custom Username
 static char *get_username() {
     char *username = getenv("MCPI_USERNAME");
@@ -26,6 +44,7 @@ static int fancy_graphics;
 static int peaceful_mode;
 static int anaglyph;
 static int smooth_lighting;
+static int render_distance;
 // Configure Options
 static void Minecraft_init_injection(unsigned char *this) {
     // Call Original Method
@@ -42,6 +61,8 @@ static void Minecraft_init_injection(unsigned char *this) {
     *(options + Options_3d_anaglyph_property_offset) = anaglyph;
     // Smooth Lighting
     *(options + Options_ambient_occlusion_property_offset) = smooth_lighting;
+    // Render Distance
+    *(int32_t *) (options + Options_render_distance_property_offset) = render_distance;
 }
 
 // Enable Touch GUI
@@ -71,6 +92,13 @@ void init_options() {
     peaceful_mode = feature_has("Peaceful Mode");
     // 3D Anaglyph
     anaglyph = feature_has("3D Anaglyph");
+    // Render Distance
+    if (!is_server) {
+        render_distance = get_render_distance();
+        INFO("Setting Render Distance: %i", render_distance);
+    } else {
+        render_distance = 3;
+    }
 
     // Set Options
     overwrite_calls((void *) Minecraft_init, Minecraft_init_injection);
