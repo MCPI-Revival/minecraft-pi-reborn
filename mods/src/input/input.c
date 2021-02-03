@@ -4,7 +4,7 @@
 #include "input.h"
 #include "../init/init.h"
 
-#include "../minecraft.h"
+#include <libreborn/minecraft.h>
 
 // Store Right-Click Status
 static int is_right_click = 0;

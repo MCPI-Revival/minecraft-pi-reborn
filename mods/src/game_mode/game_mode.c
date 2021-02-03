@@ -3,7 +3,7 @@
 #include "game_mode.h"
 #include "../init/init.h"
 
-#include "../minecraft.h"
+#include <libreborn/minecraft.h>
 
 static int is_survival = -1;
 

@@ -2,7 +2,7 @@
 
 #include "game_mode.h"
 
-#include "../minecraft.h"
+#include <libreborn/minecraft.h>
 
 // Get Minecraft From Screen
 static unsigned char *get_minecraft_from_screen(unsigned char *screen) {

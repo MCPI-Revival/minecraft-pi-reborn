@@ -4,7 +4,7 @@
 #include "misc.h"
 #include "../init/init.h"
 
-#include "../minecraft.h"
+#include <libreborn/minecraft.h>
 
 void init_misc() {
     if (feature_has("Remove Invalid Item Background")) {

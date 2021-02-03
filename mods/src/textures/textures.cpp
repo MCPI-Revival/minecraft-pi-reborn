@@ -5,7 +5,7 @@
 #include "../feature/feature.h"
 #include "../init/init.h"
 
-#include "../minecraft.h"
+#include <libreborn/minecraft.h>
 
 static void Minecraft_tick_injection(unsigned char *minecraft, int32_t param_1, int32_t param_2) {
     // Call Original Method

@@ -3,7 +3,7 @@
 #include "../screenshot/screenshot.h"
 #include "../init/init.h"
 
-#include "../minecraft.h"
+#include <libreborn/minecraft.h>
 
 // Take Screenshot Using TripodCamera
 static void AppPlatform_linux_saveScreenshot_injection(__attribute__((unused)) unsigned char *app_platform, __attribute__((unused)) std::string const& param1, __attribute__((unused)) std::string const& param_2) {

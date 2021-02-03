@@ -5,7 +5,7 @@
 #include "../feature/feature.h"
 #include "../init/init.h"
 
-#include "../minecraft.h"
+#include <libreborn/minecraft.h>
 
 static int mob_spawning = 0;
 // Override Mob Spawning

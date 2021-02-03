@@ -20,7 +20,7 @@
 #include "../feature/feature.h"
 #include "../init/init.h"
 
-#include "../minecraft.h"
+#include <libreborn/minecraft.h>
 
 // Server Properties
 static ServerProperties &get_server_properties() {

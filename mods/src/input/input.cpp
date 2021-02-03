@@ -5,7 +5,7 @@
 #include "../feature/feature.h"
 #include "input.h"
 
-#include "../minecraft.h"
+#include <libreborn/minecraft.h>
 
 // Open Sign Screen
 static void LocalPlayer_openTextEdit_injection(unsigned char *local_player, unsigned char *sign) {
