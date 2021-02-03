@@ -65,6 +65,11 @@ rm -rf debian/tmp
 # Export Libraries
 mkdir -p out/lib
 
+# Test
+cd out/deb
+ln -s minecraft-pi-reborn-native*.deb test.deb
+cd ../../
+
 ## Extract libreborn
 
 # Copy Headers
@@ -73,6 +78,6 @@ cp -r libreborn/include out/lib/include
 # Copy Shared Library
 IMG_ID="$(docker create thebrokenrail/minecraft-pi-reborn:client)"
 docker cp "${IMG_ID}:/app/minecraft-pi/mods/libreborn.so" ./out/lib || :
-RET="$?"
+RET=$?
 docker rm -v "${IMG_ID}"
-exit "${RET}"
+exit ${RET}
