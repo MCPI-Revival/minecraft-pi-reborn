@@ -65,11 +65,6 @@ rm -rf debian/tmp
 # Export Libraries
 mkdir -p out/lib
 
-# Test
-cd out/deb
-ln -s minecraft-pi-reborn-native*.deb test.deb
-cd ../../
-
 ## Extract libreborn
 
 # Copy Headers

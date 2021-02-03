@@ -39,7 +39,7 @@ xhost local:root
 
 # Prepare Environment
 export USER_HOME="${HOME}"
-export USER_UID="$(id -u)"
+export USER_UID="$(id -u):$(getent group video | cut -d : -f 3)"
 
 # Run
 set +e
