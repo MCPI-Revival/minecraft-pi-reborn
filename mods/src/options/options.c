@@ -118,6 +118,11 @@ void init_options() {
         unsigned char autojump_patch[4] = {0x00, 0x30, 0xa0, 0xe3};
         patch((void *) 0x44b90, autojump_patch);
     }
+    if (feature_has("Display Nametags By Default")) {
+        // Display Nametags By Default
+        unsigned char display_nametags_patch[4] = {0x1d, 0x60, 0xc0, 0xe5};
+        patch((void *) 0xa6628, display_nametags_patch);
+    }
 
     // Show Block Outlines
     int block_outlines = feature_has("Show Block Outlines");
