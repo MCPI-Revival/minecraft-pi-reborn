@@ -39,7 +39,12 @@ xhost local:root
 
 # Prepare Environment
 export USER_HOME="${HOME}"
-export USER_UID="$(id -u):$(getent group video | cut -d : -f 3)"
+export USER_UID="$(id -u)"
+export USER_GID="$(id -g)"
+get_gid() {
+    echo "$(getent group "$1" | cut -d : -f 3)"
+}
+export USER_OTHER_GIDS="$(get_gid video) $(get_gid render)"
 
 # Run
 set +e

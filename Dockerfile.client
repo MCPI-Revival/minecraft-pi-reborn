@@ -5,7 +5,7 @@ ENV DEBIAN_FRONTEND noninteractive
 RUN \
     # Install Runtime Dependencies
     apt-get update && \
-    apt-get install -y --no-install-recommends tini libgles1 libx11-6 libsdl1.2debian zlib1g libfreeimage3 libglfw3 xinput libxfixes3 && \
+    apt-get install -y --no-install-recommends tini libgles1 libx11-6 libsdl1.2debian zlib1g libfreeimage3 libglfw3 xinput libxfixes3 gosu && \
     rm -rf /var/lib/apt/lists/*
 
 # Compile Environment
@@ -51,4 +51,4 @@ COPY --from=build /app/minecraft-pi /app/minecraft-pi
 WORKDIR /app/minecraft-pi
 
 ENTRYPOINT ["/usr/bin/tini", "--"]
-CMD ["./launcher"]
+CMD ["./run.sh"]

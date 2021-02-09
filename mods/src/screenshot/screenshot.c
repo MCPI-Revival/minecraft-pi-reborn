@@ -4,6 +4,9 @@
 #include <stdio.h>
 #include <unistd.h>
 #include <time.h>
+#include <string.h>
+#include <errno.h>
+#include <sys/stat.h>
 
 #include <FreeImage.h>
 
@@ -13,7 +16,7 @@
 
 #include "screenshot.h"
 
-// 4 (Year + 1 (Hyphen) + 2 (Month) + 1 (Hyphen) + 2 (Day) + 1 (Underscore) + 2 (Hour) + 1 (Period) + 2 (Minute) + 1 (Period) + 2 (Second) + 1 (Terminator)
+// 4 (Year) + 1 (Hyphen) + 2 (Month) + 1 (Hyphen) + 2 (Day) + 1 (Underscore) + 2 (Hour) + 1 (Period) + 2 (Minute) + 1 (Period) + 2 (Second) + 1 (Null Terminator)
 #define TIME_SIZE 20
 
 // Take Screenshot
@@ -73,7 +76,25 @@ void take_screenshot() {
     free(screenshots);
 }
 
-// Init FreeImage
+// Init
 __attribute__((constructor)) static void init() {
+    // Init FreeImage
     FreeImage_Initialise(0);
+
+    // Screenshots Folder
+    char *screenshots_folder = NULL;
+    asprintf(&screenshots_folder, "%s/.minecraft/screenshots", getenv("HOME"));
+    {
+        // Check Screenshots Folder
+        struct stat obj;
+        if (stat(screenshots_folder, &obj) != 0 || !S_ISDIR(obj.st_mode)) {
+            // Create Screenshots Folder
+            int ret = mkdir(screenshots_folder, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
+            if (ret != 0) {
+                // Unable To Create Folder
+                ERR("Error Creating Directory: %s: %s", screenshots_folder, strerror(errno));
+            }
+        }
+    }
+    free(screenshots_folder);
 }

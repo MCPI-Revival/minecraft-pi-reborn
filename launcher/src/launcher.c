@@ -7,6 +7,7 @@
 #include <string.h>
 #include <dirent.h>
 #include <errno.h>
+#include <sys/stat.h>
 
 static int starts_with(const char *s, const char *t) {
     return strncmp(s, t, strlen(t)) == 0;
@@ -71,7 +72,7 @@ static void load(char **ld_path, char **ld_preload, char *folder) {
                     }
                 } else if (errno != 0) {
                     // Error Reading Contents Of Folder
-                    fprintf(stderr, "Error Reading Directory: %s\n", strerror(errno));
+                    fprintf(stderr, "Error Reading Directory: %s: %s\n", folder, strerror(errno));
                     exit(EXIT_FAILURE);
                 } else {
                     break;
@@ -85,15 +86,15 @@ static void load(char **ld_path, char **ld_preload, char *folder) {
             return;
         } else if (errno == ENOENT) {
             // Folder Doesn't Exists, Attempt Creation
-            char *cmd = NULL;
-            asprintf(&cmd, "mkdir -p %s", folder);
-            int ret = system(cmd);
+            int ret = mkdir(folder, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
             if (ret != 0) {
-                exit(ret);
+                // Unable To Create Folder
+                fprintf(stderr, "Error Creating Directory: %s: %s\n", folder, strerror(errno));
+                exit(EXIT_FAILURE);
             }
         } else {
             // Unable To Open Folder
-            fprintf(stderr, "Error Opening Directory: %s\n", strerror(errno));
+            fprintf(stderr, "Error Opening Directory: %s: %s\n", folder, strerror(errno));
             exit(EXIT_FAILURE);
         }
     }
@@ -102,11 +103,23 @@ static void load(char **ld_path, char **ld_preload, char *folder) {
 int main(__attribute__((unused)) int argc, char *argv[]) {
     fprintf(stderr, "Configuring Game...\n");
 
-    // Create Screenshots Folder
-    char *screenshots_cmd = NULL;
-    asprintf(&screenshots_cmd, "mkdir -p %s/.minecraft/screenshots", getenv("HOME"));
-    system(screenshots_cmd);
-    free(screenshots_cmd);
+    // Minecraft Folder
+    char *minecraft_folder = NULL;
+    asprintf(&minecraft_folder, "%s/.minecraft", getenv("HOME"));
+    {
+        // Check Minecraft Folder
+        struct stat obj;
+        if (stat(minecraft_folder, &obj) != 0 || !S_ISDIR(obj.st_mode)) {
+            // Create Minecraft Folder
+            int ret = mkdir(minecraft_folder, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
+            if (ret != 0) {
+                // Unable To Create Folder
+                fprintf(stderr, "Error Creating Directory: %s: %s\n", minecraft_folder, strerror(errno));
+                exit(EXIT_FAILURE);
+            }
+        }
+    }
+    free(minecraft_folder);
 
     char *ld_path = NULL;
 

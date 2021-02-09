@@ -4,7 +4,8 @@ set -e
 
 # Prepare Environment
 export MCPI_ROOT="${PWD}"
-export USER_UID="${UID}"
+export USER_UID="$(id -u)"
+export USER_GID="$(id -g)"
 
 # Launch Minecraft
 DOCKER_COMPOSE_YML='/usr/share/minecraft-pi/server/docker-compose.yml'

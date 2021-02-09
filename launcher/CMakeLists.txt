@@ -8,3 +8,4 @@ add_executable(launcher src/launcher.c)
 
 # Install
 install(TARGETS launcher DESTINATION /)
+install(PROGRAMS src/run.sh DESTINATION /)
