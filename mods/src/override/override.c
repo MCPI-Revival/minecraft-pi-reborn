@@ -17,7 +17,7 @@ static int starts_with(const char *s, const char *t) {
 static char *get_override_path(const char *filename) {
     // Get Asset Override Path
     char *overrides = NULL;
-    asprintf(&overrides, "%s/.minecraft/overrides", getenv("HOME"));
+    asprintf(&overrides, "%s/.minecraft-pi/overrides", getenv("HOME"));
     // Get data Path
     char *data = NULL;
     char *cwd = getcwd(NULL, 0);

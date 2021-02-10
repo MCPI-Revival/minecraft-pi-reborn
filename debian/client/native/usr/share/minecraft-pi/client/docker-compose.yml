@@ -6,7 +6,7 @@ services:
         volumes:
             - /usr/bin/qemu-arm-static:/usr/bin/qemu-arm-static
             - '/tmp/.X11-unix:/tmp/.X11-unix'
-            - '${USER_HOME}/.minecraft-pi:/home/.minecraft'
+            - '${USER_HOME}/.minecraft-pi:/home/.minecraft-pi'
         devices:
             - '/dev/dri:/dev/dri'
         environment:

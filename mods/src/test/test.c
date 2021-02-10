@@ -44,10 +44,10 @@ void run_tests() {
         }
     }
 
-    // Test ~/.minecraft Permissions
+    // Test ~/.minecraft-pi Permissions
     {
         char *path = NULL;
-        asprintf(&path, "%s/.minecraft", getenv("HOME"));
+        asprintf(&path, "%s/.minecraft-pi", getenv("HOME"));
         int ret = access(path, R_OK | W_OK);
         free(path);
 

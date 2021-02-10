@@ -105,7 +105,7 @@ int main(__attribute__((unused)) int argc, char *argv[]) {
 
     // Minecraft Folder
     char *minecraft_folder = NULL;
-    asprintf(&minecraft_folder, "%s/.minecraft", getenv("HOME"));
+    asprintf(&minecraft_folder, "%s/.minecraft-pi", getenv("HOME"));
     {
         // Check Minecraft Folder
         struct stat obj;
@@ -133,9 +133,9 @@ int main(__attribute__((unused)) int argc, char *argv[]) {
     // Load Mods From ./mods
     load(&ld_path, &ld_preload, "./mods/");
 
-    // Loads Mods From ~/.minecraft/mods
+    // Loads Mods From ~/.minecraft-pi/mods
     char *home_mods = NULL;
-    asprintf(&home_mods, "%s/.minecraft/mods/", getenv("HOME"));
+    asprintf(&home_mods, "%s/.minecraft-pi/mods/", getenv("HOME"));
     load(&ld_path, &ld_preload, home_mods);
     free(home_mods);
 

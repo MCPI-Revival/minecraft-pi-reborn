@@ -7,7 +7,8 @@
 
 // Globals
 
-static char **default_username = (char **) 0x18fd4;
+static char **default_path = (char **) 0xe264; // /.minecraft/
+static char **default_username = (char **) 0x18fd4; // StevePi
 
 static unsigned char **Item_flintAndSteel = (unsigned char **) 0x17ba70;
 static unsigned char **Item_snowball = (unsigned char **) 0x17bbb0;

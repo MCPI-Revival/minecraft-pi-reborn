@@ -30,7 +30,7 @@ void take_screenshot() {
     strftime(time, TIME_SIZE, "%Y-%m-%d_%H.%M.%S", timeinfo);
 
     char *screenshots = NULL;
-    asprintf(&screenshots, "%s/.minecraft/screenshots", getenv("HOME"));
+    asprintf(&screenshots, "%s/.minecraft-pi/screenshots", getenv("HOME"));
 
     int num = 1;
     char *file = NULL;
@@ -83,7 +83,7 @@ __attribute__((constructor)) static void init() {
 
     // Screenshots Folder
     char *screenshots_folder = NULL;
-    asprintf(&screenshots_folder, "%s/.minecraft/screenshots", getenv("HOME"));
+    asprintf(&screenshots_folder, "%s/.minecraft-pi/screenshots", getenv("HOME"));
     {
         // Check Screenshots Folder
         struct stat obj;

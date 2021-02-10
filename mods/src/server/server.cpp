@@ -138,7 +138,7 @@ static void print_progress(unsigned char *minecraft) {
 
 static std::string get_banned_ips_file() {
     std::string file(getenv("HOME"));
-    file.append("/.minecraft/banned-ips.txt");
+    file.append("/.minecraft-pi/banned-ips.txt");
     return file;
 }
 
@@ -421,7 +421,7 @@ static unsigned char get_max_players() {
 static void server_init() {
     // Open Properties File
     std::string file(getenv("HOME"));
-    file.append("/.minecraft/server.properties");
+    file.append("/.minecraft-pi/server.properties");
 
     std::ifstream properties_file(file);
 
