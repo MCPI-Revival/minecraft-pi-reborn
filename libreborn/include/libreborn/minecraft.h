@@ -229,7 +229,7 @@ static ItemInstance_constructor_t ItemInstance_constructor_item = (ItemInstance_
 static ItemInstance_constructor_t ItemInstance_constructor_tile = (ItemInstance_constructor_t) 0x998e4;
 
 typedef unsigned char *(*ItemInstance_constructor_extra_t)(unsigned char *item_instance, unsigned char *item, int32_t count, int32_t auxilary);
-static ItemInstance_constructor_extra_t ItemInstance_constructor_title_extra = (ItemInstance_constructor_extra_t) 0x99918;
+static ItemInstance_constructor_extra_t ItemInstance_constructor_tile_extra = (ItemInstance_constructor_extra_t) 0x99918;
 static ItemInstance_constructor_extra_t ItemInstance_constructor_item_extra = (ItemInstance_constructor_extra_t) 0x99960;
 
 static uint32_t ItemInstance_count_property_offset = 0x0;
