@@ -45,7 +45,7 @@ static int32_t Inventory_setupDefault_FillingContainer_addItem_call_injection(un
             // Bonemeal Is Already In The Creative Inventory
             continue;
         }
-        unsigned char *item_instance = (unsigned char *) ::operator new(0xc);
+        unsigned char *item_instance = (unsigned char *) ::operator new(ITEM_INSTANCE_SIZE);
         item_instance = (*ItemInstance_constructor_item_extra)(item_instance, *Item_dye_powder, 1, i);
         (*FillingContainer_addItem)(filling_container, item_instance);
     }

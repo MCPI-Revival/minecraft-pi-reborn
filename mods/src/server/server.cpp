@@ -86,7 +86,7 @@ static void start_world(unsigned char *minecraft) {
     (*Minecraft_hostMultiplayer)(minecraft, port);
     INFO("Listening On: %i", port);
 
-    void *screen = ::operator new(0x4c);
+    void *screen = ::operator new(PROGRESS_SCREEN_SIZE);
     screen = (*ProgressScreen)((unsigned char *) screen);
     (*Minecraft_setScreen)(minecraft, (unsigned char *) screen);
 }
