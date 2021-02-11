@@ -3,6 +3,8 @@ services:
     minecraft-pi-server:
         image: 'thebrokenrail/minecraft-pi-reborn:server'
         network_mode: 'host'
+        stdin_open: true
+        tty: true
         volumes:
             - /usr/bin/qemu-arm-static:/usr/bin/qemu-arm-static
             - '${MCPI_ROOT}:/home/.minecraft-pi'
