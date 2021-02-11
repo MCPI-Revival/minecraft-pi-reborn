@@ -127,6 +127,7 @@ static void glfw_char(__attribute__((unused)) GLFWwindow *window, unsigned int c
 
 static double last_mouse_x = 0;
 static double last_mouse_y = 0;
+static int ignore_relative_mouse = 1;
 
 // Pass Mouse Movement To SDL
 static void glfw_motion(__attribute__((unused)) GLFWwindow *window, double xpos, double ypos) {
@@ -134,8 +135,9 @@ static void glfw_motion(__attribute__((unused)) GLFWwindow *window, double xpos,
     event.type = SDL_MOUSEMOTION;
     event.motion.x = xpos;
     event.motion.y = ypos;
-    event.motion.xrel = (xpos - last_mouse_x);
-    event.motion.yrel = (ypos - last_mouse_y);
+    event.motion.xrel = !ignore_relative_mouse ? (xpos - last_mouse_x) : 0;
+    event.motion.yrel = !ignore_relative_mouse ? (ypos - last_mouse_y) : 0;
+    ignore_relative_mouse = 0;
     last_mouse_x = xpos;
     last_mouse_y = ypos;
     SDL_PushEvent(&event);
@@ -327,8 +329,8 @@ HOOK(SDL_WM_GrabInput, SDL_GrabMode, (SDL_GrabMode mode)) {
             }
             XFlush(x11_display);
 
-            // Set Last Mouse Position
-            glfwGetCursorPos(glfw_window, &last_mouse_x, &last_mouse_y);
+            // Reset Last Mouse Position
+            ignore_relative_mouse = 1;
         }
         return mode == SDL_GRAB_QUERY ? (glfwGetInputMode(glfw_window, GLFW_CURSOR) == GLFW_CURSOR_NORMAL ? SDL_GRAB_OFF : SDL_GRAB_ON) : mode;
     }
