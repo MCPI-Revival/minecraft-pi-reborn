@@ -158,7 +158,9 @@ static uint32_t Gui_selected_item_text_timer_property_offset = 0x9fc; // float
 
 // GameMode Constructors
 
+#define CREATOR_MODE_SIZE 0x18
 static void *CreatorMode = (void *) 0x1a044;
+#define SURVIVAL_MODE_SIZE 0x24
 static void *SurvivalMode = (void *) 0x1b7d8;
 
 // LevelData

@@ -17,7 +17,7 @@ static void set_is_survival(int new_is_survival) {
         patch((void *) 0x16efc, inventory_patch);
 
         // Use Correct Size For GameMode Object
-        unsigned char size_patch[4] = {new_is_survival ? 0x24 : 0x18, 0x00, 0xa0, 0xe3};
+        unsigned char size_patch[4] = {new_is_survival ? SURVIVAL_MODE_SIZE : CREATOR_MODE_SIZE, 0x00, 0xa0, 0xe3};
         patch((void *) 0x16ee4, size_patch);
 
         // Replace Default CreatorMode Constructor With CreatorMode Or SurvivalMode Constructor
