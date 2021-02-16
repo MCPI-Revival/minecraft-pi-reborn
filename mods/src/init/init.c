@@ -10,4 +10,5 @@ __attribute__((constructor)) static void init() {
     init_camera();
     init_options();
     init_textures();
+    init_chat();
 }

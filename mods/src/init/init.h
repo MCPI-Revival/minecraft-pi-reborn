@@ -13,6 +13,7 @@ void init_misc();
 void init_camera();
 void init_options();
 void init_textures();
+void init_chat();
 
 #ifdef __cplusplus
 }

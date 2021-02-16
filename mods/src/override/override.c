@@ -18,10 +18,12 @@ static char *get_override_path(const char *filename) {
     // Get Asset Override Path
     char *overrides = NULL;
     asprintf(&overrides, "%s/.minecraft-pi/overrides", getenv("HOME"));
+    ALLOC_CHECK(overrides);
     // Get data Path
     char *data = NULL;
     char *cwd = getcwd(NULL, 0);
     asprintf(&data, "%s/data", cwd);
+    ALLOC_CHECK(data);
     free(cwd);
     // Get Full Path
     char *new_path = NULL;
@@ -29,6 +31,7 @@ static char *get_override_path(const char *filename) {
     if (full_path != NULL) {
         if (starts_with(full_path, data)) {
             asprintf(&new_path, "%s%s", overrides, &full_path[strlen(data)]);
+            ALLOC_CHECK(new_path);
             if (access(new_path, F_OK) == -1) {
                 free(new_path);
                 new_path = NULL;

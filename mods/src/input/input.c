@@ -3,6 +3,7 @@
 #include "../feature/feature.h"
 #include "input.h"
 #include "../init/init.h"
+#include "../chat/chat.h"
 
 #include <libreborn/minecraft.h>
 
@@ -57,6 +58,9 @@ static void Minecraft_tickInput_injection(unsigned char *minecraft) {
         *(options + Options_third_person_property_offset) = *(options + Options_third_person_property_offset) ^ 1;
     }
     third_person_toggle = 0;
+
+    // Send Queued Chat Message
+    chat_send_messages(minecraft);
 }
 
 #include <SDL/SDL_events.h>

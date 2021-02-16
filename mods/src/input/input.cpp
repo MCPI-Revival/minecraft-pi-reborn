@@ -12,6 +12,7 @@ static void LocalPlayer_openTextEdit_injection(unsigned char *local_player, unsi
     if (*(int32_t *) (sign + TileEntity_id_property_offset) == 4) {
         unsigned char *minecraft = *(unsigned char **) (local_player + LocalPlayer_minecraft_property_offset);
         unsigned char *screen = (unsigned char *) ::operator new(TEXT_EDIT_SCREEN_SIZE);
+        ALLOC_CHECK(screen);
         screen = (*TextEditScreen)(screen, sign);
         (*Minecraft_setScreen)(minecraft, screen);
     }

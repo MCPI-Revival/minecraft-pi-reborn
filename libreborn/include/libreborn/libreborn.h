@@ -8,8 +8,15 @@ extern "C" {
 #include <stdlib.h>
 #include <dlfcn.h>
 
+// Logging
 #define INFO(msg, ...) fprintf(stderr, "[INFO]: " msg "\n", __VA_ARGS__);
 #define ERR(msg, ...) fprintf(stderr, "[ERR]: " msg "\n", __VA_ARGS__); exit(EXIT_FAILURE);
+
+// Check Memory Allocation
+#define ALLOC_CHECK(obj) if (obj == NULL) { ERR("(%s:%i) Memory Allocation Failed", __FILE__, __LINE__); }
+
+// Set obj To NULL On asprintf() Failure
+#define asprintf(obj, ...) if (asprintf(obj, __VA_ARGS__) == -1) { *obj = NULL; }
 
 #define HOOK(name, return_type, args) \
     typedef return_type (*name##_t)args; \

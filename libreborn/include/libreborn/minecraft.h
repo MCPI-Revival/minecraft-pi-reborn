@@ -102,6 +102,15 @@ static uint32_t Minecraft_player_property_offset = 0x18c; // LocalPlayer *
 static uint32_t Minecraft_options_property_offset = 0x3c; // Options
 static uint32_t Minecraft_hit_result_property_offset = 0xc38; // HitResult
 static uint32_t Minecraft_progress_property_offset = 0xc60; // int32_t
+static uint32_t Minecraft_command_server_property_offset = 0xcc0; // CommandServer *
+
+// CommandServer
+
+static uint32_t CommandServer_minecraft_property_offset = 0x18; // Minecraft *
+
+// ChatPacket
+
+static uint32_t ChatPacket_message_property_offset = 0xc; // char *
 
 // HitResult
 
@@ -245,6 +254,12 @@ static FillingContainer_addItem_t FillingContainer_addItem = (FillingContainer_a
 
 // RakNetInstance
 
+typedef void (*RakNetInstance_send_t)(unsigned char *rak_net_instance, unsigned char *packet);
+static uint32_t RakNetInstance_send_vtable_offset = 0x38;
+
+typedef uint32_t (*RakNetInstance_isServer_t)(unsigned char *rak_net_instance);
+static uint32_t RakNetInstance_isServer_vtable_offset = 0x48;
+
 static uint32_t RakNetInstance_peer_property_offset = 0x4;
 
 // RakNet::RakPeer
@@ -260,6 +275,8 @@ static void *ServerSideNetworkHandler_onDisconnect_vtable_addr = (void *) 0x109b
 
 typedef unsigned char *(*ServerSideNetworkHandler_getPlayer_t)(unsigned char *server_side_network_handler, unsigned char *guid);
 static ServerSideNetworkHandler_getPlayer_t ServerSideNetworkHandler_getPlayer = (ServerSideNetworkHandler_getPlayer_t) 0x75464;
+
+static void *ServerSideNetworkHandler_handle_ChatPacket_vtable_addr = (void *) 0x109c60;
 
 // Entity
 
@@ -300,6 +317,14 @@ static ItemRenderer_renderGuiItemCorrect_t ItemRenderer_renderGuiItemCorrect = (
 
 #include <string>
 
+// Structures
+
+struct ConnectedClient {
+    uint32_t sock;
+    std::string str;
+    long time;
+};
+
 // AppPlatform
 
 typedef void (*AppPlatform_saveScreenshot_t)(unsigned char *app_platform, std::string const& param1, std::string const& param_2);
@@ -319,6 +344,11 @@ static Minecraft_selectLevel_t Minecraft_selectLevel = (Minecraft_selectLevel_t)
 
 typedef void (*Minecraft_leaveGame_t)(unsigned char *minecraft, bool save_remote_level);
 static Minecraft_leaveGame_t Minecraft_leaveGame = (Minecraft_leaveGame_t) 0x15ea0;
+
+// CommandServer
+
+typedef std::string (*CommandServer_parse_t)(unsigned char *command_server, struct ConnectedClient &client, std::string const& command);
+static CommandServer_parse_t CommandServer_parse = (CommandServer_parse_t) 0x6aa8c;
 
 // Level
 
@@ -340,7 +370,7 @@ static Textures_tick_t Textures_tick = (Textures_tick_t) 0x531c4;
 
 // RakNet::RakPeer
 
-typedef bool (*RakNet_RakPeer_IsBanned_t)(unsigned char *rakpeer, const char *ip);
+typedef bool (*RakNet_RakPeer_IsBanned_t)(unsigned char *rak_peer, const char *ip);
 static RakNet_RakPeer_IsBanned_t RakNet_RakPeer_IsBanned = (RakNet_RakPeer_IsBanned_t) 0xda3b4;
 
 // RakNet::SystemAddress

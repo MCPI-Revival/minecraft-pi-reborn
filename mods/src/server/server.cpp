@@ -53,11 +53,8 @@ static void *read_stdin_thread(__attribute__((unused)) void *data) {
                     }
                     stdin_buffer_complete = true;
                 } else {
-                    if (stdin_buffer == NULL) {
-                        asprintf((char **) &stdin_buffer, "%c", (char) x);
-                    } else {
-                        asprintf((char **) &stdin_buffer, "%s%c", stdin_buffer, (char) x);
-                    }
+                    asprintf((char **) &stdin_buffer, "%s%c", stdin_buffer == NULL ? "" : stdin_buffer, (char) x);
+                    ALLOC_CHECK(stdin_buffer);
                 }
             }
         }
@@ -87,6 +84,7 @@ static void start_world(unsigned char *minecraft) {
     INFO("Listening On: %i", port);
 
     void *screen = ::operator new(PROGRESS_SCREEN_SIZE);
+    ALLOC_CHECK(screen);
     screen = (*ProgressScreen)((unsigned char *) screen);
     (*Minecraft_setScreen)(minecraft, (unsigned char *) screen);
 }
@@ -348,14 +346,6 @@ static void Minecraft_update_injection(unsigned char *minecraft) {
     handle_server_stop(minecraft);
 }
 
-static void Gui_addMessage_injection(unsigned char *gui, std::string const& text) {
-    // Print Log Message
-    fprintf(stderr, "[CHAT]: %s\n", text.c_str());
-
-    // Call Original Method
-    (*Gui_addMessage)(gui, text);
-}
-
 static bool RakNet_RakPeer_IsBanned_injection(__attribute__((unused)) unsigned char *rakpeer, const char *ip) {
     // Check banned-ips.txt
     std::string banned_ips_file_path = get_banned_ips_file();
@@ -483,8 +473,6 @@ static void server_init() {
     // Exit handler
     signal(SIGINT, exit_handler);
     signal(SIGTERM, exit_handler);
-    // Print Chat To Log
-    overwrite_calls((void *) Gui_addMessage, (void *) Gui_addMessage_injection);
     // Set Max Players
     unsigned char max_players_patch[4] = {get_max_players(), 0x30, 0xa0, 0xe3};
     patch((void *) 0x166d0, max_players_patch);

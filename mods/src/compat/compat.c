@@ -19,6 +19,7 @@
 #include "../feature/feature.h"
 #include "../input/input.h"
 #include "../screenshot/screenshot.h"
+#include "../chat/chat.h"
 #include "../init/init.h"
 
 #include "compat.h"
@@ -99,6 +100,9 @@ static SDLKey glfw_key_to_sdl_key(int key) {
         // Third Person
         case GLFW_KEY_F5:
             return SDLK_F5;
+        // Chat
+        case GLFW_KEY_T:
+            return SDLK_t;
         // Unknown
         default:
             return SDLK_UNKNOWN;
@@ -189,6 +193,8 @@ HOOK(SDL_WM_SetCaption, void, (const char *title, __attribute__((unused)) const 
         glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 1);
         glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 1);
         glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+        // Extra Settings
+        glfwWindowHint(GLFW_AUTO_ICONIFY, GLFW_FALSE);
 
         glfw_window = glfwCreateWindow(DEFAULT_WIDTH, DEFAULT_HEIGHT, title, NULL, NULL);
         if (!glfw_window) {
@@ -273,6 +279,15 @@ HOOK(SDL_PollEvent, int, (SDL_Event *event)) {
                 handled = 1;
             } else if (event->key.keysym.sym == SDLK_F5) {
                 input_third_person();
+                handled = 1;
+            } else if (event->key.keysym.sym == SDLK_t) {
+                // Release Mouse Immediately
+                SDL_WM_GrabInput(SDL_GRAB_OFF);
+                // Stop Tracking Mouse
+                glfw_key(glfw_window, GLFW_KEY_TAB, -1, GLFW_PRESS, -1);
+                glfw_key(glfw_window, GLFW_KEY_TAB, -1, GLFW_RELEASE, -1);
+                // Open Chat
+                chat_open();
                 handled = 1;
             }
         } else if (event->type == SDL_MOUSEBUTTONDOWN || event->type == SDL_MOUSEBUTTONUP) {

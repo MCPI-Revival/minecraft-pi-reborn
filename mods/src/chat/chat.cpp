@@ -1,0 +1,108 @@
+#include <string>
+#include <cstdio>
+#include <vector>
+#include <pthread.h>
+
+#include <libreborn/libreborn.h>
+#include <libreborn/minecraft.h>
+
+#include "../init/init.h"
+
+#include "chat.h"
+
+// Send API Command
+static void send_api_command(unsigned char *minecraft, char *str) {
+    struct ConnectedClient client;
+    client.sock = -1;
+    client.str = "";
+    client.time = 0;
+    unsigned char *command_server = *(unsigned char **) (minecraft + Minecraft_command_server_property_offset);
+    if (command_server != NULL) {
+        (*CommandServer_parse)(command_server, client, str);
+    }
+}
+// Send API Chat Command
+static void send_api_chat_command(unsigned char *minecraft, char *str) {
+    char *command = NULL;
+    asprintf(&command, "chat.post(%s)\n", str);
+    ALLOC_CHECK(command);
+    send_api_command(minecraft, command);
+    free(command);
+}
+
+// Send Message To Players
+static void send_message(unsigned char *server_side_network_handler, char *username, char *message) {
+    char *full_message = NULL;
+    asprintf(&full_message, "<%s> %s", username, message);
+    ALLOC_CHECK(full_message);
+    (*ServerSideNetworkHandler_displayGameMessage)(server_side_network_handler, std::string(full_message));
+    free(full_message);
+}
+
+// Manually Send (And Loopback) ChatPacket
+static void CommandServer_parse_CommandServer_dispatchPacket_injection(unsigned char *command_server, unsigned char *packet) {
+    unsigned char *minecraft = *(unsigned char **) (command_server + CommandServer_minecraft_property_offset);
+    if (minecraft != NULL) {
+        unsigned char *rak_net_instance = *(unsigned char **) (minecraft + Minecraft_rak_net_instance_property_offset);
+        unsigned char *rak_net_instance_vtable = *(unsigned char **) rak_net_instance;
+        RakNetInstance_isServer_t RakNetInstance_isServer = *(RakNetInstance_isServer_t *) (rak_net_instance_vtable + RakNetInstance_isServer_vtable_offset);
+        if ((*RakNetInstance_isServer)(rak_net_instance)) {
+            // Hosting Multiplayer
+            char *message = *(char **) (packet + ChatPacket_message_property_offset);
+            unsigned char *server_side_network_handler = *(unsigned char **) (minecraft + Minecraft_server_side_network_handler_property_offset);
+            send_message(server_side_network_handler, *default_username, message);
+        } else {
+            // Client
+            RakNetInstance_send_t RakNetInstance_send = *(RakNetInstance_send_t *) (rak_net_instance_vtable + RakNetInstance_send_vtable_offset);
+            (*RakNetInstance_send)(rak_net_instance, packet);
+        }
+    }
+}
+
+// Handle ChatPacket Server-Side
+static void ServerSideNetworkHandler_handle_ChatPacket_injection(unsigned char *server_side_network_handler, unsigned char *rak_net_guid, unsigned char *chat_packet) {
+    unsigned char *player = (*ServerSideNetworkHandler_getPlayer)(server_side_network_handler, rak_net_guid);
+    if (player != NULL) {
+        char *username = *(char **) (player + Player_username_property_offset);
+        char *message = *(char **) (chat_packet + ChatPacket_message_property_offset);
+        send_message(server_side_network_handler, username, message);
+    }
+}
+
+// Message Queue
+static pthread_mutex_t queue_mutex = PTHREAD_MUTEX_INITIALIZER;
+static std::vector<std::string> queue;
+// Add To Queue
+void chat_queue_message(char *message) {
+    // Lock
+    pthread_mutex_lock(&queue_mutex);
+    // Add
+    std::string str;
+    str.append(message);
+    queue.push_back(str);
+    // Unlock
+    pthread_mutex_unlock(&queue_mutex);
+}
+// Empty Queue
+void chat_send_messages(unsigned char *minecraft) {
+    // Lock
+    pthread_mutex_lock(&queue_mutex);
+    // Loop
+    for (unsigned int i = 0; i < queue.size(); i++) {
+        send_api_chat_command(minecraft, (char *) queue[i].c_str());
+    }
+    queue.clear();
+    // Unlock
+    pthread_mutex_unlock(&queue_mutex);
+}
+
+// Init
+void init_chat() {
+    // Disable Original ChatPacket Loopback
+    unsigned char disable_chat_packet_loopback_patch[4] = {0x00, 0xf0, 0x20, 0xe3};
+    patch((void *) 0x6b490, disable_chat_packet_loopback_patch);
+    // Manually Send (And Loopback) ChatPacket
+    overwrite_call((void *) 0x6b518, (void *) CommandServer_parse_CommandServer_dispatchPacket_injection);
+    // Re-Broadcast ChatPacket
+    patch_address(ServerSideNetworkHandler_handle_ChatPacket_vtable_addr, (void *) ServerSideNetworkHandler_handle_ChatPacket_injection);
+}

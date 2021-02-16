@@ -48,6 +48,7 @@ void run_tests() {
     {
         char *path = NULL;
         asprintf(&path, "%s/.minecraft-pi", getenv("HOME"));
+        ALLOC_CHECK(path);
         int ret = access(path, R_OK | W_OK);
         free(path);
 

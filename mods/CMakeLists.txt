@@ -41,7 +41,7 @@ add_library(game_mode SHARED src/game_mode/game_mode.c src/game_mode/game_mode.c
 target_link_libraries(game_mode reborn)
 
 add_library(input SHARED src/input/input.c src/input/input.cpp)
-target_link_libraries(input reborn feature SDL)
+target_link_libraries(input reborn feature SDL chat)
 
 add_library(misc SHARED src/misc/misc.c src/misc/misc.cpp)
 target_link_libraries(misc reborn feature util)
@@ -55,11 +55,14 @@ target_link_libraries(override reborn dl)
 add_library(textures SHARED src/textures/textures.cpp)
 target_link_libraries(textures reborn feature GLESv1_CM)
 
+add_library(chat SHARED src/chat/chat.cpp src/chat/ui.c)
+target_link_libraries(chat reborn pthread)
+
 add_library(test SHARED src/test/test.c)
 target_link_libraries(test reborn)
 
 add_library(init SHARED src/init/init.c)
-target_link_libraries(init compat server game_mode camera input misc options textures test)
+target_link_libraries(init compat server game_mode camera input misc options textures chat test)
 
 ## Stubs
 
@@ -76,4 +79,4 @@ target_link_libraries(GLESv2 GLESv1_CM)
 target_link_options(GLESv2 PRIVATE "-Wl,--no-as-needed")
 
 ## Install
-install(TARGETS init compat readdir feature screenshot override server game_mode camera input misc options textures test bcm_host EGL GLESv2 DESTINATION /mods)
+install(TARGETS init compat readdir feature screenshot override server game_mode camera input misc options textures chat test bcm_host EGL GLESv2 DESTINATION /mods)

@@ -22,9 +22,12 @@ mkdir -p out/deb
 rm -rf debian/tmp
 mkdir debian/tmp
 
+# Version Time
+DEB_VERSION_TIME="$(date --utc '+%Y%m%d.%H%M')"
+
 # Prepare DEBIAN/control
 prepare_control() {
-    sed -i 's/${VERSION}/'"${DEB_VERSION}.$(date --utc '+%Y%m%d.%H%M')"'/g' "$1/DEBIAN/control"
+    sed -i 's/${VERSION}/'"${DEB_VERSION}.${DEB_VERSION_TIME}"'/g' "$1/DEBIAN/control"
     sed -i 's/${DEPENDENCIES}/'"${COMMON_DEPENDENCIES}$2"'/g' "$1/DEBIAN/control"
     sed -i 's/${RECOMMENDED_DEPENDENCIES}/'"${RECOMMENDED_DEPENDENCIES}$2"'/g' "$1/DEBIAN/control"
 }

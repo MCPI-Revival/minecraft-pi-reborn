@@ -30,9 +30,11 @@ static float ItemRenderer_renderGuiItemCorrect_injection(unsigned char *font, un
         int32_t auxilary = *(int32_t *) (item_instance + ItemInstance_auxilary_property_offset);
         if (id == leaves_id) {
             carried_item_instance = (unsigned char *) ::operator new(ITEM_INSTANCE_SIZE);
+            ALLOC_CHECK(carried_item_instance);
             (*ItemInstance_constructor_tile_extra)(carried_item_instance, *Tile_leaves_carried, count, auxilary);
         } else if (id == grass_id) {
             carried_item_instance = (unsigned char *) ::operator new(ITEM_INSTANCE_SIZE);
+            ALLOC_CHECK(carried_item_instance);
             (*ItemInstance_constructor_tile_extra)(carried_item_instance, *Tile_grass_carried, count, auxilary);
         }
     }

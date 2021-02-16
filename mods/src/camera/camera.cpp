@@ -17,6 +17,7 @@ static unsigned char *EntityRenderDispatcher_injection(unsigned char *dispatcher
 
     // Register TripodCameraRenderer
     unsigned char *renderer = (unsigned char *) ::operator new(TRIPOD_CAMERA_RENDERER_SIZE);
+    ALLOC_CHECK(renderer);
     (*TripodCameraRenderer)(renderer);
     (*EntityRenderDispatcher_assign)(dispatcher, (unsigned char) 0x5, renderer);
 

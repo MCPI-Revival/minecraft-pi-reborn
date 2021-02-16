@@ -31,12 +31,15 @@ void take_screenshot() {
 
     char *screenshots = NULL;
     asprintf(&screenshots, "%s/.minecraft-pi/screenshots", getenv("HOME"));
+    ALLOC_CHECK(screenshots);
 
     int num = 1;
     char *file = NULL;
     asprintf(&file, "%s/%s.png", screenshots, time);
+    ALLOC_CHECK(file);
     while (access(file, F_OK) != -1) {
         asprintf(&file, "%s/%s-%i.png", screenshots, time, num);
+        ALLOC_CHECK(file);
         num++;
     }
 
@@ -84,6 +87,7 @@ __attribute__((constructor)) static void init() {
     // Screenshots Folder
     char *screenshots_folder = NULL;
     asprintf(&screenshots_folder, "%s/.minecraft-pi/screenshots", getenv("HOME"));
+    ALLOC_CHECK(screenshots_folder);
     {
         // Check Screenshots Folder
         struct stat obj;

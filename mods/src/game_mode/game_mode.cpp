@@ -18,6 +18,7 @@ static void SelectWorldScreen_tick_injection(unsigned char *screen) {
         std::string new_name = (*SelectWorldScreen_getUniqueLevelName)(screen, WORLD_NAME);
         // Create SimpleLevelChooseScreen
         unsigned char *new_screen = (unsigned char *) ::operator new(SIMPLE_LEVEL_CHOOSE_SCREEN_SIZE);
+        ALLOC_CHECK(new_screen);
         (*SimpleChooseLevelScreen)(new_screen, new_name);
         // Set Screen
         unsigned char *minecraft = get_minecraft_from_screen(screen);
@@ -35,6 +36,7 @@ static void Touch_SelectWorldScreen_tick_injection(unsigned char *screen) {
         std::string new_name = (*Touch_SelectWorldScreen_getUniqueLevelName)(screen, WORLD_NAME);
         // Create SimpleLevelChooseScreen
         unsigned char *new_screen = (unsigned char *) ::operator new(SIMPLE_LEVEL_CHOOSE_SCREEN_SIZE);
+        ALLOC_CHECK(new_screen);
         (*SimpleChooseLevelScreen)(new_screen, new_name);
         // Set Screen
         unsigned char *minecraft = get_minecraft_from_screen(screen);

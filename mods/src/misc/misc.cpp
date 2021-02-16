@@ -27,10 +27,12 @@ static AppPlatform_readAssetFile_return_value AppPlatform_readAssetFile_injectio
 
 static void inventory_add_item(unsigned char *inventory, unsigned char *item, bool is_tile) {
     unsigned char *item_instance = (unsigned char *) ::operator new(ITEM_INSTANCE_SIZE);
+    ALLOC_CHECK(item_instance);
     item_instance = (*(is_tile ? ItemInstance_constructor_tile : ItemInstance_constructor_item))(item_instance, item);
     (*FillingContainer_addItem)(inventory, item_instance);
 }
 
+// Expand Creative Inventory
 static int32_t Inventory_setupDefault_FillingContainer_addItem_call_injection(unsigned char *filling_container, unsigned char *item_instance) {
     // Call Original
     int32_t ret = (*FillingContainer_addItem)(filling_container, item_instance);
@@ -46,6 +48,7 @@ static int32_t Inventory_setupDefault_FillingContainer_addItem_call_injection(un
             continue;
         }
         unsigned char *item_instance = (unsigned char *) ::operator new(ITEM_INSTANCE_SIZE);
+        ALLOC_CHECK(item_instance);
         item_instance = (*ItemInstance_constructor_item_extra)(item_instance, *Item_dye_powder, 1, i);
         (*FillingContainer_addItem)(filling_container, item_instance);
     }
@@ -96,6 +99,15 @@ static void Inventory_selectSlot_injection(unsigned char *inventory, int32_t slo
     reset_selected_item_text_timer = true;
 }
 
+// Print Chat To Log
+static void Gui_addMessage_injection(unsigned char *gui, std::string const& text) {
+    // Print Log Message
+    fprintf(stderr, "[CHAT]: %s\n", text.c_str());
+
+    // Call Original Method
+    (*Gui_addMessage)(gui, text);
+}
+
 void init_misc_cpp() {
     // Implement AppPlatform::readAssetFile So Translations Work
     overwrite((void *) AppPlatform_readAssetFile, (void *) AppPlatform_readAssetFile_injection);
@@ -109,4 +121,7 @@ void init_misc_cpp() {
     overwrite_calls((void *) Gui_renderChatMessages, (void *) Gui_renderChatMessages_injection);
     overwrite_calls((void *) Gui_tick, (void *) Gui_tick_injection);
     overwrite_calls((void *) Inventory_selectSlot, (void *) Inventory_selectSlot_injection);
+
+    // Print Chat To Log
+    overwrite_calls((void *) Gui_addMessage, (void *) Gui_addMessage_injection);
 }
