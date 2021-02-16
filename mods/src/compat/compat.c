@@ -281,13 +281,14 @@ HOOK(SDL_PollEvent, int, (SDL_Event *event)) {
                 input_third_person();
                 handled = 1;
             } else if (event->key.keysym.sym == SDLK_t) {
-                // Release Mouse Immediately
-                SDL_WM_GrabInput(SDL_GRAB_OFF);
-                // Stop Tracking Mouse
-                glfw_key(glfw_window, GLFW_KEY_TAB, -1, GLFW_PRESS, -1);
-                glfw_key(glfw_window, GLFW_KEY_TAB, -1, GLFW_RELEASE, -1);
-                // Open Chat
-                chat_open();
+                // Only When In-Game With No Other Chat Windows Open
+                if (SDL_WM_GrabInput(SDL_GRAB_QUERY) == SDL_GRAB_ON && chat_get_counter() == 0) {
+                    // Release Mouse
+                    input_set_mouse_grab_state(1);
+                    // Open Chat
+                    chat_open();
+                }
+                // Mark Handled
                 handled = 1;
             }
         } else if (event->type == SDL_MOUSEBUTTONDOWN || event->type == SDL_MOUSEBUTTONUP) {

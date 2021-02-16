@@ -62,6 +62,13 @@ static char *run_command(char *command, int *return_code) {
     return output;
 }
 
+// Count Chat Windows
+static pthread_mutex_t chat_counter_lock = PTHREAD_MUTEX_INITIALIZER;
+static unsigned int chat_counter = 0;
+unsigned int chat_get_counter() {
+    return chat_counter;
+}
+
 // Chat Thread
 static void *chat_thread(__attribute__((unused)) void *nop) {
     // Prepare
@@ -84,12 +91,21 @@ static void *chat_thread(__attribute__((unused)) void *nop) {
         // Free
         free(output);
     }
+    // Update Counter
+    pthread_mutex_lock(&chat_counter_lock);
+    chat_counter--;
+    pthread_mutex_unlock(&chat_counter_lock);
     // Return
     return NULL;
 }
 
 // Create Chat Thead
 void chat_open() {
+    // Update Counter
+    pthread_mutex_lock(&chat_counter_lock);
+    chat_counter++;
+    pthread_mutex_unlock(&chat_counter_lock);
+    // Start Thread
     pthread_t thread;
     pthread_create(&thread, NULL, chat_thread, NULL);
 }

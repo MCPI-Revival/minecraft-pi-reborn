@@ -26,6 +26,12 @@ void input_third_person() {
     third_person_toggle++;
 }
 
+// Set mouse Grab State
+static int mouse_grab_state = 0;
+void input_set_mouse_grab_state(int state) {
+    mouse_grab_state = state;
+}
+
 // Handle Input Fixes
 static void Minecraft_tickInput_injection(unsigned char *minecraft) {
     // Call Original Method
@@ -61,6 +67,16 @@ static void Minecraft_tickInput_injection(unsigned char *minecraft) {
 
     // Send Queued Chat Message
     chat_send_messages(minecraft);
+
+    // Set Mouse Grab State
+    if (mouse_grab_state == -1) {
+        // Grab
+        (*Minecraft_grabMouse)(minecraft);
+    } else if (mouse_grab_state == 1) {
+        // Un-Grab
+        (*Minecraft_releaseMouse)(minecraft);
+    }
+    mouse_grab_state = 0;
 }
 
 #include <SDL/SDL_events.h>

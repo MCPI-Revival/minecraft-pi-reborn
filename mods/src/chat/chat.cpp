@@ -84,9 +84,16 @@ void chat_queue_message(char *message) {
     pthread_mutex_unlock(&queue_mutex);
 }
 // Empty Queue
+unsigned int old_chat_counter = 0;
 void chat_send_messages(unsigned char *minecraft) {
     // Lock
     pthread_mutex_lock(&queue_mutex);
+    // If Message Was Submitted, No Other Chat Windows Are Open, And The Game Is Not Paused, Then Re-Lock Cursor
+    unsigned int new_chat_counter = chat_get_counter();
+    if (old_chat_counter > new_chat_counter && new_chat_counter == 0 && (*(unsigned char **) (minecraft + Minecraft_screen_property_offset)) == NULL) {
+        (*Minecraft_grabMouse)(minecraft);
+    }
+    old_chat_counter = new_chat_counter;
     // Loop
     for (unsigned int i = 0; i < queue.size(); i++) {
         send_api_chat_command(minecraft, (char *) queue[i].c_str());

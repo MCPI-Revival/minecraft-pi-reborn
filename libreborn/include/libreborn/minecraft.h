@@ -92,6 +92,12 @@ static Minecraft_isLevelGenerated_t Minecraft_isLevelGenerated = (Minecraft_isLe
 typedef int32_t (*Minecraft_isCreativeMode_t)(unsigned char *minecraft);
 static Minecraft_isCreativeMode_t Minecraft_isCreativeMode = (Minecraft_isCreativeMode_t) 0x17270;
 
+typedef void (*Minecraft_releaseMouse_t)(unsigned char *minecraft);
+static Minecraft_releaseMouse_t Minecraft_releaseMouse = (Minecraft_releaseMouse_t) 0x15d30;
+
+typedef void (*Minecraft_grabMouse_t)(unsigned char *minecraft);
+static Minecraft_grabMouse_t Minecraft_grabMouse = (Minecraft_grabMouse_t) 0x15d10;
+
 static uint32_t Minecraft_screen_width_property_offset = 0x20; // int32_t
 static uint32_t Minecraft_server_side_network_handler_property_offset = 0x174; // ServerSideNetworkHandler *
 static uint32_t Minecraft_rak_net_instance_property_offset = 0x170; // RakNetInstance *
@@ -103,6 +109,7 @@ static uint32_t Minecraft_options_property_offset = 0x3c; // Options
 static uint32_t Minecraft_hit_result_property_offset = 0xc38; // HitResult
 static uint32_t Minecraft_progress_property_offset = 0xc60; // int32_t
 static uint32_t Minecraft_command_server_property_offset = 0xcc0; // CommandServer *
+static uint32_t Minecraft_screen_property_offset = 0xc10; // Screen *
 
 // CommandServer
 
