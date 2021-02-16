@@ -100,12 +100,24 @@ static void Inventory_selectSlot_injection(unsigned char *inventory, int32_t slo
 }
 
 // Print Chat To Log
+static bool Gui_addMessage_recursing = false;
 static void Gui_addMessage_injection(unsigned char *gui, std::string const& text) {
-    // Print Log Message
-    fprintf(stderr, "[CHAT]: %s\n", text.c_str());
+    if (!Gui_addMessage_recursing) {
+        // Start Recursing
+        Gui_addMessage_recursing = true;
 
-    // Call Original Method
-    (*Gui_addMessage)(gui, text);
+        // Print Log Message
+        fprintf(stderr, "[CHAT]: %s\n", text.c_str());
+
+        // Call Original Method
+        (*Gui_addMessage)(gui, text);
+
+        // End Recursing
+        Gui_addMessage_recursing = false;
+    } else {
+        // Call Original Method
+        (*Gui_addMessage)(gui, text);
+    }
 }
 
 void init_misc_cpp() {
