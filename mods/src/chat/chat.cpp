@@ -49,7 +49,7 @@ static void CommandServer_parse_CommandServer_dispatchPacket_injection(unsigned 
         if ((*RakNetInstance_isServer)(rak_net_instance)) {
             // Hosting Multiplayer
             char *message = *(char **) (packet + ChatPacket_message_property_offset);
-            unsigned char *server_side_network_handler = *(unsigned char **) (minecraft + Minecraft_server_side_network_handler_property_offset);
+            unsigned char *server_side_network_handler = *(unsigned char **) (minecraft + Minecraft_network_handler_property_offset);
             send_message(server_side_network_handler, *default_username, message);
         } else {
             // Client

@@ -267,7 +267,7 @@ static void handle_server_stop(unsigned char *minecraft) {
 
 // Get ServerSideNetworkHandler From Minecraft
 static unsigned char *get_server_side_network_handler(unsigned char *minecraft) {
-    return *(unsigned char **) (minecraft + Minecraft_server_side_network_handler_property_offset);
+    return *(unsigned char **) (minecraft + Minecraft_network_handler_property_offset);
 }
 
 // Handle Commands

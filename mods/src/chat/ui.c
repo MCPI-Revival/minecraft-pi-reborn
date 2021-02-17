@@ -78,6 +78,7 @@ static void *chat_thread(__attribute__((unused)) void *nop) {
     char *output = run_command("echo \"${CHAT_WINDOW_TCL}\" | wish -name \"Minecraft - Pi edition\"", &return_code);
     // Handle Message
     if (output != NULL) {
+        // Check Return Code
         if (return_code == 0) {
             // Remove Ending Newline
             int length = strlen(output);
@@ -85,10 +86,13 @@ static void *chat_thread(__attribute__((unused)) void *nop) {
                 output[length - 1] = '\0';
             }
             length = strlen(output);
-            // Submit
-            chat_queue_message(output);
+            // Don't Allow Empty Strings
+            if (length > 0) {
+                // Submit
+                chat_queue_message(output);
+            }
         }
-        // Free
+        // Free Output
         free(output);
     }
     // Update Counter

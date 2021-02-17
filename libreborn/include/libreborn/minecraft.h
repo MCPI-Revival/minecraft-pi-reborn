@@ -5,6 +5,11 @@
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wunused-variable"
 
+// bool In C
+#ifndef __cplusplus
+typedef uint32_t bool;
+#endif
+
 // Globals
 
 static char **default_path = (char **) 0xe264; // /.minecraft/
@@ -98,8 +103,11 @@ static Minecraft_releaseMouse_t Minecraft_releaseMouse = (Minecraft_releaseMouse
 typedef void (*Minecraft_grabMouse_t)(unsigned char *minecraft);
 static Minecraft_grabMouse_t Minecraft_grabMouse = (Minecraft_grabMouse_t) 0x15d10;
 
+typedef void (*Minecraft_leaveGame_t)(unsigned char *minecraft, bool save_remote_level);
+static Minecraft_leaveGame_t Minecraft_leaveGame = (Minecraft_leaveGame_t) 0x15ea0;
+
 static uint32_t Minecraft_screen_width_property_offset = 0x20; // int32_t
-static uint32_t Minecraft_server_side_network_handler_property_offset = 0x174; // ServerSideNetworkHandler *
+static uint32_t Minecraft_network_handler_property_offset = 0x174; // NetEventCallback *
 static uint32_t Minecraft_rak_net_instance_property_offset = 0x170; // RakNetInstance *
 static uint32_t Minecraft_level_property_offset = 0x188; // Level *
 static uint32_t Minecraft_textures_property_offset = 0x164; // Textures *
@@ -110,6 +118,7 @@ static uint32_t Minecraft_hit_result_property_offset = 0xc38; // HitResult
 static uint32_t Minecraft_progress_property_offset = 0xc60; // int32_t
 static uint32_t Minecraft_command_server_property_offset = 0xcc0; // CommandServer *
 static uint32_t Minecraft_screen_property_offset = 0xc10; // Screen *
+static uint32_t Minecraft_gui_property_offset = 0x198; // Gui
 
 // CommandServer
 
@@ -147,13 +156,30 @@ static Player_isUsingItem_t Player_isUsingItem = (Player_isUsingItem_t) 0x8f15c;
 
 static uint32_t Player_username_property_offset = 0xbf4; // char *
 
+// Entity
+
+typedef void (*Entity_die_t)(unsigned char *entity, unsigned char *cause);
+static uint32_t Entity_die_vtable_offset = 0x130;
+
+// Mob
+
+typedef void (*Mob_actuallyHurt_t)(unsigned char *entity, int32_t damage);
+static Mob_actuallyHurt_t Mob_actuallyHurt = (Mob_actuallyHurt_t) 0x7f11c;
+
+static uint32_t Mob_health_property_offset = 0xec; // int32_t
+
 // LocalPlayer
+
+static Mob_actuallyHurt_t LocalPlayer_actuallyHurt = (Mob_actuallyHurt_t) 0x44010;
+static void *LocalPlayer_actuallyHurt_vtable_addr = (void *) 0x10639c;
 
 static void *LocalPlayer_openTextEdit_vtable_addr = (void *) 0x106460;
 
 static uint32_t LocalPlayer_minecraft_property_offset = 0xc90; // Minecraft *
 
 // ServerPlayer
+
+static void *ServerPlayer_actuallyHurt_vtable_addr = (void *) 0x109fa4;
 
 static uint32_t ServerPlayer_minecraft_property_offset = 0xc8c; // Minecraft *
 static uint32_t ServerPlayer_guid_property_offset = 0xc08; // RakNetGUID
@@ -169,8 +195,16 @@ static Gui_handleClick_t Gui_handleClick = (Gui_handleClick_t) 0x2599c;
 typedef void (*Gui_renderOnSelectItemNameText_t)(unsigned char *gui, int32_t param_1, unsigned char *font, int32_t param_2);
 static Gui_renderOnSelectItemNameText_t Gui_renderOnSelectItemNameText = (Gui_renderOnSelectItemNameText_t) 0x26aec;
 
+typedef void (*Gui_renderChatMessages_t)(unsigned char *gui, int32_t param_1, uint32_t param_2, bool param_3, unsigned char *font);
+static Gui_renderChatMessages_t Gui_renderChatMessages = (Gui_renderChatMessages_t) 0x273d8;
+
 static uint32_t Gui_minecraft_property_offset = 0x9f4; // Minecraft *
 static uint32_t Gui_selected_item_text_timer_property_offset = 0x9fc; // float
+
+// Textures
+
+typedef void (*Textures_tick_t)(unsigned char *textures, bool param_1);
+static Textures_tick_t Textures_tick = (Textures_tick_t) 0x531c4;
 
 // GameMode Constructors
 
@@ -274,6 +308,14 @@ static uint32_t RakNetInstance_peer_property_offset = 0x4;
 typedef struct RakNet_SystemAddress (*RakNet_RakPeer_GetSystemAddressFromGuid_t)(unsigned char *rak_peer, struct RakNet_RakNetGUID guid);
 static uint32_t RakNet_RakPeer_GetSystemAddressFromGuid_vtable_offset = 0xd0;
 
+typedef bool (*RakNet_RakPeer_IsBanned_t)(unsigned char *rak_peer, const char *ip);
+static RakNet_RakPeer_IsBanned_t RakNet_RakPeer_IsBanned = (RakNet_RakPeer_IsBanned_t) 0xda3b4;
+
+// RakNet::SystemAddress
+
+typedef char *(*RakNet_SystemAddress_ToString_t)(struct RakNet_SystemAddress *system_address, bool print_delimiter, char delimiter);
+static RakNet_SystemAddress_ToString_t RakNet_SystemAddress_ToString = (RakNet_SystemAddress_ToString_t) 0xd6198;
+
 // ServerSideNetworkHandler
 
 typedef void (*ServerSideNetworkHandler_onDisconnect_t)(unsigned char *server_side_network_handler, unsigned char *guid);
@@ -283,12 +325,9 @@ static void *ServerSideNetworkHandler_onDisconnect_vtable_addr = (void *) 0x109b
 typedef unsigned char *(*ServerSideNetworkHandler_getPlayer_t)(unsigned char *server_side_network_handler, unsigned char *guid);
 static ServerSideNetworkHandler_getPlayer_t ServerSideNetworkHandler_getPlayer = (ServerSideNetworkHandler_getPlayer_t) 0x75464;
 
+typedef void (*ServerSideNetworkHandler_handle_t)(unsigned char *server_side_network_handler, unsigned char *rak_net_guid, unsigned char *packet);
+
 static void *ServerSideNetworkHandler_handle_ChatPacket_vtable_addr = (void *) 0x109c60;
-
-// Entity
-
-typedef void (*Entity_die_t)(unsigned char *entity, unsigned char *cause);
-static uint32_t Entity_die_vtable_offset = 0x130;
 
 // Inventory
 
@@ -326,6 +365,11 @@ static ItemRenderer_renderGuiItemCorrect_t ItemRenderer_renderGuiItemCorrect = (
 
 // Structures
 
+struct AppPlatform_readAssetFile_return_value {
+    char *data;
+    int32_t length;
+};
+
 struct ConnectedClient {
     uint32_t sock;
     std::string str;
@@ -337,10 +381,6 @@ struct ConnectedClient {
 typedef void (*AppPlatform_saveScreenshot_t)(unsigned char *app_platform, std::string const& param1, std::string const& param_2);
 static void *AppPlatform_linux_saveScreenshot_vtable_addr = (void *) 0x102160;
 
-struct AppPlatform_readAssetFile_return_value {
-    char *data;
-    int32_t length;
-};
 typedef AppPlatform_readAssetFile_return_value (*AppPlatform_readAssetFile_t)(unsigned char *app_platform, std::string const& path);
 static AppPlatform_readAssetFile_t AppPlatform_readAssetFile = (AppPlatform_readAssetFile_t) 0x12b10;
 
@@ -348,9 +388,6 @@ static AppPlatform_readAssetFile_t AppPlatform_readAssetFile = (AppPlatform_read
 
 typedef void (*Minecraft_selectLevel_t)(unsigned char *minecraft, std::string const& level_dir, std::string const& level_name, LevelSettings const& vsettings);
 static Minecraft_selectLevel_t Minecraft_selectLevel = (Minecraft_selectLevel_t) 0x16f38;
-
-typedef void (*Minecraft_leaveGame_t)(unsigned char *minecraft, bool save_remote_level);
-static Minecraft_leaveGame_t Minecraft_leaveGame = (Minecraft_leaveGame_t) 0x15ea0;
 
 // CommandServer
 
@@ -366,24 +403,6 @@ static Level_addParticle_t Level_addParticle = (Level_addParticle_t) 0xa449c;
 
 typedef void (*Gui_addMessage_t)(unsigned char *gui, std::string const& text);
 static Gui_addMessage_t Gui_addMessage = (Gui_addMessage_t) 0x27820;
-
-typedef void (*Gui_renderChatMessages_t)(unsigned char *gui, int32_t param_1, uint32_t param_2, bool param_3, unsigned char *font);
-static Gui_renderChatMessages_t Gui_renderChatMessages = (Gui_renderChatMessages_t) 0x273d8;
-
-// Textures
-
-typedef void (*Textures_tick_t)(unsigned char *textures, bool param_1);
-static Textures_tick_t Textures_tick = (Textures_tick_t) 0x531c4;
-
-// RakNet::RakPeer
-
-typedef bool (*RakNet_RakPeer_IsBanned_t)(unsigned char *rak_peer, const char *ip);
-static RakNet_RakPeer_IsBanned_t RakNet_RakPeer_IsBanned = (RakNet_RakPeer_IsBanned_t) 0xda3b4;
-
-// RakNet::SystemAddress
-
-typedef char *(*RakNet_SystemAddress_ToString_t)(struct RakNet_SystemAddress *system_address, bool print_delimiter, char delimiter);
-static RakNet_SystemAddress_ToString_t RakNet_SystemAddress_ToString = (RakNet_SystemAddress_ToString_t) 0xd6198;
 
 // ServerSideNetworkHandler
 

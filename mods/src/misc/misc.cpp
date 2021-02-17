@@ -25,6 +25,7 @@ static AppPlatform_readAssetFile_return_value AppPlatform_readAssetFile_injectio
     return ret;
 }
 
+// Add Item To Inventory
 static void inventory_add_item(unsigned char *inventory, unsigned char *item, bool is_tile) {
     unsigned char *item_instance = (unsigned char *) ::operator new(ITEM_INSTANCE_SIZE);
     ALLOC_CHECK(item_instance);
@@ -67,38 +68,6 @@ static int32_t Inventory_setupDefault_FillingContainer_addItem_call_injection(un
     return ret;
 }
 
-// Render Selected Item Text
-static void Gui_renderChatMessages_injection(unsigned char *gui, int32_t param_1, uint32_t param_2, bool param_3, unsigned char *font) {
-    // Call Original Method
-    (*Gui_renderChatMessages)(gui, param_1, param_2, param_3, font);
-    // Calculate Selected Item Text Scale
-    unsigned char *minecraft = *(unsigned char **) (gui + Gui_minecraft_property_offset);
-    int32_t screen_width = *(int32_t *) (minecraft + Minecraft_screen_width_property_offset);
-    float scale = ((float) screen_width) * *InvGuiScale;
-    // Render Selected Item Text
-    (*Gui_renderOnSelectItemNameText)(gui, (int32_t) scale, font, param_1 - 0x13);
-}
-// Reset Selected Item Text Timer On Slot Select
-static bool reset_selected_item_text_timer = false;
-static void Gui_tick_injection(unsigned char *gui) {
-    // Call Original Method
-    (*Gui_tick)(gui);
-    // Handle Reset
-    float *selected_item_text_timer = (float *) (gui + Gui_selected_item_text_timer_property_offset);
-    if (reset_selected_item_text_timer) {
-        // Reset
-        *selected_item_text_timer = 0;
-        reset_selected_item_text_timer = false;
-    }
-}
-// Trigger Reset Selected Item Text Timer On Slot Select
-static void Inventory_selectSlot_injection(unsigned char *inventory, int32_t slot) {
-    // Call Original Method
-    (*Inventory_selectSlot)(inventory, slot);
-    // Trigger Reset Selected Item Text Timer
-    reset_selected_item_text_timer = true;
-}
-
 // Print Chat To Log
 static bool Gui_addMessage_recursing = false;
 static void Gui_addMessage_injection(unsigned char *gui, std::string const& text) {
@@ -120,6 +89,57 @@ static void Gui_addMessage_injection(unsigned char *gui, std::string const& text
     }
 }
 
+// Death Messages
+static std::string get_death_message(unsigned char *player) {
+    // Get Username
+    char *username = *(char **) (player + Player_username_property_offset);
+
+    // Prepare Death Message
+    std::string message;
+    message.append(username);
+    message.append(" has died");
+
+    // Return
+    return message;
+}
+// Common Death Message Logic
+static void Player_actuallyHurt_injection_helper(unsigned char *player, int32_t damage, bool is_local_player) {
+    // Store Old Health
+    int32_t old_health = *(int32_t *) (player + Mob_health_property_offset);
+
+    // Call Original Method
+    (*(is_local_player ? LocalPlayer_actuallyHurt : Mob_actuallyHurt))(player, damage);
+
+    // Store New Health
+    int32_t health = *(int32_t *) (player + Mob_health_property_offset);
+
+    // Get Variables
+    unsigned char *minecraft = *(unsigned char **) (player + (is_local_player ? LocalPlayer_minecraft_property_offset : ServerPlayer_minecraft_property_offset));
+    unsigned char *rak_net_instance = *(unsigned char **) (minecraft + Minecraft_rak_net_instance_property_offset);
+    unsigned char *rak_net_instance_vtable = *(unsigned char **) rak_net_instance;
+    // Only Run On Server-Side
+    RakNetInstance_isServer_t RakNetInstance_isServer = *(RakNetInstance_isServer_t *) (rak_net_instance_vtable + RakNetInstance_isServer_vtable_offset);
+    if ((*RakNetInstance_isServer)(rak_net_instance)) {
+        // Check Health
+        if (health < 1 && old_health >= 1) {
+            // Get Death Message
+            std::string message = get_death_message(player);
+
+            // Post Death Message
+            unsigned char *server_side_network_handler = *(unsigned char **) (minecraft + Minecraft_network_handler_property_offset);
+            (*ServerSideNetworkHandler_displayGameMessage)(server_side_network_handler, message);
+        }
+    }
+}
+// ServerPlayer Death Message Logic
+static void ServerPlayer_actuallyHurt_injection(unsigned char *player, int32_t damage) {
+    Player_actuallyHurt_injection_helper(player, damage, false);
+}
+// LocalPlayer Death Message Logic
+static void LocalPlayer_actuallyHurt_injection(unsigned char *player, int32_t damage) {
+    Player_actuallyHurt_injection_helper(player, damage, true);
+}
+
 void init_misc_cpp() {
     // Implement AppPlatform::readAssetFile So Translations Work
     overwrite((void *) AppPlatform_readAssetFile, (void *) AppPlatform_readAssetFile_injection);
@@ -129,11 +149,10 @@ void init_misc_cpp() {
         overwrite_call((void *) 0x8e0fc, (void *) Inventory_setupDefault_FillingContainer_addItem_call_injection);
     }
 
-    // Fix Selected Item Text
-    overwrite_calls((void *) Gui_renderChatMessages, (void *) Gui_renderChatMessages_injection);
-    overwrite_calls((void *) Gui_tick, (void *) Gui_tick_injection);
-    overwrite_calls((void *) Inventory_selectSlot, (void *) Inventory_selectSlot_injection);
-
     // Print Chat To Log
     overwrite_calls((void *) Gui_addMessage, (void *) Gui_addMessage_injection);
+
+    // Death Messages
+    patch_address(ServerPlayer_actuallyHurt_vtable_addr, (void *) ServerPlayer_actuallyHurt_injection);
+    patch_address(LocalPlayer_actuallyHurt_vtable_addr, (void *) LocalPlayer_actuallyHurt_injection);
 }
