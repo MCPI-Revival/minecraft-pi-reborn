@@ -111,7 +111,7 @@ static void Player_actuallyHurt_injection_helper(unsigned char *player, int32_t 
     (*(is_local_player ? LocalPlayer_actuallyHurt : Mob_actuallyHurt))(player, damage);
 
     // Store New Health
-    int32_t health = *(int32_t *) (player + Mob_health_property_offset);
+    int32_t new_health = *(int32_t *) (player + Mob_health_property_offset);
 
     // Get Variables
     unsigned char *minecraft = *(unsigned char **) (player + (is_local_player ? LocalPlayer_minecraft_property_offset : ServerPlayer_minecraft_property_offset));
@@ -121,7 +121,7 @@ static void Player_actuallyHurt_injection_helper(unsigned char *player, int32_t 
     RakNetInstance_isServer_t RakNetInstance_isServer = *(RakNetInstance_isServer_t *) (rak_net_instance_vtable + RakNetInstance_isServer_vtable_offset);
     if ((*RakNetInstance_isServer)(rak_net_instance)) {
         // Check Health
-        if (health < 1 && old_health >= 1) {
+        if (new_health < 1 && old_health >= 1) {
             // Get Death Message
             std::string message = get_death_message(player);
 
