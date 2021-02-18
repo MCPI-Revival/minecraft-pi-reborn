@@ -82,7 +82,7 @@ static void Minecraft_tickInput_injection(unsigned char *minecraft) {
 #include <SDL/SDL_events.h>
 
 // Block UI Interaction When Mouse Is Locked
-static int32_t Gui_tickItemDrop_Minecraft_isCreativeMode_call_injection(unsigned char *minecraft) {
+static bool Gui_tickItemDrop_Minecraft_isCreativeMode_call_injection(unsigned char *minecraft) {
     if (SDL_ShowCursor(SDL_QUERY) == SDL_ENABLE) {
         // Call Original Method
         return (*Minecraft_isCreativeMode)(minecraft);

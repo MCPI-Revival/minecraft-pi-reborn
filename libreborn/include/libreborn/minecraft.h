@@ -94,7 +94,7 @@ static Minecraft_getProgressMessage_t Minecraft_getProgressMessage = (Minecraft_
 typedef uint32_t (*Minecraft_isLevelGenerated_t)(unsigned char *minecraft);
 static Minecraft_isLevelGenerated_t Minecraft_isLevelGenerated = (Minecraft_isLevelGenerated_t) 0x16e6c;
 
-typedef int32_t (*Minecraft_isCreativeMode_t)(unsigned char *minecraft);
+typedef bool (*Minecraft_isCreativeMode_t)(unsigned char *minecraft);
 static Minecraft_isCreativeMode_t Minecraft_isCreativeMode = (Minecraft_isCreativeMode_t) 0x17270;
 
 typedef void (*Minecraft_releaseMouse_t)(unsigned char *minecraft);
