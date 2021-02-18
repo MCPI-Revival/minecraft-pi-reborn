@@ -10,7 +10,7 @@ Minecraft: Pi Edition Modding Project
 ## Installation
 
 ### Option A: Pi-Apps (Raspberry Pi Only)
-[![Pi-Apps](https://github.com/Botspot/pi-apps/blob/master/icons/badge.png?raw=true)](https://github.com/Botspot/pi-apps)  
+[![Pi-Apps](https://github.com/Botspot/pi-apps/blob/master/icons/badge.png?raw=true)](https://github.com/Botspot/pi-apps)
 
 ### Option B: Manual Installation
 [View Manual Installation](docs/INSTALL.md)
