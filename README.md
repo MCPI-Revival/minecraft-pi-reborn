@@ -1,7 +1,5 @@
 <p align="center">
-
-![Start Screen](images/start.png)
-
+    <img alt="Start Screen" src="images/start.png">
 </p>
 
 # Minecraft: Pi Edition: Reborn
