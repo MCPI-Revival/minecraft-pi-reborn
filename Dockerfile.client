@@ -5,7 +5,7 @@ ENV DEBIAN_FRONTEND noninteractive
 RUN \
     # Install Runtime Dependencies
     apt-get update && \
-    apt-get install -y --no-install-recommends tini libgles1 libx11-6 libsdl1.2debian zlib1g libfreeimage3 libglfw3 xinput libxfixes3 gosu tk && \
+    apt-get install -y --no-install-recommends tini libgles1 libx11-6 zlib1g libfreeimage3 libglfw3 xinput libxfixes3 gosu tk && \
     rm -rf /var/lib/apt/lists/*
 
 # Compile Environment
@@ -43,9 +43,7 @@ RUN \
     mkdir -p /home && \
     chmod -R a+rw /home
 
-# Include Exported Libraries
-COPY --from=build /app/export /
-# Include Mods
+# Copy Build
 COPY --from=build /app/minecraft-pi /app/minecraft-pi
 
 WORKDIR /app/minecraft-pi

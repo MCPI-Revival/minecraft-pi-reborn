@@ -12,9 +12,6 @@ add_definitions(-D_GLIBCXX_USE_CXX11_ABI=0)
 # Add libreborn
 add_subdirectory(../libreborn libreborn)
 
-# Include Libraries Exported To Runtime Environment
-include_directories(/app/export/include)
-
 # Find GLFW
 find_package(glfw3 3.3 REQUIRED)
 
@@ -64,19 +61,5 @@ target_link_libraries(test reborn)
 add_library(init SHARED src/init/init.c)
 target_link_libraries(init compat server game_mode camera input misc options textures chat test)
 
-## Stubs
-
-# Stub RPI-Specific Graphics
-add_library(bcm_host SHARED src/stubs/bcm_host.c)
-
-# Stub EGL
-add_library(EGL SHARED src/stubs/EGL.c)
-target_link_libraries(EGL compat)
-
-# MCPI Links Against GLESv2 But Uses GLESv1_CM
-add_library(GLESv2 SHARED src/stubs/GLESv2.c)
-target_link_libraries(GLESv2 GLESv1_CM)
-target_link_options(GLESv2 PRIVATE "-Wl,--no-as-needed")
-
-## Install
-install(TARGETS init compat readdir feature screenshot override server game_mode camera input misc options textures chat test bcm_host EGL GLESv2 DESTINATION /mods)
+## Install Mods
+install(TARGETS init compat readdir feature screenshot override server game_mode camera input misc options textures chat test DESTINATION /mods)

@@ -13,6 +13,7 @@
 #include <SDL/SDL_syswm.h>
 #include <GLES/gl.h>
 #include <X11/Xlib.h>
+#include <EGL/egl.h>
 
 #include <libreborn/libreborn.h>
 
@@ -21,8 +22,6 @@
 #include "../screenshot/screenshot.h"
 #include "../chat/chat.h"
 #include "../init/init.h"
-
-#include "compat.h"
 
 static GLFWwindow *glfw_window;
 
@@ -212,11 +211,12 @@ HOOK(SDL_WM_SetCaption, void, (const char *title, __attribute__((unused)) const 
     }
 }
 
-void compat_eglSwapBuffers() {
+HOOK(eglSwapBuffers, EGLBoolean, (__attribute__((unused)) EGLDisplay display, __attribute__((unused)) EGLSurface surface)) {
     if (!is_server) {
         // Don't Swap Buffers In A Context-Less Window
         glfwSwapBuffers(glfw_window);
     }
+    return EGL_TRUE;
 }
 
 static int is_fullscreen = 0;

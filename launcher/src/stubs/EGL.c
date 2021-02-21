@@ -1,8 +1,6 @@
 #include <EGL/egl.h>
 
-#include "../compat/compat.h"
-
-// EGL/SDL Is Replaced With GLFW
+// EGL Is Replaced With GLFW
 
 EGLDisplay eglGetDisplay(__attribute__((unused)) NativeDisplayType native_display) {
     return 0;
@@ -34,9 +32,6 @@ EGLBoolean eglDestroyContext(__attribute__((unused)) EGLDisplay display, __attri
 EGLBoolean eglTerminate(__attribute__((unused)) EGLDisplay display) {
     return EGL_TRUE;
 }
-
-// Send Buffer Swap Request To GLFW
 EGLBoolean eglSwapBuffers(__attribute__((unused)) EGLDisplay display, __attribute__((unused)) EGLSurface surface) {
-    compat_eglSwapBuffers();
     return EGL_TRUE;
 }

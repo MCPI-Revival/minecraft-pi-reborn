@@ -9,10 +9,10 @@
 #include <errno.h>
 #include <sys/stat.h>
 
+// Check String Prefix/Suffix
 static int starts_with(const char *s, const char *t) {
     return strncmp(s, t, strlen(t)) == 0;
 }
-
 static int ends_with(const char *s, const char *t) {
     size_t slen = strlen(s);
     size_t tlen = strlen(t);
@@ -20,6 +20,7 @@ static int ends_with(const char *s, const char *t) {
     return strcmp(s + slen - tlen, t) == 0;
 }
 
+// Set Environmental Variable
 static void trim(char *value) {
     // Remove Trailing Colon
     int length = strlen(value);
@@ -27,26 +28,30 @@ static void trim(char *value) {
         value[length - 1] = '\0';
     }
 }
-
 static void set_and_print_env(char *name, char *value) {
-    // Set Variable With Not Trailing Colon
+    // Set Variable With No Trailing Colon
     trim(value);
 
     fprintf(stderr, "Set %s = %s\n", name, value);
     setenv(name, value, 1);
 }
 
+// Get Environmental Variable
 static char *get_env_safe(const char *name) {
     // Get Variable Or Blank String If Not Set
     char *ret = getenv(name);
     return ret != NULL ? ret : "";
 }
 
-static void load(char **ld_path, char **ld_preload, char *folder) {
+// Get All SO Files In Folder
+static void load(char **ld_preload, char *folder) {
     int folder_name_length = strlen(folder);
+    // Retry Until Successful
     while (1) {
+        // Open Folder
         DIR *dp = opendir(folder);
         if (dp != NULL) {
+            // Loop Through Folder
             struct dirent *entry = NULL;
             errno = 0;
             while (1) {
@@ -75,14 +80,14 @@ static void load(char **ld_path, char **ld_preload, char *folder) {
                     fprintf(stderr, "Error Reading Directory: %s: %s\n", folder, strerror(errno));
                     exit(EXIT_FAILURE);
                 } else {
+                    // Done!
                     break;
                 }
             }
+            // Close Folder
             closedir(dp);
 
-            // Add To LD_LIBRARY_PATH
-            asprintf(ld_path, "%s:%s", *ld_path, folder);
-
+            // Exit Function
             return;
         } else if (errno == ENOENT) {
             // Folder Doesn't Exists, Attempt Creation
@@ -92,6 +97,7 @@ static void load(char **ld_path, char **ld_preload, char *folder) {
                 fprintf(stderr, "Error Creating Directory: %s: %s\n", folder, strerror(errno));
                 exit(EXIT_FAILURE);
             }
+            // Continue Retrying
         } else {
             // Unable To Open Folder
             fprintf(stderr, "Error Opening Directory: %s: %s\n", folder, strerror(errno));
@@ -121,30 +127,24 @@ int main(__attribute__((unused)) int argc, char *argv[]) {
     }
     free(minecraft_folder);
 
-    char *ld_path = NULL;
-
-    // Start Configuring LD_LIBRARY_PATH
-    asprintf(&ld_path, "/usr/arm-linux-gnueabihf/lib");
+    // Configure LD_LIBRARY_PATH
+    char *ld_path;
+    asprintf(&ld_path, "./lib:/usr/arm-linux-gnueabihf/lib:%s", get_env_safe("LD_LIBRARY_PATH"));
+    set_and_print_env("LD_LIBRARY_PATH", ld_path);
+    free(ld_path);
 
     // Start Configuring LD_PRELOAD
     char *ld_preload = NULL;
     asprintf(&ld_preload, "%s", get_env_safe("LD_PRELOAD"));
 
     // Load Mods From ./mods
-    load(&ld_path, &ld_preload, "./mods/");
+    load(&ld_preload, "./mods/");
 
     // Loads Mods From ~/.minecraft-pi/mods
     char *home_mods = NULL;
     asprintf(&home_mods, "%s/.minecraft-pi/mods/", getenv("HOME"));
-    load(&ld_path, &ld_preload, home_mods);
+    load(&ld_preload, home_mods);
     free(home_mods);
-
-    // Add Existing LD_LIBRARY_PATH
-    asprintf(&ld_path, "%s:%s", ld_path, get_env_safe("LD_LIBRARY_PATH"));
-
-    // Set LD_LIBRARY_PATH
-    set_and_print_env("LD_LIBRARY_PATH", ld_path);
-    free(ld_path);
 
     // Set LD_PRELOAD
     set_and_print_env("LD_PRELOAD", ld_preload);
