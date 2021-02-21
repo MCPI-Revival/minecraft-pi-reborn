@@ -11,7 +11,7 @@ int SDL_Init(__attribute__((unused)) uint32_t flags) {
 }
 
 void SDL_Quit() {
-    exit(0);
+    exit(EXIT_SUCCESS);
 }
 
 // Event Queue
