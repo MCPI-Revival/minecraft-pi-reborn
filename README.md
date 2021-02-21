@@ -1,8 +1,8 @@
-<center>
+<p align="center">
 
 ![Start Screen](images/start.png)
 
-</center>
+</p>
 
 # Minecraft: Pi Edition: Reborn
 Minecraft: Pi Edition Modding Project

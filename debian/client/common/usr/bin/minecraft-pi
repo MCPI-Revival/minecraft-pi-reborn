@@ -54,6 +54,6 @@ set -e
 
 # Handle Crash
 if [ ${RET} -ne 0 ]; then
-    zenity --class "${ZENITY_CLASS}" --error --no-wrap --text 'Minecraft: Pi Edition has crashed!\n\nExit Code: '${RET}'\n\n<a href="file:///tmp/minecraft-pi">Open Log Folder</a>\n<a href="https://gitea.thebrokenrail.com/TheBrokenRail/minecraft-pi-reborn#troubleshooting">Open Troubleshooting Guide</a>'
+    zenity --class "${ZENITY_CLASS}" --error --no-wrap --text 'Minecraft: Pi Edition has crashed!\n\nExit Code: '${RET}'\n\n<a href="file:///tmp/minecraft-pi">Open Log Folder</a>\n<a href="https://gitea.thebrokenrail.com/TheBrokenRail/minecraft-pi-reborn/src/branch/master/docs/TROUBLESHOOTING.md">Open Troubleshooting Guide</a>'
     exit ${RET}
 fi
