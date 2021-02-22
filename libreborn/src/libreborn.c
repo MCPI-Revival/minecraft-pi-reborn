@@ -210,3 +210,23 @@ void _patch_address(const char *file, int line, void *start, void *target) {
     unsigned char patch_data[4] = {addr & 0xff, (addr >> 8) & 0xff, (addr >> 16) & 0xff, (addr >> 24) & 0xff};
     _patch(file, line, start, patch_data);
 }
+
+// Sanitize String
+#define MINIMUM_MESSAGE_CHARACTER 32
+#define MAXIMUM_MESSAGE_CHARACTER 126
+void sanitize_string(char **str, int max_length) {
+    // Store Message Length
+    int length = strlen(*str);
+    // Truncate Message
+    if (max_length != -1 && length > max_length) {
+        (*str)[max_length] = '\0';
+        length = max_length;
+    }
+    // Loop Through Message
+    for (int i = 0; i < length; i++) {
+        if ((*str)[i] < MINIMUM_MESSAGE_CHARACTER || (*str)[i] > MAXIMUM_MESSAGE_CHARACTER) {
+            // Replace Illegal Character
+            (*str)[i] = '?';
+        }
+    }
+}

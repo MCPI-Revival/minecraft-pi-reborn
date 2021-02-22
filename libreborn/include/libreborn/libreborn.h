@@ -18,6 +18,7 @@ extern "C" {
 // Set obj To NULL On asprintf() Failure
 #define asprintf(obj, ...) if (asprintf(obj, __VA_ARGS__) == -1) { *obj = NULL; }
 
+// Hook Library Function
 #define HOOK(name, return_type, args) \
     typedef return_type (*name##_t)args; \
     static name##_t real_##name = NULL; \
@@ -33,6 +34,11 @@ extern "C" {
     }; \
     \
     __attribute__((__used__)) return_type name args
+
+// Sanitize String
+void sanitize_string(char **str, int max_length);
+
+// Patching Functions
 
 void _overwrite_call(const char *file, int line, void *start, void *target);
 #define overwrite_call(start, target) _overwrite_call(__FILE__, __LINE__, start, target);

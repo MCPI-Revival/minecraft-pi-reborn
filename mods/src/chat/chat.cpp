@@ -12,9 +12,7 @@
 #include "chat.h"
 
 // Message Limitations
-#define MAX_MESSAGE_LENGTH 512
-#define MINIMUM_MESSAGE_CHARACTER 32
-#define MAXIMUM_MESSAGE_CHARACTER 126
+#define MAX_CHAT_MESSAGE_LENGTH 512
 
 // Send API Command
 static void send_api_command(unsigned char *minecraft, char *str) {
@@ -36,29 +34,12 @@ static void send_api_chat_command(unsigned char *minecraft, char *str) {
     free(command);
 }
 
-// Sanitize Message
-static void sanitize_message(char **message) {
-    // Store Message Length
-    int length = strlen(*message);
-    // Truncate Message
-    if (length > MAX_MESSAGE_LENGTH) {
-        (*message)[MAX_MESSAGE_LENGTH] = '\0';
-        length = MAX_MESSAGE_LENGTH;
-    }
-    // Loop Through Message
-    for (int i = 0; i < length; i++) {
-        if ((*message)[i] < MINIMUM_MESSAGE_CHARACTER || (*message)[i] > MAXIMUM_MESSAGE_CHARACTER) {
-            // Replace Illegal Character
-            (*message)[i] = '?';
-        }
-    }
-}
 // Send Message To Players
 static void send_message(unsigned char *server_side_network_handler, char *username, char *message) {
     char *full_message = NULL;
     asprintf(&full_message, "<%s> %s", username, message);
     ALLOC_CHECK(full_message);
-    sanitize_message(&full_message);
+    sanitize_string(&full_message, MAX_CHAT_MESSAGE_LENGTH);
     (*ServerSideNetworkHandler_displayGameMessage)(server_side_network_handler, std::string(full_message));
     free(full_message);
 }

@@ -71,22 +71,31 @@ static int32_t Inventory_setupDefault_FillingContainer_addItem_call_injection(un
 // Print Chat To Log
 static bool Gui_addMessage_recursing = false;
 static void Gui_addMessage_injection(unsigned char *gui, std::string const& text) {
+    // Sanitize Message
+    char *new_message = strdup(text.c_str());
+    ALLOC_CHECK(new_message);
+    sanitize_string(&new_message, -1);
+
+    // Process Message
     if (!Gui_addMessage_recursing) {
         // Start Recursing
         Gui_addMessage_recursing = true;
 
         // Print Log Message
-        fprintf(stderr, "[CHAT]: %s\n", text.c_str());
+        fprintf(stderr, "[CHAT]: %s\n", new_message);
 
         // Call Original Method
-        (*Gui_addMessage)(gui, text);
+        (*Gui_addMessage)(gui, std::string(new_message));
 
         // End Recursing
         Gui_addMessage_recursing = false;
     } else {
         // Call Original Method
-        (*Gui_addMessage)(gui, text);
+        (*Gui_addMessage)(gui, std::string(new_message));
     }
+
+    // Free
+    free(new_message);
 }
 
 // Death Messages
