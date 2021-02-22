@@ -36,7 +36,7 @@ extern "C" {
     __attribute__((__used__)) return_type name args
 
 // Sanitize String
-void sanitize_string(char **str, int max_length);
+void sanitize_string(char **str, int max_length, unsigned int allow_newlines);
 
 // Patching Functions
 

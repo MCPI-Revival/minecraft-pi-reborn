@@ -74,7 +74,7 @@ static void Gui_addMessage_injection(unsigned char *gui, std::string const& text
     // Sanitize Message
     char *new_message = strdup(text.c_str());
     ALLOC_CHECK(new_message);
-    sanitize_string(&new_message, -1);
+    sanitize_string(&new_message, -1, 1);
 
     // Process Message
     if (!Gui_addMessage_recursing) {

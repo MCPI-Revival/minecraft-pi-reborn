@@ -39,7 +39,7 @@ static void send_message(unsigned char *server_side_network_handler, char *usern
     char *full_message = NULL;
     asprintf(&full_message, "<%s> %s", username, message);
     ALLOC_CHECK(full_message);
-    sanitize_string(&full_message, MAX_CHAT_MESSAGE_LENGTH);
+    sanitize_string(&full_message, MAX_CHAT_MESSAGE_LENGTH, 0);
     (*ServerSideNetworkHandler_displayGameMessage)(server_side_network_handler, std::string(full_message));
     free(full_message);
 }
