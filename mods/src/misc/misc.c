@@ -1,12 +1,17 @@
+#include <string.h>
+
 #include <libreborn/libreborn.h>
+#include <libreborn/minecraft.h>
 
 #include "../feature/feature.h"
 #include "misc.h"
 #include "../init/init.h"
 
-#include <libreborn/minecraft.h>
-
+// Minecraft Pi User Data Root
 #define NEW_PATH "/.minecraft-pi/"
+
+// Maximum Username Length
+#define MAX_USERNAME_LENGTH 16
 
 // Render Selected Item Text
 static void Gui_renderChatMessages_injection(unsigned char *gui, int32_t param_1, uint32_t param_2, uint32_t param_3, unsigned char *font) {
@@ -40,6 +45,26 @@ static void Inventory_selectSlot_injection(unsigned char *inventory, int32_t slo
     reset_selected_item_text_timer = 1;
 }
 
+// Sanitize Username
+static void LoginPacket_read_injection(unsigned char *packet, unsigned char *bit_stream) {
+    // Call Original Method
+    (*LoginPacket_read)(packet, bit_stream);
+
+    // Prepare
+    unsigned char *rak_string = packet + LoginPacket_username_property_offset;
+    // Get Original Username
+    unsigned char *shared_string = *(unsigned char **) (rak_string + RakNet_RakString_sharedString_property_offset);
+    char *c_str = *(char **) (shared_string + RakNet_RakString_SharedString_c_str_property_offset);
+    // Sanitize
+    char *new_username = strdup(c_str);
+    ALLOC_CHECK(new_username);
+    sanitize_string(&new_username, MAX_USERNAME_LENGTH, 0);
+    // Set New Username
+    (*RakNet_RakString_Assign)(rak_string, new_username);
+    // Free
+    free(new_username);
+}
+
 void init_misc() {
     // Store Data In ~/.minecraft-pi Instead Of ~/.minecraft
     patch_address((void *) default_path, (void *) NEW_PATH);
@@ -54,6 +79,9 @@ void init_misc() {
     overwrite_calls((void *) Gui_renderChatMessages, (void *) Gui_renderChatMessages_injection);
     overwrite_calls((void *) Gui_tick, (void *) Gui_tick_injection);
     overwrite_calls((void *) Inventory_selectSlot, (void *) Inventory_selectSlot_injection);
+
+    // Sanitize Username
+    patch_address(LoginPacket_read_vtable_addr, (void *) LoginPacket_read_injection);
 
     // Init C++
     init_misc_cpp();

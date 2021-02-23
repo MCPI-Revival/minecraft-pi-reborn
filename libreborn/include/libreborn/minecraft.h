@@ -124,6 +124,17 @@ static uint32_t Minecraft_gui_property_offset = 0x198; // Gui
 
 static uint32_t CommandServer_minecraft_property_offset = 0x18; // Minecraft *
 
+// Packet
+
+typedef void (*Packet_read_t)(unsigned char *packet, unsigned char *bit_stream);
+
+// LoginPacket
+
+static Packet_read_t LoginPacket_read = (Packet_read_t) 0x6e5f8;
+static void *LoginPacket_read_vtable_addr = (void *) 0x108dcc;
+
+static uint32_t LoginPacket_username_property_offset = 0xc; // RakString
+
 // ChatPacket
 
 static uint32_t ChatPacket_message_property_offset = 0xc; // char *
@@ -293,6 +304,17 @@ static uint32_t ItemInstance_auxilary_property_offset = 0x8;
 typedef int32_t (*FillingContainer_addItem_t)(unsigned char *filling_container, unsigned char *item_instance);
 static FillingContainer_addItem_t FillingContainer_addItem = (FillingContainer_addItem_t) 0x92aa0;
 
+// RakNet::RakString
+
+typedef void (*RakNet_RakString_Assign_t)(unsigned char *rak_string, const char *str);
+static RakNet_RakString_Assign_t RakNet_RakString_Assign = (RakNet_RakString_Assign_t) 0xe9e34;
+
+static uint32_t RakNet_RakString_sharedString_property_offset = 0x0; // RakNet::RakString::SharedString *
+
+// RakNet::RakString::SharedString
+
+static uint32_t RakNet_RakString_SharedString_c_str_property_offset = 0x10; // char *
+
 // RakNetInstance
 
 typedef void (*RakNetInstance_send_t)(unsigned char *rak_net_instance, unsigned char *packet);
@@ -301,7 +323,7 @@ static uint32_t RakNetInstance_send_vtable_offset = 0x38;
 typedef uint32_t (*RakNetInstance_isServer_t)(unsigned char *rak_net_instance);
 static uint32_t RakNetInstance_isServer_vtable_offset = 0x48;
 
-static uint32_t RakNetInstance_peer_property_offset = 0x4;
+static uint32_t RakNetInstance_peer_property_offset = 0x4; // RakNet::RakPeer *
 
 // RakNet::RakPeer
 

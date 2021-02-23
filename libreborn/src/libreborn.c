@@ -212,8 +212,9 @@ void _patch_address(const char *file, int line, void *start, void *target) {
 }
 
 // Sanitize String
-#define MINIMUM_MESSAGE_CHARACTER 32
-#define MAXIMUM_MESSAGE_CHARACTER 126
+#define MINIMUM_SAFE_CHARACTER 32
+#define MAXIMUM_SAFE_CHARACTER 126
+#define MINIMUM_EXTENDED_SAFE_CHARACTER 128
 void sanitize_string(char **str, int max_length, unsigned int allow_newlines) {
     // Store Message Length
     int length = strlen(*str);
@@ -227,7 +228,7 @@ void sanitize_string(char **str, int max_length, unsigned int allow_newlines) {
         if (allow_newlines && ((*str)[i] == '\n' || (*str)[i] == '\r')) {
             continue;
         }
-        if ((*str)[i] < MINIMUM_MESSAGE_CHARACTER || (*str)[i] > MAXIMUM_MESSAGE_CHARACTER) {
+        if (((*str)[i] < MINIMUM_SAFE_CHARACTER || (*str)[i] > MAXIMUM_SAFE_CHARACTER) && (*str)[i] < MINIMUM_EXTENDED_SAFE_CHARACTER) {
             // Replace Illegal Character
             (*str)[i] = '?';
         }
