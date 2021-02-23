@@ -32,4 +32,4 @@ if ! id user > /dev/null 2>&1; then
 fi
 
 # Start
-exec gosu "${USER_UID}" ./launcher
+exec gosu user ./launcher
