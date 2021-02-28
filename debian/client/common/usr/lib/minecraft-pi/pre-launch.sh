@@ -21,7 +21,7 @@ RET=$?
 set -e
 
 # Kill Logging
-kill ${TAIL_PID}
+kill ${TAIL_PID} > /dev/null 2>&1 || :
 
 # Exit
 exit ${RET}

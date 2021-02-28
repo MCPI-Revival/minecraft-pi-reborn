@@ -13,6 +13,7 @@ RET=$?
 set -e
 
 # Kill VirGL
-kill ${VIRGL_PID} > /dev/null 2>&1
+kill ${VIRGL_PID} > /dev/null 2>&1 || :
 
+# Exit
 exit ${RET}
