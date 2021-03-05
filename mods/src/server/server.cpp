@@ -464,7 +464,7 @@ static void server_init() {
     }
 
     // Prevent Main Player From Loading
-    unsigned char player_patch[4] = {0x00, 0x20, 0xa0, 0xe3};
+    unsigned char player_patch[4] = {0x00, 0x20, 0xa0, 0xe3}; // "mov r2, #0x0"
     patch((void *) 0x1685c, player_patch);
     // Start World On Launch
     overwrite_calls((void *) Minecraft_update, (void *) Minecraft_update_injection);
@@ -474,14 +474,14 @@ static void server_init() {
     signal(SIGINT, exit_handler);
     signal(SIGTERM, exit_handler);
     // Set Max Players
-    unsigned char max_players_patch[4] = {get_max_players(), 0x30, 0xa0, 0xe3};
+    unsigned char max_players_patch[4] = {get_max_players(), 0x30, 0xa0, 0xe3}; // "mov r3, #MAX_PLAYERS"
     patch((void *) 0x166d0, max_players_patch);
     // Custom Banned IP List
     overwrite((void *) RakNet_RakPeer_IsBanned, (void *) RakNet_RakPeer_IsBanned_injection);
 
     if (get_server_properties().get_bool("show-minecon-badge", DEFAULT_SHOW_MINECON_BADGE)) {
         // Show The MineCon Icon Next To MOTD In Server List
-        unsigned char minecon_badge_patch[4] = {0x04, 0x1a, 0x9f, 0xe5};
+        unsigned char minecon_badge_patch[4] = {0x04, 0x1a, 0x9f, 0xe5}; // "ldr r1, [0x741f0]"
         patch((void *) 0x737e4, minecon_badge_patch);
     }
 

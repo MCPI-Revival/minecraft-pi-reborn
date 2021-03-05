@@ -172,7 +172,7 @@ void _overwrite_calls(const char *file, int line, void *start, void *target) {
 
 // Overwrite Function
 void _overwrite(const char *file, int line, void *start, void *target) {
-    unsigned char patch_data[4] = {0x04, 0xf0, 0x1f, 0xe5};
+    unsigned char patch_data[4] = {0x04, 0xf0, 0x1f, 0xe5}; // "ldr pc, [pc, #-0x4]"
 
     _patch(file, line, start, patch_data);
     _patch_address(file, line, start + 4, target);

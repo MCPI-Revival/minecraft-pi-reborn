@@ -53,6 +53,6 @@ void init_game_mode_cpp() {
     patch_address(SelectWorldScreen_tick_vtable_addr, (void *) SelectWorldScreen_tick_injection);
     patch_address(Touch_SelectWorldScreen_tick_vtable_addr, (void *) Touch_SelectWorldScreen_tick_injection);
     // Make The SimpleChooseLevelScreen Back Button Go To SelectWorldScreen Instead Of StartMenuScreen
-    unsigned char simple_choose_level_screen_back_button_patch[4] = {0x05, 0x10, 0xa0, 0xe3};
+    unsigned char simple_choose_level_screen_back_button_patch[4] = {0x05, 0x10, 0xa0, 0xe3}; // "mov r1, #0x5"
     patch((void *) 0x31144, simple_choose_level_screen_back_button_patch);
 }

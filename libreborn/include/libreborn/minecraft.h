@@ -124,6 +124,10 @@ static uint32_t Minecraft_gui_property_offset = 0x198; // Gui
 
 static uint32_t CommandServer_minecraft_property_offset = 0x18; // Minecraft *
 
+// ServerLevel
+
+#define SERVER_LEVEL_SIZE 0xb80
+
 // Packet
 
 typedef void (*Packet_read_t)(unsigned char *packet, unsigned char *bit_stream);

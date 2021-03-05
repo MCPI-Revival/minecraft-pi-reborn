@@ -34,9 +34,6 @@ export MCPI_FEATURES
 export MCPI_RENDER_DISTANCE
 export MCPI_USERNAME
 
-# Allow X11 Connections From Root
-xhost local:root
-
 # Prepare Environment
 export USER_HOME="${HOME}"
 export USER_UID="$(id -u)"

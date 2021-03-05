@@ -111,7 +111,7 @@ void chat_send_messages(unsigned char *minecraft) {
 // Init
 void init_chat() {
     // Disable Original ChatPacket Loopback
-    unsigned char disable_chat_packet_loopback_patch[4] = {0x00, 0xf0, 0x20, 0xe3};
+    unsigned char disable_chat_packet_loopback_patch[4] = {0x00, 0xf0, 0x20, 0xe3}; // "nop"
     patch((void *) 0x6b490, disable_chat_packet_loopback_patch);
     // Manually Send (And Loopback) ChatPacket
     overwrite_call((void *) 0x6b518, (void *) CommandServer_parse_CommandServer_dispatchPacket_injection);
