@@ -38,6 +38,7 @@ static ServerProperties &get_server_properties() {
 #define DEFAULT_PEACEFUL_MODE "false"
 #define DEFAULT_WORLD_NAME "world"
 #define DEFAULT_MAX_PLAYERS "4"
+#define DEFAULT_WHITELIST "false"
 
 // Read STDIN Thread
 static volatile bool stdin_buffer_complete = false;
@@ -134,9 +135,14 @@ static void print_progress(unsigned char *minecraft) {
     }
 }
 
-static std::string get_banned_ips_file() {
+// Check If Running In Whitelist Mode
+static bool is_whitelist() {
+    return get_server_properties().get_bool("whitelist", DEFAULT_WHITELIST);
+}
+// Get Path Of Blacklist (Or Whitelist) File
+static std::string get_blacklist_file() {
     std::string file(getenv("HOME"));
-    file.append("/.minecraft-pi/banned-ips.txt");
+    file.append(is_whitelist() ? "/.minecraft-pi/whitelist.txt" : "/.minecraft-pi/blacklist.txt");
     return file;
 }
 
@@ -210,13 +216,13 @@ static void ban_callback(unsigned char *minecraft, std::string username, unsigne
     // Ban Player
     INFO("Banned: %s (%s)", username.c_str(), ip);
     // Write To File
-    std::ofstream banned_ips_output(get_banned_ips_file(), std::ios_base::app);
-    if (banned_ips_output) {
-        if (banned_ips_output.good()) {
-            banned_ips_output << ip <<'\n';
+    std::ofstream blacklist_output(get_blacklist_file(), std::ios_base::app);
+    if (blacklist_output) {
+        if (blacklist_output.good()) {
+            blacklist_output << "# " << username << '\n' << ip << '\n';
         }
-        if (banned_ips_output.is_open()) {
-            banned_ips_output.close();
+        if (blacklist_output.is_open()) {
+            blacklist_output.close();
         }
     }
 }
@@ -284,7 +290,7 @@ static void handle_commands(unsigned char *minecraft) {
                 static std::string list_command("list");
                 static std::string stop_command("stop");
                 static std::string help_command("help");
-                if (data.rfind(ban_command, 0) == 0) {
+                if (!is_whitelist() && data.rfind(ban_command, 0) == 0) {
                     // IP-Ban Target Username
                     std::string ban_username = data.substr(ban_command.length());
                     find_players(minecraft, ban_username, ban_callback, false);
@@ -306,7 +312,9 @@ static void handle_commands(unsigned char *minecraft) {
                     exit_handler(-1);
                 } else if (data == help_command) {
                     INFO("%s", "All Commands:");
-                    INFO("%s", "    ban <Username>  - IP-Ban All Players With Specifed Username");
+                    if (!is_whitelist()) {
+                        INFO("%s", "    ban <Username>  - IP-Ban All Players With Specifed Username");
+                    }
                     INFO("%s", "    kill <Username> - Kill All Players With Specifed Username");
                     INFO("%s", "    say <Message>   - Print Specified Message To Chat");
                     INFO("%s", "    list            - List All Players");
@@ -348,13 +356,13 @@ static void Minecraft_update_injection(unsigned char *minecraft) {
 
 static bool RakNet_RakPeer_IsBanned_injection(__attribute__((unused)) unsigned char *rakpeer, const char *ip) {
     // Check banned-ips.txt
-    std::string banned_ips_file_path = get_banned_ips_file();
-    std::ifstream banned_ips_file(banned_ips_file_path);
-    if (banned_ips_file) {
+    std::string blacklist_file_path = get_blacklist_file();
+    std::ifstream blacklist_file(blacklist_file_path);
+    if (blacklist_file) {
         bool ret = false;
-        if (banned_ips_file.good()) {
+        if (blacklist_file.good()) {
             std::string line;
-            while (std::getline(banned_ips_file, line)) {
+            while (std::getline(blacklist_file, line)) {
                 if (line.length() > 0) {
                     if (line[0] == '#') {
                         continue;
@@ -366,20 +374,26 @@ static bool RakNet_RakPeer_IsBanned_injection(__attribute__((unused)) unsigned c
                 }
             }
         }
-        if (banned_ips_file.is_open()) {
-            banned_ips_file.close();
+        if (blacklist_file.is_open()) {
+            blacklist_file.close();
         }
-        return ret;
+        if (is_whitelist()) {
+            return !ret;
+        } else {
+            return ret;
+        }
     } else {
-        ERR("%s", "Unable To Read banned-ips.txt");
+        ERR("%s", "Unable To Read Blacklist/Whitelist");
     }
 }
 
+// Get MOTD
 static std::string get_motd() {
     std::string motd(get_server_properties().get_string("motd", DEFAULT_MOTD));
     return motd;
 }
 
+// Get Feature Flags
 static bool loaded_features = false;
 static const char *get_features() {
     static std::string features;
@@ -397,6 +411,7 @@ static const char *get_features() {
     return features.c_str();
 }
 
+// Get Max Players
 static unsigned char get_max_players() {
     int val = get_server_properties().get_int("max-players", DEFAULT_MAX_PLAYERS);
     if (val < 0) {
@@ -436,31 +451,33 @@ static void server_init() {
         properties_file_output << "world-name=" DEFAULT_WORLD_NAME "\n";
         properties_file_output << "# Maximum Player Count\n";
         properties_file_output << "max-players=" DEFAULT_MAX_PLAYERS "\n";
+        properties_file_output << "# Enable Whitelist\n";
+        properties_file_output << "whitelist=" DEFAULT_WHITELIST "\n";
         properties_file_output.close();
         // Re-Open File
         properties_file = std::ifstream(file);
     }
 
+    // Open Properties File
     if (!properties_file.is_open()) {
         ERR("%s", "Unable To Open server.properties");
     }
-
     // Load Properties
     get_server_properties().load(properties_file);
-
+    // Close Properties File
     properties_file.close();
 
-    // Create Empty Banned IPs File
-    std::string banned_ips_file_path = get_banned_ips_file();
-    std::ifstream banned_ips_file(banned_ips_file_path);
-    if (!banned_ips_file || !banned_ips_file.good()) {
+    // Create Empty Blacklist/Whitelist File
+    std::string blacklist_file_path = get_blacklist_file();
+    std::ifstream blacklist_file(blacklist_file_path);
+    if (!blacklist_file || !blacklist_file.good()) {
         // Write Default
-        std::ofstream banned_ips_output(banned_ips_file_path);
-        banned_ips_output << "# List Of Banned IPs; Each Line Is One IP Address\n";
-        banned_ips_output.close();
+        std::ofstream blacklist_output(blacklist_file_path);
+        blacklist_output << "# Blacklist/Whitelist; Each Line Is One IP Address\n";
+        blacklist_output.close();
     }
-    if (banned_ips_file.is_open()) {
-        banned_ips_file.close();
+    if (blacklist_file.is_open()) {
+        blacklist_file.close();
     }
 
     // Prevent Main Player From Loading

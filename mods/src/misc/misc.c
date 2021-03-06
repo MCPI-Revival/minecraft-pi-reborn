@@ -1,3 +1,4 @@
+#include <stdlib.h>
 #include <string.h>
 
 #include <libreborn/libreborn.h>
@@ -82,6 +83,11 @@ void init_misc() {
 
     // Sanitize Username
     patch_address(LoginPacket_read_vtable_addr, (void *) LoginPacket_read_injection);
+
+    // Show FPS Monitor
+    if (feature_has("Show FPS Monitor")) {
+        setenv("GALLIUM_HUD", "simple,fps", 1);
+    }
 
     // Init C++
     init_misc_cpp();
