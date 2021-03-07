@@ -2,11 +2,6 @@
 
 set -e
 
-# Esnure User Is In docker Group
-if ! id -nGz | grep -qzxF 'docker'; then
-    pkexec /usr/sbin/usermod -aG docker "$(id -un)"
-fi
-
 # All Feature Flags
 export AVAILABLE_FEATURES="$(tr '\n' ' ' < /usr/share/minecraft-pi/client/features)"
 
@@ -14,6 +9,11 @@ export AVAILABLE_FEATURES="$(tr '\n' ' ' < /usr/share/minecraft-pi/client/featur
 if [ "$1" = "--print-features" ]; then
     echo "${AVAILABLE_FEATURES}"
     exit 0
+fi
+
+# Esnure User Is In docker Group
+if ! id -nGz | grep -qzxF 'docker'; then
+    pkexec /usr/sbin/usermod -aG docker "$(id -un)"
 fi
 
 # Export Important Variables
