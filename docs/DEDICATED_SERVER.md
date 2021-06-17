@@ -16,4 +16,4 @@ To use, install and run ``minecraft-pi-reborn-server``. It will generate the wor
 ## Arguments
 
 ### ``--only-generate``
-If you run the server with ``--only-generate`` it will immediately exit once world generation has completed.
+If you run the server with ``--only-generate``, it will immediately exit once world generation has completed. This is mainly used for automatically testing MCPI-Reborn.
