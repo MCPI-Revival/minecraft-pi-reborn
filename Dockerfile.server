@@ -1,3 +1,0 @@
-FROM thebrokenrail/minecraft-pi-reborn:client
-
-ENV MCPI_MODE=server

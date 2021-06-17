@@ -149,7 +149,7 @@ static void LocalPlayer_actuallyHurt_injection(unsigned char *player, int32_t da
     Player_actuallyHurt_injection_helper(player, damage, true);
 }
 
-void init_misc_cpp() {
+void _init_misc_cpp() {
     // Implement AppPlatform::readAssetFile So Translations Work
     overwrite((void *) AppPlatform_readAssetFile, (void *) AppPlatform_readAssetFile_injection);
 

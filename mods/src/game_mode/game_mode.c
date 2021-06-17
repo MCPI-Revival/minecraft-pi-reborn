@@ -53,5 +53,5 @@ void init_game_mode() {
     patch((void *) 0x6dc70, server_patch);
 
     // Init C++
-    init_game_mode_cpp();
+    _init_game_mode_cpp();
 }

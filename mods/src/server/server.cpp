@@ -1,8 +1,11 @@
+#ifndef MCPI_SERVER_MODE
+#error "Server Code Requires Server Mode"
+#endif
+
 #include <string>
 #include <stdint.h>
 #include <ctime>
 #include <cstdio>
-#include <csignal>
 #include <fstream>
 #include <vector>
 
@@ -10,17 +13,32 @@
 
 #include <unistd.h>
 
-#include <SDL/SDL_events.h>
+#include <SDL/SDL.h>
 
 #include <libreborn/libreborn.h>
 
-#include "server_internal.h"
 #include "server_properties.h"
 
 #include "../feature/feature.h"
 #include "../init/init.h"
+#include "../home/home.h"
+#include "../compat/compat.h"
 
 #include <libreborn/minecraft.h>
+
+// --only-generate: Ony Generate World And Then Exit
+static bool only_generate = false;
+__attribute__((constructor)) static void _init_only_generate(int argc, char *argv[]) {
+    // Iterate Arguments
+    for (int i = 1; i < argc; i++) {
+        // Check Argument
+        if (strcmp(argv[i], "--only-generate") == 0) {
+            // Enabled
+            only_generate = true;
+            break;
+        }
+    }
+}
 
 // Server Properties
 static ServerProperties &get_server_properties() {
@@ -40,30 +58,8 @@ static ServerProperties &get_server_properties() {
 #define DEFAULT_MAX_PLAYERS "4"
 #define DEFAULT_WHITELIST "false"
 
-// Read STDIN Thread
-static volatile bool stdin_buffer_complete = false;
-static volatile char *stdin_buffer = NULL;
-static void *read_stdin_thread(__attribute__((unused)) void *data) {
-    while (1) {
-        if (!stdin_buffer_complete) {
-            int x = getchar();
-            if (x != EOF) {
-                if (x == '\n') {
-                    if (stdin_buffer == NULL) {
-                        stdin_buffer = strdup("");
-                    }
-                    stdin_buffer_complete = true;
-                } else {
-                    asprintf((char **) &stdin_buffer, "%s%c", stdin_buffer == NULL ? "" : stdin_buffer, (char) x);
-                    ALLOC_CHECK(stdin_buffer);
-                }
-            }
-        }
-    }
-}
-
 // Get World Name
-std::string server_internal_get_world_name() {
+static std::string get_world_name() {
     return get_server_properties().get_string("world-name", DEFAULT_WORLD_NAME);
 }
 
@@ -71,19 +67,26 @@ std::string server_internal_get_world_name() {
 static void start_world(unsigned char *minecraft) {
     INFO("%s", "Starting Minecraft: Pi Edition Dedicated Server");
 
+    // Specify Level Settings
     LevelSettings settings;
     settings.game_type = get_server_properties().get_int("game-mode", DEFAULT_GAME_MODE);;
     std::string seed_str = get_server_properties().get_string("seed", DEFAULT_SEED);
     int32_t seed = seed_str.length() > 0 ? std::stoi(seed_str) : time(NULL);
     settings.seed = seed;
 
-    std::string world_name = server_internal_get_world_name();
+    // Select Level
+    std::string world_name = get_world_name();
     (*Minecraft_selectLevel)(minecraft, world_name, world_name, settings);
 
-    int port = get_server_properties().get_int("port", DEFAULT_PORT);
-    (*Minecraft_hostMultiplayer)(minecraft, port);
-    INFO("Listening On: %i", port);
+    // Don't Open Port When Using --only-generate
+    if (!only_generate) {
+        // Open Port
+        int port = get_server_properties().get_int("port", DEFAULT_PORT);
+        (*Minecraft_hostMultiplayer)(minecraft, port);
+        INFO("Listening On: %i", port);
+    }
 
+    // Open ProgressScreen
     void *screen = ::operator new(PROGRESS_SCREEN_SIZE);
     ALLOC_CHECK(screen);
     screen = (*ProgressScreen)((unsigned char *) screen);
@@ -141,39 +144,34 @@ static bool is_whitelist() {
 }
 // Get Path Of Blacklist (Or Whitelist) File
 static std::string get_blacklist_file() {
-    std::string file(getenv("HOME"));
-    file.append(is_whitelist() ? "/.minecraft-pi/whitelist.txt" : "/.minecraft-pi/blacklist.txt");
+    std::string file(home_get_launch_directory());
+    file.append(is_whitelist() ? "/whitelist.txt" : "/blacklist.txt");
     return file;
 }
 
-typedef void (*player_callback_t)(unsigned char *minecraft, std::string username, unsigned char *player);
-
 // Get Vector Of Players In Level
-std::vector<unsigned char *> server_internal_get_players(unsigned char *level) {
+static std::vector<unsigned char *> get_players_in_level(unsigned char *level) {
     return *(std::vector<unsigned char *> *) (level + Level_players_property_offset);
 }
 // Get Player's Username
-std::string server_internal_get_player_username(unsigned char *player) {
+static std::string get_player_username(unsigned char *player) {
     return *(char **) (player + Player_username_property_offset);
 }
 // Get Level From Minecraft
-unsigned char *server_internal_get_level(unsigned char *minecraft) {
+static unsigned char *get_level(unsigned char *minecraft) {
     return *(unsigned char **) (minecraft + Minecraft_level_property_offset);
-}
-// Get minecraft from ServerPlayer
-unsigned char *server_internal_get_minecraft(unsigned char *player) {
-    return *(unsigned char **) (player + ServerPlayer_minecraft_property_offset);
 }
 
 // Find Players With Username And Run Callback
+typedef void (*player_callback_t)(unsigned char *minecraft, std::string username, unsigned char *player);
 static void find_players(unsigned char *minecraft, std::string target_username, player_callback_t callback, bool all_players) {
-    unsigned char *level = server_internal_get_level(minecraft);
-    std::vector<unsigned char *> players = server_internal_get_players(level);
+    unsigned char *level = get_level(minecraft);
+    std::vector<unsigned char *> players = get_players_in_level(level);
     bool found_player = false;
     for (std::size_t i = 0; i < players.size(); i++) {
         // Iterate Players
         unsigned char *player = players[i];
-        std::string username = server_internal_get_player_username(player);
+        std::string username = get_player_username(player);
         if (all_players || username == target_username) {
             // Run Callback
             (*callback)(minecraft, username, player);
@@ -185,6 +183,7 @@ static void find_players(unsigned char *minecraft, std::string target_username, 
     }
 }
 
+// Get RakNet Objects
 static RakNet_RakNetGUID get_rak_net_guid(unsigned char *player) {
     return *(RakNet_RakNetGUID *) (player + ServerPlayer_guid_property_offset);
 }
@@ -240,6 +239,7 @@ static void list_callback(unsigned char *minecraft, std::string username, unsign
     INFO(" - %s (%s)", username.c_str(), get_player_ip(minecraft, player));
 }
 
+// Log When Game Is Saved
 static void Level_saveLevelData_injection(unsigned char *level) {
     // Print Log Message
     INFO("%s", "Saving Game");
@@ -248,16 +248,12 @@ static void Level_saveLevelData_injection(unsigned char *level) {
     (*Level_saveLevelData)(level);
 }
 
-// Stop Server
-static bool exit_requested = false;
-static void exit_handler(__attribute__((unused)) int data) {
-    exit_requested = true;
-}
+// Handle Server Stop
 static void handle_server_stop(unsigned char *minecraft) {
-    if (exit_requested) {
+    if (compat_check_exit_requested()) {
         INFO("%s", "Stopping Server");
         // Save And Exit
-        unsigned char *level = server_internal_get_level(minecraft);
+        unsigned char *level = get_level(minecraft);
         if (level != NULL) {
             Level_saveLevelData_injection(level);
         }
@@ -266,8 +262,6 @@ static void handle_server_stop(unsigned char *minecraft) {
         SDL_Event event;
         event.type = SDL_QUIT;
         SDL_PushEvent(&event);
-
-        exit_requested = false;
     }
 }
 
@@ -276,9 +270,36 @@ static unsigned char *get_server_side_network_handler(unsigned char *minecraft) 
     return *(unsigned char **) (minecraft + Minecraft_network_handler_property_offset);
 }
 
+// Read STDIN Thread
+static volatile bool stdin_buffer_complete = false;
+static volatile char *stdin_buffer = NULL;
+static void *read_stdin_thread(__attribute__((unused)) void *data) {
+    while (1) {
+        if (!stdin_buffer_complete) {
+            int x = getchar();
+            if (x != EOF) {
+                if (x == '\n') {
+                    if (stdin_buffer == NULL) {
+                        stdin_buffer = strdup("");
+                    }
+                    stdin_buffer_complete = true;
+                } else {
+                    string_append((char **) &stdin_buffer, "%c", (char) x);
+                }
+            }
+        }
+    }
+}
+__attribute__((destructor)) static void _free_stdin_buffer() {
+    free((void *) stdin_buffer);
+    stdin_buffer = NULL;
+}
+
 // Handle Commands
 static void handle_commands(unsigned char *minecraft) {
+    // Check If Level Is Generated
     if ((*Minecraft_isLevelGenerated)(minecraft) && stdin_buffer_complete) {
+        // Command Ready; Run It
         if (stdin_buffer != NULL) {
             unsigned char *server_side_network_handler = get_server_side_network_handler(minecraft);
             if (server_side_network_handler != NULL) {
@@ -309,7 +330,7 @@ static void handle_commands(unsigned char *minecraft) {
                     find_players(minecraft, "", list_callback, true);
                 } else if (data == stop_command) {
                     // Stop Server
-                    exit_handler(-1);
+                    compat_request_exit();
                 } else if (data == help_command) {
                     INFO("%s", "All Commands:");
                     if (!is_whitelist()) {
@@ -325,6 +346,7 @@ static void handle_commands(unsigned char *minecraft) {
                 }
             }
 
+            // Free
             free((void *) stdin_buffer);
             stdin_buffer = NULL;
         }
@@ -339,6 +361,14 @@ static void Minecraft_update_injection(unsigned char *minecraft) {
     if (!loaded) {
         start_world(minecraft);
         loaded = true;
+    }
+
+    // Handle --only-generate
+    if (only_generate && (*Minecraft_isLevelGenerated)(minecraft)) {
+        // Request Exit
+        compat_request_exit();
+        // Disable Special Behavior After Requesting Exit
+        only_generate = false;
     }
 
     // Print Progress Reports
@@ -363,11 +393,13 @@ static bool RakNet_RakPeer_IsBanned_injection(__attribute__((unused)) unsigned c
         if (blacklist_file.good()) {
             std::string line;
             while (std::getline(blacklist_file, line)) {
+                // Check Line
                 if (line.length() > 0) {
                     if (line[0] == '#') {
                         continue;
                     }
                     if (strcmp(line.c_str(), ip) == 0) {
+                        // Is In File
                         ret = true;
                         break;
                     }
@@ -425,8 +457,8 @@ static unsigned char get_max_players() {
 
 static void server_init() {
     // Open Properties File
-    std::string file(getenv("HOME"));
-    file.append("/.minecraft-pi/server.properties");
+    std::string file(home_get_launch_directory());
+    file.append("/server.properties");
 
     std::ifstream properties_file(file);
 
@@ -487,17 +519,14 @@ static void server_init() {
     overwrite_calls((void *) Minecraft_update, (void *) Minecraft_update_injection);
     // Print Log On Game Save
     overwrite_calls((void *) Level_saveLevelData, (void *) Level_saveLevelData_injection);
-    // Exit handler
-    signal(SIGINT, exit_handler);
-    signal(SIGTERM, exit_handler);
     // Set Max Players
     unsigned char max_players_patch[4] = {get_max_players(), 0x30, 0xa0, 0xe3}; // "mov r3, #MAX_PLAYERS"
     patch((void *) 0x166d0, max_players_patch);
     // Custom Banned IP List
     overwrite((void *) RakNet_RakPeer_IsBanned, (void *) RakNet_RakPeer_IsBanned_injection);
 
+    // Show The MineCon Icon Next To MOTD In Server List
     if (get_server_properties().get_bool("show-minecon-badge", DEFAULT_SHOW_MINECON_BADGE)) {
-        // Show The MineCon Icon Next To MOTD In Server List
         unsigned char minecon_badge_patch[4] = {0x04, 0x1a, 0x9f, 0xe5}; // "ldr r1, [0x741f0]"
         patch((void *) 0x737e4, minecon_badge_patch);
     }
@@ -507,10 +536,9 @@ static void server_init() {
     pthread_create(&read_stdin_thread_obj, NULL, read_stdin_thread, NULL);
 }
 
+// Init Server
 void init_server() {
-    if (feature_get_mode() == 2) {
-        server_init();
-        setenv("MCPI_FEATURES", get_features(), 1);
-        setenv("MCPI_USERNAME", get_motd().c_str(), 1);
-    }
+    server_init();
+    setenv("MCPI_FEATURE_FLAGS", get_features(), 1);
+    setenv("MCPI_USERNAME", get_motd().c_str(), 1);
 }

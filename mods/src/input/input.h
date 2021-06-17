@@ -15,7 +15,7 @@ void input_set_is_left_click(int val);
 
 void input_set_mouse_grab_state(int state);
 
-void init_input_cpp();
+__attribute__((visibility("internal"))) void _init_input_cpp();
 
 #ifdef __cplusplus
 }

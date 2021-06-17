@@ -4,7 +4,7 @@
 extern "C" {
 #endif
 
-void init_game_mode_cpp();
+__attribute__((visibility("internal"))) void _init_game_mode_cpp();
 
 #ifdef __cplusplus
 }

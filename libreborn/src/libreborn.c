@@ -4,65 +4,14 @@
 #include <unistd.h>
 #include <sys/mman.h>
 #include <stdint.h>
-#include <elf.h>
 #include <errno.h>
+#include <elf.h>
 
 #include <libreborn/libreborn.h>
 
-// Find And Iterate Over All .text Sections In Current Binary
-typedef void (*text_section_callback)(void *section, Elf32_Word size, void *data);
-static void iterate_text_section(text_section_callback callback, void *data) {
-    // Load Main Binary
-    char *real_path = realpath("/proc/self/exe", NULL);
-    FILE *file_obj = fopen(real_path, "rb");
-
-    // Verify Binary
-    if (!file_obj) {
-        ERR("Unable To Open Binary: %s", real_path);
-    }
-
-    // Get File Size
-    fseek(file_obj, 0L, SEEK_END);
-    long int size = ftell(file_obj);
-    fseek(file_obj, 0L, SEEK_SET);
-
-    // Map File To Pointer
-    unsigned char *file_map = mmap(0, size, PROT_READ, MAP_PRIVATE, fileno(file_obj), 0);
-
-    // Parse ELF
-    Elf32_Ehdr *elf_header = (Elf32_Ehdr *) file_map;
-    Elf32_Shdr *elf_section_headers = (Elf32_Shdr *) (file_map + elf_header->e_shoff);
-    int elf_section_header_count = elf_header->e_shnum;
-
-    // Locate Section Names
-    Elf32_Shdr elf_strtab = elf_section_headers[elf_header->e_shstrndx];
-    unsigned char *elf_strtab_p = file_map + elf_strtab.sh_offset;
-
-    // Track .text Sections
-    int text_sections = 0;
-
-    // Iterate Sections
-    for (int i = 0; i < elf_section_header_count; ++i) {
-        Elf32_Shdr header = elf_section_headers[i];
-        char *name = (char *) (elf_strtab_p + header.sh_name);
-        if (strcmp(name, ".text") == 0) {
-            (*callback)((void *) header.sh_addr, header.sh_size, data);
-            text_sections++;
-        }
-    }
-
-    // Ensure At Least .text Section Was Scanned
-    if (text_sections < 1) {
-        ERR("Unable To Find .text Sectons On: %s", real_path);
-    }
-
-    // Free Binary Path
-    free(real_path);
-
-    // Unmap And Close File
-    munmap(file_map, size);
-    fclose(file_obj);
-}
+#ifndef __arm__
+#error "Patching Code Is ARM Only"
+#endif // #ifndef __arm__
 
 // BL Instruction Magic Number
 #define BL_INSTRUCTION 0xeb
@@ -124,7 +73,9 @@ static void update_code_block(void *target) {
         if (code_block == MAP_FAILED) {
             ERR("Unable To Allocate Code Block: %s", strerror(errno));
         }
+#ifdef DEBUG
         INFO("Code Block Allocated At: 0x%08x", (uint32_t) code_block);
+#endif
     }
     if (code_block_remaining < CODE_SIZE) {
         ERR("%s", "Maximum Amount Of overwrite_calls() Uses Reached");
@@ -160,7 +111,7 @@ void _overwrite_calls(const char *file, int line, void *start, void *target) {
     data.replacement = code_block;
     data.found = 0;
 
-    iterate_text_section(overwrite_calls_callback, &data);
+    iterate_text_sections(overwrite_calls_callback, &data);
 
     // Increment Code Block Position
     increment_code_block();
@@ -179,10 +130,18 @@ void _overwrite(const char *file, int line, void *start, void *target) {
 }
 
 // Print Patch Debug Data
+#ifdef DEBUG
 #define PATCH_PRINTF(file, line, start, str) if (file != NULL) fprintf(stderr, "[PATCH]: (%s:%i) Patching (0x%08x) - "str": 0x%02x 0x%02x 0x%02x 0x%02x\n", file, line, (uint32_t) start, data[0], data[1], data[2], data[3]);
+#else
+#define PATCH_PRINTF(file, line, start, str) { (void) file; (void) line; (void) start; (void) str; } // Mark As Used
+#endif
 
 // Patch Instruction
 void _patch(const char *file, int line, void *start, unsigned char patch[]) {
+    if (((uint32_t) start) % 4 != 0) {
+        ERR("%s", "Invalid Address");
+    }
+
     size_t page_size = sysconf(_SC_PAGESIZE);
     uintptr_t end = ((uintptr_t) start) + 4;
     uintptr_t page_start = ((uintptr_t) start) & -page_size;
@@ -209,28 +168,4 @@ void _patch_address(const char *file, int line, void *start, void *target) {
     uint32_t addr = (uint32_t) target;
     unsigned char patch_data[4] = {addr & 0xff, (addr >> 8) & 0xff, (addr >> 16) & 0xff, (addr >> 24) & 0xff};
     _patch(file, line, start, patch_data);
-}
-
-// Sanitize String
-#define MINIMUM_SAFE_CHARACTER 32
-#define MAXIMUM_SAFE_CHARACTER 126
-#define MINIMUM_EXTENDED_SAFE_CHARACTER 128
-void sanitize_string(char **str, int max_length, unsigned int allow_newlines) {
-    // Store Message Length
-    int length = strlen(*str);
-    // Truncate Message
-    if (max_length != -1 && length > max_length) {
-        (*str)[max_length] = '\0';
-        length = max_length;
-    }
-    // Loop Through Message
-    for (int i = 0; i < length; i++) {
-        if (allow_newlines && ((*str)[i] == '\n' || (*str)[i] == '\r')) {
-            continue;
-        }
-        if (((*str)[i] < MINIMUM_SAFE_CHARACTER || (*str)[i] > MAXIMUM_SAFE_CHARACTER) && (*str)[i] < MINIMUM_EXTENDED_SAFE_CHARACTER) {
-            // Replace Illegal Character
-            (*str)[i] = '?';
-        }
-    }
 }

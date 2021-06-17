@@ -1,5 +1,0 @@
-#!/bin/sh
-
-set -e
-
-docker image rm -f thebrokenrail/minecraft-pi-reborn:client

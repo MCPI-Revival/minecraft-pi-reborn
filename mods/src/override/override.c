@@ -1,5 +1,3 @@
-#define _GNU_SOURCE
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -10,28 +8,31 @@
 
 #include <libreborn/libreborn.h>
 
+#include "../home/home.h"
+
 static int starts_with(const char *s, const char *t) {
     return strncmp(s, t, strlen(t)) == 0;
 }
 
 static char *get_override_path(const char *filename) {
+    // Get MCPI Home Path
+    char *home_path = home_get();
     // Get Asset Override Path
     char *overrides = NULL;
-    asprintf(&overrides, "%s/.minecraft-pi/overrides", getenv("HOME"));
-    ALLOC_CHECK(overrides);
-    // Get data Path
+    safe_asprintf(&overrides, "%s/overrides", home_path);
+    // Free Home Path
+    free(home_path);
+    // Get Data Path
     char *data = NULL;
     char *cwd = getcwd(NULL, 0);
-    asprintf(&data, "%s/data", cwd);
-    ALLOC_CHECK(data);
+    safe_asprintf(&data, "%s/data", cwd);
     free(cwd);
     // Get Full Path
     char *new_path = NULL;
     char *full_path = realpath(filename, NULL);
     if (full_path != NULL) {
         if (starts_with(full_path, data)) {
-            asprintf(&new_path, "%s%s", overrides, &full_path[strlen(data)]);
-            ALLOC_CHECK(new_path);
+            safe_asprintf(&new_path, "%s%s", overrides, &full_path[strlen(data)]);
             if (access(new_path, F_OK) == -1) {
                 free(new_path);
                 new_path = NULL;

@@ -48,7 +48,7 @@ static void Touch_SelectWorldScreen_tick_injection(unsigned char *screen) {
     }
 }
 
-void init_game_mode_cpp() {
+void _init_game_mode_cpp() {
     // Hijack Create World Button
     patch_address(SelectWorldScreen_tick_vtable_addr, (void *) SelectWorldScreen_tick_injection);
     patch_address(Touch_SelectWorldScreen_tick_vtable_addr, (void *) Touch_SelectWorldScreen_tick_injection);

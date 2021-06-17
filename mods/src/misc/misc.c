@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
 
 #include <libreborn/libreborn.h>
 #include <libreborn/minecraft.h>
@@ -7,9 +8,6 @@
 #include "../feature/feature.h"
 #include "misc.h"
 #include "../init/init.h"
-
-// Minecraft Pi User Data Root
-#define NEW_PATH "/.minecraft-pi/"
 
 // Maximum Username Length
 #define MAX_USERNAME_LENGTH 16
@@ -67,9 +65,6 @@ static void LoginPacket_read_injection(unsigned char *packet, unsigned char *bit
 }
 
 void init_misc() {
-    // Store Data In ~/.minecraft-pi Instead Of ~/.minecraft
-    patch_address((void *) default_path, (void *) NEW_PATH);
-
     if (feature_has("Remove Invalid Item Background")) {
         // Remove Invalid Item Background (A Red Background That Appears For Items That Are Not Included In The gui_blocks Atlas)
         unsigned char invalid_item_background_patch[4] = {0x00, 0xf0, 0x20, 0xe3}; // "nop"
@@ -84,11 +79,6 @@ void init_misc() {
     // Sanitize Username
     patch_address(LoginPacket_read_vtable_addr, (void *) LoginPacket_read_injection);
 
-    // Show FPS Monitor
-    if (feature_has("Show FPS Monitor")) {
-        setenv("GALLIUM_HUD", "simple,fps", 1);
-    }
-
     // Init C++
-    init_misc_cpp();
+    _init_misc_cpp();
 }

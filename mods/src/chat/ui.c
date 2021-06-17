@@ -1,5 +1,3 @@
-#define _GNU_SOURCE
-
 #include <stdio.h>
 #include <pthread.h>
 #include <unistd.h>
@@ -9,39 +7,11 @@
 
 #include "chat.h"
 
-#define CHAT_WINDOW_TCL \
-    "set message \"\"\n" \
-    "proc submit {} {\n" \
-        "global message\n" \
-        "puts \"$message\"\n" \
-        "exit\n" \
-    "}\n" \
-    \
-    "wm resizable . false false\n" \
-    "wm title . \"Chat\"\n" \
-    "wm attributes . -topmost true -type {dialog}\n" \
-    \
-    "ttk::label .label -text \"Enter Chat Message:\"\n" \
-    \
-    "ttk::entry .entry -textvariable message\n" \
-    "focus .entry\n" \
-    "bind .entry <Key-Return> submit\n" \
-    \
-    "ttk::frame .button\n" \
-    "ttk::button .button.submit -text \"Submit\" -command submit\n" \
-    "ttk::button .button.cancel -text \"Cancel\" -command exit\n" \
-    \
-    "grid .label -row 0 -padx 6 -pady 6\n" \
-    "grid .entry -row 1 -padx 6\n" \
-    "grid .button -row 2 -padx 3 -pady 6\n" \
-    "grid .button.cancel -row 0 -column 0 -padx 3\n" \
-    "grid .button.submit -row 0 -column 1 -padx 3\n"
-
 // Run Command
 static char *run_command(char *command, int *return_code) {
-    // Don't Contaminate Child Process
-    unsetenv("LD_LIBRARY_PATH");
-    unsetenv("LD_PRELOAD");
+    // Prepare Environment
+    RESET_ENVIRONMENTAL_VARIABLE("LD_LIBRARY_PATH");
+    RESET_ENVIRONMENTAL_VARIABLE("LD_PRELOAD");
 
     // Start
     FILE *out = popen(command, "r");
@@ -53,8 +23,7 @@ static char *run_command(char *command, int *return_code) {
     char *output = NULL;
     int c;
     while ((c = fgetc(out)) != EOF) {
-        asprintf(&output, "%s%c", output == NULL ? "" : output, (char) c);
-        ALLOC_CHECK(output);
+        string_append(&output, "%c", (char) c);
     }
 
     // Return
@@ -71,11 +40,9 @@ unsigned int chat_get_counter() {
 
 // Chat Thread
 static void *chat_thread(__attribute__((unused)) void *nop) {
-    // Prepare
-    setenv("CHAT_WINDOW_TCL", CHAT_WINDOW_TCL, 1);
     // Open
     int return_code;
-    char *output = run_command("echo \"${CHAT_WINDOW_TCL}\" | wish -name \"Minecraft - Pi edition\"", &return_code);
+    char *output = run_command("zenity --title \"Chat\" --class \"Minecraft - Pi edition\" --entry --text \"Enter Chat Message:\"", &return_code);
     // Handle Message
     if (output != NULL) {
         // Check Return Code
@@ -89,7 +56,7 @@ static void *chat_thread(__attribute__((unused)) void *nop) {
             // Don't Allow Empty Strings
             if (length > 0) {
                 // Submit
-                chat_queue_message(output);
+                _chat_queue_message(output);
             }
         }
         // Free Output

@@ -79,7 +79,7 @@ static void Minecraft_tickInput_injection(unsigned char *minecraft) {
     mouse_grab_state = 0;
 }
 
-#include <SDL/SDL_events.h>
+#include <SDL/SDL.h>
 
 // Block UI Interaction When Mouse Is Locked
 static bool Gui_tickItemDrop_Minecraft_isCreativeMode_call_injection(unsigned char *minecraft) {
@@ -149,5 +149,5 @@ void init_input() {
     }
 
     // Init C++
-    init_input_cpp();
+    _init_input_cpp();
 }

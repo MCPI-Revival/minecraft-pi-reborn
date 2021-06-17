@@ -1,4 +1,3 @@
-#define _GNU_SOURCE
 #define __USE_LARGEFILE64
 
 #include <stddef.h>

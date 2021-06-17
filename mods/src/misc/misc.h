@@ -4,7 +4,11 @@
 extern "C" {
 #endif
 
-void init_misc_cpp();
+#ifdef MCPI_SERVER_MODE
+char *misc_get_launch_directory();
+#endif
+
+__attribute__((visibility("internal"))) void _init_misc_cpp();
 
 #ifdef __cplusplus
 }

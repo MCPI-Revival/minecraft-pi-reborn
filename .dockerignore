@@ -1,9 +1,0 @@
-/.git
-/.gitignore
-/Dockerfile*
-/Jenkinsfile
-/out
-/LICENSE
-*.md
-/debian
-/scripts

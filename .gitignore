@@ -1,3 +1,6 @@
 /out
 /debian/tmp
 /.vscode
+/build
+/CMakeLists.txt.user
+*.autosave

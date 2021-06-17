@@ -13,6 +13,7 @@ static uint32_t LevelData_getSpawnMobs_injection(__attribute__((unused)) unsigne
     return mob_spawning;
 }
 
+#ifndef MCPI_SERVER_MODE
 // Get Custom Render Distance
 static int get_render_distance() {
     char *distance_str = getenv("MCPI_RENDER_DISTANCE");
@@ -31,6 +32,8 @@ static int get_render_distance() {
         ERR("Invalid Render Distance: %s", distance_str);
     }
 }
+#endif // #ifndef MCPI_SERVER_MODE
+
 // Get Custom Username
 static char *get_username() {
     char *username = getenv("MCPI_USERNAME");
@@ -71,8 +74,6 @@ static int32_t Minecraft_isTouchscreen_injection(__attribute__((unused)) unsigne
 }
 
 void init_options() {
-    int is_server = feature_get_mode() == 2;
-
     int touch_gui = feature_has("Touch GUI");
     if (touch_gui) {
         // Main UI
@@ -93,21 +94,21 @@ void init_options() {
     // 3D Anaglyph
     anaglyph = feature_has("3D Anaglyph");
     // Render Distance
-    if (!is_server) {
-        render_distance = get_render_distance();
-        INFO("Setting Render Distance: %i", render_distance);
-    } else {
-        render_distance = 3;
-    }
+#ifndef MCPI_SERVER_MODE
+    render_distance = get_render_distance();
+    INFO("Setting Render Distance: %i", render_distance);
+#else // #ifndef MCPI_SERVER_MODE
+    render_distance = 3;
+#endif // #ifndef MCPI_SERVER_MODE
 
     // Set Options
     overwrite_calls((void *) Minecraft_init, Minecraft_init_injection);
 
     // Change Username
     const char *username = get_username();
-    if (!is_server) {
-        INFO("Setting Username: %s", username);
-    }
+#ifndef MCPI_SERVER_MODE
+    INFO("Setting Username: %s", username);
+#endif // #ifndef MCPI_SERVER_MODE
     if (strcmp(*default_username, "StevePi") != 0) {
         ERR("%s", "Default Username Is Invalid");
     }

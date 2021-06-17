@@ -1,36 +1,33 @@
 pipeline {
-    agent {
-        dockerfile {
-            filename 'Dockerfile.build'
-            args '-v /var/run/docker.sock:/var/run/docker.sock'
-        }
-    }
+    agent none
     stages {
-        stage('Install QEMU') {
-            steps {
-                sh 'docker run --rm --privileged multiarch/qemu-user-static --reset -p yes'
-            }
-        }
-        stage('Build') {
-            steps {
-                sh 'DOCKER_BUILD_OPTIONS="--no-cache" ./scripts/build.sh'
-            }
-        }
-        stage('Publish') {
-            steps {
-                withCredentials([usernamePassword(credentialsId: 'docker_hub_login', usernameVariable: 'DOCKER_HUB_USERNAME', passwordVariable: 'DOCKER_HUB_PASSWORD')]) {
-                    sh 'docker login -u "${DOCKER_HUB_USERNAME}" -p "${DOCKER_HUB_PASSWORD}"'
+        stage('Build (Debian Bullseye)') {
+            agent {
+                docker {
+                    image 'debian:bullseye'
                 }
-                sh 'docker push thebrokenrail/minecraft-pi-reborn'
             }
-        }
-        stage('Package') {
             steps {
-                sh './scripts/package.sh'
+                sh './scripts/ci/run.sh'
             }
             post {
                 success {
-                    archiveArtifacts artifacts: 'out/**', fingerprint: true
+                    archiveArtifacts artifacts: 'out/*.deb', fingerprint: true
+                }
+            }
+        }
+        stage('Build (Debian Buster)') {
+            agent {
+                docker {
+                    image 'debian:buster'
+                }
+            }
+            steps {
+                sh './scripts/ci/run.sh'
+            }
+            post {
+                success {
+                    archiveArtifacts artifacts: 'out/*.deb', fingerprint: true
                 }
             }
         }

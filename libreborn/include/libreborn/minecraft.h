@@ -404,7 +404,7 @@ struct ConnectedClient {
 
 // AppPlatform
 
-typedef void (*AppPlatform_saveScreenshot_t)(unsigned char *app_platform, std::string const& param1, std::string const& param_2);
+typedef void (*AppPlatform_saveScreenshot_t)(unsigned char *app_platform, std::string const& path, int32_t width, int32_t height);
 static void *AppPlatform_linux_saveScreenshot_vtable_addr = (void *) 0x102160;
 
 typedef AppPlatform_readAssetFile_return_value (*AppPlatform_readAssetFile_t)(unsigned char *app_platform, std::string const& path);

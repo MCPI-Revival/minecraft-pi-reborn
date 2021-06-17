@@ -28,8 +28,7 @@ static void send_api_command(unsigned char *minecraft, char *str) {
 // Send API Chat Command
 static void send_api_chat_command(unsigned char *minecraft, char *str) {
     char *command = NULL;
-    asprintf(&command, "chat.post(%s)\n", str);
-    ALLOC_CHECK(command);
+    safe_asprintf(&command, "chat.post(%s)\n", str);
     send_api_command(minecraft, command);
     free(command);
 }
@@ -37,8 +36,7 @@ static void send_api_chat_command(unsigned char *minecraft, char *str) {
 // Send Message To Players
 static void send_message(unsigned char *server_side_network_handler, char *username, char *message) {
     char *full_message = NULL;
-    asprintf(&full_message, "<%s> %s", username, message);
-    ALLOC_CHECK(full_message);
+    safe_asprintf(&full_message, "<%s> %s", username, message);
     sanitize_string(&full_message, MAX_CHAT_MESSAGE_LENGTH, 0);
     (*ServerSideNetworkHandler_displayGameMessage)(server_side_network_handler, std::string(full_message));
     free(full_message);
@@ -78,7 +76,7 @@ static void ServerSideNetworkHandler_handle_ChatPacket_injection(unsigned char *
 static pthread_mutex_t queue_mutex = PTHREAD_MUTEX_INITIALIZER;
 static std::vector<std::string> queue;
 // Add To Queue
-void chat_queue_message(char *message) {
+void _chat_queue_message(char *message) {
     // Lock
     pthread_mutex_lock(&queue_mutex);
     // Add
