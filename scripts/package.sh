@@ -17,6 +17,9 @@ package() {
     # Format DEBIAN/control
     sed -i "s/\${VERSION}/${VERSION}~$(lsb_release -cs)/g" "${dir}/DEBIAN/control"
     
+    # Fix Permissions
+    chmod -R g-s "${dir}"
+    
     # Package
     dpkg-deb --root-owner-group --build "${dir}" out
 }
