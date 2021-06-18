@@ -12,8 +12,3 @@ To use, install and run ``minecraft-pi-reborn-server``. It will generate the wor
 * Player data is not saved because of limitations with MCPE LAN worlds
   * An easy workaround is to place your inventory in a chest before logging off
 * Survival Mode servers are incompatible with unmodded MCPI
-
-## Arguments
-
-### ``--only-generate``
-If you run the server with ``--only-generate``, it will immediately exit once world generation has completed. This is mainly used for automatically testing MCPI-Reborn.

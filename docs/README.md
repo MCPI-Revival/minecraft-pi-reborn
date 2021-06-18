@@ -6,3 +6,4 @@
 * [View Terminology](TERMINOLOGY.md)
 * [View Building](BUILDING.md)
 * [View Architecture](ARCHITECTURE.md)
+* [View Command Line Arguments](COMMAND_LINE.md)
