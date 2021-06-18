@@ -10,7 +10,7 @@ minecraft-pi-reborn-<Variant>_X.Y.Z~<Distribution>_<Architecture>
 
 ### Picking A Variant
 * ``client``: Client mode, use this if you want to play MCPI
-* ``server``: Server mode, use this if you want to host an MCPI server
+* ``server``: Server mode, use this if you want to host a dedicated MCPI server
 
 ### Picking A Distribution
 This specifies which version of Debian MCPI-Reborn was built against. Which one you should use depends on your current distribution. If your distribution supports it, you should use ``bullseye`` for better mouse sensitivity.

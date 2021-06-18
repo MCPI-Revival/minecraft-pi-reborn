@@ -15,7 +15,11 @@ if(BUILD_ARM_COMPONENTS)
     add_library(EGL SHARED src/EGL.c)
     target_link_libraries(EGL reborn-headers media-layer-headers)
     # Install
-    install(TARGETS EGL DESTINATION "${MCPI_FALLBACK_LIB_DIR}") # Place At The End Of LD_LIBRARY_PATH
+    if(MCPI_SERVER_MODE OR MCPI_USE_MEDIA_LAYER_PROXY)
+        install(TARGETS EGL DESTINATION "${MCPI_LIB_DIR}")
+    else()
+        install(TARGETS EGL DESTINATION "${MCPI_FALLBACK_LIB_DIR}") # Place At The End Of LD_LIBRARY_PATH
+    endif()
 
     # Install GLESv1_CM Stubs In Server Mode
     if(MCPI_SERVER_MODE)
