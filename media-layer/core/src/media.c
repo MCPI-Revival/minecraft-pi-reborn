@@ -188,6 +188,8 @@ void SDL_WM_SetCaption(const char *title, __attribute__((unused)) const char *ic
     glfwWindowHint(GLFW_CLIENT_API, GLFW_OPENGL_ES_API);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 1);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 1);
+    // Use EGL
+    glfwWindowHint(GLFW_CONTEXT_CREATION_API, GLFW_EGL_CONTEXT_API);
     // Extra Settings
     glfwWindowHint(GLFW_AUTO_ICONIFY, GLFW_FALSE);
     glfwWindowHint(GLFW_ALPHA_BITS, 0); // Fix Transparent Window On Wayland
