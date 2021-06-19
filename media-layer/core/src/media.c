@@ -280,39 +280,82 @@ void media_cleanup() {
 #endif // #ifndef MCPI_SERVER_MODE
 }
 
-#ifdef MCPI_SERVER_MODE
-static SDL_GrabMode fake_grab_mode = SDL_GRAB_OFF;
-#endif // #ifdef MCPI_SERVER_MODE
+// Store Cursor State
+static int cursor_grabbed = 0;
+static int cursor_visible = 1;
+
+// Update GLFW Cursor State (Client Only)
+#ifndef MCPI_SERVER_MODE
+static void update_glfw_cursor() {
+    // Store Old Mode
+    int old_mode = glfwGetInputMode(glfw_window, GLFW_CURSOR);
+
+    // Handle Cursor Visibility
+    int new_mode;
+    if (!cursor_visible) {
+        if (cursor_grabbed) {
+            new_mode = GLFW_CURSOR_DISABLED;
+        } else {
+            new_mode = GLFW_CURSOR_HIDDEN;
+        }
+    } else {
+        new_mode = GLFW_CURSOR_NORMAL;
+    }
+    if (new_mode != old_mode) {
+        // Set New Mode
+        glfwSetInputMode(glfw_window, GLFW_CURSOR, new_mode);
+
+        // Handle Cursor Lock/Unlock
+        if ((new_mode == GLFW_CURSOR_DISABLED && old_mode != GLFW_CURSOR_DISABLED) || (new_mode != GLFW_CURSOR_DISABLED && old_mode == GLFW_CURSOR_DISABLED)) {
+            // Use Raw Mouse Motion (GLFW 3.3+ Only)
+#ifdef GLFW_RAW_MOUSE_MOTION
+            glfwSetInputMode(glfw_window, GLFW_RAW_MOUSE_MOTION, new_mode == GLFW_CURSOR_DISABLED ? GLFW_TRUE : GLFW_FALSE);
+#endif
+            // Reset Last Mouse Position
+            ignore_relative_mouse = 1;
+        }
+    }
+}
+#endif
 
 // Fix SDL Cursor Visibility/Grabbing
 SDL_GrabMode SDL_WM_GrabInput(SDL_GrabMode mode) {
-#ifdef MCPI_SERVER_MODE
-    // Don't Grab Input In Server Mode
-    if (mode != SDL_GRAB_QUERY) {
-        fake_grab_mode = mode;
+    if (mode == SDL_GRAB_QUERY) {
+        // Query
+        return cursor_grabbed ? SDL_GRAB_ON : SDL_GRAB_OFF;
+    } else if (mode == SDL_GRAB_ON) {
+        // Store State
+        cursor_grabbed = 1;
+    } else if (mode == SDL_GRAB_OFF) {
+        // Store State
+        cursor_grabbed = 0;
     }
-    return fake_grab_mode;
-#else // #ifdef MCPI_SERVER_MODE
-    if (mode != SDL_GRAB_QUERY && mode != SDL_WM_GrabInput(SDL_GRAB_QUERY)) {
-        glfwSetInputMode(glfw_window, GLFW_CURSOR, mode == SDL_GRAB_OFF ? GLFW_CURSOR_NORMAL : GLFW_CURSOR_DISABLED);
-#if GLFW_VERSION_MAJOR > 3 || (GLFW_VERSION_MAJOR == 3 && GLFW_VERSION_MINOR >= 3)
-        glfwSetInputMode(glfw_window, GLFW_RAW_MOUSE_MOTION, mode == SDL_GRAB_OFF ? GLFW_FALSE : GLFW_TRUE);
-#endif // #if GLFW_VERSION_MAJOR > 3 || (GLFW_VERSION_MAJOR == 3 && GLFW_VERSION_MINOR >= 3)
-
-        // Reset Last Mouse Position
-        ignore_relative_mouse = 1;
-    }
-    return mode == SDL_GRAB_QUERY ? (glfwGetInputMode(glfw_window, GLFW_CURSOR) == GLFW_CURSOR_NORMAL ? SDL_GRAB_OFF : SDL_GRAB_ON) : mode;
-#endif // #ifdef MCPI_SERVER_MODE
+    // Update Cursor GLFW State (Client Only)
+#ifndef MCPI_SERVER_MODE
+    update_glfw_cursor();
+#endif
+    // Return
+    return mode;
 }
 
 // Stub SDL Cursor Visibility
 int SDL_ShowCursor(int toggle) {
-#ifdef MCPI_SERVER_MODE
-    return toggle == SDL_QUERY ? (fake_grab_mode == SDL_GRAB_OFF ? SDL_ENABLE : SDL_DISABLE) : toggle;
-#else // #ifdef MCPI_SERVER_MODE
-    return toggle == SDL_QUERY ? (glfwGetInputMode(glfw_window, GLFW_CURSOR) == GLFW_CURSOR_NORMAL ? SDL_ENABLE : SDL_DISABLE) : toggle;
-#endif // #ifdef MCPI_SERVER_MODE
+    if (toggle == SDL_QUERY) {
+        // Query
+        return cursor_visible ? SDL_ENABLE : SDL_DISABLE;
+    } else if (toggle == SDL_ENABLE) {
+        // Store State
+        cursor_visible = 1;
+    } else if (toggle == SDL_DISABLE) {
+        // Store State
+        cursor_visible = 0;
+    }
+    // Update Cursor GLFW State (Client Only)
+#ifndef MCPI_SERVER_MODE
+    update_glfw_cursor();
+#endif
+    // Return
+    return toggle;
 }
 
 // Get Framebuffer Size

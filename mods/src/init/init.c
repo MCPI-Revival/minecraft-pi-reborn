@@ -11,6 +11,7 @@ __attribute__((constructor)) static void init() {
     init_misc();
     init_camera();
     init_options();
+    init_touch();
     init_textures();
     init_chat();
     init_home();

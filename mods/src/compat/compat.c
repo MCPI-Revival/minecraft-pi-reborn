@@ -12,6 +12,13 @@
 #include "../init/init.h"
 #include "compat.h"
 
+// Mouse Cursor Is Always Invisible In Vanilla MCPI
+// Because In Vanilla MCPI, The GPU Overlay Covered The Normal Mouse Cursor
+HOOK(SDL_ShowCursor, int, (int toggle)) {
+    ensure_SDL_ShowCursor();
+    return (*real_SDL_ShowCursor)(toggle == SDL_QUERY ? SDL_QUERY : SDL_DISABLE);
+}
+
 // Intercept SDL Events
 HOOK(SDL_PollEvent, int, (SDL_Event *event)) {
     // In Server Mode, Exit Requests Are Handled In src/server/server.cpp

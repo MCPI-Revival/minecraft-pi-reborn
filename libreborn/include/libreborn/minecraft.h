@@ -12,6 +12,9 @@ typedef uint32_t bool;
 
 // Globals
 
+typedef void (*renderCursor_t)(float x, float y, unsigned char *minecraft);
+static renderCursor_t renderCursor = (renderCursor_t) 0x480c4;
+
 static char **default_path = (char **) 0xe264; // /.minecraft/
 static char **default_username = (char **) 0x18fd4; // StevePi
 
@@ -119,6 +122,20 @@ static uint32_t Minecraft_progress_property_offset = 0xc60; // int32_t
 static uint32_t Minecraft_command_server_property_offset = 0xcc0; // CommandServer *
 static uint32_t Minecraft_screen_property_offset = 0xc10; // Screen *
 static uint32_t Minecraft_gui_property_offset = 0x198; // Gui
+
+// GameRenderer
+
+typedef void (*GameRenderer_render_t)(unsigned char *game_renderer, float param_1);
+static GameRenderer_render_t GameRenderer_render = (GameRenderer_render_t) 0x4a338;
+
+static uint32_t GameRenderer_minecraft_property_offset = 0x4; // Minecraft *
+
+// Mouse
+
+typedef int (*Mouse_get_t)();
+
+static Mouse_get_t Mouse_getX = (Mouse_get_t) 0x1385c;
+static Mouse_get_t Mouse_getY = (Mouse_get_t) 0x1386c;
 
 // CommandServer
 

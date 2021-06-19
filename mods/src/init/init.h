@@ -14,6 +14,7 @@ void init_input();
 void init_misc();
 void init_camera();
 void init_options();
+void init_touch();
 void init_textures();
 void init_chat();
 void init_home();
