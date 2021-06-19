@@ -96,6 +96,8 @@ The code patching is ARM only because it relies on hard-coded ARM instructions. 
 MCPI-Reborn has several dependencies:
 * MCPI (Bundled)
 * GLFW (Only In Client Mode)
+  * Open GL ES 1.1
+  * EGL
 * ZLib (Required By LibPNG; Bundled)
 * LibPNG (Bundled)
 * FreeImage (Only In Client Mode)
