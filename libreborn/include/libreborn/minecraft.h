@@ -197,6 +197,7 @@ static uint32_t Entity_die_vtable_offset = 0x130;
 
 typedef void (*Mob_actuallyHurt_t)(unsigned char *entity, int32_t damage);
 static Mob_actuallyHurt_t Mob_actuallyHurt = (Mob_actuallyHurt_t) 0x7f11c;
+static uint32_t Mob_actuallyHurt_vtable_offset = 0x16c;
 
 static uint32_t Mob_health_property_offset = 0xec; // int32_t
 

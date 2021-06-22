@@ -1,5 +1,8 @@
 # Changelog
 
+**2.0.3**
+* Make "kill" Admin Command Print Death Message
+
 **2.0.2**
 * Fix Mouse Cursor Bugs
 

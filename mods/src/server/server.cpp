@@ -229,8 +229,8 @@ static void ban_callback(unsigned char *minecraft, std::string username, unsigne
 // Kill Player
 static void kill_callback(__attribute__((unused)) unsigned char *minecraft, __attribute__((unused)) std::string username, unsigned char *player) {
     unsigned char *player_vtable = *(unsigned char **) player;
-    Entity_die_t Entity_die = *(Entity_die_t *) (player_vtable + Entity_die_vtable_offset);
-    (*Entity_die)(player, NULL);
+    Mob_actuallyHurt_t Mob_actuallyHurt = *(Mob_actuallyHurt_t *) (player_vtable + Mob_actuallyHurt_vtable_offset);
+    (*Mob_actuallyHurt)(player, INT32_MAX);
     INFO("Killed: %s", username.c_str());
 }
 

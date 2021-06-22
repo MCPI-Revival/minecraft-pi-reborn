@@ -12,6 +12,7 @@ void init_server();
 void init_game_mode();
 void init_input();
 void init_misc();
+void init_death();
 void init_camera();
 void init_options();
 void init_touch();

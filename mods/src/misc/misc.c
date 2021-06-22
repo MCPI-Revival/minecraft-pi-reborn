@@ -64,6 +64,7 @@ static void LoginPacket_read_injection(unsigned char *packet, unsigned char *bit
     free(new_username);
 }
 
+// Init
 void init_misc() {
     if (feature_has("Remove Invalid Item Background")) {
         // Remove Invalid Item Background (A Red Background That Appears For Items That Are Not Included In The gui_blocks Atlas)
