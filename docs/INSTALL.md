@@ -16,7 +16,6 @@ minecraft-pi-reborn-<Variant>_X.Y.Z~<Distribution>_<Architecture>
 This specifies which version of Debian MCPI-Reborn was built against. Which one you should use depends on your current distribution. If your distribution supports it, you should use ``bullseye`` for better mouse sensitivity.
 
 * Ubuntu 20.04+: ``bullseye``
-* Ubuntu 18.04: ``buster``
 * Raspberry Pi OS Buster: ``buster``
 * Debian Bullseye+: ``bullseye``
 * Debian Buster: ``buster``
