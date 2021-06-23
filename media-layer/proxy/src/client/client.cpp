@@ -62,6 +62,7 @@ int main(int argc, char *argv[]) {
 
     // Send Connection Message
     write_string((char *) CONNECTED_MSG);
+    flush_write_cache();
 
     // Loop
     int running = is_connection_open();
@@ -74,6 +75,9 @@ int main(int argc, char *argv[]) {
             if (!is_connection_open()) {
                 // Exit
                 running = 0;
+            } else {
+                // Flush Write Cache
+                flush_write_cache();
             }
         } else {
             PROXY_ERR("Invalid Method ID: %i", (int) unique_id);

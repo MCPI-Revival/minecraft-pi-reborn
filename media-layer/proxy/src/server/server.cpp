@@ -147,8 +147,22 @@ static std::unordered_map<std::string, unsigned char> &get_unique_ids() {
 void _assign_unique_id(const char *name, unsigned char id) {
     get_unique_ids()[name] = id;
 }
-__attribute__((const)) static unsigned char get_unique_id(const char *name) {
-    return get_unique_ids()[name]; // Assume ID Exists
+// Only Compare Strings The First Time, Then Cache C String Addresses
+static std::unordered_map<const char *, unsigned char> &get_unique_ids_cache() {
+    static std::unordered_map<const char *, unsigned char> unique_ids;
+    return unique_ids;
+}
+static unsigned char get_unique_id(const char *name) {
+    // Check If C String Is Cached
+    if (get_unique_ids_cache().find(name) != get_unique_ids_cache().end()) {
+        // Use Cache
+        return get_unique_ids_cache()[name];
+    } else {
+        // Compare Strings
+        unsigned char id = get_unique_ids()[name]; // Assume ID Exists
+        get_unique_ids_cache()[name] = id;
+        return id;
+    }
 }
 
 // The Proxy Is Single-Threaded
@@ -159,6 +173,8 @@ void _start_proxy_call(const char *call_name) {
     write_byte(get_unique_id(call_name));
 }
 void end_proxy_call() {
+    // Flush Write Cache
+    flush_write_cache();
     // Release Proxy
     pthread_mutex_unlock(&proxy_mutex);
 }

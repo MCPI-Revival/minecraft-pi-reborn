@@ -15,9 +15,13 @@
         } \
     }
 void safe_read(void *buf, size_t len) {
+    // Check Data
     if (buf == NULL) {
         PROXY_ERR("%s", "Attempting To Read Into NULL Buffer");
     }
+    // Flush Write Cache
+    flush_write_cache();
+    // Read
     size_t to_read = len;
     while (to_read > 0) {
         CHECK_CONNECTION();
@@ -29,19 +33,58 @@ void safe_read(void *buf, size_t len) {
     }
 }
 // Buffer Writes
+static void *_write_cache = NULL;
+__attribute__((destructor)) static void _free_write_cache() {
+    if (_write_cache != NULL) {
+        free(_write_cache);
+    }
+}
+static size_t _write_cache_size = 0;
+static size_t _write_cache_position = 0;
 void safe_write(void *buf, size_t len) {
+    // Check Data
     if (buf == NULL) {
         PROXY_ERR("%s", "Attempting To Send NULL Data");
     }
-    size_t to_write = len;
+    // Expand Write Cache If Needed
+    size_t needed_size = _write_cache_position + len;
+    if (_write_cache == NULL) {
+        _write_cache_size = needed_size;
+        _write_cache = malloc(_write_cache_size);
+    } else if (needed_size > _write_cache_size) {
+        _write_cache_size = needed_size;
+        _write_cache = realloc(_write_cache, _write_cache_size);
+    }
+    ALLOC_CHECK(_write_cache);
+    // Copy Data
+    memcpy(_write_cache + _write_cache_position, buf, len);
+    // Advance Position
+    _write_cache_position += len;
+}
+// Flush Write Cache
+void flush_write_cache() {
+    // Check Connection
+    if (!is_connection_open()) {
+        // Connection Closed
+        return;
+    }
+    // Check Cache
+    if (_write_cache == NULL || _write_cache_position < 1) {
+        // Nothing To Write
+        return;
+    }
+    // Write
+    size_t to_write = _write_cache_position;
     while (to_write > 0) {
         CHECK_CONNECTION();
-        ssize_t x = write(get_connection_write(), buf + (len - to_write), to_write);
+        ssize_t x = write(get_connection_write(), _write_cache + (_write_cache_position - to_write), to_write);
         if (x == -1 && errno != EINTR) {
             PROXY_ERR("Failed Writing Data To Connection: %s", strerror(errno));
         }
         to_write -= x;
     }
+    // Reset
+    _write_cache_position = 0;
 }
 
 // Read/Write 32-Bit Integers
@@ -107,6 +150,9 @@ void write_string(char *str) {
 
 // Close Connection
 void close_connection() {
+    // Flush Write Cache
+    flush_write_cache();
+    // Close
     int state_changed = 0;
     if (get_connection_read() != -1) {
         close(get_connection_read());

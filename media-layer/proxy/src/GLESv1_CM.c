@@ -328,6 +328,7 @@ CALL(24, glTexParameteri, void, (GLenum target, GLenum pname, GLint param)) {
 #endif
 }
 
+// Get Size (In Memory) Of Specified Texture
 static int get_texture_size(GLsizei width, GLsizei height, GLenum format, GLenum type) {
     int multiplier;
     if (type == GL_UNSIGNED_BYTE) {

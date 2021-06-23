@@ -259,7 +259,7 @@ CALL(5, SDL_WM_GrabInput, SDL_GrabMode, (SDL_GrabMode mode)) {
 #endif
 }
 
-CALL(6,SDL_ShowCursor, int, (int32_t toggle)) {
+CALL(6, SDL_ShowCursor, int, (int32_t toggle)) {
 #if defined(MEDIA_LAYER_PROXY_SERVER)
     // Lock Proxy
     start_proxy_call();
