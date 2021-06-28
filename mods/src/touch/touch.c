@@ -41,11 +41,11 @@ void init_touch() {
         patch((void *) 0x4a6c0, disable_cursor_patch);
         // Add Custom Cursor Rendering
         overwrite_calls((void *) GameRenderer_render, (void *) GameRenderer_render_injection);
-    }
 
-    // Force Correct Toolbar Size
-    unsigned char toolbar_patch[4] = {0x01, 0x00, 0x50, 0xe3}; // "cmp r0, #0x1"
-    patch((void *) 0x257b0, toolbar_patch);
+        // Force Correct Toolbar Size
+        unsigned char toolbar_patch[4] = {0x01, 0x00, 0x50, 0xe3}; // "cmp r0, #0x1"
+        patch((void *) 0x257b0, toolbar_patch);
+    }
 
     // Show Block Outlines
     int block_outlines = feature_has("Show Block Outlines");

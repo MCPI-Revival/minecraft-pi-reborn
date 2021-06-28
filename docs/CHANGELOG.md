@@ -1,5 +1,8 @@
 # Changelog
 
+**2.0.6**
+* Fix Toolbar Size In Normal GUI
+
 **2.0.5**
 * Show Reborn Version In Start Screen
 * External Server Support
