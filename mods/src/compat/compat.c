@@ -12,6 +12,12 @@
 #include "../init/init.h"
 #include "compat.h"
 
+// Custom Title
+HOOK(SDL_WM_SetCaption, void, (__attribute__((unused)) const char *title, const char *icon)) {
+    ensure_SDL_WM_SetCaption();
+    (*real_SDL_WM_SetCaption)("Minecraft: Pi Edition: Reborn", icon);
+}
+
 // Mouse Cursor Is Always Invisible In Vanilla MCPI
 // Because In Vanilla MCPI, The GPU Overlay Covered The Normal Mouse Cursor
 HOOK(SDL_ShowCursor, int, (int toggle)) {

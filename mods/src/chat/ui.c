@@ -42,7 +42,7 @@ unsigned int chat_get_counter() {
 static void *chat_thread(__attribute__((unused)) void *nop) {
     // Open
     int return_code;
-    char *output = run_command("zenity --title \"Chat\" --class \"Minecraft - Pi edition\" --entry --text \"Enter Chat Message:\"", &return_code);
+    char *output = run_command("zenity --title 'Chat' --class 'Minecraft: Pi Edition: Reborn' --entry --text 'Enter Chat Message:'", &return_code);
     // Handle Message
     if (output != NULL) {
         // Check Return Code

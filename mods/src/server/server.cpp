@@ -23,6 +23,7 @@
 #include "../init/init.h"
 #include "../home/home.h"
 #include "../compat/compat.h"
+#include "../version/version.h"
 
 #include <libreborn/minecraft.h>
 
@@ -65,7 +66,7 @@ static std::string get_world_name() {
 
 // Create/Start World
 static void start_world(unsigned char *minecraft) {
-    INFO("%s", "Starting Minecraft: Pi Edition Dedicated Server");
+    INFO("Starting Minecraft: Pi Edition: Dedicated Server (%s)", version_get());
 
     // Specify Level Settings
     LevelSettings settings;

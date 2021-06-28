@@ -13,7 +13,6 @@ void run_tests() {
         char *path = home_get();
         int exists = access(path, F_OK) == 0;
         int can_write = exists ? access(path, R_OK | W_OK) == 0 : 1;
-        free(path);
 
         if (!can_write) {
             // Failure

@@ -17,6 +17,7 @@ static renderCursor_t renderCursor = (renderCursor_t) 0x480c4;
 
 static char **default_path = (char **) 0xe264; // /.minecraft/
 static char **default_username = (char **) 0x18fd4; // StevePi
+static char **minecraft_pi_version = (char **) 0x39d94; // v0.1.1 alpha
 
 static unsigned char **Item_flintAndSteel = (unsigned char **) 0x17ba70;
 static unsigned char **Item_snowball = (unsigned char **) 0x17bbb0;
@@ -476,6 +477,11 @@ static SelectWorldScreen_getUniqueLevelName_t SelectWorldScreen_getUniqueLevelNa
 // Touch::SelectWorldScreen
 
 static SelectWorldScreen_getUniqueLevelName_t Touch_SelectWorldScreen_getUniqueLevelName = (SelectWorldScreen_getUniqueLevelName_t) 0x3d82c;
+
+// Common
+
+typedef std::string (*Common_getGameVersionString_t)(std::string const& version_suffix);
+static Common_getGameVersionString_t Common_getGameVersionString = (Common_getGameVersionString_t) 0x15068;
 
 #endif
 

@@ -1,6 +1,7 @@
 # Changelog
 
 **2.0.5**
+* Show Reborn Version In Start Screen
 * External Server Support
 
 **2.0.4**

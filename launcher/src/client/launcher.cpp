@@ -106,7 +106,7 @@ static void run_zenity_and_set_env(const char *env_name, std::vector<std::string
     std::vector<std::string> full_command;
     full_command.push_back("zenity");
     full_command.push_back("--class");
-    full_command.push_back("Minecraft - Pi edition");
+    full_command.push_back("Minecraft: Pi Edition: Reborn");
     full_command.insert(full_command.end(), command.begin(), command.end());
     // Convert To C Array
     const char *full_command_array[full_command.size() + 1];

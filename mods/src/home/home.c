@@ -31,9 +31,17 @@ HOOK(getenv, char *, (const char *name)) {
 
 // Get MCPI Home Directory
 char *home_get() {
-    char *dir = NULL;
-    safe_asprintf(&dir, "%s/" NEW_PATH, getenv("HOME"));
+    static char *dir = NULL;
+    // Load
+    if (dir == NULL) {
+        safe_asprintf(&dir, "%s/" NEW_PATH, getenv("HOME"));
+    }
+    // Return
     return dir;
+}
+// Free
+__attribute__((destructor)) static void _free_home() {
+    free(home_get());
 }
 
 // Init

@@ -21,6 +21,7 @@ void init_touch();
 void init_textures();
 void init_chat();
 void init_home();
+void init_version();
 
 #ifdef __cplusplus
 }

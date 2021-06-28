@@ -18,4 +18,5 @@ __attribute__((constructor)) static void init() {
     init_textures();
     init_chat();
     init_home();
+    init_version();
 }

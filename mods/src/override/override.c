@@ -20,8 +20,6 @@ static char *get_override_path(const char *filename) {
     // Get Asset Override Path
     char *overrides = NULL;
     safe_asprintf(&overrides, "%s/overrides", home_path);
-    // Free Home Path
-    free(home_path);
     // Get Data Path
     char *data = NULL;
     char *cwd = getcwd(NULL, 0);

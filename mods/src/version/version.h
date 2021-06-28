@@ -4,7 +4,7 @@
 extern "C" {
 #endif
 
-char *home_get();
+char *version_get();
 
 #ifdef __cplusplus
 }

@@ -94,6 +94,10 @@ if(MCPI_SERVER_MODE)
     add_definitions(-DMCPI_SERVER_MODE)
 endif()
 
+# Version
+file(STRINGS VERSION VERSION)
+add_definitions(-DVERSION="${VERSION}")
+
 # Build libreborn
 add_subdirectory(libreborn)
 
