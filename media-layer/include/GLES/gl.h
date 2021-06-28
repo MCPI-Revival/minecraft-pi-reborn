@@ -5,15 +5,15 @@ extern "C" {
 #endif
 
 #define GL_FALSE 0
-#define GL_FOG_COLOR 0x0B66
+#define GL_FOG_COLOR 0xb66
 #define GL_ARRAY_BUFFER_BINDING 0x8894
 #define GL_UNSIGNED_BYTE 0x1401
 #define GL_RGB 0x1907
 #define GL_RGBA 0x1908
-#define GL_MODELVIEW_MATRIX 0x0BA6
-#define GL_PROJECTION_MATRIX 0x0BA7
-#define GL_VIEWPORT 0x0BA2
-#define GL_DEPTH_TEST 0x0B71
+#define GL_MODELVIEW_MATRIX 0xba6
+#define GL_PROJECTION_MATRIX 0xba7
+#define GL_VIEWPORT 0xba2
+#define GL_DEPTH_TEST 0xb71
 
 #include <stdio.h>
 #include <stdint.h>

@@ -5,6 +5,8 @@ __attribute__((constructor)) static void init() {
     init_compat();
 #ifdef MCPI_SERVER_MODE
     init_server();
+#else
+    init_multiplayer();
 #endif
     init_game_mode();
     init_input();

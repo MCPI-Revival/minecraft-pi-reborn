@@ -8,6 +8,8 @@ void run_tests();
 void init_compat();
 #ifdef MCPI_SERVER_MODE
 void init_server();
+#else
+void init_multiplayer();
 #endif
 void init_game_mode();
 void init_input();

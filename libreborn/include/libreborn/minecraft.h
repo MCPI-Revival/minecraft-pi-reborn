@@ -345,6 +345,11 @@ static uint32_t RakNetInstance_send_vtable_offset = 0x38;
 typedef uint32_t (*RakNetInstance_isServer_t)(unsigned char *rak_net_instance);
 static uint32_t RakNetInstance_isServer_vtable_offset = 0x48;
 
+typedef void (*RakNetInstance_pingForHosts_t)(unsigned char *rak_net_instance, int32_t base_port);
+static RakNetInstance_pingForHosts_t RakNetInstance_pingForHosts = (RakNetInstance_pingForHosts_t) 0x73538;
+static uint32_t RakNetInstance_pingForHosts_vtable_offset = 0x14;
+static void *RakNetInstance_pingForHosts_vtable_addr = (void *) 0x109afc;
+
 static uint32_t RakNetInstance_peer_property_offset = 0x4; // RakNet::RakPeer *
 
 // RakNet::RakPeer
@@ -354,6 +359,9 @@ static uint32_t RakNet_RakPeer_GetSystemAddressFromGuid_vtable_offset = 0xd0;
 
 typedef bool (*RakNet_RakPeer_IsBanned_t)(unsigned char *rak_peer, const char *ip);
 static RakNet_RakPeer_IsBanned_t RakNet_RakPeer_IsBanned = (RakNet_RakPeer_IsBanned_t) 0xda3b4;
+
+typedef bool (*RakNet_RakPeer_Ping_t)(unsigned char *rak_peer, const char *host, unsigned short remotePort, bool onlyReplyOnAcceptingConnections, uint32_t connectionSocketIndex);
+static RakNet_RakPeer_Ping_t RakNet_RakPeer_Ping = (RakNet_RakPeer_Ping_t) 0xd9c2c;
 
 // RakNet::SystemAddress
 

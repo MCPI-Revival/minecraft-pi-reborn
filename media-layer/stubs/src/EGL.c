@@ -1,15 +1,3 @@
-/*
- * This is only loaded when no other EGL library is present on the system to silence linker errors.
- *
- * All EGL calls are manually patched out in mods/src/compat/egl.c.
- * Unlike with bcm_host, EGL can't just be always stubbed out with LD_PRELOAD, because in some situations GLFW has it as a dependency.
- *
- * So normally, MCPI just loads the real EGL and never uses it (because MCPI's EGL calls were patched out).
- * However, since the real EGL is still loaded, GLFW can use it if it needs to.
- *
- * This stub library is just in case the system has no EGL library present.
- */
-
 #include <EGL/egl.h>
 
 #include <libreborn/libreborn.h>

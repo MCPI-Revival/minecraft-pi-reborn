@@ -144,7 +144,7 @@ static bool is_whitelist() {
 }
 // Get Path Of Blacklist (Or Whitelist) File
 static std::string get_blacklist_file() {
-    std::string file(home_get_launch_directory());
+    std::string file(home_get());
     file.append(is_whitelist() ? "/whitelist.txt" : "/blacklist.txt");
     return file;
 }
@@ -457,12 +457,12 @@ static unsigned char get_max_players() {
 
 static void server_init() {
     // Open Properties File
-    std::string file(home_get_launch_directory());
+    std::string file(home_get());
     file.append("/server.properties");
 
     std::ifstream properties_file(file);
 
-    if (!properties_file || !properties_file.good()) {
+    if (!properties_file.good()) {
         // Write Defaults
         std::ofstream properties_file_output(file);
         properties_file_output << "# Message Of The Day\n";
@@ -490,9 +490,9 @@ static void server_init() {
         properties_file = std::ifstream(file);
     }
 
-    // Open Properties File
+    // Check Properties File
     if (!properties_file.is_open()) {
-        ERR("%s", "Unable To Open server.properties");
+        ERR("Unable To Open %s", file.c_str());
     }
     // Load Properties
     get_server_properties().load(properties_file);
@@ -502,7 +502,7 @@ static void server_init() {
     // Create Empty Blacklist/Whitelist File
     std::string blacklist_file_path = get_blacklist_file();
     std::ifstream blacklist_file(blacklist_file_path);
-    if (!blacklist_file || !blacklist_file.good()) {
+    if (!blacklist_file.good()) {
         // Write Default
         std::ofstream blacklist_output(blacklist_file_path);
         blacklist_output << "# Blacklist/Whitelist; Each Line Is One IP Address\n";

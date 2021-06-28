@@ -30,11 +30,5 @@ add_subdirectory(extras)
 
 # Add Symlinks So MCPI Can Locate Libraries
 if(BUILD_ARM_COMPONENTS)
-    if(MCPI_SERVER_MODE OR MCPI_USE_MEDIA_LAYER_PROXY)
-        install_symlink("libmedia-layer-core.so" "${MCPI_LIB_DIR}/libX11.so.6")
-    else()
-        # When Loading In Client Mode On An ARM Host, Use Native X11 By Default
-        install_symlink("../lib/libmedia-layer-core.so" "${MCPI_FALLBACK_LIB_DIR}/libX11.so.6")
-    endif()
     install_symlink("libmedia-layer-core.so" "${MCPI_LIB_DIR}/libSDL-1.2.so.0")
 endif()

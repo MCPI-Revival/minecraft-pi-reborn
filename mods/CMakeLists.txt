@@ -7,7 +7,7 @@ add_definitions(-D_GLIBCXX_USE_CXX11_ABI=0)
 
 ## Mods
 
-add_library(compat SHARED src/compat/compat.c src/compat/egl.c)
+add_library(compat SHARED src/compat/compat.c src/compat/egl.c src/compat/x11.c)
 target_link_libraries(compat feature input media-layer-core dl)
 
 add_library(readdir SHARED src/readdir/readdir.c)
@@ -18,6 +18,9 @@ target_link_libraries(feature reborn)
 if(MCPI_SERVER_MODE)
     add_library(server SHARED src/server/server.cpp src/server/server_properties.cpp)
     target_link_libraries(server reborn feature home compat dl media-layer-core pthread)
+else()
+    add_library(multiplayer SHARED src/multiplayer/multiplayer.cpp)
+    target_link_libraries(multiplayer reborn home)
 endif()
 
 add_library(camera SHARED src/camera/camera.cpp)
@@ -60,10 +63,14 @@ add_library(init SHARED src/init/init.c)
 target_link_libraries(init compat game_mode camera input misc death options touch textures chat home test)
 if(MCPI_SERVER_MODE)
     target_link_libraries(init server)
+else()
+    target_link_libraries(init multiplayer)
 endif()
 
 ## Install Mods
 install(TARGETS init compat readdir feature override game_mode camera input misc death options touch textures chat home test DESTINATION "${MCPI_INSTALL_DIR}/mods")
 if(MCPI_SERVER_MODE)
     install(TARGETS server DESTINATION "${MCPI_INSTALL_DIR}/mods")
+else()
+    install(TARGETS multiplayer DESTINATION "${MCPI_INSTALL_DIR}/mods")
 endif()

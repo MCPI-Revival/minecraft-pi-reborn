@@ -12,14 +12,13 @@
 // Store Game Data In Launch Directory
 #define NEW_PATH ""
 
+// Store Launch Directory
 static char *launch_directory = NULL;
 __attribute__((constructor)) static void init_launch_directory() {
     launch_directory = getcwd(NULL, 0);
 }
-char *home_get_launch_directory() {
-    return launch_directory;
-}
 
+// Pretend $HOME Is Launch Directory
 HOOK(getenv, char *, (const char *name)) {
     if (strcmp(name, "HOME") == 0) {
         return launch_directory;

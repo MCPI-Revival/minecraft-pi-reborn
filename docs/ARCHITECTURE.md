@@ -72,7 +72,7 @@ This sub-component implements stubs for various redundant libraries used by MCPI
 This is always compiled for ARM.
 
 ##### What To Stub And What To Patch?
-Most libraries (like ``bcm_host``) can just be replaced with stubs, because they don't need to do anything and aren't used by anything else. However, some libraries (like EGL) might be used by some of MCPI-Reborn's dependencies (like GLFW) so instead of being replaced by a stub, each call is manually patched out from MCPI. A stub is still generated just in case that library isn't present on the system to silence linker errors, but it is only loaded if no other version is available.
+Most libraries (like ``bcm_host``) can just be replaced with stubs, because they don't need to do anything and aren't used by anything else. However, some libraries (like EGL and X11) might be used by some of MCPI-Reborn's dependencies (like GLFW) so instead of being replaced by a stub, each call is manually patched out from MCPI. A stub is still generated just in case that library isn't present on the system to silence linker errors, but it is only loaded if no other version is available.
 
 #### Headers
 This sub-component includes headers for SDL, GLES, and EGL allowing easy (cross-)compilation.

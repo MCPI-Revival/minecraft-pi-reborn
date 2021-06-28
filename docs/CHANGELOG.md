@@ -1,5 +1,8 @@
 # Changelog
 
+**2.0.5**
+* External Server Support
+
 **2.0.4**
 * Optimize Media Layer Proxy
 
