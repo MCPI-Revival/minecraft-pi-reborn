@@ -1,6 +1,6 @@
 #include <libreborn/libreborn.h>
 
-#include "game_mode.h"
+#include "game-mode.h"
 #include "../init/init.h"
 
 #include <libreborn/minecraft.h>

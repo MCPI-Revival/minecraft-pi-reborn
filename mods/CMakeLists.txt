@@ -29,8 +29,8 @@ endif()
 add_library(camera SHARED src/camera/camera.cpp)
 target_link_libraries(camera reborn media-layer-core)
 
-add_library(game_mode SHARED src/game_mode/game_mode.c src/game_mode/game_mode.cpp)
-target_link_libraries(game_mode reborn)
+add_library(game-mode SHARED src/game-mode/game-mode.c src/game-mode/game-mode.cpp)
+target_link_libraries(game-mode reborn)
 
 add_library(input SHARED src/input/input.c src/input/input.cpp)
 target_link_libraries(input reborn feature media-layer-core chat)
@@ -63,7 +63,7 @@ add_library(test SHARED src/test/test.c)
 target_link_libraries(test reborn home)
 
 add_library(init SHARED src/init/init.c)
-target_link_libraries(init compat game_mode camera input misc death options touch textures chat home version test)
+target_link_libraries(init compat game-mode camera input misc death options touch textures chat home version test)
 if(MCPI_SERVER_MODE)
     target_link_libraries(init server)
 else()
@@ -71,7 +71,7 @@ else()
 endif()
 
 ## Install Mods
-install(TARGETS init compat readdir feature override game_mode camera input misc death options touch textures chat home version test DESTINATION "${MCPI_INSTALL_DIR}/mods")
+install(TARGETS init compat readdir feature override game-mode camera input misc death options touch textures chat home version test DESTINATION "${MCPI_INSTALL_DIR}/mods")
 if(MCPI_SERVER_MODE)
     install(TARGETS server DESTINATION "${MCPI_INSTALL_DIR}/mods")
 else()
