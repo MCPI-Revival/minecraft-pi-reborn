@@ -8,7 +8,7 @@ add_definitions(-D_GLIBCXX_USE_CXX11_ABI=0)
 ## Mods
 
 add_library(compat SHARED src/compat/compat.c src/compat/egl.c src/compat/x11.c)
-target_link_libraries(compat feature input media-layer-core dl)
+target_link_libraries(compat feature input sign media-layer-core dl)
 
 add_library(readdir SHARED src/readdir/readdir.c)
 
@@ -32,8 +32,11 @@ target_link_libraries(camera reborn media-layer-core)
 add_library(game-mode SHARED src/game-mode/game-mode.c src/game-mode/game-mode.cpp)
 target_link_libraries(game-mode reborn)
 
-add_library(input SHARED src/input/input.c src/input/input.cpp)
-target_link_libraries(input reborn feature media-layer-core chat)
+add_library(sign SHARED src/sign/sign.cpp)
+target_link_libraries(sign reborn feature)
+
+add_library(input SHARED src/input/input.c)
+target_link_libraries(input reborn feature media-layer-core chat sign)
 
 add_library(death SHARED src/death/death.cpp)
 target_link_libraries(death reborn)
@@ -63,7 +66,7 @@ add_library(test SHARED src/test/test.c)
 target_link_libraries(test reborn home)
 
 add_library(init SHARED src/init/init.c)
-target_link_libraries(init compat game-mode camera input misc death options touch textures chat home version test)
+target_link_libraries(init compat game-mode camera input sign misc death options touch textures chat home version test)
 if(MCPI_SERVER_MODE)
     target_link_libraries(init server)
 else()
@@ -71,7 +74,7 @@ else()
 endif()
 
 ## Install Mods
-install(TARGETS init compat readdir feature override game-mode camera input misc death options touch textures chat home version test DESTINATION "${MCPI_INSTALL_DIR}/mods")
+install(TARGETS init compat readdir feature override game-mode camera input sign misc death options touch textures chat home version test DESTINATION "${MCPI_INSTALL_DIR}/mods")
 if(MCPI_SERVER_MODE)
     install(TARGETS server DESTINATION "${MCPI_INSTALL_DIR}/mods")
 else()

@@ -1,11 +1,11 @@
 #include <vector>
 
 #include <libreborn/libreborn.h>
-
-#include "../feature/feature.h"
-#include "input.h"
-
 #include <libreborn/minecraft.h>
+
+#include "../init/init.h"
+#include "../feature/feature.h"
+#include "sign.h"
 
 // Open Sign Screen
 static void LocalPlayer_openTextEdit_injection(unsigned char *local_player, unsigned char *sign) {
@@ -26,12 +26,12 @@ static int is_valid_key(char key) {
 
 // Store Text Input
 std::vector<char> input;
-void input_key_press(char key) {
+void sign_key_press(char key) {
     if (is_valid_key(key)) {
         input.push_back(key);
     }
 }
-void input_clear_input() {
+void sign_clear_input() {
     input.clear();
 }
 
@@ -52,10 +52,11 @@ static void TextEditScreen_updateEvents_injection(unsigned char *screen) {
             }
         }
     }
-    input_clear_input();
+    sign_clear_input();
 }
 
-void _init_input_cpp() {
+// Init
+void init_sign() {
     if (feature_has("Fix Sign Placement")) {
         // Fix Signs
         patch_address(LocalPlayer_openTextEdit_vtable_addr, (void *) LocalPlayer_openTextEdit_injection);

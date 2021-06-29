@@ -1,11 +1,10 @@
 #include <libreborn/libreborn.h>
+#include <libreborn/minecraft.h>
 
 #include "../feature/feature.h"
-#include "input.h"
 #include "../init/init.h"
 #include "../chat/chat.h"
-
-#include <libreborn/minecraft.h>
+#include "../sign/sign.h"
 
 // Store Right-Click Status
 static int is_right_click = 0;
@@ -26,10 +25,16 @@ void input_third_person() {
     third_person_toggle++;
 }
 
-// Set mouse Grab State
+// Set Mouse Grab State
 static int mouse_grab_state = 0;
 void input_set_mouse_grab_state(int state) {
     mouse_grab_state = state;
+}
+
+// Store Back Button Presses
+static int back_button_presses =0;
+void input_back() {
+    back_button_presses++;
 }
 
 // Handle Input Fixes
@@ -50,7 +55,7 @@ static void Minecraft_tickInput_injection(unsigned char *minecraft) {
     }
 
     // Clear Unused Sign Input
-    input_clear_input();
+    sign_clear_input();
 
     // Handle Functions
     unsigned char *options = minecraft + Minecraft_options_property_offset;
@@ -77,13 +82,21 @@ static void Minecraft_tickInput_injection(unsigned char *minecraft) {
         (*Minecraft_releaseMouse)(minecraft);
     }
     mouse_grab_state = 0;
+
+    // Handle Back Button
+    unsigned char *minecraft_vtable = *(unsigned char **) minecraft;
+    Minecraft_handleBack_t Minecraft_handleBack = *(Minecraft_handleBack_t *) (minecraft_vtable + Minecraft_handleBack_vtable_offset);
+    for (int i = 0; i < back_button_presses; i++) {
+        (*Minecraft_handleBack)(minecraft, 0);
+    }
+    back_button_presses = 0;
 }
 
 #include <SDL/SDL.h>
 
 // Block UI Interaction When Mouse Is Locked
 static bool Gui_tickItemDrop_Minecraft_isCreativeMode_call_injection(unsigned char *minecraft) {
-    if (SDL_ShowCursor(SDL_QUERY) == SDL_ENABLE) {
+    if (SDL_WM_GrabInput(SDL_GRAB_QUERY) == SDL_GRAB_OFF) {
         // Call Original Method
         return (*Minecraft_isCreativeMode)(minecraft);
     } else {
@@ -94,7 +107,7 @@ static bool Gui_tickItemDrop_Minecraft_isCreativeMode_call_injection(unsigned ch
 
 // Block UI Interaction When Mouse Is Locked
 static void Gui_handleClick_injection(unsigned char *this, int32_t param_2, int32_t param_3, int32_t param_4) {
-    if (SDL_ShowCursor(SDL_QUERY) == SDL_ENABLE) {
+    if (SDL_WM_GrabInput(SDL_GRAB_QUERY) == SDL_GRAB_OFF) {
         // Call Original Method
         (*Gui_handleClick)(this, param_2, param_3, param_4);
     }
@@ -147,7 +160,4 @@ void init_input() {
         // Allow Attacking Mobs
         patch_address(MouseBuildInput_tickBuild_vtable_addr, (void *) MouseBuildInput_tickBuild_injection);
     }
-
-    // Init C++
-    _init_input_cpp();
 }

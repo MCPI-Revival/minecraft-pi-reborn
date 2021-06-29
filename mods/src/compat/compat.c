@@ -8,6 +8,7 @@
 
 #include "../feature/feature.h"
 #include "../input/input.h"
+#include "../sign/sign.h"
 #include "../chat/chat.h"
 #include "../init/init.h"
 #include "compat.h"
@@ -71,6 +72,10 @@ HOOK(SDL_PollEvent, int, (SDL_Event *event)) {
                     }
                     // Mark Handled
                     handled = 1;
+                } else if (event->key.keysym.sym == SDLK_ESCAPE) {
+                    // Treat Escape As Back Button Press (This Fixes Issues With Signs)
+                    input_back();
+                    handled = 1;
                 }
                 break;
             }
@@ -86,7 +91,7 @@ HOOK(SDL_PollEvent, int, (SDL_Event *event)) {
             }
             case SDL_USEREVENT: {
                 // SDL_UserEvent Is Never Used In MCPI, So It Is Repurposed For Character Events
-                input_key_press((char) event->user.code);
+                sign_key_press((char) event->user.code);
                 handled = 1;
                 break;
             }

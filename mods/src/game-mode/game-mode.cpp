@@ -55,4 +55,5 @@ void _init_game_mode_cpp() {
     // Make The SimpleChooseLevelScreen Back Button Go To SelectWorldScreen Instead Of StartMenuScreen
     unsigned char simple_choose_level_screen_back_button_patch[4] = {0x05, 0x10, 0xa0, 0xe3}; // "mov r1, #0x5"
     patch((void *) 0x31144, simple_choose_level_screen_back_button_patch);
+    patch((void *) 0x3134c, simple_choose_level_screen_back_button_patch);
 }

@@ -10,6 +10,7 @@ __attribute__((constructor)) static void init() {
 #endif
     init_game_mode();
     init_input();
+    init_sign();
     init_misc();
     init_death();
     init_camera();

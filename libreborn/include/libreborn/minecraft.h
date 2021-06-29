@@ -110,6 +110,9 @@ static Minecraft_grabMouse_t Minecraft_grabMouse = (Minecraft_grabMouse_t) 0x15d
 typedef void (*Minecraft_leaveGame_t)(unsigned char *minecraft, bool save_remote_level);
 static Minecraft_leaveGame_t Minecraft_leaveGame = (Minecraft_leaveGame_t) 0x15ea0;
 
+typedef void (*Minecraft_handleBack_t)(unsigned char *minecraft, bool param_1);
+static uint32_t Minecraft_handleBack_vtable_offset = 0x34;
+
 static uint32_t Minecraft_screen_width_property_offset = 0x20; // int32_t
 static uint32_t Minecraft_network_handler_property_offset = 0x174; // NetEventCallback *
 static uint32_t Minecraft_rak_net_instance_property_offset = 0x170; // RakNetInstance *

@@ -13,6 +13,7 @@ void init_multiplayer();
 #endif
 void init_game_mode();
 void init_input();
+void init_sign();
 void init_misc();
 void init_death();
 void init_camera();

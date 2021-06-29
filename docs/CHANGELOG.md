@@ -1,5 +1,9 @@
 # Changelog
 
+**2.0.7**
+* Fix Sign Text Not Updating In Multiplayer When Exiting Editing UI Using Escape Button
+* Fix Item Dropping Not Working
+
 **2.0.6**
 * Fix Toolbar Size In Normal GUI
 

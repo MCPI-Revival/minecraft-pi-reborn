@@ -103,8 +103,8 @@ void _init_misc_cpp() {
     // Implement AppPlatform::readAssetFile So Translations Work
     overwrite((void *) AppPlatform_readAssetFile, (void *) AppPlatform_readAssetFile_injection);
 
+    // Add Extra Items To Creative Inventory (Only Replace Specific Function Call)
     if (feature_has("Expand Creative Inventory")) {
-        // Add Extra Items To Creative Inventory (Only Replace Specific Function Call)
         overwrite_call((void *) 0x8e0fc, (void *) Inventory_setupDefault_FillingContainer_addItem_call_injection);
     }
 
