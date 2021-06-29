@@ -1,5 +1,8 @@
 # Changelog
 
+**2.0.8**
+* Use Default Port In ``servers.txt`` If Not Specified
+
 **2.0.7**
 * Fix Sign Text Not Updating In Multiplayer When Exiting Editing UI Using Escape Button
 * Fix Item Dropping Not Working

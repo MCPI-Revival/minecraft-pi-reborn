@@ -35,7 +35,7 @@ static void load_servers() {
         // Write Defaults
         std::ofstream server_list_file_output(file);
         server_list_file_output << "# External Servers File\n";
-        server_list_file_output << "thebrokenrail.com:19132\n";
+        server_list_file_output << "thebrokenrail.com\n";
         server_list_file_output.close();
         // Re-Open Stream
         server_list_file = std::ifstream(file);
@@ -58,15 +58,18 @@ static void load_servers() {
                 // Parse
                 std::string address;
                 std::string port_str;
-                // Loop
+                // Add Default Port If Needed
                 size_t last_colon = line.find_last_of(':');
-                if (last_colon != std::string::npos) {
-                    for (std::string::size_type i = 0; i < line.length(); i++) {
-                        if (i > last_colon) {
-                            port_str.push_back(line[i]);
-                        } else if (i < last_colon) {
-                            address.push_back(line[i]);
-                        }
+                if (last_colon == std::string::npos) {
+                    line.append(":19132");
+                    last_colon = line.find_last_of(':');
+                }
+                // Loop
+                for (std::string::size_type i = 0; i < line.length(); i++) {
+                    if (i > last_colon) {
+                        port_str.push_back(line[i]);
+                    } else if (i < last_colon) {
+                        address.push_back(line[i]);
                     }
                 }
                 // Check Line

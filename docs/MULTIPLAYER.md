@@ -9,6 +9,8 @@ Unlike vanilla MCPI, MCPI-Reborn allows you to natively join a server outside of
 
 ### Example ``~/.minecraft-pi/servers.txt``
 ```
-# Comment
-example.com:19132
+# Default Port Is 19132
+example.com
+# Custom Port
+example.com:19133
 ```
