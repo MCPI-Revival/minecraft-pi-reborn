@@ -15,13 +15,14 @@
 
 // BL Instruction Magic Number
 #define BL_INSTRUCTION 0xeb
+#define B_INSTRUCTION 0xea
 
 // Generate A BL Instruction
-static uint32_t generate_bl_instruction(void *from, void *to) {
+static uint32_t generate_bl_instruction(void *from, void *to, int use_b_instruction) {
     uint32_t instruction;
     unsigned char *instruction_array = (unsigned char *) &instruction;
 
-    instruction_array[3] = BL_INSTRUCTION;
+    instruction_array[3] = use_b_instruction ? B_INSTRUCTION : BL_INSTRUCTION;
 
     unsigned char *pc = ((unsigned char *) from) + 8;
     int32_t offset = (int32_t) to - (int32_t) pc;
@@ -48,11 +49,15 @@ static void overwrite_calls_callback(void *section, Elf32_Word size, void *data)
 
     for (uint32_t i = 0; i < size; i = i + 4) {
         unsigned char *addr = ((unsigned char *) section) + i;
-        if (addr[3] == BL_INSTRUCTION) {
-            uint32_t check_instruction = generate_bl_instruction(addr, args->target);
+        int use_b_instruction = addr[3] == B_INSTRUCTION;
+        // Check If Instruction is B Or BL
+        if (addr[3] == BL_INSTRUCTION || use_b_instruction) {
+            uint32_t check_instruction = generate_bl_instruction(addr, args->target, use_b_instruction);
             unsigned char *check_instruction_array = (unsigned char *) &check_instruction;
+            // Check If Instruction Calls Target
             if (addr[0] == check_instruction_array[0] && addr[1] == check_instruction_array[1] && addr[2] == check_instruction_array[2]) {
-                uint32_t new_instruction = generate_bl_instruction(addr, args->replacement);
+                // Patch Instruction
+                uint32_t new_instruction = generate_bl_instruction(addr, args->replacement, use_b_instruction);
                 _patch(args->file, args->line, addr, (unsigned char *) &new_instruction);
                 args->found++;
             }
@@ -92,7 +97,7 @@ void _overwrite_call(const char *file, int line, void *start, void *target) {
     // Add New Target To Code Block
     update_code_block(target);
 
-    uint32_t new_instruction = generate_bl_instruction(start, code_block);
+    uint32_t new_instruction = generate_bl_instruction(start, code_block, 0);
     _patch(file, line, start, (unsigned char *) &new_instruction);
 
     // Increment Code Block Position

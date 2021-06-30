@@ -38,19 +38,24 @@ static float ItemRenderer_renderGuiItemCorrect_injection(unsigned char *font, un
             (*ItemInstance_constructor_tile_extra)(carried_item_instance, *Tile_grass_carried, count, auxilary);
         }
     }
+
     // Fix Toolbar Rendering
     GLboolean depth_test_was_enabled = glIsEnabled(GL_DEPTH_TEST);
     glDisable(GL_DEPTH_TEST);
+
     // Call Original Method
     float ret = (*ItemRenderer_renderGuiItemCorrect)(font, textures, carried_item_instance != NULL ? carried_item_instance : item_instance, param_1, param_2);
+
     // Revert GL State Changes
     if (depth_test_was_enabled) {
         glEnable(GL_DEPTH_TEST);
     }
+
     // Free Carried Item Instance Variant
     if (carried_item_instance != NULL) {
         ::operator delete(carried_item_instance);
     }
+
     // Return
     return ret;
 }
