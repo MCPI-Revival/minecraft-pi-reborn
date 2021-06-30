@@ -20,6 +20,7 @@ void init_camera();
 void init_options();
 void init_touch();
 void init_textures();
+void init_atlas();
 void init_chat();
 void init_home();
 void init_version();

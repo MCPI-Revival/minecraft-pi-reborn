@@ -411,6 +411,9 @@ static uint32_t TileEntity_id_property_offset = 0x18; // int32_t
 
 // ItemRenderer
 
+typedef float (*ItemRenderer_renderGuiItem_t)(unsigned char *font, unsigned char *textures, unsigned char *item_instance, float param_1, float param_2, bool param_3);
+static ItemRenderer_renderGuiItem_t ItemRenderer_renderGuiItem = (ItemRenderer_renderGuiItem_t) 0x63e58;
+
 typedef float (*ItemRenderer_renderGuiItemCorrect_t)(unsigned char *font, unsigned char *textures, unsigned char *item_instance, int32_t param_1, int32_t param_2);
 static ItemRenderer_renderGuiItemCorrect_t ItemRenderer_renderGuiItemCorrect = (ItemRenderer_renderGuiItemCorrect_t) 0x639a0;
 
@@ -421,6 +424,9 @@ static Tesselator_begin_t Tesselator_begin = (Tesselator_begin_t) 0x529d4;
 
 typedef void (*Tesselator_colorABGR_t)(unsigned char *tesselator, int32_t color);
 static Tesselator_colorABGR_t Tesselator_colorABGR = (Tesselator_colorABGR_t) 0x52b54;
+
+typedef void (*Tesselator_color_t)(unsigned char *tesselator, int32_t r, int32_t g, int32_t b, int32_t a);
+static Tesselator_color_t Tesselator_color = (Tesselator_color_t) 0x52a48;
 
 // Method That Require C++ Types
 #ifdef __cplusplus

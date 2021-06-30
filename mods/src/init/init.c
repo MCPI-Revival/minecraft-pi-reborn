@@ -17,6 +17,7 @@ __attribute__((constructor)) static void init() {
     init_options();
     init_touch();
     init_textures();
+    init_atlas();
     init_chat();
     init_home();
     init_version();

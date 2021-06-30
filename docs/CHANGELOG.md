@@ -1,5 +1,8 @@
 # Changelog
 
+**2.0.9**
+* Fix Translucent Preview Items In Furnace UI Being Fully Opaque When The ``gui_blocks`` Atlas Is Disabled
+
 **2.0.8**
 * Use Default Port In ``servers.txt`` If Not Specified
 
