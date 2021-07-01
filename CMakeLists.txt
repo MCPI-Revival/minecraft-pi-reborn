@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 3.13.0)
 # Specify Options
 option(MCPI_USE_MEDIA_LAYER_PROXY "Whether To Enable The Media Layer Proxy" FALSE)
 option(MCPI_SERVER_MODE "Server Mode" FALSE)
-set(MCPI_BUILD_MODE "both" CACHE STRING "\"arm\" = Build Only Code That Must Be ARN; \"native\" = Build Architecture-Independent Code; \"both\" = Build All Code As ARM")
+set(MCPI_BUILD_MODE "both" CACHE STRING "\"arm\" = Build Only Code That Must Be ARM; \"native\" = Build Architecture-Independent Code; \"both\" = Build All Code As ARM")
 set_property(CACHE MCPI_BUILD_MODE PROPERTY STRINGS "both" "arm" "native")
 
 # Configure Build Mode
