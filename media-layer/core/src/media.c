@@ -22,6 +22,15 @@ static void glfw_error(__attribute__((unused)) int error, const char *descriptio
     WARN("GLFW Error: %s", description);
 }
 
+// Pass Character Event
+static void character_event(char c) {
+    // SDL_UserEvent Is Never Used In MCPI, So It Is Repurposed For Character Events
+    SDL_Event event;
+    event.type = SDL_USEREVENT;
+    event.user.code = (int) c;
+    SDL_PushEvent(&event);
+}
+
 // Convert GLFW Key To SDL Key
 static SDLKey glfw_key_to_sdl_key(int key) {
     switch (key) {
@@ -43,6 +52,9 @@ static SDLKey glfw_key_to_sdl_key(int key) {
         // Inventory
         case GLFW_KEY_E:
             return SDLK_e;
+        // Drop Item
+        case GLFW_KEY_Q:
+            return SDLK_q;
         // Hotbar
         case GLFW_KEY_1:
             return SDLK_1;
@@ -98,13 +110,23 @@ static SDLKey glfw_key_to_sdl_key(int key) {
     }
 }
 
-// Pass Character Event
-static void character_event(char c) {
-    // SDL_UserEvent Is Never Used In MCPI, So It Is Repurposed For Character Events
-    SDL_Event event;
-    event.type = SDL_USEREVENT;
-    event.user.code = (int) c;
-    SDL_PushEvent(&event);
+// Convert GLFW Key Modifier To SDL Key Modifier
+static SDLMod glfw_modifier_to_sdl_modifier(int mods) {
+    SDLMod ret = KMOD_NONE;
+    // Control
+    if ((mods & GLFW_MOD_CONTROL) != 0) {
+        ret |= KMOD_CTRL;
+    }
+    // Shift
+    if ((mods & GLFW_MOD_SHIFT) != 0) {
+        ret |= KMOD_SHIFT;
+    }
+    // Alt
+    if ((mods & GLFW_MOD_ALT) != 0) {
+        ret |= KMOD_ALT;
+    }
+    // Return
+    return ret;
 }
 
 // Pass Key Presses To SDL
@@ -114,7 +136,7 @@ static void glfw_key(__attribute__((unused)) GLFWwindow *window, int key, int sc
     event.type = up ? SDL_KEYUP : SDL_KEYDOWN;
     event.key.state = up ? SDL_RELEASED : SDL_PRESSED;
     event.key.keysym.scancode = scancode;
-    event.key.keysym.mod = KMOD_NONE;
+    event.key.keysym.mod = glfw_modifier_to_sdl_modifier(mods);
     event.key.keysym.sym = glfw_key_to_sdl_key(key);
     SDL_PushEvent(&event);
     if (key == GLFW_KEY_BACKSPACE && !up) {

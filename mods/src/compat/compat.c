@@ -6,7 +6,6 @@
 #include <libreborn/media-layer/core.h>
 #include <libreborn/libreborn.h>
 
-#include "../feature/feature.h"
 #include "../input/input.h"
 #include "../sign/sign.h"
 #include "../chat/chat.h"
@@ -65,8 +64,6 @@ HOOK(SDL_PollEvent, int, (SDL_Event *event)) {
                 } else if (event->key.keysym.sym == SDLK_t) {
                     // Only When In-Game With No Other Chat Windows Open
                     if (SDL_WM_GrabInput(SDL_GRAB_QUERY) == SDL_GRAB_ON && chat_get_counter() == 0) {
-                        // Release Mouse
-                        input_set_mouse_grab_state(1);
                         // Open Chat
                         chat_open();
                     }
@@ -74,7 +71,10 @@ HOOK(SDL_PollEvent, int, (SDL_Event *event)) {
                     handled = 1;
                 } else if (event->key.keysym.sym == SDLK_ESCAPE) {
                     // Treat Escape As Back Button Press (This Fixes Issues With Signs)
-                    input_back();
+                    handled = input_back();
+                } else if (event->key.keysym.sym == SDLK_q) {
+                    // Drop Item
+                    input_drop((event->key.keysym.mod & KMOD_CTRL) != 0);
                     handled = 1;
                 }
                 break;

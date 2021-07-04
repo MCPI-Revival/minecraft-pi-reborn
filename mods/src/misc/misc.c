@@ -66,16 +66,18 @@ static void LoginPacket_read_injection(unsigned char *packet, unsigned char *bit
 
 // Init
 void init_misc() {
-    if (feature_has("Remove Invalid Item Background")) {
+    if (feature_has("Remove Invalid Item Background", 0)) {
         // Remove Invalid Item Background (A Red Background That Appears For Items That Are Not Included In The gui_blocks Atlas)
         unsigned char invalid_item_background_patch[4] = {0x00, 0xf0, 0x20, 0xe3}; // "nop"
         patch((void *) 0x63c98, invalid_item_background_patch);
     }
 
     // Fix Selected Item Text
-    overwrite_calls((void *) Gui_renderChatMessages, (void *) Gui_renderChatMessages_injection);
-    overwrite_calls((void *) Gui_tick, (void *) Gui_tick_injection);
-    overwrite_calls((void *) Inventory_selectSlot, (void *) Inventory_selectSlot_injection);
+    if (feature_has("Render Selected Item Text", 0)) {
+        overwrite_calls((void *) Gui_renderChatMessages, (void *) Gui_renderChatMessages_injection);
+        overwrite_calls((void *) Gui_tick, (void *) Gui_tick_injection);
+        overwrite_calls((void *) Inventory_selectSlot, (void *) Inventory_selectSlot_injection);
+    }
 
     // Sanitize Username
     patch_address(LoginPacket_read_vtable_addr, (void *) LoginPacket_read_injection);

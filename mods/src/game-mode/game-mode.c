@@ -1,8 +1,8 @@
-#include <libreborn/libreborn.h>
-
 #include "game-mode.h"
 #include "../init/init.h"
+#include "../feature/feature.h"
 
+#include <libreborn/libreborn.h>
 #include <libreborn/minecraft.h>
 
 static int is_survival = -1;
@@ -35,23 +35,26 @@ static void Minecraft_setIsCreativeMode_injection(unsigned char *this, int32_t n
     (*Minecraft_setIsCreativeMode)(this, new_game_mode);
 }
 
+// Init
 void init_game_mode() {
-    // Dynamic Game Mode Switching
-    set_is_survival(1);
-    overwrite_calls((void *) Minecraft_setIsCreativeMode, Minecraft_setIsCreativeMode_injection);
+    if (feature_has("Implement Game-Mode Switching", 1)) {
+        // Dynamic Game Mode Switching
+        set_is_survival(1);
+        overwrite_calls((void *) Minecraft_setIsCreativeMode, Minecraft_setIsCreativeMode_injection);
 
-    // Replace CreatorLevel With ServerLevel (This Fixes Beds And Mob Spawning)
-    unsigned char level_patch[4] = {0x68, 0x7e, 0x01, 0xeb}; // "bl 0x7692c"
-    patch((void *) 0x16f84, level_patch);
+        // Replace CreatorLevel With ServerLevel (This Fixes Beds And Mob Spawning)
+        unsigned char level_patch[4] = {0x68, 0x7e, 0x01, 0xeb}; // "bl 0x7692c"
+        patch((void *) 0x16f84, level_patch);
 
-    // Allocate Correct Size For ServerLevel
-    uint32_t level_size = SERVER_LEVEL_SIZE;
-    patch((void *) 0x17004, (unsigned char *) &level_size);
+        // Allocate Correct Size For ServerLevel
+        uint32_t level_size = SERVER_LEVEL_SIZE;
+        patch((void *) 0x17004, (unsigned char *) &level_size);
 
-    // Allow Connecting To Survival Servers
-    unsigned char server_patch[4] = {0x0f, 0x00, 0x00, 0xea}; // "b 0x6dcb4"
-    patch((void *) 0x6dc70, server_patch);
+        // Allow Connecting To Survival Servers
+        unsigned char server_patch[4] = {0x0f, 0x00, 0x00, 0xea}; // "b 0x6dcb4"
+        patch((void *) 0x6dc70, server_patch);
 
-    // Init C++
-    _init_game_mode_cpp();
+        // Init C++
+        _init_game_mode_cpp();
+    }
 }

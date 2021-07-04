@@ -8,7 +8,7 @@ add_definitions(-D_GLIBCXX_USE_CXX11_ABI=0)
 ## Mods
 
 add_library(compat SHARED src/compat/compat.c src/compat/egl.c src/compat/x11.c)
-target_link_libraries(compat feature input sign media-layer-core dl)
+target_link_libraries(compat feature input chat sign media-layer-core dl)
 
 add_library(readdir SHARED src/readdir/readdir.c)
 
@@ -23,23 +23,23 @@ if(MCPI_SERVER_MODE)
     target_link_libraries(server reborn feature home compat version dl media-layer-core pthread)
 else()
     add_library(multiplayer SHARED src/multiplayer/multiplayer.cpp)
-    target_link_libraries(multiplayer reborn home)
+    target_link_libraries(multiplayer reborn home feature)
 endif()
 
 add_library(camera SHARED src/camera/camera.cpp)
-target_link_libraries(camera reborn media-layer-core)
+target_link_libraries(camera reborn media-layer-core feature)
 
 add_library(game-mode SHARED src/game-mode/game-mode.c src/game-mode/game-mode.cpp)
-target_link_libraries(game-mode reborn)
+target_link_libraries(game-mode reborn feature)
+
+add_library(input SHARED src/input/input.cpp src/input/bow.c src/input/attack.c src/input/toggle.c src/input/misc.c src/input/drop.cpp)
+target_link_libraries(input reborn feature media-layer-core)
 
 add_library(sign SHARED src/sign/sign.cpp)
-target_link_libraries(sign reborn feature)
-
-add_library(input SHARED src/input/input.c)
-target_link_libraries(input reborn feature media-layer-core chat sign)
+target_link_libraries(sign reborn feature input)
 
 add_library(death SHARED src/death/death.cpp)
-target_link_libraries(death reborn)
+target_link_libraries(death reborn feature)
 
 add_library(misc SHARED src/misc/misc.c src/misc/misc.cpp)
 target_link_libraries(misc reborn feature)
@@ -60,7 +60,7 @@ add_library(atlas SHARED src/atlas/atlas.cpp)
 target_link_libraries(atlas reborn feature GLESv1_CM)
 
 add_library(chat SHARED src/chat/chat.cpp src/chat/ui.c)
-target_link_libraries(chat reborn pthread)
+target_link_libraries(chat reborn feature input pthread)
 
 add_library(home SHARED src/home/home.c)
 target_link_libraries(home reborn)

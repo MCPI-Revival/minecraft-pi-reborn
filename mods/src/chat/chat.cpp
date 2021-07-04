@@ -8,8 +8,12 @@
 #include <libreborn/minecraft.h>
 
 #include "../init/init.h"
-
+#include "../feature/feature.h"
+#include "../input/input.h"
 #include "chat.h"
+
+// Store If Chat is Enabled
+int _chat_enabled = 0;
 
 // Message Limitations
 #define MAX_CHAT_MESSAGE_LENGTH 512
@@ -88,13 +92,14 @@ void _chat_queue_message(char *message) {
 }
 // Empty Queue
 unsigned int old_chat_counter = 0;
-void chat_send_messages(unsigned char *minecraft) {
+static void send_queued_messages(unsigned char *minecraft) {
     // Lock
     pthread_mutex_lock(&queue_mutex);
     // If Message Was Submitted, No Other Chat Windows Are Open, And The Game Is Not Paused, Then Re-Lock Cursor
     unsigned int new_chat_counter = chat_get_counter();
     if (old_chat_counter > new_chat_counter && new_chat_counter == 0 && (*(unsigned char **) (minecraft + Minecraft_screen_property_offset)) == NULL) {
-        (*Minecraft_grabMouse)(minecraft);
+        // Grab Mouse
+        input_set_mouse_grab_state(-1);
     }
     old_chat_counter = new_chat_counter;
     // Loop
@@ -108,11 +113,16 @@ void chat_send_messages(unsigned char *minecraft) {
 
 // Init
 void init_chat() {
-    // Disable Original ChatPacket Loopback
-    unsigned char disable_chat_packet_loopback_patch[4] = {0x00, 0xf0, 0x20, 0xe3}; // "nop"
-    patch((void *) 0x6b490, disable_chat_packet_loopback_patch);
-    // Manually Send (And Loopback) ChatPacket
-    overwrite_call((void *) 0x6b518, (void *) CommandServer_parse_CommandServer_dispatchPacket_injection);
-    // Re-Broadcast ChatPacket
-    patch_address(ServerSideNetworkHandler_handle_ChatPacket_vtable_addr, (void *) ServerSideNetworkHandler_handle_ChatPacket_injection);
+    _chat_enabled = feature_has("Implement Chat", 1);
+    if (_chat_enabled) {
+        // Disable Original ChatPacket Loopback
+        unsigned char disable_chat_packet_loopback_patch[4] = {0x00, 0xf0, 0x20, 0xe3}; // "nop"
+        patch((void *) 0x6b490, disable_chat_packet_loopback_patch);
+        // Manually Send (And Loopback) ChatPacket
+        overwrite_call((void *) 0x6b518, (void *) CommandServer_parse_CommandServer_dispatchPacket_injection);
+        // Re-Broadcast ChatPacket
+        patch_address(ServerSideNetworkHandler_handle_ChatPacket_vtable_addr, (void *) ServerSideNetworkHandler_handle_ChatPacket_injection);
+        // Send Messages On Input Tick
+        input_run_on_tick(send_queued_messages);
+    }
 }

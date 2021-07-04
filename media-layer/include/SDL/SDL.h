@@ -32,7 +32,7 @@ int SDL_ShowCursor(int toggle);
 
 void *SDL_SetVideoMode(int width, int height, int bpp, uint32_t flags);
 int SDL_GetWMInfo(SDL_SysWMinfo *info);
-__attribute__ ((noreturn)) void SDL_Quit();
+__attribute__((noreturn)) void SDL_Quit();
 
 #ifdef __cplusplus
 }

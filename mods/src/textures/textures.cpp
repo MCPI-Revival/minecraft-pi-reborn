@@ -19,7 +19,7 @@ static void Minecraft_tick_injection(unsigned char *minecraft, int32_t param_1, 
 // Init
 void init_textures() {
     // Tick Dynamic Textures (Animated Water)
-    if (feature_has("Animated Water")) {
+    if (feature_has("Animated Water", 0)) {
         overwrite_calls((void *) Minecraft_tick, (void *) Minecraft_tick_injection);
     }
 }

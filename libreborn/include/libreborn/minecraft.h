@@ -185,12 +185,32 @@ typedef int32_t (*MouseBuildInput_tickBuild_t)(unsigned char *mouse_build_input,
 static MouseBuildInput_tickBuild_t MouseBuildInput_tickBuild = (MouseBuildInput_tickBuild_t) 0x17c98;
 static void *MouseBuildInput_tickBuild_vtable_addr = (void *) 0x102564;
 
+// ItemInstance
+
+typedef struct {
+    int32_t count;
+    int32_t id;
+    int32_t auxilary;
+} ItemInstance;
+
+typedef ItemInstance *(*ItemInstance_constructor_t)(ItemInstance *item_instance, unsigned char *item);
+static ItemInstance_constructor_t ItemInstance_constructor_item = (ItemInstance_constructor_t) 0x9992c;
+static ItemInstance_constructor_t ItemInstance_constructor_tile = (ItemInstance_constructor_t) 0x998e4;
+
+typedef ItemInstance *(*ItemInstance_constructor_extra_t)(ItemInstance *item_instance, unsigned char *item, int32_t count, int32_t auxilary);
+static ItemInstance_constructor_extra_t ItemInstance_constructor_tile_extra = (ItemInstance_constructor_extra_t) 0x99918;
+static ItemInstance_constructor_extra_t ItemInstance_constructor_item_extra = (ItemInstance_constructor_extra_t) 0x99960;
+
 // Player
 
 typedef int (*Player_isUsingItem_t)(unsigned char *player);
 static Player_isUsingItem_t Player_isUsingItem = (Player_isUsingItem_t) 0x8f15c;
 
+typedef void (*Player_drop_t)(unsigned char *player, ItemInstance *item_instance);
+static uint32_t Player_drop_vtable_offset = 0x204;
+
 static uint32_t Player_username_property_offset = 0xbf4; // char *
+static uint32_t Player_inventory_property_offset = 0xbe0; // Inventory *
 
 // Entity
 
@@ -278,6 +298,10 @@ static void *TextEditScreen_updateEvents_vtable_addr = (void *) 0x10531c;
 typedef void *(*ProgressScreen_t)(unsigned char *obj);
 static ProgressScreen_t ProgressScreen = (ProgressScreen_t) 0x37044;
 
+// OptionsScreen
+
+static void *OptionsScreen_handleBackEvent_vtable_addr = (void *) 0x10499c;
+
 // Screen
 
 typedef void (*Screen_updateEvents_t)(unsigned char *screen);
@@ -290,6 +314,8 @@ typedef void (*Screen_keyPressed_t)(unsigned char *screen, int32_t key);
 static uint32_t Screen_keyPressed_vtable_offset = 0x6c;
 
 typedef void (*Screen_tick_t)(unsigned char *screen);
+
+typedef int32_t (*Screen_handleBackEvent_t)(unsigned char *screen, bool param_1);
 
 static uint32_t Screen_minecraft_property_offset = 0x14; // Minecraft *
 
@@ -309,26 +335,28 @@ static void *Touch_SelectWorldScreen_tick_vtable_addr = (void *) 0x105780;
 static uint32_t Touch_SelectWorldScreen_should_create_world_property_offset = 0x154; // bool
 static uint32_t Touch_SelectWorldScreen_world_created_property_offset = 0x151; // bool
 
-// ItemInstance
-
-#define ITEM_INSTANCE_SIZE 0xc
-
-typedef unsigned char *(*ItemInstance_constructor_t)(unsigned char *item_instance, unsigned char *item);
-static ItemInstance_constructor_t ItemInstance_constructor_item = (ItemInstance_constructor_t) 0x9992c;
-static ItemInstance_constructor_t ItemInstance_constructor_tile = (ItemInstance_constructor_t) 0x998e4;
-
-typedef unsigned char *(*ItemInstance_constructor_extra_t)(unsigned char *item_instance, unsigned char *item, int32_t count, int32_t auxilary);
-static ItemInstance_constructor_extra_t ItemInstance_constructor_tile_extra = (ItemInstance_constructor_extra_t) 0x99918;
-static ItemInstance_constructor_extra_t ItemInstance_constructor_item_extra = (ItemInstance_constructor_extra_t) 0x99960;
-
-static uint32_t ItemInstance_count_property_offset = 0x0; // int32_t
-static uint32_t ItemInstance_id_property_offset = 0x4; // int32_t
-static uint32_t ItemInstance_auxilary_property_offset = 0x8; // int32_t
-
 // FillingContainer
 
-typedef int32_t (*FillingContainer_addItem_t)(unsigned char *filling_container, unsigned char *item_instance);
+typedef int32_t (*FillingContainer_addItem_t)(unsigned char *filling_container, ItemInstance *item_instance);
 static FillingContainer_addItem_t FillingContainer_addItem = (FillingContainer_addItem_t) 0x92aa0;
+
+typedef ItemInstance *(*FillingContainer_getItem_t)(unsigned char *filling_container, int32_t slot);
+static uint32_t FillingContainer_getItem_vtable_offset = 0x8;
+
+typedef void (*FillingContainer_setItem_t)(unsigned char *filling_container, int32_t slot, ItemInstance *item_instance);
+static uint32_t FillingContainer_setItem_vtable_offset = 0xc;
+
+typedef void (*FillingContainer_clearSlot_t)(unsigned char *filling_container, int32_t slot);
+static FillingContainer_clearSlot_t FillingContainer_clearSlot = (FillingContainer_clearSlot_t) 0x922f8;
+
+typedef void (*FillingContainer_release_t)(unsigned char *filling_container, int32_t slot);
+static FillingContainer_release_t FillingContainer_release = (FillingContainer_release_t) 0x92058;
+
+typedef void (*FillingContainer_compressLinkedSlotList_t)(unsigned char *filling_container, int32_t slot);
+static FillingContainer_compressLinkedSlotList_t FillingContainer_compressLinkedSlotList = (FillingContainer_compressLinkedSlotList_t) 0x92280;
+
+static uint32_t FillingContainer_linked_slots_property_offset = 0xc; // int32_t[]
+static uint32_t FillingContainer_linked_slots_length_property_offset = 0x14; // int32_t
 
 // RakNet::RakString
 
@@ -390,6 +418,8 @@ static void *ServerSideNetworkHandler_handle_ChatPacket_vtable_addr = (void *) 0
 typedef void (*Inventory_selectSlot_t)(unsigned char *inventory, int32_t slot);
 static Inventory_selectSlot_t Inventory_selectSlot = (Inventory_selectSlot_t) 0x8d13c;
 
+static uint32_t Inventory_selectedSlot_property_offset = 0x28; // int32_t
+
 // TripodCameraRenderer
 
 #define TRIPOD_CAMERA_RENDERER_SIZE 0x193
@@ -411,10 +441,10 @@ static uint32_t TileEntity_id_property_offset = 0x18; // int32_t
 
 // ItemRenderer
 
-typedef float (*ItemRenderer_renderGuiItem_t)(unsigned char *font, unsigned char *textures, unsigned char *item_instance, float param_1, float param_2, bool param_3);
+typedef float (*ItemRenderer_renderGuiItem_t)(unsigned char *font, unsigned char *textures, ItemInstance *item_instance, float param_1, float param_2, bool param_3);
 static ItemRenderer_renderGuiItem_t ItemRenderer_renderGuiItem = (ItemRenderer_renderGuiItem_t) 0x63e58;
 
-typedef float (*ItemRenderer_renderGuiItemCorrect_t)(unsigned char *font, unsigned char *textures, unsigned char *item_instance, int32_t param_1, int32_t param_2);
+typedef float (*ItemRenderer_renderGuiItemCorrect_t)(unsigned char *font, unsigned char *textures, ItemInstance *item_instance, int32_t param_1, int32_t param_2);
 static ItemRenderer_renderGuiItemCorrect_t ItemRenderer_renderGuiItemCorrect = (ItemRenderer_renderGuiItemCorrect_t) 0x639a0;
 
 // Tesselator

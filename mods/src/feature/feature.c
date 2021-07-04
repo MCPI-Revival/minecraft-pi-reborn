@@ -6,7 +6,17 @@
 #include "feature.h"
 
 // Check For Feature
-int feature_has(const char *name) {
+int feature_has(const char *name, int server_default) {
+    // Default Value For Server Mode
+#ifdef MCPI_SERVER_MODE
+    if (server_default != -1) {
+        return server_default;
+    }
+#else
+    (void) server_default;
+#endif
+
+    // Get Value
     char *env = getenv("MCPI_FEATURE_FLAGS");
     char *features = strdup(env != NULL ? env : "");
     char *tok = strtok(features, "|");

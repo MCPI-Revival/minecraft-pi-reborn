@@ -6,10 +6,9 @@
 #include "../feature/feature.h"
 #include "../init/init.h"
 
-static int mob_spawning = 0;
-// Override Mob Spawning
-static uint32_t LevelData_getSpawnMobs_injection(__attribute__((unused)) unsigned char *level_data) {
-    return mob_spawning;
+// Force Mob Spawning
+static bool LevelData_getSpawnMobs_injection(__attribute__((unused)) unsigned char *level_data) {
+    return 1;
 }
 
 #ifndef MCPI_SERVER_MODE
@@ -69,16 +68,17 @@ static void Minecraft_init_injection(unsigned char *this) {
 
 // Init
 void init_options() {
-    mob_spawning = feature_has("Mob Spawning");
-    // Set Mob Spawning
-    overwrite((void *) LevelData_getSpawnMobs, LevelData_getSpawnMobs_injection);
+    // Force Mob Spawning
+    if (feature_has("Force Mob Spawning", -1)) {
+        overwrite((void *) LevelData_getSpawnMobs, LevelData_getSpawnMobs_injection);
+    }
 
     // Enable Fancy Graphics
-    fancy_graphics = feature_has("Fancy Graphics");
+    fancy_graphics = feature_has("Fancy Graphics", 0);
     // Peaceful Mode
-    peaceful_mode = feature_has("Peaceful Mode");
+    peaceful_mode = feature_has("Peaceful Mode", -1);
     // 3D Anaglyph
-    anaglyph = feature_has("3D Anaglyph");
+    anaglyph = feature_has("3D Anaglyph", 0);
     // Render Distance
 #ifndef MCPI_SERVER_MODE
     render_distance = get_render_distance();
@@ -100,18 +100,18 @@ void init_options() {
     }
     patch_address((void *) default_username, (void *) username);
 
-    if (feature_has("Disable Autojump By Default")) {
+    if (feature_has("Disable Autojump By Default", 0)) {
         // Disable Autojump By Default
         unsigned char autojump_patch[4] = {0x00, 0x30, 0xa0, 0xe3}; // "mov r3, #0x0"
         patch((void *) 0x44b90, autojump_patch);
     }
-    if (feature_has("Display Nametags By Default")) {
+    if (feature_has("Display Nametags By Default", 0)) {
         // Display Nametags By Default
         unsigned char display_nametags_patch[4] = {0x1d, 0x60, 0xc0, 0xe5}; // "strb r6, [r0, #0x1d]"
         patch((void *) 0xa6628, display_nametags_patch);
     }
 
-    smooth_lighting = feature_has("Smooth Lighting");
+    smooth_lighting = feature_has("Smooth Lighting", 0);
     if (smooth_lighting) {
         // Enable Smooth Lighting
         unsigned char smooth_lighting_patch[4] = {0x01, 0x00, 0x53, 0xe3}; // "cmp r3, #0x1"

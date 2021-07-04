@@ -4,6 +4,7 @@
 #include <libreborn/minecraft.h>
 
 #include "../init/init.h"
+#include "../feature/feature.h"
 
 // Death Messages
 static std::string get_death_message(unsigned char *player) {
@@ -61,6 +62,8 @@ static void LocalPlayer_actuallyHurt_injection(unsigned char *player, int32_t da
 // Init
 void init_death() {
     // Death Messages
-    patch_address(ServerPlayer_actuallyHurt_vtable_addr, (void *) ServerPlayer_actuallyHurt_injection);
-    patch_address(LocalPlayer_actuallyHurt_vtable_addr, (void *) LocalPlayer_actuallyHurt_injection);
+    if (feature_has("Implement Death Messages", 1)) {
+        patch_address(ServerPlayer_actuallyHurt_vtable_addr, (void *) ServerPlayer_actuallyHurt_injection);
+        patch_address(LocalPlayer_actuallyHurt_vtable_addr, (void *) LocalPlayer_actuallyHurt_injection);
+    }
 }

@@ -1,5 +1,11 @@
 # Changelog
 
+**2.1.0**
+* Allow Binding ``Q`` Key To Item Dropping
+* Expose More Feature Flags
+* Replace ``Mob Spawning`` Feature Flag With ``Force Mob Spawning``
+* Fix ``ESC`` Key In Options Menu When ``Miscellaneous Input Fixes`` Is Enabled
+
 **2.0.9**
 * Fix Translucent Preview Items In Furnace UI Being Fully Opaque When The ``gui_blocks`` Atlas Is Disabled
 

@@ -5,6 +5,7 @@
 
 #include "../init/init.h"
 #include "../feature/feature.h"
+#include "../input/input.h"
 #include "sign.h"
 
 // Open Sign Screen
@@ -31,7 +32,7 @@ void sign_key_press(char key) {
         input.push_back(key);
     }
 }
-void sign_clear_input() {
+static void clear_input(__attribute__((unused)) unsigned char *minecraft) {
     input.clear();
 }
 
@@ -52,14 +53,16 @@ static void TextEditScreen_updateEvents_injection(unsigned char *screen) {
             }
         }
     }
-    sign_clear_input();
+    clear_input(NULL);
 }
 
 // Init
 void init_sign() {
-    if (feature_has("Fix Sign Placement")) {
+    if (feature_has("Fix Sign Placement", 0)) {
         // Fix Signs
         patch_address(LocalPlayer_openTextEdit_vtable_addr, (void *) LocalPlayer_openTextEdit_injection);
         patch_address(TextEditScreen_updateEvents_vtable_addr, (void *) TextEditScreen_updateEvents_injection);
+        // Clear input On Input Tick
+        input_run_on_tick(clear_input);
     }
 }

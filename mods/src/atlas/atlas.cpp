@@ -7,23 +7,19 @@
 #include "../init/init.h"
 
 // Fix Grass And Leaves Inventory Rendering When The gui_blocks Atlas Is Disabled
-static float ItemRenderer_renderGuiItemCorrect_injection(unsigned char *font, unsigned char *textures, unsigned char *item_instance, int32_t param_1, int32_t param_2) {
+static float ItemRenderer_renderGuiItemCorrect_injection(unsigned char *font, unsigned char *textures, ItemInstance *item_instance, int32_t param_1, int32_t param_2) {
     int32_t leaves_id = *(int32_t *) (*Tile_leaves + Tile_id_property_offset);
     int32_t grass_id = *(int32_t *) (*Tile_grass + Tile_id_property_offset);
     // Replace Rendered Item With Carried Variant
-    unsigned char *carried_item_instance = NULL;
+    ItemInstance carried_item_instance;
+    bool use_carried = false;
     if (item_instance != NULL) {
-        int32_t id = *(int32_t *) (item_instance + ItemInstance_id_property_offset);
-        int32_t count = *(int32_t *) (item_instance + ItemInstance_count_property_offset);
-        int32_t auxilary = *(int32_t *) (item_instance + ItemInstance_auxilary_property_offset);
-        if (id == leaves_id) {
-            carried_item_instance = (unsigned char *) ::operator new(ITEM_INSTANCE_SIZE);
-            ALLOC_CHECK(carried_item_instance);
-            (*ItemInstance_constructor_tile_extra)(carried_item_instance, *Tile_leaves_carried, count, auxilary);
-        } else if (id == grass_id) {
-            carried_item_instance = (unsigned char *) ::operator new(ITEM_INSTANCE_SIZE);
-            ALLOC_CHECK(carried_item_instance);
-            (*ItemInstance_constructor_tile_extra)(carried_item_instance, *Tile_grass_carried, count, auxilary);
+        if (item_instance->id == leaves_id) {
+            (*ItemInstance_constructor_tile_extra)(&carried_item_instance, *Tile_leaves_carried, item_instance->count, item_instance->auxilary);
+            use_carried = true;
+        } else if (item_instance->id == grass_id) {
+            (*ItemInstance_constructor_tile_extra)(&carried_item_instance, *Tile_grass_carried, item_instance->count, item_instance->auxilary);
+            use_carried = true;
         }
     }
 
@@ -32,16 +28,11 @@ static float ItemRenderer_renderGuiItemCorrect_injection(unsigned char *font, un
     glDisable(GL_DEPTH_TEST);
 
     // Call Original Method
-    float ret = (*ItemRenderer_renderGuiItemCorrect)(font, textures, carried_item_instance != NULL ? carried_item_instance : item_instance, param_1, param_2);
+    float ret = (*ItemRenderer_renderGuiItemCorrect)(font, textures, use_carried ? &carried_item_instance : item_instance, param_1, param_2);
 
     // Revert GL State Changes
     if (depth_test_was_enabled) {
         glEnable(GL_DEPTH_TEST);
-    }
-
-    // Free Carried Item Instance Variant
-    if (carried_item_instance != NULL) {
-        ::operator delete(carried_item_instance);
     }
 
     // Return
@@ -86,7 +77,7 @@ static void Tesselator_color_injection(unsigned char *tesselator, int32_t r, int
     // Call Original Method
     (*Tesselator_color)(tesselator, r, g, b, a);
 }
-static float FurnaceScreen_render_ItemRenderer_renderGuiItem_injection(unsigned char *font, unsigned char *textures, unsigned char *item_instance, float param_1, float param_2, bool param_3) {
+static float FurnaceScreen_render_ItemRenderer_renderGuiItem_injection(unsigned char *font, unsigned char *textures, ItemInstance *item_instance, float param_1, float param_2, bool param_3) {
     // Enable Furnace UI Fix
     use_furnace_fix = true;
 
@@ -103,7 +94,7 @@ static float FurnaceScreen_render_ItemRenderer_renderGuiItem_injection(unsigned 
 // Init
 void init_atlas() {
     // Disable The gui_blocks Atlas Which Contains Pre-Rendered Textures For Blocks In The Inventory
-    if (feature_has("Disable gui_blocks Atlas")) {
+    if (feature_has("Disable \"gui_blocks\" Atlas", 0)) {
         unsigned char disable_gui_blocks_atlas_patch[4] = {0x00, 0xf0, 0x20, 0xe3}; // "nop"
         patch((void *) 0x63c2c, disable_gui_blocks_atlas_patch);
         // Fix Grass And Leaves Inventory Rendering When The gui_blocks Atlas Is Disabled

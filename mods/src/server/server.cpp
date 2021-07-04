@@ -53,7 +53,7 @@ static ServerProperties &get_server_properties() {
 #define DEFAULT_GAME_MODE "0"
 #define DEFAULT_PORT "19132"
 #define DEFAULT_SEED ""
-#define DEFAULT_MOB_SPAWNING "true"
+#define DEFAULT_FORCE_MOB_SPAWNING "false"
 #define DEFAULT_PEACEFUL_MODE "false"
 #define DEFAULT_WORLD_NAME "world"
 #define DEFAULT_MAX_PLAYERS "4"
@@ -433,10 +433,7 @@ static const char *get_features() {
     if (!loaded_features) {
         loaded_features = true;
 
-        features = "";
-        if (get_server_properties().get_bool("spawn-mobs", DEFAULT_MOB_SPAWNING)) {
-            features += "Mob Spawning|";
-        }
+        features.clear();
         if (get_server_properties().get_bool("peaceful-mode", DEFAULT_PEACEFUL_MODE)) {
             features += "Peaceful Mode|";
         }
@@ -476,8 +473,8 @@ static void server_init() {
         properties_file_output << "port=" DEFAULT_PORT "\n";
         properties_file_output << "# World Seed (Blank = Random Seed)\n";
         properties_file_output << "seed=" DEFAULT_SEED "\n";
-        properties_file_output << "# Mob Spawning (false = Disabled, true = Enabled)\n";
-        properties_file_output << "spawn-mobs=" DEFAULT_MOB_SPAWNING "\n";
+        properties_file_output << "# Force Mob Spawning (false = Disabled, true = Enabled)\n";
+        properties_file_output << "force-mob-spawning=" DEFAULT_FORCE_MOB_SPAWNING "\n";
         properties_file_output << "# Peaceful Mode (false = Disabled, true = Enabled)\n";
         properties_file_output << "peaceful-mode=" DEFAULT_PEACEFUL_MODE "\n";
         properties_file_output << "# World To Select\n";

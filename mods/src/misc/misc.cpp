@@ -27,14 +27,14 @@ static AppPlatform_readAssetFile_return_value AppPlatform_readAssetFile_injectio
 
 // Add Item To Inventory
 static void inventory_add_item(unsigned char *inventory, unsigned char *item, bool is_tile) {
-    unsigned char *item_instance = (unsigned char *) ::operator new(ITEM_INSTANCE_SIZE);
+    ItemInstance *item_instance = new ItemInstance;
     ALLOC_CHECK(item_instance);
     item_instance = (*(is_tile ? ItemInstance_constructor_tile : ItemInstance_constructor_item))(item_instance, item);
     (*FillingContainer_addItem)(inventory, item_instance);
 }
 
 // Expand Creative Inventory
-static int32_t Inventory_setupDefault_FillingContainer_addItem_call_injection(unsigned char *filling_container, unsigned char *item_instance) {
+static int32_t Inventory_setupDefault_FillingContainer_addItem_call_injection(unsigned char *filling_container, ItemInstance *item_instance) {
     // Call Original
     int32_t ret = (*FillingContainer_addItem)(filling_container, item_instance);
 
@@ -48,7 +48,7 @@ static int32_t Inventory_setupDefault_FillingContainer_addItem_call_injection(un
             // Bonemeal Is Already In The Creative Inventory
             continue;
         }
-        unsigned char *item_instance = (unsigned char *) ::operator new(ITEM_INSTANCE_SIZE);
+        ItemInstance *item_instance = new ItemInstance;
         ALLOC_CHECK(item_instance);
         item_instance = (*ItemInstance_constructor_item_extra)(item_instance, *Item_dye_powder, 1, i);
         (*FillingContainer_addItem)(filling_container, item_instance);
@@ -101,10 +101,12 @@ static void Gui_addMessage_injection(unsigned char *gui, std::string const& text
 // Init
 void _init_misc_cpp() {
     // Implement AppPlatform::readAssetFile So Translations Work
-    overwrite((void *) AppPlatform_readAssetFile, (void *) AppPlatform_readAssetFile_injection);
+    if (feature_has("Load Language Files", 1)) {
+        overwrite((void *) AppPlatform_readAssetFile, (void *) AppPlatform_readAssetFile_injection);
+    }
 
     // Add Extra Items To Creative Inventory (Only Replace Specific Function Call)
-    if (feature_has("Expand Creative Inventory")) {
+    if (feature_has("Expand Creative Inventory", 0)) {
         overwrite_call((void *) 0x8e0fc, (void *) Inventory_setupDefault_FillingContainer_addItem_call_injection);
     }
 

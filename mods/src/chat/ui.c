@@ -6,6 +6,7 @@
 #include <libreborn/libreborn.h>
 
 #include "chat.h"
+#include "../input/input.h"
 
 // Run Command
 static char *run_command(char *command, int *return_code) {
@@ -72,11 +73,16 @@ static void *chat_thread(__attribute__((unused)) void *nop) {
 
 // Create Chat Thead
 void chat_open() {
-    // Update Counter
-    pthread_mutex_lock(&chat_counter_lock);
-    chat_counter++;
-    pthread_mutex_unlock(&chat_counter_lock);
-    // Start Thread
-    pthread_t thread;
-    pthread_create(&thread, NULL, chat_thread, NULL);
+    if (_chat_enabled) {
+        // Release Mouse
+        input_set_mouse_grab_state(1);
+
+        // Update Counter
+        pthread_mutex_lock(&chat_counter_lock);
+        chat_counter++;
+        pthread_mutex_unlock(&chat_counter_lock);
+        // Start Thread
+        pthread_t thread;
+        pthread_create(&thread, NULL, chat_thread, NULL);
+    }
 }

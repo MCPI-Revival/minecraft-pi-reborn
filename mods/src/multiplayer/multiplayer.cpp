@@ -12,6 +12,7 @@
 
 #include "../home/home.h"
 #include "../init/init.h"
+#include "../feature/feature.h"
 
 // Load Server List
 struct server_list_entry {
@@ -125,5 +126,7 @@ static void RakNetInstance_pingForHosts_injection(unsigned char *rak_net_instanc
 // Init
 void init_multiplayer() {
     // Inject Code
-    patch_address(RakNetInstance_pingForHosts_vtable_addr, (void *) RakNetInstance_pingForHosts_injection);
+    if (feature_has("External Server Support", 0)) {
+        patch_address(RakNetInstance_pingForHosts_vtable_addr, (void *) RakNetInstance_pingForHosts_injection);
+    }
 }
