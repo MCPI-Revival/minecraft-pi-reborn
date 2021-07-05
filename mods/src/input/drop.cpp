@@ -73,7 +73,7 @@ void _handle_drop(unsigned char *minecraft) {
                 }
 
                 // Drop
-                (*Player_drop)(player, dropped_item);
+                (*Player_drop)(player, dropped_item, false);
             }
         }
     }

@@ -29,9 +29,11 @@ void _handle_back(unsigned char *minecraft) {
 }
 
 // Fix OptionsScreen Ignoring The Back Button
-static int32_t OptionsScreen_handleBackEvent_injection(unsigned char *screen, __attribute__((unused)) bool param_1) {
-    unsigned char *minecraft = *(unsigned char **) (screen + Screen_minecraft_property_offset);
-    (*Minecraft_setScreen)(minecraft, NULL);
+static int32_t OptionsScreen_handleBackEvent_injection(unsigned char *screen, bool do_nothing) {
+    if (!do_nothing) {
+        unsigned char *minecraft = *(unsigned char **) (screen + Screen_minecraft_property_offset);
+        (*Minecraft_setScreen)(minecraft, NULL);
+    }
     return 1;
 }
 

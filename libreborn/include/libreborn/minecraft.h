@@ -110,7 +110,7 @@ static Minecraft_grabMouse_t Minecraft_grabMouse = (Minecraft_grabMouse_t) 0x15d
 typedef void (*Minecraft_leaveGame_t)(unsigned char *minecraft, bool save_remote_level);
 static Minecraft_leaveGame_t Minecraft_leaveGame = (Minecraft_leaveGame_t) 0x15ea0;
 
-typedef int (*Minecraft_handleBack_t)(unsigned char *minecraft, bool param_1);
+typedef int (*Minecraft_handleBack_t)(unsigned char *minecraft, bool do_nothing);
 static uint32_t Minecraft_handleBack_vtable_offset = 0x34;
 
 static uint32_t Minecraft_screen_width_property_offset = 0x20; // int32_t
@@ -206,8 +206,8 @@ static ItemInstance_constructor_extra_t ItemInstance_constructor_item_extra = (I
 typedef int (*Player_isUsingItem_t)(unsigned char *player);
 static Player_isUsingItem_t Player_isUsingItem = (Player_isUsingItem_t) 0x8f15c;
 
-typedef void (*Player_drop_t)(unsigned char *player, ItemInstance *item_instance);
-static uint32_t Player_drop_vtable_offset = 0x204;
+typedef void (*Player_drop_t)(unsigned char *player, ItemInstance *item_instance, bool is_death);
+static uint32_t Player_drop_vtable_offset = 0x208;
 
 static uint32_t Player_username_property_offset = 0xbf4; // char *
 static uint32_t Player_inventory_property_offset = 0xbe0; // Inventory *
