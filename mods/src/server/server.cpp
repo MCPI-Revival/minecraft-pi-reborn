@@ -230,8 +230,8 @@ static void ban_callback(unsigned char *minecraft, std::string username, unsigne
 // Kill Player
 static void kill_callback(__attribute__((unused)) unsigned char *minecraft, __attribute__((unused)) std::string username, unsigned char *player) {
     unsigned char *player_vtable = *(unsigned char **) player;
-    Mob_actuallyHurt_t Mob_actuallyHurt = *(Mob_actuallyHurt_t *) (player_vtable + Mob_actuallyHurt_vtable_offset);
-    (*Mob_actuallyHurt)(player, INT32_MAX);
+    Mob_actuallyHurt_t Player_actuallyHurt = *(Mob_actuallyHurt_t *) (player_vtable + Mob_actuallyHurt_vtable_offset);
+    (*Player_actuallyHurt)(player, INT32_MAX);
     INFO("Killed: %s", username.c_str());
 }
 
@@ -436,6 +436,9 @@ static const char *get_features() {
         features.clear();
         if (get_server_properties().get_bool("peaceful-mode", DEFAULT_PEACEFUL_MODE)) {
             features += "Peaceful Mode|";
+        }
+        if (get_server_properties().get_bool("force-mob-spawning", DEFAULT_FORCE_MOB_SPAWNING)) {
+            features += "Force Mob Spawning|";
         }
     }
     return features.c_str();

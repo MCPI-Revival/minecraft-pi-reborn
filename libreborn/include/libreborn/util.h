@@ -28,7 +28,7 @@
                 ERR("Error Resolving Symbol: "#name": %s", dlerror()); \
             } \
         } \
-    }; \
+    } \
     \
     __attribute__((__used__)) return_type name args
 

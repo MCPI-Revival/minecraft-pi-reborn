@@ -70,7 +70,7 @@ static void Minecraft_init_injection(unsigned char *this) {
 void init_options() {
     // Force Mob Spawning
     if (feature_has("Force Mob Spawning", -1)) {
-        overwrite((void *) LevelData_getSpawnMobs, LevelData_getSpawnMobs_injection);
+        overwrite((void *) LevelData_getSpawnMobs, (void *) LevelData_getSpawnMobs_injection);
     }
 
     // Enable Fancy Graphics
@@ -88,7 +88,7 @@ void init_options() {
 #endif // #ifndef MCPI_SERVER_MODE
 
     // Set Options
-    overwrite_calls((void *) Minecraft_init, Minecraft_init_injection);
+    overwrite_calls((void *) Minecraft_init, (void *) Minecraft_init_injection);
 
     // Change Username
     const char *username = get_username();

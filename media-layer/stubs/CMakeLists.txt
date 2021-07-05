@@ -32,6 +32,7 @@ if(BUILD_ARM_COMPONENTS)
 
     # Add NOP GLESv2 That Dpends On Actual GLESv1_CM (This Cannot Be A Symlink Because The Location Of GLESv1_CM Is Dynamic)
     add_library(GLESv2 SHARED src/nop.c)
+    target_compile_options(GLESv2 PRIVATE -w)
     target_link_libraries(GLESv2 GLESv1_CM)
     # Force Link
     target_link_options(GLESv2 PRIVATE "-Wl,--no-as-needed")

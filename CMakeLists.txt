@@ -85,9 +85,11 @@ if(BUILD_ARM_COMPONENTS)
 endif()
 
 # Warnings
-add_compile_options(-Wall -Wextra -Werror)
+add_compile_options(-Wall -Wextra -Werror -Wpointer-arith -Wshadow -Wnull-dereference)
 add_link_options(-Wl,--no-undefined)
 add_definitions(-D_GNU_SOURCE)
+set(CMAKE_C_STANDARD 99)
+set(CMAKE_CXX_STANDARD 11)
 
 # Specify Constants
 if(MCPI_SERVER_MODE)

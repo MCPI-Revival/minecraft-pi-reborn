@@ -48,10 +48,10 @@ static int32_t Inventory_setupDefault_FillingContainer_addItem_call_injection(un
             // Bonemeal Is Already In The Creative Inventory
             continue;
         }
-        ItemInstance *item_instance = new ItemInstance;
-        ALLOC_CHECK(item_instance);
-        item_instance = (*ItemInstance_constructor_item_extra)(item_instance, *Item_dye_powder, 1, i);
-        (*FillingContainer_addItem)(filling_container, item_instance);
+        ItemInstance *new_item_instance = new ItemInstance;
+        ALLOC_CHECK(new_item_instance);
+        new_item_instance = (*ItemInstance_constructor_item_extra)(new_item_instance, *Item_dye_powder, 1, i);
+        (*FillingContainer_addItem)(filling_container, new_item_instance);
     }
     inventory_add_item(filling_container, *Item_camera, false);
     // Add Tiles

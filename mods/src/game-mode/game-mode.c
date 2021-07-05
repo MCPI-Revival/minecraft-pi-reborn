@@ -40,7 +40,7 @@ void init_game_mode() {
     if (feature_has("Implement Game-Mode Switching", 1)) {
         // Dynamic Game Mode Switching
         set_is_survival(1);
-        overwrite_calls((void *) Minecraft_setIsCreativeMode, Minecraft_setIsCreativeMode_injection);
+        overwrite_calls((void *) Minecraft_setIsCreativeMode, (void *) Minecraft_setIsCreativeMode_injection);
 
         // Replace CreatorLevel With ServerLevel (This Fixes Beds And Mob Spawning)
         unsigned char level_patch[4] = {0x68, 0x7e, 0x01, 0xeb}; // "bl 0x7692c"

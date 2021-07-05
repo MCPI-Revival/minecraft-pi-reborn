@@ -25,7 +25,7 @@ void safe_read(void *buf, size_t len) {
     size_t to_read = len;
     while (to_read > 0) {
         CHECK_CONNECTION();
-        ssize_t x = read(get_connection_read(), buf + (len - to_read), to_read);
+        ssize_t x = read(get_connection_read(), (void *) (((unsigned char *) buf) + (len - to_read)), to_read);
         if (x == -1 && errno != EINTR) {
             PROXY_ERR("Failed Reading Data To Connection: %s", strerror(errno));
         }
@@ -57,7 +57,7 @@ void safe_write(void *buf, size_t len) {
     }
     ALLOC_CHECK(_write_cache);
     // Copy Data
-    memcpy(_write_cache + _write_cache_position, buf, len);
+    memcpy((void *) (((unsigned char *) _write_cache) + _write_cache_position), buf, len);
     // Advance Position
     _write_cache_position += len;
 }
@@ -77,7 +77,7 @@ void flush_write_cache() {
     size_t to_write = _write_cache_position;
     while (to_write > 0) {
         CHECK_CONNECTION();
-        ssize_t x = write(get_connection_write(), _write_cache + (_write_cache_position - to_write), to_write);
+        ssize_t x = write(get_connection_write(), (void *) (((unsigned char *) _write_cache) + (_write_cache_position - to_write)), to_write);
         if (x == -1 && errno != EINTR) {
             PROXY_ERR("Failed Writing Data To Connection: %s", strerror(errno));
         }

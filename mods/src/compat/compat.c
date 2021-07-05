@@ -32,9 +32,9 @@ HOOK(SDL_PollEvent, int, (SDL_Event *event)) {
     // Check If Exit Is Requested
     if (compat_check_exit_requested()) {
         // Send SDL_QUIT
-        SDL_Event event;
-        event.type = SDL_QUIT;
-        SDL_PushEvent(&event);
+        SDL_Event new_event;
+        new_event.type = SDL_QUIT;
+        SDL_PushEvent(&new_event);
     }
 #endif // #ifndef MCPI_SERVER_MODE
 

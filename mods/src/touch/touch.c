@@ -34,7 +34,7 @@ void init_touch() {
     int touch_gui = feature_has("Touch GUI", 0);
     if (touch_gui) {
         // Main UI
-        overwrite((void *) Minecraft_isTouchscreen, Minecraft_isTouchscreen_injection);
+        overwrite((void *) Minecraft_isTouchscreen, (void *) Minecraft_isTouchscreen_injection);
 
         // Disable Normal Cursor Rendering
         unsigned char disable_cursor_patch[4] = {0x00, 0xf0, 0x20, 0xe3}; // "nop"
