@@ -1,5 +1,8 @@
 # Changelog
 
+**2.1.2**
+* Fix Library Loading On ARM 32-Bit Systems
+
 **2.1.1**
 * Fix Symlink Code
 

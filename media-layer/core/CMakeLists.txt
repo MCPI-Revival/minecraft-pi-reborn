@@ -27,3 +27,8 @@ if(TARGET media-layer-core)
         target_link_libraries(media-layer-core "${FREEIMAGE_LIBRARY}" GLESv1_CM glfw)
     endif()
 endif()
+
+# Add Symlinks So MCPI Can Locate Libraries
+if(BUILD_ARM_COMPONENTS)
+    install_symlink("libmedia-layer-core.so" "${MCPI_LIB_DIR}/libSDL-1.2.so.0")
+endif()

@@ -27,8 +27,3 @@ add_subdirectory(stubs)
 
 # Add Extras
 add_subdirectory(extras)
-
-# Add Symlinks So MCPI Can Locate Libraries
-if(BUILD_ARM_COMPONENTS)
-    install_symlink("libmedia-layer-core.so" "${MCPI_LIB_DIR}/libSDL-1.2.so.0")
-endif()

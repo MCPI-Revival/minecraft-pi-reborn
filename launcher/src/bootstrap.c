@@ -143,10 +143,6 @@ void bootstrap(int argc, char *argv[]) {
                 string_append(&new_ld_path, ":%s", value);
             }
         }
-        // Load ARM Libraries
-#ifdef __ARM_ARCH
-        string_append(&new_ld_path, "%s", ":/usr/lib/arm-linux-gnueabihf:/usr/arm-linux-gnueabihf/lib");
-#endif
         // Add Full Library Search Path
         {
             char *value = get_full_library_search_path();

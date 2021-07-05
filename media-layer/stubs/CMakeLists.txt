@@ -5,6 +5,7 @@ add_library(GLESv1_CM SHARED src/GLESv1_CM.c)
 target_link_libraries(GLESv1_CM media-layer-headers)
 set_target_properties(GLESv1_CM PROPERTIES SOVERSION "1")
 
+# Stubs Only Needed For ARM
 if(BUILD_ARM_COMPONENTS)
     # Stub RPI-Specific Graphics
     add_library(bcm_host SHARED src/bcm_host.c)
@@ -14,6 +15,7 @@ if(BUILD_ARM_COMPONENTS)
     # Stub EGL
     add_library(EGL SHARED src/EGL.c)
     target_link_libraries(EGL reborn-headers media-layer-headers)
+    set_target_properties(EGL PROPERTIES SOVERSION "1")
     # Stub X11
     add_library(X11 SHARED src/X11.c)
     target_link_libraries(X11 reborn-headers media-layer-headers)
@@ -30,12 +32,12 @@ if(BUILD_ARM_COMPONENTS)
         install(TARGETS GLESv1_CM DESTINATION "${MCPI_LIB_DIR}")
     endif()
 
-    # Add NOP GLESv2 That Dpends On Actual GLESv1_CM (This Cannot Be A Symlink Because The Location Of GLESv1_CM Is Dynamic)
-    add_library(GLESv2 SHARED src/nop.c)
-    target_compile_options(GLESv2 PRIVATE -w)
-    target_link_libraries(GLESv2 GLESv1_CM)
-    # Force Link
-    target_link_options(GLESv2 PRIVATE "-Wl,--no-as-needed")
-    # Install
-    install(TARGETS GLESv2 DESTINATION "${MCPI_LIB_DIR}")
+    # MCPI Depends On GLESv2, But Uses GLESv1_CM
+    install_symlink("libGLESv1_CM.so.1" "${MCPI_LIB_DIR}/libGLESv2.so")
+    # Prevent MCPI From Linking To The Legacy GL Driver When Directly Linking To GL
+    if(NOT MCPI_SERVER_MODE AND NOT MCPI_USE_MEDIA_LAYER_PROXY)
+        # Symlinks
+        install_symlink("/usr/lib/arm-linux-gnueabihf/libEGL.so.1" "${MCPI_LIB_DIR}/libEGL.so")
+        install_symlink("/usr/lib/arm-linux-gnueabihf/libGLESv1_CM.so.1" "${MCPI_LIB_DIR}/libGLESv1_CM.so.1")
+    endif()
 endif()
