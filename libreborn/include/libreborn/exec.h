@@ -30,11 +30,11 @@ static inline char *get_binary_directory() {
     if (lstat(EXE_PATH, &sb) == -1) {
         ERR("Unable To Get " EXE_PATH " Symlink Size: %s", strerror(errno));
     }
-    ssize_t path_size = sb.st_size + 1;
-    if (sb.st_size == 0) {
+    ssize_t path_size = sb.st_size;
+    if (sb.st_size <= 0) {
         path_size = PATH_MAX;
     }
-    char *exe = (char *) malloc(path_size);
+    char *exe = (char *) malloc(path_size + 1);
     ALLOC_CHECK(exe);
     // Read Link
     ssize_t r = readlink(EXE_PATH, exe, path_size);
@@ -44,10 +44,10 @@ static inline char *get_binary_directory() {
     if (r > path_size) {
         ERR("%s", "Size Of Symlink " EXE_PATH " Changed");
     }
-    exe[path_size] = '\0';
+    exe[r + 1] = '\0';
 
     // Chop Off Last Component
-    for (int i = path_size - 1; i >= 0; i--) {
+    for (int i = r; i >= 0; i--) {
         if (exe[i] == '/') {
             exe[i] = '\0';
             break;
