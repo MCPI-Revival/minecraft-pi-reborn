@@ -1,5 +1,8 @@
 # Changelog
 
+**2.1.3**
+* Workaround Broken Library Search Path On Some ARM 32-Bit Systems
+
 **2.1.2**
 * Fix Library Loading On ARM 32-Bit Systems
 
