@@ -64,6 +64,16 @@ static void LoginPacket_read_injection(unsigned char *packet, unsigned char *bit
     free(new_username);
 }
 
+// Fix RakNet::RakString Security Bug
+//
+// RakNet::RakString's format constructor is often given unsanitized user input and is never used for formatting,
+// this is a massive security risk, allowing clients to run arbitrary format specifiers, this disables the
+// formatting functionality.
+static unsigned char *RakNet_RakString_injection(unsigned char *rak_string, const char *format, ...) {
+    // Call Original Method
+    return (*RakNet_RakString)(rak_string, "%s", format);
+}
+
 // Init
 void init_misc() {
     if (feature_has("Remove Invalid Item Background", 0)) {
@@ -81,6 +91,9 @@ void init_misc() {
 
     // Sanitize Username
     patch_address(LoginPacket_read_vtable_addr, (void *) LoginPacket_read_injection);
+
+    // Fix RakNet::RakString Security Bug
+    overwrite_calls((void *) RakNet_RakString, RakNet_RakString_injection);
 
     // Init C++
     _init_misc_cpp();

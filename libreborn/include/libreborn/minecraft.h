@@ -360,6 +360,9 @@ static uint32_t FillingContainer_linked_slots_length_property_offset = 0x14; // 
 
 // RakNet::RakString
 
+typedef unsigned char *(*RakNet_RakString_t)(unsigned char *rak_string, const char *format, ...);
+static RakNet_RakString_t RakNet_RakString = (RakNet_RakString_t) 0xea5cc;
+
 typedef void (*RakNet_RakString_Assign_t)(unsigned char *rak_string, const char *str);
 static RakNet_RakString_Assign_t RakNet_RakString_Assign = (RakNet_RakString_Assign_t) 0xe9e34;
 

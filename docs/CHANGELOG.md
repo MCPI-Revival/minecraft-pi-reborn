@@ -1,5 +1,8 @@
 # Changelog
 
+**2.1.4**
+* Fix RakNet::RakString Security Bug
+
 **2.1.3**
 * Workaround Broken Library Search Path On Some ARM 32-Bit Systems
 
