@@ -23,7 +23,7 @@ void _overwrite_calls(const char *file, int line, void *start, void *target);
 void _overwrite(const char *file, int line, void *start, void *target);
 #define overwrite(start, target) _overwrite(__FILE__, __LINE__, start, target);
 
-void _patch(const char *file, int line, void *start, unsigned char patch[]);
+void _patch(const char *file, int line, void *start, unsigned char patch[4]);
 #define patch(start, patch) _patch(__FILE__, __LINE__, start, patch);
 
 void _patch_address(const char *file, int line, void *start, void *target);

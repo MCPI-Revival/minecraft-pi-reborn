@@ -83,8 +83,8 @@ static void start_world(unsigned char *minecraft) {
     if (!only_generate) {
         // Open Port
         int port = get_server_properties().get_int("port", DEFAULT_PORT);
-        (*Minecraft_hostMultiplayer)(minecraft, port);
         INFO("Listening On: %i", port);
+        (*Minecraft_hostMultiplayer)(minecraft, port);
     }
 
     // Open ProgressScreen

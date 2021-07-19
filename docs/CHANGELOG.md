@@ -1,5 +1,8 @@
 # Changelog
 
+**2.1.5**
+* Print Error Message If RakNet Fails To Start
+
 **2.1.4**
 * Fix RakNet::RakString Security Bug
 

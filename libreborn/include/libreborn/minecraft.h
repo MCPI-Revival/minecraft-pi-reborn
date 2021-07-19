@@ -389,6 +389,24 @@ static uint32_t RakNetInstance_peer_property_offset = 0x4; // RakNet::RakPeer *
 
 // RakNet::RakPeer
 
+typedef enum {
+    RAKNET_STARTED = 0,
+    RAKNET_ALREADY_STARTED,
+    INVALID_SOCKET_DESCRIPTORS,
+    INVALID_MAX_CONNECTIONS,
+    SOCKET_FAMILY_NOT_SUPPORTED,
+    SOCKET_PORT_ALREADY_IN_USE,
+    SOCKET_FAILED_TO_BIND,
+    SOCKET_FAILED_TEST_SEND,
+    PORT_CANNOT_BE_ZERO,
+    FAILED_TO_CREATE_NETWORK_THREAD,
+    COULD_NOT_GENERATE_GUID,
+    STARTUP_OTHER_FAILURE
+} RakNet_StartupResult;
+typedef RakNet_StartupResult (*RakNet_RakPeer_Startup_t)(unsigned char *rak_peer, unsigned short maxConnections, unsigned char *socketDescriptors, uint32_t socketDescriptorCount, int32_t threadPriority);
+static RakNet_RakPeer_Startup_t RakNet_RakPeer_Startup = (RakNet_RakPeer_Startup_t) 0xe1654;
+static void *RakNet_RakPeer_Startup_vtable_addr = (void *) 0x135438;
+
 typedef struct RakNet_SystemAddress (*RakNet_RakPeer_GetSystemAddressFromGuid_t)(unsigned char *rak_peer, struct RakNet_RakNetGUID guid);
 static uint32_t RakNet_RakPeer_GetSystemAddressFromGuid_vtable_offset = 0xd0;
 

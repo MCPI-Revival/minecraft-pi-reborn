@@ -74,6 +74,39 @@ static unsigned char *RakNet_RakString_injection(unsigned char *rak_string, cons
     return (*RakNet_RakString)(rak_string, "%s", format);
 }
 
+// Print Error Message If RakNet Startup Fails
+static char *RAKNET_ERROR_NAMES[] = {
+    "Success",
+    "Already Started",
+    "Invalid Socket Descriptors",
+    "Invalid Max Connections",
+    "Socket Family Not Supported",
+    "Part Already In Use",
+    "Failed To Bind Port",
+    "Failed Test Send",
+    "Port Cannot Be 0",
+    "Failed To Create Network Thread",
+    "Couldn't Generate GUID",
+    "Unknown"
+};
+#ifdef MCPI_SERVER_MODE
+#define PRINT_RAKNET_STARTUP_FAILURE ERR
+#else
+#define PRINT_RAKNET_STARTUP_FAILURE WARN
+#endif
+static RakNet_StartupResult RakNetInstance_host_RakNet_RakPeer_Startup_injection(unsigned char *rak_peer, unsigned short maxConnections, unsigned char *socketDescriptors, uint32_t socketDescriptorCount, int32_t threadPriority) {
+    // Call Original Method
+    RakNet_StartupResult result = (*RakNet_RakPeer_Startup)(rak_peer, maxConnections, socketDescriptors, socketDescriptorCount, threadPriority);
+
+    // Print Error
+    if (result != RAKNET_STARTED) {
+        PRINT_RAKNET_STARTUP_FAILURE("Failed To Start RakNet: %s", RAKNET_ERROR_NAMES[result]);
+    }
+
+    // Return
+    return result;
+}
+
 // Init
 void init_misc() {
     if (feature_has("Remove Invalid Item Background", 0)) {
@@ -93,7 +126,10 @@ void init_misc() {
     patch_address(LoginPacket_read_vtable_addr, (void *) LoginPacket_read_injection);
 
     // Fix RakNet::RakString Security Bug
-    overwrite_calls((void *) RakNet_RakString, RakNet_RakString_injection);
+    overwrite_calls((void *) RakNet_RakString, (void *) RakNet_RakString_injection);
+
+    // Print Error Message If RakNet Startup Fails
+    overwrite_call((void *) 0x73778, (void *) RakNetInstance_host_RakNet_RakPeer_Startup_injection);
 
     // Init C++
     _init_misc_cpp();

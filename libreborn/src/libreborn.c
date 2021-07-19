@@ -142,7 +142,7 @@ void _overwrite(const char *file, int line, void *start, void *target) {
 #endif
 
 // Patch Instruction
-void _patch(const char *file, int line, void *start, unsigned char patch[]) {
+void _patch(const char *file, int line, void *start, unsigned char patch[4]) {
     if (((uint32_t) start) % 4 != 0) {
         ERR("%s", "Invalid Address");
     }
@@ -171,6 +171,6 @@ void _patch(const char *file, int line, void *start, unsigned char patch[]) {
 // Patch Address
 void _patch_address(const char *file, int line, void *start, void *target) {
     uint32_t addr = (uint32_t) target;
-    unsigned char patch_data[4] = {addr & 0xff, (addr >> 8) & 0xff, (addr >> 16) & 0xff, (addr >> 24) & 0xff};
+    unsigned char *patch_data = (unsigned char *) &addr;
     _patch(file, line, start, patch_data);
 }
