@@ -1,5 +1,8 @@
 # Changelog
 
+**2.1.6**
+* Optimize Media Layer Proxy
+
 **2.1.5**
 * Print Error Message If RakNet Fails To Start
 
