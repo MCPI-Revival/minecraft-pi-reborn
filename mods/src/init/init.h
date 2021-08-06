@@ -15,6 +15,7 @@ void init_game_mode();
 void init_input();
 void init_sign();
 void init_misc();
+void init_creative();
 void init_death();
 void init_camera();
 void init_options();

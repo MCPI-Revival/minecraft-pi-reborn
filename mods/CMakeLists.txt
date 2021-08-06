@@ -44,6 +44,9 @@ target_link_libraries(death reborn feature)
 add_library(misc SHARED src/misc/misc.c src/misc/misc.cpp)
 target_link_libraries(misc reborn feature)
 
+add_library(creative SHARED src/creative/creative.cpp)
+target_link_libraries(creative reborn feature)
+
 add_library(options SHARED src/options/options.c)
 target_link_libraries(options reborn feature)
 
@@ -69,7 +72,7 @@ add_library(test SHARED src/test/test.c)
 target_link_libraries(test reborn home)
 
 add_library(init SHARED src/init/init.c)
-target_link_libraries(init compat game-mode camera input sign misc death options touch textures atlas chat home version test)
+target_link_libraries(init compat game-mode camera input sign misc creative death options touch textures atlas chat home version test)
 if(MCPI_SERVER_MODE)
     target_link_libraries(init server)
 else()
@@ -77,7 +80,7 @@ else()
 endif()
 
 ## Install Mods
-install(TARGETS init compat readdir feature override game-mode camera input sign misc death options touch textures atlas chat home version test DESTINATION "${MCPI_INSTALL_DIR}/mods")
+install(TARGETS init compat readdir feature override game-mode camera input sign misc creative death options touch textures atlas chat home version test DESTINATION "${MCPI_INSTALL_DIR}/mods")
 if(MCPI_SERVER_MODE)
     install(TARGETS server DESTINATION "${MCPI_INSTALL_DIR}/mods")
 else()

@@ -5,9 +5,9 @@
 #include <libreborn/libreborn.h>
 #include <libreborn/minecraft.h>
 
+#include "../init/init.h"
 #include "../feature/feature.h"
 #include "misc.h"
-#include "../init/init.h"
 
 // Maximum Username Length
 #define MAX_USERNAME_LENGTH 16

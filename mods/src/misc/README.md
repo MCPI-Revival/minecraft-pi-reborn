@@ -4,5 +4,4 @@ This mod has several miscellaneous mods that are too small to be their own mod, 
 * Sanitizing player usernames for invalid characters.
 * Removing the red background from unobtainable items in the inventory.
 * Loading the bundled language file.
-* Optionally expanding the Creative Inventory.
 * Printing chat messages to the log.

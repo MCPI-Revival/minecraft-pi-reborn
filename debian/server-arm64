@@ -4,4 +4,4 @@ Maintainer: TheBrokenRail <connor24nolan@live.com>
 Description: Fun with Blocks
 Homepage: https://www.minecraft.net/en-us/edition/pi
 Architecture: arm64
-Depends: libc6-armhf-cross, libstdc++6-armhf-cross
+Depends: libc6, libstdc++6, libc6:armhf, libstdc++6:armhf

@@ -35,6 +35,7 @@ static unsigned char **Tile_web = (unsigned char **) 0x181d08;
 static unsigned char **Tile_topSnow = (unsigned char **) 0x181b30;
 static unsigned char **Tile_ice = (unsigned char **) 0x181d80;
 static unsigned char **Tile_invisible_bedrock = (unsigned char **) 0x181d94;
+static unsigned char **Tile_netherReactor = (unsigned char **) 0x181dd0;
 
 static unsigned char **Tile_leaves = (unsigned char **) 0x18120c;
 static unsigned char **Tile_leaves_carried = (unsigned char **) 0x181dd8;

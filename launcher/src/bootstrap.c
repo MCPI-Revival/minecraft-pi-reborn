@@ -181,31 +181,26 @@ void bootstrap(int argc, char *argv[]) {
         free(new_ld_preload);
     }
 
-    // Free Binary Directory
-    free(binary_directory);
-
     // Start Game
     INFO("%s", "Starting Game...");
+
+    // Use Correct LibC
+#ifndef __ARM_ARCH
+    setenv("QEMU_LD_PREFIX", "/usr/arm-linux-gnueabihf", 1);
+#endif
+
+    // Select Executable Interpreter
 #ifdef __ARM_ARCH
-    // Create Arguments List
-    char *new_argv[argc + 1];
-    for (int i = 1; i <= argc; i++) {
-        new_argv[i] = argv[i];
-    }
-    new_argv[0] = NULL; // Updated By safe_execvpe()
-    // Run
-    safe_execvpe_relative_to_binary(MCPI_NAME, new_argv, environ);
+#define EXE_INTERPRETER "/lib/ld-linux-armhf.so.3"
 #else
     // Use Static QEMU So It Isn't Affected By LD_* Variables
-#define QEMU_NAME "qemu-arm-static"
-    // Use Correct LibC
-    setenv("QEMU_LD_PREFIX", "/usr/arm-linux-gnueabihf", 1);
+#define EXE_INTERPRETER "qemu-arm-static"
+#endif
 
-    // Get Binary Directory
-    binary_directory = get_binary_directory();
     // Create Full Path
     char *full_path = NULL;
     safe_asprintf(&full_path, "%s/" MCPI_NAME, binary_directory);
+
     // Free Binary Directory
     free(binary_directory);
 
@@ -217,6 +212,5 @@ void bootstrap(int argc, char *argv[]) {
     new_argv[0] = NULL; // Updated By safe_execvpe()
     new_argv[1] = full_path; // Path To MCPI
     // Run
-    safe_execvpe(QEMU_NAME, new_argv, environ);
-#endif
+    safe_execvpe(EXE_INTERPRETER, new_argv, environ);
 }

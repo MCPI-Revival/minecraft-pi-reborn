@@ -12,6 +12,7 @@ __attribute__((constructor)) static void init() {
     init_input();
     init_sign();
     init_misc();
+    init_creative();
     init_death();
     init_camera();
     init_options();
