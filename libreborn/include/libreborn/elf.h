@@ -1,18 +1,25 @@
 #pragma once
 
-#ifdef __arm__
 #include <unistd.h>
 #include <string.h>
 #include <sys/mman.h>
 #include <elf.h>
 
 #include "log.h"
+#include "exec.h"
 
 // Find And Iterate Over All .text Sections In Current Binary
-typedef void (*text_section_callback_t)(void *section, Elf32_Word size, void *data);
+typedef void (*text_section_callback_t)(Elf32_Addr section, Elf32_Word size, void *data);
 static inline void iterate_text_sections(text_section_callback_t callback, void *data) {
+    // Find Main Binary
+    char *real_path = NULL;
+    {
+        char *binary_directory = get_binary_directory();
+        safe_asprintf(&real_path, "%s/minecraft-pi", binary_directory);
+        free(binary_directory);
+    }
+
     // Load Main Binary
-    char *real_path = realpath("/proc/self/exe", NULL);
     FILE *file_obj = fopen(real_path, "rb");
 
     // Verify Binary
@@ -47,7 +54,7 @@ static inline void iterate_text_sections(text_section_callback_t callback, void 
         // Check Section Type
         if (strcmp(name, ".text") == 0) {
             // .text Section
-            (*callback)((void *) header.sh_addr, header.sh_size, data);
+            (*callback)(header.sh_addr, header.sh_size, data);
             text_sections++;
         }
     }
@@ -64,4 +71,3 @@ static inline void iterate_text_sections(text_section_callback_t callback, void 
     munmap(file_map, size);
     fclose(file_obj);
 }
-#endif // #ifdef __arm__

@@ -2,6 +2,7 @@
 #include <cstring>
 #include <cerrno>
 #include <sys/wait.h>
+#include <sys/stat.h>
 #include <vector>
 #include <functional>
 

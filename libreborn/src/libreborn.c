@@ -44,8 +44,9 @@ struct overwrite_data {
     void *replacement;
     int found;
 };
-static void overwrite_calls_callback(void *section, Elf32_Word size, void *data) {
+static void overwrite_calls_callback(Elf32_Addr section_addr, Elf32_Word size, void *data) {
     struct overwrite_data *args = (struct overwrite_data *) data;
+    void *section = (void *) section_addr;
 
     for (uint32_t i = 0; i < size; i = i + 4) {
         unsigned char *addr = ((unsigned char *) section) + i;

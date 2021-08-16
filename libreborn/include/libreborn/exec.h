@@ -3,8 +3,6 @@
 #include <unistd.h>
 #include <stdint.h>
 #include <errno.h>
-#include <sys/stat.h>
-#include <limits.h>
 #include <string.h>
 
 #include "log.h"
@@ -24,30 +22,23 @@ __attribute__((noreturn)) static inline void safe_execvpe(const char *pathname, 
 // Get Binary Directory (Remember To Free)
 #define EXE_PATH "/proc/self/exe"
 static inline char *get_binary_directory() {
+#ifndef FORCE_PROC_FOR_ROOT_PATH
+    {
+        // Check Environment
+        char *specified_root = getenv("MCPI_ROOT_PATH");
+        if (specified_root != NULL) {
+            return strdup(specified_root);
+        }
+    }
+#endif
+
     // Get Path To Current Executable
-    // Get Symlink Path Size
-    struct stat sb;
-    if (lstat(EXE_PATH, &sb) == -1) {
-        ERR("Unable To Get " EXE_PATH " Symlink Size: %s", strerror(errno));
-    }
-    ssize_t path_size = sb.st_size;
-    if (sb.st_size <= 0) {
-        path_size = PATH_MAX;
-    }
-    char *exe = (char *) malloc(path_size + 1);
+    char *exe = realpath("/proc/self/exe", NULL);
     ALLOC_CHECK(exe);
-    // Read Link
-    ssize_t r = readlink(EXE_PATH, exe, path_size);
-    if (r < 0) {
-        ERR("Unable To Read " EXE_PATH " Symlink: %s", strerror(errno));
-    }
-    if (r > path_size) {
-        ERR("%s", "Size Of Symlink " EXE_PATH " Changed");
-    }
-    exe[r + 1] = '\0';
 
     // Chop Off Last Component
-    for (int i = r; i >= 0; i--) {
+    int length = strlen(exe);
+    for (int i = length - 1; i >= 0; i--) {
         if (exe[i] == '/') {
             exe[i] = '\0';
             break;

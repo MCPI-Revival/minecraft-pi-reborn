@@ -1,5 +1,8 @@
 # Changelog
 
+**2.1.8**
+* Fix Crash On ARM Systems
+
 **2.1.7**
 * Fix On 64-Bit ARM Systems
 
