@@ -130,7 +130,6 @@ void bootstrap(int argc, char *argv[]) {
 
     // Get Binary Directory
     char *binary_directory = get_binary_directory();
-    setenv("MCPI_ROOT_PATH", binary_directory, 1);
 
     // Configure LD_LIBRARY_PATH
     {
