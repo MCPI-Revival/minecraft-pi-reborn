@@ -37,8 +37,8 @@ static void Minecraft_setIsCreativeMode_injection(unsigned char *this, int32_t n
 
 // Init
 void init_game_mode() {
+    // Dynamic Game Mode Switching
     if (feature_has("Implement Game-Mode Switching", 1)) {
-        // Dynamic Game Mode Switching
         set_is_survival(1);
         overwrite_calls((void *) Minecraft_setIsCreativeMode, (void *) Minecraft_setIsCreativeMode_injection);
 
@@ -50,11 +50,13 @@ void init_game_mode() {
         uint32_t level_size = SERVER_LEVEL_SIZE;
         patch((void *) 0x17004, (unsigned char *) &level_size);
 
-        // Allow Connecting To Survival Servers
-        unsigned char server_patch[4] = {0x0f, 0x00, 0x00, 0xea}; // "b 0x6dcb4"
-        patch((void *) 0x6dc70, server_patch);
-
         // Init C++
         _init_game_mode_cpp();
+    }
+
+    // Allow Joining Survival Servers
+    if (feature_has("Allow Joining Survival Servers", 1)) {
+        unsigned char server_patch[4] = {0x0f, 0x00, 0x00, 0xea}; // "b 0x6dcb4"
+        patch((void *) 0x6dc70, server_patch);
     }
 }

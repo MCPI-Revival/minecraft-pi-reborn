@@ -18,6 +18,7 @@ TRUE Fix Camera Rendering
 TRUE Implement Chat
 TRUE Implement Death Messages
 TRUE Implement Game-Mode Switching
+TRUE Allow Joining Survival Servers
 TRUE Miscellaneous Input Fixes
 TRUE Bind "Q" Key To Item Dropping
 TRUE Bind Common Toggleable Options To Function Keys
