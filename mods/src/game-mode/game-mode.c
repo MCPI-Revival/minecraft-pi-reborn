@@ -43,12 +43,11 @@ void init_game_mode() {
         overwrite_calls((void *) Minecraft_setIsCreativeMode, (void *) Minecraft_setIsCreativeMode_injection);
 
         // Replace CreatorLevel With ServerLevel (This Fixes Beds And Mob Spawning)
-        unsigned char level_patch[4] = {0x68, 0x7e, 0x01, 0xeb}; // "bl 0x7692c"
-        patch((void *) 0x16f84, level_patch);
+        overwrite_call((void *) 0x16f84, (void *) ServerLevel);
 
         // Allocate Correct Size For ServerLevel
         uint32_t level_size = SERVER_LEVEL_SIZE;
-        patch((void *) 0x17004, (unsigned char *) &level_size);
+        patch_address((void *) 0x17004, (void *) level_size);
 
         // Init C++
         _init_game_mode_cpp();

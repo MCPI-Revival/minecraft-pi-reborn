@@ -150,6 +150,9 @@ static uint32_t CommandServer_minecraft_property_offset = 0x18; // Minecraft *
 
 #define SERVER_LEVEL_SIZE 0xb80
 
+typedef unsigned char *(*ServerLevel_t)(unsigned char *server_level, unsigned char *storage, unsigned char *name, struct LevelSettings *settings, int param_4, unsigned char *dimension);
+static ServerLevel_t ServerLevel = (ServerLevel_t) 0x7692c;
+
 // Packet
 
 typedef void (*Packet_read_t)(unsigned char *packet, unsigned char *bit_stream);
