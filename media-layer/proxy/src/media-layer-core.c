@@ -284,15 +284,22 @@ CALL(6, SDL_ShowCursor, int, (int32_t toggle)) {
 #endif
 }
 
-CALL(7, media_take_screenshot, void, ()) {
+CALL(7, media_take_screenshot, void, (char *home)) {
 #if defined(MEDIA_LAYER_PROXY_SERVER)
     // Lock Proxy
     start_proxy_call();
+
+    // Arguments
+    write_string(home);
+
     // Release Proxy
     end_proxy_call();
 #else
+    char *home = read_string();
     // Run
-    media_take_screenshot();
+    media_take_screenshot(home);
+    // Free
+    free(home);
 #endif
 }
 

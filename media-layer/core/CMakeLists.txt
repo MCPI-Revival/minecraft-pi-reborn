@@ -18,7 +18,7 @@ endif()
 if(TARGET media-layer-core)
     # Link
     target_link_libraries(media-layer-core media-layer-headers reborn-headers pthread dl)
-    if(NOT MCPI_SERVER_MODE)
+    if(NOT MCPI_HEADLESS_MODE)
         # Find GLFW
         find_package(glfw3 3.3 REQUIRED)
         # Find FreeImage

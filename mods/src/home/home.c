@@ -13,15 +13,24 @@
 #define NEW_PATH ""
 
 // Store Launch Directory
-static char *launch_directory = NULL;
+static char *get_launch_directory() {
+    static char *launch_directory = NULL;
+    if (launch_directory == NULL) {
+        launch_directory = getcwd(NULL, 0);
+    }
+    return launch_directory;
+}
 __attribute__((constructor)) static void init_launch_directory() {
-    launch_directory = getcwd(NULL, 0);
+    get_launch_directory();
+}
+__attribute__((destructor)) static void free_launch_directory() {
+    free(get_launch_directory());
 }
 
 // Pretend $HOME Is Launch Directory
 HOOK(getenv, char *, (const char *name)) {
     if (strcmp(name, "HOME") == 0) {
-        return launch_directory;
+        return get_launch_directory();
     } else {
         ensure_getenv();
         return (*real_getenv)(name);
@@ -34,7 +43,7 @@ char *home_get() {
     static char *dir = NULL;
     // Load
     if (dir == NULL) {
-        safe_asprintf(&dir, "%s/" NEW_PATH, getenv("HOME"));
+        safe_asprintf(&dir, "%s" NEW_PATH, getenv("HOME"));
     }
     // Return
     return dir;

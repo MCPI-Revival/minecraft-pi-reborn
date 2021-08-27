@@ -8,6 +8,9 @@
 * ``MCPI_SERVER_MODE``
   * ``ON``: Enable Server Mode
   * ``OFF`` (Default): Disable Server Mode
+* ``MCPI_HEADLESS_MODE``
+  * ``ON`` (Default In Server Mode): Enable Headless Mode
+  * ``OFF`` (Default In Client Mode): Disable Headless Mode
 * ``MCPI_USE_MEDIA_LAYER_PROXY``
   * ``ON``: Enable The Media Layer Proxy
   * ``OFF`` (Default): Disable The Media Layer Proxy

@@ -1,9 +1,3 @@
-# Component Details:
-#     Media Layer Proxy
-#
-#     This components proxies multi-media calls from the ARM
-#     MCPI to the native architecture by using a UNIX socket.
-
 project(media-layer-proxy)
 
 # Configuration

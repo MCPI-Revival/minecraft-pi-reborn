@@ -2,8 +2,6 @@
 
 #include <libreborn/libreborn.h>
 
-#define IMPOSSIBLE() ERR("(%s:%i) This Should Never Be Called", __FILE__, __LINE__)
-
 // EGL Is Replaced With GLFW
 
 EGLDisplay eglGetDisplay(__attribute__((unused)) NativeDisplayType native_display) {

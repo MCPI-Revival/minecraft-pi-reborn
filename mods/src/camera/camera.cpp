@@ -2,12 +2,13 @@
 #include <libreborn/media-layer/core.h>
 #include <libreborn/minecraft.h>
 
-#include "../init/init.h"
 #include "../feature/feature.h"
+#include "../home/home.h"
+#include "../init/init.h"
 
 // Take Screenshot Using TripodCamera
 static void AppPlatform_linux_saveScreenshot_injection(__attribute__((unused)) unsigned char *app_platform, __attribute__((unused)) std::string const& path, __attribute__((unused)) int32_t width, __attribute__((unused)) int32_t height) {
-    media_take_screenshot();
+    media_take_screenshot(home_get());
 }
 
 // Enable TripodCameraRenderer

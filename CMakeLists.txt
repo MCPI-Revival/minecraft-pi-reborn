@@ -3,6 +3,7 @@ cmake_minimum_required(VERSION 3.13.0)
 # Specify Options
 option(MCPI_USE_MEDIA_LAYER_PROXY "Whether To Enable The Media Layer Proxy" FALSE)
 option(MCPI_SERVER_MODE "Server Mode" FALSE)
+option(MCPI_HEADLESS_MODE "Headless Mode" ${MCPI_SERVER_MODE})
 set(MCPI_BUILD_MODE "both" CACHE STRING "\"arm\" = Build Only Code That Must Be ARM; \"native\" = Build Architecture-Independent Code; \"both\" = Build All Code As ARM")
 set_property(CACHE MCPI_BUILD_MODE PROPERTY STRINGS "both" "arm" "native")
 
@@ -94,6 +95,9 @@ set(CMAKE_CXX_STANDARD 11)
 # Specify Constants
 if(MCPI_SERVER_MODE)
     add_definitions(-DMCPI_SERVER_MODE)
+endif()
+if(MCPI_HEADLESS_MODE)
+    add_definitions(-DMCPI_HEADLESS_MODE)
 endif()
 
 # Version

@@ -8,7 +8,7 @@ add_definitions(-D_GLIBCXX_USE_CXX11_ABI=0)
 ## Mods
 
 add_library(compat SHARED src/compat/compat.c src/compat/egl.c src/compat/x11.c)
-target_link_libraries(compat feature input chat sign media-layer-core dl)
+target_link_libraries(compat feature input chat sign media-layer-core home dl)
 
 add_library(readdir SHARED src/readdir/readdir.c)
 
@@ -27,7 +27,7 @@ else()
 endif()
 
 add_library(camera SHARED src/camera/camera.cpp)
-target_link_libraries(camera reborn media-layer-core feature)
+target_link_libraries(camera reborn media-layer-core feature home)
 
 add_library(game-mode SHARED src/game-mode/game-mode.c src/game-mode/game-mode.cpp)
 target_link_libraries(game-mode reborn feature)

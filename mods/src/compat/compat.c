@@ -9,6 +9,7 @@
 #include "../input/input.h"
 #include "../sign/sign.h"
 #include "../chat/chat.h"
+#include "../home/home.h"
 #include "../init/init.h"
 #include "compat.h"
 
@@ -53,7 +54,7 @@ HOOK(SDL_PollEvent, int, (SDL_Event *event)) {
                     media_toggle_fullscreen();
                     handled = 1;
                 } else if (event->key.keysym.sym == SDLK_F2) {
-                    media_take_screenshot();
+                    media_take_screenshot(home_get());
                     handled = 1;
                 } else if (event->key.keysym.sym == SDLK_F1) {
                     input_hide_gui();

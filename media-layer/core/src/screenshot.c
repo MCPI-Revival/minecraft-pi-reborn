@@ -1,5 +1,5 @@
 // Screenshot Code Is Useless In Server Mode
-#ifndef MCPI_SERVER_MODE
+#ifndef MCPI_HEADLESS_MODE
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -16,22 +16,41 @@
 #include <libreborn/libreborn.h>
 #include <libreborn/media-layer/core.h>
 
+// Ensure Screenshots Folder Exists
+static void ensure_screenshots_folder(char *screenshots) {
+    // Check Screenshots Folder
+    struct stat obj;
+    if (stat(screenshots, &obj) != 0 || !S_ISDIR(obj.st_mode)) {
+        // Create Screenshots Folder
+        int ret = mkdir(screenshots, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
+        if (ret != 0) {
+            // Unable To Create Folder
+            ERR("Error Creating Directory: %s: %s", screenshots, strerror(errno));
+        }
+    }
+}
+
 // 4 (Year) + 1 (Hyphen) + 2 (Month) + 1 (Hyphen) + 2 (Day) + 1 (Underscore) + 2 (Hour) + 1 (Period) + 2 (Minute) + 1 (Period) + 2 (Second) + 1 (Null Terminator)
 #define TIME_SIZE 20
 
 // Take Screenshot
-void media_take_screenshot() {
+void media_take_screenshot(char *home) {
+    // Get Directory
+    char *screenshots = NULL;
+    safe_asprintf(&screenshots, "%s/screenshots", home);
+
+    // Get Timestamp
     time_t rawtime;
     struct tm *timeinfo;
-
     time(&rawtime);
     timeinfo = localtime(&rawtime);
     char time[TIME_SIZE];
     strftime(time, TIME_SIZE, "%Y-%m-%d_%H.%M.%S", timeinfo);
 
-    char *screenshots = NULL;
-    safe_asprintf(&screenshots, "%s/.minecraft-pi/screenshots", getenv("HOME"));
+    // Ensure Screenshots Folder Exists
+    ensure_screenshots_folder(screenshots);
 
+    // Prevent Overwriting Screenshots
     int num = 1;
     char *file = NULL;
     safe_asprintf(&file, "%s/%s.png", screenshots, time);
@@ -42,6 +61,7 @@ void media_take_screenshot() {
         num++;
     }
 
+    // Get Image Size
     GLint viewport[4];
     glGetIntegerv(GL_VIEWPORT, viewport);
     int x = viewport[0];
@@ -49,12 +69,15 @@ void media_take_screenshot() {
     int width = viewport[2];
     int height = viewport[3];
 
+    // Get Line Size
     int line_size = width * 3;
     int size = height * line_size;
 
+    // Read Pixels
     unsigned char pixels[size];
     glReadPixels(x, y, width, height, GL_RGB, GL_UNSIGNED_BYTE, pixels);
 
+    // Handle Little Endian Systems
 #if __BYTE_ORDER == __LITTLE_ENDIAN
     // Swap Red And Blue
     for (int i = 0; i < (size / 3); i++) {
@@ -66,6 +89,7 @@ void media_take_screenshot() {
     }
 #endif
 
+    // Save Image
     FIBITMAP *image = FreeImage_ConvertFromRawBits(pixels, width, height, line_size, 24, FI_RGBA_RED_MASK, FI_RGBA_GREEN_MASK, FI_RGBA_BLUE_MASK, 0);
     if (!FreeImage_Save(FIF_PNG, image, file, 0)) {
         INFO("Screenshot Failed: %s", file);
@@ -74,6 +98,7 @@ void media_take_screenshot() {
     }
     FreeImage_Unload(image);
 
+    // Free
     free(file);
     free(screenshots);
 }
@@ -82,27 +107,10 @@ void media_take_screenshot() {
 __attribute__((constructor)) static void init() {
     // Init FreeImage
     FreeImage_Initialise(0);
-
-    // Screenshots Folder
-    char *screenshots_folder = NULL;
-    safe_asprintf(&screenshots_folder, "%s/.minecraft-pi/screenshots", getenv("HOME"));
-    {
-        // Check Screenshots Folder
-        struct stat obj;
-        if (stat(screenshots_folder, &obj) != 0 || !S_ISDIR(obj.st_mode)) {
-            // Create Screenshots Folder
-            int ret = mkdir(screenshots_folder, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
-            if (ret != 0) {
-                // Unable To Create Folder
-                ERR("Error Creating Directory: %s: %s", screenshots_folder, strerror(errno));
-            }
-        }
-    }
-    free(screenshots_folder);
 }
 
-#else // #ifndef MCPI_SERVER_MODE
+#else // #ifndef MCPI_HEADLESS_MODE
 void media_take_screenshot() {
     // NOP
 }
-#endif // #ifndef MCPI_SERVER_MODE
+#endif // #ifndef MCPI_HEADLESS_MODE

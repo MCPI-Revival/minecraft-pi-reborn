@@ -3,17 +3,17 @@
 #include <SDL/SDL.h>
 #include <GLES/gl.h>
 
-#ifndef MCPI_SERVER_MODE
+#ifndef MCPI_HEADLESS_MODE
 #define GLFW_INCLUDE_NONE
 #include <GLFW/glfw3.h>
-#endif // #ifndef MCPI_SERVER_MODE
+#endif // #ifndef MCPI_HEADLESS_MODE
 
 #include <libreborn/libreborn.h>
 #include <libreborn/media-layer/core.h>
 #include <libreborn/media-layer/internal.h>
 
 // GLFW Code Not Needed In Server Mode
-#ifndef MCPI_SERVER_MODE
+#ifndef MCPI_HEADLESS_MODE
 
 static GLFWwindow *glfw_window;
 
@@ -194,12 +194,12 @@ static void glfw_scroll(__attribute__((unused)) GLFWwindow *window, __attribute_
     }
 }
 
-#endif // #ifndef MCPI_SERVER_MODE
+#endif // #ifndef MCPI_HEADLESS_MODE
 
 // Init GLFW
 void SDL_WM_SetCaption(const char *title, __attribute__((unused)) const char *icon) {
     // Don't Enable GLFW In Server Mode
-#ifndef MCPI_SERVER_MODE
+#ifndef MCPI_HEADLESS_MODE
     glfwSetErrorCallback(glfw_error);
 
     if (!glfwInit()) {
@@ -229,20 +229,20 @@ void SDL_WM_SetCaption(const char *title, __attribute__((unused)) const char *ic
     glfwSetScrollCallback(glfw_window, glfw_scroll);
 
     glfwMakeContextCurrent(glfw_window);
-#else // #ifndef MCPI_SERVER_MODE
+#else // #ifndef MCPI_HEADLESS_MODE
     (void) title; // Mark As Used
-#endif // #ifndef MCPI_SERVER_MODE
+#endif // #ifndef MCPI_HEADLESS_MODE
 }
 
 void media_swap_buffers() {
-#ifndef MCPI_SERVER_MODE
+#ifndef MCPI_HEADLESS_MODE
     // Don't Swap Buffers In A Context-Less Window
     glfwSwapBuffers(glfw_window);
-#endif // #ifndef MCPI_SERVER_MODE
+#endif // #ifndef MCPI_HEADLESS_MODE
 }
 
 // Fullscreen Not Needed In Server Mode
-#ifndef MCPI_SERVER_MODE
+#ifndef MCPI_HEADLESS_MODE
 static int is_fullscreen = 0;
 
 // Old Size And Position To Use When Exiting Fullscreen
@@ -271,15 +271,15 @@ void media_toggle_fullscreen() {
     }
     is_fullscreen = !is_fullscreen;
 }
-#else // #ifndef MCPI_SERVER_MODE
+#else // #ifndef MCPI_HEADLESS_MODE
 void media_toggle_fullscreen() {
 }
-#endif // #ifndef MCPI_SERVER_MODE
+#endif // #ifndef MCPI_HEADLESS_MODE
 
 // Intercept SDL Events
 void _media_handle_SDL_PollEvent() {
     // GLFW Is Disabled In Server Mode
-#ifndef MCPI_SERVER_MODE
+#ifndef MCPI_HEADLESS_MODE
     // Process GLFW Events
     glfwPollEvents();
 
@@ -290,16 +290,16 @@ void _media_handle_SDL_PollEvent() {
         SDL_PushEvent(&event);
         glfwSetWindowShouldClose(glfw_window, GLFW_FALSE);
     }
-#endif // #ifndef MCPI_SERVER_MODE
+#endif // #ifndef MCPI_HEADLESS_MODE
 }
 
 // Terminate GLFW
 void media_cleanup() {
     // GLFW Is Disabled In Server Mode
-#ifndef MCPI_SERVER_MODE
+#ifndef MCPI_HEADLESS_MODE
     glfwDestroyWindow(glfw_window);
     glfwTerminate();
-#endif // #ifndef MCPI_SERVER_MODE
+#endif // #ifndef MCPI_HEADLESS_MODE
 }
 
 // Store Cursor State
@@ -307,7 +307,7 @@ static int cursor_grabbed = 0;
 static int cursor_visible = 1;
 
 // Update GLFW Cursor State (Client Only)
-#ifndef MCPI_SERVER_MODE
+#ifndef MCPI_HEADLESS_MODE
 static void update_glfw_cursor() {
     // Store Old Mode
     int old_mode = glfwGetInputMode(glfw_window, GLFW_CURSOR);
@@ -352,7 +352,7 @@ SDL_GrabMode SDL_WM_GrabInput(SDL_GrabMode mode) {
         cursor_grabbed = 0;
     }
     // Update Cursor GLFW State (Client Only)
-#ifndef MCPI_SERVER_MODE
+#ifndef MCPI_HEADLESS_MODE
     update_glfw_cursor();
 #endif
     // Return
@@ -372,7 +372,7 @@ int SDL_ShowCursor(int toggle) {
         cursor_visible = 0;
     }
     // Update Cursor GLFW State (Client Only)
-#ifndef MCPI_SERVER_MODE
+#ifndef MCPI_HEADLESS_MODE
     update_glfw_cursor();
 #endif
     // Return
@@ -381,12 +381,12 @@ int SDL_ShowCursor(int toggle) {
 
 // Get Framebuffer Size
 void media_get_framebuffer_size(int *width, int *height) {
-#ifndef MCPI_SERVER_MODE
+#ifndef MCPI_HEADLESS_MODE
     if (glfw_window != NULL) {
         glfwGetFramebufferSize(glfw_window, width, height);
         return;
     }
-#endif // #ifndef MCPI_SERVER_MODE
+#endif // #ifndef MCPI_HEADLESS_MODE
     *width = DEFAULT_WIDTH;
     *height = DEFAULT_HEIGHT;
 }
