@@ -31,24 +31,5 @@ pipeline {
                 }
             }
         }
-        stage('Debian Buster') {
-            agent {
-                docker {
-                    image 'debian:buster'
-                }
-            }
-            stages {
-                stage('Build') {
-                    steps {
-                        sh './scripts/ci/run.sh'
-                    }
-                    post {
-                        success {
-                            archiveArtifacts artifacts: 'out/*.deb', fingerprint: true
-                        }
-                    }
-                }
-            }
-        }
     }
 }

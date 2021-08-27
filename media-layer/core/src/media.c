@@ -329,10 +329,9 @@ static void update_glfw_cursor() {
 
         // Handle Cursor Lock/Unlock
         if ((new_mode == GLFW_CURSOR_DISABLED && old_mode != GLFW_CURSOR_DISABLED) || (new_mode != GLFW_CURSOR_DISABLED && old_mode == GLFW_CURSOR_DISABLED)) {
-            // Use Raw Mouse Motion (GLFW 3.3+ Only)
-#ifdef GLFW_RAW_MOUSE_MOTION
+            // Use Raw Mouse Motion
             glfwSetInputMode(glfw_window, GLFW_RAW_MOUSE_MOTION, new_mode == GLFW_CURSOR_DISABLED ? GLFW_TRUE : GLFW_FALSE);
-#endif
+
             // Reset Last Mouse Position
             ignore_relative_mouse = 1;
         }
