@@ -44,7 +44,7 @@ __attribute__((visibility("internal"))) void write_float(float x);
 
 // Read/Write Strings
 __attribute__((visibility("internal"))) char *read_string(); // Remember To free()
-__attribute__((visibility("internal"))) void write_string(char *str);
+__attribute__((visibility("internal"))) void write_string(const char *str);
 
 // Manipulate Connection
 __attribute__((visibility("internal"))) void set_connection(int read, int write);

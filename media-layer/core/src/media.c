@@ -9,10 +9,12 @@
 #endif // #ifndef MCPI_HEADLESS_MODE
 
 #include <libreborn/libreborn.h>
-#include <libreborn/media-layer/core.h>
-#include <libreborn/media-layer/internal.h>
+#include <media-layer/core.h>
+#include <media-layer/internal.h>
 
-// GLFW Code Not Needed In Server Mode
+#include "audio/engine.h"
+
+// GLFW Code Not Needed In Headless Mode
 #ifndef MCPI_HEADLESS_MODE
 
 static GLFWwindow *glfw_window;
@@ -196,10 +198,14 @@ static void glfw_scroll(__attribute__((unused)) GLFWwindow *window, __attribute_
 
 #endif // #ifndef MCPI_HEADLESS_MODE
 
-// Init GLFW
+// Track Media Layer State
+static int is_running = 0;
+
+// Init Media Layer
 void SDL_WM_SetCaption(const char *title, __attribute__((unused)) const char *icon) {
-    // Don't Enable GLFW In Server Mode
+    // Don't Enable GLFW In Headless Mode
 #ifndef MCPI_HEADLESS_MODE
+    // Init GLFW
     glfwSetErrorCallback(glfw_error);
 
     if (!glfwInit()) {
@@ -221,7 +227,7 @@ void SDL_WM_SetCaption(const char *title, __attribute__((unused)) const char *ic
         ERR("%s", "Unable To Create GLFW Window");
     }
 
-    // Don't Process Events In Server Mode
+    // Don't Process Events In Headless Mode
     glfwSetKeyCallback(glfw_window, glfw_key);
     glfwSetCharCallback(glfw_window, glfw_char);
     glfwSetCursorPosCallback(glfw_window, glfw_motion);
@@ -229,9 +235,15 @@ void SDL_WM_SetCaption(const char *title, __attribute__((unused)) const char *ic
     glfwSetScrollCallback(glfw_window, glfw_scroll);
 
     glfwMakeContextCurrent(glfw_window);
+
+    // Init OpenAL
+    _media_audio_init();
 #else // #ifndef MCPI_HEADLESS_MODE
     (void) title; // Mark As Used
 #endif // #ifndef MCPI_HEADLESS_MODE
+
+    // Set State
+    is_running = 1;
 }
 
 void media_swap_buffers() {
@@ -241,7 +253,7 @@ void media_swap_buffers() {
 #endif // #ifndef MCPI_HEADLESS_MODE
 }
 
-// Fullscreen Not Needed In Server Mode
+// Fullscreen Not Needed In Headless Mode
 #ifndef MCPI_HEADLESS_MODE
 static int is_fullscreen = 0;
 
@@ -278,7 +290,7 @@ void media_toggle_fullscreen() {
 
 // Intercept SDL Events
 void _media_handle_SDL_PollEvent() {
-    // GLFW Is Disabled In Server Mode
+    // GLFW And Audio Are Disabled Disabled In Headless Mode
 #ifndef MCPI_HEADLESS_MODE
     // Process GLFW Events
     glfwPollEvents();
@@ -293,13 +305,22 @@ void _media_handle_SDL_PollEvent() {
 #endif // #ifndef MCPI_HEADLESS_MODE
 }
 
-// Terminate GLFW
+// Cleanup Media Layer
 void media_cleanup() {
-    // GLFW Is Disabled In Server Mode
+    if (is_running) {
+        // GLFW And Audio Are Disabled In Headless Mode
 #ifndef MCPI_HEADLESS_MODE
-    glfwDestroyWindow(glfw_window);
-    glfwTerminate();
+        // Terminate GLFW
+        glfwDestroyWindow(glfw_window);
+        glfwTerminate();
+
+        // Cleanup OpenAL
+        _media_audio_cleanup();
 #endif // #ifndef MCPI_HEADLESS_MODE
+
+        // Update State
+        is_running = 0;
+    }
 }
 
 // Store Cursor State

@@ -1,7 +1,7 @@
 #include <vector>
 
 #include <libreborn/libreborn.h>
-#include <libreborn/minecraft.h>
+#include <symbols/minecraft.h>
 
 #include "../feature/feature.h"
 #include "../init/init.h"

@@ -1,4 +1,4 @@
-// Screenshot Code Is Useless In Server Mode
+// Screenshot Code Is Useless In Headless Mode
 #ifndef MCPI_HEADLESS_MODE
 
 #include <stdlib.h>
@@ -14,7 +14,7 @@
 #include <GLES/gl.h>
 
 #include <libreborn/libreborn.h>
-#include <libreborn/media-layer/core.h>
+#include <media-layer/core.h>
 
 // Ensure Screenshots Folder Exists
 static void ensure_screenshots_folder(char *screenshots) {

@@ -15,7 +15,7 @@ package() {
     cp "debian/$1" "${dir}/DEBIAN/control"
     
     # Format DEBIAN/control
-    sed -i "s/\${VERSION}/${VERSION}~$(lsb_release -cs)/g" "${dir}/DEBIAN/control"
+    sed -i "s/\${VERSION}/${VERSION}/g" "${dir}/DEBIAN/control"
     
     # Fix Permissions On Jenkins
     chmod -R g-s "${dir}"

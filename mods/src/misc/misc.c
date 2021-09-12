@@ -3,7 +3,7 @@
 #include <unistd.h>
 
 #include <libreborn/libreborn.h>
-#include <libreborn/minecraft.h>
+#include <symbols/minecraft.h>
 
 #include "../init/init.h"
 #include "../feature/feature.h"
@@ -107,6 +107,16 @@ static RakNet_StartupResult RakNetInstance_host_RakNet_RakPeer_Startup_injection
     return result;
 }
 
+// Fix Bug Where RakNetInstance Starts Pinging Potential Servers Before The "Join Game" Screen Is Opened
+static unsigned char *RakNetInstance_injection(unsigned char *rak_net_instance) {
+    // Call Original Method
+    unsigned char *result = (*RakNetInstance)(rak_net_instance);
+    // Fix
+    *(unsigned char *) (rak_net_instance + RakNetInstance_pinging_for_hosts_property_offset) = 0;
+    // Return
+    return result;
+}
+
 // Init
 void init_misc() {
     if (feature_has("Remove Invalid Item Background", 0)) {
@@ -130,6 +140,9 @@ void init_misc() {
 
     // Print Error Message If RakNet Startup Fails
     overwrite_call((void *) 0x73778, (void *) RakNetInstance_host_RakNet_RakPeer_Startup_injection);
+
+    // Fix Bug Where RakNetInstance Starts Pinging Potential Servers Before The "Join Game" Screen Is Opened
+    overwrite_calls((void *) RakNetInstance, (void *) RakNetInstance_injection);
 
     // Init C++
     _init_misc_cpp();

@@ -2,6 +2,9 @@ project(media-layer-core)
 
 # Configuration
 set(CORE_SRC src/base.cpp src/media.c src/screenshot.c) # SDL Re-Implementation Using GLFW
+if(NOT MCPI_HEADLESS_MODE)
+    list(APPEND CORE_SRC src/audio/api.cpp src/audio/engine.c src/audio/file.cpp)
+endif()
 
 # Build
 if(MCPI_USE_MEDIA_LAYER_PROXY AND BUILD_NATIVE_COMPONENTS)
@@ -23,8 +26,10 @@ if(TARGET media-layer-core)
         find_package(glfw3 3.3 REQUIRED)
         # Find FreeImage
         find_library(FREEIMAGE_LIBRARY NAMES freeimage libfreeimage.so.3 REQUIRED)
-        # Not Needed In Server Mode
-        target_link_libraries(media-layer-core "${FREEIMAGE_LIBRARY}" GLESv1_CM glfw)
+        # OpenAL
+        find_library(OPENAL_LIBRARY NAMES openal REQUIRED)
+        # Link
+        target_link_libraries(media-layer-core "${FREEIMAGE_LIBRARY}" "${OPENAL_LIBRARY}" m GLESv1_CM glfw)
     endif()
 endif()
 

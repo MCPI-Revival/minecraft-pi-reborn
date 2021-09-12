@@ -8,7 +8,7 @@ add_definitions(-D_GLIBCXX_USE_CXX11_ABI=0)
 ## Mods
 
 add_library(compat SHARED src/compat/compat.c src/compat/egl.c src/compat/x11.c)
-target_link_libraries(compat feature input chat sign media-layer-core home dl)
+target_link_libraries(compat reborn media-layer-core)
 
 add_library(readdir SHARED src/readdir/readdir.c)
 
@@ -16,73 +16,80 @@ add_library(feature SHARED src/feature/feature.c)
 target_link_libraries(feature reborn)
 
 add_library(version SHARED src/version/version.cpp)
-target_link_libraries(version reborn)
+target_link_libraries(version reborn symbols)
+
+add_library(chat SHARED src/chat/chat.cpp src/chat/ui.c)
+target_link_libraries(chat reborn symbols feature pthread)
 
 if(MCPI_SERVER_MODE)
     add_library(server SHARED src/server/server.cpp src/server/server_properties.cpp)
-    target_link_libraries(server reborn feature home compat version dl media-layer-core pthread)
+    target_link_libraries(server reborn symbols feature home compat version dl media-layer-core pthread)
 else()
+    target_link_libraries(compat input sign chat home dl)
+
+    target_link_libraries(chat input)
+
     add_library(multiplayer SHARED src/multiplayer/multiplayer.cpp)
-    target_link_libraries(multiplayer reborn home feature)
+    target_link_libraries(multiplayer reborn symbols home feature)
+
+    add_library(sound SHARED src/sound/sound.cpp src/sound/repository.cpp)
+    target_link_libraries(sound reborn symbols feature override media-layer-core)
+
+    add_library(camera SHARED src/camera/camera.cpp)
+    target_link_libraries(camera reborn symbols media-layer-core feature home)
+
+    add_library(input SHARED src/input/input.cpp src/input/bow.c src/input/attack.c src/input/toggle.c src/input/misc.c src/input/drop.cpp)
+    target_link_libraries(input reborn symbols feature media-layer-core)
+
+    add_library(sign SHARED src/sign/sign.cpp)
+    target_link_libraries(sign reborn symbols feature input)
+
+    add_library(creative SHARED src/creative/creative.cpp)
+    target_link_libraries(creative reborn symbols feature)
+
+    add_library(touch SHARED src/touch/touch.c)
+    target_link_libraries(touch reborn symbols feature)
+
+    add_library(override SHARED src/override/override.c)
+    target_link_libraries(override reborn symbols dl home)
+
+    add_library(textures SHARED src/textures/textures.cpp)
+    target_link_libraries(textures reborn symbols feature)
+
+    add_library(atlas SHARED src/atlas/atlas.cpp)
+    target_link_libraries(atlas reborn symbols feature GLESv1_CM)
 endif()
 
-add_library(camera SHARED src/camera/camera.cpp)
-target_link_libraries(camera reborn media-layer-core feature home)
-
 add_library(game-mode SHARED src/game-mode/game-mode.c src/game-mode/game-mode.cpp)
-target_link_libraries(game-mode reborn feature)
-
-add_library(input SHARED src/input/input.cpp src/input/bow.c src/input/attack.c src/input/toggle.c src/input/misc.c src/input/drop.cpp)
-target_link_libraries(input reborn feature media-layer-core)
-
-add_library(sign SHARED src/sign/sign.cpp)
-target_link_libraries(sign reborn feature input)
+target_link_libraries(game-mode reborn symbols feature)
 
 add_library(death SHARED src/death/death.cpp)
-target_link_libraries(death reborn feature)
+target_link_libraries(death reborn symbols feature)
 
 add_library(misc SHARED src/misc/misc.c src/misc/misc.cpp)
-target_link_libraries(misc reborn feature)
-
-add_library(creative SHARED src/creative/creative.cpp)
-target_link_libraries(creative reborn feature)
+target_link_libraries(misc reborn symbols feature)
 
 add_library(options SHARED src/options/options.c)
-target_link_libraries(options reborn feature)
-
-add_library(touch SHARED src/touch/touch.c)
-target_link_libraries(touch reborn feature)
-
-add_library(override SHARED src/override/override.c)
-target_link_libraries(override reborn dl home)
-
-add_library(textures SHARED src/textures/textures.cpp)
-target_link_libraries(textures reborn feature)
-
-add_library(atlas SHARED src/atlas/atlas.cpp)
-target_link_libraries(atlas reborn feature GLESv1_CM)
-
-add_library(chat SHARED src/chat/chat.cpp src/chat/ui.c)
-target_link_libraries(chat reborn feature input pthread)
+target_link_libraries(options reborn symbols feature)
 
 add_library(home SHARED src/home/home.c)
-target_link_libraries(home reborn)
+target_link_libraries(home reborn symbols)
 
 add_library(test SHARED src/test/test.c)
 target_link_libraries(test reborn home)
 
 add_library(init SHARED src/init/init.c)
-target_link_libraries(init compat game-mode camera input sign misc creative death options touch textures atlas chat home version test)
+target_link_libraries(init compat game-mode misc death options chat home version test)
 if(MCPI_SERVER_MODE)
     target_link_libraries(init server)
 else()
-    target_link_libraries(init multiplayer)
+    target_link_libraries(init multiplayer sound camera input sign creative touch textures atlas)
 endif()
 
 ## Install Mods
-install(TARGETS init compat readdir feature override game-mode camera input sign misc creative death options touch textures atlas chat home version test DESTINATION "${MCPI_INSTALL_DIR}/mods")
+install(TARGETS init compat readdir feature game-mode misc death options chat home version test DESTINATION "${MCPI_INSTALL_DIR}/mods")
 if(MCPI_SERVER_MODE)
     install(TARGETS server DESTINATION "${MCPI_INSTALL_DIR}/mods")
 else()
-    install(TARGETS multiplayer DESTINATION "${MCPI_INSTALL_DIR}/mods")
+    install(TARGETS multiplayer sound override camera input sign creative touch textures atlas DESTINATION "${MCPI_INSTALL_DIR}/mods")
 endif()

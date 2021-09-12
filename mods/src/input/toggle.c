@@ -1,5 +1,5 @@
 #include <libreborn/libreborn.h>
-#include <libreborn/minecraft.h>
+#include <symbols/minecraft.h>
 
 #include "input.h"
 #include "../feature/feature.h"

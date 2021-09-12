@@ -1,7 +1,7 @@
 #include <EGL/egl.h>
 
 #include <libreborn/libreborn.h>
-#include <libreborn/media-layer/core.h>
+#include <media-layer/core.h>
 
 // Functions That Have Their Return Values Used
 static EGLSurface eglCreateWindowSurface_injection(__attribute__((unused)) EGLDisplay display, __attribute__((unused)) EGLConfig config, __attribute__((unused)) NativeWindowType native_window, __attribute__((unused)) EGLint const *attrib_list) {

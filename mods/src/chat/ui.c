@@ -1,3 +1,4 @@
+#ifndef MCPI_SERVER_MODE
 #include <stdio.h>
 #include <pthread.h>
 #include <unistd.h>
@@ -86,3 +87,4 @@ void chat_open() {
         pthread_create(&thread, NULL, chat_thread, NULL);
     }
 }
+#endif // #ifndef MCPI_SERVER_MODE

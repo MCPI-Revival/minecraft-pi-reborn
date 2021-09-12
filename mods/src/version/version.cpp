@@ -1,5 +1,5 @@
 #include <libreborn/libreborn.h>
-#include <libreborn/minecraft.h>
+#include <symbols/minecraft.h>
 
 #include "version.h"
 #include "../init/init.h"

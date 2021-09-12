@@ -115,6 +115,11 @@ if(BUILD_NATIVE_COMPONENTS)
     add_subdirectory(launcher)
 endif()
 
+# Include Symbols
+if(BUILD_ARM_COMPONENTS)
+    add_subdirectory(symbols)
+endif()
+
 # Build Mods
 if(BUILD_ARM_COMPONENTS)
     add_subdirectory(mods)

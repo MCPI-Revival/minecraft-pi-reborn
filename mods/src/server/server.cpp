@@ -25,7 +25,7 @@
 #include "../compat/compat.h"
 #include "../version/version.h"
 
-#include <libreborn/minecraft.h>
+#include <symbols/minecraft.h>
 
 // --only-generate: Ony Generate World And Then Exit
 static bool only_generate = false;

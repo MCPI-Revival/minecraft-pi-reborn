@@ -3,8 +3,9 @@
 #include <SDL/SDL.h>
 
 #include <libreborn/libreborn.h>
-#include <libreborn/media-layer/core.h>
-#include <libreborn/media-layer/internal.h>
+#include <media-layer/core.h>
+#include <media-layer/audio.h>
+#include <media-layer/internal.h>
 
 #include "common/common.h"
 
@@ -354,5 +355,64 @@ CALL(10, media_get_framebuffer_size, void, (int *width, int *height)) {
     // Return Values
     write_int((uint32_t) width);
     write_int((uint32_t) height);
+#endif
+}
+
+CALL(59, media_audio_update, void, (float volume, float x, float y, float z, float yaw)) {
+#if defined(MEDIA_LAYER_PROXY_SERVER)
+    // Lock Proxy
+    start_proxy_call();
+
+    // Arguments
+    write_float(volume);
+    write_float(x);
+    write_float(y);
+    write_float(z);
+    write_float(yaw);
+
+    // Release Proxy
+    end_proxy_call();
+#else
+    float volume = read_float();
+    float x = read_float();
+    float y = read_float();
+    float z = read_float();
+    float yaw = read_float();
+    // Run
+    media_audio_update(volume, x, y, z, yaw);
+#endif
+}
+
+CALL(60, media_audio_play, void, (const char *source, const char *name, float x, float y, float z, float pitch, float volume, int is_ui)) {
+#if defined(MEDIA_LAYER_PROXY_SERVER)
+    // Lock Proxy
+    start_proxy_call();
+
+    // Arguments
+    write_string(source);
+    write_string(name);
+    write_float(x);
+    write_float(y);
+    write_float(z);
+    write_float(pitch);
+    write_float(volume);
+    write_int(is_ui);
+
+    // Release Proxy
+    end_proxy_call();
+#else
+    char *source = read_string();
+    char *name = read_string();
+    float x = read_float();
+    float y = read_float();
+    float z = read_float();
+    float pitch = read_float();
+    float volume = read_float();
+    int is_ui = read_int();
+    // Run
+    media_audio_play(source, name, x, y, z, pitch, volume, is_ui);
+    // Free
+    free(source);
+    free(name);
 #endif
 }

@@ -1,7 +1,7 @@
 #include <X11/Xlib.h>
 
 #include <libreborn/libreborn.h>
-#include <libreborn/media-layer/core.h>
+#include <media-layer/core.h>
 
 // Functions That Have Their Return Values Used
 static int XTranslateCoordinates_injection(__attribute__((unused)) void *display, __attribute__((unused)) XID src_w, __attribute__((unused)) XID dest_w, int src_x, int src_y, int *dest_x_return, int *dest_y_return, __attribute__((unused)) XID *child_return) {

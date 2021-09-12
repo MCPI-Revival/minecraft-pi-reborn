@@ -1,24 +1,20 @@
 # Manual Installation
 [Download Packages Here](https://jenkins.thebrokenrail.com/job/minecraft-pi-reborn/job/master/lastSuccessfulBuild/artifact/out/)
 
+## Supported Distributions
+* Ubuntu 20.04+
+* Debian Bullseye+
+
 ## Picking A Package
 
 ### Name Format
 ```
-minecraft-pi-reborn-<Variant>_X.Y.Z~<Distribution>_<Architecture>
+minecraft-pi-reborn-<Variant>_X.Y.Z_<Architecture>
 ```
 
 ### Picking A Variant
 * ``client``: Client mode, use this if you want to play MCPI
 * ``server``: Server mode, use this if you want to host a dedicated MCPI server
-
-### Picking A Distribution
-This specifies which version of Debian MCPI-Reborn was built against. Which one you should use depends on your current distribution. If your distribution supports it, you should use ``bullseye`` for better mouse sensitivity.
-
-* Ubuntu 20.04+: ``bullseye``
-* Raspberry Pi OS Buster: ``buster``
-* Debian Bullseye+: ``bullseye``
-* Debian Buster: ``buster``
 
 ### Picking An Architecture
 * ``amd64``: x86_64, use this if you are using a device with an AMD or Intel processor

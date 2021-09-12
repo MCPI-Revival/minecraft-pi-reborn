@@ -5,11 +5,13 @@
 #include <pthread.h>
 
 #include <libreborn/libreborn.h>
-#include <libreborn/minecraft.h>
+#include <symbols/minecraft.h>
 
 #include "../init/init.h"
 #include "../feature/feature.h"
+#ifndef MCPI_SERVER_MODE
 #include "../input/input.h"
+#endif // #ifndef MCPI_SERVER_MODE
 #include "chat.h"
 
 // Store If Chat is Enabled
@@ -19,6 +21,7 @@ int _chat_enabled = 0;
 #define MAX_CHAT_MESSAGE_LENGTH 512
 
 // Send API Command
+#ifndef MCPI_SERVER_MODE
 static void send_api_command(unsigned char *minecraft, char *str) {
     struct ConnectedClient client;
     client.sock = -1;
@@ -36,6 +39,7 @@ static void send_api_chat_command(unsigned char *minecraft, char *str) {
     send_api_command(minecraft, command);
     free(command);
 }
+#endif // #ifndef MCPI_SERVER_MODE
 
 // Send Message To Players
 static void send_message(unsigned char *server_side_network_handler, char *username, char *message) {
@@ -76,6 +80,7 @@ static void ServerSideNetworkHandler_handle_ChatPacket_injection(unsigned char *
     }
 }
 
+#ifndef MCPI_SERVER_MODE
 // Message Queue
 static pthread_mutex_t queue_mutex = PTHREAD_MUTEX_INITIALIZER;
 static std::vector<std::string> queue;
@@ -110,6 +115,7 @@ static void send_queued_messages(unsigned char *minecraft) {
     // Unlock
     pthread_mutex_unlock(&queue_mutex);
 }
+#endif // #ifndef MCPI_SERVER_MODE
 
 // Init
 void init_chat() {
@@ -123,6 +129,8 @@ void init_chat() {
         // Re-Broadcast ChatPacket
         patch_address(ServerSideNetworkHandler_handle_ChatPacket_vtable_addr, (void *) ServerSideNetworkHandler_handle_ChatPacket_injection);
         // Send Messages On Input Tick
+#ifndef MCPI_SERVER_MODE
         input_run_on_tick(send_queued_messages);
+#endif // #ifndef MCPI_SERVER_MODE
     }
 }

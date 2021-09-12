@@ -4,7 +4,7 @@
 
 #include <SDL/SDL.h>
 
-#include <libreborn/media-layer/internal.h>
+#include <media-layer/internal.h>
 
 // SDL Is Replaced With GLFW
 

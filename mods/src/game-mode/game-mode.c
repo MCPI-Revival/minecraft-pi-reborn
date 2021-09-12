@@ -3,7 +3,7 @@
 #include "../feature/feature.h"
 
 #include <libreborn/libreborn.h>
-#include <libreborn/minecraft.h>
+#include <symbols/minecraft.h>
 
 static int is_survival = -1;
 

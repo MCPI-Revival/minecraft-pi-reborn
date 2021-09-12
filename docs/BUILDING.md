@@ -24,6 +24,7 @@
   * Client Mode Only
     * GLFW
     * FreeImage
+    * OpenAL
 
 ## Runtime Dependencies
 * Non-ARM Host Architectures
@@ -33,6 +34,7 @@
     * OpenGL ES 1.1
     * GLFW
     * FreeImage
+    * OpenAL
     * Zenity
 
 ## Two-Step Build

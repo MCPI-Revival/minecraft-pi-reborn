@@ -8,7 +8,6 @@
 #include <errno.h>
 #include <sys/stat.h>
 
-#define FORCE_PROC_FOR_ROOT_PATH
 #include <libreborn/libreborn.h>
 
 #include "bootstrap.h"
@@ -190,14 +189,6 @@ void bootstrap(int argc, char *argv[]) {
     setenv("QEMU_LD_PREFIX", "/usr/arm-linux-gnueabihf", 1);
 #endif
 
-    // Select Executable Interpreter
-#ifdef __ARM_ARCH
-#define EXE_INTERPRETER "/lib/ld-linux-armhf.so.3"
-#else
-    // Use Static QEMU So It Isn't Affected By LD_* Variables
-#define EXE_INTERPRETER "qemu-arm-static"
-#endif
-
     // Create Full Path
     char *full_path = NULL;
     safe_asprintf(&full_path, "%s/" MCPI_NAME, binary_directory);
@@ -205,6 +196,14 @@ void bootstrap(int argc, char *argv[]) {
     // Free Binary Directory
     free(binary_directory);
 
+#ifdef __ARM_ARCH
+    // Mark argc As Used
+    (void) argc;
+    // Run
+    safe_execvpe(full_path, argv, environ);
+#else
+    // Use Static QEMU So It Isn't Affected By LD_* Variables
+#define EXE_INTERPRETER "qemu-arm-static"
     // Create Arguments List
     char *new_argv[argc + 2];
     for (int i = 1; i <= argc; i++) {
@@ -214,4 +213,5 @@ void bootstrap(int argc, char *argv[]) {
     new_argv[1] = full_path; // Path To MCPI
     // Run
     safe_execvpe(EXE_INTERPRETER, new_argv, environ);
+#endif
 }

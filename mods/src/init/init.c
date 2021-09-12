@@ -7,18 +7,19 @@ __attribute__((constructor)) static void init() {
     init_server();
 #else
     init_multiplayer();
-#endif
-    init_game_mode();
+    init_sound();
     init_input();
     init_sign();
-    init_misc();
     init_creative();
-    init_death();
     init_camera();
-    init_options();
     init_touch();
     init_textures();
     init_atlas();
+#endif
+    init_game_mode();
+    init_misc();
+    init_death();
+    init_options();
     init_chat();
     init_home();
     init_version();

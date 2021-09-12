@@ -21,15 +21,6 @@ __attribute__((noreturn)) static inline void safe_execvpe(const char *pathname, 
 }
 // Get Binary Directory (Remember To Free)
 static inline char *get_binary_directory() {
-#ifndef FORCE_PROC_FOR_ROOT_PATH
-    {
-        // Check Environment
-        char *specified_root = getenv("MCPI_ROOT_PATH");
-        if (specified_root != NULL) {
-            return strdup(specified_root);
-        }
-    }
-#endif
     // Get Path To Current Executable
     char *exe = realpath("/proc/self/exe", NULL);
     ALLOC_CHECK(exe);
@@ -42,9 +33,6 @@ static inline char *get_binary_directory() {
             break;
         }
     }
-
-    // Set Environment
-    setenv("MCPI_ROOT_PATH", exe, 1);
 
     // Return
     return exe;

@@ -8,4 +8,5 @@
 * [View Architecture](ARCHITECTURE.md)
 * [View Command Line Arguments](COMMAND_LINE.md)
 * [View Multiplayer](MULTIPLAYER.md)
+* [View Sound](SOUND.md)
 * [View Changelog](CHANGELOG.md)

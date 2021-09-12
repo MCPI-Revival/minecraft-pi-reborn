@@ -36,6 +36,7 @@ This sub-component re-implements a subset of SDL 1.2 calls with GLFW. It also pr
 The utility functions include:
 * Taking Screenshots
 * Fullscreen
+* Audio
 * Etc
 
 This is always compiled for the host system's architecture.
@@ -87,10 +88,12 @@ This component contains various utility functions including:
 
 * Code Patching (ARM Only)
 * Logging
-* MCPI Symbols
 * Etc
 
 The code patching is ARM only because it relies on hard-coded ARM instructions. However, this is irrelevant since code patching is only needed in ARM code (to patch MCPI).
+
+### ``symbols``
+This component contains all MCPI symbols.
 
 ## Dependencies
 MCPI-Reborn has several dependencies:
@@ -98,6 +101,7 @@ MCPI-Reborn has several dependencies:
 * GLFW (Only In Client Mode)
   * Open GL ES 1.1
   * EGL
+* OpenAL (Only In Client Mode)
 * ZLib (Required By LibPNG; Bundled)
 * LibPNG (Bundled)
 * FreeImage (Only In Client Mode)

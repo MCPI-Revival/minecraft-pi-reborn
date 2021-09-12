@@ -10,18 +10,19 @@ void init_compat();
 void init_server();
 #else
 void init_multiplayer();
-#endif
-void init_game_mode();
+void init_sound();
 void init_input();
 void init_sign();
-void init_misc();
 void init_creative();
-void init_death();
 void init_camera();
-void init_options();
 void init_touch();
 void init_textures();
 void init_atlas();
+#endif
+void init_game_mode();
+void init_misc();
+void init_death();
+void init_options();
 void init_chat();
 void init_home();
 void init_version();

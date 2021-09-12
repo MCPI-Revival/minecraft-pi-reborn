@@ -1,5 +1,13 @@
 # Changelog
 
+**2.2.0**
+* Sound Support
+* Split Off "Allow Joining Survival Servers" From Game-Mode Mod
+* Separate Headless Code From Server Code
+* Fix Bug Where `RakNetInstance` Starts Pinging Potential Servers Before The "Join Game" Screen Is Opened
+* Clean-Up Code
+* Remove Support For Debian Buster
+
 **2.1.8**
 * Fix Crash On ARM Systems
 

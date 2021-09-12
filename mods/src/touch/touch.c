@@ -3,7 +3,7 @@
 #include "../feature/feature.h"
 #include "../init/init.h"
 
-#include <libreborn/minecraft.h>
+#include <symbols/minecraft.h>
 
 // Enable Touch GUI
 static int32_t Minecraft_isTouchscreen_injection(__attribute__((unused)) unsigned char *minecraft) {

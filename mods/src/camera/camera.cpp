@@ -1,6 +1,6 @@
 #include <libreborn/libreborn.h>
-#include <libreborn/media-layer/core.h>
-#include <libreborn/minecraft.h>
+#include <media-layer/core.h>
+#include <symbols/minecraft.h>
 
 #include "../feature/feature.h"
 #include "../home/home.h"

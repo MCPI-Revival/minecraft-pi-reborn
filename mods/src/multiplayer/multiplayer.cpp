@@ -8,7 +8,7 @@
 #include <vector>
 
 #include <libreborn/libreborn.h>
-#include <libreborn/minecraft.h>
+#include <symbols/minecraft.h>
 
 #include "../home/home.h"
 #include "../init/init.h"
@@ -110,8 +110,9 @@ static void iterate_servers(std::function<void(const char *address, int port)> c
     }
 }
 
+// Ping External Servers
 static void RakNetInstance_pingForHosts_injection(unsigned char *rak_net_instance, int32_t base_port) {
-    // Call Original
+    // Call Original Method
     (*RakNetInstance_pingForHosts)(rak_net_instance, base_port);
 
     // Get RakNet::RakPeer

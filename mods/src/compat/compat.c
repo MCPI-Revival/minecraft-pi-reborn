@@ -1,17 +1,19 @@
 #include <unistd.h>
 #include <signal.h>
 
+#include "compat.h"
+#include "../init/init.h"
+
+#ifndef MCPI_SERVER_MODE
 #include <SDL/SDL.h>
 
-#include <libreborn/media-layer/core.h>
+#include <media-layer/core.h>
 #include <libreborn/libreborn.h>
 
 #include "../input/input.h"
 #include "../sign/sign.h"
 #include "../chat/chat.h"
 #include "../home/home.h"
-#include "../init/init.h"
-#include "compat.h"
 
 // Custom Title
 HOOK(SDL_WM_SetCaption, void, (__attribute__((unused)) const char *title, const char *icon)) {
@@ -29,7 +31,6 @@ HOOK(SDL_ShowCursor, int, (int toggle)) {
 // Intercept SDL Events
 HOOK(SDL_PollEvent, int, (SDL_Event *event)) {
     // In Server Mode, Exit Requests Are Handled In src/server/server.cpp
-#ifndef MCPI_SERVER_MODE
     // Check If Exit Is Requested
     if (compat_check_exit_requested()) {
         // Send SDL_QUIT
@@ -37,7 +38,6 @@ HOOK(SDL_PollEvent, int, (SDL_Event *event)) {
         new_event.type = SDL_QUIT;
         SDL_PushEvent(&new_event);
     }
-#endif // #ifndef MCPI_SERVER_MODE
 
     // Poll Events
     ensure_SDL_PollEvent();
@@ -106,6 +106,7 @@ HOOK(SDL_PollEvent, int, (SDL_Event *event)) {
 
     return ret;
 }
+#endif // #ifndef MCPI_SERVER_MODE
 
 // Exit Handler
 static void exit_handler(__attribute__((unused)) int data) {

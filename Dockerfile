@@ -1,7 +1,7 @@
-FROM debian:bullseye
+FROM debian:bullseye-slim
 
 # Copy DEB
-ADD ./out/minecraft-pi-reborn-server_*~bullseye_amd64.deb /root
+ADD ./out/minecraft-pi-reborn-server_*_amd64.deb /root
 
 # Install
 RUN \

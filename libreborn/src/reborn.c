@@ -44,7 +44,7 @@ struct overwrite_data {
     void *replacement;
     int found;
 };
-static void overwrite_calls_callback(Elf32_Addr section_addr, Elf32_Word size, void *data) {
+static void overwrite_calls_callback(ElfW(Addr) section_addr, ElfW(Word) size, void *data) {
     struct overwrite_data *args = (struct overwrite_data *) data;
     void *section = (void *) section_addr;
 
@@ -122,12 +122,14 @@ void _overwrite_calls(const char *file, int line, void *start, void *target) {
     // Increment Code Block Position
     increment_code_block();
 
+    // Check
     if (data.found < 1) {
         ERR("(%s:%i) Unable To Find Callsites For 0x%08x", file, line, (uint32_t) start);
     }
 }
 
 // Overwrite Function
+// NOTE: "start" Must Be At Least 8 Bytes Long
 void _overwrite(const char *file, int line, void *start, void *target) {
     unsigned char patch_data[4] = {0x04, 0xf0, 0x1f, 0xe5}; // "ldr pc, [pc, #-0x4]"
 

@@ -2,6 +2,7 @@
 | Name | Description |
 | --- | --- |
 | MCPI | Shorthand for Minecraft: Pi Edition |
+| MCPE | Shorthand for Minecraft: Pocket Edition |
 | Host Architecture | The native architecture of the CPU that MCPi-Reborn will be running on |
 | Native Component | A component that *can* be compiled for the host architecture |
 | ARM Component | A component that *must* be compiled for ARM |

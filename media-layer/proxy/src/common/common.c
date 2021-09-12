@@ -135,7 +135,7 @@ char *read_string() {
     return strdup(str);
 }
 #define MAX_STRING_SIZE 256
-void write_string(char *str) {
+void write_string(const char *str) {
     unsigned char is_null = str == NULL;
     write_byte(is_null);
     if (!is_null) {

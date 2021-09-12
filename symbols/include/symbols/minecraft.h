@@ -7,7 +7,7 @@
 
 // bool In C
 #ifndef __cplusplus
-typedef uint32_t bool;
+typedef unsigned char bool;
 #endif
 
 // Globals
@@ -182,6 +182,7 @@ static uint32_t Options_ambient_occlusion_property_offset = 0x18; // unsigned ch
 static uint32_t Options_hide_gui_property_offset = 0xec; // unsigned char / bool
 static uint32_t Options_third_person_property_offset = 0xed; // unsigned char / bool
 static uint32_t Options_render_distance_property_offset = 0x10; // int32_t
+static uint32_t Options_sound_property_offset = 0x4; // int32_t
 
 // MouseBuildInput
 
@@ -220,6 +221,15 @@ static uint32_t Player_inventory_property_offset = 0xbe0; // Inventory *
 
 typedef void (*Entity_die_t)(unsigned char *entity, unsigned char *cause);
 static uint32_t Entity_die_vtable_offset = 0x130;
+
+static uint32_t Entity_x_property_offset = 0x4; // float
+static uint32_t Entity_y_property_offset = 0x8; // float
+static uint32_t Entity_z_property_offset = 0xc; // float
+static uint32_t Entity_yaw_property_offset = 0x40; // float
+static uint32_t Entity_old_x_property_offset = 0x28; // float
+static uint32_t Entity_old_y_property_offset = 0x2c; // float
+static uint32_t Entity_old_z_property_offset = 0x30; // float
+static uint32_t Entity_old_yaw_property_offset = 0x48; // float
 
 // Mob
 
@@ -389,7 +399,11 @@ static RakNetInstance_pingForHosts_t RakNetInstance_pingForHosts = (RakNetInstan
 static uint32_t RakNetInstance_pingForHosts_vtable_offset = 0x14;
 static void *RakNetInstance_pingForHosts_vtable_addr = (void *) 0x109afc;
 
+typedef unsigned char *(*RakNetInstance_t)(unsigned char *rak_net_instance);
+static RakNetInstance_t RakNetInstance = (RakNetInstance_t) 0x73b20;
+
 static uint32_t RakNetInstance_peer_property_offset = 0x4; // RakNet::RakPeer *
+static uint32_t RakNetInstance_pinging_for_hosts_property_offset = 0x24; // unsigned char
 
 // RakNet::RakPeer
 
@@ -483,6 +497,17 @@ static Tesselator_colorABGR_t Tesselator_colorABGR = (Tesselator_colorABGR_t) 0x
 typedef void (*Tesselator_color_t)(unsigned char *tesselator, int32_t r, int32_t g, int32_t b, int32_t a);
 static Tesselator_color_t Tesselator_color = (Tesselator_color_t) 0x52a48;
 
+// SoundEngine
+
+typedef void (*SoundEngine_enable_t)(unsigned char *sound_engine, bool state);
+static SoundEngine_enable_t SoundEngine_enable = (SoundEngine_enable_t) 0x6776c;
+
+typedef void (*SoundEngine_update_t)(unsigned char *sound_engine, unsigned char *listener_mob, float listener_angle);
+static SoundEngine_update_t SoundEngine_update = (SoundEngine_update_t) 0x67778;
+
+static uint32_t SoundEngine_minecraft_property_offset = 0xa08; // Minecraft *
+static uint32_t SoundEngine_options_property_offset = 0x4; // Options *
+
 // Method That Require C++ Types
 #ifdef __cplusplus
 
@@ -549,6 +574,14 @@ static SelectWorldScreen_getUniqueLevelName_t SelectWorldScreen_getUniqueLevelNa
 // Touch::SelectWorldScreen
 
 static SelectWorldScreen_getUniqueLevelName_t Touch_SelectWorldScreen_getUniqueLevelName = (SelectWorldScreen_getUniqueLevelName_t) 0x3d82c;
+
+// SoundEngine
+
+typedef void (*SoundEngine_playUI_t)(unsigned char *sound_engine, std::string const& name, float pitch, float volume);
+static SoundEngine_playUI_t SoundEngine_playUI = (SoundEngine_playUI_t) 0x67864;
+
+typedef void (*SoundEngine_play_t)(unsigned char *sound_engine, std::string const& name, float x, float y, float z, float pitch, float volume);
+static SoundEngine_play_t SoundEngine_play = (SoundEngine_play_t) 0x67860;
 
 // Common
 

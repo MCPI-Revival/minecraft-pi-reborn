@@ -10,7 +10,7 @@ extern "C" {
 #include "exec.h"
 #include "elf.h"
 
-#ifdef __arm__
+#ifdef REBORN_HAS_COMPILED_CODE
 
 // Patching Functions
 

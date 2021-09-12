@@ -4,7 +4,7 @@
 #include <sys/wait.h>
 
 #include <libreborn/libreborn.h>
-#include <libreborn/media-layer/core.h>
+#include <media-layer/core.h>
 
 // SDL Stub
 void *SDL_SetVideoMode(__attribute__((unused)) int width, __attribute__((unused)) int height, __attribute__((unused)) int bpp, __attribute__((unused)) uint32_t flags) {
