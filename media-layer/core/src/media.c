@@ -310,6 +310,9 @@ void media_cleanup() {
     if (is_running) {
         // GLFW And Audio Are Disabled In Headless Mode
 #ifndef MCPI_HEADLESS_MODE
+        // Ignore GLFW Errors During Termination
+        glfwSetErrorCallback(NULL);
+
         // Terminate GLFW
         glfwDestroyWindow(glfw_window);
         glfwTerminate();
@@ -321,6 +324,10 @@ void media_cleanup() {
         // Update State
         is_running = 0;
     }
+}
+// Always Cleanup Media Layer
+__attribute__((destructor)) static void always_cleanup() {
+    media_cleanup();
 }
 
 // Store Cursor State

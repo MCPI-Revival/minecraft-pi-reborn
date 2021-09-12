@@ -224,7 +224,7 @@ ALuint _media_audio_get_buffer(const char *source, const char *name) {
             return _media_audio_get_buffer(source, name);
         }
     } else {
-        return 0;
+        ERR("%s", "Audio Engine Isn't Loaded");
     }
 }
 

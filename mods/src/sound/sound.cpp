@@ -11,7 +11,7 @@
 
 // Resolve Source File Path
 #define SOURCE_FILE_BASE "data/libminecraftpe.so"
-static std::string get_source_file() {
+std::string _sound_get_source_file() {
     static bool source_loaded = false;
     static std::string source;
 
@@ -56,24 +56,20 @@ static std::string get_source_file() {
         source_loaded = true;
 
         // Return
-        return get_source_file();
+        return _sound_get_source_file();
     }
-}
-// Resolve On Startup
-__attribute__((constructor)) static void resolve_source_file() {
-    get_source_file();
 }
 
 // Play Sound
 // The pitch value is unsued because it causes glitchy sounds, it is seemingly unused in MCPE as well.
 static void SoundEngine_playUI_injection(__attribute__((unused)) unsigned char *sound_engine, std::string const& name, __attribute__((unused)) float pitch, float volume) {
-    std::string source = get_source_file();
+    std::string source = _sound_get_source_file();
     if (source.size() > 0) {
         media_audio_play(source.c_str(), _sound_pick(name).c_str(), 0.0f, 0.0f, 0.0f, 1.0f, volume, 1);
     }
 }
 static void SoundEngine_play_injection(__attribute__((unused)) unsigned char *sound_engine, std::string const& name, float x, float y, float z, __attribute__((unused)) float pitch, float volume) {
-    std::string source = get_source_file();
+    std::string source = _sound_get_source_file();
     if (source.size() > 0) {
         media_audio_play(source.c_str(), _sound_pick(name).c_str(), x, y, z, 1.0f, volume, 0);
     }
@@ -108,6 +104,16 @@ static void SoundEngine_update_injection(unsigned char *sound_engine, unsigned c
     media_audio_update(volume, x, y, z, yaw);
 }
 
+// Resolve All Sounds On Init
+// SoundEngine::init Is Called After The Audio Engine Has Been Loaded
+static void SoundEngine_init_injection(unsigned char *sound_engine, unsigned char *minecraft, unsigned char *options) {
+    // Call Original Method
+    (*SoundEngine_init)(sound_engine, minecraft, options);
+
+    // Resolve Sounds
+    _sound_resolve_all();
+}
+
 // Init
 void init_sound() {
     // Implement Sound Engine
@@ -115,5 +121,6 @@ void init_sound() {
         overwrite_calls((void *) SoundEngine_playUI, (void *) SoundEngine_playUI_injection);
         overwrite_calls((void *) SoundEngine_play, (void *) SoundEngine_play_injection);
         overwrite_calls((void *) SoundEngine_update, (void *) SoundEngine_update_injection);
+        overwrite_calls((void *) SoundEngine_init, (void *) SoundEngine_init_injection);
     }
 }

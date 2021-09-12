@@ -1,5 +1,10 @@
 # Changelog
 
+**2.2.1**
+* Prevent `random.burp` Sound From Crashing Game
+* Always Cleanup Media Layer, Even On Crash
+* Resolve All Sounds On Startup
+
 **2.2.0**
 * Sound Support
 * Split Off "Allow Joining Survival Servers" From Game-Mode Mod

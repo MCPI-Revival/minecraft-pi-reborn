@@ -43,17 +43,27 @@ void media_audio_update(float volume, float x, float y, float z, float yaw) {
     std::vector<ALuint>::iterator it = get_sources().begin();
     while (it != get_sources().end()) {
         ALuint source = *it;
+        bool remove = false;
         // Check
-        ALint source_state;
-        alGetSourcei(source, AL_SOURCE_STATE, &source_state);
-        AL_ERROR_CHECK();
-        if (source_state != AL_PLAYING) {
-            // Finished
-            it = get_sources().erase(it);
-            alDeleteSources(1, &source);
+        if (source && alIsSource(source)) {
+            // Is Valid Source
+            ALint source_state;
+            alGetSourcei(source, AL_SOURCE_STATE, &source_state);
             AL_ERROR_CHECK();
+            if (source_state != AL_PLAYING) {
+                // Finished Playing
+                remove = true;
+                alDeleteSources(1, &source);
+                AL_ERROR_CHECK();
+            }
         } else {
-            // Still Playing
+            // Not A Source
+            remove = true;
+        }
+        // Remove If Needed
+        if (remove) {
+            it = get_sources().erase(it);
+        } else {
             ++it;
         }
     }
@@ -62,7 +72,7 @@ void media_audio_update(float volume, float x, float y, float z, float yaw) {
 void media_audio_play(const char *source, const char *name, float x, float y, float z, float pitch, float volume, int is_ui) {
     // Load Sound
     ALuint buffer = _media_audio_get_buffer(source, name);
-    if (buffer) {
+    if (volume > 0.0f && buffer) {
         // Create Source
         ALuint al_source;
         alGenSources(1, &al_source);

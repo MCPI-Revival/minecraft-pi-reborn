@@ -499,6 +499,9 @@ static Tesselator_color_t Tesselator_color = (Tesselator_color_t) 0x52a48;
 
 // SoundEngine
 
+typedef void (*SoundEngine_init_t)(unsigned char *sound_engine, unsigned char *minecraft, unsigned char *options);
+static SoundEngine_init_t SoundEngine_init = (SoundEngine_init_t) 0x67760;
+
 typedef void (*SoundEngine_enable_t)(unsigned char *sound_engine, bool state);
 static SoundEngine_enable_t SoundEngine_enable = (SoundEngine_enable_t) 0x6776c;
 
