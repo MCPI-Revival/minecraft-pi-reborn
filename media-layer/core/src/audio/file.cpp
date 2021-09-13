@@ -2,6 +2,7 @@
 #include <string>
 #include <functional>
 #include <cstdint>
+#include <cstring>
 #include <unistd.h>
 #include <sys/mman.h>
 #include <elf.h>

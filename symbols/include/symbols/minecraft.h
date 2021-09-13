@@ -164,6 +164,14 @@ static void *LoginPacket_read_vtable_addr = (void *) 0x108dcc;
 
 static uint32_t LoginPacket_username_property_offset = 0xc; // RakString
 
+// StartGamePacket
+
+typedef void (*StartGamePacket_read_t)(unsigned char *packet, unsigned char *bit_stream);
+static StartGamePacket_read_t StartGamePacket_read = (StartGamePacket_read_t) 0x72c58;
+static void *StartGamePacket_read_vtable_addr = (void *) 0x109264;
+
+static uint32_t StartGamePacket_game_mode_property_offset = 0x14; // int32_t
+
 // ChatPacket
 
 static uint32_t ChatPacket_message_property_offset = 0xc; // char *
@@ -206,17 +214,6 @@ typedef ItemInstance *(*ItemInstance_constructor_extra_t)(ItemInstance *item_ins
 static ItemInstance_constructor_extra_t ItemInstance_constructor_tile_extra = (ItemInstance_constructor_extra_t) 0x99918;
 static ItemInstance_constructor_extra_t ItemInstance_constructor_item_extra = (ItemInstance_constructor_extra_t) 0x99960;
 
-// Player
-
-typedef int (*Player_isUsingItem_t)(unsigned char *player);
-static Player_isUsingItem_t Player_isUsingItem = (Player_isUsingItem_t) 0x8f15c;
-
-typedef void (*Player_drop_t)(unsigned char *player, ItemInstance *item_instance, bool is_death);
-static uint32_t Player_drop_vtable_offset = 0x208;
-
-static uint32_t Player_username_property_offset = 0xbf4; // char *
-static uint32_t Player_inventory_property_offset = 0xbe0; // Inventory *
-
 // Entity
 
 typedef void (*Entity_die_t)(unsigned char *entity, unsigned char *cause);
@@ -237,7 +234,22 @@ typedef void (*Mob_actuallyHurt_t)(unsigned char *entity, int32_t damage);
 static Mob_actuallyHurt_t Mob_actuallyHurt = (Mob_actuallyHurt_t) 0x7f11c;
 static uint32_t Mob_actuallyHurt_vtable_offset = 0x16c;
 
+typedef float (*Mob_getWalkingSpeedModifier_t)(unsigned char *entity);
+
 static uint32_t Mob_health_property_offset = 0xec; // int32_t
+
+// Player
+
+typedef int (*Player_isUsingItem_t)(unsigned char *player);
+static Player_isUsingItem_t Player_isUsingItem = (Player_isUsingItem_t) 0x8f15c;
+
+typedef void (*Player_drop_t)(unsigned char *player, ItemInstance *item_instance, bool is_death);
+static uint32_t Player_drop_vtable_offset = 0x208;
+
+static Mob_getWalkingSpeedModifier_t Player_getWalkingSpeed = (Mob_getWalkingSpeedModifier_t) 0x8ea0c;
+
+static uint32_t Player_username_property_offset = 0xbf4; // char *
+static uint32_t Player_inventory_property_offset = 0xbe0; // Inventory *
 
 // LocalPlayer
 

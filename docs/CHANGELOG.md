@@ -1,5 +1,9 @@
 # Changelog
 
+**2.2.2**
+* Add More Missing Sound Events
+* Make Missing Sound Event Cause Warning Rather Than Crash
+
 **2.2.1**
 * Prevent `random.burp` Sound From Crashing Game
 * Always Cleanup Media Layer, Even On Crash

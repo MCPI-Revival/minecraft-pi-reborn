@@ -321,6 +321,30 @@ static std::unordered_map<std::string, std::vector<std::string>> repository = {
             {
                 "PCM_burp"
             }
+        },
+        {
+            "random.fizz",
+            {
+                "PCM_fizz"
+            }
+        },
+        {
+            "random.drink",
+            {
+                "PCM_drink"
+            }
+        },
+        {
+            "random.chestopen",
+            {
+                "PCM_chestopen"
+            }
+        },
+        {
+            "random.chestclosed",
+            {
+                "PCM_chestclosed"
+            }
         }
     }
 };
@@ -337,7 +361,8 @@ std::string _sound_pick(std::string sound) {
         return options[rand() % options.size()];
     } else {
         // Invalid Sound
-        ERR("Invalid Sound: %s", sound.c_str());
+        WARN("Invalid Sound Event: %s", sound.c_str());
+        return "";
     }
 }
 
