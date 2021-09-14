@@ -11,7 +11,7 @@ add_compile_options(-w)
 set(SKIP_INSTALL_ALL TRUE) # Skip Default LibPNG Installation
 FetchContent_Declare(
     libpng
-    GIT_REPOSITORY "https://git.code.sf.net/p/libpng/code"
+    GIT_REPOSITORY "https://github.com/glennrp/libpng.git"
     GIT_TAG "v1.2.59"
 )
 FetchContent_Populate(libpng)
