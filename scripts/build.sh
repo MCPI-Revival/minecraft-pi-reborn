@@ -111,19 +111,11 @@ arm_build() {
     cd ../../
 }
 
-# Clean Prefix
-rm -rf out
-
 # Build
-native_build client
-native_build server
-if [ ! -z "${ARM_PACKAGES_SUPPORTED}" ]; then
-    # Requires ARM Versions Of GLFW And FreeImage
-    arm64_build client
+if [ "$1" = "native" ]; then
+    native_build "$2"
+elif [ "$1" = "arm64" ]; then
+    arm64_build "$2"
+elif [ "$1" = "arm" ]; then
+    arm_build "$2"
 fi
-arm64_build server
-if [ ! -z "${ARM_PACKAGES_SUPPORTED}" ]; then
-    # Requires ARM Versions Of GLFW And FreeImage
-    arm_build client
-fi
-arm_build server

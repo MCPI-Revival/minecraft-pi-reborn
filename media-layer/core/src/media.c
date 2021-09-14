@@ -12,7 +12,9 @@
 #include <media-layer/core.h>
 #include <media-layer/internal.h>
 
+#ifndef MCPI_HEADLESS_MODE
 #include "audio/engine.h"
+#endif // #ifndef MCPI_HEADLESS_MODE
 
 // GLFW Code Not Needed In Headless Mode
 #ifndef MCPI_HEADLESS_MODE

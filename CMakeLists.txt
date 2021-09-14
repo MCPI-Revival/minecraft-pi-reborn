@@ -27,10 +27,10 @@ endif()
 # Use Clang By Default
 if(NOT DEFINED CMAKE_TOOLCHAIN_FILE)
     if(NOT DEFINED CMAKE_C_COMPILER)
-        set(CMAKE_C_COMPILER clang)
+        set(CMAKE_C_COMPILER "clang")
     endif()
     if(NOT DEFINED CMAKE_CXX_COMPILER)
-        set(CMAKE_CXX_COMPILER clang++)
+        set(CMAKE_CXX_COMPILER "clang++")
     endif()
 endif()
 

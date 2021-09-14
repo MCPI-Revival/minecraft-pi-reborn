@@ -15,7 +15,7 @@ echo '==== Installing Dependencies ===='
 
 # Build
 echo '==== Building ===='
-./scripts/build.sh
+./scripts/build-all.sh
 
 # Test
 echo '==== Testing ===='
