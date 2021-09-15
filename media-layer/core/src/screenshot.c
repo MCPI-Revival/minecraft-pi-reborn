@@ -71,6 +71,16 @@ void media_take_screenshot(char *home) {
 
     // Get Line Size
     int line_size = width * 3;
+    {
+        // Handle Alignment
+        int alignment;
+        glGetIntegerv(GL_PACK_ALIGNMENT, &alignment);
+        // Round
+        int diff = line_size % alignment;
+        if (diff > 0) {
+            line_size = line_size + (alignment - diff);
+        }
+    }
     int size = height * line_size;
 
     // Read Pixels
@@ -80,12 +90,15 @@ void media_take_screenshot(char *home) {
     // Handle Little Endian Systems
 #if __BYTE_ORDER == __LITTLE_ENDIAN
     // Swap Red And Blue
-    for (int i = 0; i < (size / 3); i++) {
-        int pixel = i * 3;
-        int red = pixels[pixel];
-        int blue = pixels[pixel + 2];
-        pixels[pixel] = blue;
-        pixels[pixel + 2] = red;
+    for (int j = 0; j < width; j++) {
+        for (int k = 0; k < height; k++) {
+            int pixel = (k * line_size) + (j * 3);
+            // Swap
+            int red = pixels[pixel];
+            int blue = pixels[pixel + 2];
+            pixels[pixel] = blue;
+            pixels[pixel + 2] = red;
+        }
     }
 #endif
 

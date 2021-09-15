@@ -14,6 +14,8 @@ extern "C" {
 #define GL_PROJECTION_MATRIX 0xba7
 #define GL_VIEWPORT 0xba2
 #define GL_DEPTH_TEST 0xb71
+#define GL_PACK_ALIGNMENT 0xd05
+#define GL_UNPACK_ALIGNMENT 0xcf5
 
 #include <stdio.h>
 #include <stdint.h>

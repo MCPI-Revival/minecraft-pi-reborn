@@ -1,5 +1,8 @@
 # Changelog
 
+**2.2.3**
+* Fix Crash When Taking Odd-Sized Screenshots
+
 **2.2.2**
 * Add More Missing Sound Events
 * Make Missing Sound Event Cause Warning Rather Than Crash

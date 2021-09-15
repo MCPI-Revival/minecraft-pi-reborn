@@ -334,7 +334,6 @@ static int get_texture_size(GLsizei width, GLsizei height, GLenum format, GLenum
     if (type == GL_UNSIGNED_BYTE) {
         switch (format) {
             case GL_RGB: {
-                PROXY_ERR("%s", "WIP");
                 multiplier = 3;
                 break;
             }
@@ -349,11 +348,29 @@ static int get_texture_size(GLsizei width, GLsizei height, GLenum format, GLenum
     } else {
         multiplier = sizeof (unsigned short);
     }
-    return width * height * multiplier; // This Should Have The Same Behavior On 32-Bit And 64-Bit Systems
+    int line_size = width * multiplier;
+    {
+        // Handle Alignment
+        int alignment;
+        glGetIntegerv(GL_UNPACK_ALIGNMENT, &alignment);
+        // Round
+        int diff = line_size % alignment;
+        if (diff > 0) {
+            line_size = line_size + (alignment - diff);
+        }
+    }
+    return line_size * height; // This Should Have The Same Behavior On 32-Bit And 64-Bit Systems
 }
 
 CALL(25, glTexImage2D, void, (GLenum target, GLint level, GLint internalformat, GLsizei width, GLsizei height, GLint border, GLenum format, GLenum type, const void *pixels)) {
 #if defined(MEDIA_LAYER_PROXY_SERVER)
+    // Get Texture Size
+    unsigned char is_null = pixels == NULL;
+    int size;
+    if (!is_null) {
+        size = get_texture_size(width, height, format, type);
+    }
+
     // Lock Proxy
     start_proxy_call();
 
@@ -366,10 +383,8 @@ CALL(25, glTexImage2D, void, (GLenum target, GLint level, GLint internalformat, 
     write_int((uint32_t) border);
     write_int((uint32_t) format);
     write_int((uint32_t) type);
-    unsigned char is_null = pixels == NULL;
     write_byte(is_null);
     if (!is_null) {
-        int size = get_texture_size(width, height, format, type);
         safe_write((void *) pixels, (size_t) size);
     }
 
@@ -714,6 +729,13 @@ CALL(43, glColorMask, void, (GLboolean red, GLboolean green, GLboolean blue, GLb
 
 CALL(44, glTexSubImage2D, void, (GLenum target, GLint level, GLint xoffset, GLint yoffset, GLsizei width, GLsizei height, GLenum format, GLenum type, const void *pixels)) {
 #if defined(MEDIA_LAYER_PROXY_SERVER)
+    // Get Texture Size
+    unsigned char is_null = pixels == NULL;
+    int size;
+    if (!is_null) {
+        size = get_texture_size(width, height, format, type);
+    }
+
     // Lock Proxy
     start_proxy_call();
 
@@ -726,10 +748,8 @@ CALL(44, glTexSubImage2D, void, (GLenum target, GLint level, GLint xoffset, GLin
     write_int((uint32_t) height);
     write_int((uint32_t) format);
     write_int((uint32_t) type);
-    unsigned char is_null = pixels == NULL;
     write_byte(is_null);
     if (!is_null) {
-        int size = get_texture_size(width, height, format, type);
         safe_write((void *) pixels, (size_t) size);
     }
 
@@ -852,7 +872,7 @@ CALL(48, glGetFloatv, void, (GLenum pname, GLfloat *params)) {
 
     // Get Return Value
     int size = get_glGetFloatv_params_size(pname);
-    safe_read((void *) params, sizeof (float) * size);
+    safe_read((void *) params, sizeof (GLfloat) * size);
 
     // Release Proxy
     end_proxy_call();
@@ -863,7 +883,7 @@ CALL(48, glGetFloatv, void, (GLenum pname, GLfloat *params)) {
     // Run
     glGetFloatv(pname, params);
     // Return Value
-    safe_write((void *) params, sizeof (float) * size);
+    safe_write((void *) params, sizeof (GLfloat) * size);
 #endif
 }
 
@@ -1074,5 +1094,40 @@ CALL(58, glIsEnabled, GLboolean, (GLenum cap)) {
     GLboolean ret = glIsEnabled(cap);
     // Return Value
     write_int((uint32_t) ret);
+#endif
+}
+
+static int get_glGetIntegerv_params_size(GLenum pname) {
+    switch (pname) {
+        case GL_UNPACK_ALIGNMENT: {
+            return 1;
+        }
+        default: {
+            PROXY_ERR("Inavlid glGetIntegerv Property: %u", pname);
+        }
+    }
+}
+CALL(61, glGetIntegerv, void, (GLenum pname, GLint *params)) {
+#if defined(MEDIA_LAYER_PROXY_SERVER)
+    // Lock Proxy
+    start_proxy_call();
+
+    // Arguments
+    write_int((uint32_t) pname);
+
+    // Get Return Value
+    int size = get_glGetIntegerv_params_size(pname);
+    safe_read((void *) params, sizeof (GLint) * size);
+
+    // Release Proxy
+    end_proxy_call();
+#else
+    GLenum pname = (GLenum) read_int();
+    int size = get_glGetIntegerv_params_size(pname);
+    GLint params[size];
+    // Run
+    glGetIntegerv(pname, params);
+    // Return Value
+    safe_write((void *) params, sizeof (GLint) * size);
 #endif
 }
