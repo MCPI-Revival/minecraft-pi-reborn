@@ -4,7 +4,7 @@ set -e
 
 # This Script Assumes An x86_64 Host
 if [ "$(uname -m)" != "x86_64" ]; then
-    echo 'Invalid Build Architecture'
+    echo 'Invalid Host Architecture' > /dev/stderr
     exit 1
 fi
 
@@ -111,6 +111,12 @@ arm_build() {
     cd ../../
 }
 
+# Verify Mode
+if [ "$2" != "client" ] && [ "$2" != "server" ]; then
+    echo "Invalid Mode: $2" > /dev/stderr
+    exit 1
+fi
+
 # Build
 if [ "$1" = "native" ]; then
     native_build "$2"
@@ -118,4 +124,7 @@ elif [ "$1" = "arm64" ]; then
     arm64_build "$2"
 elif [ "$1" = "arm" ]; then
     arm_build "$2"
+else
+    echo "Invalid Architecture: $1" > /dev/stderr
+    exit 1
 fi

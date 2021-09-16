@@ -1,5 +1,8 @@
 # Changelog
 
+**2.2.4**
+* Instead Of Crashing, Disable Polling Block Hits In Survival Mode Using The API
+
 **2.2.3**
 * Fix Crash When Taking Odd-Sized Screenshots
 

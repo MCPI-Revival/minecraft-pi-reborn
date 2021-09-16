@@ -35,6 +35,17 @@ static void Minecraft_setIsCreativeMode_injection(unsigned char *this, int32_t n
     (*Minecraft_setIsCreativeMode)(this, new_game_mode);
 }
 
+// Disable CreatorMode-Specific API Features (Polling Block Hits) In SurvivalMode, This Is Preferable To Crashing
+static unsigned char *Minecraft_getCreator_injection(unsigned char *minecraft) {
+    if (is_survival) {
+        // SurvivalMode, Return NULL
+        return NULL;
+    } else {
+        // CreatorMode, Call Original Method
+        return (*Minecraft_getCreator)(minecraft);
+    }
+}
+
 // Init
 void init_game_mode() {
     // Dynamic Game Mode Switching
@@ -48,6 +59,9 @@ void init_game_mode() {
         // Allocate Correct Size For ServerLevel
         uint32_t level_size = SERVER_LEVEL_SIZE;
         patch_address((void *) 0x17004, (void *) level_size);
+
+        // Disable CreatorMode-Specific API Features (Polling Block Hits) In SurvivalMode, This Is Preferable To Crashing
+        overwrite_calls((void *) Minecraft_getCreator, (void *) Minecraft_getCreator_injection);
 
         // Init C++
         _init_game_mode_cpp();

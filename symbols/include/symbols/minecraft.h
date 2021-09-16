@@ -114,6 +114,9 @@ static Minecraft_leaveGame_t Minecraft_leaveGame = (Minecraft_leaveGame_t) 0x15e
 typedef int (*Minecraft_handleBack_t)(unsigned char *minecraft, bool do_nothing);
 static uint32_t Minecraft_handleBack_vtable_offset = 0x34;
 
+typedef unsigned char *(*Minecraft_getCreator_t)(unsigned char *minecraft);
+static Minecraft_getCreator_t Minecraft_getCreator = (Minecraft_getCreator_t) 0x17538;
+
 static uint32_t Minecraft_screen_width_property_offset = 0x20; // int32_t
 static uint32_t Minecraft_network_handler_property_offset = 0x174; // NetEventCallback *
 static uint32_t Minecraft_rak_net_instance_property_offset = 0x170; // RakNetInstance *
