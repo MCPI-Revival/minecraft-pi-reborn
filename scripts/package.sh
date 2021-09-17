@@ -26,7 +26,7 @@ package() {
 
 # Find And Package
 for dir in out/*; do
-    # Check If Directory
+    # Check If Directory Exists
     if [ -d "${dir}" ]; then
         # Check If Debian Package Exists
         pkg="$(basename ${dir})"

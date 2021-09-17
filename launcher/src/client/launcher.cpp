@@ -137,8 +137,7 @@ int main(int argc, char *argv[]) {
     // Minecraft Folder
     {
         char *minecraft_folder = NULL;
-        asprintf(&minecraft_folder, "%s/.minecraft-pi", getenv("HOME"));
-        ALLOC_CHECK(minecraft_folder);
+        safe_asprintf(&minecraft_folder, "%s/.minecraft-pi", getenv("HOME"));
         {
             // Check Minecraft Folder
             struct stat obj;

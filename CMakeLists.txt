@@ -25,24 +25,16 @@ else()
 endif()
 
 # Use Clang By Default
-if(NOT DEFINED CMAKE_TOOLCHAIN_FILE)
-    if(NOT DEFINED CMAKE_C_COMPILER)
-        set(CMAKE_C_COMPILER "clang")
-    endif()
-    if(NOT DEFINED CMAKE_CXX_COMPILER)
-        set(CMAKE_CXX_COMPILER "clang++")
-    endif()
+if(NOT DEFINED CMAKE_C_COMPILER)
+    set(CMAKE_C_COMPILER "clang")
+endif()
+if(NOT DEFINED CMAKE_CXX_COMPILER)
+    set(CMAKE_CXX_COMPILER "clang++")
 endif()
 
 # Setup ARM Cross Compilation
 if(USE_ARM32_TOOLCHAIN)
     include(cmake/arm-toolchain.cmake)
-endif()
-
-# Use LLD When Using Clang
-if(CMAKE_C_COMPILER STREQUAL "clang")
-    add_link_options("-fuse-ld=lld")
-    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -fuse-ld=lld") # Fix try_compile()
 endif()
 
 # Utility Functions
@@ -91,6 +83,11 @@ add_link_options(-Wl,--no-undefined)
 add_definitions(-D_GNU_SOURCE)
 set(CMAKE_C_STANDARD 99)
 set(CMAKE_CXX_STANDARD 11)
+
+# Use LLD When Using Clang
+if(CMAKE_C_COMPILER_ID STREQUAL "Clang")
+    add_link_options("-fuse-ld=lld")
+endif()
 
 # Specify Constants
 if(MCPI_SERVER_MODE)
