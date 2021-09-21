@@ -7,7 +7,7 @@ build() {
     # Find Toolchain
     local toolchain_file="$(pwd)/cmake/$2-toolchain.cmake"
     if [ ! -f "${toolchain_file}" ]; then
-        echo "Invalid Architecture: $1" > /dev/stderr
+        echo "Invalid Architecture: $2" > /dev/stderr
         exit 1
     fi
 
@@ -76,7 +76,7 @@ arm_build() {
 
 # Verify Mode
 if [ "$1" != "client" ] && [ "$1" != "server" ]; then
-    echo "Invalid Mode: $2" > /dev/stderr
+    echo "Invalid Mode: $1" > /dev/stderr
     exit 1
 fi
 

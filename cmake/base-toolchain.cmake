@@ -22,7 +22,15 @@ macro(setup_toolchain target)
     set(CMAKE_FIND_ROOT_PATH "/usr/${target}" "/usr/lib/${target}")
     # Include Directories
     pick_gcc_version("/usr/lib/gcc-cross/${target}" GCC_VERSION)
-    set(NEW_FLAGS "-nostdinc -nostdinc++ -Wno-unused-command-line-argument -isystem /usr/lib/gcc-cross/${target}/${GCC_VERSION}/include -isystem /usr/${target}/include/c++/${GCC_VERSION} -isystem /usr/${target}/include/c++/${GCC_VERSION}/${target} -isystem /usr/${target}/include")
+    string(CONCAT NEW_FLAGS
+        "-nostdinc -nostdinc++ -Wno-unused-command-line-argument "
+        "-isystem /usr/${target}/include/c++/${GCC_VERSION} "
+        "-isystem /usr/${target}/include/c++/${GCC_VERSION}/${target} "
+        "-isystem /usr/${target}/include/c++/${GCC_VERSION}/backward "
+        "-isystem /usr/lib/gcc-cross/${target}/${GCC_VERSION}/include "
+        "-isystem /usr/lib/gcc-cross/${target}/${GCC_VERSION}/include-fixed "
+        "-isystem /usr/${target}/include"
+    )
     set(CMAKE_C_FLAGS_INIT "${CMAKE_C_FLAGS_INIT} ${NEW_FLAGS}")
     set(CMAKE_CXX_FLAGS_INIT "${CMAKE_CXX_FLAGS_INIT} ${NEW_FLAGS}")
     # Extra
