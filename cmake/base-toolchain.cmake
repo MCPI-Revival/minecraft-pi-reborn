@@ -29,7 +29,8 @@ macro(setup_toolchain target)
         "-isystem /usr/${target}/include/c++/${GCC_VERSION}/backward "
         "-isystem /usr/lib/gcc-cross/${target}/${GCC_VERSION}/include "
         "-isystem /usr/lib/gcc-cross/${target}/${GCC_VERSION}/include-fixed "
-        "-isystem /usr/${target}/include"
+        "-isystem /usr/${target}/include "
+        "-isystem /usr/include"
     )
     set(CMAKE_C_FLAGS_INIT "${CMAKE_C_FLAGS_INIT} ${NEW_FLAGS}")
     set(CMAKE_CXX_FLAGS_INIT "${CMAKE_CXX_FLAGS_INIT} ${NEW_FLAGS}")
