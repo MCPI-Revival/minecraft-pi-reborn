@@ -48,11 +48,13 @@ mkdir build && cd build
 mkdir arm && cd arm
 cmake -DMCPI_BUILD_MODE=arm ../..
 make -j$(nproc) && sudo make install
+cd ../
 
 # Build Native Components
 mkdir native && cd native
 cmake -DMCPI_BUILD_MODE=native ../..
 make -j$(nproc) && sudo make install
+cd ../../
 ```
 
 ## One-Step Build
@@ -65,4 +67,5 @@ mkdir build && cd build
 # Build
 cmake ..
 make -j$(nproc) && sudo make install
+cd ../
 ```
