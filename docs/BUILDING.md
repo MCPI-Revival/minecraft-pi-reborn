@@ -57,6 +57,8 @@ make -j$(nproc) && sudo make install
 cd ../../
 ```
 
+This will most likely not compile by itself. You will want to enable either server mode or the Media Layer Proxy.
+
 ## One-Step Build
 Use this when the host architecture is ARM.
 
