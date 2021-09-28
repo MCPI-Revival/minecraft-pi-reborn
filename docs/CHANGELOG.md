@@ -17,7 +17,7 @@
 * Make Missing Sound Event Cause Warning Rather Than Crash
 
 **2.2.1**
-* Prevent `random.burp` Sound From Crashing Game
+* Prevent ``random.burp`` Sound From Crashing Game
 * Always Cleanup Media Layer, Even On Crash
 * Resolve All Sounds On Startup
 
@@ -25,7 +25,7 @@
 * Sound Support
 * Split Off "Allow Joining Survival Servers" From Game-Mode Mod
 * Separate Headless Code From Server Code
-* Fix Bug Where `RakNetInstance` Starts Pinging Potential Servers Before The "Join Game" Screen Is Opened
+* Fix Bug Where ``RakNetInstance`` Starts Pinging Potential Servers Before The "Join Game" Screen Is Opened
 * Clean-Up Code
 * Remove Support For Debian Buster
 
@@ -42,7 +42,7 @@
 * Print Error Message If RakNet Fails To Start
 
 **2.1.4**
-* Fix RakNet::RakString Security Bug
+* Fix ``RakNet::RakString`` Security Bug
 
 **2.1.3**
 * Workaround Broken Library Search Path On Some ARM 32-Bit Systems
@@ -80,7 +80,7 @@
 * Optimize Media Layer Proxy
 
 **2.0.3**
-* Make "kill" Admin Command Print Death Message
+* Make ``kill`` Admin Command Print Death Message
 
 **2.0.2**
 * Fix Mouse Cursor Bugs
