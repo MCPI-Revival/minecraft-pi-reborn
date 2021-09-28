@@ -1099,6 +1099,7 @@ CALL(58, glIsEnabled, GLboolean, (GLenum cap)) {
 
 static int get_glGetIntegerv_params_size(GLenum pname) {
     switch (pname) {
+        case GL_TEXTURE_BINDING_2D:
         case GL_UNPACK_ALIGNMENT: {
             return 1;
         }

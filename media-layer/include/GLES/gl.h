@@ -7,6 +7,7 @@ extern "C" {
 #define GL_FALSE 0
 #define GL_FOG_COLOR 0xb66
 #define GL_ARRAY_BUFFER_BINDING 0x8894
+#define GL_TEXTURE_BINDING_2D 0x8069
 #define GL_UNSIGNED_BYTE 0x1401
 #define GL_RGB 0x1907
 #define GL_RGBA 0x1908

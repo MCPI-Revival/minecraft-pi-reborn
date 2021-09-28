@@ -29,7 +29,7 @@ int feature_has(const char *name, int server_default) {
         tok = strtok(NULL, "|");
     }
     free(features);
-#ifndef MCPI_SERVER_MODE
+#ifdef DEBUG
     INFO("Feature: %s: %s", name, ret ? "Enabled" : "Disabled");
 #endif
     return ret;

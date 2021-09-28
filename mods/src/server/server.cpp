@@ -198,14 +198,18 @@ static unsigned char *get_rak_peer(unsigned char *minecraft) {
     unsigned char *rak_net_instance = *(unsigned char **) (minecraft + Minecraft_rak_net_instance_property_offset);
     return *(unsigned char **) (rak_net_instance + RakNetInstance_peer_property_offset);
 }
-
-// Get IP From Player
-static char *get_player_ip(unsigned char *minecraft, unsigned char *player) {
-    RakNet_RakNetGUID guid = get_rak_net_guid(player);
-    unsigned char *rak_peer = get_rak_peer(minecraft);
+static char *get_rak_net_guid_ip(unsigned char *rak_peer, RakNet_RakNetGUID guid) {
     RakNet_SystemAddress address = get_system_address(rak_peer, guid);
     // Get IP
     return (*RakNet_SystemAddress_ToString)(&address, false, '|');
+}
+
+// Get IP From Player
+static char *get_player_ip(unsigned char *minecraft, unsigned char *player) {
+    unsigned char *rak_peer = get_rak_peer(minecraft);
+    RakNet_RakNetGUID guid = get_rak_net_guid(player);
+    // Return
+    return get_rak_net_guid_ip(rak_peer,guid);
 }
 
 // Ban Player
@@ -275,25 +279,34 @@ static unsigned char *get_server_side_network_handler(unsigned char *minecraft) 
 static volatile bool stdin_buffer_complete = false;
 static volatile char *stdin_buffer = NULL;
 static void *read_stdin_thread(__attribute__((unused)) void *data) {
-    while (1) {
-        if (!stdin_buffer_complete) {
-            int x = getchar();
-            if (x != EOF) {
-                if (x == '\n') {
-                    if (stdin_buffer == NULL) {
-                        stdin_buffer = strdup("");
+    // Check If STDIN Is A TTY
+    if (isatty(fileno(stdin))) {
+        // Loop
+        while (1) {
+            if (!stdin_buffer_complete) {
+                // Read Data
+                int x = fgetc(stdin);
+                if (x != EOF) {
+                    if (x == '\n') {
+                        if (stdin_buffer == NULL) {
+                            stdin_buffer = strdup("");
+                        }
+                        stdin_buffer_complete = true;
+                        break;
+                    } else {
+                        string_append((char **) &stdin_buffer, "%c", (char) x);
                     }
-                    stdin_buffer_complete = true;
-                } else {
-                    string_append((char **) &stdin_buffer, "%c", (char) x);
                 }
             }
         }
     }
+    return NULL;
 }
 __attribute__((destructor)) static void _free_stdin_buffer() {
-    free((void *) stdin_buffer);
-    stdin_buffer = NULL;
+    if (stdin_buffer != NULL) {
+        free((void *) stdin_buffer);
+        stdin_buffer = NULL;
+    }
 }
 
 // Handle Commands
@@ -385,6 +398,7 @@ static void Minecraft_update_injection(unsigned char *minecraft) {
     handle_server_stop(minecraft);
 }
 
+// Ban Players
 static bool RakNet_RakPeer_IsBanned_injection(__attribute__((unused)) unsigned char *rakpeer, const char *ip) {
     // Check banned-ips.txt
     std::string blacklist_file_path = get_blacklist_file();
@@ -418,6 +432,27 @@ static bool RakNet_RakPeer_IsBanned_injection(__attribute__((unused)) unsigned c
     } else {
         ERR("%s", "Unable To Read Blacklist/Whitelist");
     }
+}
+
+// Log IPs
+static unsigned char *ServerSideNetworkHandler_onReady_ClientGeneration_ServerSideNetworkHandler_popPendingPlayer_injection(unsigned char *server_side_network_handler, RakNet_RakNetGUID *guid) {
+    // Call Original Method
+    unsigned char *player = (*ServerSideNetworkHandler_popPendingPlayer)(server_side_network_handler, guid);
+
+    // Check If Player Is Null
+    if (player != NULL) {
+        // Get Data
+        char *username = (char *) *(unsigned char **) (player + Player_username_property_offset);
+        unsigned char *minecraft = *(unsigned char **) (server_side_network_handler + ServerSideNetworkHandler_minecraft_property_offset);
+        unsigned char *rak_peer = get_rak_peer(minecraft);
+        char *ip = get_rak_net_guid_ip(rak_peer, *guid);
+
+        // Log
+        INFO("%s Has Joined (IP: %s)", username, ip);
+    }
+
+    // Return
+    return player;
 }
 
 // Get MOTD
@@ -531,6 +566,9 @@ static void server_init() {
         unsigned char minecon_badge_patch[4] = {0x04, 0x1a, 0x9f, 0xe5}; // "ldr r1, [0x741f0]"
         patch((void *) 0x737e4, minecon_badge_patch);
     }
+
+    // Log IPs
+    overwrite_call((void *) 0x75e54, (void *) ServerSideNetworkHandler_onReady_ClientGeneration_ServerSideNetworkHandler_popPendingPlayer_injection);
 
     // Start Reading STDIN
     pthread_t read_stdin_thread_obj;

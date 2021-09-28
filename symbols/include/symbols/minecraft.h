@@ -36,6 +36,9 @@ static unsigned char **Tile_topSnow = (unsigned char **) 0x181b30;
 static unsigned char **Tile_ice = (unsigned char **) 0x181d80;
 static unsigned char **Tile_invisible_bedrock = (unsigned char **) 0x181d94;
 static unsigned char **Tile_netherReactor = (unsigned char **) 0x181dd0;
+static unsigned char **Tile_info_updateGame1 = (unsigned char **) 0x181c68;
+static unsigned char **Tile_info_updateGame2 = (unsigned char **) 0x181c6c;
+static unsigned char **Tile_bedrock = (unsigned char **) 0x181cc4;
 
 static unsigned char **Tile_leaves = (unsigned char **) 0x18120c;
 static unsigned char **Tile_leaves_carried = (unsigned char **) 0x181dd8;
@@ -456,16 +459,21 @@ static RakNet_SystemAddress_ToString_t RakNet_SystemAddress_ToString = (RakNet_S
 
 // ServerSideNetworkHandler
 
-typedef void (*ServerSideNetworkHandler_onDisconnect_t)(unsigned char *server_side_network_handler, unsigned char *guid);
+typedef void (*ServerSideNetworkHandler_onDisconnect_t)(unsigned char *server_side_network_handler, struct RakNet_RakNetGUID *guid);
 static ServerSideNetworkHandler_onDisconnect_t ServerSideNetworkHandler_onDisconnect = (ServerSideNetworkHandler_onDisconnect_t) 0x75164;
 static void *ServerSideNetworkHandler_onDisconnect_vtable_addr = (void *) 0x109bb0;
 
-typedef unsigned char *(*ServerSideNetworkHandler_getPlayer_t)(unsigned char *server_side_network_handler, unsigned char *guid);
+typedef unsigned char *(*ServerSideNetworkHandler_getPlayer_t)(unsigned char *server_side_network_handler, struct RakNet_RakNetGUID *guid);
 static ServerSideNetworkHandler_getPlayer_t ServerSideNetworkHandler_getPlayer = (ServerSideNetworkHandler_getPlayer_t) 0x75464;
 
-typedef void (*ServerSideNetworkHandler_handle_t)(unsigned char *server_side_network_handler, unsigned char *rak_net_guid, unsigned char *packet);
+typedef unsigned char *(*ServerSideNetworkHandler_popPendingPlayer_t)(unsigned char *server_side_network_handler, struct RakNet_RakNetGUID *guid);
+static ServerSideNetworkHandler_popPendingPlayer_t ServerSideNetworkHandler_popPendingPlayer = (ServerSideNetworkHandler_popPendingPlayer_t) 0x75db4;
+
+typedef void (*ServerSideNetworkHandler_handle_t)(unsigned char *server_side_network_handler, struct RakNet_RakNetGUID *rak_net_guid, unsigned char *packet);
 
 static void *ServerSideNetworkHandler_handle_ChatPacket_vtable_addr = (void *) 0x109c60;
+
+static uint32_t ServerSideNetworkHandler_minecraft_property_offset = 0x8; // Minecraft *
 
 // Inventory
 

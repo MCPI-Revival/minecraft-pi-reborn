@@ -54,7 +54,7 @@ else()
     target_link_libraries(override reborn symbols dl home)
 
     add_library(textures SHARED src/textures/textures.cpp)
-    target_link_libraries(textures reborn symbols feature)
+    target_link_libraries(textures reborn symbols media-layer-core feature)
 
     add_library(atlas SHARED src/atlas/atlas.cpp)
     target_link_libraries(atlas reborn symbols feature GLESv1_CM)

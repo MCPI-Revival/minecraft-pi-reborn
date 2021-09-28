@@ -71,7 +71,7 @@ static void CommandServer_parse_CommandServer_dispatchPacket_injection(unsigned 
 }
 
 // Handle ChatPacket Server-Side
-static void ServerSideNetworkHandler_handle_ChatPacket_injection(unsigned char *server_side_network_handler, unsigned char *rak_net_guid, unsigned char *chat_packet) {
+static void ServerSideNetworkHandler_handle_ChatPacket_injection(unsigned char *server_side_network_handler, RakNet_RakNetGUID *rak_net_guid, unsigned char *chat_packet) {
     unsigned char *player = (*ServerSideNetworkHandler_getPlayer)(server_side_network_handler, rak_net_guid);
     if (player != NULL) {
         char *username = *(char **) (player + Player_username_property_offset);

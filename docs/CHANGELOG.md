@@ -1,5 +1,11 @@
 # Changelog
 
+**2.2.5**
+* Scale Animated Textures
+* Add More Blocks To Expanded Creative Inventory
+* Reduce Unnecessary Logging
+* Log IPs In Server Mode
+
 **2.2.4**
 * Instead Of Crashing, Disable Polling Block Hits In Survival Mode Using The API
 
