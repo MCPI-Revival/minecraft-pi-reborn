@@ -47,7 +47,7 @@ HOOK(glTexImage2D, void, (GLenum target, GLint level, GLint internalformat, GLsi
 HOOK(glDeleteTextures, void, (GLsizei n, const GLuint *textures)) {
     // Remove Old Data
     for (int i = 0; i < n; i++) {
-        GLint id = textures[n];
+        GLint id = textures[i];
         std::vector<texture_data>::iterator it = get_texture_data().begin();
         while (it != get_texture_data().end()) {
             texture_data data = *it;

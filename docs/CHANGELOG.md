@@ -1,6 +1,9 @@
 # Changelog
 
 **2.2.5**
+* Fix Bug In Texture Scaling Code
+
+**2.2.5**
 * Scale Animated Textures
 * Add More Blocks To Expanded Creative Inventory
 * Reduce Unnecessary Logging
