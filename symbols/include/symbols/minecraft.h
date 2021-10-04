@@ -264,7 +264,7 @@ static Player_isUsingItem_t Player_isUsingItem = (Player_isUsingItem_t) 0x8f15c;
 typedef void (*Player_drop_t)(unsigned char *player, ItemInstance *item_instance, bool is_death);
 static uint32_t Player_drop_vtable_offset = 0x208;
 
-static Mob_getWalkingSpeedModifier_t Player_getWalkingSpeed = (Mob_getWalkingSpeedModifier_t) 0x8ea0c;
+static Mob_getWalkingSpeedModifier_t Player_getWalkingSpeedModifier = (Mob_getWalkingSpeedModifier_t) 0x8ea0c;
 
 static uint32_t Player_username_property_offset = 0xbf4; // char *
 static uint32_t Player_inventory_property_offset = 0xbe0; // Inventory *
