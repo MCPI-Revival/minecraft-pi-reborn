@@ -18,7 +18,7 @@ void input_third_person() {
 }
 
 // Handle Toggle Options
-void _handle_toggle_options(unsigned char *minecraft) {
+static void _handle_toggle_options(unsigned char *minecraft) {
     if (enable_toggles) {
         // Handle Functions
         unsigned char *options = minecraft + Minecraft_options_property_offset;
@@ -38,4 +38,5 @@ void _handle_toggle_options(unsigned char *minecraft) {
 // Init
 void _init_toggle() {
     enable_toggles = feature_has("Bind Common Toggleable Options To Function Keys", 0);
+    input_run_on_tick(_handle_toggle_options);
 }

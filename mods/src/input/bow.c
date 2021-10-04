@@ -14,7 +14,7 @@ void input_set_is_right_click(int val) {
 static int fix_bow = 0;
 
 // Handle Bow & Arrow
-void _handle_bow(unsigned char *minecraft) {
+static void _handle_bow(unsigned char *minecraft) {
     if (fix_bow && !is_right_click) {
         // GameMode Is Offset From minecraft By 0x160
         // Player Is Offset From minecraft By 0x18c
@@ -32,4 +32,5 @@ void _handle_bow(unsigned char *minecraft) {
 void _init_bow() {
     // Enable Bow & Arrow Fix
     fix_bow = feature_has("Fix Bow & Arrow", 0);
+    input_run_on_tick(_handle_bow);
 }

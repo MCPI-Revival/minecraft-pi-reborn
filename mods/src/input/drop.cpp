@@ -21,7 +21,7 @@ void input_drop(int drop_slot) {
 }
 
 // Handle Drop Item Presses
-void _handle_drop(unsigned char *minecraft) {
+static void _handle_drop(unsigned char *minecraft) {
     if (!(*Minecraft_isCreativeMode)(minecraft) && (drop_item_presses > 0 || drop_slot_pressed)) {
         // Get Player
         unsigned char *player = *(unsigned char **) (minecraft + Minecraft_player_property_offset);
@@ -85,4 +85,5 @@ void _handle_drop(unsigned char *minecraft) {
 // Init
 void _init_drop() {
     enable_drop = feature_has("Bind \"Q\" Key To Item Dropping", 0);
+    input_run_on_tick(_handle_drop);
 }

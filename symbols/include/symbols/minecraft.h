@@ -53,6 +53,15 @@ static uint32_t Tile_id_property_offset = 0x8;
 
 // Structures
 
+struct AABB {
+    float x1;
+    float y1;
+    float z1;
+    float x2;
+    float y2;
+    float z2;
+};
+
 struct LevelSettings {
     unsigned long seed;
     int32_t game_type;
@@ -133,6 +142,8 @@ static uint32_t Minecraft_progress_property_offset = 0xc60; // int32_t
 static uint32_t Minecraft_command_server_property_offset = 0xcc0; // CommandServer *
 static uint32_t Minecraft_screen_property_offset = 0xc10; // Screen *
 static uint32_t Minecraft_gui_property_offset = 0x198; // Gui
+static uint32_t Minecraft_pov_property_offset = 0x150; // Mob *
+static uint32_t Minecraft_perf_renderer_property_offset = 0xcbc; // PerfRenderer *
 
 // GameRenderer
 
@@ -197,6 +208,7 @@ static uint32_t Options_hide_gui_property_offset = 0xec; // unsigned char / bool
 static uint32_t Options_third_person_property_offset = 0xed; // unsigned char / bool
 static uint32_t Options_render_distance_property_offset = 0x10; // int32_t
 static uint32_t Options_sound_property_offset = 0x4; // int32_t
+static uint32_t Options_debug_property_offset = 0xee; // unsigned char / bool
 
 // MouseBuildInput
 
@@ -313,6 +325,21 @@ typedef void (*Level_saveLevelData_t)(unsigned char *level);
 static Level_saveLevelData_t Level_saveLevelData = (Level_saveLevelData_t) 0xa2e94;
 
 static uint32_t Level_players_property_offset = 0x60; // std::vector<ServerPlayer *>
+
+// LevelRenderer
+
+typedef void (*LevelRenderer_render_t)(unsigned char *level_renderer, unsigned char *mob, int param_1, float delta);
+static LevelRenderer_render_t LevelRenderer_render = (LevelRenderer_render_t) 0x4f710;
+
+typedef void (*LevelRenderer_renderDebug_t)(unsigned char *level_renderer, struct AABB *aabb, float delta);
+static LevelRenderer_renderDebug_t LevelRenderer_renderDebug = (LevelRenderer_renderDebug_t) 0x4d310;
+
+static uint32_t LevelRenderer_minecraft_property_offset = 0x4; // Minecraft *
+
+// PerfRenderer
+
+typedef void (*PerfRenderer_debugFpsMeterKeyPress_t)(unsigned char *perf_renderer, int key);
+static PerfRenderer_debugFpsMeterKeyPress_t PerfRenderer_debugFpsMeterKeyPress = (PerfRenderer_debugFpsMeterKeyPress_t) 0x79118;
 
 // TextEditScreen
 

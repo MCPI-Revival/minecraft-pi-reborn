@@ -19,14 +19,9 @@ void input_set_mouse_grab_state(int state);
 
 __attribute__((visibility("internal"))) void _init_attack();
 __attribute__((visibility("internal"))) void _init_bow();
-__attribute__((visibility("internal"))) void _handle_bow(unsigned char *minecraft);
-__attribute__((visibility("internal"))) void _handle_toggle_options(unsigned char *minecraft);
 __attribute__((visibility("internal"))) void _init_misc();
 __attribute__((visibility("internal"))) void _init_toggle();
-__attribute__((visibility("internal"))) void _handle_mouse_grab(unsigned char *minecraft);
-__attribute__((visibility("internal"))) void _handle_back(unsigned char *minecraft);
 __attribute__((visibility("internal"))) void _init_drop();
-__attribute__((visibility("internal"))) void _handle_drop(unsigned char *minecraft);
 
 #ifdef __cplusplus
 }

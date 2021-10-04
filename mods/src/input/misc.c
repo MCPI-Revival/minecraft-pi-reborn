@@ -19,7 +19,7 @@ int input_back() {
 }
 
 // Handle Back Button Presses
-void _handle_back(unsigned char *minecraft) {
+static void _handle_back(unsigned char *minecraft) {
     unsigned char *minecraft_vtable = *(unsigned char **) minecraft;
     Minecraft_handleBack_t Minecraft_handleBack = *(Minecraft_handleBack_t *) (minecraft_vtable + Minecraft_handleBack_vtable_offset);
     for (int i = 0; i < back_button_presses; i++) {
@@ -44,7 +44,7 @@ void input_set_mouse_grab_state(int state) {
 }
 
 // Grab/Un-Grab Mouse
-void _handle_mouse_grab(unsigned char *minecraft) {
+static void _handle_mouse_grab(unsigned char *minecraft) {
     if (mouse_grab_state == -1) {
         // Grab
         (*Minecraft_grabMouse)(minecraft);
@@ -88,4 +88,6 @@ void _init_misc() {
         // Disable Opening Inventory Using The Cursor When Cursor Is Hidden
         overwrite_calls((void *) Gui_handleClick, (void *) Gui_handleClick_injection);
     }
+    input_run_on_tick(_handle_back);
+    input_run_on_tick(_handle_mouse_grab);
 }
