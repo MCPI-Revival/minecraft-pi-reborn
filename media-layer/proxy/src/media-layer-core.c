@@ -9,116 +9,6 @@
 
 #include "common/common.h"
 
-// Read/Write SDL Events
-static void write_SDL_Event(SDL_Event event) {
-    // Write EVent Type
-    write_int(event.type);
-    // Write Event Details
-    switch (event.type) {
-        // Focus Event
-        case SDL_ACTIVEEVENT: {
-            write_int(event.active.gain);
-            write_int(event.active.state);
-            break;
-        }
-        // Key Press Events
-        case SDL_KEYDOWN:
-        case SDL_KEYUP: {
-            write_int(event.key.state);
-            write_int(event.key.keysym.scancode);
-            write_int(event.key.keysym.sym);
-            write_int(event.key.keysym.mod);
-            write_int(event.key.keysym.unicode);
-            break;
-        }
-        // Mouse Motion Event
-        case SDL_MOUSEMOTION: {
-            write_int(event.motion.state);
-            write_int(event.motion.x);
-            write_int(event.motion.y);
-            write_int(event.motion.xrel);
-            write_int(event.motion.yrel);
-            break;
-        }
-        // Mouse Press Events
-        case SDL_MOUSEBUTTONDOWN:
-        case SDL_MOUSEBUTTONUP: {
-            write_int(event.button.button);
-            write_int(event.button.state);
-            write_int(event.button.x);
-            write_int(event.button.y);
-            break;
-        }
-        // User-Specified Event (Repurposed As Unicode Character Event)
-        case SDL_USEREVENT: {
-            write_int(event.user.code);
-            break;
-        }
-    }
-}
-static SDL_Event read_SDL_Event() {
-    // Create Event
-    SDL_Event event;
-    event.type = read_int();
-    // Read Event Details
-    switch (event.type) {
-        // Focus Event
-        case SDL_ACTIVEEVENT: {
-            event.active.gain = read_int();
-            event.active.state = read_int();
-            break;
-        }
-        // Key Press Events
-        case SDL_KEYDOWN:
-        case SDL_KEYUP: {
-            event.key.state = read_int();
-            event.key.keysym.scancode = read_int();
-            event.key.keysym.sym = read_int();
-            event.key.keysym.mod = read_int();
-            event.key.keysym.unicode = read_int();
-            break;
-        }
-        // Mouse Motion Event
-        case SDL_MOUSEMOTION: {
-            event.motion.state = read_int();
-            event.motion.x = read_int();
-            event.motion.y = read_int();
-            event.motion.xrel = read_int();
-            event.motion.yrel = read_int();
-            break;
-        }
-        // Mouse Press Events
-        case SDL_MOUSEBUTTONDOWN:
-        case SDL_MOUSEBUTTONUP: {
-            event.button.button = read_int();
-            event.button.state = read_int();
-            event.button.x = read_int();
-            event.button.y = read_int();
-            break;
-        }
-        // Quit Event
-        case SDL_QUIT: {
-            break;
-        }
-        // User-Specified Event (Repurposed As Unicode Character Event)
-        case SDL_USEREVENT: {
-            event.user.code = read_int();
-            break;
-        }
-        // Unsupported Event
-        default: {
-            INFO("Unsupported SDL Event: %u", event.type);
-        }
-    }
-    // Return
-#pragma GCC diagnostic push
-#if defined(__GNUC__) && !defined(__clang__)
-#pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
-#endif
-    return event;
-#pragma GCC diagnostic pop
-}
-
 // SDL Functions
 
 CALL(0, SDL_Init, int, (uint32_t flags)) {
@@ -156,7 +46,7 @@ CALL(1, SDL_PollEvent, int, (SDL_Event *event)) {
     // Get Return Value
     int32_t ret = (int32_t) read_int();
     if (ret) {
-        *event = read_SDL_Event();
+        safe_read((void *) event, sizeof (SDL_Event));
     }
 
     // Release Proxy
@@ -171,7 +61,7 @@ CALL(1, SDL_PollEvent, int, (SDL_Event *event)) {
     // Return Values
     write_int(ret);
     if (ret) {
-        write_SDL_Event(event);
+        safe_write((void *) &event, sizeof (SDL_Event));
     }
 #endif
 }
@@ -182,7 +72,7 @@ CALL(2, SDL_PushEvent, int, (SDL_Event *event)) {
     start_proxy_call();
 
     // Arguments
-    write_SDL_Event(*event);
+    safe_write((void *) event, sizeof (SDL_Event));
 
     // Get Return Value
     int32_t ret = (int32_t) read_int();
@@ -193,7 +83,8 @@ CALL(2, SDL_PushEvent, int, (SDL_Event *event)) {
     // Return Value
     return ret;
 #else
-    SDL_Event event = read_SDL_Event();
+    SDL_Event event;
+    safe_read((void *) &event, sizeof (SDL_Event));
     // Run
     int ret = SDL_PushEvent(&event);
     // Return Value

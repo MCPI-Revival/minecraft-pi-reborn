@@ -114,8 +114,8 @@ typedef struct SDL_JoyButtonEvent {
 
 typedef struct SDL_ResizeEvent {
     uint8_t type;
-    int w;
-    int h;
+    int32_t w;
+    int32_t h;
 } SDL_ResizeEvent;
 
 typedef struct SDL_ExposeEvent {
@@ -128,14 +128,14 @@ typedef struct SDL_QuitEvent {
 
 typedef struct SDL_UserEvent {
     uint8_t type;
-    int code;
-    void *data1;
-    void *data2;
+    int32_t code;
+    uint32_t data1;
+    uint32_t data2;
 } SDL_UserEvent;
 
 typedef struct SDL_SysWMEvent {
     uint8_t type;
-    void *msg;
+    uint32_t msg;
 } SDL_SysWMEvent;
 
 typedef union SDL_Event {
