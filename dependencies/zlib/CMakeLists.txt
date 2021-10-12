@@ -16,7 +16,7 @@ FetchContent_Declare(
 )
 FetchContent_Populate(zlib)
 include_directories("${zlib_SOURCE_DIR}" "${zlib_BINARY_DIR}") # Fix ZLib Build
-add_subdirectory("${zlib_SOURCE_DIR}" "${zlib_BINARY_DIR}")
+add_subdirectory("${zlib_SOURCE_DIR}" "${zlib_BINARY_DIR}" EXCLUDE_FROM_ALL)
 
 # Install
 install(TARGETS zlib DESTINATION "${MCPI_LIB_DIR}")

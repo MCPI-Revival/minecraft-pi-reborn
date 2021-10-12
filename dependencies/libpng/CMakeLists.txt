@@ -18,7 +18,7 @@ FetchContent_Populate(libpng)
 set(ZLIB_LIBRARY zlib)
 set(ZLIB_INCLUDE_DIR "${zlib_SOURCE_DIR}" "${zlib_BINARY_DIR}")
 set(CMAKE_POLICY_DEFAULT_CMP0054 OLD) # Silence Warning
-add_subdirectory("${libpng_SOURCE_DIR}" "${libpng_BINARY_DIR}")
+add_subdirectory("${libpng_SOURCE_DIR}" "${libpng_BINARY_DIR}" EXCLUDE_FROM_ALL)
 set(CMAKE_POLICY_DEFAULT_CMP0054 NEW) # Re-Enable New Behavior
 set_target_properties(png12 PROPERTIES LINK_FLAGS "-Wl,--version-script='${CMAKE_CURRENT_SOURCE_DIR}/libpng.vers'") # Use Symbol Versioning
 set_target_properties(png12 PROPERTIES DEBUG_POSTFIX "") # Fix LibPNG Suffix In Debug Mode
