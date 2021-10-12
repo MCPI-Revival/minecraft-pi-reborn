@@ -1,5 +1,9 @@
 # Changelog
 
+**2.2.7**
+* Fix Crash When OpenAL Is Unavailable
+* Fix Command Input In Server
+
 **2.2.5**
 * Fix Bug In Texture Scaling Code
 

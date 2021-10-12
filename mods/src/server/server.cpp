@@ -292,7 +292,6 @@ static void *read_stdin_thread(__attribute__((unused)) void *data) {
                             stdin_buffer = strdup("");
                         }
                         stdin_buffer_complete = true;
-                        break;
                     } else {
                         string_append((char **) &stdin_buffer, "%c", (char) x);
                     }
