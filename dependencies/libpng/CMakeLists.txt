@@ -8,7 +8,6 @@ add_compile_options(-w)
 ## LibPNG
 
 # Download
-set(SKIP_INSTALL_ALL TRUE) # Skip Default LibPNG Installation
 FetchContent_Declare(
     libpng
     GIT_REPOSITORY "https://github.com/glennrp/libpng.git"
@@ -23,6 +22,8 @@ set(CMAKE_POLICY_DEFAULT_CMP0054 NEW) # Re-Enable New Behavior
 set_target_properties(png12 PROPERTIES LINK_FLAGS "-Wl,--version-script='${CMAKE_CURRENT_SOURCE_DIR}/libpng.vers'") # Use Symbol Versioning
 set_target_properties(png12 PROPERTIES DEBUG_POSTFIX "") # Fix LibPNG Suffix In Debug Mode
 
+# Ensure Build
+set_target_properties(png12 PROPERTIES EXCLUDE_FROM_ALL FALSE)
 # Install
 install(TARGETS png12 DESTINATION "${MCPI_LIB_DIR}")
 
