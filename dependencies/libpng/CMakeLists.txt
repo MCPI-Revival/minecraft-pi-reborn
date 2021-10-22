@@ -23,7 +23,7 @@ set_target_properties(png12 PROPERTIES LINK_FLAGS "-Wl,--version-script='${CMAKE
 set_target_properties(png12 PROPERTIES DEBUG_POSTFIX "") # Fix LibPNG Suffix In Debug Mode
 
 # Ensure Build
-set_target_properties(png12 PROPERTIES EXCLUDE_FROM_ALL FALSE)
+add_custom_target(png12-build ALL DEPENDS png12)
 # Install
 install(TARGETS png12 DESTINATION "${MCPI_LIB_DIR}")
 

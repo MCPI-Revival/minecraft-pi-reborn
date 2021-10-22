@@ -18,7 +18,7 @@ include_directories("${zlib_SOURCE_DIR}" "${zlib_BINARY_DIR}") # Fix ZLib Build
 add_subdirectory("${zlib_SOURCE_DIR}" "${zlib_BINARY_DIR}" EXCLUDE_FROM_ALL)
 
 # Ensure Build
-set_target_properties(zlib PROPERTIES EXCLUDE_FROM_ALL FALSE)
+add_custom_target(zlib-build ALL DEPENDS zlib)
 # Install
 install(TARGETS zlib DESTINATION "${MCPI_LIB_DIR}")
 
