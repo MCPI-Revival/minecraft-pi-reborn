@@ -76,6 +76,10 @@ static SDLKey glfw_key_to_sdl_key(int key) {
             return SDLK_7;
         case GLFW_KEY_8:
             return SDLK_8;
+        case GLFW_KEY_9:
+             return SDLK_9;
+        case GLFW_KEY_0:
+             return SDLK_0;
         // UI Control
         case GLFW_KEY_ESCAPE:
             return SDLK_ESCAPE;

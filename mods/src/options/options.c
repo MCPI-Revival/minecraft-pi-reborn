@@ -107,6 +107,8 @@ void init_options() {
     }
     // Display Nametags By Default
     if (feature_has("Display Nametags By Default", 0)) {
+        // r6 = 0x1
+        // r5 = 0x0
         unsigned char display_nametags_patch[4] = {0x1d, 0x60, 0xc0, 0xe5}; // "strb r6, [r0, #0x1d]"
         patch((void *) 0xa6628, display_nametags_patch);
     }
