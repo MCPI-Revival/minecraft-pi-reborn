@@ -19,37 +19,37 @@ static char **default_path = (char **) 0xe264; // /.minecraft/
 static char **default_username = (char **) 0x18fd4; // StevePi
 static char **minecraft_pi_version = (char **) 0x39d94; // v0.1.1 alpha
 
-static unsigned char **Item_flintAndSteel = (unsigned char **) 0x17ba70;
-static unsigned char **Item_snowball = (unsigned char **) 0x17bbb0;
-static unsigned char **Item_shears = (unsigned char **) 0x17bbf0;
-static unsigned char **Item_egg = (unsigned char **) 0x17bbd0;
-static unsigned char **Item_dye_powder = (unsigned char **) 0x17bbe0;
-static unsigned char **Item_camera = (unsigned char **) 0x17bc14;
+static unsigned char **Material_stone = (unsigned char **) 0x180a9c; // Material
 
-static unsigned char **Tile_water = (unsigned char **) 0x181b3c;
-static unsigned char **Tile_lava = (unsigned char **) 0x181cc8;
-static unsigned char **Tile_calmWater = (unsigned char **) 0x181b40;
-static unsigned char **Tile_calmLava = (unsigned char **) 0x181ccc;
-static unsigned char **Tile_glowingObsidian = (unsigned char **) 0x181dcc;
-static unsigned char **Tile_web = (unsigned char **) 0x181d08;
-static unsigned char **Tile_topSnow = (unsigned char **) 0x181b30;
-static unsigned char **Tile_ice = (unsigned char **) 0x181d80;
-static unsigned char **Tile_invisible_bedrock = (unsigned char **) 0x181d94;
-static unsigned char **Tile_netherReactor = (unsigned char **) 0x181dd0;
-static unsigned char **Tile_info_updateGame1 = (unsigned char **) 0x181c68;
-static unsigned char **Tile_info_updateGame2 = (unsigned char **) 0x181c6c;
-static unsigned char **Tile_bedrock = (unsigned char **) 0x181cc4;
+static unsigned char *SOUND_STONE = (unsigned char *) 0x181c80; // Tile::SoundType
 
-static unsigned char **Tile_leaves = (unsigned char **) 0x18120c;
-static unsigned char **Tile_leaves_carried = (unsigned char **) 0x181dd8;
-static unsigned char **Tile_grass = (unsigned char **) 0x181b14;
-static unsigned char **Tile_grass_carried = (unsigned char **) 0x181dd4;
+static unsigned char **Item_flintAndSteel = (unsigned char **) 0x17ba70; // Item
+static unsigned char **Item_snowball = (unsigned char **) 0x17bbb0; // Item
+static unsigned char **Item_shears = (unsigned char **) 0x17bbf0; // Item
+static unsigned char **Item_egg = (unsigned char **) 0x17bbd0; // Item
+static unsigned char **Item_dye_powder = (unsigned char **) 0x17bbe0; // Item
+static unsigned char **Item_camera = (unsigned char **) 0x17bc14; // Item
+
+static unsigned char **Tile_water = (unsigned char **) 0x181b3c; // Tile
+static unsigned char **Tile_lava = (unsigned char **) 0x181cc8; // Tile
+static unsigned char **Tile_calmWater = (unsigned char **) 0x181b40; // Tile
+static unsigned char **Tile_calmLava = (unsigned char **) 0x181ccc; // Tile
+static unsigned char **Tile_glowingObsidian = (unsigned char **) 0x181dcc; // Tile
+static unsigned char **Tile_web = (unsigned char **) 0x181d08; // Tile
+static unsigned char **Tile_topSnow = (unsigned char **) 0x181b30; // Tile
+static unsigned char **Tile_ice = (unsigned char **) 0x181d80; // Tile
+static unsigned char **Tile_invisible_bedrock = (unsigned char **) 0x181d94; // Tile
+static unsigned char **Tile_netherReactor = (unsigned char **) 0x181dd0; // Tile
+static unsigned char **Tile_info_updateGame1 = (unsigned char **) 0x181c68; // Tile
+static unsigned char **Tile_info_updateGame2 = (unsigned char **) 0x181c6c; // Tile
+static unsigned char **Tile_bedrock = (unsigned char **) 0x181cc4; // Tile
+
+static unsigned char **Tile_leaves = (unsigned char **) 0x18120c; // Tile
+static unsigned char **Tile_leaves_carried = (unsigned char **) 0x181dd8; // Tile
+static unsigned char **Tile_grass = (unsigned char **) 0x181b14; // Tile
+static unsigned char **Tile_grass_carried = (unsigned char **) 0x181dd4; // Tile
 
 static float *InvGuiScale = (float *) 0x135d98;
-
-// Tile
-
-static uint32_t Tile_id_property_offset = 0x8;
 
 // Structures
 
@@ -73,6 +73,37 @@ struct RakNet_RakNetGUID {
 struct RakNet_SystemAddress {
     unsigned char data[20];
 };
+
+// Tile
+
+typedef void (*Tile_initTiles_t)();
+static Tile_initTiles_t Tile_initTiles = (Tile_initTiles_t) 0xc358c;
+
+#define TILE_SIZE 0x5c
+#define TILE_VTABLE_SIZE 0x104
+
+static unsigned char *Tile_vtable = (unsigned char *) 0x115670;
+
+typedef unsigned char *(*Tile_t)(unsigned char *tile, int32_t id, int32_t texture, const void *material);
+static Tile_t Tile = (Tile_t) 0xc33a0;
+
+typedef unsigned char *(*Tile_init_t)(unsigned char *tile);
+static Tile_init_t Tile_init = (Tile_init_t) 0xc34dc;
+
+typedef unsigned char *(*Tile_setDestroyTime_t)(unsigned char *tile, float destroy_time);
+static uint32_t Tile_setDestroyTime_vtable_offset = 0xf8;
+
+typedef unsigned char *(*Tile_setExplodeable_t)(unsigned char *tile, float explodeable);
+static uint32_t Tile_setExplodeable_vtable_offset = 0xf4;
+
+typedef unsigned char *(*Tile_setSoundType_t)(unsigned char *tile, unsigned char *sound_type);
+static uint32_t Tile_setSoundType_vtable_offset = 0xe8;
+
+typedef int32_t (*Tile_use_t)(unsigned char *tile, unsigned char *level, int32_t x, int32_t y, int32_t z, unsigned char *player);
+static uint32_t Tile_use_vtable_offset = 0x98;
+
+static uint32_t Tile_id_property_offset = 0x8; // int32_t
+static uint32_t Tile_category_property_offset = 0x3c; // int32_t
 
 // GameMode
 
@@ -578,6 +609,11 @@ struct ConnectedClient {
     std::string str;
     long time;
 };
+
+// Tile
+
+typedef unsigned char *(*Tile_setDescriptionId_t)(unsigned char *tile, std::string const& description_id);
+static uint32_t Tile_setDescriptionId_vtable_offset = 0xe0;
 
 // AppPlatform
 
