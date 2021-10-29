@@ -1,3 +1,7 @@
+# Get Host Architecture
+find_program(UNAME uname /bin /usr/bin /usr/local/bin REQUIRED)
+execute_process(COMMAND "${UNAME}" "-m" OUTPUT_VARIABLE HOST_ARCHITECTURE ERROR_QUIET OUTPUT_STRIP_TRAILING_WHITESPACE)
+
 # Pick GCC Version
 macro(pick_gcc_version gcc_root gcc_version)
     file(GLOB children RELATIVE "${gcc_root}" "${gcc_root}/*")
