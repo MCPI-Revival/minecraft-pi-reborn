@@ -72,6 +72,11 @@ if(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
     set(CMAKE_INSTALL_PREFIX "/" CACHE PATH "" FORCE)
 endif()
 
+# Use LLD When Using Clang
+if(CMAKE_C_COMPILER_ID STREQUAL "Clang")
+    add_link_options("-fuse-ld=lld")
+endif()
+
 # Buld LibPNG + ZLib + Download Minecraft: Pi Edition
 if(BUILD_ARM_COMPONENTS)
     add_subdirectory(dependencies)
@@ -83,11 +88,6 @@ add_link_options(-Wl,--no-undefined)
 add_definitions(-D_GNU_SOURCE)
 set(CMAKE_C_STANDARD 99)
 set(CMAKE_CXX_STANDARD 11)
-
-# Use LLD When Using Clang
-if(CMAKE_C_COMPILER_ID STREQUAL "Clang")
-    add_link_options("-fuse-ld=lld")
-endif()
 
 # Specify Constants
 if(MCPI_SERVER_MODE)

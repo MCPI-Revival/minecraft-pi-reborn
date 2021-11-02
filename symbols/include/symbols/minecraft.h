@@ -355,6 +355,9 @@ static LevelData_getSpawnMobs_t LevelData_getSpawnMobs = (LevelData_getSpawnMobs
 typedef void (*Level_saveLevelData_t)(unsigned char *level);
 static Level_saveLevelData_t Level_saveLevelData = (Level_saveLevelData_t) 0xa2e94;
 
+typedef void (*Level_setTileAndData_t)(unsigned char *level, int32_t x, int32_t y, int32_t z, int32_t id, int32_t data);
+static Level_setTileAndData_t Level_setTileAndData = (Level_setTileAndData_t) 0xa38b4;
+
 static uint32_t Level_players_property_offset = 0x60; // std::vector<ServerPlayer *>
 
 // LevelRenderer
