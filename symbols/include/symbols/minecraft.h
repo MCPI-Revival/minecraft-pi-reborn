@@ -252,14 +252,14 @@ static void *MouseBuildInput_tickBuild_vtable_addr = (void *) 0x102564;
 typedef struct {
     int32_t count;
     int32_t id;
-    int32_t auxilary;
+    int32_t auxiliary;
 } ItemInstance;
 
 typedef ItemInstance *(*ItemInstance_constructor_t)(ItemInstance *item_instance, unsigned char *item);
 static ItemInstance_constructor_t ItemInstance_constructor_item = (ItemInstance_constructor_t) 0x9992c;
 static ItemInstance_constructor_t ItemInstance_constructor_tile = (ItemInstance_constructor_t) 0x998e4;
 
-typedef ItemInstance *(*ItemInstance_constructor_extra_t)(ItemInstance *item_instance, unsigned char *item, int32_t count, int32_t auxilary);
+typedef ItemInstance *(*ItemInstance_constructor_extra_t)(ItemInstance *item_instance, unsigned char *item, int32_t count, int32_t auxiliary);
 static ItemInstance_constructor_extra_t ItemInstance_constructor_tile_extra = (ItemInstance_constructor_extra_t) 0x99918;
 static ItemInstance_constructor_extra_t ItemInstance_constructor_item_extra = (ItemInstance_constructor_extra_t) 0x99960;
 

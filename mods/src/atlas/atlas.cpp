@@ -15,10 +15,10 @@ static float ItemRenderer_renderGuiItemCorrect_injection(unsigned char *font, un
     bool use_carried = false;
     if (item_instance != NULL) {
         if (item_instance->id == leaves_id) {
-            (*ItemInstance_constructor_tile_extra)(&carried_item_instance, *Tile_leaves_carried, item_instance->count, item_instance->auxilary);
+            (*ItemInstance_constructor_tile_extra)(&carried_item_instance, *Tile_leaves_carried, item_instance->count, item_instance->auxiliary);
             use_carried = true;
         } else if (item_instance->id == grass_id) {
-            (*ItemInstance_constructor_tile_extra)(&carried_item_instance, *Tile_grass_carried, item_instance->count, item_instance->auxilary);
+            (*ItemInstance_constructor_tile_extra)(&carried_item_instance, *Tile_grass_carried, item_instance->count, item_instance->auxiliary);
             use_carried = true;
         }
     }
