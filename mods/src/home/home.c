@@ -13,15 +13,12 @@
 #define NEW_PATH ""
 
 // Store Launch Directory
-static char *get_launch_directory() {
+__attribute__((constructor)) static char *get_launch_directory() {
     static char *launch_directory = NULL;
     if (launch_directory == NULL) {
         launch_directory = getcwd(NULL, 0);
     }
     return launch_directory;
-}
-__attribute__((constructor)) static void init_launch_directory() {
-    get_launch_directory();
 }
 __attribute__((destructor)) static void free_launch_directory() {
     free(get_launch_directory());
