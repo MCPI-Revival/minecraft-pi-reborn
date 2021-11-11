@@ -3,35 +3,18 @@
 set -e
 
 # Prepare
+rm -f debian/changelog
+PACKAGE='minecraft-pi-reborn'
 VERSION="$(cat VERSION)"
+DISTRO="$(lsb_release -cs)"
+EDITOR='true' NAME='TheBrokenRail' EMAIL='connor24nolan@live.com' dch -u low -v "${VERSION}" --create --distribution "${DISTRO}" --package "${PACKAGE}" "Release ${VERSION}"
 
-# Common
-package() {
-    local dir="out/$1"
-    
-    # Create DEBIAN Dir
-    rm -rf "${dir}/DEBIAN"
-    mkdir -p "${dir}/DEBIAN"
-    cp "debian/$1" "${dir}/DEBIAN/control"
-    
-    # Format DEBIAN/control
-    sed -i "s/\${VERSION}/${VERSION}/g" "${dir}/DEBIAN/control"
-    
-    # Fix Permissions On Jenkins
-    chmod -R g-s "${dir}"
-    
-    # Package
-    dpkg-deb --root-owner-group --build "${dir}" out
-}
+# Custom Architecture
+ARCH="$(dpkg-architecture -qDEB_BUILD_ARCH)"
+if [ -z "$1" ]; then
+    ARCH="$1"
+fi
 
-# Find And Package
-for dir in out/*; do
-    # Check If Directory Exists
-    if [ -d "${dir}" ]; then
-        # Check If Debian Package Exists
-        pkg="$(basename ${dir})"
-        if [ -f "debian/${pkg}" ]; then
-            package "${pkg}"
-        fi
-    fi
-done
+# Build
+export DEB_CUSTOM_OUTPUT_DIR='out'
+debuild --no-lintian -a"${ARCH}" -us -uc --buildinfo-option=-u"${DEB_CUSTOM_OUTPUT_DIR}" --changes-option=-u"${DEB_CUSTOM_OUTPUT_DIR}" -b

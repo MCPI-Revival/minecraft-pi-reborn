@@ -14,13 +14,12 @@ echo '==== Installing Dependencies ===='
 ./scripts/install-dependencies.sh
 
 # Build
-echo '==== Building ===='
-./scripts/build-all.sh
+echo '==== Building & Packaging ===='
+rm -rf out build
+./scripts/package.sh amd64
+./scripts/package.sh arm64
+./scripts/package.sh armhf
 
 # Test
 echo '==== Testing ===='
 ./scripts/test.sh
-
-# Package
-echo '==== Packaging ===='
-./scripts/package.sh

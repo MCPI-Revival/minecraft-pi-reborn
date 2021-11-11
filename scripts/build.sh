@@ -48,7 +48,7 @@ build() {
 }
 
 # Build For ARM
-arm_build() {
+armhf_build() {
     # Create Build Dir
     rm -rf "build/$1-arm"
     mkdir -p "build/$1-arm"
@@ -81,8 +81,8 @@ if [ "$1" != "client" ] && [ "$1" != "server" ]; then
 fi
 
 # Build
-if [ "$2" = "arm" ]; then
-    arm_build "$1"
+if [ "$2" = "armhf" ]; then
+    armhf_build "$1"
 else
     build "$1" "$2"
 fi

@@ -34,7 +34,7 @@ endif()
 
 # Setup ARM Cross Compilation
 if(USE_ARM32_TOOLCHAIN)
-    include(cmake/arm-toolchain.cmake)
+    include(cmake/armhf-toolchain.cmake)
 endif()
 
 # Utility Functions
@@ -76,6 +76,9 @@ endif()
 if(CMAKE_C_COMPILER_ID STREQUAL "Clang")
     add_link_options("-fuse-ld=lld")
 endif()
+
+# PIC
+set(CMAKE_POSITION_INDEPENDENT_CODE TRUE)
 
 # Buld LibPNG + ZLib + Download Minecraft: Pi Edition
 if(BUILD_ARM_COMPONENTS)
