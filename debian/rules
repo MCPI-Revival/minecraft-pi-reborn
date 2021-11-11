@@ -1,0 +1,24 @@
+#!/usr/bin/make -f
+
+DEB_CUSTOM_OUTPUT_DIR ?= ..
+include /usr/share/dpkg/architecture.mk
+
+%:
+	dh $@
+
+override_dh_auto_configure:
+override_dh_strip:
+override_dh_dwz:
+override_dh_makeshlibs:
+override_dh_shlibdeps:
+
+override_dh_auto_build:
+	./scripts/build.sh client $(DEB_HOST_ARCH)
+	./scripts/build.sh server $(DEB_HOST_ARCH)
+
+override_dh_auto_install:
+	cp -ar out/client-$(DEB_HOST_ARCH)/. debian/minecraft-pi-reborn-client
+	cp -ar out/server-$(DEB_HOST_ARCH)/. debian/minecraft-pi-reborn-server
+
+override_dh_builddeb:
+	dh_builddeb --destdir=${DEB_CUSTOM_OUTPUT_DIR}
