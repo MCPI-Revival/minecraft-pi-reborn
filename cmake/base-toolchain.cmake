@@ -1,6 +1,20 @@
+# Sanity Check Return
+function(sanity_check_return ret)
+    if(NOT ret EQUAL "0")
+        message(FATAL_ERROR "Process Failed")
+    endif()
+endfunction()
+
 # Get Host Architecture
 find_program(UNAME uname /bin /usr/bin /usr/local/bin REQUIRED)
-execute_process(COMMAND "${UNAME}" "-m" OUTPUT_VARIABLE HOST_ARCHITECTURE ERROR_QUIET OUTPUT_STRIP_TRAILING_WHITESPACE)
+execute_process(
+    COMMAND "${UNAME}" "-m"
+    OUTPUT_VARIABLE HOST_ARCHITECTURE
+    ERROR_QUIET
+    OUTPUT_STRIP_TRAILING_WHITESPACE
+    RESULT_VARIABLE ret
+)
+sanity_check_return("${ret}")
 
 # Get Include Directories
 function(get_include_dirs target compiler result)
@@ -16,7 +30,9 @@ function(get_include_dirs target compiler result)
         ERROR_QUIET
  	    OUTPUT_VARIABLE tool
  	    OUTPUT_STRIP_TRAILING_WHITESPACE
+ 	    RESULT_VARIABLE ret
     )
+    sanity_check_return("${ret}")
 
     # Run Tool To Get Include Path
     set(tool_output "")
@@ -26,7 +42,9 @@ function(get_include_dirs target compiler result)
  	    ERROR_VARIABLE tool_output
  	    ERROR_STRIP_TRAILING_WHITESPACE
  	    INPUT_FILE "/dev/null"
+ 	    RESULT_VARIABLE ret
     )
+    sanity_check_return("${ret}")
     string(REPLACE "\n" ";" tool_output "${tool_output}")
 
     # Loop
@@ -61,30 +79,10 @@ function(get_include_dirs target compiler result)
     set("${result}" "${${result}}" PARENT_SCOPE)
 endfunction()
 
-# Get GCC Prefix
-function(get_gcc_prefix target result)
-    # Get Default Target
-    set("${result}" "" PARENT_SCOPE)
-    set(output "")
-    execute_process(
-        COMMAND "gcc" "-dumpmachine"
-        ERROR_QUIET
- 	    OUTPUT_VARIABLE output
- 	    OUTPUT_STRIP_TRAILING_WHITESPACE
-    )
-
-    # Check
-    if(NOT output STREQUAL target)
-        set("${result}" "${target}-" PARENT_SCOPE)
-    endif()
-endfunction()
-
 # Setup Include Directories
 function(setup_include_dirs compiler target result)
     # Get Full Compiler
-    set(prefix "")
-    get_gcc_prefix("${target}" prefix)
-    set(full_compiler "${prefix}${compiler}")
+    set(full_compiler "${target}-${compiler}")
 
     # Get Include Directories
     set(include_dirs "")

@@ -31,6 +31,7 @@ sudo apt-get install --no-install-recommends -y \
     libfreeimage3 libfreeimage-dev \
     crossbuild-essential-armhf \
     crossbuild-essential-arm64 \
+    gcc \
     libopenal-dev \
     qemu-user-static
 
