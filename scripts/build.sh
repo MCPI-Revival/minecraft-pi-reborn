@@ -50,12 +50,12 @@ build() {
 # Build For ARM
 armhf_build() {
     # Create Build Dir
-    rm -rf "build/$1-arm"
-    mkdir -p "build/$1-arm"
-    cd "build/$1-arm"
+    rm -rf "build/$1-armhf"
+    mkdir -p "build/$1-armhf"
+    cd "build/$1-armhf"
 
     # Create Prefix
-    local prefix="$(cd ../../; pwd)/out/$1-arm"
+    local prefix="$(cd ../../; pwd)/out/$1-armhf"
     rm -rf "${prefix}"
     mkdir -p "${prefix}"
 
