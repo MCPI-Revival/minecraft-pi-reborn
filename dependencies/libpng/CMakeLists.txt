@@ -7,7 +7,7 @@ add_compile_options(-w)
 
 # Download
 set(ZLIB_LIBRARY zlibstatic)
-set(ZLIB_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../zlib" "${CMAKE_CURRENT_BINARY_DIR}/../zlib")
+set(ZLIB_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../zlib/src" "${CMAKE_CURRENT_BINARY_DIR}/../zlib/src")
 set(CMAKE_POLICY_DEFAULT_CMP0054 OLD) # Silence Warning
 add_subdirectory(src EXCLUDE_FROM_ALL)
 set(CMAKE_POLICY_DEFAULT_CMP0054 NEW) # Re-Enable New Behavior
