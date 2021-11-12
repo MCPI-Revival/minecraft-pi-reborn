@@ -20,7 +20,6 @@ sudo apt-get dist-upgrade -y
 
 # Install
 sudo apt-get install --no-install-recommends -y \
-    build-essential \
     ca-certificates \
     lsb-release \
     git \
@@ -28,10 +27,6 @@ sudo apt-get install --no-install-recommends -y \
     lld \
     cmake \
     make \
-    dpkg-dev \
-    debhelper \
-    devscripts \
-    libdistro-info-perl \
     libglfw3 libglfw3-dev \
     libfreeimage3 libfreeimage-dev \
     crossbuild-essential-armhf \

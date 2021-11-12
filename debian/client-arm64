@@ -1,0 +1,7 @@
+Package: minecraft-pi-reborn-client
+Version: ${VERSION}
+Maintainer: TheBrokenRail <connor24nolan@live.com>
+Description: Fun with Blocks
+Homepage: https://www.minecraft.net/en-us/edition/pi
+Architecture: arm64
+Depends: libc6, libstdc++6, libc6:armhf, libstdc++6:armhf, zenity, libgles1, libegl1, libglfw3 | libglfw3-wayland, libfreeimage3, libopenal1

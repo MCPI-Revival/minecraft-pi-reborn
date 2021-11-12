@@ -1,0 +1,8 @@
+[submodule "dependencies/libpng/src"]
+	path = dependencies/libpng/src
+	url = https://github.com/glennrp/libpng.git
+	shallow = true
+[submodule "dependencies/zlib/src"]
+	path = dependencies/zlib/src
+	url = https://github.com/madler/zlib.git
+	shallow = true

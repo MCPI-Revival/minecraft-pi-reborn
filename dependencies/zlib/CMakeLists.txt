@@ -1,24 +1,12 @@
 project(zlib)
 
-include(FetchContent)
-
 # Silence Warnings
 add_compile_options(-w)
 
 ## zlib
 
 # Download
-FetchContent_Declare(
-    zlib
-    GIT_REPOSITORY "https://github.com/madler/zlib.git"
-    GIT_TAG "v1.2.11"
-)
-FetchContent_Populate(zlib)
-include_directories("${zlib_SOURCE_DIR}" "${zlib_BINARY_DIR}") # Fix ZLib Build
-add_subdirectory("${zlib_SOURCE_DIR}" "${zlib_BINARY_DIR}" EXCLUDE_FROM_ALL)
+add_subdirectory(src EXCLUDE_FROM_ALL)
 
 # Ensure Build
-add_custom_target(zlib-build ALL DEPENDS zlib)
-# Install
-install(TARGETS zlib DESTINATION "${MCPI_LIB_DIR}")
-
+add_custom_target(zlib-build ALL DEPENDS zlibstatic)

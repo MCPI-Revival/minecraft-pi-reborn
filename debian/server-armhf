@@ -1,0 +1,7 @@
+Package: minecraft-pi-reborn-server
+Version: ${VERSION}
+Maintainer: TheBrokenRail <connor24nolan@live.com>
+Description: Fun with Blocks
+Homepage: https://www.minecraft.net/en-us/edition/pi
+Architecture: armhf
+Depends: libc6, libstdc++6

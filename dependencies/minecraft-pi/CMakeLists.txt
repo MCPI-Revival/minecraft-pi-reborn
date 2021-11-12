@@ -13,4 +13,3 @@ FetchContent_Populate(minecraft-pi)
 
 # Install
 install(DIRECTORY "${minecraft-pi_SOURCE_DIR}/" DESTINATION "${MCPI_INSTALL_DIR}" USE_SOURCE_PERMISSIONS)
-
