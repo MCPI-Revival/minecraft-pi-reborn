@@ -92,6 +92,9 @@ add_definitions(-D_GNU_SOURCE)
 set(CMAKE_C_STANDARD 99)
 set(CMAKE_CXX_STANDARD 11)
 
+# Fast Math
+add_compile_options(-ffast-math)
+
 # Specify Constants
 if(MCPI_SERVER_MODE)
     add_definitions(-DMCPI_SERVER_MODE)
