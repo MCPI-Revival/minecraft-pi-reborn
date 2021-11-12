@@ -30,8 +30,7 @@ sudo apt-get install --no-install-recommends -y \
     libglfw3 libglfw3-dev \
     libfreeimage3 libfreeimage-dev \
     crossbuild-essential-armhf \
-    crossbuild-essential-arm64 \
-    gcc \
+    gcc g++ \
     libopenal-dev \
     qemu-user-static
 
@@ -43,6 +42,7 @@ if [ ! -z "${ARM_PACKAGES_SUPPORTED}" ]; then
         libopenal-dev:armhf \
         libglfw3:arm64 libglfw3-dev:arm64 \
         libfreeimage3:arm64 \
-        libopenal-dev:arm64
+        libopenal-dev:arm64 \
+        crossbuild-essential-arm64
 fi
 
