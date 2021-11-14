@@ -31,4 +31,7 @@ void init_version() {
     overwrite((void *) Common_getGameVersionString, (void *) Common_getGameVersionString_injection);
     // Normal GUI
     patch_address((void *) minecraft_pi_version, version_get());
+
+    // Log
+    INFO("Starting Minecraft: Pi Edition (%s)", version_get());
 }

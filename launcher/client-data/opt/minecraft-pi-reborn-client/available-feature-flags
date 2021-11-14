@@ -8,6 +8,7 @@ TRUE Display Nametags By Default
 TRUE Fix Sign Placement
 TRUE Show Block Outlines
 FALSE Expand Creative Inventory
+FALSE Remove Creative Restrictions
 FALSE Peaceful Mode
 TRUE Animated Water
 TRUE Remove Invalid Item Background
@@ -16,6 +17,7 @@ TRUE Smooth Lighting
 FALSE 3D Anaglyph
 TRUE Fix Camera Rendering
 TRUE Implement Chat
+FALSE Hide Chat Messages
 TRUE Implement Death Messages
 TRUE Implement Game-Mode Switching
 TRUE Allow Joining Survival Servers

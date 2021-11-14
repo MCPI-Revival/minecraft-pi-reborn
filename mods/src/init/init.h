@@ -5,6 +5,7 @@ extern "C" {
 #endif
 
 void run_tests();
+void init_version();
 void init_compat();
 #ifdef MCPI_SERVER_MODE
 void init_server();
@@ -25,7 +26,9 @@ void init_death();
 void init_options();
 void init_chat();
 void init_home();
-void init_version();
+#if !defined(MCPI_SERVER_MODE) && !defined(MCPI_HEADLESS_MODE)
+void init_benchmark();
+#endif
 
 #ifdef __cplusplus
 }

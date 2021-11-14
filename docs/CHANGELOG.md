@@ -1,5 +1,15 @@
 # Changelog
 
+**2.2.8**
+* Add "Hide Chat Messages" Optional Feature Flag
+* Add "Remove Creative Restrictions" Optional Feature Flag
+* Improve GLFW->SDL Mouse Motion Event Conversion
+* Performance Optimizations
+* Make Majority Of Server-Specific Logging Code Also Apply To The Client
+* Simple Benchmark Mode
+* Fix Typo When Audio Source File Doesn't Exist
+* Improve Build System
+
 **2.2.7**
 * Fix Crash When OpenAL Is Unavailable
 * Fix Command Input In Server

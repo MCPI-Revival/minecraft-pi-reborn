@@ -5,6 +5,7 @@
 #include <SDL/SDL.h>
 
 #include <media-layer/internal.h>
+#include <media-layer/core.h>
 
 // SDL Is Replaced With GLFW
 
@@ -40,4 +41,8 @@ int SDL_PushEvent(SDL_Event *event) {
     queue.push_back(*event);
     pthread_mutex_unlock(&queue_mutex);
     return 1;
+}
+
+void media_ensure_loaded() {
+    // NOP
 }

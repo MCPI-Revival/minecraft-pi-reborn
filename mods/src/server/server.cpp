@@ -16,6 +16,7 @@
 #include <SDL/SDL.h>
 
 #include <libreborn/libreborn.h>
+#include <symbols/minecraft.h>
 
 #include "server_properties.h"
 
@@ -23,9 +24,7 @@
 #include "../init/init.h"
 #include "../home/home.h"
 #include "../compat/compat.h"
-#include "../version/version.h"
-
-#include <symbols/minecraft.h>
+#include "../misc/misc.h"
 
 // --only-generate: Ony Generate World And Then Exit
 static bool only_generate = false;
@@ -66,17 +65,20 @@ static std::string get_world_name() {
 
 // Create/Start World
 static void start_world(unsigned char *minecraft) {
-    INFO("Starting Minecraft: Pi Edition: Dedicated Server (%s)", version_get());
+    // Get World Name
+    std::string world_name = get_world_name();
+
+    // Log
+    INFO("Loading World: %s", world_name.c_str());
 
     // Specify Level Settings
     LevelSettings settings;
-    settings.game_type = get_server_properties().get_int("game-mode", DEFAULT_GAME_MODE);;
+    settings.game_type = get_server_properties().get_int("game-mode", DEFAULT_GAME_MODE);
     std::string seed_str = get_server_properties().get_string("seed", DEFAULT_SEED);
     int32_t seed = seed_str.length() > 0 ? std::stoi(seed_str) : time(NULL);
     settings.seed = seed;
 
     // Select Level
-    std::string world_name = get_world_name();
     (*Minecraft_selectLevel)(minecraft, world_name, world_name, settings);
 
     // Don't Open Port When Using --only-generate
@@ -92,51 +94,6 @@ static void start_world(unsigned char *minecraft) {
     ALLOC_CHECK(screen);
     screen = (*ProgressScreen)((unsigned char *) screen);
     (*Minecraft_setScreen)(minecraft, (unsigned char *) screen);
-}
-
-// Check If Two Percentages Are Different Enough To Be Logged
-#define SIGNIFICANT_PROGRESS 5
-static bool is_progress_difference_significant(int32_t new_val, int32_t old_val) {
-    if (new_val != old_val) {
-        if (new_val == -1 || old_val == -1) {
-            return true;
-        } else if (new_val == 0 || new_val == 100) {
-            return true;
-        } else {
-            return new_val - old_val >= SIGNIFICANT_PROGRESS;
-        }
-    } else {
-        return false;
-    }
-}
-
-// Print Progress Reports
-static int last_progress = -1;
-static const char *last_message = NULL;
-static void print_progress(unsigned char *minecraft) {
-    const char *message = (*Minecraft_getProgressMessage)(minecraft);
-    int32_t progress = *(int32_t *) (minecraft + Minecraft_progress_property_offset);
-    if ((*Minecraft_isLevelGenerated)(minecraft)) {
-        message = "Ready";
-        progress = -1;
-    }
-    if (message != NULL) {
-        bool message_different = message != last_message;
-        bool progress_significant = is_progress_difference_significant(progress, last_progress);
-        if (message_different || progress_significant) {
-            if (progress != -1) {
-                INFO("Status: %s: %i%%", message, progress);
-            } else {
-                INFO("Status: %s", message);
-            }
-            if (message_different) {
-                last_message = message;
-            }
-            if (progress_significant) {
-                last_progress = progress;
-            }
-        }
-    }
 }
 
 // Check If Running In Whitelist Mode
@@ -242,15 +199,6 @@ static void kill_callback(__attribute__((unused)) unsigned char *minecraft, __at
 // List Player
 static void list_callback(unsigned char *minecraft, std::string username, unsigned char *player) {
     INFO(" - %s (%s)", username.c_str(), get_player_ip(minecraft, player));
-}
-
-// Log When Game Is Saved
-static void Level_saveLevelData_injection(unsigned char *level) {
-    // Print Log Message
-    INFO("%s", "Saving Game");
-
-    // Call Original Method
-    (*Level_saveLevelData)(level);
 }
 
 // Handle Server Stop
@@ -384,12 +332,6 @@ static void Minecraft_update_injection(unsigned char *minecraft) {
         only_generate = false;
     }
 
-    // Print Progress Reports
-    print_progress(minecraft);
-
-    // Call Original Method
-    (*Minecraft_update)(minecraft);
-
     // Handle Commands
     handle_commands(minecraft);
 
@@ -494,9 +436,9 @@ static void server_init() {
     // Open Properties File
     std::string file(home_get());
     file.append("/server.properties");
-
     std::ifstream properties_file(file);
 
+    // Check Properties File
     if (!properties_file.good()) {
         // Write Defaults
         std::ofstream properties_file_output(file);
@@ -551,9 +493,7 @@ static void server_init() {
     unsigned char player_patch[4] = {0x00, 0x20, 0xa0, 0xe3}; // "mov r2, #0x0"
     patch((void *) 0x1685c, player_patch);
     // Start World On Launch
-    overwrite_calls((void *) Minecraft_update, (void *) Minecraft_update_injection);
-    // Print Log On Game Save
-    overwrite_calls((void *) Level_saveLevelData, (void *) Level_saveLevelData_injection);
+    misc_run_on_update(Minecraft_update_injection);
     // Set Max Players
     unsigned char max_players_patch[4] = {get_max_players(), 0x30, 0xa0, 0xe3}; // "mov r3, #MAX_PLAYERS"
     patch((void *) 0x166d0, max_players_patch);

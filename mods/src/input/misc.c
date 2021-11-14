@@ -3,6 +3,7 @@
 
 #include "input.h"
 #include "../feature/feature.h"
+#include "../creative/creative.h"
 
 // Enable Miscellaneous Input Fixes
 static int enable_misc = 0;
@@ -59,9 +60,9 @@ static void _handle_mouse_grab(unsigned char *minecraft) {
 
 // Block UI Interaction When Mouse Is Locked
 static bool Gui_tickItemDrop_Minecraft_isCreativeMode_call_injection(unsigned char *minecraft) {
-    if (SDL_WM_GrabInput(SDL_GRAB_QUERY) == SDL_GRAB_OFF) {
+    if (!enable_misc || SDL_WM_GrabInput(SDL_GRAB_QUERY) == SDL_GRAB_OFF) {
         // Call Original Method
-        return (*Minecraft_isCreativeMode)(minecraft);
+        return creative_is_restricted() && (*Minecraft_isCreativeMode)(minecraft);
     } else {
         // Disable Item Drop Ticking
         return 1;
@@ -82,12 +83,12 @@ void _init_misc() {
     if (enable_misc) {
         // Fix OptionsScreen Ignoring The Back Button
         patch_address(OptionsScreen_handleBackEvent_vtable_addr, (void *) OptionsScreen_handleBackEvent_injection);
-
-        // Disable Item Dropping Using The Cursor When Cursor Is Hidden
-        overwrite_call((void *) 0x27800, (void *) Gui_tickItemDrop_Minecraft_isCreativeMode_call_injection);
         // Disable Opening Inventory Using The Cursor When Cursor Is Hidden
         overwrite_calls((void *) Gui_handleClick, (void *) Gui_handleClick_injection);
     }
+    // Disable Item Dropping Using The Cursor When Cursor Is Hidden
+    overwrite_call((void *) 0x27800, (void *) Gui_tickItemDrop_Minecraft_isCreativeMode_call_injection);
+
     input_run_on_tick(_handle_back);
     input_run_on_tick(_handle_mouse_grab);
 }

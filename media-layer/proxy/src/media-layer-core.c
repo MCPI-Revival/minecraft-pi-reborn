@@ -307,3 +307,32 @@ CALL(60, media_audio_play, void, (const char *source, const char *name, float x,
     free(name);
 #endif
 }
+
+CALL(62, media_set_interactable, void, (int is_interactable)) {
+#if defined(MEDIA_LAYER_PROXY_SERVER)
+    // Lock Proxy
+    start_proxy_call();
+
+    // Arguments
+    write_int(is_interactable);
+
+    // Release Proxy
+    end_proxy_call();
+#else
+    int is_interactable = read_int();
+    // Run
+    media_set_interactable(is_interactable);
+#endif
+}
+
+CALL(63, media_disable_vsync, void, ()) {
+#if defined(MEDIA_LAYER_PROXY_SERVER)
+    // Lock Proxy
+    start_proxy_call();
+    // Release Proxy
+    end_proxy_call();
+#else
+    // Run
+    media_disable_vsync();
+#endif
+}

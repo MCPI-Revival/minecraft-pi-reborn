@@ -2,6 +2,8 @@
 #include <string.h>
 #include <unistd.h>
 
+#include <GLES/gl.h>
+
 #include <libreborn/libreborn.h>
 #include <symbols/minecraft.h>
 
@@ -12,36 +14,52 @@
 // Maximum Username Length
 #define MAX_USERNAME_LENGTH 16
 
-// Render Selected Item Text
-static void Gui_renderChatMessages_injection(unsigned char *gui, int32_t param_1, uint32_t param_2, uint32_t param_3, unsigned char *font) {
+// Additional GUI Rendering
+static int hide_chat_messages = 0;
+static int render_selected_item_text = 0;
+static void Gui_renderChatMessages_injection(unsigned char *gui, int32_t y_offset, uint32_t max_messages, bool disable_fading, unsigned char *font) {
     // Call Original Method
-    (*Gui_renderChatMessages)(gui, param_1, param_2, param_3, font);
-    // Calculate Selected Item Text Scale
-    unsigned char *minecraft = *(unsigned char **) (gui + Gui_minecraft_property_offset);
-    int32_t screen_width = *(int32_t *) (minecraft + Minecraft_screen_width_property_offset);
-    float scale = ((float) screen_width) * *InvGuiScale;
+    if (!hide_chat_messages) {
+        (*Gui_renderChatMessages)(gui, y_offset, max_messages, disable_fading, font);
+    }
+
     // Render Selected Item Text
-    (*Gui_renderOnSelectItemNameText)(gui, (int32_t) scale, font, param_1 - 0x13);
+    if (render_selected_item_text) {
+        // Fix GL Mode
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+        // Calculate Selected Item Text Scale
+        unsigned char *minecraft = *(unsigned char **) (gui + Gui_minecraft_property_offset);
+        int32_t screen_width = *(int32_t *) (minecraft + Minecraft_screen_width_property_offset);
+        float scale = ((float) screen_width) * *InvGuiScale;
+        // Render Selected Item Text
+        (*Gui_renderOnSelectItemNameText)(gui, (int32_t) scale, font, y_offset - 0x13);
+    }
 }
 // Reset Selected Item Text Timer On Slot Select
 static uint32_t reset_selected_item_text_timer = 0;
 static void Gui_tick_injection(unsigned char *gui) {
     // Call Original Method
     (*Gui_tick)(gui);
+
     // Handle Reset
-    float *selected_item_text_timer = (float *) (gui + Gui_selected_item_text_timer_property_offset);
-    if (reset_selected_item_text_timer) {
-        // Reset
-        *selected_item_text_timer = 0;
-        reset_selected_item_text_timer = 0;
+    if (render_selected_item_text) {
+        float *selected_item_text_timer = (float *) (gui + Gui_selected_item_text_timer_property_offset);
+        if (reset_selected_item_text_timer) {
+            // Reset
+            *selected_item_text_timer = 0;
+            reset_selected_item_text_timer = 0;
+        }
     }
 }
 // Trigger Reset Selected Item Text Timer On Slot Select
 static void Inventory_selectSlot_injection(unsigned char *inventory, int32_t slot) {
     // Call Original Method
     (*Inventory_selectSlot)(inventory, slot);
+
     // Trigger Reset Selected Item Text Timer
-    reset_selected_item_text_timer = 1;
+    if (render_selected_item_text) {
+        reset_selected_item_text_timer = 1;
+    }
 }
 
 // Sanitize Username
@@ -125,12 +143,12 @@ void init_misc() {
         patch((void *) 0x63c98, invalid_item_background_patch);
     }
 
-    // Fix Selected Item Text
-    if (feature_has("Render Selected Item Text", 0)) {
-        overwrite_calls((void *) Gui_renderChatMessages, (void *) Gui_renderChatMessages_injection);
-        overwrite_calls((void *) Gui_tick, (void *) Gui_tick_injection);
-        overwrite_calls((void *) Inventory_selectSlot, (void *) Inventory_selectSlot_injection);
-    }
+    // Render Selected Item Text + Hide Chat Messages
+    hide_chat_messages = feature_has("Hide Chat Messages", 0);
+    render_selected_item_text = feature_has("Render Selected Item Text", 0);
+    overwrite_calls((void *) Gui_renderChatMessages, (void *) Gui_renderChatMessages_injection);
+    overwrite_calls((void *) Gui_tick, (void *) Gui_tick_injection);
+    overwrite_calls((void *) Inventory_selectSlot, (void *) Inventory_selectSlot_injection);
 
     // Sanitize Username
     patch_address(LoginPacket_read_vtable_addr, (void *) LoginPacket_read_injection);
@@ -144,6 +162,7 @@ void init_misc() {
     // Fix Bug Where RakNetInstance Starts Pinging Potential Servers Before The "Join Game" Screen Is Opened
     overwrite_calls((void *) RakNetInstance, (void *) RakNetInstance_injection);
 
-    // Init C++
+    // Init C++ And Logging
     _init_misc_cpp();
+    _init_misc_logging();
 }

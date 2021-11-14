@@ -10,6 +10,8 @@
 #include <unordered_map>
 #include <fstream>
 
+#include <media-layer/core.h>
+
 #include "../common/common.h"
 
 // Track Client State
@@ -85,58 +87,36 @@ static void start_media_layer_proxy_client(int read, int write) {
     update_client_state(1, 0);
 }
 
-// Maximize Pipe Buffer Size
-static void maximize_pipe_fd_size(int fd) {
-    // Read Maximum Pipe Size
-    std::ifstream max_size_file("/proc/sys/fs/pipe-max-size");
-    if (!max_size_file.good()) {
-        PROXY_ERR("%s", "Unable To Open Maximum Pipe Size File");
-    }
-    // Read One Line
-    int max_size;
-    std::string line;
-    if (std::getline(max_size_file, line) && line.size() > 0) {
-        max_size = std::stoi(line);
-    } else {
-        PROXY_ERR("%s", "Unable To Read Maximum Pipe Size File");
-    }
-    // Set Maximum Pipe Size
-    errno = 0;
-    if (fcntl(fd, F_SETPIPE_SZ, max_size) < max_size) {
-        PROXY_ERR("Unable To Set Maximum Pipe Size: %s", errno != 0 ? strerror(errno) : "Unknown Error");
-    }
-}
-static void maximize_pipe_size(int pipe[2]) {
-    maximize_pipe_fd_size(pipe[0]);
-    maximize_pipe_fd_size(pipe[1]);
-}
-
 // Start Server
-__attribute__((constructor)) static void init_media_layer_proxy_server() {
-    PROXY_INFO("%s", "Starting...");
+static int loaded = 0;
+__attribute__((constructor)) void media_ensure_loaded() {
+    if (!loaded) {
+        loaded = 1;
 
-    // Create Connection
-    int server_to_client_pipe[2];
-    safe_pipe2(server_to_client_pipe, 0);
-    maximize_pipe_size(server_to_client_pipe);
-    int client_to_server_pipe[2];
-    safe_pipe2(client_to_server_pipe, 0);
-    maximize_pipe_size(client_to_server_pipe);
-    // Set Connection
-    set_connection(client_to_server_pipe[0], server_to_client_pipe[1]);
+        // Log
+        PROXY_INFO("%s", "Starting...");
 
-    // Start Client
-    start_media_layer_proxy_client(server_to_client_pipe[0], client_to_server_pipe[1]);
+        // Create Connection
+        int server_to_client_pipe[2];
+        safe_pipe2(server_to_client_pipe, 0);
+        int client_to_server_pipe[2];
+        safe_pipe2(client_to_server_pipe, 0);
+        // Set Connection
+        set_connection(client_to_server_pipe[0], server_to_client_pipe[1]);
 
-    // Wait For Connection Message
-    char *str = read_string();
-    if (strcmp(str, CONNECTED_MSG) == 0) {
-        PROXY_INFO("%s", "Connected");
-    } else {
-        PROXY_ERR("%s", "Unable To Connect");
+        // Start Client
+        start_media_layer_proxy_client(server_to_client_pipe[0], client_to_server_pipe[1]);
+
+        // Wait For Connection Message
+        char *str = read_string();
+        if (strcmp(str, CONNECTED_MSG) == 0) {
+            PROXY_INFO("%s", "Connected");
+        } else {
+            PROXY_ERR("%s", "Unable To Connect");
+        }
+        // Free
+        free(str);
     }
-    // Free
-    free(str);
 }
 
 // Assign Unique ID To Function

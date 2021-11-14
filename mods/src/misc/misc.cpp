@@ -1,6 +1,7 @@
 #include <string>
 #include <fstream>
 #include <streambuf>
+#include <vector>
 
 #include <cstring>
 
@@ -24,34 +25,24 @@ static AppPlatform_readAssetFile_return_value AppPlatform_readAssetFile_injectio
     return ret;
 }
 
-// Print Chat To Log
-static bool Gui_addMessage_recursing = false;
-static void Gui_addMessage_injection(unsigned char *gui, std::string const& text) {
-    // Sanitize Message
-    char *new_message = strdup(text.c_str());
-    ALLOC_CHECK(new_message);
-    sanitize_string(&new_message, -1, 1);
+// Run Functions On Input Tick
+static std::vector<misc_update_function_t> &get_misc_update_functions() {
+    static std::vector<misc_update_function_t> functions;
+    return functions;
+}
+void misc_run_on_update(misc_update_function_t function) {
+    get_misc_update_functions().push_back(function);
+}
 
-    // Process Message
-    if (!Gui_addMessage_recursing) {
-        // Start Recursing
-        Gui_addMessage_recursing = true;
+// Handle Custom Update Behavior
+static void Minecraft_update_injection(unsigned char *minecraft) {
+    // Call Original Method
+    (*Minecraft_update)(minecraft);
 
-        // Print Log Message
-        fprintf(stderr, "[CHAT]: %s\n", new_message);
-
-        // Call Original Method
-        (*Gui_addMessage)(gui, std::string(new_message));
-
-        // End Recursing
-        Gui_addMessage_recursing = false;
-    } else {
-        // Call Original Method
-        (*Gui_addMessage)(gui, std::string(new_message));
+    // Run Input Tick Functions
+    for (misc_update_function_t function : get_misc_update_functions()) {
+        (*function)(minecraft);
     }
-
-    // Free
-    free(new_message);
 }
 
 // Init
@@ -61,6 +52,6 @@ void _init_misc_cpp() {
         overwrite((void *) AppPlatform_readAssetFile, (void *) AppPlatform_readAssetFile_injection);
     }
 
-    // Print Chat To Log
-    overwrite_calls((void *) Gui_addMessage, (void *) Gui_addMessage_injection);
+    // Handle Custom Update Behavior
+    overwrite_calls((void *) Minecraft_update, (void *) Minecraft_update_injection);
 }

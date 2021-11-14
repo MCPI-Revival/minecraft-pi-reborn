@@ -42,7 +42,7 @@ std::string _sound_get_source_file() {
         // Check If Sound Exists
         if (access(full_path, F_OK) == -1) {
             // Fail
-            WARN("%s", "Audio Source File Doesn't Exists: " SOURCE_FILE_BASE);
+            WARN("%s", "Audio Source File Doesn't Exist: " SOURCE_FILE_BASE);
             source.assign("");
         } else {
             // Set

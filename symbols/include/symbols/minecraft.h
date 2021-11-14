@@ -160,6 +160,9 @@ static uint32_t Minecraft_handleBack_vtable_offset = 0x34;
 typedef unsigned char *(*Minecraft_getCreator_t)(unsigned char *minecraft);
 static Minecraft_getCreator_t Minecraft_getCreator = (Minecraft_getCreator_t) 0x17538;
 
+typedef unsigned char *(*Minecraft_getLevelSource_t)(unsigned char *minecraft);
+static Minecraft_getLevelSource_t Minecraft_getLevelSource = (Minecraft_getLevelSource_t) 0x16e84;
+
 static uint32_t Minecraft_screen_width_property_offset = 0x20; // int32_t
 static uint32_t Minecraft_network_handler_property_offset = 0x174; // NetEventCallback *
 static uint32_t Minecraft_rak_net_instance_property_offset = 0x170; // RakNetInstance *
@@ -327,7 +330,7 @@ static Gui_handleClick_t Gui_handleClick = (Gui_handleClick_t) 0x2599c;
 typedef void (*Gui_renderOnSelectItemNameText_t)(unsigned char *gui, int32_t param_1, unsigned char *font, int32_t param_2);
 static Gui_renderOnSelectItemNameText_t Gui_renderOnSelectItemNameText = (Gui_renderOnSelectItemNameText_t) 0x26aec;
 
-typedef void (*Gui_renderChatMessages_t)(unsigned char *gui, int32_t param_1, uint32_t param_2, bool param_3, unsigned char *font);
+typedef void (*Gui_renderChatMessages_t)(unsigned char *gui, int32_t y_offset, uint32_t max_messages, bool disable_fading, unsigned char *font);
 static Gui_renderChatMessages_t Gui_renderChatMessages = (Gui_renderChatMessages_t) 0x273d8;
 
 static uint32_t Gui_minecraft_property_offset = 0x9f4; // Minecraft *
@@ -630,6 +633,11 @@ static AppPlatform_readAssetFile_t AppPlatform_readAssetFile = (AppPlatform_read
 
 typedef void (*Minecraft_selectLevel_t)(unsigned char *minecraft, std::string const& level_dir, std::string const& level_name, LevelSettings const& vsettings);
 static Minecraft_selectLevel_t Minecraft_selectLevel = (Minecraft_selectLevel_t) 0x16f38;
+
+// ExternalFileLevelStorageSource
+
+typedef void (*ExternalFileLevelStorageSource_deleteLevel_t)(unsigned char *external_file_level_storage_source, std::string const& level_name);
+static uint32_t ExternalFileLevelStorageSource_deleteLevel_vtable_offset = 0x20;
 
 // CommandServer
 

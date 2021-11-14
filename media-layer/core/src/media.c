@@ -16,6 +16,14 @@
 #include "audio/engine.h"
 #endif // #ifndef MCPI_HEADLESS_MODE
 
+// Allow Disabling Interaction
+static void update_cursor();
+static int is_interactable = 1;
+void media_set_interactable(int toggle) {
+    is_interactable = toggle;
+    update_cursor();
+}
+
 // GLFW Code Not Needed In Headless Mode
 #ifndef MCPI_HEADLESS_MODE
 
@@ -139,63 +147,75 @@ static SDLMod glfw_modifier_to_sdl_modifier(int mods) {
 
 // Pass Key Presses To SDL
 static void glfw_key(__attribute__((unused)) GLFWwindow *window, int key, int scancode, int action, __attribute__((unused)) int mods) {
-    SDL_Event event;
-    int up = action == GLFW_RELEASE;
-    event.type = up ? SDL_KEYUP : SDL_KEYDOWN;
-    event.key.state = up ? SDL_RELEASED : SDL_PRESSED;
-    event.key.keysym.scancode = scancode;
-    event.key.keysym.mod = glfw_modifier_to_sdl_modifier(mods);
-    event.key.keysym.sym = glfw_key_to_sdl_key(key);
-    SDL_PushEvent(&event);
-    if (key == GLFW_KEY_BACKSPACE && !up) {
-        character_event((char) '\b');
+    if (is_interactable) {
+        SDL_Event event;
+        int up = action == GLFW_RELEASE;
+        event.type = up ? SDL_KEYUP : SDL_KEYDOWN;
+        event.key.state = up ? SDL_RELEASED : SDL_PRESSED;
+        event.key.keysym.scancode = scancode;
+        event.key.keysym.mod = glfw_modifier_to_sdl_modifier(mods);
+        event.key.keysym.sym = glfw_key_to_sdl_key(key);
+        SDL_PushEvent(&event);
+        if (key == GLFW_KEY_BACKSPACE && !up) {
+            character_event((char) '\b');
+        }
     }
 }
 
 // Pass Text To Minecraft
 static void glfw_char(__attribute__((unused)) GLFWwindow *window, unsigned int codepoint) {
-    character_event((char) codepoint);
+    if (is_interactable) {
+        character_event((char) codepoint);
+    }
 }
 
+// Last Mouse Location
 static double last_mouse_x = 0;
 static double last_mouse_y = 0;
-static int ignore_relative_mouse = 1;
+// Ignore Relative Cursor Motion
+static int ignore_relative_motion = 0;
 
 // Pass Mouse Movement To SDL
 static void glfw_motion(__attribute__((unused)) GLFWwindow *window, double xpos, double ypos) {
-    SDL_Event event;
-    event.type = SDL_MOUSEMOTION;
-    event.motion.x = xpos;
-    event.motion.y = ypos;
-    event.motion.xrel = !ignore_relative_mouse ? (xpos - last_mouse_x) : 0;
-    event.motion.yrel = !ignore_relative_mouse ? (ypos - last_mouse_y) : 0;
-    ignore_relative_mouse = 0;
+    if (is_interactable) {
+        SDL_Event event;
+        event.type = SDL_MOUSEMOTION;
+        event.motion.x = xpos;
+        event.motion.y = ypos;
+        event.motion.xrel = !ignore_relative_motion ? (xpos - last_mouse_x) : 0;
+        event.motion.yrel = !ignore_relative_motion ? (ypos - last_mouse_y) : 0;
+        SDL_PushEvent(&event);
+    }
+    ignore_relative_motion = 0;
     last_mouse_x = xpos;
     last_mouse_y = ypos;
-    SDL_PushEvent(&event);
 }
 
 // Create And Push SDL Mouse Click Event
 static void click_event(int button, int up) {
-    SDL_Event event;
-    event.type = up ? SDL_MOUSEBUTTONUP : SDL_MOUSEBUTTONDOWN;
-    event.button.x = last_mouse_x;
-    event.button.y = last_mouse_y;
-    event.button.state = up ? SDL_RELEASED : SDL_PRESSED;
-    event.button.button = button;
-    SDL_PushEvent(&event);
+    if (is_interactable) {
+        SDL_Event event;
+        event.type = up ? SDL_MOUSEBUTTONUP : SDL_MOUSEBUTTONDOWN;
+        event.button.x = last_mouse_x;
+        event.button.y = last_mouse_y;
+        event.button.state = up ? SDL_RELEASED : SDL_PRESSED;
+        event.button.button = button;
+        SDL_PushEvent(&event);
+    }
 }
 
 // Pass Mouse Click To SDL
 static void glfw_click(__attribute__((unused)) GLFWwindow *window, int button, int action, __attribute__((unused)) int mods) {
-    int up = action == GLFW_RELEASE;
-    int sdl_button = button == GLFW_MOUSE_BUTTON_RIGHT ? SDL_BUTTON_RIGHT : (button == GLFW_MOUSE_BUTTON_LEFT ? SDL_BUTTON_LEFT : SDL_BUTTON_MIDDLE);
-    click_event(sdl_button, up);
+    if (is_interactable) {
+        int up = action == GLFW_RELEASE;
+        int sdl_button = button == GLFW_MOUSE_BUTTON_RIGHT ? SDL_BUTTON_RIGHT : (button == GLFW_MOUSE_BUTTON_LEFT ? SDL_BUTTON_LEFT : SDL_BUTTON_MIDDLE);
+        click_event(sdl_button, up);
+    }
 }
 
 // Pass Mouse Scroll To SDL
 static void glfw_scroll(__attribute__((unused)) GLFWwindow *window, __attribute__((unused)) double xoffset, double yoffset) {
-    if (yoffset != 0) {
+    if (is_interactable && yoffset != 0) {
         int sdl_button = yoffset > 0 ? SDL_BUTTON_WHEELUP : SDL_BUTTON_WHEELDOWN;
         click_event(sdl_button, 0);
         click_event(sdl_button, 1);
@@ -206,6 +226,17 @@ static void glfw_scroll(__attribute__((unused)) GLFWwindow *window, __attribute_
 
 // Track Media Layer State
 static int is_running = 0;
+
+// Disable V-Sync
+static int disable_vsync = 0;
+void media_disable_vsync() {
+    disable_vsync = 1;
+#ifndef MCPI_HEADLESS_MODE
+    if (is_running) {
+        glfwSwapInterval(0);
+    }
+#endif // #ifndef MCPI_HEADLESS_MODE
+}
 
 // Init Media Layer
 void SDL_WM_SetCaption(const char *title, __attribute__((unused)) const char *icon) {
@@ -250,6 +281,12 @@ void SDL_WM_SetCaption(const char *title, __attribute__((unused)) const char *ic
 
     // Set State
     is_running = 1;
+
+    // Update State
+    update_cursor();
+    if (disable_vsync) {
+        media_disable_vsync();
+    }
 }
 
 void media_swap_buffers() {
@@ -341,37 +378,53 @@ static int cursor_grabbed = 0;
 static int cursor_visible = 1;
 
 // Update GLFW Cursor State (Client Only)
+static void update_cursor() {
 #ifndef MCPI_HEADLESS_MODE
-static void update_glfw_cursor() {
-    // Store Old Mode
-    int old_mode = glfwGetInputMode(glfw_window, GLFW_CURSOR);
+    if (is_running) {
+        // Get New State
+        int new_cursor_visible = is_interactable ? cursor_visible : 1;
+        int new_cursor_grabbed = is_interactable ? cursor_grabbed : 0;
 
-    // Handle Cursor Visibility
-    int new_mode;
-    if (!cursor_visible) {
-        if (cursor_grabbed) {
-            new_mode = GLFW_CURSOR_DISABLED;
+        // Store Old Mode
+        int old_mode = glfwGetInputMode(glfw_window, GLFW_CURSOR);
+
+        // Handle Cursor Visibility
+        int new_mode;
+        if (!new_cursor_visible) {
+            if (new_cursor_grabbed) {
+                new_mode = GLFW_CURSOR_DISABLED;
+            } else {
+                new_mode = GLFW_CURSOR_HIDDEN;
+            }
         } else {
-            new_mode = GLFW_CURSOR_HIDDEN;
+            new_mode = GLFW_CURSOR_NORMAL;
         }
-    } else {
-        new_mode = GLFW_CURSOR_NORMAL;
-    }
-    if (new_mode != old_mode) {
-        // Set New Mode
-        glfwSetInputMode(glfw_window, GLFW_CURSOR, new_mode);
+        if (new_mode != old_mode) {
+            // Ignore Relative Cursor Motion When Locking
+            if (new_mode == GLFW_CURSOR_DISABLED && old_mode != GLFW_CURSOR_DISABLED) {
+                ignore_relative_motion = 1;
+            }
 
-        // Handle Cursor Lock/Unlock
-        if ((new_mode == GLFW_CURSOR_DISABLED && old_mode != GLFW_CURSOR_DISABLED) || (new_mode != GLFW_CURSOR_DISABLED && old_mode == GLFW_CURSOR_DISABLED)) {
-            // Use Raw Mouse Motion
-            glfwSetInputMode(glfw_window, GLFW_RAW_MOUSE_MOTION, new_mode == GLFW_CURSOR_DISABLED ? GLFW_TRUE : GLFW_FALSE);
+            // Set New Mode
+            glfwSetInputMode(glfw_window, GLFW_CURSOR, new_mode);
 
-            // Reset Last Mouse Position
-            ignore_relative_mouse = 1;
+            // Handle Cursor Lock/Unlock
+            if ((new_mode == GLFW_CURSOR_DISABLED && old_mode != GLFW_CURSOR_DISABLED) || (new_mode != GLFW_CURSOR_DISABLED && old_mode == GLFW_CURSOR_DISABLED)) {
+                // Use Raw Mouse Motion
+                glfwSetInputMode(glfw_window, GLFW_RAW_MOUSE_MOTION, new_mode == GLFW_CURSOR_DISABLED ? GLFW_TRUE : GLFW_FALSE);
+            }
+
+            // Reset Mouse Position When Unlocking
+            if (new_mode != GLFW_CURSOR_DISABLED && old_mode == GLFW_CURSOR_DISABLED) {
+                double cursor_x;
+                double cursor_y;
+                glfwGetCursorPos(glfw_window, &cursor_x, &cursor_y);
+                glfw_motion(glfw_window, cursor_x, cursor_y);
+            }
         }
     }
+#endif // #ifndef MCPI_HEADLESS_MODE
 }
-#endif
 
 // Fix SDL Cursor Visibility/Grabbing
 SDL_GrabMode SDL_WM_GrabInput(SDL_GrabMode mode) {
@@ -386,9 +439,7 @@ SDL_GrabMode SDL_WM_GrabInput(SDL_GrabMode mode) {
         cursor_grabbed = 0;
     }
     // Update Cursor GLFW State (Client Only)
-#ifndef MCPI_HEADLESS_MODE
-    update_glfw_cursor();
-#endif
+    update_cursor();
     // Return
     return mode;
 }
@@ -406,9 +457,7 @@ int SDL_ShowCursor(int toggle) {
         cursor_visible = 0;
     }
     // Update Cursor GLFW State (Client Only)
-#ifndef MCPI_HEADLESS_MODE
-    update_glfw_cursor();
-#endif
+    update_cursor();
     // Return
     return toggle;
 }

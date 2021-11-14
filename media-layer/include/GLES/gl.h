@@ -17,6 +17,8 @@ extern "C" {
 #define GL_DEPTH_TEST 0xb71
 #define GL_PACK_ALIGNMENT 0xd05
 #define GL_UNPACK_ALIGNMENT 0xcf5
+#define GL_SRC_ALPHA 0x302
+#define GL_ONE_MINUS_SRC_ALPHA 0x303
 
 #include <stdio.h>
 #include <stdint.h>
