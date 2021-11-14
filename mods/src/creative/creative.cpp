@@ -66,18 +66,18 @@ void init_creative() {
     }
 
     // Remove Creative Restrictions (Opening Chests, Crafting, Etc)
-    if (feature_has("Remove Creative Restrictions", 0)) {
+    if (feature_has("Remove Creative Mode Restrictions", 0)) {
         unsigned char nop_patch[4] = {0x00, 0xf0, 0x20, 0xe3}; // "nop"
-        patch((void *) 0x1e3f4, nop_patch);
-        unsigned char slot_count_patch[4] = {0x18, 0x00, 0x00, 0xea}; // "b 0x27110"
-        patch((void *) 0x270a8, slot_count_patch);
+        // Remove Restrictions
+        patch((void *) 0x43ee8, nop_patch);
+        patch((void *) 0x43f3c, nop_patch);
+        patch((void *) 0x43f8c, nop_patch);
+        patch((void *) 0x43fd8, nop_patch);
+        // Fix UI
         patch((void *) 0x341c0, nop_patch);
         patch((void *) 0x3adb4, nop_patch);
         patch((void *) 0x3b374, nop_patch);
-        patch((void *) 0x43ee8, nop_patch);
-        patch((void *) 0x43f3c, nop_patch);
-        patch((void *) 0x43fd0, nop_patch);
-        patch((void *) 0x43fd8, nop_patch);
+        // Fix Inventory
         patch((void *) 0x8d080, nop_patch);
         patch((void *) 0x8d090, nop_patch);
         patch((void *) 0x91d48, nop_patch);
@@ -85,6 +85,11 @@ void init_creative() {
         unsigned char FillingContainer_removeResource_creative_check_patch[4] = {0x03, 0x00, 0x53, 0xe1}; // "cmp r3, r3"
         patch((void *) 0x923c0, FillingContainer_removeResource_creative_check_patch);
         patch((void *) 0x92828, nop_patch);
+        // Display Slot Count
+        patch((void *) 0x1e3f4, nop_patch);
+        unsigned char slot_count_patch[4] = {0x18, 0x00, 0x00, 0xea}; // "b 0x27110"
+        patch((void *) 0x270a8, slot_count_patch);
+        patch((void *) 0x33954, nop_patch);
         // Maximize Creative Inventory Stack Size
         unsigned char maximize_stack_patch[4] = {0xff, 0xc0, 0xa0, 0xe3}; // "mov r12, 0xff"
         patch((void *) 0x8e104, maximize_stack_patch);

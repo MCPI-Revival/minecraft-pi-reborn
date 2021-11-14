@@ -8,7 +8,7 @@ TRUE Display Nametags By Default
 TRUE Fix Sign Placement
 TRUE Show Block Outlines
 FALSE Expand Creative Inventory
-FALSE Remove Creative Restrictions
+FALSE Remove Creative Mode Restrictions
 FALSE Peaceful Mode
 TRUE Animated Water
 TRUE Remove Invalid Item Background

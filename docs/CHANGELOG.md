@@ -2,7 +2,7 @@
 
 **2.2.8**
 * Add "Hide Chat Messages" Optional Feature Flag
-* Add "Remove Creative Restrictions" Optional Feature Flag
+* Add "Remove Creative Mode Restrictions" Optional Feature Flag
 * Improve GLFW->SDL Mouse Motion Event Conversion
 * Performance Optimizations
 * Make Majority Of Server-Specific Logging Code Also Apply To The Client
