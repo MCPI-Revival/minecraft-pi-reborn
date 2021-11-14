@@ -73,6 +73,7 @@ void init_creative() {
         patch((void *) 0x43f3c, nop_patch);
         patch((void *) 0x43f8c, nop_patch);
         patch((void *) 0x43fd8, nop_patch);
+        patch((void *) 0x99010, nop_patch);
         // Fix UI
         patch((void *) 0x341c0, nop_patch);
         patch((void *) 0x3adb4, nop_patch);
