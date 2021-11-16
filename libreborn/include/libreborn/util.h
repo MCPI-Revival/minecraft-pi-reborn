@@ -11,7 +11,7 @@
 #define ALLOC_CHECK(obj) \
     { \
         if (obj == NULL) { \
-            ERR("(%s:%i) Memory Allocation Failed", __FILE__, __LINE__); \
+            ERR("%s", "Memory Allocation Failed"); \
         } \
     }
 
