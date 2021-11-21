@@ -9,6 +9,7 @@
 #include <fstream>
 #include <vector>
 
+#include <sys/ioctl.h>
 #include <pthread.h>
 
 #include <unistd.h>
@@ -231,17 +232,23 @@ static void *read_stdin_thread(__attribute__((unused)) void *data) {
     if (isatty(fileno(stdin))) {
         // Loop
         while (1) {
-            if (!stdin_buffer_complete) {
-                // Read Data
-                int x = fgetc(stdin);
-                if (x != EOF) {
-                    if (x == '\n') {
-                        if (stdin_buffer == NULL) {
-                            stdin_buffer = strdup("");
+            int bytes_available;
+            if (ioctl(fileno(stdin), FIONREAD, &bytes_available) == -1) {
+                bytes_available = 0;
+            }
+            for (int i = 0; i < bytes_available; i++) {
+                if (!stdin_buffer_complete) {
+                    // Read Data
+                    int x = fgetc(stdin);
+                    if (x != EOF) {
+                        if (x == '\n') {
+                            if (stdin_buffer == NULL) {
+                                stdin_buffer = strdup("");
+                            }
+                            stdin_buffer_complete = true;
+                        } else {
+                            string_append((char **) &stdin_buffer, "%c", (char) x);
                         }
-                        stdin_buffer_complete = true;
-                    } else {
-                        string_append((char **) &stdin_buffer, "%c", (char) x);
                     }
                 }
             }
