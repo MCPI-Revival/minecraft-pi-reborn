@@ -548,7 +548,7 @@ static uint32_t Inventory_selectedSlot_property_offset = 0x28; // int32_t
 
 // TripodCameraRenderer
 
-#define TRIPOD_CAMERA_RENDERER_SIZE 0x128
+#define TRIPOD_CAMERA_RENDERER_SIZE 0x178
 
 typedef unsigned char *(*TripodCameraRenderer_t)(unsigned char *renderer);
 static TripodCameraRenderer_t TripodCameraRenderer = (TripodCameraRenderer_t) 0x6583c;
