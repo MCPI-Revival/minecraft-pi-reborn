@@ -57,7 +57,7 @@ static void Minecraft_init_injection(unsigned char *this) {
     // Enable Crosshair In Touch GUI
     *(options + Options_split_controls_property_offset) = 1;
     // Peaceful Mode
-    *(int32_t *) (options + Options_split_controls_property_offset) = peaceful_mode ? 0 : 2;
+    *(int32_t *) (options + Options_peaceful_mode_property_offset) = peaceful_mode ? 0 : 2;
     // 3D Anaglyph
     *(options + Options_3d_anaglyph_property_offset) = anaglyph;
     // Smooth Lighting
