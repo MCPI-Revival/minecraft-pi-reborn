@@ -87,7 +87,8 @@ static void CommandServer_parse_CommandServer_dispatchPacket_injection(unsigned 
 
 // Handle ChatPacket Server-Side
 static void ServerSideNetworkHandler_handle_ChatPacket_injection(unsigned char *server_side_network_handler, RakNet_RakNetGUID *rak_net_guid, unsigned char *chat_packet) {
-    unsigned char *player = (*ServerSideNetworkHandler_getPlayer)(server_side_network_handler, rak_net_guid);
+    unsigned char *level = *(unsigned char **) (server_side_network_handler + ServerSideNetworkHandler_level_property_offset);
+    unsigned char *player = (*NetEventCallback_findPlayer)(server_side_network_handler, level, rak_net_guid);
     if (player != NULL) {
         char *username = *(char **) (player + Player_username_property_offset);
         char *message = *(char **) (chat_packet + ChatPacket_message_property_offset);
@@ -138,9 +139,9 @@ void init_chat() {
     if (_chat_enabled) {
         // Disable Original ChatPacket Loopback
         unsigned char disable_chat_packet_loopback_patch[4] = {0x00, 0xf0, 0x20, 0xe3}; // "nop"
-        patch((void *) 0x6b490, disable_chat_packet_loopback_patch);
+        patch((void *) 0x8c118, disable_chat_packet_loopback_patch);
         // Manually Send (And Loopback) ChatPacket
-        overwrite_call((void *) 0x6b518, (void *) CommandServer_parse_CommandServer_dispatchPacket_injection);
+        overwrite_call((void *) 0x8c1a4, (void *) CommandServer_parse_CommandServer_dispatchPacket_injection);
         // Re-Broadcast ChatPacket
         patch_address(ServerSideNetworkHandler_handle_ChatPacket_vtable_addr, (void *) ServerSideNetworkHandler_handle_ChatPacket_injection);
         // Send Messages On Input Tick

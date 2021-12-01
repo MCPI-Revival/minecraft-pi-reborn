@@ -15,7 +15,6 @@ __attribute__((constructor)) static void init() {
     init_multiplayer();
     init_sound();
     init_input();
-    init_sign();
     init_camera();
     init_touch();
     init_textures();

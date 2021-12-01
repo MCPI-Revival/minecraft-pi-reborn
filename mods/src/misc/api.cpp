@@ -83,6 +83,7 @@ static void Inventory_setupDefault_FillingContainer_addItem_call_injection(unsig
 
 // Run Functions On Tiles Setup
 SETUP_CALLBACK(tiles_setup);
+SETUP_CALLBACK(internal_after_tiles_setup);
 // Handle Custom Tiles Setup Behavior
 static void Tile_initTiles_injection() {
     // Run Functions
@@ -90,6 +91,9 @@ static void Tile_initTiles_injection() {
 
     // Call Original Method
     (*Tile_initTiles)();
+
+    // Run Functions
+    handle_misc_internal_after_tiles_setup(NULL);
 }
 
 // Run Functions On Items Setup
@@ -113,7 +117,7 @@ void _init_misc_api() {
     overwrite_calls((void *) Recipes, (void *) Recipes_injection);
     overwrite_calls((void *) FurnaceRecipes, (void *) FurnaceRecipes_injection);
     // Handle Custom Creative Inventory Setup Behavior
-    overwrite_call((void *) 0x8e0fc, (void *) Inventory_setupDefault_FillingContainer_addItem_call_injection);
+    overwrite_call((void *) 0xcdcf4, (void *) Inventory_setupDefault_FillingContainer_addItem_call_injection);
     // Handle Custom Item/Tile Init Behavior
     overwrite_calls((void *) Tile_initTiles, (void *) Tile_initTiles_injection);
     overwrite_calls((void *) Item_initItems, (void *) Item_initItems_injection);

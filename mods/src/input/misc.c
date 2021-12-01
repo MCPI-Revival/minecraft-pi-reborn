@@ -94,7 +94,7 @@ void _init_misc() {
         overwrite_calls((void *) Gui_handleClick, (void *) Gui_handleClick_injection);
     }
     // Disable Item Dropping Using The Cursor When Cursor Is Hidden
-    overwrite_call((void *) 0x27800, (void *) Gui_tickItemDrop_Minecraft_isCreativeMode_call_injection);
+    overwrite_call((void *) 0x2b130, (void *) Gui_tickItemDrop_Minecraft_isCreativeMode_call_injection);
 
     input_run_on_tick(_handle_back);
     input_run_on_tick(_handle_mouse_grab);

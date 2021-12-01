@@ -20,7 +20,7 @@ if(NOT MCPI_HEADLESS_MODE)
     target_link_libraries(compat screenshot)
 endif()
 if(NOT MCPI_SERVER_MODE)
-    target_link_libraries(compat input sign chat home dl)
+    target_link_libraries(compat input chat home dl)
 endif()
 
 add_library(readdir SHARED src/readdir/readdir.c)
@@ -62,11 +62,8 @@ else()
         target_link_libraries(camera screenshot)
     endif()
 
-    add_library(input SHARED src/input/input.cpp src/input/bow.c src/input/attack.c src/input/toggle.c src/input/misc.c src/input/drop.cpp src/input/crafting.cpp)
+    add_library(input SHARED src/input/input.cpp src/input/attack.c src/input/toggle.c src/input/misc.c src/input/drop.cpp src/input/crafting.cpp)
     target_link_libraries(input mods-headers reborn-patch symbols creative feature misc media-layer-core)
-
-    add_library(sign SHARED src/sign/sign.cpp)
-    target_link_libraries(sign mods-headers reborn-patch symbols feature input media-layer-core)
 
     add_library(touch SHARED src/touch/touch.cpp)
     target_link_libraries(touch mods-headers reborn-patch symbols feature)
@@ -93,8 +90,8 @@ target_link_libraries(death mods-headers reborn-patch symbols feature)
 add_library(misc SHARED src/misc/misc.c src/misc/misc.cpp src/misc/logging.cpp src/misc/api.cpp)
 target_link_libraries(misc mods-headers reborn-patch symbols media-layer-core feature)
 
-add_library(options SHARED src/options/options.c src/options/options.cpp)
-target_link_libraries(options mods-headers reborn-patch symbols feature home)
+add_library(options SHARED src/options/options.c)
+target_link_libraries(options mods-headers reborn-patch symbols feature)
 
 add_library(bucket SHARED src/bucket/bucket.cpp)
 target_link_libraries(bucket mods-headers reborn-patch symbols feature misc)
@@ -115,7 +112,7 @@ target_link_libraries(init mods-headers reborn-util compat game-mode misc death 
 if(MCPI_SERVER_MODE)
     target_link_libraries(init server)
 else()
-    target_link_libraries(init multiplayer sound camera input sign touch textures atlas title-screen benchmark)
+    target_link_libraries(init multiplayer sound camera input touch textures atlas title-screen benchmark)
 endif()
 
 ## Install Mods
@@ -123,7 +120,7 @@ set(MODS_TO_INSTALL init compat readdir feature game-mode misc override death op
 if(MCPI_SERVER_MODE)
     list(APPEND MODS_TO_INSTALL server)
 else()
-    list(APPEND MODS_TO_INSTALL multiplayer sound camera input sign touch textures atlas title-screen benchmark)
+    list(APPEND MODS_TO_INSTALL multiplayer sound camera input touch textures atlas title-screen benchmark)
 endif()
 if(NOT MCPI_HEADLESS_MODE)
     list(APPEND MODS_TO_INSTALL screenshot)

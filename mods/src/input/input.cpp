@@ -40,9 +40,6 @@ void init_input() {
     // Item Dropping
     _init_drop();
 
-    // Enable Bow & Arrow Fix
-    _init_bow();
-
     // Loop
     overwrite_calls((void *) Minecraft_tickInput, (void *) Minecraft_tickInput_injection);
 

@@ -146,7 +146,7 @@ static unsigned char *create_bucket(int32_t id, int32_t texture_x, int32_t textu
     // Construct
     unsigned char *item = (unsigned char *) ::operator new(ITEM_SIZE);
     ALLOC_CHECK(item);
-    (*Item)(item, id);
+    new ((std::string *) (item + Item_description_id_property_offset)) std::string;
 
     // Set VTable
     *(unsigned char **) item = get_bucket_vtable();
@@ -159,10 +159,16 @@ static unsigned char *create_bucket(int32_t id, int32_t texture_x, int32_t textu
     // Setup
     (*Item_setIcon)(item, texture_x, texture_y);
     (*Item_setDescriptionId)(item, name);
+    *(int32_t *) (item + Item_id_property_offset) = id + 0x100;
     *(int32_t *) (item + Item_is_stacked_by_data_property_offset) = 1;
-    *(int32_t *) (item + Item_category_property_offset) = 2;
+    *(int32_t *) (item + Item_is_hand_equipped_property_offset) = 0;
+    *(int32_t *) (item + Item_category_property_offset) = 1;
     *(int32_t *) (item + Item_max_damage_property_offset) = 0;
-    *(int32_t *) (item + Item_max_stack_size_property_offset) = 1;
+    *(int32_t *) (item + Item_max_stack_size_property_offset) = 16;
+    *(unsigned char **) (item + Item_crafting_remaining_item_property_offset) = NULL;
+
+    // Register
+    Item_items[*(int32_t *) (item + Item_id_property_offset)] = item;
 
     // Return
     return item;
@@ -173,9 +179,9 @@ static void Item_initItems_injection(__attribute__((unused)) unsigned char *null
 
 // Change Max Stack Size Based On Auxiliary
 static int32_t ItemInstance_getMaxStackSize_injection(ItemInstance *item_instance) {
-    if (item_instance->id == *(int32_t *) (bucket + Item_id_property_offset) && item_instance->auxiliary == 0) {
+    if (item_instance->id == *(int32_t *) (bucket + Item_id_property_offset) && item_instance->auxiliary != 0) {
         // Custom Value
-        return 16;
+        return 1;
     } else {
         // Call Original Method
         return (*ItemInstance_getMaxStackSize)(item_instance);
@@ -299,7 +305,7 @@ void init_bucket() {
         // Creative Inventory
         misc_run_on_creative_inventory_setup(Inventory_setupDefault_FillingContainer_addItem_call_injection);
         // Make Liquids Selectable
-        overwrite_call((void *) 0x7f5b0, (void *) Mob_pick_Level_clip_injection);
+        overwrite_call((void *) 0xab594, (void *) Mob_pick_Level_clip_injection);
         misc_run_on_tick(handle_tick);
         // Prevent Breaking Liquid
         overwrite_calls((void *) Minecraft_handleMouseDown, (void *) Minecraft_handleMouseDown_injection);
@@ -307,6 +313,6 @@ void init_bucket() {
         misc_run_on_recipes_setup(Recipes_injection);
         // Custom Furnace Fuel
         overwrite_calls((void *) FurnaceTileEntity_getBurnDuration, (void *) FurnaceTileEntity_getBurnDuration_injection);
-        overwrite_call((void *) 0xd351c, (void *) FurnaceTileEntity_tick_ItemInstance_setNull_injection);
+        overwrite_call((void *) 0x14048c, (void *) FurnaceTileEntity_tick_ItemInstance_setNull_injection);
     }
 }

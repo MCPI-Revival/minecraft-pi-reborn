@@ -43,6 +43,6 @@ void init_camera() {
         // Enable TripodCameraRenderer
         overwrite_calls((void *) EntityRenderDispatcher, (void *) EntityRenderDispatcher_injection);
         // Display Smoke From TripodCamera Higher
-        overwrite_call((void *) 0x87dc4, (void *) TripodCamera_tick_Level_addParticle_call_injection);
+        overwrite_call((void *) 0xbcf18, (void *) TripodCamera_tick_Level_addParticle_call_injection);
     }
 }

@@ -38,17 +38,6 @@ static void Gui_renderHearts_GuiComponent_blit_hearts_injection(unsigned char *c
     // Call Original Method
     (*GuiComponent_blit)(component, x_dest, y_dest, x_src, y_src, width_dest, height_dest, width_src, height_src);
 }
-static void Gui_renderHearts_GuiComponent_blit_armor_injection(unsigned char *component, int32_t x_dest, int32_t y_dest, int32_t x_src, int32_t y_src, int32_t width_dest, int32_t height_dest, int32_t width_src, int32_t height_src) {
-    unsigned char *minecraft = *(unsigned char **) (component + Gui_minecraft_property_offset);
-    x_dest -= DEFAULT_HUD_PADDING + HUD_ELEMENT_WIDTH;
-    float width = ((float) *(int32_t *) (minecraft + Minecraft_screen_width_property_offset)) * *InvGuiScale;
-    float height = ((float) *(int32_t *) (minecraft + Minecraft_screen_height_property_offset)) * *InvGuiScale;
-    x_dest += width - ((width - (NUMBER_OF_SLOTS * SLOT_WIDTH)) / 2) - HUD_ELEMENT_WIDTH;
-    y_dest -= DEFAULT_HUD_PADDING;
-    y_dest += height - HUD_ELEMENT_HEIGHT - TOOLBAR_HEIGHT - NEW_HUD_PADDING;
-    // Call Original Method
-    (*GuiComponent_blit)(component, x_dest, y_dest, x_src, y_src, width_dest, height_dest, width_src, height_src);
-}
 static void Gui_renderBubbles_GuiComponent_blit_injection(unsigned char *component, int32_t x_dest, int32_t y_dest, int32_t x_src, int32_t y_src, int32_t width_dest, int32_t height_dest, int32_t width_src, int32_t height_src) {
     unsigned char *minecraft = *(unsigned char **) (component + Gui_minecraft_property_offset);
     x_dest -= DEFAULT_HUD_PADDING;
@@ -330,6 +319,11 @@ HOOK(bind, int, (int sockfd, const struct sockaddr *addr, socklen_t addrlen)) {
     return (*real_bind)(sockfd, new_addr, addrlen);
 }
 
+// Stop Checking GL Renderer
+static bool AppPlatform_isPowerVR_injection(__attribute__((unused)) unsigned char *app_platform) {
+    return 0;
+}
+
 // Init
 static void nop() {
 }
@@ -337,17 +331,16 @@ void init_misc() {
     // Remove Invalid Item Background (A Red Background That Appears For Items That Are Not Included In The gui_blocks Atlas)
     if (feature_has("Remove Invalid Item Background", server_disabled)) {
         unsigned char invalid_item_background_patch[4] = {0x00, 0xf0, 0x20, 0xe3}; // "nop"
-        patch((void *) 0x63c98, invalid_item_background_patch);
+        patch((void *) 0x7f7e8, invalid_item_background_patch);
     }
 
     // Classic HUD
     if (feature_has("Classic HUD", server_disabled)) {
         use_classic_hud = 1;
-        overwrite_call((void *) 0x266f8, (void *) Gui_renderHearts_GuiComponent_blit_hearts_injection);
-        overwrite_call((void *) 0x26758, (void *) Gui_renderHearts_GuiComponent_blit_hearts_injection);
-        overwrite_call((void *) 0x267c8, (void *) Gui_renderHearts_GuiComponent_blit_hearts_injection);
-        overwrite_call((void *) 0x2656c, (void *) Gui_renderHearts_GuiComponent_blit_armor_injection);
-        overwrite_call((void *) 0x268c4, (void *) Gui_renderBubbles_GuiComponent_blit_injection);
+        overwrite_call((void *) 0x2b730, (void *) Gui_renderHearts_GuiComponent_blit_hearts_injection);
+        overwrite_call((void *) 0x2b8a4, (void *) Gui_renderHearts_GuiComponent_blit_hearts_injection);
+        overwrite_call((void *) 0x2b788, (void *) Gui_renderHearts_GuiComponent_blit_hearts_injection);
+        overwrite_call((void *) 0x2ba80, (void *) Gui_renderBubbles_GuiComponent_blit_injection);
     }
 
     // Render Selected Item Text + Hide Chat Messages
@@ -360,7 +353,7 @@ void init_misc() {
     // Translucent Toolbar
     if (feature_has("Translucent Toolbar", server_disabled)) {
         overwrite_calls((void *) Gui_renderToolBar, (void *) Gui_renderToolBar_injection);
-        overwrite_call((void *) 0x26c5c, (void *) Gui_renderToolBar_glColor4f_injection);
+        overwrite_call((void *) 0x2c130, (void *) Gui_renderToolBar_glColor4f_injection);
     }
 
     // Fix Screen Rendering When GUI is Hidden
@@ -373,7 +366,7 @@ void init_misc() {
     overwrite_calls((void *) RakNet_RakString, (void *) RakNet_RakString_injection);
 
     // Print Error Message If RakNet Startup Fails
-    overwrite_call((void *) 0x73778, (void *) RakNetInstance_host_RakNet_RakPeer_Startup_injection);
+    overwrite_call((void *) 0x98014, (void *) RakNetInstance_host_RakNet_RakPeer_Startup_injection);
 
     // Fix Bug Where RakNetInstance Starts Pinging Potential Servers Before The "Join Game" Screen Is Opened
     overwrite_calls((void *) RakNetInstance, (void *) RakNetInstance_injection);
@@ -392,7 +385,7 @@ void init_misc() {
     if (feature_has("Improved Cursor Rendering", server_disabled)) {
         // Disable Normal Cursor Rendering
         unsigned char disable_cursor_patch[4] = {0x00, 0xf0, 0x20, 0xe3}; // "nop"
-        patch((void *) 0x4a6c0, disable_cursor_patch);
+        patch((void *) 0x61afc, disable_cursor_patch);
         // Add Custom Cursor Rendering
         overwrite_calls((void *) GameRenderer_render, (void *) GameRenderer_render_injection);
     }
@@ -421,14 +414,18 @@ void init_misc() {
     // Disable Speed Bridging
     if (feature_has("Disable Speed Bridging", server_disabled)) {
         unsigned char disable_speed_bridging_patch[4] = {0x03, 0x00, 0x53, 0xe1}; // "cmp r3, r3"
-        patch((void *) 0x494b4, disable_speed_bridging_patch);
+        patch((void *) 0x60bdc, disable_speed_bridging_patch);
     }
 
     // Disable Creative Mode Mining Delay
     if (feature_has("Disable Creative Mode Mining Delay", server_disabled)) {
         unsigned char nop_patch[4] = {0x00, 0xf0, 0x20, 0xe3}; // "nop"
-        patch((void *) 0x19fa0, nop_patch);
+        patch((void *) 0x1d19c, nop_patch);
+        patch((void *) 0x1d1a0, nop_patch);
     }
+
+    // Stop Checking GL Renderer
+    overwrite((void *) AppPlatform_isPowerVR, (void *) AppPlatform_isPowerVR_injection);
 
     // Init C++ And Logging
     _init_misc_cpp();

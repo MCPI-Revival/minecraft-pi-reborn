@@ -24,10 +24,8 @@ __attribute__((destructor)) static void _free_home() {
 // Init
 void init_home() {
     // Store Data In ~/.minecraft-pi Instead Of ~/.minecraft
-    patch_address((void *) default_path, (void *) HOME_SUBDIRECTORY_FOR_GAME_DATA);
+    patch_address((void *) full_data_path, (void *) home_get());
 
     // The override code resolves assets manually,
     // making changing directory redundant.
-    unsigned char nop_patch[4] = {0x00, 0xf0, 0x20, 0xe3}; // "nop"
-    patch((void *) 0xe0ac, nop_patch);
 }

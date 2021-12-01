@@ -15,6 +15,7 @@ void misc_run_on_recipes_setup(misc_update_function_t function); // obj == Recip
 void misc_run_on_furnace_recipes_setup(misc_update_function_t function); // obj == FurnaceRecipes *
 void misc_run_on_creative_inventory_setup(misc_update_function_t function); // obj == FillingContainer *
 void misc_run_on_tiles_setup(misc_update_function_t function); // obj == NULL
+void misc_run_on_internal_after_tiles_setup(misc_update_function_t function); // obj == NULL
 void misc_run_on_items_setup(misc_update_function_t function); // obj == NULL
 
 void Level_saveLevelData_injection(unsigned char *level);

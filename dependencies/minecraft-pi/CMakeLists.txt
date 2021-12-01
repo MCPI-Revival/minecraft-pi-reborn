@@ -7,7 +7,7 @@ include(FetchContent)
 # Download
 FetchContent_Declare(
     minecraft-pi
-    URL "${CMAKE_CURRENT_SOURCE_DIR}/minecraft-pi-0.1.1.tar.gz"
+    URL "${CMAKE_CURRENT_SOURCE_DIR}/minecraft-pi-0.1.0.tar.gz"
 )
 FetchContent_Populate(minecraft-pi)
 

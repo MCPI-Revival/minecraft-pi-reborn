@@ -15,7 +15,6 @@ void init_server();
 void init_multiplayer();
 void init_sound();
 void init_input();
-void init_sign();
 void init_camera();
 void init_touch();
 void init_textures();

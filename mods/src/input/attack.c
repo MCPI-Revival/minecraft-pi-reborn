@@ -61,7 +61,7 @@ void _init_attack() {
         patch_address(MouseBuildInput_tickBuild_vtable_addr, (void *) MouseBuildInput_tickBuild_injection);
 
         // Fix Holding Attack
-        overwrite_call((void *) 0x8fc1c, (void *) Player_attack_Entity_hurt_injection);
-        overwrite_call((void *) 0x8fc24, (void *) Player_attack_Inventory_getSelected_injection);
+        overwrite_call((void *) 0xd070c, (void *) Player_attack_Entity_hurt_injection);
+        overwrite_call((void *) 0xd0714, (void *) Player_attack_Inventory_getSelected_injection);
     }
 }

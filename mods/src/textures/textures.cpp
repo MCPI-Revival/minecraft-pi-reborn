@@ -170,5 +170,5 @@ void init_textures() {
     }
 
     // Scale Animated Textures
-    overwrite_call((void *) 0x53274, (void *) Textures_tick_glTexSubImage2D_injection);
+    overwrite_call((void *) 0x6bfd0, (void *) Textures_tick_glTexSubImage2D_injection);
 }
