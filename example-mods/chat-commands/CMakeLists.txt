@@ -8,7 +8,7 @@ set(CMAKE_CXX_COMPILER arm-linux-gnueabihf-g++)
 project(chat-commands)
 
 # Include SDK
-include("$ENV{HOME}/.minecraft-pi/sdk/lib/minecraft-pi-reborn-client/sdk/sdk.cmake")
+include("$ENV{HOME}/.minecraft-pi/sdk/lib/minecraft-pi-reborn-legacy-client/sdk/sdk.cmake")
 
 # Build
 add_library(chat-commands SHARED chat-commands.cpp)

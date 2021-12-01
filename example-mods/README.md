@@ -8,12 +8,12 @@ This is an example of a mod that can be built using the modding SDK.
 ## The SDK
 The modding SDK is a collection of exported CMake targets that allows anyone to create their own MCPI mod!
 
-The SDK is copied to ``~/.minecraft-pi/sdk/lib/minecraft-pi-reborn-client/sdk/sdk.cmake`` whenever MCPI-Reborn is started.
+The SDK is copied to ``~/.minecraft-pi/sdk/lib/minecraft-pi-reborn-legacy-client/sdk/sdk.cmake`` whenever MCPI-Reborn is started.
 
 ## How do I use this?
 ```sh
 mkdir build
 cd build
 cmake ..
-cp libexpanded-creative.so ~/.minecraft-pi/mods
+cp libexpanded-creative.so ~/.minecraft-pi/legacy-mods
 ```

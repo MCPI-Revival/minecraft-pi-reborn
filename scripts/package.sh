@@ -3,8 +3,8 @@
 set -e
 
 # Prepare
-NAME='minecraft-pi-reborn'
-BRANCH='master'
+NAME='minecraft-pi-reborn-legacy'
+BRANCH='legacy'
 
 # Build
 ./scripts/setup.sh "$1" "$2" -DMCPI_IS_APPIMAGE_BUILD=ON

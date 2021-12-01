@@ -16,4 +16,4 @@ WORKDIR /data
 
 # Setup Entrypoint
 ENTRYPOINT ["/usr/bin/tini", "--"]
-CMD ["/app/usr/bin/minecraft-pi-reborn-server"]
+CMD ["/app/usr/bin/minecraft-pi-reborn-legacy-server"]

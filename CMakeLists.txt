@@ -39,7 +39,7 @@ if(NOT MCPI_HEADLESS_MODE)
 endif()
 
 # App ID
-set(DEFAULT_APP_ID "com.thebrokenrail.MCPIReborn")
+set(DEFAULT_APP_ID "com.thebrokenrail.MCPIRebornLegacy")
 if(MCPI_SERVER_MODE)
     string(APPEND DEFAULT_APP_ID "Server")
 else()
@@ -48,7 +48,7 @@ endif()
 set(MCPI_APP_ID "${DEFAULT_APP_ID}" CACHE STRING "App ID")
 
 # App Title
-set(MCPI_APP_BASE_TITLE "Minecraft: Pi Edition: Reborn" CACHE STRING "Base App Title")
+set(MCPI_APP_BASE_TITLE "Minecraft: Pi Edition: Reborn Legacy" CACHE STRING "Base App Title")
 set(DEFAULT_APP_TITLE "${MCPI_APP_BASE_TITLE}")
 if(MCPI_SERVER_MODE)
     string(APPEND DEFAULT_APP_TITLE " (Server)")
@@ -58,7 +58,7 @@ endif()
 set(MCPI_APP_TITLE "${DEFAULT_APP_TITLE}" CACHE STRING "App Title")
 
 # Specify Variant Name
-set(MCPI_VARIANT_NAME "minecraft-pi-reborn")
+set(MCPI_VARIANT_NAME "minecraft-pi-reborn-legacy")
 if(MCPI_SERVER_MODE)
     string(APPEND MCPI_VARIANT_NAME "-server")
 else()
@@ -211,7 +211,7 @@ if(BUILD_ARM_COMPONENTS)
         # Compile Flags
         "${COMPILE_FLAGS_SETUP}\n"
         # Log
-        "message(STATUS \"Using Reborn SDK v${MCPI_VERSION}\")\n"
+        "message(STATUS \"Using Reborn Legacy SDK v${MCPI_VERSION}\")\n"
         # Include Targets
         "include(\"\${CMAKE_CURRENT_LIST_DIR}/sdk-targets.cmake\")\n"
     )

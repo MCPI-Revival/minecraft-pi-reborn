@@ -108,7 +108,7 @@ void pre_bootstrap(int argc, char *argv[]) {
     for (int i = 1; i < argc; i++) {
         if (strcmp(argv[i], "--version") == 0 || strcmp(argv[i], "-v") == 0) {
             // Print
-            printf("Reborn v%s\n", MCPI_VERSION);
+            printf("Reborn Legacy v%s\n", MCPI_VERSION);
             fflush(stdout);
             exit(EXIT_SUCCESS);
         }
@@ -407,7 +407,7 @@ void bootstrap(int argc, char *argv[]) {
             {
                 // Get Mods Folder
                 char *mods_folder = NULL;
-                safe_asprintf(&mods_folder, "%s" HOME_SUBDIRECTORY_FOR_GAME_DATA "/mods/", getenv("HOME"));
+                safe_asprintf(&mods_folder, "%s" HOME_SUBDIRECTORY_FOR_GAME_DATA "/legacy-mods/", getenv("HOME"));
                 // Load Mods From ./mods
                 load(&preload, mods_folder);
                 // Free Mods Folder

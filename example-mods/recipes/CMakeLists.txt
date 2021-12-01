@@ -8,7 +8,7 @@ set(CMAKE_CXX_COMPILER arm-linux-gnueabihf-g++)
 project(recipes)
 
 # Include SDK
-include("$ENV{HOME}/.minecraft-pi/sdk/lib/minecraft-pi-reborn-client/sdk/sdk.cmake")
+include("$ENV{HOME}/.minecraft-pi/sdk/lib/minecraft-pi-reborn-legacy-client/sdk/sdk.cmake")
 
 # Build
 add_library(recipes SHARED recipes.cpp)
