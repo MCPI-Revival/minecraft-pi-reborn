@@ -113,8 +113,8 @@ static std::vector<unsigned char *> get_players_in_level(unsigned char *level) {
     return *(std::vector<unsigned char *> *) (level + Level_players_property_offset);
 }
 // Get Player's Username
-static std::string get_player_username(unsigned char *player) {
-    return *(char **) (player + Player_username_property_offset);
+static std::string *get_player_username(unsigned char *player) {
+    return (std::string *) (player + Player_username_property_offset);
 }
 // Get Level From Minecraft
 static unsigned char *get_level(unsigned char *minecraft) {
@@ -130,7 +130,7 @@ static void find_players(unsigned char *minecraft, std::string target_username, 
     for (std::size_t i = 0; i < players.size(); i++) {
         // Iterate Players
         unsigned char *player = players[i];
-        std::string username = get_player_username(player);
+        std::string username = *get_player_username(player);
         if (all_players || username == target_username) {
             // Run Callback
             (*callback)(minecraft, username, player);
@@ -390,13 +390,13 @@ static unsigned char *ServerSideNetworkHandler_onReady_ClientGeneration_ServerSi
     // Check If Player Is Null
     if (player != NULL) {
         // Get Data
-        char *username = (char *) *(unsigned char **) (player + Player_username_property_offset);
+        std::string *username = (std::string *) (player + Player_username_property_offset);
         unsigned char *minecraft = *(unsigned char **) (server_side_network_handler + ServerSideNetworkHandler_minecraft_property_offset);
         unsigned char *rak_peer = get_rak_peer(minecraft);
         char *ip = get_rak_net_guid_ip(rak_peer, *guid);
 
         // Log
-        INFO("%s Has Joined (IP: %s)", username, ip);
+        INFO("%s Has Joined (IP: %s)", username->c_str(), ip);
     }
 
     // Return

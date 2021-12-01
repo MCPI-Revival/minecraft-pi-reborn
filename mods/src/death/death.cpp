@@ -9,11 +9,11 @@
 // Death Messages
 static std::string get_death_message(unsigned char *player) {
     // Get Username
-    char *username = *(char **) (player + Player_username_property_offset);
+    std::string *username = (std::string *) (player + Player_username_property_offset);
 
     // Prepare Death Message
     std::string message;
-    message.append(username);
+    message.append(username->c_str());
     message.append(" has died");
 
     // Return

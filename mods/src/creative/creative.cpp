@@ -83,9 +83,11 @@ void init_creative() {
         patch((void *) 0x8d090, nop_patch);
         patch((void *) 0x91d48, nop_patch);
         patch((void *) 0x92098, nop_patch);
-        unsigned char FillingContainer_removeResource_creative_check_patch[4] = {0x03, 0x00, 0x53, 0xe1}; // "cmp r3, r3"
-        patch((void *) 0x923c0, FillingContainer_removeResource_creative_check_patch);
+        unsigned char inv_creative_check_r3_patch[4] = {0x03, 0x00, 0x53, 0xe1}; // "cmp r3, r3"
+        patch((void *) 0x923c0, inv_creative_check_r3_patch);
         patch((void *) 0x92828, nop_patch);
+        unsigned char inv_creative_check_r1_patch[4] = {0x01, 0x00, 0x51, 0xe1}; // "cmp r1, r1"
+        patch((void *) 0x9282c, inv_creative_check_r1_patch);
         // Display Slot Count
         patch((void *) 0x1e3f4, nop_patch);
         unsigned char slot_count_patch[4] = {0x18, 0x00, 0x00, 0xea}; // "b 0x27110"

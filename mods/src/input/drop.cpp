@@ -50,6 +50,7 @@ static void _handle_drop(unsigned char *minecraft) {
             if (inventory_item != NULL && inventory_item->count > 0) {
                 // Copy
                 ItemInstance *dropped_item = new ItemInstance;
+                ALLOC_CHECK(dropped_item);
                 *dropped_item = *inventory_item;
 
                 // Update Inventory

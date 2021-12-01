@@ -300,7 +300,7 @@ static uint32_t Player_drop_vtable_offset = 0x208;
 
 static Mob_getWalkingSpeedModifier_t Player_getWalkingSpeedModifier = (Mob_getWalkingSpeedModifier_t) 0x8ea0c;
 
-static uint32_t Player_username_property_offset = 0xbf4; // char *
+static uint32_t Player_username_property_offset = 0xbf4; // std::string
 static uint32_t Player_inventory_property_offset = 0xbe0; // Inventory *
 
 // LocalPlayer
