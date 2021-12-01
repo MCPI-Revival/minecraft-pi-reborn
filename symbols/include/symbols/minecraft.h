@@ -29,6 +29,7 @@ static char **default_username = (char **) 0x1c250; // StevePi
 static char **minecraft_pi_version = (char **) 0x4b2a0; // v0.1.0 alpha
 static char **classic_options_button_text = (char **) 0x4af30; // Options
 
+static unsigned char **Item_sign = (unsigned char **) 0x1da764; // Item
 static unsigned char **Item_flintAndSteel = (unsigned char **) 0x1da680; // Item
 static unsigned char **Item_snowball = (unsigned char **) 0x1da770; // Item
 static unsigned char **Item_shears = (unsigned char **) 0x1da7b0; // Item

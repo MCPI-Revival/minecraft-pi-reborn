@@ -20,6 +20,7 @@ static void inventory_add_item(unsigned char *inventory, unsigned char *item, bo
 // Expand Creative Inventory
 static void Inventory_setupDefault_FillingContainer_addItem_call_injection(unsigned char *filling_container) {
     // Add Items
+    inventory_add_item(filling_container, *Item_sign, false);
     inventory_add_item(filling_container, *Item_flintAndSteel, false);
     inventory_add_item(filling_container, *Item_snowball, false);
     inventory_add_item(filling_container, *Item_egg, false);
