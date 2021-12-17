@@ -46,7 +46,7 @@ mkdir build && cd build
 
 # Build ARM Components
 mkdir arm && cd arm
-cmake -DMCPI_BUILD_MODE=arm ../..
+cmake -DCMAKE_TOOLCHAIN_FILE=../../cmake/armhf-toolchain.cmake -DMCPI_BUILD_MODE=arm ../..
 make -j$(nproc) && sudo make install
 cd ../
 

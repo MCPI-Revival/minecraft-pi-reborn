@@ -2,6 +2,9 @@
 
 set -e
 
+# ARM Toolchain File
+ARM_TOOLCHAIN_FILE="$(pwd)/cmake/armhf-toolchain.cmake"
+
 # Build
 build() {
     # Find Toolchain
@@ -30,7 +33,7 @@ build() {
     # Build ARM Components
     mkdir arm
     cd arm
-    cmake -DMCPI_BUILD_MODE=arm "${extra_arg}" ../../..
+    cmake -DCMAKE_TOOLCHAIN_FILE="${ARM_TOOLCHAIN_FILE}" -DMCPI_BUILD_MODE=arm "${extra_arg}" ../../..
     make -j$(nproc)
     make install DESTDIR="${prefix}"
     cd ../
@@ -66,7 +69,7 @@ armhf_build() {
     fi
 
     # Build All Components
-    cmake -DMCPI_BUILD_MODE=both -DMCPI_SERVER_MODE="${server_mode}" ../..
+    cmake -DCMAKE_TOOLCHAIN_FILE="${ARM_TOOLCHAIN_FILE}" -DMCPI_BUILD_MODE=both -DMCPI_SERVER_MODE="${server_mode}" ../..
     make -j$(nproc)
     make install DESTDIR="${prefix}"
 

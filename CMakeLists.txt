@@ -32,11 +32,6 @@ if(NOT DEFINED CMAKE_CXX_COMPILER)
     set(CMAKE_CXX_COMPILER "clang++")
 endif()
 
-# Setup ARM Cross Compilation
-if(USE_ARM32_TOOLCHAIN)
-    include(cmake/armhf-toolchain.cmake)
-endif()
-
 # Utility Functions
 include(cmake/util.cmake)
 
@@ -66,6 +61,11 @@ endif()
 
 # Start Project
 project(minecraft-pi-reborn)
+
+# Require ARM Compilation
+if(USE_ARM32_TOOLCHAIN AND (NOT CMAKE_SYSTEM_PROCESSOR STREQUAL "arm") AND (NOT CMAKE_SYSTEM_PROCESSOR STREQUAL "armv7l"))
+    message(FATAL_ERROR "ARM-Targeting Compiler Required")
+endif()
 
 # Specify Default Installation Prefix
 if(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
