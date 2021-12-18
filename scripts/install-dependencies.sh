@@ -33,7 +33,7 @@ sudo apt-get install --no-install-recommends -y \
     crossbuild-essential-armhf \
     gcc g++ \
     libopenal-dev \
-    qemu-user-static
+    qemu-user
 
 # Install ARM Dependencies
 if [ ! -z "${ARM_PACKAGES_SUPPORTED}" ]; then
