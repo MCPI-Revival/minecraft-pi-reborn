@@ -42,6 +42,19 @@ static void set_and_print_env(const char *name, char *value) {
     // Set The Value
     setenv(name, value, 1);
 }
+#ifndef __ARM_ARCH
+#define PASS_ENVIRONMENTAL_VARIABLE_TO_QEMU(name) \
+    { \
+        char *old_value = getenv("QEMU_SET_ENV"); \
+        char *new_value = NULL; \
+        /* Pass Variable */ \
+        safe_asprintf(&new_value, "%s%s%s=%s", old_value == NULL ? "" : old_value, old_value == NULL ? "" : ",", name, getenv(name)); \
+        setenv("QEMU_SET_ENV", new_value, 1); \
+        free(new_value); \
+        /* Reset Variable */ \
+        RESET_ENVIRONMENTAL_VARIABLE(name); \
+    }
+#endif
 
 // Get Environmental Variable
 static char *get_env_safe(const char *name) {
@@ -202,8 +215,11 @@ void bootstrap(int argc, char *argv[]) {
     // Run
     safe_execvpe(full_path, argv, environ);
 #else
-    // Use Static QEMU So It Isn't Affected By LD_* Variables
-#define EXE_INTERPRETER "qemu-arm-static"
+    // Prevent QEMU From Being Modded
+    PASS_ENVIRONMENTAL_VARIABLE_TO_QEMU("LD_LIBRARY_PATH");
+    PASS_ENVIRONMENTAL_VARIABLE_TO_QEMU("LD_PRELOAD");
+    // Use QEMU
+#define EXE_INTERPRETER "qemu-arm"
     // Create Arguments List
     char *new_argv[argc + 2];
     for (int i = 1; i <= argc; i++) {

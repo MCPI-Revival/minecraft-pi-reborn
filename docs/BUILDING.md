@@ -28,7 +28,7 @@
 
 ## Runtime Dependencies
 * Non-ARM Host Architectures
-  * QEMU User-Mode Static
+  * QEMU User-Mode
 * Host Architecture Dependencies
   * CLient Mode Only
     * OpenGL ES 1.1
