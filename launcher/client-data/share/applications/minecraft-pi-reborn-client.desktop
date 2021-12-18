@@ -1,10 +1,10 @@
 [Desktop Entry]
 Name=Minecraft: Pi Edition: Reborn
 Comment=Fun with Blocks
-Icon=/usr/share/pixmaps/minecraft-pi-reborn-client.png
+Icon=minecraft-pi-reborn-client
 StartupNotify=false
 StartupWMClass=Minecraft: Pi Edition: Reborn
-Exec=/usr/bin/minecraft-pi-reborn-client
+Exec=minecraft-pi-reborn-client
 Terminal=false
 Type=Application
 Categories=Application;Game;
