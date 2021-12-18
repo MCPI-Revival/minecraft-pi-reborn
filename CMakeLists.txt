@@ -44,7 +44,7 @@ else()
 endif()
 
 # Specify Installation Paths
-set(MCPI_INSTALL_DIR "opt/${MCPI_VARIANT_NAME}")
+set(MCPI_INSTALL_DIR "lib/${MCPI_VARIANT_NAME}")
 set(MCPI_LIB_DIR "${MCPI_INSTALL_DIR}/lib")
 set(MCPI_FALLBACK_LIB_DIR "${MCPI_INSTALL_DIR}/fallback-lib")
 
@@ -69,7 +69,7 @@ endif()
 
 # Specify Default Installation Prefix
 if(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
-    set(CMAKE_INSTALL_PREFIX "/" CACHE PATH "" FORCE)
+    set(CMAKE_INSTALL_PREFIX "/usr" CACHE PATH "" FORCE)
 endif()
 
 # Use LLD When Using Clang

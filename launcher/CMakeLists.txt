@@ -11,7 +11,7 @@ if(BUILD_NATIVE_COMPONENTS)
     target_link_libraries(launcher reborn-headers)
     # Install
     install(TARGETS launcher DESTINATION "${MCPI_INSTALL_DIR}")
-    install_symlink("../../${MCPI_INSTALL_DIR}/launcher" "usr/bin/${MCPI_VARIANT_NAME}")
+    install_symlink("../../${MCPI_INSTALL_DIR}/launcher" "bin/${MCPI_VARIANT_NAME}")
     if(NOT MCPI_SERVER_MODE)
         install(DIRECTORY "client-data/" DESTINATION ".")
     endif()
