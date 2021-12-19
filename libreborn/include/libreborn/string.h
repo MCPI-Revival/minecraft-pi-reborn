@@ -29,7 +29,6 @@
 // Sanitize String
 #define MINIMUM_SAFE_CHARACTER 32
 #define MAXIMUM_SAFE_CHARACTER 126
-#define MINIMUM_EXTENDED_SAFE_CHARACTER 128
 static inline void sanitize_string(char **str, int max_length, unsigned int allow_newlines) {
     // Store Message Length
     int length = strlen(*str);
@@ -44,7 +43,7 @@ static inline void sanitize_string(char **str, int max_length, unsigned int allo
             continue;
         }
         unsigned char c = (unsigned char) (*str)[i];
-        if ((c < MINIMUM_SAFE_CHARACTER || c > MAXIMUM_SAFE_CHARACTER) && c < MINIMUM_EXTENDED_SAFE_CHARACTER) {
+        if (c < MINIMUM_SAFE_CHARACTER || c > MAXIMUM_SAFE_CHARACTER) {
             // Replace Illegal Character
             (*str)[i] = '?';
         }

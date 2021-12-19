@@ -1,5 +1,8 @@
 # Changelog
 
+**2.2.9**
+* Fix String Sanitization
+
 **2.2.8**
 * Add "Hide Chat Messages" Optional Feature Flag
 * Add "Remove Creative Mode Restrictions" Optional Feature Flag
