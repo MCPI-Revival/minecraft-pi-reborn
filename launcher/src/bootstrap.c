@@ -149,7 +149,7 @@ void bootstrap(int argc, char *argv[]) {
         // Add Library Directory
         char *new_ld_path;
         safe_asprintf(&new_ld_path, "%s/lib", binary_directory);
-        // Add Existing LD_LIBRAR_PATH
+        // Add Existing LD_LIBRARY_PATH
         {
             char *value = get_env_safe("LD_LIBRARY_PATH");
             if (strlen(value) > 0) {
@@ -192,6 +192,23 @@ void bootstrap(int argc, char *argv[]) {
         // Set LD_PRELOAD
         set_and_print_env("LD_PRELOAD", new_ld_preload);
         free(new_ld_preload);
+    }
+
+    // Configure PATH
+    {
+        // Add Library Directory
+        char *new_path;
+        safe_asprintf(&new_path, "%s/lib", binary_directory);
+        // Add Existing PATH
+        {
+            char *value = get_env_safe("PATH");
+            if (strlen(value) > 0) {
+                string_append(&new_path, ":%s", value);
+            }
+        }
+        // Set And Free
+        set_and_print_env("PATH", new_path);
+        free(new_path);
     }
 
     // Start Game

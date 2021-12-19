@@ -54,4 +54,11 @@ __attribute__((destructor)) static void _free_home() {
 void init_home() {
     // Store Data In ~/.minecraft-pi Instead Of ~/.minecraft
     patch_address((void *) default_path, (void *) NEW_PATH);
+
+    // Change Directory To Binary Directory Manually
+    unsigned char nop_patch[4] = {0x00, 0xf0, 0x20, 0xe3}; // "nop"
+    patch((void *) 0xe0ac, nop_patch);
+    char *binary_directory = get_binary_directory();
+    chdir(binary_directory);
+    free(binary_directory);
 }
