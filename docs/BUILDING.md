@@ -14,6 +14,9 @@
 * ``MCPI_USE_MEDIA_LAYER_PROXY``
   * ``ON``: Enable The Media Layer Proxy
   * ``OFF`` (Default): Disable The Media Layer Proxy
+* ``MCPI_OPEN_SOURCE_ONLY``
+  * ``ON``: Only Install Open-Source Code (Will Result In Broken Install)
+  * ``OFF`` (Default): Install All Code
 
 ## Build Dependencies
 * Common

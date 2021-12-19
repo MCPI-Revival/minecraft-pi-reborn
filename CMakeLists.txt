@@ -6,6 +6,7 @@ option(MCPI_SERVER_MODE "Server Mode" FALSE)
 option(MCPI_HEADLESS_MODE "Headless Mode" ${MCPI_SERVER_MODE})
 set(MCPI_BUILD_MODE "both" CACHE STRING "\"arm\" = Build Only Code That Must Be ARM; \"native\" = Build Architecture-Independent Code; \"both\" = Build All Code As ARM")
 set_property(CACHE MCPI_BUILD_MODE PROPERTY STRINGS "both" "arm" "native")
+option(MCPI_OPEN_SOURCE_ONLY "Only Install Open-Source Code (Will Result In Broken Install)" FALSE)
 
 # Configure Build Mode
 if(MCPI_BUILD_MODE STREQUAL "arm")
