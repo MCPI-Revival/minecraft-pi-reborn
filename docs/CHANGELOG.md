@@ -2,6 +2,7 @@
 
 **2.2.9**
 * Fix String Sanitization
+* Store Files In `/usr/lib`
 
 **2.2.8**
 * Add "Hide Chat Messages" Optional Feature Flag
