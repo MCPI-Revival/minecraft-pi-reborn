@@ -1,5 +1,8 @@
 # Changelog
 
+**2.2.10**
+* Fix Bug With Picking Up Items In "Remove Creative Mode Restrictions" Mode
+
 **2.2.9**
 * Fix String Sanitization
 * Store Files In `/usr/lib`
