@@ -1,5 +1,9 @@
 # Changelog
 
+**2.2.11**
+* Add "Close Current Screen On Death" Feature Flag (Enabled By Default) To Prevent Bugs
+* Fix More Furnace UI Bugs When Using "Disable 'gui_blocks' Atlas"
+
 **2.2.10**
 * Fix Bug With Picking Up Items In "Remove Creative Mode Restrictions" Mode
 

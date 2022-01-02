@@ -268,9 +268,6 @@ static ItemInstance_constructor_extra_t ItemInstance_constructor_item_extra = (I
 
 // Entity
 
-typedef void (*Entity_die_t)(unsigned char *entity, unsigned char *cause);
-static uint32_t Entity_die_vtable_offset = 0x130;
-
 static uint32_t Entity_x_property_offset = 0x4; // float
 static uint32_t Entity_y_property_offset = 0x8; // float
 static uint32_t Entity_z_property_offset = 0xc; // float
@@ -287,6 +284,9 @@ static Mob_actuallyHurt_t Mob_actuallyHurt = (Mob_actuallyHurt_t) 0x7f11c;
 static uint32_t Mob_actuallyHurt_vtable_offset = 0x16c;
 
 typedef float (*Mob_getWalkingSpeedModifier_t)(unsigned char *entity);
+
+typedef void (*Mob_die_t)(unsigned char *entity, unsigned char *cause);
+static uint32_t Mob_die_vtable_offset = 0x130;
 
 static uint32_t Mob_health_property_offset = 0xec; // int32_t
 
@@ -309,6 +309,9 @@ static Mob_actuallyHurt_t LocalPlayer_actuallyHurt = (Mob_actuallyHurt_t) 0x4401
 static void *LocalPlayer_actuallyHurt_vtable_addr = (void *) 0x10639c;
 
 static void *LocalPlayer_openTextEdit_vtable_addr = (void *) 0x106460;
+
+static Mob_die_t LocalPlayer_die = (Mob_die_t) 0x45078;
+static void *LocalPlayer_die_vtable_addr = (void *) 0x106360;
 
 static uint32_t LocalPlayer_minecraft_property_offset = 0xc90; // Minecraft *
 
