@@ -567,10 +567,13 @@ static uint32_t TileEntity_id_property_offset = 0x18; // int32_t
 
 // ItemRenderer
 
-typedef float (*ItemRenderer_renderGuiItem_t)(unsigned char *font, unsigned char *textures, ItemInstance *item_instance, float param_1, float param_2, bool param_3);
-static ItemRenderer_renderGuiItem_t ItemRenderer_renderGuiItem = (ItemRenderer_renderGuiItem_t) 0x63e58;
+typedef void (*ItemRenderer_renderGuiItem_one_t)(unsigned char *font, unsigned char *textures, ItemInstance *item_instance, float param_1, float param_2, bool param_3);
+static ItemRenderer_renderGuiItem_one_t ItemRenderer_renderGuiItem_one = (ItemRenderer_renderGuiItem_one_t) 0x63e58;
 
-typedef float (*ItemRenderer_renderGuiItemCorrect_t)(unsigned char *font, unsigned char *textures, ItemInstance *item_instance, int32_t param_1, int32_t param_2);
+typedef void (*ItemRenderer_renderGuiItem_two_t)(unsigned char *font, unsigned char *textures, ItemInstance *item_instance, float param_1, float param_2, float param_3, float param_4, bool param_5);
+static ItemRenderer_renderGuiItem_two_t ItemRenderer_renderGuiItem_two = (ItemRenderer_renderGuiItem_two_t) 0x63be0;
+
+typedef void (*ItemRenderer_renderGuiItemCorrect_t)(unsigned char *font, unsigned char *textures, ItemInstance *item_instance, int32_t param_1, int32_t param_2);
 static ItemRenderer_renderGuiItemCorrect_t ItemRenderer_renderGuiItemCorrect = (ItemRenderer_renderGuiItemCorrect_t) 0x639a0;
 
 // Tesselator
