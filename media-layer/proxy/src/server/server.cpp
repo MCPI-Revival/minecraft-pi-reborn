@@ -25,6 +25,7 @@ static void update_client_state(int is_alive, int status) {
 void _check_proxy_state() {
     // Check Client State
     if (!_client_is_alive) {
+        void_write_cache(); // Child Is Dead, No Reason To Send A Dead Process Data
         if (WIFEXITED(_client_status)) {
             PROXY_ERR("Client Terminated: Exit Code: %i", WEXITSTATUS(_client_status));
         } else if (WIFSIGNALED(_client_status)) {

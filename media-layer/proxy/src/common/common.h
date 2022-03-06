@@ -29,6 +29,7 @@ extern "C" {
 __attribute__((visibility("internal"))) void safe_read(void *buf, size_t len);
 __attribute__((visibility("internal"))) void safe_write(void *buf, size_t len);
 __attribute__((visibility("internal"))) void flush_write_cache();
+__attribute__((visibility("internal"))) void void_write_cache();
 
 // Read/Write 32-Bit Integers
 __attribute__((visibility("internal"))) uint32_t read_int();

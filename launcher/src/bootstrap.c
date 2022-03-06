@@ -181,13 +181,27 @@ void bootstrap(int argc, char *argv[]) {
         char *new_ld_preload = NULL;
         safe_asprintf(&new_ld_preload, "%s", get_env_safe("LD_PRELOAD"));
 
-        // Get Mods Folder
-        char *mods_folder = NULL;
-        safe_asprintf(&mods_folder, "%s/mods/", binary_directory);
-        // Load Mods From ./mods
-        load(&new_ld_preload, mods_folder);
-        // Free Mods Folder
-        free(mods_folder);
+        // Built-In Mods
+        {
+            // Get Mods Folder
+            char *mods_folder = NULL;
+            safe_asprintf(&mods_folder, "%s/mods/", binary_directory);
+            // Load Mods From ./mods
+            load(&new_ld_preload, mods_folder);
+            // Free Mods Folder
+            free(mods_folder);
+        }
+
+        // ~/.minecraft-pi/mods
+        {
+            // Get Mods Folder
+            char *mods_folder = NULL;
+            safe_asprintf(&mods_folder, "%s" HOME_SUBDIRECTORY_FOR_GAME_DATA "/mods/", getenv("HOME"));
+            // Load Mods From ./mods
+            load(&new_ld_preload, mods_folder);
+            // Free Mods Folder
+            free(mods_folder);
+        }
 
         // Set LD_PRELOAD
         set_and_print_env("LD_PRELOAD", new_ld_preload);

@@ -32,6 +32,7 @@ static void sigusr1_handler(__attribute__((unused)) int sig) {
 void _check_proxy_state() {
     // Check Server State
     if (!parent_is_alive) {
+        void_write_cache(); // Parent Is Dead, No Reason To Send A Dead Process Data
         PROXY_ERR("%s", "Server Terminated");
     }
 }

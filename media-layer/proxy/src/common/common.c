@@ -10,8 +10,6 @@
         _check_proxy_state(); \
         if (!is_connection_open()) { \
             PROXY_ERR("%s", "Attempting To Access Closed Connection"); \
-        } else { \
-            _check_proxy_state(); \
         } \
     }
 void safe_read(void *buf, size_t len) {
@@ -63,27 +61,30 @@ void safe_write(void *buf, size_t len) {
 }
 // Flush Write Cache
 void flush_write_cache() {
-    // Check Connection
-    if (!is_connection_open()) {
-        // Connection Closed
-        return;
-    }
     // Check Cache
     if (_write_cache == NULL || _write_cache_position < 1) {
         // Nothing To Write
         return;
     }
-    // Write
+    // Check Connection
+    if (!is_connection_open()) {
+        // Connection Closed
+        return;
+    }
+    // Write & Reset
     size_t to_write = _write_cache_position;
+    size_t old_write_cache_position = _write_cache_position;
+    _write_cache_position = 0;
     while (to_write > 0) {
         CHECK_CONNECTION();
-        ssize_t x = write(get_connection_write(), (void *) (((unsigned char *) _write_cache) + (_write_cache_position - to_write)), to_write);
+        ssize_t x = write(get_connection_write(), (void *) (((unsigned char *) _write_cache) + (old_write_cache_position - to_write)), to_write);
         if (x == -1 && errno != EINTR) {
             PROXY_ERR("Failed Writing Data To Connection: %s", strerror(errno));
         }
         to_write -= x;
     }
-    // Reset
+}
+void void_write_cache() {
     _write_cache_position = 0;
 }
 
