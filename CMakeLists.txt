@@ -25,14 +25,6 @@ else()
     message(FATAL_ERROR "Invalid Mode")
 endif()
 
-# Use Clang By Default
-if(NOT DEFINED CMAKE_C_COMPILER)
-    set(CMAKE_C_COMPILER "clang")
-endif()
-if(NOT DEFINED CMAKE_CXX_COMPILER)
-    set(CMAKE_CXX_COMPILER "clang++")
-endif()
-
 # Utility Functions
 include(cmake/util.cmake)
 

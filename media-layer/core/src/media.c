@@ -146,7 +146,7 @@ static SDLMod glfw_modifier_to_sdl_modifier(int mods) {
 }
 
 // Pass Key Presses To SDL
-static void glfw_key(__attribute__((unused)) GLFWwindow *window, int key, int scancode, int action, __attribute__((unused)) int mods) {
+static void glfw_key(__attribute__((unused)) GLFWwindow *window, int key, int scancode, int action, int mods) {
     if (is_interactable) {
         SDL_Event event;
         int up = action == GLFW_RELEASE;

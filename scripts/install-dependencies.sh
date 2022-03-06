@@ -24,8 +24,6 @@ sudo apt-get install --no-install-recommends -y \
     lsb-release \
     dpkg-dev \
     git \
-    clang \
-    lld \
     cmake \
     make \
     libglfw3 libglfw3-dev \

@@ -63,7 +63,7 @@ struct AABB {
 };
 
 struct LevelSettings {
-    unsigned long seed;
+    int32_t seed;
     int32_t game_type;
 };
 
@@ -637,7 +637,7 @@ static AppPlatform_readAssetFile_t AppPlatform_readAssetFile = (AppPlatform_read
 
 // Minecraft
 
-typedef void (*Minecraft_selectLevel_t)(unsigned char *minecraft, std::string const& level_dir, std::string const& level_name, LevelSettings const& vsettings);
+typedef void (*Minecraft_selectLevel_t)(unsigned char *minecraft, std::string const& level_dir, std::string const& level_name, LevelSettings const& settings);
 static Minecraft_selectLevel_t Minecraft_selectLevel = (Minecraft_selectLevel_t) 0x16f38;
 
 // ExternalFileLevelStorageSource
