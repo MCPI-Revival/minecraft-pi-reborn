@@ -4,7 +4,7 @@ pipeline {
         stage('Debian Bullseye') {
             agent {
                 docker {
-                    image 'debian:bullseye'
+                    image 'buildpack-deps:bullseye'
                     args '-v /var/run/docker.sock:/var/run/docker.sock'
                 }
             }

@@ -20,8 +20,6 @@ sudo apt-get dist-upgrade -y
 
 # Install
 sudo apt-get install --no-install-recommends -y \
-    ca-certificates \
-    lsb-release \
     dpkg-dev \
     git \
     cmake \
