@@ -212,7 +212,7 @@ void init_misc() {
     }
 
     // Fix Furnace Not Checking Item Auxiliary When Inserting New Item
-    if (feature_has("Fix Furnace Not Checking Item Auxiliary", 1)) {
+    if (feature_has("Fix Furnace Not Checking Item Auxiliary", 0)) {
         overwrite_calls((void *) FurnaceScreen_handleAddItem, (void *) FurnaceScreen_handleAddItem_injection);
     }
 

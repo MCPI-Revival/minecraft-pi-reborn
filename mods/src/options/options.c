@@ -46,6 +46,7 @@ static int peaceful_mode;
 static int anaglyph;
 static int smooth_lighting;
 static int render_distance;
+static int server_visible;
 // Configure Options
 static void Minecraft_init_injection(unsigned char *this) {
     // Call Original Method
@@ -64,6 +65,8 @@ static void Minecraft_init_injection(unsigned char *this) {
     *(options + Options_ambient_occlusion_property_offset) = smooth_lighting;
     // Render Distance
     *(int32_t *) (options + Options_render_distance_property_offset) = render_distance;
+    // Server Visible
+    *(options + Options_server_visible_property_offset) = server_visible;
 }
 
 // Init
@@ -86,6 +89,8 @@ void init_options() {
 #else // #ifndef MCPI_SERVER_MODE
     render_distance = 3;
 #endif // #ifndef MCPI_SERVER_MODE
+    // Server Visible
+    server_visible = !feature_has("Disable Hosting LAN Worlds", 0);
 
     // Set Options
     overwrite_calls((void *) Minecraft_init, (void *) Minecraft_init_injection);

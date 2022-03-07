@@ -243,6 +243,7 @@ static uint32_t Options_third_person_property_offset = 0xed; // unsigned char / 
 static uint32_t Options_render_distance_property_offset = 0x10; // int32_t
 static uint32_t Options_sound_property_offset = 0x4; // int32_t
 static uint32_t Options_debug_property_offset = 0xee; // unsigned char / bool
+static uint32_t Options_server_visible_property_offset = 0x104; // unsigned char / bool
 
 // MouseBuildInput
 
