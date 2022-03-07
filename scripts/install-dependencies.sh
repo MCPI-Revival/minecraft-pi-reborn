@@ -25,7 +25,7 @@ sudo apt-get install --no-install-recommends -y \
     dpkg-dev \
     git \
     cmake \
-    make \
+    ninja-build \
     libglfw3 libglfw3-dev \
     libfreeimage3 libfreeimage-dev \
     crossbuild-essential-armhf \

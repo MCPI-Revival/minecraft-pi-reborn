@@ -28,13 +28,13 @@ setup() {
     # Build ARM Components
     mkdir arm
     cd arm
-    cmake -DCMAKE_TOOLCHAIN_FILE="${ARM_TOOLCHAIN_FILE}" -DMCPI_BUILD_MODE=arm "${extra_arg}" "$@" ../../..
+    cmake -G Ninja -DCMAKE_TOOLCHAIN_FILE="${ARM_TOOLCHAIN_FILE}" -DMCPI_BUILD_MODE=arm "${extra_arg}" "$@" ../../..
     cd ../
 
     # Build Native Components
     mkdir native
     cd native
-    cmake -DCMAKE_TOOLCHAIN_FILE="${toolchain_file}" -DMCPI_BUILD_MODE=native "${extra_arg}" "$@" ../../..
+    cmake -G Ninja -DCMAKE_TOOLCHAIN_FILE="${toolchain_file}" -DMCPI_BUILD_MODE=native "${extra_arg}" "$@" ../../..
     cd ../
 
     # Exit
@@ -55,7 +55,7 @@ armhf_setup() {
     fi
 
     # Build All Components
-    cmake -DCMAKE_TOOLCHAIN_FILE="${ARM_TOOLCHAIN_FILE}" -DMCPI_BUILD_MODE=both -DMCPI_SERVER_MODE="${server_mode}" "$@" ../..
+    cmake -G Ninja -DCMAKE_TOOLCHAIN_FILE="${ARM_TOOLCHAIN_FILE}" -DMCPI_BUILD_MODE=both -DMCPI_SERVER_MODE="${server_mode}" "$@" ../..
 
     # Exit
     cd ../../

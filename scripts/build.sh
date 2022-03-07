@@ -17,14 +17,14 @@ build() {
 
     # Build ARM Components
     cd arm
-    make -j$(nproc)
-    make install DESTDIR="${prefix}"
+    cmake --build .
+    DESTDIR="${prefix}" cmake --install .
     cd ../
 
     # Build Native Components
     cd native
-    make -j$(nproc)
-    make install DESTDIR="${prefix}"
+    cmake --build .
+    DESTDIR="${prefix}" cmake --install .
     cd ../
 
     # Exit
@@ -45,8 +45,8 @@ armhf_build() {
     mkdir -p "${prefix}"
 
     # Build All Components
-    make -j$(nproc)
-    make install DESTDIR="${prefix}"
+    cmake --build .
+    DESTDIR="${prefix}" cmake --install .
 
     # Exit
     cd ../../
