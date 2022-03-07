@@ -27,7 +27,7 @@ void media_set_interactable(int toggle) {
 // GLFW Code Not Needed In Headless Mode
 #ifndef MCPI_HEADLESS_MODE
 
-static GLFWwindow *glfw_window;
+static GLFWwindow *glfw_window = NULL;
 
 // Handle GLFW Error
 static void glfw_error(__attribute__((unused)) int error, const char *description) {
@@ -227,6 +227,20 @@ static void glfw_scroll(__attribute__((unused)) GLFWwindow *window, __attribute_
 // Track Media Layer State
 static int is_running = 0;
 
+// Track If Raw Mouse Motion Is Enabled
+static int raw_mouse_motion_enabled = 1;
+void media_set_raw_mouse_motion_enabled(int enabled) {
+    raw_mouse_motion_enabled = enabled;
+#ifndef MCPI_HEADLESS_MODE
+    if (is_running) {
+        glfwSetInputMode(glfw_window, GLFW_RAW_MOUSE_MOTION, GLFW_FALSE);
+    }
+#endif // #ifndef MCPI_HEADLESS_MODE
+    if (!raw_mouse_motion_enabled) {
+        WARN("%s", "Raw mouse motion has been DISABLED, this IS NOT recommended, and should only ever be used on systems that don't support or have broken raw mouse motion.");
+    }
+}
+
 // Disable V-Sync
 static int disable_vsync = 0;
 void media_disable_vsync() {
@@ -409,7 +423,7 @@ static void update_cursor() {
             glfwSetInputMode(glfw_window, GLFW_CURSOR, new_mode);
 
             // Handle Cursor Lock/Unlock
-            if ((new_mode == GLFW_CURSOR_DISABLED && old_mode != GLFW_CURSOR_DISABLED) || (new_mode != GLFW_CURSOR_DISABLED && old_mode == GLFW_CURSOR_DISABLED)) {
+            if (raw_mouse_motion_enabled && ((new_mode == GLFW_CURSOR_DISABLED && old_mode != GLFW_CURSOR_DISABLED) || (new_mode != GLFW_CURSOR_DISABLED && old_mode == GLFW_CURSOR_DISABLED))) {
                 // Use Raw Mouse Motion
                 glfwSetInputMode(glfw_window, GLFW_RAW_MOUSE_MOTION, new_mode == GLFW_CURSOR_DISABLED ? GLFW_TRUE : GLFW_FALSE);
             }

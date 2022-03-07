@@ -29,3 +29,4 @@ TRUE External Server Support
 TRUE Load Language Files
 TRUE Implement Sound Engine
 TRUE Close Current Screen On Death
+FALSE Disable Raw Mouse Motion (Not Recommended)

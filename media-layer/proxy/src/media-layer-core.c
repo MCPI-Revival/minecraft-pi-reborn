@@ -336,3 +336,20 @@ CALL(63, media_disable_vsync, void, ()) {
     media_disable_vsync();
 #endif
 }
+
+CALL(64, media_set_raw_mouse_motion_enabled, void, (int enabled)) {
+#if defined(MEDIA_LAYER_PROXY_SERVER)
+    // Lock Proxy
+    start_proxy_call();
+
+    // Arguments
+    write_int(enabled);
+
+    // Release Proxy
+    end_proxy_call();
+#else
+    int enabled = read_int();
+    // Run
+    media_set_raw_mouse_motion_enabled(enabled);
+#endif
+}

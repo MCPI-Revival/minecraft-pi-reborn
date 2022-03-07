@@ -34,7 +34,7 @@ if(BUILD_ARM_COMPONENTS)
 
     # MCPI Depends On GLESv2, But Uses GLESv1_CM
     install_symlink("libGLESv1_CM.so.1" "${MCPI_LIB_DIR}/libGLESv2.so")
-    # Prevent MCPI From Linking To The Legacy GL Driver When Directly Linking To GL
+    # Prevent MCPI From Linking To The Legacy GL Driver When Directly Linking To GL (RPI-Specific)
     if(NOT MCPI_HEADLESS_MODE AND NOT MCPI_USE_MEDIA_LAYER_PROXY)
         # Symlinks
         install_symlink("/usr/lib/arm-linux-gnueabihf/libEGL.so.1" "${MCPI_LIB_DIR}/libEGL.so")
