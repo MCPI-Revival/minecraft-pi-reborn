@@ -401,6 +401,18 @@ static ProgressScreen_t ProgressScreen = (ProgressScreen_t) 0x37044;
 
 static void *OptionsScreen_handleBackEvent_vtable_addr = (void *) 0x10499c;
 
+// FurnaceScreen
+
+typedef int32_t (*FurnaceScreen_handleAddItem_t)(unsigned char *furnace_screen, int32_t slot, ItemInstance const *item);
+static FurnaceScreen_handleAddItem_t FurnaceScreen_handleAddItem = (FurnaceScreen_handleAddItem_t) 0x327a0;
+
+static uint32_t FurnaceScreen_tile_entity_property_offset = 0x1d0; // FurnaceTileEntity *
+
+// FurnaceTileEntity
+
+typedef ItemInstance *(*FurnaceTileEntity_getItem_t)(unsigned char *furnace_tile_entity, int32_t slot);
+static uint32_t FurnaceTileEntity_getItem_vtable_offset = 0x2c;
+
 // Screen
 
 typedef void (*Screen_updateEvents_t)(unsigned char *screen);

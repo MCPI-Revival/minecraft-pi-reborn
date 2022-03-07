@@ -145,6 +145,40 @@ static void LocalPlayer_die_injection(unsigned char *entity, unsigned char *caus
     (*LocalPlayer_die)(entity, cause);
 }
 
+// Fix Furnace Not Checking Item Auxiliary When Inserting New Item
+static int32_t FurnaceScreen_handleAddItem_injection(unsigned char *furnace_screen, int32_t slot, ItemInstance const *item) {
+    // Get Existing Item
+    unsigned char *tile_entity = *(unsigned char **) (furnace_screen + FurnaceScreen_tile_entity_property_offset);
+    unsigned char *tile_entity_vtable = *(unsigned char **) tile_entity;
+    FurnaceTileEntity_getItem_t FurnaceTileEntity_getItem = *(FurnaceTileEntity_getItem_t *) (tile_entity_vtable + FurnaceTileEntity_getItem_vtable_offset);
+    ItemInstance *existing_item = (*FurnaceTileEntity_getItem)(tile_entity, slot);
+
+    // Check Item
+    int valid;
+    if (item->id == existing_item->id && item->auxiliary == existing_item->auxiliary) {
+        // Item Matches, Is Valid
+        valid = 1;
+    } else {
+        // Item Doesn't Match, Check If Existing Item Is Empty
+        if ((existing_item->id | existing_item->count | existing_item->auxiliary) == 0) {
+            // Existing Item Is Empty, Is Valid
+            valid = 1;
+        } else {
+            // Existing Item Isn't Empty, Isn't Valid
+            valid = 0;
+        }
+    }
+
+    // Call Original Method
+    if (valid) {
+        // Valid
+        return (*FurnaceScreen_handleAddItem)(furnace_screen, slot, item);
+    } else {
+        // Invalid
+        return 0;
+    }
+}
+
 // Init
 void init_misc() {
     // Remove Invalid Item Background (A Red Background That Appears For Items That Are Not Included In The gui_blocks Atlas)
@@ -175,6 +209,11 @@ void init_misc() {
     // Close Current Screen On Death To Prevent Bugs
     if (feature_has("Close Current Screen On Death", 0)) {
         patch_address(LocalPlayer_die_vtable_addr, (void *) LocalPlayer_die_injection);
+    }
+
+    // Fix Furnace Not Checking Item Auxiliary When Inserting New Item
+    if (feature_has("Fix Furnace Not Checking Item Auxiliary", 1)) {
+        overwrite_calls((void *) FurnaceScreen_handleAddItem, (void *) FurnaceScreen_handleAddItem_injection);
     }
 
     // Init C++ And Logging
