@@ -37,7 +37,10 @@ char *get_full_library_search_path() {
         output.pop_back();
     }
     // Close Process
-    pclose(file);
+    int ret = WEXITSTATUS(pclose(file));
+    if (ret != 0) {
+        ERR("ldconfig Failed: Exit Code: %i", ret);
+    }
     // Return
     char *output_str = strdup(output.c_str());
     ALLOC_CHECK(output_str);

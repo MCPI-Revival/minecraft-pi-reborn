@@ -13,7 +13,7 @@
 typedef void (*text_section_callback_t)(ElfW(Addr) section, ElfW(Word) size, void *data);
 static inline void iterate_text_sections(text_section_callback_t callback, void *data) {
     // Load Main Binary
-    FILE *file_obj = fopen("/proc/self/exe", "rb");
+    FILE *file_obj = fopen(getenv("MCPI_EXECUTABLE_PATH"), "rb");
 
     // Verify Binary
     if (!file_obj) {

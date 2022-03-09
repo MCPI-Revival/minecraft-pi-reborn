@@ -4,3 +4,6 @@ debian/tmp
 build
 CMakeLists.txt.user
 *.autosave
+AppImageBuilder.yml
+appimage-builder-cache
+AppDir

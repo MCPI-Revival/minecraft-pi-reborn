@@ -29,7 +29,7 @@ static char *run_command(char *command, int *return_code) {
     }
 
     // Return
-    *return_code = pclose(out);
+    *return_code = WEXITSTATUS(pclose(out));
     return output;
 }
 

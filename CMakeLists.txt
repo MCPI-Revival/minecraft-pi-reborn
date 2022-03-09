@@ -7,6 +7,7 @@ option(MCPI_HEADLESS_MODE "Headless Mode" ${MCPI_SERVER_MODE})
 set(MCPI_BUILD_MODE "both" CACHE STRING "\"arm\" = Build Only Code That Must Be ARM; \"native\" = Build Architecture-Independent Code; \"both\" = Build All Code As ARM")
 set_property(CACHE MCPI_BUILD_MODE PROPERTY STRINGS "both" "arm" "native")
 option(MCPI_OPEN_SOURCE_ONLY "Only Install Open-Source Code (Will Result In Broken Install)" FALSE)
+option(MCPI_IS_APPIMAGE_BUILD "AppImage Build" FALSE)
 
 # Configure Build Mode
 if(MCPI_BUILD_MODE STREQUAL "arm")
@@ -94,6 +95,9 @@ if(MCPI_SERVER_MODE)
 endif()
 if(MCPI_HEADLESS_MODE)
     add_definitions(-DMCPI_HEADLESS_MODE)
+endif()
+if(MCPI_IS_APPIMAGE_BUILD)
+    add_definitions(-DMCPI_IS_APPIMAGE_BUILD)
 endif()
 
 # Version

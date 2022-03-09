@@ -19,6 +19,18 @@ __attribute__((noreturn)) static inline void safe_execvpe(const char *pathname, 
         ERR("%s", "Unknown execvpe() Error");
     }
 }
+
+// Chop Off Last Component
+static inline void chop_last_component(char **str) {
+    size_t length = strlen(*str);
+    for (size_t i = 0; i < length; i++) {
+        size_t j = length - i - 1;
+        if ((*str)[j] == '/') {
+            (*str)[j] = '\0';
+            break;
+        }
+    }
+}
 // Get Binary Directory (Remember To Free)
 static inline char *get_binary_directory() {
     // Get Path To Current Executable
@@ -26,17 +38,12 @@ static inline char *get_binary_directory() {
     ALLOC_CHECK(exe);
 
     // Chop Off Last Component
-    int length = strlen(exe);
-    for (int i = length - 1; i >= 0; i--) {
-        if (exe[i] == '/') {
-            exe[i] = '\0';
-            break;
-        }
-    }
+    chop_last_component(&exe);
 
     // Return
     return exe;
 }
+
 // Safe execvpe() Relative To Binary
 __attribute__((noreturn)) static inline void safe_execvpe_relative_to_binary(const char *pathname, char *argv[], char *const envp[]) {
     // Get Binary Directory
@@ -48,4 +55,9 @@ __attribute__((noreturn)) static inline void safe_execvpe_relative_to_binary(con
     free(binary_directory);
     // Run
     safe_execvpe(full_path, argv, envp);
+}
+
+// Get MCPI Directory
+static inline char *get_mcpi_directory() {
+    return getenv("MCPI_DIRECTORY");
 }

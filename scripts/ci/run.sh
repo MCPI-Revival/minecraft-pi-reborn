@@ -13,14 +13,10 @@ export ARM_PACKAGES_SUPPORTED=1
 echo '==== Installing Dependencies ===='
 ./scripts/install-dependencies.sh
 
-# Build
-echo '==== Building ===='
-./scripts/build-all.sh
+# Build/Package
+echo '==== Building & Packaging ===='
+./scripts/package-all.sh
 
 # Test
 echo '==== Testing ===='
 ./scripts/test.sh
-
-# Package
-echo '==== Packaging ===='
-./scripts/package.sh

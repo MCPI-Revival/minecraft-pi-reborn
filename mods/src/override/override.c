@@ -10,10 +10,12 @@
 
 #include "../home/home.h"
 
+// Check If String Starts With Prefix
 static int starts_with(const char *s, const char *t) {
     return strncmp(s, t, strlen(t)) == 0;
 }
 
+// Get Override Path For File (If It Exists)
 char *override_get_path(const char *filename) {
     // Get MCPI Home Path
     char *home_path = home_get();
@@ -23,9 +25,8 @@ char *override_get_path(const char *filename) {
 
     // Get Data Path
     char *data = NULL;
-    char *binary_directory = get_binary_directory();
+    char *binary_directory = get_mcpi_directory();
     safe_asprintf(&data, "%s/data", binary_directory);
-    free(binary_directory);
     int data_length = strlen(data);
 
     // Get Full Path

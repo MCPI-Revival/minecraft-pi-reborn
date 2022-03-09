@@ -29,9 +29,8 @@ void init_home() {
     // Change Directory To Binary Directory Manually
     unsigned char nop_patch[4] = {0x00, 0xf0, 0x20, 0xe3}; // "nop"
     patch((void *) 0xe0ac, nop_patch);
-    char *binary_directory = get_binary_directory();
+    char *binary_directory = get_mcpi_directory();
     if (chdir(binary_directory) != 0) {
         ERR("Unable To Change Directory: %s", strerror(errno));
     }
-    free(binary_directory);
 }

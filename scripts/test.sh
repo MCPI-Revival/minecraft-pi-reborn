@@ -2,6 +2,10 @@
 
 set -e
 
+# Build Test
+./scripts/setup.sh server "$(dpkg-architecture -qDEB_BUILD_ARCH)"
+./scripts/build.sh server "$(dpkg-architecture -qDEB_BUILD_ARCH)"
+
 # Add minecraft-pi-reborn-server To PATH
 export PATH="$(pwd)/out/server-$(dpkg-architecture -qDEB_BUILD_ARCH)/usr/bin:${PATH}"
 

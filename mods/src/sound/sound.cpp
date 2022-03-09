@@ -23,14 +23,10 @@ std::string _sound_get_source_file() {
         // Resolve
 
         // Get Binary Directory
-        char *binary_directory = get_binary_directory();
-
+        char *binary_directory = get_mcpi_directory();
         // Get Full Path
         char *full_path = NULL;
         safe_asprintf(&full_path, "%s/" SOURCE_FILE_BASE, binary_directory);
-
-        // Free Binary Directory
-        free(binary_directory);
 
         // Handle Overrides
         char *overridden_full_path = override_get_path(full_path);
