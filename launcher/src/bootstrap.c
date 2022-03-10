@@ -139,16 +139,20 @@ static void load(char **ld_preload, char *folder) {
 #define MCPI_BINARY "minecraft-pi"
 #define QEMU_BINARY "qemu-arm"
 
-// Bootstrap
-void bootstrap(int argc, char *argv[]) {
-    INFO("%s", "Configuring Game...");
-
+// Pre-Bootstrap
+void pre_bootstrap() {
     // AppImage
 #ifdef MCPI_IS_APPIMAGE_BUILD
-    if (chdir(getenv("OWD")) != 0) {
+    char *owd = getenv("OWD");
+    if (owd != NULL && chdir(owd) != 0) {
         ERR("AppImage: Unable To Fix Current Directory: %s", strerror(errno));
     }
 #endif
+}
+
+// Bootstrap
+void bootstrap(int argc, char *argv[]) {
+    INFO("%s", "Configuring Game...");
 
     // Get Binary Directory
     char *binary_directory = get_binary_directory();
@@ -156,6 +160,9 @@ void bootstrap(int argc, char *argv[]) {
     // Handle AppImage
 #ifdef MCPI_IS_APPIMAGE_BUILD
     char *usr_prefix = getenv("APPDIR");
+    if (usr_prefix == NULL) {
+        usr_prefix = "";
+    }
 #else
     char *usr_prefix = "";
 #endif

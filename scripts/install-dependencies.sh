@@ -74,7 +74,7 @@ if [ ! -z "${ARM_PACKAGES_SUPPORTED}" ]; then
         libxext-dev:armhf libxext-dev:arm64
 fi
 
-# Install appimagetool Dependencies
+# Install appimagetool & appimage-builder Dependencies
 queue_pkg \
     python3-pip \
     python3-setuptools \
@@ -84,6 +84,7 @@ queue_pkg \
     fakeroot \
     strace \
     fuse \
+    gtk-update-icon-cache \
     sed
 
 # Install Queue

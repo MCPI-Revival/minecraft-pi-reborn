@@ -138,7 +138,7 @@ const appDir = {
     app_info: {
         id: id,
         name: `${name}`,
-        icon: mode === 'client' ? id : 'utilities-terminal',
+        icon: id,
         version: version,
         exec: `usr/bin/${name}`,
         exec_args: '$@'

@@ -14,5 +14,12 @@ if(BUILD_NATIVE_COMPONENTS)
     install_symlink("../${MCPI_INSTALL_DIR}/launcher" "bin/${MCPI_VARIANT_NAME}")
     if(NOT MCPI_SERVER_MODE)
         install(DIRECTORY "client-data/" DESTINATION ".")
+    else()
+        set(ICON_PATH "share/icons/hicolor/scalable/apps")
+        install(
+            FILES "client-data/${ICON_PATH}/com.thebrokenrail.MCPIReborn.png"
+            DESTINATION "${ICON_PATH}"
+            RENAME "com.thebrokenrail.MCPIRebornServer.png"
+        )
     endif()
 endif()
