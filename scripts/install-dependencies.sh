@@ -99,4 +99,4 @@ sudo rm -f /usr/local/bin/appimagetool
 sudo ln -s /opt/appimagetool.AppDir/AppRun /usr/local/bin/appimagetool
 
 # Install appimage-builder
-sudo pip3 install git+https://github.com/AppImageCrafters/appimage-builder.git
+sudo pip3 install 'git+https://github.com/AppImageCrafters/appimage-builder.git'

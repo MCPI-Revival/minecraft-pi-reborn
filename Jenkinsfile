@@ -4,7 +4,7 @@ pipeline {
         stage('Debian Bullseye') {
             agent {
                 docker {
-                    filename 'Dockerfile.build'
+                    filename 'scripts/ci/Dockerfile'
                     args '-v /var/run/docker.sock:/var/run/docker.sock'
                 }
             }
