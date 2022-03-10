@@ -6,3 +6,7 @@
 	path = dependencies/zlib/src
 	url = https://github.com/madler/zlib.git
 	shallow = true
+[submodule "dependencies/glfw/src"]
+	path = dependencies/glfw/src
+	url = https://github.com/glfw/glfw.git
+	shallow = true

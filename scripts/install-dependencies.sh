@@ -24,29 +24,54 @@ queue_pkg() {
     PKG_QUEUE="${PKG_QUEUE} $@"
 }
 
-# Install
+# Build Tools
 queue_pkg \
     git \
     cmake \
     ninja-build \
-    libglfw3 libglfw3-dev \
-    libfreeimage3 libfreeimage-dev \
     crossbuild-essential-armhf \
     gcc g++ \
-    nodejs \
+    nodejs
+
+# Dependencies
+queue_pkg \
+    libfreeimage3 libfreeimage-dev \
     libopenal-dev \
     qemu-user
 
-# Install ARM Dependencies
+# GLFW Dependencies
+queue_pkg \
+    libwayland-dev \
+    libxkbcommon-dev \
+    wayland-protocols \
+    libx11-dev \
+    libxcursor-dev \
+    libxi-dev \
+    libxinerama-dev \
+    libxrandr-dev \
+    libxext-dev
+
+# ARM Packages
 if [ ! -z "${ARM_PACKAGES_SUPPORTED}" ]; then
+    # Build Tools
     queue_pkg \
-        libglfw3:armhf libglfw3-dev:armhf \
-        libfreeimage3:armhf \
-        libopenal-dev:armhf \
-        libglfw3:arm64 libglfw3-dev:arm64 \
-        libfreeimage3:arm64 \
-        libopenal-dev:arm64 \
         crossbuild-essential-arm64
+
+    # Dependencies
+    queue_pkg \
+        libfreeimage3:armhf libfreeimage3:arm64 \
+        libopenal-dev:armhf libopenal-dev:arm64
+
+    # GLFW Dependencies
+    queue_pkg \
+        libwayland-dev:armhf libwayland-dev:arm64 \
+        libxkbcommon-dev:armhf libxkbcommon-dev:arm64 \
+        libx11-dev:armhf libx11-dev:arm64 \
+        libxcursor-dev:armhf libxcursor-dev:arm64 \
+        libxi-dev:armhf libxi-dev:arm64 \
+        libxinerama-dev:armhf libxinerama-dev:arm64 \
+        libxrandr-dev:armhf libxrandr-dev:arm64 \
+        libxext-dev:armhf libxext-dev:arm64
 fi
 
 # Install appimagetool Dependencies
@@ -68,8 +93,9 @@ sudo apt-get install --no-install-recommends -y ${PKG_QUEUE}
 sudo mkdir -p /opt
 sudo wget https://github.com/AppImage/AppImageKit/releases/download/continuous/appimagetool-x86_64.AppImage -O /opt/appimagetool
 # Workaround AppImage Issues With Docker
-cd /opt; sudo chmod +x ./appimagetool; sed -i '0,/AI\x02/{s|AI\x02|\x00\x00\x00|}' ./appimagetool; sudo ./appimagetool --appimage-extract
+cd /opt; sudo chmod +x ./appimagetool; sudo sed -i '0,/AI\x02/{s|AI\x02|\x00\x00\x00|}' ./appimagetool; sudo ./appimagetool --appimage-extract
 sudo mv /opt/squashfs-root /opt/appimagetool.AppDir
+sudo rm -f /usr/local/bin/appimagetool
 sudo ln -s /opt/appimagetool.AppDir/AppRun /usr/local/bin/appimagetool
 
 # Install appimage-builder

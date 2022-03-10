@@ -5,7 +5,6 @@ RUN \
     apt-get update && \
     apt-get install -y tini sed && \
     apt-get --fix-broken install -y && \
-    rm -f /root/*.deb && \
     rm -rf /var/lib/apt/lists/*
 
 # Copy AppImage

@@ -7,3 +7,4 @@ CMakeLists.txt.user
 AppImageBuilder.yml
 appimage-builder-cache
 AppDir
+*.zsync

@@ -74,10 +74,8 @@ endif()
 # PIC
 set(CMAKE_POSITION_INDEPENDENT_CODE TRUE)
 
-# Buld LibPNG + ZLib + Download Minecraft: Pi Edition
-if(BUILD_ARM_COMPONENTS)
-    add_subdirectory(dependencies)
-endif()
+# Buld Dependencies
+add_subdirectory(dependencies)
 
 # Warnings
 add_compile_options(-Wall -Wextra -Werror -Wpointer-arith -Wshadow -Wnull-dereference)

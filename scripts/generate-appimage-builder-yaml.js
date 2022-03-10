@@ -10,6 +10,7 @@ const arch = process.argv[3];
 // Data
 const id = `com.thebrokenrail.MCPIReborn${mode === 'server' ? 'Server' : ''}`;
 const name = `minecraft-pi-reborn-${mode}`;
+const updateURL = `https://jenkins.thebrokenrail.com/job/minecraft-pi-reborn/job/master/lastSuccessfulBuild/artifact/out/${name}-latest-${arch}.AppImage.zsync`;
 
 // APT Data
 const apt_distribution = 'bullseye';
@@ -26,10 +27,10 @@ const packages = [
     'libstdc++6'
 ];
 if (mode === 'client') {
+    // GLFW's Dependencies Aren't Included As They Should Be Provided By The Host System
     packages.push(
         'zenity',
         'libcanberra-gtk3-module',
-        'libglfw3',
         'libfreeimage3',
         'libopenal1'
     );
@@ -170,7 +171,8 @@ if (!appImageArch) {
 }
 const appImage = {
     arch: appImageArch,
-    file_name: `./out/${name}-${version}-${arch}.AppImage`
+    file_name: `./out/${name}-${version}-${arch}.AppImage`,
+    'update-information': `zsync|${updateURL}`
 };
 
 // Root

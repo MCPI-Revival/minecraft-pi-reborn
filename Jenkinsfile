@@ -4,7 +4,7 @@ pipeline {
         stage('Debian Bullseye') {
             agent {
                 docker {
-                    image 'buildpack-deps:bullseye'
+                    filename 'Dockerfile.build'
                     args '-v /var/run/docker.sock:/var/run/docker.sock'
                 }
             }
@@ -15,7 +15,7 @@ pipeline {
                     }
                     post {
                         success {
-                            archiveArtifacts artifacts: 'out/*.deb', fingerprint: true
+                            archiveArtifacts artifacts: 'out/*.AppImage*', fingerprint: true
                         }
                     }
                 }

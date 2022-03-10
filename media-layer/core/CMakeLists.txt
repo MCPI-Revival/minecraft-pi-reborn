@@ -22,8 +22,6 @@ if(TARGET media-layer-core)
     # Link
     target_link_libraries(media-layer-core media-layer-headers reborn-headers pthread dl)
     if(NOT MCPI_HEADLESS_MODE)
-        # Find GLFW
-        find_package(glfw3 3.3 REQUIRED)
         # Find FreeImage
         find_library(FREEIMAGE_LIBRARY NAMES freeimage libfreeimage.so.3 REQUIRED)
         # OpenAL
