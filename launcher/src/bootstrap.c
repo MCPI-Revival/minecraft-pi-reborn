@@ -38,10 +38,9 @@ void set_and_print_env(const char *name, char *value) {
         trim(&value);
     }
 
-#ifdef DEBUG
     // Print New Value
-    INFO("Set %s = %s", name, value);
-#endif
+    DEBUG("Set %s = %s", name, value);
+
     // Set The Value
     setenv(name, value, 1);
 }

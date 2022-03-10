@@ -50,7 +50,6 @@ if(CMAKE_BUILD_TYPE STREQUAL "Release")
     add_compile_options(-O3)
 else()
     add_compile_options(-g)
-    add_definitions(-DDEBUG)
 endif()
 
 # Start Project
