@@ -31,9 +31,12 @@ static void trim(char **value) {
         *value = &(*value)[1];
     }
 }
-static void set_and_print_env(const char *name, char *value) {
+void set_and_print_env(const char *name, char *value) {
     // Set Variable With No Trailing Colon
-    trim(&value);
+    static const char *unmodified_name_prefix = "MCPI_";
+    if (strncmp(unmodified_name_prefix, name, strlen(unmodified_name_prefix)) != 0) {
+        trim(&value);
+    }
 
 #ifdef DEBUG
     // Print New Value

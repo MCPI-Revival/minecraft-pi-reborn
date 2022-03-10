@@ -1,10 +1,6 @@
 # Manual Installation
 [Download Packages Here](https://jenkins.thebrokenrail.com/job/minecraft-pi-reborn/job/master/lastSuccessfulBuild/artifact/out/)
 
-## Supported Distributions
-* Ubuntu 20.04+
-* Debian Bullseye+
-
 ## Picking A Package
 
 ### Name Format

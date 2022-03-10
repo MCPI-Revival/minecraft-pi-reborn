@@ -92,7 +92,7 @@ static void run_command_and_set_env(const char *env_name, char *command[]) {
                 output[length - 1] = '\0';
             }
             // Set
-            setenv(env_name, output, 1);
+            set_and_print_env(env_name, output);
         }
         // Check Return Code
         if (return_code != 0) {
