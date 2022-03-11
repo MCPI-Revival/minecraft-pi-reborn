@@ -42,14 +42,9 @@ set(MCPI_INSTALL_DIR "lib/${MCPI_VARIANT_NAME}")
 set(MCPI_LIB_DIR "${MCPI_INSTALL_DIR}/lib")
 set(MCPI_FALLBACK_LIB_DIR "${MCPI_INSTALL_DIR}/fallback-lib")
 
-# Optimizations
+# Build Mode
 if(NOT CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE "Release")
-endif()
-if(CMAKE_BUILD_TYPE STREQUAL "Release")
-    add_compile_options(-O3)
-else()
-    add_compile_options(-g)
 endif()
 
 # Start Project
@@ -65,6 +60,13 @@ if(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
     set(CMAKE_INSTALL_PREFIX "/usr" CACHE PATH "" FORCE)
 endif()
 
+# Optimizations
+if(CMAKE_BUILD_TYPE STREQUAL "Release")
+    add_compile_options(-O3)
+else()
+    add_compile_options(-g)
+endif()
+
 # Use LLD When Using Clang
 if(CMAKE_C_COMPILER_ID STREQUAL "Clang")
     add_link_options("-fuse-ld=lld")
@@ -72,6 +74,9 @@ endif()
 
 # PIC
 set(CMAKE_POSITION_INDEPENDENT_CODE TRUE)
+
+# Fast Math
+add_compile_options(-ffast-math)
 
 # Buld Dependencies
 add_subdirectory(dependencies)
@@ -82,9 +87,6 @@ add_link_options(-Wl,--no-undefined)
 add_definitions(-D_GNU_SOURCE)
 set(CMAKE_C_STANDARD 99)
 set(CMAKE_CXX_STANDARD 11)
-
-# Fast Math
-add_compile_options(-ffast-math)
 
 # Specify Constants
 if(MCPI_SERVER_MODE)

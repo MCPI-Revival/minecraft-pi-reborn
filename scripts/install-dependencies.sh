@@ -51,6 +51,11 @@ queue_pkg \
     libxrandr-dev \
     libxext-dev
 
+# Zenity Dependencies
+queue_pkg \
+    libgtk-3-dev \
+    libglib2.0-dev
+
 # ARM Packages
 if [ ! -z "${ARM_PACKAGES_SUPPORTED}" ]; then
     # Build Tools
@@ -72,6 +77,11 @@ if [ ! -z "${ARM_PACKAGES_SUPPORTED}" ]; then
         libxinerama-dev:armhf libxinerama-dev:arm64 \
         libxrandr-dev:armhf libxrandr-dev:arm64 \
         libxext-dev:armhf libxext-dev:arm64
+
+    # Zenity Dependencies
+    queue_pkg \
+        libgtk-3-dev:armhf libgtk-3-dev:arm64 \
+        libglib2.0-dev:armhf libglib2.0-dev:arm64
 fi
 
 # Install appimagetool & appimage-builder Dependencies

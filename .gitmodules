@@ -10,3 +10,7 @@
 	path = dependencies/glfw/src
 	url = https://github.com/glfw/glfw.git
 	shallow = true
+[submodule "dependencies/zenity/src"]
+	path = dependencies/zenity/src
+	url = https://gitea.thebrokenrail.com/TheBrokenRail/zenity.git
+	shallow = true

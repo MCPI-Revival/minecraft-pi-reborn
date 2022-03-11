@@ -29,7 +29,9 @@ const packages = [
 if (mode === 'client') {
     // GLFW's Dependencies Aren't Included As They Should Be Provided By The Host System
     packages.push(
-        'zenity',
+        'libgtk-3-0',
+        'libglib2.0-0',
+        'libgdk-pixbuf2.0-0',
         'libcanberra-gtk3-module',
         'libfreeimage3',
         'libopenal1'
