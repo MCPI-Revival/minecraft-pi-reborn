@@ -50,8 +50,6 @@ const packageExclusions = [
     // Exclude Unneeded Packages
     'humanity-icon-theme',
     'adwaita-icon-theme',
-    'libwebkit2gtk-*',
-    'libnotify4',
     '*systemd*',
     'dconf-service',
     'dconf-gsettings-backend',

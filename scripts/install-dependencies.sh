@@ -93,11 +93,16 @@ sudo apt-get install --no-install-recommends -y ${PKG_QUEUE}
 # Download appimagetool
 sudo mkdir -p /opt
 sudo wget https://github.com/AppImage/AppImageKit/releases/download/continuous/appimagetool-x86_64.AppImage -O /opt/appimagetool
+sudo chmod +x /opt/appimagetool
 # Workaround AppImage Issues With Docker
-cd /opt; sudo chmod +x ./appimagetool; sudo sed -i '0,/AI\x02/{s|AI\x02|\x00\x00\x00|}' ./appimagetool; sudo ./appimagetool --appimage-extract
+cd /opt
+sudo sed -i '0,/AI\x02/{s|AI\x02|\x00\x00\x00|}' ./appimagetool
+sudo rm -rf /opt/squashfs-root /opt/appimagetool.AppDir
+sudo ./appimagetool --appimage-extract
+sudo rm -f ./appimagetool
 sudo mv /opt/squashfs-root /opt/appimagetool.AppDir
 sudo rm -f /usr/local/bin/appimagetool
 sudo ln -s /opt/appimagetool.AppDir/AppRun /usr/local/bin/appimagetool
 
 # Install appimage-builder
-sudo pip3 install 'git+https://github.com/AppImageCrafters/appimage-builder.git'
+sudo pip3 install 'git+https://github.com/TheBrokenRail/appimage-builder.git'
