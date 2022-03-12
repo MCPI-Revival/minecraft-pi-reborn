@@ -40,6 +40,7 @@ endif()
 # Specify Installation Paths
 set(MCPI_INSTALL_DIR "lib/${MCPI_VARIANT_NAME}")
 set(MCPI_LIB_DIR "${MCPI_INSTALL_DIR}/lib")
+set(MCPI_BIN_DIR "${MCPI_INSTALL_DIR}/bin")
 set(MCPI_FALLBACK_LIB_DIR "${MCPI_INSTALL_DIR}/fallback-lib")
 
 # Build Mode

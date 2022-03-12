@@ -95,6 +95,7 @@ queue_pkg \
     strace \
     fuse \
     gtk-update-icon-cache \
+    shared-mime-info \
     sed
 
 # Install Queue
@@ -115,4 +116,4 @@ sudo rm -f /usr/local/bin/appimagetool
 sudo ln -s /opt/appimagetool.AppDir/AppRun /usr/local/bin/appimagetool
 
 # Install appimage-builder
-sudo pip3 install 'git+https://github.com/TheBrokenRail/appimage-builder.git'
+sudo pip3 install 'git+https://github.com/TheBrokenRail/appimage-builder.git@combined'

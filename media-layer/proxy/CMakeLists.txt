@@ -12,7 +12,7 @@ if(BUILD_NATIVE_COMPONENTS)
     target_link_libraries(media-layer-proxy-client media-layer-headers reborn-headers ${MEDIA_LAYER_PROXY_LIBS})
     target_compile_definitions(media-layer-proxy-client PRIVATE -DMEDIA_LAYER_PROXY_CLIENT)
     # Install
-    install(TARGETS media-layer-proxy-client DESTINATION "${MCPI_LIB_DIR}")
+    install(TARGETS media-layer-proxy-client DESTINATION "${MCPI_BIN_DIR}")
 endif()
 
 if(BUILD_ARM_COMPONENTS)

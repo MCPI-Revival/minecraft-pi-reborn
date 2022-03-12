@@ -15,11 +15,12 @@ static std::vector<ALuint> &get_sources() {
     return sources;
 }
 
-#define AL_ERROR_CHECK() \
+#define AL_ERROR_CHECK() AL_ERROR_CHECK_MANUAL(alGetError())
+#define AL_ERROR_CHECK_MANUAL(val) \
     { \
-        ALenum err = alGetError(); \
-        if (err != AL_NO_ERROR) { \
-            ERR("OpenAL Error: %s", alGetString(err)); \
+        ALenum __err = val; \
+        if (__err != AL_NO_ERROR) { \
+            ERR("OpenAL Error: %s", alGetString(__err)); \
         } \
     }
 
@@ -81,7 +82,15 @@ void media_audio_play(const char *source, const char *name, float x, float y, fl
             // Create Source
             ALuint al_source;
             alGenSources(1, &al_source);
-            AL_ERROR_CHECK();
+            // Special Out-Of-Memory Handling
+            {
+                ALenum err = alGetError();
+                if (err == AL_OUT_OF_MEMORY) {
+                    return;
+                } else {
+                    AL_ERROR_CHECK_MANUAL(err);
+                }
+            }
 
             // Set Properties
             alSourcef(al_source, AL_PITCH, pitch);

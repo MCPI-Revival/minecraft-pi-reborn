@@ -148,6 +148,29 @@ void pre_bootstrap() {
         ERR("AppImage: Unable To Fix Current Directory: %s", strerror(errno));
     }
 #endif
+
+    // Get Binary Directory
+    char *binary_directory = get_binary_directory();
+
+    // Configure PATH
+    {
+        // Add Library Directory
+        char *new_path;
+        safe_asprintf(&new_path, "%s/bin", binary_directory);
+        // Add Existing PATH
+        {
+            char *value = get_env_safe("PATH");
+            if (strlen(value) > 0) {
+                string_append(&new_path, ":%s", value);
+            }
+        }
+        // Set And Free
+        set_and_print_env("PATH", new_path);
+        free(new_path);
+    }
+
+    // Free Binary Directory
+    free(binary_directory);
 }
 
 // Bootstrap
@@ -158,14 +181,13 @@ void bootstrap(int argc, char *argv[]) {
     char *binary_directory = get_binary_directory();
 
     // Handle AppImage
+    char *usr_prefix = NULL;
 #ifdef MCPI_IS_APPIMAGE_BUILD
-    char *usr_prefix = getenv("APPDIR");
+    usr_prefix = getenv("APPDIR");
+#endif
     if (usr_prefix == NULL) {
         usr_prefix = "";
     }
-#else
-    char *usr_prefix = "";
-#endif
 
     // Configure LD_LIBRARY_PATH
     {
@@ -263,23 +285,6 @@ void bootstrap(int argc, char *argv[]) {
         // Set LD_PRELOAD
         set_and_print_env("LD_PRELOAD", new_ld_preload);
         free(new_ld_preload);
-    }
-
-    // Configure PATH
-    {
-        // Add Library Directory
-        char *new_path;
-        safe_asprintf(&new_path, "%s/lib", binary_directory);
-        // Add Existing PATH
-        {
-            char *value = get_env_safe("PATH");
-            if (strlen(value) > 0) {
-                string_append(&new_path, ":%s", value);
-            }
-        }
-        // Set And Free
-        set_and_print_env("PATH", new_path);
-        free(new_path);
     }
 
     // Resolve Binary Path & Set MCPI_DIRECTORY

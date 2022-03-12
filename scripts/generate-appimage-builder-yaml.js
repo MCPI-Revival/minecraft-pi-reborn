@@ -32,7 +32,7 @@ if (mode === 'client') {
         'libgtk-3-0',
         'libglib2.0-0',
         'libgdk-pixbuf2.0-0',
-        'libcanberra-gtk3-module',
+        'shared-mime-info',
         'libfreeimage3',
         'libopenal1'
     );
@@ -52,6 +52,7 @@ const packageExclusions = [
     // Exclude Unneeded Packages
     'humanity-icon-theme',
     'adwaita-icon-theme',
+    'libxml2',
     '*systemd*',
     'dconf-service',
     'dconf-gsettings-backend',
@@ -102,7 +103,8 @@ const files = {
         'usr/share/doc/*/TODO.*',
         'usr/include',
         'usr/share/locale',
-        'usr/share/help'
+        'usr/share/help',
+        'usr/bin/update-mime-database'
     ]
 };
 
@@ -120,7 +122,8 @@ const runtime = {
         GTK_PATH: `\${APPDIR}/usr/lib/${triplet}/gtk-3.0`,
         GTK_DATA_PREFIX: '${APPDIR}',
         GTK_THEME: 'Default',
-        APPDIR_LIBRARY_PATH: `\${APPDIR}/usr/lib/${triplet}:\${APPDIR}/lib/${triplet}:\${APPDIR}/usr/lib:\${APPDIR}/usr/lib/${triplet}/gdk-pixbuf-2.0/2.10.0/loaders`
+        XDG_DATA_DIRS: '${APPDIR}/share:${APPDIR}/usr/share',
+        APPDIR_LIBRARY_PATH: `\${APPDIR}/usr/lib/${triplet}:\${APPDIR}/usr/${triplet}/lib:\${APPDIR}/lib/${triplet}:\${APPDIR}/usr/lib:\${APPDIR}/usr/lib/${triplet}/gdk-pixbuf-2.0/2.10.0/loaders`
     } : undefined,
     preserve: arch !== 'armhf' ? [
         // On non-ARM32 systems, an ARM32 linker is embedded, this
