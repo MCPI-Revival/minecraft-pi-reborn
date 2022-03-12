@@ -1,7 +1,19 @@
 # Changelog
 
+**2.3.0**
+* Switch To AppImage For Packaging
+* Prevent OpenAL From Crashing When Out Of Memory
+* Vendor GLFW & Zenity
+  * Seamless Wayland Support
+* Add ``MCPI_DEBUG`` Environmental Variable
+* Add ``Disable Hosting LAN Worlds`` Feature Flag (Disabled By Default)
+* Add ``Fix Furnace Not Checking Item Auxiliary`` Feature Flag (Enabled By Default)
+* Add ``Disable Raw Mouse Motion (Not Recommended)`` Feature Flag (Disabled By Default) For Broken X11 Setups
+* Improve Build System
+* Improve Documentation
+
 **2.2.11**
-* Add "Close Current Screen On Death" Feature Flag (Enabled By Default) To Prevent Bugs
+* Add ``Close Current Screen On Death`` Feature Flag (Enabled By Default) To Prevent Bugs
 * Fix More Furnace UI Bugs When Using "Disable 'gui_blocks' Atlas"
 
 **2.2.10**
@@ -12,8 +24,8 @@
 * Store Files In `/usr/lib`
 
 **2.2.8**
-* Add "Hide Chat Messages" Optional Feature Flag
-* Add "Remove Creative Mode Restrictions" Optional Feature Flag
+* Add ``Hide Chat Messages`` Optional Feature Flag
+* Add ``Remove Creative Mode Restrictions`` Optional Feature Flag
 * Improve GLFW->SDL Mouse Motion Event Conversion
 * Performance Optimizations
 * Make Majority Of Server-Specific Logging Code Also Apply To The Client
@@ -51,7 +63,7 @@
 
 **2.2.0**
 * Sound Support
-* Split Off "Allow Joining Survival Servers" From Game-Mode Mod
+* Split Off ``Allow Joining Survival Servers`` From Game-Mode Mod
 * Separate Headless Code From Server Code
 * Fix Bug Where ``RakNetInstance`` Starts Pinging Potential Servers Before The "Join Game" Screen Is Opened
 * Clean-Up Code
