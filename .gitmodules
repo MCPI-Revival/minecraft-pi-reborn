@@ -1,16 +1,12 @@
 [submodule "dependencies/libpng/src"]
 	path = dependencies/libpng/src
 	url = https://github.com/glennrp/libpng.git
-	shallow = true
 [submodule "dependencies/zlib/src"]
 	path = dependencies/zlib/src
 	url = https://github.com/madler/zlib.git
-	shallow = true
 [submodule "dependencies/glfw/src"]
 	path = dependencies/glfw/src
 	url = https://github.com/glfw/glfw.git
-	shallow = true
 [submodule "dependencies/zenity/src"]
 	path = dependencies/zenity/src
 	url = https://gitea.thebrokenrail.com/TheBrokenRail/zenity.git
-	shallow = true
