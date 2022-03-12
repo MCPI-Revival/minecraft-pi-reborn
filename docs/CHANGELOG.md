@@ -9,6 +9,7 @@
 * Add ``Disable Hosting LAN Worlds`` Feature Flag (Disabled By Default)
 * Add ``Fix Furnace Not Checking Item Auxiliary`` Feature Flag (Enabled By Default)
 * Add ``Disable Raw Mouse Motion (Not Recommended)`` Feature Flag (Disabled By Default) For Broken X11 Setups
+* Added Back `~/.minecraft-pi/mods`
 * Improve Build System
 * Improve Documentation
 
