@@ -10,7 +10,7 @@
 char *get_full_library_search_path() {
     std::string output;
     // Run
-    FILE *file = popen("ldconfig -NXv 2> /dev/null", "r");
+    FILE *file = popen("/sbin/ldconfig -NXv 2> /dev/null", "r");
     // Read
     int running = 1;
     while (running) {
