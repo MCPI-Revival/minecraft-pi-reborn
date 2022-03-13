@@ -88,6 +88,7 @@ fi
 queue_pkg \
     python3-pip \
     python3-setuptools \
+    python3-wheel \
     patchelf \
     desktop-file-utils \
     libgdk-pixbuf2.0-dev \

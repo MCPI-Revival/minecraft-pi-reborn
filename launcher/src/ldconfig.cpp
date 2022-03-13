@@ -25,7 +25,11 @@ char *get_full_library_search_path() {
             }
             // Interpret
             if (str.size() >= 2 && str[0] != '\t' && str[str.size() - 1] == ':') {
-                output.append(str);
+                // Blacklist RPI Legacy GL Drivers
+#define RPI_LEGACY_GL_PATH "/opt/vc"
+                if (str.rfind(RPI_LEGACY_GL_PATH ":", 0) != 0 && str.rfind(RPI_LEGACY_GL_PATH "/", 0) != 0) {
+                    output.append(str);
+                }
             }
         } else {
             running = 0;
@@ -37,8 +41,10 @@ char *get_full_library_search_path() {
         output.pop_back();
     }
     // Close Process
-    int ret = WEXITSTATUS(pclose(file));
-    if (ret != 0) {
+    int ret = pclose(file);
+    if (ret == -1) {
+        ERR("ldconfig Failed: %s", strerror(errno));
+    } else if (ret != 0) {
         ERR("ldconfig Failed: Exit Code: %i", ret);
     }
     // Return

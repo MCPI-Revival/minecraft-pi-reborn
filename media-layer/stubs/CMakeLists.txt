@@ -1,6 +1,6 @@
 project(media-layer-stubs)
 
-# Add GLES Stubs For Linking
+# Add GLES1 Stubs For Linking
 add_library(GLESv1_CM SHARED src/GLESv1_CM.c)
 target_link_libraries(GLESv1_CM media-layer-headers)
 set_target_properties(GLESv1_CM PROPERTIES SOVERSION "1")
@@ -27,17 +27,11 @@ if(BUILD_ARM_COMPONENTS)
         install(TARGETS EGL X11 DESTINATION "${MCPI_FALLBACK_LIB_DIR}") # Place At The End Of LD_LIBRARY_PATH
     endif()
 
-    # Install GLESv1_CM Stubs In Server Mode
+    # Install Fake GLESv1_CM Stubs In Server Mode
     if(MCPI_HEADLESS_MODE)
         install(TARGETS GLESv1_CM DESTINATION "${MCPI_LIB_DIR}")
     endif()
 
-    # MCPI Depends On GLESv2, But Uses GLESv1_CM
-    install_symlink("libGLESv1_CM.so.1" "${MCPI_LIB_DIR}/libGLESv2.so")
-    # Prevent MCPI From Linking To The Legacy GL Driver When Directly Linking To GL (RPI-Specific)
-    if(NOT MCPI_HEADLESS_MODE AND NOT MCPI_USE_MEDIA_LAYER_PROXY)
-        # Symlinks
-        install_symlink("/usr/lib/arm-linux-gnueabihf/libEGL.so.1" "${MCPI_LIB_DIR}/libEGL.so")
-        install_symlink("/usr/lib/arm-linux-gnueabihf/libGLESv1_CM.so.1" "${MCPI_LIB_DIR}/libGLESv1_CM.so.1")
-    endif()
+    # Redirect MCPI To Correct Libraries
+    add_subdirectory(redirect)
 endif()

@@ -23,7 +23,6 @@ const version = fs.readFileSync('VERSION', 'utf8').trim();
 // Packages/Dependencies
 const packages = [
     'libc6',
-    'libc-bin',
     'libstdc++6'
 ];
 if (mode === 'client') {
@@ -132,7 +131,9 @@ const runtime = {
         `usr/lib/${name}/minecraft-pi`,
         `usr/lib/${name}/**/*.so`,
         'usr/arm-linux-gnueabihf/lib'
-    ] : undefined
+    ] : undefined,
+    // libapprun_hooks.so Is Buggy And Unneeded
+    no_hooks: true
 };
 
 // AppDir
