@@ -9,7 +9,7 @@ if(BUILD_NATIVE_COMPONENTS)
 
     # Build Media Layer Proxy Client
     add_executable(media-layer-proxy-client src/client/client.cpp ${MEDIA_LAYER_PROXY_SRC})
-    target_link_libraries(media-layer-proxy-client media-layer-headers reborn-headers ${MEDIA_LAYER_PROXY_LIBS})
+    target_link_libraries(media-layer-proxy-client media-layer-headers reborn-util ${MEDIA_LAYER_PROXY_LIBS})
     target_compile_definitions(media-layer-proxy-client PRIVATE -DMEDIA_LAYER_PROXY_CLIENT)
     # Install
     install(TARGETS media-layer-proxy-client DESTINATION "${MCPI_BIN_DIR}")
@@ -20,7 +20,7 @@ if(BUILD_ARM_COMPONENTS)
 
     # Build Media Layer Proxy Server
     add_library(media-layer-core SHARED src/server/server.cpp ${MEDIA_LAYER_PROXY_SRC})
-    target_link_libraries(media-layer-core media-layer-headers reborn-headers)
+    target_link_libraries(media-layer-core media-layer-headers reborn-util)
     target_compile_definitions(media-layer-core PRIVATE -DMEDIA_LAYER_PROXY_SERVER)
     # Symlink GLESv1_CM To Media Layer Proxy Server
     install_symlink("libmedia-layer-core.so" "${MCPI_LIB_DIR}/libGLESv1_CM.so.1")

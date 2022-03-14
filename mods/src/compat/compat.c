@@ -18,7 +18,7 @@
 // Custom Title
 HOOK(SDL_WM_SetCaption, void, (__attribute__((unused)) const char *title, const char *icon)) {
     ensure_SDL_WM_SetCaption();
-    (*real_SDL_WM_SetCaption)("Minecraft: Pi Edition: Reborn", icon);
+    (*real_SDL_WM_SetCaption)(GUI_TITLE, icon);
 }
 
 // Mouse Cursor Is Always Invisible In Vanilla MCPI
@@ -106,7 +106,7 @@ HOOK(SDL_PollEvent, int, (SDL_Event *event)) {
 
     return ret;
 }
-#endif // #ifndef MCPI_SERVER_MODE
+#endif
 
 // Exit Handler
 static void exit_handler(__attribute__((unused)) int data) {

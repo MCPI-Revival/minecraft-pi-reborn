@@ -6,7 +6,7 @@ extern "C" {
 
 // Patching Functions
 
-#ifdef REBORN_HAS_COMPILED_CODE
+#ifdef REBORN_HAS_PATCH_CODE
 
 void _overwrite_call(const char *file, int line, void *start, void *target);
 #define overwrite_call(start, target) _overwrite_call(__FILE__, __LINE__, start, target);
@@ -23,7 +23,7 @@ void _patch(const char *file, int line, void *start, unsigned char patch[4]);
 void _patch_address(const char *file, int line, void *start, void *target);
 #define patch_address(start, target) _patch_address(__FILE__, __LINE__, start, target);
 
-#endif // #ifdef REBORN_HAS_COMPILED_CODE
+#endif
 
 #ifdef __cplusplus
 }

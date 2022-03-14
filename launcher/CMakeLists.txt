@@ -8,7 +8,7 @@ if(BUILD_NATIVE_COMPONENTS)
     else()
         target_sources(launcher PRIVATE src/client/launcher.cpp)
     endif()
-    target_link_libraries(launcher reborn-headers)
+    target_link_libraries(launcher reborn-util)
     # Install
     install(TARGETS launcher DESTINATION "${MCPI_INSTALL_DIR}")
     install_symlink("../${MCPI_INSTALL_DIR}/launcher" "bin/${MCPI_VARIANT_NAME}")

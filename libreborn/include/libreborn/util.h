@@ -43,9 +43,13 @@
         } \
     }
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 // Safe Version Of pipe()
-static inline void safe_pipe2(int pipefd[2], int flags) {
-    if (pipe2(pipefd, flags) != 0) {
-        ERR("Unable To Create Pipe: %s", strerror(errno));
-    }
+void safe_pipe2(int pipefd[2], int flags);
+
+#ifdef __cplusplus
 }
+#endif

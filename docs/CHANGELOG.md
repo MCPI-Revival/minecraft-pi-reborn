@@ -1,5 +1,9 @@
 # Changelog
 
+**2.3.1**
+* Internal Refactor Of ``libreborn``
+* Remove Use Of ``/bin/sh``
+
 **2.3.0**
 * Switch To AppImage For Packaging
 * Prevent OpenAL From Crashing When Out Of Memory

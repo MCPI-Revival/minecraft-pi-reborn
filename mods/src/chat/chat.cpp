@@ -11,7 +11,7 @@
 #include "../feature/feature.h"
 #ifndef MCPI_SERVER_MODE
 #include "../input/input.h"
-#endif // #ifndef MCPI_SERVER_MODE
+#endif
 #include "chat.h"
 
 // Store If Chat is Enabled
@@ -39,7 +39,7 @@ static void send_api_chat_command(unsigned char *minecraft, char *str) {
     send_api_command(minecraft, command);
     free(command);
 }
-#endif // #ifndef MCPI_SERVER_MODE
+#endif
 
 // Send Message To Players
 static void send_message(unsigned char *server_side_network_handler, char *username, char *message) {
@@ -115,7 +115,7 @@ static void send_queued_messages(unsigned char *minecraft) {
     // Unlock
     pthread_mutex_unlock(&queue_mutex);
 }
-#endif // #ifndef MCPI_SERVER_MODE
+#endif
 
 // Init
 void init_chat() {
@@ -131,6 +131,6 @@ void init_chat() {
         // Send Messages On Input Tick
 #ifndef MCPI_SERVER_MODE
         input_run_on_tick(send_queued_messages);
-#endif // #ifndef MCPI_SERVER_MODE
+#endif
     }
 }

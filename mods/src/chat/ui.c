@@ -10,27 +10,13 @@
 #include "../input/input.h"
 
 // Run Command
-static char *run_command(char *command, int *return_code) {
+static char *run_command_proper(const char *command[], int *return_code) {
     // Prepare Environment
     RESET_ENVIRONMENTAL_VARIABLE("LD_LIBRARY_PATH");
     RESET_ENVIRONMENTAL_VARIABLE("LD_PRELOAD");
 
-    // Start
-    FILE *out = popen(command, "r");
-    if (!out) {
-        ERR("%s", "Failed To Run Command");
-    }
-
-    // Record
-    char *output = NULL;
-    int c;
-    while ((c = fgetc(out)) != EOF) {
-        string_append(&output, "%c", (char) c);
-    }
-
-    // Return
-    *return_code = WEXITSTATUS(pclose(out));
-    return output;
+    // Run
+    return run_command(command, return_code);
 }
 
 // Count Chat Windows
@@ -44,7 +30,8 @@ unsigned int chat_get_counter() {
 static void *chat_thread(__attribute__((unused)) void *nop) {
     // Open
     int return_code;
-    char *output = run_command("zenity --title 'Chat' --class 'Minecraft: Pi Edition: Reborn' --entry --text 'Enter Chat Message:'", &return_code);
+    const char *command[] = {"zenity", "--title", "Chat", "--class", GUI_TITLE, "--entry", "--text", "Enter Chat Message:", NULL};
+    char *output = run_command_proper(command, &return_code);
     // Handle Message
     if (output != NULL) {
         // Check Return Code
@@ -87,4 +74,4 @@ void chat_open() {
         pthread_create(&thread, NULL, chat_thread, NULL);
     }
 }
-#endif // #ifndef MCPI_SERVER_MODE
+#endif

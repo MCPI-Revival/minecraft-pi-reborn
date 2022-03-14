@@ -11,7 +11,7 @@
 
 #ifndef __arm__
 #error "Patching Code Is ARM Only"
-#endif // #ifndef __arm__
+#endif
 
 // BL Instruction Magic Number
 #define BL_INSTRUCTION 0xeb

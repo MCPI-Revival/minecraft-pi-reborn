@@ -30,7 +30,7 @@ static int get_render_distance() {
         ERR("Invalid Render Distance: %s", distance_str);
     }
 }
-#endif // #ifndef MCPI_SERVER_MODE
+#endif
 
 // Get Custom Username
 static char *get_username() {
@@ -86,9 +86,9 @@ void init_options() {
 #ifndef MCPI_SERVER_MODE
     render_distance = get_render_distance();
     INFO("Setting Render Distance: %i", render_distance);
-#else // #ifndef MCPI_SERVER_MODE
+#else
     render_distance = 3;
-#endif // #ifndef MCPI_SERVER_MODE
+#endif
     // Server Visible
     server_visible = !feature_has("Disable Hosting LAN Worlds", 0);
 
@@ -99,7 +99,7 @@ void init_options() {
     const char *username = get_username();
 #ifndef MCPI_SERVER_MODE
     INFO("Setting Username: %s", username);
-#endif // #ifndef MCPI_SERVER_MODE
+#endif
     if (strcmp(*default_username, "StevePi") != 0) {
         ERR("%s", "Default Username Is Invalid");
     }

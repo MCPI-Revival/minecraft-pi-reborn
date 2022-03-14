@@ -37,49 +37,8 @@ static void load_available_feature_flags(std::function<void(std::string)> callba
     }
 }
 
-// Run Command And Get Output
-static char *run_command(char *command[], int *return_code) {
-    // Store Output
-    int output_pipe[2];
-    safe_pipe2(output_pipe, 0);
-    // Run
-    pid_t ret = fork();
-    if (ret == -1) {
-        ERR("Unable To Run Command: %s", strerror(errno));
-    } else if (ret == 0) {
-        // Child Process
-
-        // Pipe stdout
-        dup2(output_pipe[1], STDOUT_FILENO);
-        close(output_pipe[0]);
-        close(output_pipe[1]);
-
-        // Run
-        safe_execvpe(command[0], command, environ);
-    } else {
-        // Parent Process
-
-        // Read stdout
-        close(output_pipe[1]);
-        char *output = NULL;
-        char c;
-        int bytes_read = 0;
-        while ((bytes_read = read(output_pipe[0], (void *) &c, 1)) > 0) {
-            string_append(&output, "%c", c);
-        }
-        close(output_pipe[0]);
-
-        // Get Return Code
-        int status;
-        waitpid(ret, &status, 0);
-        *return_code = WIFEXITED(status) ? WEXITSTATUS(status) : 1;
-
-        // Return
-        return output;
-    }
-}
 // Run Command And Set Environmental Variable
-static void run_command_and_set_env(const char *env_name, char *command[]) {
+static void run_command_and_set_env(const char *env_name, const char *command[]) {
     // Only Run If Environmental Variable Is NULL
     if (getenv(env_name) == NULL) {
         // Run
@@ -93,6 +52,8 @@ static void run_command_and_set_env(const char *env_name, char *command[]) {
             }
             // Set
             set_and_print_env(env_name, output);
+            // Free
+            free(output);
         }
         // Check Return Code
         if (return_code != 0) {
@@ -107,7 +68,7 @@ static void run_zenity_and_set_env(const char *env_name, std::vector<std::string
     std::vector<std::string> full_command;
     full_command.push_back("zenity");
     full_command.push_back("--class");
-    full_command.push_back("Minecraft: Pi Edition: Reborn");
+    full_command.push_back(GUI_TITLE);
     full_command.insert(full_command.end(), command.begin(), command.end());
     // Convert To C Array
     const char *full_command_array[full_command.size() + 1];
@@ -116,7 +77,7 @@ static void run_zenity_and_set_env(const char *env_name, std::vector<std::string
     }
     full_command_array[full_command.size()] = NULL;
     // Run
-    run_command_and_set_env(env_name, (char **) full_command_array);
+    run_command_and_set_env(env_name, full_command_array);
 }
 
 // Launch

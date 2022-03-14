@@ -313,7 +313,7 @@ void bootstrap(int argc, char *argv[]) {
 
     // Arguments
     int argv_start = 2; // argv = &new_args[argv_start]
-    char *new_args[argv_start /* 2 Potential Prefix Arguments (QEMU And Linker) */ + argc + 1 /* NULL-Terminator */]; //
+    const char *new_args[argv_start /* 2 Potential Prefix Arguments (QEMU And Linker) */ + argc + 1 /* NULL-Terminator */]; //
 
     // Copy Existing Arguments
     for (int i = 1; i < argc; i++) {
@@ -344,6 +344,6 @@ void bootstrap(int argc, char *argv[]) {
 #endif
 
     // Run
-    char **new_argv = &new_args[argv_start];
-    safe_execvpe(new_argv[0], new_argv, environ);
+    const char **new_argv = &new_args[argv_start];
+    safe_execvpe(new_argv, (const char *const *) environ);
 }

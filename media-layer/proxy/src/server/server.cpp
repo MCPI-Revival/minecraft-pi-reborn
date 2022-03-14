@@ -77,10 +77,10 @@ static void start_media_layer_proxy_client(int read, int write) {
         safe_asprintf(&read_str, "%i", read);
         char *write_str = NULL;
         safe_asprintf(&write_str, "%i", write);
-        char *argv[] = {NULL /* Updated By safe_execvpe() */, read_str, write_str, NULL};
+        const char *argv[] = {"media-layer-proxy-client", read_str, write_str, NULL};
 
         // Run
-        safe_execvpe("media-layer-proxy-client", argv, environ);
+        safe_execvpe(argv, (const char *const *) environ);
     } else {
         // Parent Process
         _client_pid = ret;
