@@ -55,7 +55,6 @@ const packageExclusions = [
     '*systemd*',
     'dconf-service',
     'dconf-gsettings-backend',
-    'libgnutls*',
     'librest-*',
     'libcups2',
     'libcolord2',

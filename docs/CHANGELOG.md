@@ -3,6 +3,7 @@
 **2.3.1**
 * Internal Refactor Of ``libreborn``
 * Remove Use Of ``/bin/sh``
+* Load Custom Mods First
 
 **2.3.0**
 * Switch To AppImage For Packaging
