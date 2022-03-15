@@ -32,3 +32,4 @@ TRUE Close Current Screen On Death
 FALSE Disable Raw Mouse Motion (Not Recommended)
 TRUE Fix Furnace Not Checking Item Auxiliary
 FALSE Disable Hosting LAN Worlds
+TRUE Improved Cursor Rendering

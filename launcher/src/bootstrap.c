@@ -141,6 +141,11 @@ static void load(char **ld_preload, char *folder) {
 
 // Pre-Bootstrap
 void pre_bootstrap() {
+    // GTK Dark Mode
+#ifndef MCPI_HEADLESS_MODE
+    set_and_print_env("GTK_THEME", "Adwaita:dark");
+#endif
+
     // AppImage
 #ifdef MCPI_IS_APPIMAGE_BUILD
     char *owd = getenv("OWD");

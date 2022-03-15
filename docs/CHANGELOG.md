@@ -4,6 +4,8 @@
 * Internal Refactor Of ``libreborn``
 * Remove Use Of ``/bin/sh``
 * Load Custom Mods First
+* Use Zenity Dark Mode
+* Add ``Improved Cursor Rendering`` Feature Flag (Enabled By Default)
 
 **2.3.0**
 * Switch To AppImage For Packaging

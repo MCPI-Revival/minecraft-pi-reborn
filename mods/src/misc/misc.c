@@ -6,6 +6,7 @@
 
 #include <libreborn/libreborn.h>
 #include <symbols/minecraft.h>
+#include <SDL/SDL.h>
 
 #include "../init/init.h"
 #include "../feature/feature.h"
@@ -179,6 +180,25 @@ static int32_t FurnaceScreen_handleAddItem_injection(unsigned char *furnace_scre
     }
 }
 
+// Custom Cursor Rendering
+//
+// The default behavior for Touch GUI is to only render the cursor when the mouse is clicking, this fixes that.
+// This also makes the cursor always render if the mouse is unlocked, instead of just when there is a Screen showing.
+static void GameRenderer_render_injection(unsigned char *game_renderer, float param_1) {
+    // Call Original Method
+    (*GameRenderer_render)(game_renderer, param_1);
+
+    // Check If Cursor Should Render
+    if (SDL_WM_GrabInput(SDL_GRAB_QUERY) == SDL_GRAB_OFF) {
+        // Get X And Y
+        float x = (*Mouse_getX)() * (*InvGuiScale);
+        float y = (*Mouse_getY)() * (*InvGuiScale);
+        // Render Cursor
+        unsigned char *minecraft = *(unsigned char **) (game_renderer + GameRenderer_minecraft_property_offset);
+        (*renderCursor)(x, y, minecraft);
+    }
+}
+
 // Init
 void init_misc() {
     // Remove Invalid Item Background (A Red Background That Appears For Items That Are Not Included In The gui_blocks Atlas)
@@ -214,6 +234,15 @@ void init_misc() {
     // Fix Furnace Not Checking Item Auxiliary When Inserting New Item
     if (feature_has("Fix Furnace Not Checking Item Auxiliary", 0)) {
         overwrite_calls((void *) FurnaceScreen_handleAddItem, (void *) FurnaceScreen_handleAddItem_injection);
+    }
+
+    // Improved Cursor Rendering
+    if (feature_has("Improved Cursor Rendering", 0)) {
+        // Disable Normal Cursor Rendering
+        unsigned char disable_cursor_patch[4] = {0x00, 0xf0, 0x20, 0xe3}; // "nop"
+        patch((void *) 0x4a6c0, disable_cursor_patch);
+        // Add Custom Cursor Rendering
+        overwrite_calls((void *) GameRenderer_render, (void *) GameRenderer_render_injection);
     }
 
     // Init C++ And Logging

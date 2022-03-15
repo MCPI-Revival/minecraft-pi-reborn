@@ -72,7 +72,7 @@ add_library(death SHARED src/death/death.cpp)
 target_link_libraries(death reborn-patch symbols feature)
 
 add_library(misc SHARED src/misc/misc.c src/misc/misc.cpp src/misc/logging.cpp)
-target_link_libraries(misc reborn-patch symbols feature GLESv1_CM)
+target_link_libraries(misc reborn-patch symbols media-layer-core feature GLESv1_CM)
 
 add_library(options SHARED src/options/options.c)
 target_link_libraries(options reborn-patch symbols feature)
