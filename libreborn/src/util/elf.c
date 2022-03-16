@@ -1,9 +1,9 @@
 #include <libreborn/elf.h>
 
 // Find And Iterate Over All .text Sections In Current Binary
-void iterate_text_sections(text_section_callback_t callback, void *data) {
+void iterate_text_sections(const char *exe, text_section_callback_t callback, void *data) {
     // Load Main Binary
-    FILE *file_obj = fopen(getenv("MCPI_EXECUTABLE_PATH"), "rb");
+    FILE *file_obj = fopen(exe, "rb");
 
     // Verify Binary
     if (!file_obj) {
