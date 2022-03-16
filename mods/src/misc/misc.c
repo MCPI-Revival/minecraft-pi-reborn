@@ -6,7 +6,9 @@
 
 #include <libreborn/libreborn.h>
 #include <symbols/minecraft.h>
+
 #include <SDL/SDL.h>
+#include <media-layer/core.h>
 
 #include "../init/init.h"
 #include "../feature/feature.h"
@@ -243,6 +245,11 @@ void init_misc() {
         patch((void *) 0x4a6c0, disable_cursor_patch);
         // Add Custom Cursor Rendering
         overwrite_calls((void *) GameRenderer_render, (void *) GameRenderer_render_injection);
+    }
+
+    // Disable V-Sync
+    if (feature_has("Disable V-Sync", 0)) {
+        media_disable_vsync();
     }
 
     // Init C++ And Logging
