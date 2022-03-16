@@ -5,10 +5,35 @@
 #include <sys/stat.h>
 #include <vector>
 #include <functional>
+#include <algorithm>
 
 #include <libreborn/libreborn.h>
 
 #include "../bootstrap.h"
+
+// Strip Feature Flag Default
+static std::string strip_feature_flag_default(std::string flag, bool *default_ret) {
+    // Valid Values
+    std::string true_str = "TRUE ";
+    std::string false_str = "FALSE ";
+    // Test
+    if (flag.rfind(true_str, 0) == 0) {
+        // Enabled By Default
+        if (default_ret != NULL) {
+            *default_ret = true;
+        }
+        return flag.substr(true_str.length(), std::string::npos);
+    } else if (flag.rfind(false_str, 0) == 0) {
+        // Disabled By Default
+        if (default_ret != NULL) {
+            *default_ret = false;
+        }
+        return flag.substr(false_str.length(), std::string::npos);
+    } else {
+        // Invalid
+        ERR("%s", "Invalid Feature Flag Default");
+    }
+}
 
 // Load Available Feature Flags
 static void load_available_feature_flags(std::function<void(std::string)> callback) {
@@ -19,18 +44,35 @@ static void load_available_feature_flags(std::function<void(std::string)> callba
     // Load File
     std::ifstream stream(path);
     if (stream && stream.good()) {
-        std::string line;
-        while (std::getline(stream, line)) {
-            if (line.length() > 0) {
-                // Verify Line
-                if (line.find('|') == std::string::npos) {
-                    callback(line);
-                } else {
-                    // Invalid Line
-                    ERR("%s", "Feature Flag Contains Invalid '|'");
+        std::vector<std::string> lines;
+        // Read File
+        {
+            std::string line;
+            while (std::getline(stream, line)) {
+                if (line.length() > 0) {
+                    // Verify Line
+                    if (line.find('|') == std::string::npos) {
+                        lines.push_back(line);
+                    } else {
+                        // Invalid Line
+                        ERR("%s", "Feature Flag Contains Invalid '|'");
+                    }
                 }
             }
         }
+        // Sort
+        std::sort(lines.begin(), lines.end(), [](std::string a, std::string b) {
+            // Strip Defaults
+            std::string stripped_a = strip_feature_flag_default(a, NULL);
+            std::string stripped_b = strip_feature_flag_default(b, NULL);
+            // Sort
+            return stripped_a < stripped_b;
+        });
+        // Run Callbacks
+        for (std::string line : lines) {
+            callback(line);
+        }
+        // Close File
         stream.close();
     } else {
         ERR("%s", "Unable To Load Available Feature Flags");
@@ -130,18 +172,20 @@ int main(int argc, char *argv[]) {
         command.push_back("Enabled");
         command.push_back("--column");
         command.push_back("Feature");
-        load_available_feature_flags([&command](std::string line) {
-            if (line.rfind("TRUE ", 0) == 0) {
+        load_available_feature_flags([&command](std::string flag) {
+            bool default_value;
+            // Strip Default Value
+            std::string stripped_flag = strip_feature_flag_default(flag, &default_value);
+            // Specify Default Value
+            if (default_value) {
                 // Enabled By Default
                 command.push_back("TRUE");
-                command.push_back(line.substr(5, std::string::npos));
-            } else if (line.rfind("FALSE ", 0) == 0) {
+            } else {
                 // Disabled By Default
                 command.push_back("FALSE");
-                command.push_back(line.substr(6, std::string::npos));
-            } else {
-                ERR("%s", "Invalid Feature Flag Default");
             }
+            // Specify Name
+            command.push_back(stripped_flag);
         });
         // Run
         run_zenity_and_set_env("MCPI_FEATURE_FLAGS", command);
