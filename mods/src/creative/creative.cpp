@@ -95,6 +95,8 @@ void init_creative() {
         // Maximize Creative Inventory Stack Size
         unsigned char maximize_stack_patch[4] = {0xff, 0xc0, 0xa0, 0xe3}; // "mov r12, 0xff"
         patch((void *) 0x8e104, maximize_stack_patch);
+        // Allow Nether Reactor
+        patch((void *) 0xc0290, nop_patch);
         // Disable Other Restrictions
         is_restricted = 0;
     }
