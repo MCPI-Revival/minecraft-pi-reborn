@@ -1,14 +1,16 @@
 #include <unistd.h>
 #include <signal.h>
+#include <errno.h>
 
 #include "compat.h"
 #include "../init/init.h"
+
+#include <libreborn/libreborn.h>
 
 #ifndef MCPI_SERVER_MODE
 #include <SDL/SDL.h>
 
 #include <media-layer/core.h>
-#include <libreborn/libreborn.h>
 
 #include "../input/input.h"
 #include "../sign/sign.h"
@@ -26,25 +28,6 @@ HOOK(SDL_WM_SetCaption, void, (__attribute__((unused)) const char *title, const 
 HOOK(SDL_ShowCursor, int, (int toggle)) {
     ensure_SDL_ShowCursor();
     return (*real_SDL_ShowCursor)(toggle == SDL_QUERY ? SDL_QUERY : SDL_DISABLE);
-}
-
-// Hook SDL_Quit
-HOOK(SDL_Quit, __attribute__((noreturn)) void, ()) {
-    // Cleanup Executable
-    {
-        const char *exe = getenv("MCPI_EXECUTABLE_PATH");
-        // Check If Executable Is Temporary
-        if (exe != NULL && starts_with(exe, "/tmp")) {
-            // Cleanup Temporary File
-            if (unlink(exe) != 0) {
-                ERR("Unable To Cleanup Temporary File: %s", strerror(errno));
-            }
-        }
-    }
-
-    // Call Original Method
-    ensure_SDL_Quit();
-    (*real_SDL_Quit)();
 }
 
 // Intercept SDL Events
@@ -136,6 +119,21 @@ void init_compat() {
     // Install Exit Handler
     signal(SIGINT, exit_handler);
     signal(SIGTERM, exit_handler);
+}
+
+// Cleanup Temporary Files
+__attribute__((destructor)) static void cleanup_temporary() {
+    // Cleanup Executable
+    {
+        const char *exe = getenv("MCPI_EXECUTABLE_PATH");
+        // Check If Executable Is Temporary
+        if (exe != NULL && starts_with(exe, "/tmp")) {
+            // Cleanup Temporary File
+            if (unlink(exe) != 0) {
+                ERR("Unable To Cleanup Temporary File: %s", strerror(errno));
+            }
+        }
+    }
 }
 
 // Store Exit Requests

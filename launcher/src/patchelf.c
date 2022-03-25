@@ -50,11 +50,6 @@ static void duplicate_mcpi_executable() {
         fclose(original_file);
     }
 
-    // Fix Permissions
-    if (fchmod(new_file_fd, S_IRUSR | S_IWUSR | S_IXUSR) != 0) {
-        ERR("Unable To Set File Permissions: %s: %s", new_path, strerror(errno));
-    }
-
     // Close New File
     fclose(new_file);
     close(new_file_fd);
@@ -65,6 +60,9 @@ void patch_mcpi_elf_dependencies(const char *linker) {
     // Duplicate MCPI executable into /tmp so it can be modified.
     duplicate_mcpi_executable();
 
+    // Get Path
+    char *exe = getenv("MCPI_EXECUTABLE_PATH");
+
     // Run patchelf
     const char *const command[] = {
         "patchelf",
@@ -73,7 +71,7 @@ void patch_mcpi_elf_dependencies(const char *linker) {
         "--remove-needed", "libX11.so.6",
         "--remove-needed", "libEGL.so",
         "--replace-needed", "libGLESv2.so", "libGLESv1_CM.so.1",
-        getenv("MCPI_EXECUTABLE_PATH"),
+        exe,
         NULL
     };
     int return_code = 0;
@@ -83,5 +81,10 @@ void patch_mcpi_elf_dependencies(const char *linker) {
     }
     if (return_code != 0) {
         ERR("patchelf Failed: Exit Code: %i", return_code);
+    }
+
+    // Fix Permissions
+    if (chmod(exe, S_IRUSR | S_IXUSR) != 0) {
+        ERR("Unable To Set File Permissions: %s: %s", exe, strerror(errno));
     }
 }
