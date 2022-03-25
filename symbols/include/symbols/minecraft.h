@@ -76,6 +76,8 @@ struct RakNet_SystemAddress {
 
 // Tile
 
+static unsigned char **Tile_tiles = (unsigned char **) 0x180e08;
+
 typedef void (*Tile_initTiles_t)();
 static Tile_initTiles_t Tile_initTiles = (Tile_initTiles_t) 0xc358c;
 
@@ -250,6 +252,25 @@ static uint32_t Options_server_visible_property_offset = 0x104; // unsigned char
 typedef int32_t (*MouseBuildInput_tickBuild_t)(unsigned char *mouse_build_input, unsigned char *player, uint32_t *build_action_intention_return);
 static MouseBuildInput_tickBuild_t MouseBuildInput_tickBuild = (MouseBuildInput_tickBuild_t) 0x17c98;
 static void *MouseBuildInput_tickBuild_vtable_addr = (void *) 0x102564;
+
+// Item
+
+static uint32_t Item_is_stacked_by_data_property_offset = 0x19; // unsigned char / bool
+static uint32_t Item_category_property_offset = 0x10; // int32_t
+static uint32_t Item_max_damage_property_offset = 0x8; // int32_t
+
+// TileItem
+
+typedef unsigned char *(*TileItem_t)(unsigned char *tile_item, int32_t id);
+static TileItem_t TileItem = (TileItem_t) 0xce3a4;
+
+// AuxDataTileItem
+
+#define AUX_DATA_TILE_ITEM_SIZE 0x2c
+
+static unsigned char *AuxDataTileItem_vtable = (unsigned char *) 0x114a58;
+
+static uint32_t AuxDataTileItem_icon_tile_property_offset = 0x28; // Tile *
 
 // ItemInstance
 

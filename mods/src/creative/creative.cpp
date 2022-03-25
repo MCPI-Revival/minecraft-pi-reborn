@@ -48,7 +48,34 @@ static int32_t Inventory_setupDefault_FillingContainer_addItem_call_injection(un
     inventory_add_item(filling_container, *Tile_bedrock, true);
     inventory_add_item(filling_container, *Tile_info_updateGame1, true);
     inventory_add_item(filling_container, *Tile_info_updateGame2, true);
+    // Nether Reactor
+    for (int i = 0; i < 3; i++) {
+        if (i == 0) {
+            // Default Is Already In The Creative Inventory
+            continue;
+        }
+        ItemInstance *new_item_instance = new ItemInstance;
+        ALLOC_CHECK(new_item_instance);
+        new_item_instance = (*ItemInstance_constructor_tile_extra)(new_item_instance, *Tile_netherReactor, 1, i);
+        (*FillingContainer_addItem)(filling_container, new_item_instance);
+    }
 
+    return ret;
+}
+
+// Hook Specific TileItem Constructor
+static unsigned char *Tile_initTiles_TileItem_injection(unsigned char *tile_item, int32_t id) {
+    // Call Original Method
+    unsigned char *ret = (*TileItem)(tile_item, id);
+
+    // Switch VTable
+    *(unsigned char **) tile_item = AuxDataTileItem_vtable;
+    // Configure Item
+    *(bool *) (tile_item + Item_is_stacked_by_data_property_offset) = true;
+    *(int32_t *) (tile_item + Item_max_damage_property_offset) = 0;
+    *(unsigned char **) (tile_item + AuxDataTileItem_icon_tile_property_offset) = Tile_tiles[id + 0x100];
+
+    // Return
     return ret;
 }
 
@@ -63,6 +90,16 @@ void init_creative() {
     // Add Extra Items To Creative Inventory (Only Replace Specific Function Call)
     if (feature_has("Expand Creative Inventory", 0)) {
         overwrite_call((void *) 0x8e0fc, (void *) Inventory_setupDefault_FillingContainer_addItem_call_injection);
+
+        // Use AuxDataTileItem by default instead of TileItem, so tiles in the Creative
+        // Inventory can have arbitrary auxiliary values.
+        {
+            // Fix Size
+            unsigned char size_patch[4] = {AUX_DATA_TILE_ITEM_SIZE, 0x00, 0xa0, 0xe3}; // "mov r0, #AUX_DATA_TILE_ITEM_SIZE"
+            patch((void *) 0xc6f64, size_patch);
+            // Hook Constructor
+            overwrite_call((void *) 0xc6f74, (void *) Tile_initTiles_TileItem_injection);
+        }
     }
 
     // Remove Creative Restrictions (Opening Chests, Crafting, Etc)
