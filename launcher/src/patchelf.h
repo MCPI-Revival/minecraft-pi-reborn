@@ -4,7 +4,7 @@
 extern "C" {
 #endif
 
-char *get_full_library_search_path(); // Remember To free()
+void patch_mcpi_elf_dependencies(const char *linker);
 
 #ifdef __cplusplus
 }

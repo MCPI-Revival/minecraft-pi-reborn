@@ -28,6 +28,25 @@ HOOK(SDL_ShowCursor, int, (int toggle)) {
     return (*real_SDL_ShowCursor)(toggle == SDL_QUERY ? SDL_QUERY : SDL_DISABLE);
 }
 
+// Hook SDL_Quit
+HOOK(SDL_Quit, __attribute__((noreturn)) void, ()) {
+    // Cleanup Executable
+    {
+        const char *exe = getenv("MCPI_EXECUTABLE_PATH");
+        // Check If Executable Is Temporary
+        if (exe != NULL && starts_with(exe, "/tmp")) {
+            // Cleanup Temporary File
+            if (unlink(exe) != 0) {
+                ERR("Unable To Cleanup Temporary File: %s", strerror(errno));
+            }
+        }
+    }
+
+    // Call Original Method
+    ensure_SDL_Quit();
+    (*real_SDL_Quit)();
+}
+
 // Intercept SDL Events
 HOOK(SDL_PollEvent, int, (SDL_Event *event)) {
     // In Server Mode, Exit Requests Are Handled In src/server/server.cpp

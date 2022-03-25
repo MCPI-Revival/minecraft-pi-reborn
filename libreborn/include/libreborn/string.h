@@ -33,6 +33,9 @@ extern "C" {
 // Sanitize String
 void sanitize_string(char **str, int max_length, unsigned int allow_newlines);
 
+// Starts With
+int starts_with(const char *str, const char *prefix);
+
 #ifdef __cplusplus
 }
 #endif

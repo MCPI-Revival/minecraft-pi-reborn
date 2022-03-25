@@ -23,3 +23,8 @@ void sanitize_string(char **str, int max_length, unsigned int allow_newlines) {
         }
     }
 }
+
+// Starts With
+int starts_with(const char *str, const char *prefix) {
+    return strncmp(prefix, str, strlen(prefix)) == 0;
+}

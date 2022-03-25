@@ -115,7 +115,7 @@ void _overwrite_calls(const char *file, int line, void *start, void *target) {
     data.replacement = code_block;
     data.found = 0;
 
-    iterate_text_sections(getenv("MCPI_EXECUTABLE_PATH"), overwrite_calls_callback, &data);
+    iterate_text_sections("/proc/self/exe", overwrite_calls_callback, &data);
 
     // Increment Code Block Position
     increment_code_block();

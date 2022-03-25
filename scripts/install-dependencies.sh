@@ -37,7 +37,8 @@ queue_pkg \
 queue_pkg \
     libfreeimage3 libfreeimage-dev \
     libopenal-dev \
-    qemu-user
+    qemu-user \
+    patchelf
 
 # GLFW Dependencies
 queue_pkg \

@@ -7,7 +7,7 @@ add_definitions(-D_GLIBCXX_USE_CXX11_ABI=0)
 
 ## Mods
 
-add_library(compat SHARED src/compat/compat.c src/compat/egl.c src/compat/x11.c)
+add_library(compat SHARED src/compat/compat.c src/compat/egl.c src/compat/x11.c src/compat/bcm_host.c)
 target_link_libraries(compat reborn-patch media-layer-core)
 
 add_library(readdir SHARED src/readdir/readdir.c)

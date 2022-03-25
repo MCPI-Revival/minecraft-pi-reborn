@@ -11,7 +11,7 @@
 #include <libreborn/libreborn.h>
 
 #include "bootstrap.h"
-#include "ldconfig.h"
+#include "patchelf.h"
 
 // Set Environmental Variable
 #define PRESERVE_ENVIRONMENTAL_VARIABLE(name) \
@@ -34,7 +34,7 @@ static void trim(char **value) {
 void set_and_print_env(const char *name, char *value) {
     // Set Variable With No Trailing Colon
     static const char *unmodified_name_prefix = "MCPI_";
-    if (strncmp(unmodified_name_prefix, name, strlen(unmodified_name_prefix)) != 0) {
+    if (!starts_with(name, unmodified_name_prefix)) {
         trim(&value);
     }
 
@@ -194,8 +194,57 @@ void bootstrap(int argc, char *argv[]) {
         usr_prefix = "";
     }
 
+    // Resolve Binary Path & Set MCPI_DIRECTORY
+    {
+        // Log
+        DEBUG("%s", "Resolving File Paths...");
+
+        // Resolve Full Binary Path
+        char *full_path = NULL;
+        safe_asprintf(&full_path, "%s/" MCPI_BINARY, binary_directory);
+        char *resolved_path = realpath(full_path, NULL);
+        ALLOC_CHECK(resolved_path);
+        free(full_path);
+
+        // Set MCPI_EXECUTABLE_PATH
+        set_and_print_env("MCPI_EXECUTABLE_PATH", resolved_path);
+
+        // Set MCPI_DIRECTORY
+        chop_last_component(&resolved_path);
+        set_and_print_env("MCPI_DIRECTORY", resolved_path);
+        free(resolved_path);
+    }
+
+    // Fix MCPI Dependencies
+    {
+        // Log
+        DEBUG("%s", "Patching ELF Dependencies...");
+
+        // Find Linker
+        char *linker = NULL;
+#ifndef __arm__
+        safe_asprintf(&linker, "%s/usr/arm-linux-gnueabihf/lib/ld-linux-armhf.so.3", usr_prefix);
+#else
+        safe_asprintf(&linker, "/lib/ld-linux-armhf.so.3");
+#endif
+
+        // Patch
+        patch_mcpi_elf_dependencies(linker);
+
+        // Free Linker Path
+        free(linker);
+
+        // Verify
+        if (!starts_with(getenv("MCPI_EXECUTABLE_PATH"), "/tmp")) {
+            IMPOSSIBLE();
+        }
+    }
+
     // Configure LD_LIBRARY_PATH
     {
+        // Log
+        DEBUG("%s", "Setting Linker Search Paths...");
+
         // Preserve
         PRESERVE_ENVIRONMENTAL_VARIABLE("LD_LIBRARY_PATH");
         char *new_ld_path = NULL;
@@ -203,38 +252,16 @@ void bootstrap(int argc, char *argv[]) {
         // Add Library Directory
         safe_asprintf(&new_ld_path, "%s/lib", binary_directory);
 
-        // Add MCPI_LD_LIBRARY_PATH
-        {
-            char *value = get_env_safe("MCPI_LD_LIBRARY_PATH");
-            if (strlen(value) > 0) {
-                string_append(&new_ld_path, ":%s", value);
-            }
-        }
+        // Load ARM Libraries (Ensure Priority)
+        string_append(&new_ld_path, ":%s/usr/lib/arm-linux-gnueabihf:%s/usr/arm-linux-gnueabihf/lib", usr_prefix, usr_prefix);
 
         // Add LD_LIBRARY_PATH (ARM32 Only)
-#ifdef __arm__
         {
             char *value = get_env_safe("LD_LIBRARY_PATH");
             if (strlen(value) > 0) {
                 string_append(&new_ld_path, ":%s", value);
             }
         }
-#endif
-
-        // Load ARM Libraries (Ensure Priority)
-        string_append(&new_ld_path, ":%s/usr/lib/arm-linux-gnueabihf:%s/usr/arm-linux-gnueabihf/lib", usr_prefix, usr_prefix);
-
-        // Add Full Library Search Path
-        {
-            char *value = get_full_library_search_path();
-            if (strlen(value) > 0) {
-                string_append(&new_ld_path, ":%s", value);
-            }
-            free(value);
-        }
-
-        // Add Fallback Library Directory
-        string_append(&new_ld_path, ":%s/fallback-lib", binary_directory);
 
         // Set And Free
         set_and_print_env("LD_LIBRARY_PATH", new_ld_path);
@@ -243,6 +270,9 @@ void bootstrap(int argc, char *argv[]) {
 
     // Configure LD_PRELOAD
     {
+        // Log
+        DEBUG("%s", "Locating Mods...");
+
         // Preserve
         PRESERVE_ENVIRONMENTAL_VARIABLE("LD_PRELOAD");
         char *new_ld_preload = NULL;
@@ -292,24 +322,6 @@ void bootstrap(int argc, char *argv[]) {
         free(new_ld_preload);
     }
 
-    // Resolve Binary Path & Set MCPI_DIRECTORY
-    {
-        // Resolve Full Binary Path
-        char *full_path = NULL;
-        safe_asprintf(&full_path, "%s/" MCPI_BINARY, binary_directory);
-        char *resolved_path = realpath(full_path, NULL);
-        ALLOC_CHECK(resolved_path);
-        free(full_path);
-
-        // Set MCPI_EXECUTABLE_PATH
-        set_and_print_env("MCPI_EXECUTABLE_PATH", resolved_path);
-
-        // Set MCPI_DIRECTORY
-        chop_last_component(&resolved_path);
-        set_and_print_env("MCPI_DIRECTORY", resolved_path);
-        free(resolved_path);
-    }
-
     // Free Binary Directory
     free(binary_directory);
 
@@ -317,8 +329,8 @@ void bootstrap(int argc, char *argv[]) {
     INFO("%s", "Starting Game...");
 
     // Arguments
-    int argv_start = 2; // argv = &new_args[argv_start]
-    const char *new_args[argv_start /* 2 Potential Prefix Arguments (QEMU And Linker) */ + argc + 1 /* NULL-Terminator */]; //
+    int argv_start = 1; // argv = &new_args[argv_start]
+    const char *new_args[argv_start /* 1 Potential Prefix Argument (QEMU) */ + argc + 1 /* NULL-Terminator */]; //
 
     // Copy Existing Arguments
     for (int i = 1; i < argc; i++) {
@@ -330,13 +342,6 @@ void bootstrap(int argc, char *argv[]) {
     // Set Executable Argument
     new_args[argv_start] = getenv("MCPI_EXECUTABLE_PATH");
 
-    // Non-ARM32 Systems Need Manually Specified Linker
-#ifndef __arm__
-    argv_start--;
-    char *linker = NULL;
-    safe_asprintf(&linker, "%s/usr/arm-linux-gnueabihf/lib/ld-linux-armhf.so.3", usr_prefix);
-    new_args[argv_start] = linker;
-
     // Non-ARM Systems Need QEMU
 #ifndef __ARM_ARCH
     argv_start--;
@@ -345,7 +350,6 @@ void bootstrap(int argc, char *argv[]) {
     // Prevent QEMU From Being Modded
     PASS_ENVIRONMENTAL_VARIABLE_TO_QEMU("LD_LIBRARY_PATH");
     PASS_ENVIRONMENTAL_VARIABLE_TO_QEMU("LD_PRELOAD");
-#endif
 #endif
 
     // Run

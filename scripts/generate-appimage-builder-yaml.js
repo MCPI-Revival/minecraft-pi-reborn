@@ -23,7 +23,8 @@ const version = fs.readFileSync('VERSION', 'utf8').trim();
 // Packages/Dependencies
 const packages = [
     'libc6',
-    'libstdc++6'
+    'libstdc++6',
+    'patchelf'
 ];
 if (mode === 'client') {
     // GLFW's Dependencies Aren't Included As They Should Be Provided By The Host System

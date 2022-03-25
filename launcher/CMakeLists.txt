@@ -2,7 +2,7 @@ project(launcher)
 
 # Launcher
 if(BUILD_NATIVE_COMPONENTS)
-    add_executable(launcher src/bootstrap.c src/ldconfig.cpp)
+    add_executable(launcher src/bootstrap.c src/patchelf.c)
     if(MCPI_SERVER_MODE)
         target_sources(launcher PRIVATE src/server/launcher.c)
     else()

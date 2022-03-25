@@ -7,7 +7,7 @@ void iterate_text_sections(const char *exe, text_section_callback_t callback, vo
 
     // Verify Binary
     if (!file_obj) {
-        ERR("%s", "Unable To Open Current Binary");
+        ERR("%s", "Unable To Open Binary");
     }
 
     // Get File Size

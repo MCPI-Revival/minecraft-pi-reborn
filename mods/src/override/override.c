@@ -10,11 +10,6 @@
 
 #include "../home/home.h"
 
-// Check If String Starts With Prefix
-static int starts_with(const char *s, const char *t) {
-    return strncmp(s, t, strlen(t)) == 0;
-}
-
 // Get Override Path For File (If It Exists)
 char *override_get_path(const char *filename) {
     // Get MCPI Home Path
