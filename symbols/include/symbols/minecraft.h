@@ -43,6 +43,7 @@ static unsigned char **Tile_netherReactor = (unsigned char **) 0x181dd0; // Tile
 static unsigned char **Tile_info_updateGame1 = (unsigned char **) 0x181c68; // Tile
 static unsigned char **Tile_info_updateGame2 = (unsigned char **) 0x181c6c; // Tile
 static unsigned char **Tile_bedrock = (unsigned char **) 0x181cc4; // Tile
+static unsigned char **Tile_tallgrass = (unsigned char **) 0x181d0c;
 
 static unsigned char **Tile_leaves = (unsigned char **) 0x18120c; // Tile
 static unsigned char **Tile_leaves_carried = (unsigned char **) 0x181dd8; // Tile

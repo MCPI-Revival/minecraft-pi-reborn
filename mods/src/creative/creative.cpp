@@ -59,6 +59,17 @@ static int32_t Inventory_setupDefault_FillingContainer_addItem_call_injection(un
         new_item_instance = (*ItemInstance_constructor_tile_extra)(new_item_instance, *Tile_netherReactor, 1, i);
         (*FillingContainer_addItem)(filling_container, new_item_instance);
     }
+    // Tall Grass
+    for (int i = 0; i < 4; i++) {
+        if (i == 2) {
+            // Identical To Previous Auxiliary Value
+            continue;
+        }
+        ItemInstance *new_item_instance = new ItemInstance;
+        ALLOC_CHECK(new_item_instance);
+        new_item_instance = (*ItemInstance_constructor_tile_extra)(new_item_instance, *Tile_tallgrass, 1, i);
+        (*FillingContainer_addItem)(filling_container, new_item_instance);
+    }
 
     return ret;
 }
