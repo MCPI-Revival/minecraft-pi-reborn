@@ -1,5 +1,12 @@
 # Changelog
 
+**2.3.2**
+* Simplify Launch Sequence
+* Add More Blocks To Expanded Creative Inventory
+* Fix Nether Reactor With Creative Restrictions Disabled
+* Alphabetize Feature Flags
+* Add ``Disable V-Sync`` Feature Flag (Disabled By Default)
+
 **2.3.1**
 * Internal Refactor Of ``libreborn``
 * Remove Use Of ``/bin/sh``
