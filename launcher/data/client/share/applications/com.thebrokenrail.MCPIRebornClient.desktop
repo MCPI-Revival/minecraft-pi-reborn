@@ -1,10 +1,10 @@
 [Desktop Entry]
-Name=Minecraft: Pi Edition: Reborn
+Name=Minecraft: Pi Edition: Reborn (Client)
 Comment=Fun with Blocks
-Icon=com.thebrokenrail.MCPIReborn
+Icon=com.thebrokenrail.MCPIRebornClient
 StartupNotify=false
 StartupWMClass=Minecraft: Pi Edition: Reborn
 Exec=minecraft-pi-reborn-client
 Terminal=false
 Type=Application
-Categories=Application;Game;
+Categories=Game;

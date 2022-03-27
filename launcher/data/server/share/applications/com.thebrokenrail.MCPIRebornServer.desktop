@@ -1,0 +1,8 @@
+[Desktop Entry]
+Name=Minecraft: Pi Edition: Reborn (Server)
+Comment=Fun with Blocks
+Icon=com.thebrokenrail.MCPIRebornServer
+Exec=/bin/sh -c "cd ~/.minecraft-pi && minecraft-pi-reborn-server"
+Terminal=true
+Type=Application
+Categories=Game;

@@ -1,5 +1,9 @@
 # Changelog
 
+**2.3.3**
+* Add More Blocks To Expanded Creative Inventory
+* Add AppStream Metadata
+
 **2.3.2**
 * Simplify Launch Sequence
 * Add More Blocks To Expanded Creative Inventory
