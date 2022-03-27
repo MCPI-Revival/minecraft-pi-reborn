@@ -7,7 +7,9 @@
     <description><p>Minecraft: Pi Edition Modding Project.</p><p>NOTE: This is not verified by, affiliated with, or supported by Mojang or Microsoft.</p></description>
     <url type="homepage">https://gitea.thebrokenrail.com/TheBrokenRail/minecraft-pi-reborn</url>
     <screenshots>
-        <screenshot type="default">https://gitea.thebrokenrail.com/TheBrokenRail/minecraft-pi-reborn/raw/branch/master/images/start.png</screenshot>
+        <screenshot type="default">
+            <image>https://gitea.thebrokenrail.com/TheBrokenRail/minecraft-pi-reborn/raw/branch/master/images/start.png</image>
+        </screenshot>
     </screenshots>
     <launchable type="desktop-id">com.thebrokenrail.MCPIRebornClient.desktop</launchable>
     <provides>
