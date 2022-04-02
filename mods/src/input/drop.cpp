@@ -23,7 +23,7 @@ void input_drop(int drop_slot) {
 
 // Handle Drop Item Presses
 static void _handle_drop(unsigned char *minecraft) {
-    if ((!creative_is_restricted() || !(*Minecraft_isCreativeMode)(minecraft)) && (drop_item_presses > 0 || drop_slot_pressed)) {
+    if (((*(unsigned char **) (minecraft + Minecraft_screen_property_offset)) == NULL) && (!creative_is_restricted() || !(*Minecraft_isCreativeMode)(minecraft)) && (drop_item_presses > 0 || drop_slot_pressed)) {
         // Get Player
         unsigned char *player = *(unsigned char **) (minecraft + Minecraft_player_property_offset);
         if (player != NULL) {
