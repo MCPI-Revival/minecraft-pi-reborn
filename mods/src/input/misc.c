@@ -79,7 +79,7 @@ static void Gui_handleClick_injection(unsigned char *gui, int32_t param_2, int32
 
 // Init
 void _init_misc() {
-    enable_misc = feature_has("Miscellaneous Input Fixes", 0);
+    enable_misc = feature_has("Miscellaneous Input Fixes", server_disabled);
     if (enable_misc) {
         // Fix OptionsScreen Ignoring The Back Button
         patch_address(OptionsScreen_handleBackEvent_vtable_addr, (void *) OptionsScreen_handleBackEvent_injection);

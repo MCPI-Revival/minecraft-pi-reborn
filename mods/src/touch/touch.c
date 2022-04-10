@@ -12,7 +12,7 @@ static int32_t Minecraft_isTouchscreen_injection(__attribute__((unused)) unsigne
 
 // Init
 void init_touch() {
-    int touch_gui = feature_has("Touch GUI", 0);
+    int touch_gui = feature_has("Touch GUI", server_disabled);
     if (touch_gui) {
         // Main UI
         overwrite((void *) Minecraft_isTouchscreen, (void *) Minecraft_isTouchscreen_injection);

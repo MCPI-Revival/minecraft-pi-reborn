@@ -72,16 +72,16 @@ static void Minecraft_init_injection(unsigned char *this) {
 // Init
 void init_options() {
     // Force Mob Spawning
-    if (feature_has("Force Mob Spawning", -1)) {
+    if (feature_has("Force Mob Spawning", server_auto)) {
         overwrite((void *) LevelData_getSpawnMobs, (void *) LevelData_getSpawnMobs_injection);
     }
 
     // Enable Fancy Graphics
-    fancy_graphics = feature_has("Fancy Graphics", 0);
+    fancy_graphics = feature_has("Fancy Graphics", server_disabled);
     // Peaceful Mode
-    peaceful_mode = feature_has("Peaceful Mode", -1);
+    peaceful_mode = feature_has("Peaceful Mode", server_auto);
     // 3D Anaglyph
-    anaglyph = feature_has("3D Anaglyph", 0);
+    anaglyph = feature_has("3D Anaglyph", server_disabled);
     // Render Distance
 #ifndef MCPI_SERVER_MODE
     render_distance = get_render_distance();
@@ -90,7 +90,7 @@ void init_options() {
     render_distance = 3;
 #endif
     // Server Visible
-    server_visible = !feature_has("Disable Hosting LAN Worlds", 0);
+    server_visible = !feature_has("Disable Hosting LAN Worlds", server_disabled);
 
     // Set Options
     overwrite_calls((void *) Minecraft_init, (void *) Minecraft_init_injection);
@@ -106,12 +106,12 @@ void init_options() {
     patch_address((void *) default_username, (void *) username);
 
     // Disable Autojump By Default
-    if (feature_has("Disable Autojump By Default", 0)) {
+    if (feature_has("Disable Autojump By Default", server_disabled)) {
         unsigned char autojump_patch[4] = {0x00, 0x30, 0xa0, 0xe3}; // "mov r3, #0x0"
         patch((void *) 0x44b90, autojump_patch);
     }
     // Display Nametags By Default
-    if (feature_has("Display Nametags By Default", 0)) {
+    if (feature_has("Display Nametags By Default", server_disabled)) {
         // r6 = 0x1
         // r5 = 0x0
         unsigned char display_nametags_patch[4] = {0x1d, 0x60, 0xc0, 0xe5}; // "strb r6, [r0, #0x1d]"
@@ -119,7 +119,7 @@ void init_options() {
     }
 
     // Enable Smooth Lighting
-    smooth_lighting = feature_has("Smooth Lighting", 0);
+    smooth_lighting = feature_has("Smooth Lighting", server_disabled);
     if (smooth_lighting) {
         unsigned char smooth_lighting_patch[4] = {0x01, 0x00, 0x53, 0xe3}; // "cmp r3, #0x1"
         patch((void *) 0x59ea4, smooth_lighting_patch);

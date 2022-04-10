@@ -123,7 +123,7 @@ void init_atlas() {
     overwrite_calls((void *) ItemRenderer_renderGuiItem_two, (void *) ItemRenderer_renderGuiItem_two_injection);
 
     // Disable The gui_blocks Atlas Which Contains Pre-Rendered Textures For Blocks In The Inventory
-    if (feature_has("Disable \"gui_blocks\" Atlas", 0)) {
+    if (feature_has("Disable \"gui_blocks\" Atlas", server_disabled)) {
         unsigned char disable_gui_blocks_atlas_patch[4] = {0x00, 0xf0, 0x20, 0xe3}; // "nop"
         patch((void *) 0x63c2c, disable_gui_blocks_atlas_patch);
         // Fix Grass And Leaves Inventory Rendering When The gui_blocks Atlas Is Disabled

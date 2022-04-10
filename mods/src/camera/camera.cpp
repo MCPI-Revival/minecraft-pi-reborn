@@ -37,7 +37,7 @@ void init_camera() {
     patch_address(AppPlatform_linux_saveScreenshot_vtable_addr, (void *) AppPlatform_linux_saveScreenshot_injection);
 
     // Fix Camera Rendering
-    if (feature_has("Fix Camera Rendering", 0)) {
+    if (feature_has("Fix Camera Rendering", server_disabled)) {
         // Enable TripodCameraRenderer
         overwrite_calls((void *) EntityRenderDispatcher, (void *) EntityRenderDispatcher_injection);
         // Display Smoke From TripodCamera Higher

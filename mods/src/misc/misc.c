@@ -204,14 +204,14 @@ static void GameRenderer_render_injection(unsigned char *game_renderer, float pa
 // Init
 void init_misc() {
     // Remove Invalid Item Background (A Red Background That Appears For Items That Are Not Included In The gui_blocks Atlas)
-    if (feature_has("Remove Invalid Item Background", 0)) {
+    if (feature_has("Remove Invalid Item Background", server_disabled)) {
         unsigned char invalid_item_background_patch[4] = {0x00, 0xf0, 0x20, 0xe3}; // "nop"
         patch((void *) 0x63c98, invalid_item_background_patch);
     }
 
     // Render Selected Item Text + Hide Chat Messages
-    hide_chat_messages = feature_has("Hide Chat Messages", 0);
-    render_selected_item_text = feature_has("Render Selected Item Text", 0);
+    hide_chat_messages = feature_has("Hide Chat Messages", server_disabled);
+    render_selected_item_text = feature_has("Render Selected Item Text", server_disabled);
     overwrite_calls((void *) Gui_renderChatMessages, (void *) Gui_renderChatMessages_injection);
     overwrite_calls((void *) Gui_tick, (void *) Gui_tick_injection);
     overwrite_calls((void *) Inventory_selectSlot, (void *) Inventory_selectSlot_injection);
@@ -229,17 +229,17 @@ void init_misc() {
     overwrite_calls((void *) RakNetInstance, (void *) RakNetInstance_injection);
 
     // Close Current Screen On Death To Prevent Bugs
-    if (feature_has("Close Current Screen On Death", 0)) {
+    if (feature_has("Close Current Screen On Death", server_disabled)) {
         patch_address(LocalPlayer_die_vtable_addr, (void *) LocalPlayer_die_injection);
     }
 
     // Fix Furnace Not Checking Item Auxiliary When Inserting New Item
-    if (feature_has("Fix Furnace Not Checking Item Auxiliary", 0)) {
+    if (feature_has("Fix Furnace Not Checking Item Auxiliary", server_disabled)) {
         overwrite_calls((void *) FurnaceScreen_handleAddItem, (void *) FurnaceScreen_handleAddItem_injection);
     }
 
     // Improved Cursor Rendering
-    if (feature_has("Improved Cursor Rendering", 0)) {
+    if (feature_has("Improved Cursor Rendering", server_disabled)) {
         // Disable Normal Cursor Rendering
         unsigned char disable_cursor_patch[4] = {0x00, 0xf0, 0x20, 0xe3}; // "nop"
         patch((void *) 0x4a6c0, disable_cursor_patch);
@@ -248,7 +248,7 @@ void init_misc() {
     }
 
     // Disable V-Sync
-    if (feature_has("Disable V-Sync", 0)) {
+    if (feature_has("Disable V-Sync", server_disabled)) {
         media_disable_vsync();
     }
 

@@ -166,7 +166,7 @@ static void Textures_tick_glTexSubImage2D_injection(GLenum target, GLint level, 
 // Init
 void init_textures() {
     // Tick Dynamic Textures (Animated Water)
-    if (feature_has("Animated Water", 0)) {
+    if (feature_has("Animated Water", server_disabled)) {
         overwrite_calls((void *) Minecraft_tick, (void *) Minecraft_tick_injection);
     }
 

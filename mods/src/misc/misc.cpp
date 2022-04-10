@@ -48,7 +48,7 @@ static void Minecraft_update_injection(unsigned char *minecraft) {
 // Init
 void _init_misc_cpp() {
     // Implement AppPlatform::readAssetFile So Translations Work
-    if (feature_has("Load Language Files", 1)) {
+    if (feature_has("Load Language Files", server_enabled)) {
         overwrite((void *) AppPlatform_readAssetFile, (void *) AppPlatform_readAssetFile_injection);
     }
 

@@ -86,6 +86,6 @@ static void _handle_drop(unsigned char *minecraft) {
 
 // Init
 void _init_drop() {
-    enable_drop = feature_has("Bind \"Q\" Key To Item Dropping", 0);
+    enable_drop = feature_has("Bind \"Q\" Key To Item Dropping", server_disabled);
     input_run_on_tick(_handle_drop);
 }

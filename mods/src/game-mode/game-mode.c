@@ -49,7 +49,7 @@ static unsigned char *Minecraft_getCreator_injection(unsigned char *minecraft) {
 // Init
 void init_game_mode() {
     // Dynamic Game Mode Switching
-    if (feature_has("Implement Game-Mode Switching", 1)) {
+    if (feature_has("Implement Game-Mode Switching", server_enabled)) {
         set_is_survival(1);
         overwrite_calls((void *) Minecraft_setIsCreativeMode, (void *) Minecraft_setIsCreativeMode_injection);
 
@@ -68,7 +68,7 @@ void init_game_mode() {
     }
 
     // Allow Joining Survival Servers
-    if (feature_has("Allow Joining Survival Servers", 1)) {
+    if (feature_has("Allow Joining Survival Servers", server_enabled)) {
         unsigned char server_patch[4] = {0x0f, 0x00, 0x00, 0xea}; // "b 0x6dcb4"
         patch((void *) 0x6dc70, server_patch);
     }

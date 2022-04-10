@@ -127,7 +127,7 @@ static void RakNetInstance_pingForHosts_injection(unsigned char *rak_net_instanc
 // Init
 void init_multiplayer() {
     // Inject Code
-    if (feature_has("External Server Support", 0)) {
+    if (feature_has("External Server Support", server_disabled)) {
         patch_address(RakNetInstance_pingForHosts_vtable_addr, (void *) RakNetInstance_pingForHosts_injection);
     }
 }

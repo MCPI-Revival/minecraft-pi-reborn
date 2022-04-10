@@ -37,6 +37,6 @@ static void _handle_toggle_options(unsigned char *minecraft) {
 
 // Init
 void _init_toggle() {
-    enable_toggles = feature_has("Bind Common Toggleable Options To Function Keys", 0);
+    enable_toggles = feature_has("Bind Common Toggleable Options To Function Keys", server_disabled);
     input_run_on_tick(_handle_toggle_options);
 }

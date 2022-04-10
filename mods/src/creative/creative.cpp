@@ -5,6 +5,7 @@
 #include "../feature/feature.h"
 #include "creative.h"
 
+#ifndef MCPI_SERVER_MODE
 // Add Item To Inventory
 static void inventory_add_item(unsigned char *inventory, unsigned char *item, bool is_tile) {
     ItemInstance *item_instance = new ItemInstance;
@@ -80,6 +81,7 @@ static int32_t Inventory_setupDefault_FillingContainer_addItem_call_injection(un
 
     return ret;
 }
+#endif
 
 // Hook Specific TileItem Constructor
 static unsigned char *Tile_initTiles_TileItem_injection(unsigned char *tile_item, int32_t id) {
@@ -106,8 +108,10 @@ int creative_is_restricted() {
 // Init
 void init_creative() {
     // Add Extra Items To Creative Inventory (Only Replace Specific Function Call)
-    if (feature_has("Expand Creative Inventory", 0)) {
+    if (feature_has("Expand Creative Inventory", server_enabled)) {
+#ifndef MCPI_SERVER_MODE
         overwrite_call((void *) 0x8e0fc, (void *) Inventory_setupDefault_FillingContainer_addItem_call_injection);
+#endif
 
         // Use AuxDataTileItem by default instead of TileItem, so tiles in the Creative
         // Inventory can have arbitrary auxiliary values.
@@ -121,7 +125,7 @@ void init_creative() {
     }
 
     // Remove Creative Restrictions (Opening Chests, Crafting, Etc)
-    if (feature_has("Remove Creative Mode Restrictions", 0)) {
+    if (feature_has("Remove Creative Mode Restrictions", server_disabled)) {
         unsigned char nop_patch[4] = {0x00, 0xf0, 0x20, 0xe3}; // "nop"
         // Remove Restrictions
         patch((void *) 0x43ee8, nop_patch);

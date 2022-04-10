@@ -131,9 +131,7 @@ const runtime = {
         `usr/lib/${name}/minecraft-pi`,
         `usr/lib/${name}/**/*.so`,
         'usr/arm-linux-gnueabihf/lib'
-    ] : undefined,
-    // libapprun_hooks.so Is Buggy And Unneeded
-    no_hooks: true
+    ] : undefined
 };
 
 // AppDir

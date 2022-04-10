@@ -58,7 +58,7 @@ static void TextEditScreen_updateEvents_injection(unsigned char *screen) {
 
 // Init
 void init_sign() {
-    if (feature_has("Fix Sign Placement", 0)) {
+    if (feature_has("Fix Sign Placement", server_disabled)) {
         // Fix Signs
         patch_address(LocalPlayer_openTextEdit_vtable_addr, (void *) LocalPlayer_openTextEdit_injection);
         patch_address(TextEditScreen_updateEvents_vtable_addr, (void *) TextEditScreen_updateEvents_injection);

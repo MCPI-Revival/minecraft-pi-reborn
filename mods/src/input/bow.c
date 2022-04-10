@@ -31,6 +31,6 @@ static void _handle_bow(unsigned char *minecraft) {
 // Init
 void _init_bow() {
     // Enable Bow & Arrow Fix
-    fix_bow = feature_has("Fix Bow & Arrow", 0);
+    fix_bow = feature_has("Fix Bow & Arrow", server_disabled);
     input_run_on_tick(_handle_bow);
 }

@@ -255,7 +255,7 @@ void bootstrap(int argc, char *argv[]) {
         // Load ARM Libraries (Ensure Priority)
         string_append(&new_ld_path, ":%s/usr/lib/arm-linux-gnueabihf:%s/usr/arm-linux-gnueabihf/lib", usr_prefix, usr_prefix);
 
-        // Add LD_LIBRARY_PATH (ARM32 Only)
+        // Add LD_LIBRARY_PATH
         {
             char *value = get_env_safe("LD_LIBRARY_PATH");
             if (strlen(value) > 0) {
@@ -299,23 +299,13 @@ void bootstrap(int argc, char *argv[]) {
             free(mods_folder);
         }
 
-        // Add MCPI_LD_PRELOAD
+        // Add LD_PRELOAD
         {
-            char *value = get_env_safe("MCPI_LD_PRELOAD");
+            char *value = get_env_safe("LD_PRELOAD");
             if (strlen(value) > 0) {
                 string_append(&new_ld_preload, ":%s", value);
             }
         }
-
-        // Add LD_PRELOAD (ARM32 Only)
-#ifdef __arm__
-        {
-            char *value = get_env_safe("MCPI_LD_PRELOAD");
-            if (strlen(value) > 0) {
-                string_append(&new_ld_preload, ":%s", value);
-            }
-        }
-#endif
 
         // Set LD_PRELOAD
         set_and_print_env("LD_PRELOAD", new_ld_preload);

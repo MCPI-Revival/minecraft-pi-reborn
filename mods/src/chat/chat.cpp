@@ -119,7 +119,7 @@ static void send_queued_messages(unsigned char *minecraft) {
 
 // Init
 void init_chat() {
-    _chat_enabled = feature_has("Implement Chat", 1);
+    _chat_enabled = feature_has("Implement Chat", server_enabled);
     if (_chat_enabled) {
         // Disable Original ChatPacket Loopback
         unsigned char disable_chat_packet_loopback_patch[4] = {0x00, 0xf0, 0x20, 0xe3}; // "nop"

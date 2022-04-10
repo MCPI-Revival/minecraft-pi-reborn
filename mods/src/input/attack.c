@@ -40,7 +40,7 @@ static int32_t MouseBuildInput_tickBuild_injection(unsigned char *mouse_build_in
 // Init
 void _init_attack() {
     // Allow Attacking Mobs
-    if (feature_has("Fix Attacking", 0)) {
+    if (feature_has("Fix Attacking", server_disabled)) {
         patch_address(MouseBuildInput_tickBuild_vtable_addr, (void *) MouseBuildInput_tickBuild_injection);
     }
 }
