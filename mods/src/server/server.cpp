@@ -58,6 +58,7 @@ static ServerProperties &get_server_properties() {
 #define DEFAULT_WORLD_NAME "world"
 #define DEFAULT_MAX_PLAYERS "4"
 #define DEFAULT_WHITELIST "false"
+#define DEFAULT_DEATH_MESSAGES "false"
 
 // Get World Name
 static std::string get_world_name() {
@@ -423,6 +424,9 @@ static const char *get_features() {
         if (get_server_properties().get_bool("force-mob-spawning", DEFAULT_FORCE_MOB_SPAWNING)) {
             features += "Force Mob Spawning|";
         }
+        if (get_server_properties().get_bool("death-messages", DEFAULT_DEATH_MESSAGES)) {
+            features += "Implement Death Messages|";
+        }
     }
     return features.c_str();
 }
@@ -469,6 +473,8 @@ static void server_init() {
         properties_file_output << "max-players=" DEFAULT_MAX_PLAYERS "\n";
         properties_file_output << "# Enable Whitelist\n";
         properties_file_output << "whitelist=" DEFAULT_WHITELIST "\n";
+        properties_file_output << "# Enable Death Messages\n";
+        properties_file_output << "death-messages=" DEFAULT_DEATH_MESSAGES "\n";
         properties_file_output.close();
         // Re-Open File
         properties_file = std::ifstream(file);
