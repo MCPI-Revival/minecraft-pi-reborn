@@ -478,11 +478,22 @@ static uint32_t Screen_keyboardNewChar_vtable_offset = 0x70;
 typedef void (*Screen_keyPressed_t)(unsigned char *screen, int32_t key);
 static uint32_t Screen_keyPressed_vtable_offset = 0x6c;
 
+typedef void (*Screen_init_t)(unsigned char *screen);
+
 typedef void (*Screen_tick_t)(unsigned char *screen);
 
 typedef int32_t (*Screen_handleBackEvent_t)(unsigned char *screen, bool param_1);
 
 static uint32_t Screen_minecraft_property_offset = 0x14; // Minecraft *
+static uint32_t Screen_rendered_buttons_property_offset = 0x18; // std::vector<Button *>
+static uint32_t Screen_selectable_buttons_property_offset = 0x30; // std::vector<Button *>
+
+// StartMenuScreen
+
+static Screen_init_t StartMenuScreen_init = (Screen_init_t) 0x39cc0;
+static void *StartMenuScreen_init_vtable_addr = (void *) 0x105194;
+
+static uint32_t StartMenuScreen_options_button_property_offset = 0x98; // Button
 
 // SelectWorldScreen
 

@@ -48,6 +48,10 @@ static void Options_initDefaultValue_injection(unsigned char *options) {
     // Render Distance
     *(int32_t *) (options + Options_render_distance_property_offset) = render_distance;
 
+    // Default Graphics Settings
+    *(options + Options_fancy_graphics_property_offset) = 1;
+    *(options + Options_ambient_occlusion_property_offset) = 1;
+
     // Store
     stored_options = options;
 }
