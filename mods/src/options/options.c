@@ -5,6 +5,7 @@
 
 #include "../feature/feature.h"
 #include "../init/init.h"
+#include "options.h"
 
 // Force Mob Spawning
 static bool LevelData_getSpawnMobs_injection(__attribute__((unused)) unsigned char *level_data) {
@@ -32,41 +33,32 @@ static int get_render_distance() {
 }
 #endif
 
-// Get Custom Username
-static char *get_username() {
-    char *username = getenv("MCPI_USERNAME");
-    if (username == NULL) {
-        username = "StevePi";
-    }
-    return username;
-}
-
-static int fancy_graphics;
-static int peaceful_mode;
 static int anaglyph;
-static int smooth_lighting;
 static int render_distance;
-static int server_visible;
 // Configure Options
-static void Minecraft_init_injection(unsigned char *this) {
+unsigned char *stored_options = NULL;
+static void Options_initDefaultValue_injection(unsigned char *options) {
     // Call Original Method
-    (*Minecraft_init)(this);
+    (*Options_initDefaultValue)(options);
 
-    unsigned char *options = this + Minecraft_options_property_offset;
-    // Enable Fancy Graphics
-    *(options + Options_fancy_graphics_property_offset) = fancy_graphics;
     // Enable Crosshair In Touch GUI
     *(options + Options_split_controls_property_offset) = 1;
-    // Peaceful Mode
-    *(int32_t *) (options + Options_peaceful_mode_property_offset) = peaceful_mode ? 0 : 2;
     // 3D Anaglyph
     *(options + Options_3d_anaglyph_property_offset) = anaglyph;
-    // Smooth Lighting
-    *(options + Options_ambient_occlusion_property_offset) = smooth_lighting;
     // Render Distance
     *(int32_t *) (options + Options_render_distance_property_offset) = render_distance;
-    // Server Visible
-    *(options + Options_server_visible_property_offset) = server_visible;
+
+    // Store
+    stored_options = options;
+}
+
+// Smooth Lighting
+static void TileRenderer_tesselateBlockInWorld_injection(unsigned char *tile_renderer, unsigned char *tile, int32_t x, int32_t y, int32_t z) {
+    // Set Variable
+    *Minecraft_useAmbientOcclusion = *(stored_options + Options_ambient_occlusion_property_offset);
+
+    // Call Original Method
+    (*TileRenderer_tesselateBlockInWorld)(tile_renderer, tile, x, y, z);
 }
 
 // Init
@@ -76,10 +68,6 @@ void init_options() {
         overwrite((void *) LevelData_getSpawnMobs, (void *) LevelData_getSpawnMobs_injection);
     }
 
-    // Enable Fancy Graphics
-    fancy_graphics = feature_has("Fancy Graphics", server_disabled);
-    // Peaceful Mode
-    peaceful_mode = feature_has("Peaceful Mode", server_auto);
     // 3D Anaglyph
     anaglyph = feature_has("3D Anaglyph", server_disabled);
     // Render Distance
@@ -89,21 +77,9 @@ void init_options() {
 #else
     render_distance = 3;
 #endif
-    // Server Visible
-    server_visible = !feature_has("Disable Hosting LAN Worlds", server_disabled);
 
     // Set Options
-    overwrite_calls((void *) Minecraft_init, (void *) Minecraft_init_injection);
-
-    // Change Username
-    const char *username = get_username();
-#ifndef MCPI_SERVER_MODE
-    INFO("Setting Username: %s", username);
-#endif
-    if (strcmp(*default_username, "StevePi") != 0) {
-        ERR("%s", "Default Username Is Invalid");
-    }
-    patch_address((void *) default_username, (void *) username);
+    overwrite_calls((void *) Options_initDefaultValue, (void *) Options_initDefaultValue_injection);
 
     // Disable Autojump By Default
     if (feature_has("Disable Autojump By Default", server_disabled)) {
@@ -118,10 +94,9 @@ void init_options() {
         patch((void *) 0xa6628, display_nametags_patch);
     }
 
-    // Enable Smooth Lighting
-    smooth_lighting = feature_has("Smooth Lighting", server_disabled);
-    if (smooth_lighting) {
-        unsigned char smooth_lighting_patch[4] = {0x01, 0x00, 0x53, 0xe3}; // "cmp r3, #0x1"
-        patch((void *) 0x59ea4, smooth_lighting_patch);
-    }
+    // Smooth Lighting
+    overwrite_calls((void *) TileRenderer_tesselateBlockInWorld, (void *) TileRenderer_tesselateBlockInWorld_injection);
+
+    // Init C++
+    _init_options_cpp();
 }

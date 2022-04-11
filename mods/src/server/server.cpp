@@ -48,13 +48,11 @@ static ServerProperties &get_server_properties() {
 }
 
 // Default Server Properties
-#define DEFAULT_MOTD "Minecraft Server"
 #define DEFAULT_SHOW_MINECON_BADGE "false"
 #define DEFAULT_GAME_MODE "0"
 #define DEFAULT_PORT "19132"
 #define DEFAULT_SEED ""
 #define DEFAULT_FORCE_MOB_SPAWNING "false"
-#define DEFAULT_PEACEFUL_MODE "false"
 #define DEFAULT_WORLD_NAME "world"
 #define DEFAULT_MAX_PLAYERS "4"
 #define DEFAULT_WHITELIST "false"
@@ -404,12 +402,6 @@ static unsigned char *ServerSideNetworkHandler_onReady_ClientGeneration_ServerSi
     return player;
 }
 
-// Get MOTD
-static std::string get_motd() {
-    std::string motd(get_server_properties().get_string("motd", DEFAULT_MOTD));
-    return motd;
-}
-
 // Get Feature Flags
 static bool loaded_features = false;
 static const char *get_features() {
@@ -418,9 +410,6 @@ static const char *get_features() {
         loaded_features = true;
 
         features.clear();
-        if (get_server_properties().get_bool("peaceful-mode", DEFAULT_PEACEFUL_MODE)) {
-            features += "Peaceful Mode|";
-        }
         if (get_server_properties().get_bool("force-mob-spawning", DEFAULT_FORCE_MOB_SPAWNING)) {
             features += "Force Mob Spawning|";
         }
@@ -453,8 +442,6 @@ static void server_init() {
     if (!properties_file.good()) {
         // Write Defaults
         std::ofstream properties_file_output(file);
-        properties_file_output << "# Message Of The Day\n";
-        properties_file_output << "motd=" DEFAULT_MOTD "\n";
         properties_file_output << "# Show The MineCon Badge Next To MOTD In Server List\n";
         properties_file_output << "show-minecon-badge=" DEFAULT_SHOW_MINECON_BADGE "\n";
         properties_file_output << "# Game Mode (0 = Survival, 1 = Creative)\n";
@@ -465,8 +452,6 @@ static void server_init() {
         properties_file_output << "seed=" DEFAULT_SEED "\n";
         properties_file_output << "# Force Mob Spawning (false = Disabled, true = Enabled)\n";
         properties_file_output << "force-mob-spawning=" DEFAULT_FORCE_MOB_SPAWNING "\n";
-        properties_file_output << "# Peaceful Mode (false = Disabled, true = Enabled)\n";
-        properties_file_output << "peaceful-mode=" DEFAULT_PEACEFUL_MODE "\n";
         properties_file_output << "# World To Select\n";
         properties_file_output << "world-name=" DEFAULT_WORLD_NAME "\n";
         properties_file_output << "# Maximum Player Count\n";
@@ -531,5 +516,4 @@ static void server_init() {
 void init_server() {
     server_init();
     setenv("MCPI_FEATURE_FLAGS", get_features(), 1);
-    setenv("MCPI_USERNAME", get_motd().c_str(), 1);
 }

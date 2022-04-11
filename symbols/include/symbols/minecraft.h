@@ -18,6 +18,10 @@ static renderCursor_t renderCursor = (renderCursor_t) 0x480c4;
 static char **default_path = (char **) 0xe264; // /.minecraft/
 static char **default_username = (char **) 0x18fd4; // StevePi
 static char **minecraft_pi_version = (char **) 0x39d94; // v0.1.1 alpha
+static char **options_txt_path = (char **) 0x19bc8; // options.txt
+static char **options_txt_fopen_mode_when_loading = (char **) 0x19d24; // w
+static char ***feedback_vibration_options_txt_name_1 = (char ***) 0x198a0; // feedback_vibration
+static char ***feedback_vibration_options_txt_name_2 = (char ***) 0x194bc; // feedback_vibration
 
 static unsigned char **Material_stone = (unsigned char **) 0x180a9c; // Material
 
@@ -52,6 +56,11 @@ static unsigned char **Tile_grass = (unsigned char **) 0x181b14; // Tile
 static unsigned char **Tile_grass_carried = (unsigned char **) 0x181dd4; // Tile
 
 static float *InvGuiScale = (float *) 0x135d98;
+
+static unsigned char *Options_Option_GRAPHICS = (unsigned char *) 0x136c2c; // Option
+static unsigned char *Options_Option_AMBIENT_OCCLUSION = (unsigned char *) 0x136c38; // Option
+
+static bool *Minecraft_useAmbientOcclusion = (bool *) 0x136b90;
 
 // Structures
 
@@ -108,6 +117,11 @@ static uint32_t Tile_use_vtable_offset = 0x98;
 
 static uint32_t Tile_id_property_offset = 0x8; // int32_t
 static uint32_t Tile_category_property_offset = 0x3c; // int32_t
+
+// TileRenderer
+
+typedef void (*TileRenderer_tesselateBlockInWorld_t)(unsigned char *tile_renderer, unsigned char *tile, int32_t x, int32_t y, int32_t z);
+static TileRenderer_tesselateBlockInWorld_t TileRenderer_tesselateBlockInWorld = (TileRenderer_tesselateBlockInWorld_t) 0x59e30;
 
 // GameMode
 
@@ -237,9 +251,16 @@ static uint32_t HitResult_type_property_offset = 0x0;
 
 // Options
 
+typedef void (*Options_initDefaultValue_t)(unsigned char *options);
+static Options_initDefaultValue_t Options_initDefaultValue = (Options_initDefaultValue_t) 0x18a54;
+
+typedef bool (*Options_getBooleanValue_t)(unsigned char *options, unsigned char *option);
+static Options_getBooleanValue_t Options_getBooleanValue = (Options_getBooleanValue_t) 0x1cd74;
+
+static uint32_t Options_options_file_property_offset = 0x10c; // OptionsFile
 static uint32_t Options_fancy_graphics_property_offset = 0x17; // unsigned char / bool
 static uint32_t Options_split_controls_property_offset = 0x105; // int32_t
-static uint32_t Options_peaceful_mode_property_offset = 0xe8; // unsigned char / bool
+static uint32_t Options_game_difficulty_property_offset = 0xe8; // int32_t
 static uint32_t Options_3d_anaglyph_property_offset = 0x15; // unsigned char / bool
 static uint32_t Options_ambient_occlusion_property_offset = 0x18; // unsigned char / bool
 static uint32_t Options_hide_gui_property_offset = 0xec; // unsigned char / bool
@@ -248,6 +269,15 @@ static uint32_t Options_render_distance_property_offset = 0x10; // int32_t
 static uint32_t Options_sound_property_offset = 0x4; // int32_t
 static uint32_t Options_debug_property_offset = 0xee; // unsigned char / bool
 static uint32_t Options_server_visible_property_offset = 0x104; // unsigned char / bool
+static uint32_t Options_username_property_offset = 0x100; // std::string
+
+// OptionButton
+
+typedef unsigned char *(*OptionButton_t)(unsigned char *option_button, unsigned char *option);
+static OptionButton_t OptionButton = (OptionButton_t) 0x1c968;
+
+typedef void (*OptionButton_updateImage_t)(unsigned char *option_button, unsigned char *options);
+static OptionButton_updateImage_t OptionButton_updateImage = (OptionButton_updateImage_t) 0x1ca58;
 
 // MouseBuildInput
 
@@ -644,6 +674,7 @@ static uint32_t SoundEngine_options_property_offset = 0x4; // Options *
 #ifdef __cplusplus
 
 #include <string>
+#include <vector>
 
 // Structures
 
@@ -729,6 +760,26 @@ static SoundEngine_play_t SoundEngine_play = (SoundEngine_play_t) 0x67860;
 
 typedef std::string (*Common_getGameVersionString_t)(std::string const& version_suffix);
 static Common_getGameVersionString_t Common_getGameVersionString = (Common_getGameVersionString_t) 0x15068;
+
+// Options
+
+typedef void (*Options_addOptionToSaveOutput_t)(unsigned char *options, std::vector<std::string> &data, std::string option, int32_t value);
+static Options_addOptionToSaveOutput_t Options_addOptionToSaveOutput = (Options_addOptionToSaveOutput_t) 0x195e4;
+
+// OptionsFile
+
+typedef std::vector<std::string> (*OptionsFile_getOptionStrings_t)(unsigned char *options_file);
+static OptionsFile_getOptionStrings_t OptionsFile_getOptionStrings = (OptionsFile_getOptionStrings_t) 0x19c1c;
+
+typedef void (*OptionsFile_save_t)(unsigned char *options_file, std::vector<std::string> const& data);
+static OptionsFile_save_t OptionsFile_save = (OptionsFile_save_t) 0x19bcc;
+
+static uint32_t OptionsFile_options_txt_path_property_offset = 0x0; // std::string
+
+// OptionsPane
+
+typedef void (*OptionsPane_unknown_toggle_creating_function_t)(unsigned char *options_pane, unsigned char *unknown_object, std::string const& name, unsigned char *option);
+static OptionsPane_unknown_toggle_creating_function_t OptionsPane_unknown_toggle_creating_function = (OptionsPane_unknown_toggle_creating_function_t) 0x24470;
 
 #endif
 

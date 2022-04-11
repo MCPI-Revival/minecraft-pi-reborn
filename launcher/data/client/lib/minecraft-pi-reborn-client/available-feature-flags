@@ -2,18 +2,15 @@ TRUE Touch GUI
 TRUE Fix Bow & Arrow
 TRUE Fix Attacking
 FALSE Force Mob Spawning
-TRUE Fancy Graphics
 TRUE Disable Autojump By Default
 TRUE Display Nametags By Default
 TRUE Fix Sign Placement
 TRUE Show Block Outlines
 FALSE Expand Creative Inventory
 FALSE Remove Creative Mode Restrictions
-FALSE Peaceful Mode
 TRUE Animated Water
 TRUE Remove Invalid Item Background
 TRUE Disable "gui_blocks" Atlas
-TRUE Smooth Lighting
 FALSE 3D Anaglyph
 TRUE Fix Camera Rendering
 TRUE Implement Chat
@@ -31,6 +28,6 @@ TRUE Implement Sound Engine
 TRUE Close Current Screen On Death
 FALSE Disable Raw Mouse Motion (Not Recommended)
 TRUE Fix Furnace Not Checking Item Auxiliary
-FALSE Disable Hosting LAN Worlds
 TRUE Improved Cursor Rendering
 FALSE Disable V-Sync
+TRUE Fix Options Screen
