@@ -47,7 +47,7 @@ else()
     add_library(sign SHARED src/sign/sign.cpp)
     target_link_libraries(sign reborn-patch symbols feature input)
 
-    add_library(touch SHARED src/touch/touch.c)
+    add_library(touch SHARED src/touch/touch.cpp)
     target_link_libraries(touch reborn-patch symbols feature)
 
     add_library(override SHARED src/override/override.c)

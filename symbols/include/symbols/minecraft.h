@@ -495,6 +495,13 @@ static void *StartMenuScreen_init_vtable_addr = (void *) 0x105194;
 
 static uint32_t StartMenuScreen_options_button_property_offset = 0x98; // Button
 
+// Touch::IngameBlockSelectionScreen
+
+#define TOUCH_INGAME_BLOCK_SELECTION_SCREEN_SIZE 0x16c
+
+typedef unsigned char *(*Touch_IngameBlockSelectionScreen_t)(unsigned char *screen);
+static Touch_IngameBlockSelectionScreen_t Touch_IngameBlockSelectionScreen = (Touch_IngameBlockSelectionScreen_t) 0x3afbc;
+
 // SelectWorldScreen
 
 static Screen_tick_t SelectWorldScreen_tick = (Screen_tick_t) 0x38a2c;

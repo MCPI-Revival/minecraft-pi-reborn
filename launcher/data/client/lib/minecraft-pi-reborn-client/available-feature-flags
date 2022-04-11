@@ -31,3 +31,4 @@ TRUE Fix Furnace Not Checking Item Auxiliary
 TRUE Improved Cursor Rendering
 FALSE Disable V-Sync
 TRUE Fix Options Screen
+FALSE Force Touch Inventory
