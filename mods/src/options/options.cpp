@@ -199,6 +199,11 @@ void _init_options_cpp() {
     patch((void *) 0x1931c, nop_patch);
     patch((void *) 0x1973c, nop_patch);
 
+    // Unsplit Touch Controls Breaks Things, Never Load/Save It
+    unsigned char cmp_r0_r0_patch[4] = {0x00, 0x00, 0x50, 0xe1}; // "cmp r0, r0"
+    patch((void *) 0x19378, cmp_r0_r0_patch);
+    patch((void *) 0x197cc, nop_patch);
+
     // Replace "feedback_vibration" Loading/Saving With "gfx_ao"
     {
         // Replace String

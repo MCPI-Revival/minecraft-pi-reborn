@@ -495,6 +495,16 @@ static void *StartMenuScreen_init_vtable_addr = (void *) 0x105194;
 
 static uint32_t StartMenuScreen_options_button_property_offset = 0x98; // Button
 
+// PauseScreen
+
+static Screen_init_t PauseScreen_init = (Screen_init_t) 0x36810;
+static void *PauseScreen_init_vtable_addr = (void *) 0x104b2c;
+
+typedef void (*PauseScreen_updateServerVisibilityText_t)(unsigned char *screen);
+static PauseScreen_updateServerVisibilityText_t PauseScreen_updateServerVisibilityText = (PauseScreen_updateServerVisibilityText_t) 0x366b8;
+
+static uint32_t PauseScreen_server_visibility_button_property_offset = 0x60; // Button *
+
 // Touch::IngameBlockSelectionScreen
 
 #define TOUCH_INGAME_BLOCK_SELECTION_SCREEN_SIZE 0x16c

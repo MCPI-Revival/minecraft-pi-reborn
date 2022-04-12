@@ -45,6 +45,31 @@ static void Minecraft_update_injection(unsigned char *minecraft) {
     }
 }
 
+// Add Missing Buttons To Pause Menu
+static void PauseScreen_init_injection(unsigned char *screen) {
+    // Call Original Method
+    (*PauseScreen_init)(screen);
+
+    // Check If Server
+    unsigned char *minecraft = *(unsigned char **) (screen + Screen_minecraft_property_offset);
+    unsigned char *rak_net_instance = *(unsigned char **) (minecraft + Minecraft_rak_net_instance_property_offset);
+    if (rak_net_instance != NULL) {
+        unsigned char *rak_net_instance_vtable = *(unsigned char**) rak_net_instance;
+        RakNetInstance_isServer_t RakNetInstance_isServer = *(RakNetInstance_isServer_t *) (rak_net_instance_vtable + RakNetInstance_isServer_vtable_offset);
+        if ((*RakNetInstance_isServer)(rak_net_instance)) {
+            // Add Button
+            std::vector<unsigned char *> *rendered_buttons = (std::vector<unsigned char *> *) (screen + Screen_rendered_buttons_property_offset);
+            std::vector<unsigned char *> *selectable_buttons = (std::vector<unsigned char *> *) (screen + Screen_selectable_buttons_property_offset);
+            unsigned char *button = *(unsigned char **) (screen + PauseScreen_server_visibility_button_property_offset);
+            rendered_buttons->push_back(button);
+            selectable_buttons->push_back(button);
+
+            // Update Button Text
+            (*PauseScreen_updateServerVisibilityText)(screen);
+        }
+    }
+}
+
 // Init
 void _init_misc_cpp() {
     // Implement AppPlatform::readAssetFile So Translations Work
@@ -54,4 +79,10 @@ void _init_misc_cpp() {
 
     // Handle Custom Update Behavior
     overwrite_calls((void *) Minecraft_update, (void *) Minecraft_update_injection);
+
+    // Fix Pause Menu
+    if (feature_has("Fix Pause Menu", server_disabled)) {
+        // Add Missing Buttons To Pause Menu
+        patch_address(PauseScreen_init_vtable_addr, (void *) PauseScreen_init_injection);
+    }
 }
