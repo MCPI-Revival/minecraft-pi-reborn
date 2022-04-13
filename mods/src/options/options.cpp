@@ -33,14 +33,6 @@ static void Options_save_Options_addOptionToSaveOutput_injection(unsigned char *
     // Save Fancy Graphics
     (*Options_addOptionToSaveOutput)(options, data, "gfx_fancygraphics", *(options + Options_fancy_graphics_property_offset));
 
-    // Save Username
-    {
-        std::string entry = "mp_username:";
-        std::string username = *(std::string *) (options + Options_username_property_offset);
-        entry += username;
-        data.push_back(entry);
-    }
-
     // Save File
     unsigned char *options_file = options + Options_options_file_property_offset;
     (*OptionsFile_save)(options_file, data);
@@ -203,6 +195,9 @@ void _init_options_cpp() {
     unsigned char cmp_r0_r0_patch[4] = {0x00, 0x00, 0x50, 0xe1}; // "cmp r0, r0"
     patch((void *) 0x19378, cmp_r0_r0_patch);
     patch((void *) 0x197cc, nop_patch);
+
+    // Custom Username Is Loaded Manually, Disable Loading From options.txt
+    patch((void *) 0x192ac, nop_patch);
 
     // Replace "feedback_vibration" Loading/Saving With "gfx_ao"
     {

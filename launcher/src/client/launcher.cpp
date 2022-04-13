@@ -216,6 +216,17 @@ int main(int argc, char *argv[]) {
         // Run
         run_zenity_and_set_env("MCPI_RENDER_DISTANCE", command);
     }
+    // Setup MCPI_USERNAME
+    {
+        std::vector<std::string> command;
+        command.push_back("--entry");
+        command.push_back("--text");
+        command.push_back("Minecraft Username:");
+        command.push_back("--entry-text");
+        command.push_back("StevePi");
+        // Run
+        run_zenity_and_set_env("MCPI_USERNAME", command);
+    }
 
     // Bootstrap
     bootstrap(argc, argv);

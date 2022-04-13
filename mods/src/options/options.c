@@ -33,6 +33,15 @@ static int get_render_distance() {
 }
 #endif
 
+// Get Custom Username
+static char *get_username() {
+    char *username = getenv("MCPI_USERNAME");
+    if (username == NULL) {
+        username = "StevePi";
+    }
+    return username;
+}
+
 static int anaglyph;
 static int render_distance;
 // Configure Options
@@ -84,6 +93,16 @@ void init_options() {
 
     // Set Options
     overwrite_calls((void *) Options_initDefaultValue, (void *) Options_initDefaultValue_injection);
+
+    // Change Username
+    const char *username = get_username();
+#ifndef MCPI_SERVER_MODE
+    INFO("Setting Username: %s", username);
+#endif
+    if (strcmp(*default_username, "StevePi") != 0) {
+        ERR("%s", "Default Username Is Invalid");
+    }
+    patch_address((void *) default_username, (void *) username);
 
     // Disable Autojump By Default
     if (feature_has("Disable Autojump By Default", server_disabled)) {

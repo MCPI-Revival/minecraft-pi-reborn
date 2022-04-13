@@ -48,6 +48,7 @@ static ServerProperties &get_server_properties() {
 }
 
 // Default Server Properties
+#define DEFAULT_MOTD "Minecraft Server"
 #define DEFAULT_SHOW_MINECON_BADGE "false"
 #define DEFAULT_GAME_MODE "0"
 #define DEFAULT_PORT "19132"
@@ -402,6 +403,12 @@ static unsigned char *ServerSideNetworkHandler_onReady_ClientGeneration_ServerSi
     return player;
 }
 
+// Get MOTD
+static std::string get_motd() {
+    std::string motd(get_server_properties().get_string("motd", DEFAULT_MOTD));
+    return motd;
+}
+
 // Get Feature Flags
 static bool loaded_features = false;
 static const char *get_features() {
@@ -442,6 +449,8 @@ static void server_init() {
     if (!properties_file.good()) {
         // Write Defaults
         std::ofstream properties_file_output(file);
+        properties_file_output << "# Message Of The Day\n";
+        properties_file_output << "motd=" DEFAULT_MOTD "\n";
         properties_file_output << "# Show The MineCon Badge Next To MOTD In Server List\n";
         properties_file_output << "show-minecon-badge=" DEFAULT_SHOW_MINECON_BADGE "\n";
         properties_file_output << "# Game Mode (0 = Survival, 1 = Creative)\n";
@@ -516,4 +525,5 @@ static void server_init() {
 void init_server() {
     server_init();
     setenv("MCPI_FEATURE_FLAGS", get_features(), 1);
+    setenv("MCPI_USERNAME", get_motd().c_str(), 1);
 }
