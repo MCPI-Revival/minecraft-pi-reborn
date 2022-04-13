@@ -69,6 +69,7 @@ static std::vector<std::string> OptionsFile_getOptionStrings_injection(unsigned 
 }
 
 // Get New options.txt Path
+#ifndef MCPI_SERVER_MODE
 static char *get_new_options_txt_path() {
     static char *path = NULL;
     // Path
@@ -82,6 +83,12 @@ static char *get_new_options_txt_path() {
 __attribute__((destructor)) static void _free_new_options_txt_path() {
     free(get_new_options_txt_path());
 }
+#else
+static char *get_new_options_txt_path() {
+    // Block options.txt On Servers
+    return (char *) "/dev/null";
+}
+#endif
 
 // Modify Option Toggles
 static void OptionsPane_unknown_toggle_creating_function_injection(unsigned char *options_pane, unsigned char *unknown_object, std::string const& name, unsigned char *option) {

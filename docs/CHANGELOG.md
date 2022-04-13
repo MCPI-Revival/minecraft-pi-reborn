@@ -1,5 +1,22 @@
 # Changelog
 
+**2.3.4**
+* Make Death Messages Customizable Server-Side
+* Fix Q-Key Behavior Behavior When Editing Signs
+* Add ``Force Touch Inventory`` Feature Flag (Disabled By Default)
+* Add ``Fix Pause Menu`` Feature Flag (Enabled By Default)
+  * Enables Server Visibility Toggle Button
+* Options Changes (Not Supported On Legacy)
+  * Add ``Fix Options Screen`` Feature Flag (Enabled By Default)
+    * Adds Options Button To Classic UI Start Screen
+    * Removes Useless Options Toggles
+    * Fixes Options Toggles' Default Position
+  * Store Multiple Settings In `options.txt`
+    * ``Peaceful Mode`` Feature Flag Moved To ``game_difficulty``
+    * ``Smooth Lighting`` Feature Flag Moved To ``gfx_ao``
+    * ``Fancy Graphics`` Feature Flag Moved To ``gfx_fancygraphics``
+    * ``Disable Hosting LAN Worlds`` Feature Flag Moved To ``mp_server_visible_default``
+
 **2.3.3**
 * Add More Blocks To Expanded Creative Inventory
 * Add AppStream Metadata
