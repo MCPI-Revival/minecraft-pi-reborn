@@ -277,6 +277,14 @@ void bootstrap(int argc, char *argv[]) {
         PRESERVE_ENVIRONMENTAL_VARIABLE("LD_PRELOAD");
         char *new_ld_preload = NULL;
 
+        // Add LD_PRELOAD
+        {
+            char *value = get_env_safe("LD_PRELOAD");
+            if (strlen(value) > 0) {
+                string_append(&new_ld_preload, ":%s", value);
+            }
+        }
+
         // ~/.minecraft-pi/mods
         {
             // Get Mods Folder
@@ -297,14 +305,6 @@ void bootstrap(int argc, char *argv[]) {
             load(&new_ld_preload, mods_folder);
             // Free Mods Folder
             free(mods_folder);
-        }
-
-        // Add LD_PRELOAD
-        {
-            char *value = get_env_safe("LD_PRELOAD");
-            if (strlen(value) > 0) {
-                string_append(&new_ld_preload, ":%s", value);
-            }
         }
 
         // Set LD_PRELOAD
