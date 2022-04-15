@@ -6,5 +6,6 @@ CMakeLists.txt.user
 *.autosave
 AppImageBuilder.yml
 appimage-builder-cache
+appimage-build
 AppDir
 *.zsync

@@ -36,6 +36,6 @@ __attribute__ ((noreturn)) void SDL_Quit() {
     while (wait(NULL) > 0) {}
 
     // Exit
-    INFO("%s", "Stopped");
+    INFO("Stopped");
     exit(EXIT_SUCCESS);
 }

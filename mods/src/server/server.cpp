@@ -205,7 +205,7 @@ static void list_callback(unsigned char *minecraft, std::string username, unsign
 // Handle Server Stop
 static void handle_server_stop(unsigned char *minecraft) {
     if (compat_check_exit_requested()) {
-        INFO("%s", "Stopping Server");
+        INFO("Stopping Server");
         // Save And Exit
         unsigned char *level = get_level(minecraft);
         if (level != NULL) {
@@ -294,21 +294,21 @@ static void handle_commands(unsigned char *minecraft) {
                     (*ServerSideNetworkHandler_displayGameMessage)(server_side_network_handler, message);
                 } else if (data == list_command) {
                     // List Players
-                    INFO("%s", "All Players:");
+                    INFO("All Players:");
                     find_players(minecraft, "", list_callback, true);
                 } else if (data == stop_command) {
                     // Stop Server
                     compat_request_exit();
                 } else if (data == help_command) {
-                    INFO("%s", "All Commands:");
+                    INFO("All Commands:");
                     if (!is_whitelist()) {
-                        INFO("%s", "    ban <Username>  - IP-Ban All Players With Specifed Username");
+                        INFO("    ban <Username>  - IP-Ban All Players With Specifed Username");
                     }
-                    INFO("%s", "    kill <Username> - Kill All Players With Specifed Username");
-                    INFO("%s", "    say <Message>   - Print Specified Message To Chat");
-                    INFO("%s", "    list            - List All Players");
-                    INFO("%s", "    stop            - Stop Server");
-                    INFO("%s", "    help            - Print This Message");
+                    INFO("    kill <Username> - Kill All Players With Specifed Username");
+                    INFO("    say <Message>   - Print Specified Message To Chat");
+                    INFO("    list            - List All Players");
+                    INFO("    stop            - Stop Server");
+                    INFO("    help            - Print This Message");
                 } else {
                     INFO("Invalid Command: %s", data.c_str());
                 }
@@ -378,7 +378,7 @@ static bool RakNet_RakPeer_IsBanned_injection(__attribute__((unused)) unsigned c
             return ret;
         }
     } else {
-        ERR("%s", "Unable To Read Blacklist/Whitelist");
+        ERR("Unable To Read Blacklist/Whitelist");
     }
 }
 

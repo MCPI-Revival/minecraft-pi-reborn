@@ -100,7 +100,7 @@ void init_options() {
     INFO("Setting Username: %s", username);
 #endif
     if (strcmp(*default_username, "StevePi") != 0) {
-        ERR("%s", "Default Username Is Invalid");
+        ERR("Default Username Is Invalid");
     }
     patch_address((void *) default_username, (void *) username);
 

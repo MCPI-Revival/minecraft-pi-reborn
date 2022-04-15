@@ -82,7 +82,7 @@ static void update_code_block(void *target) {
         DEBUG("Code Block Allocated At: 0x%08x", (uint32_t) code_block);
     }
     if (code_block_remaining < CODE_SIZE) {
-        ERR("%s", "Maximum Amount Of overwrite_calls() Uses Reached");
+        ERR("Maximum Amount Of overwrite_calls() Uses Reached");
     }
     _overwrite(NULL, -1, code_block, target);
 }
@@ -115,7 +115,7 @@ void _overwrite_calls(const char *file, int line, void *start, void *target) {
     data.replacement = code_block;
     data.found = 0;
 
-    iterate_text_sections("/proc/self/exe", overwrite_calls_callback, &data);
+    iterate_text_sections(getenv("MCPI_EXECUTABLE_PATH"), overwrite_calls_callback, &data);
 
     // Increment Code Block Position
     increment_code_block();
@@ -141,7 +141,7 @@ void _overwrite(const char *file, int line, void *start, void *target) {
 // Patch Instruction
 void _patch(const char *file, int line, void *start, unsigned char patch[4]) {
     if (((uint32_t) start) % 4 != 0) {
-        ERR("%s", "Invalid Address");
+        ERR("Invalid Address");
     }
 
     size_t page_size = sysconf(_SC_PAGESIZE);

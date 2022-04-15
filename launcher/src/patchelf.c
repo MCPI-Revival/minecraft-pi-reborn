@@ -56,6 +56,25 @@ static void duplicate_mcpi_executable() {
 }
 
 // Fix MCPI Dependencies
+#define patch_mcpi_elf_dependencies_with_extra_patchelf_args(...) \
+    ({ \
+        const char *const _macro_command[] = { \
+            "patchelf", \
+            ##__VA_ARGS__, \
+            "--remove-needed", "libbcm_host.so", \
+            "--remove-needed", "libX11.so.6", \
+            "--remove-needed", "libEGL.so", \
+            "--replace-needed", "libGLESv2.so", "libGLESv1_CM.so.1", \
+            exe, \
+            NULL \
+        }; \
+        int _macro_return_code = 0; \
+        char *_macro_output = run_command(_macro_command, &_macro_return_code); \
+        if (_macro_output != NULL) { \
+            free(_macro_output); \
+        } \
+        _macro_return_code; \
+    })
 void patch_mcpi_elf_dependencies(const char *linker) {
     // Duplicate MCPI executable into /tmp so it can be modified.
     duplicate_mcpi_executable();
@@ -64,20 +83,11 @@ void patch_mcpi_elf_dependencies(const char *linker) {
     char *exe = getenv("MCPI_EXECUTABLE_PATH");
 
     // Run patchelf
-    const char *const command[] = {
-        "patchelf",
-        "--set-interpreter", linker,
-        "--remove-needed", "libbcm_host.so",
-        "--remove-needed", "libX11.so.6",
-        "--remove-needed", "libEGL.so",
-        "--replace-needed", "libGLESv2.so", "libGLESv1_CM.so.1",
-        exe,
-        NULL
-    };
-    int return_code = 0;
-    char *output = run_command(command, &return_code);
-    if (output != NULL) {
-        free(output);
+    int return_code;
+    if (linker == NULL) {
+        return_code = patch_mcpi_elf_dependencies_with_extra_patchelf_args();
+    } else {
+        return_code = patch_mcpi_elf_dependencies_with_extra_patchelf_args("--set-interpreter", linker);
     }
     if (return_code != 0) {
         ERR("patchelf Failed: Exit Code: %i", return_code);

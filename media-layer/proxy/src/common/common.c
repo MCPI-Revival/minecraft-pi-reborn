@@ -9,13 +9,13 @@
     { \
         _check_proxy_state(); \
         if (!is_connection_open()) { \
-            PROXY_ERR("%s", "Attempting To Access Closed Connection"); \
+            PROXY_ERR("Attempting To Access Closed Connection"); \
         } \
     }
 void safe_read(void *buf, size_t len) {
     // Check Data
     if (buf == NULL) {
-        PROXY_ERR("%s", "Attempting To Read Into NULL Buffer");
+        PROXY_ERR("Attempting To Read Into NULL Buffer");
     }
     // Flush Write Cache
     flush_write_cache();
@@ -42,7 +42,7 @@ static size_t _write_cache_position = 0;
 void safe_write(void *buf, size_t len) {
     // Check Data
     if (buf == NULL) {
-        PROXY_ERR("%s", "Attempting To Send NULL Data");
+        PROXY_ERR("Attempting To Send NULL Data");
     }
     // Expand Write Cache If Needed
     size_t needed_size = _write_cache_position + len;
@@ -165,7 +165,7 @@ void close_connection() {
     }
     set_connection(-1, -1);
     if (state_changed) {
-        PROXY_INFO("%s", "Connection Closed");
+        PROXY_INFO("Connection Closed");
     }
 }
 // Check If Connection Is Open

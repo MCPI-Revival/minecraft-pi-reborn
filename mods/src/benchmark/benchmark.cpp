@@ -38,7 +38,7 @@ __attribute__((constructor)) static void _init_active(int argc, char *argv[]) {
 // Create/Start World
 static void start_world(unsigned char *minecraft) {
     // Log
-    INFO("%s", "Loading Benchmark");
+    INFO("Loading Benchmark");
 
     // Specify Level Settings
     LevelSettings settings;

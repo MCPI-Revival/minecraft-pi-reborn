@@ -237,7 +237,7 @@ void media_set_raw_mouse_motion_enabled(int enabled) {
     }
 #endif
     if (!raw_mouse_motion_enabled) {
-        WARN("%s", "Raw mouse motion has been DISABLED, this IS NOT recommended, and should only ever be used on systems that don't support or have broken raw mouse motion.");
+        WARN("Raw mouse motion has been DISABLED, this IS NOT recommended, and should only ever be used on systems that don't support or have broken raw mouse motion.");
     }
 }
 
@@ -260,7 +260,7 @@ void SDL_WM_SetCaption(const char *title, __attribute__((unused)) const char *ic
     glfwSetErrorCallback(glfw_error);
 
     if (!glfwInit()) {
-        ERR("%s", "Unable To Initialize GLFW");
+        ERR("Unable To Initialize GLFW");
     }
 
     // Create OpenGL ES 1.1 Context
@@ -275,7 +275,7 @@ void SDL_WM_SetCaption(const char *title, __attribute__((unused)) const char *ic
 
     glfw_window = glfwCreateWindow(DEFAULT_WIDTH, DEFAULT_HEIGHT, title, NULL, NULL);
     if (!glfw_window) {
-        ERR("%s", "Unable To Create GLFW Window");
+        ERR("Unable To Create GLFW Window");
     }
 
     // Don't Process Events In Headless Mode

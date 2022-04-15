@@ -16,7 +16,7 @@ void run_tests() {
 
         if (!can_write) {
             // Failure
-            ERR("%s", "Invalid Data Directory Permissions");
+            ERR("Invalid Data Directory Permissions");
         }
     }
 }

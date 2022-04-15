@@ -11,7 +11,7 @@
 #define ALLOC_CHECK(obj) \
     { \
         if (obj == NULL) { \
-            ERR("%s", "Memory Allocation Failed"); \
+            ERR("Memory Allocation Failed"); \
         } \
     }
 

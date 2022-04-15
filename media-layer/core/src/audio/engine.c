@@ -22,7 +22,7 @@ void _media_audio_init() {
     // Open Device
     device = alcOpenDevice(NULL);
     if (!device) {
-        WARN("%s", "Unable To Load Audio Engine");
+        WARN("Unable To Load Audio Engine");
         return;
     }
 
@@ -48,7 +48,7 @@ void _media_audio_init() {
     }
 
     // Log
-    INFO("%s", "Loaded Audio Engine");
+    INFO("Loaded Audio Engine");
     is_loaded = 1;
 }
 
@@ -80,6 +80,6 @@ void _media_audio_cleanup() {
         }
 
         // Log
-        INFO("%s", "Unloaded Audio Engine");
+        INFO("Unloaded Audio Engine");
     }
 }

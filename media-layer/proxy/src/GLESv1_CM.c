@@ -58,7 +58,7 @@ CALL(11, glFogfv, void, (GLenum pname, const GLfloat *params)) {
         GLint current_buffer = 0; \
         glGetIntegerv(GL_ARRAY_BUFFER_BINDING, &current_buffer); \
         if (current_buffer == 0) { \
-            PROXY_ERR("%s", "gl*Pointer() Functions Are Only Supported When A Buffer Is Bound To GL_ARRAY_BUFFER"); \
+            PROXY_ERR("gl*Pointer() Functions Are Only Supported When A Buffer Is Bound To GL_ARRAY_BUFFER"); \
         } \
         GLint size = (GLint) read_int(); \
         GLenum type = (GLenum) read_int(); \

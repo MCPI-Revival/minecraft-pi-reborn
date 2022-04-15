@@ -7,7 +7,7 @@ void iterate_text_sections(const char *exe, text_section_callback_t callback, vo
 
     // Verify Binary
     if (!file_obj) {
-        ERR("%s", "Unable To Open Binary");
+        ERR("Unable To Open Binary");
     }
 
     // Get File Size
@@ -44,7 +44,7 @@ void iterate_text_sections(const char *exe, text_section_callback_t callback, vo
 
     // Ensure At Least .text Section Was Scanned
     if (text_sections < 1) {
-        ERR("%s", "Unable To Find .text Sectons");
+        ERR("Unable To Find .text Sectons");
     }
 
     // Unmap And Close File

@@ -145,7 +145,7 @@ static void Textures_tick_glTexSubImage2D_injection(GLenum target, GLint level, 
         // Check
         if (format != GL_RGBA || type != GL_UNSIGNED_BYTE) {
             // Pixels Must Be 4 Bytes
-            ERR("%s", "Unsupported Texture Format For Scaling");
+            ERR("Unsupported Texture Format For Scaling");
         }
 
         // Scale

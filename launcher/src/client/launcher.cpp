@@ -31,7 +31,7 @@ static std::string strip_feature_flag_default(std::string flag, bool *default_re
         return flag.substr(false_str.length(), std::string::npos);
     } else {
         // Invalid
-        ERR("%s", "Invalid Feature Flag Default");
+        ERR("Invalid Feature Flag Default");
     }
 }
 
@@ -55,7 +55,7 @@ static void load_available_feature_flags(std::function<void(std::string)> callba
                         lines.push_back(line);
                     } else {
                         // Invalid Line
-                        ERR("%s", "Feature Flag Contains Invalid '|'");
+                        ERR("Feature Flag Contains Invalid '|'");
                     }
                 }
             }
@@ -75,7 +75,7 @@ static void load_available_feature_flags(std::function<void(std::string)> callba
         // Close File
         stream.close();
     } else {
-        ERR("%s", "Unable To Load Available Feature Flags");
+        ERR("Unable To Load Available Feature Flags");
     }
 }
 
@@ -99,7 +99,7 @@ static void run_command_and_set_env(const char *env_name, const char *command[])
         }
         // Check Return Code
         if (return_code != 0) {
-            ERR("%s", "Launch Interrupted");
+            ERR("Launch Interrupted");
         }
     }
 }

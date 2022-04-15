@@ -31,7 +31,7 @@ void _check_proxy_state() {
         } else if (WIFSIGNALED(_client_status)) {
             PROXY_ERR("Client Terminated: Signal: %i%s", WTERMSIG(_client_status), WCOREDUMP(_client_status) ? " (Core Dumped)" : "");
         } else {
-            PROXY_ERR("%s", "Client Terminated");
+            PROXY_ERR("Client Terminated");
         }
     }
 }
@@ -95,7 +95,7 @@ __attribute__((constructor)) void media_ensure_loaded() {
         loaded = 1;
 
         // Log
-        PROXY_INFO("%s", "Starting...");
+        PROXY_INFO("Starting...");
 
         // Create Connection
         int server_to_client_pipe[2];
@@ -111,9 +111,9 @@ __attribute__((constructor)) void media_ensure_loaded() {
         // Wait For Connection Message
         char *str = read_string();
         if (strcmp(str, CONNECTED_MSG) == 0) {
-            PROXY_INFO("%s", "Connected");
+            PROXY_INFO("Connected");
         } else {
-            PROXY_ERR("%s", "Unable To Connect");
+            PROXY_ERR("Unable To Connect");
         }
         // Free
         free(str);

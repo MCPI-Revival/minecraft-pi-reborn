@@ -33,7 +33,7 @@ void _check_proxy_state() {
     // Check Server State
     if (!parent_is_alive) {
         void_write_cache(); // Parent Is Dead, No Reason To Send A Dead Process Data
-        PROXY_ERR("%s", "Server Terminated");
+        PROXY_ERR("Server Terminated");
     }
 }
 
@@ -54,12 +54,12 @@ int main(int argc, char *argv[]) {
 
     // Get Connection
     if (argc != 3) {
-        PROXY_ERR("%s", "Invalid Arguments");
+        PROXY_ERR("Invalid Arguments");
     }
     char *read_str = argv[1];
     char *write_str = argv[2];
     set_connection(atoi(read_str), atoi(write_str));
-    PROXY_INFO("%s", "Connected");
+    PROXY_INFO("Connected");
 
     // Send Connection Message
     write_string((char *) CONNECTED_MSG);
@@ -86,6 +86,6 @@ int main(int argc, char *argv[]) {
     }
 
     // Exit
-    PROXY_INFO("%s", "Stopped");
+    PROXY_INFO("Stopped");
     return 0;
 }

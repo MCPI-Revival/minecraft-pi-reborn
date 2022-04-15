@@ -89,7 +89,7 @@ static void Minecraft_update_injection(unsigned char *minecraft) {
 // Log When Game Is Saved
 void Level_saveLevelData_injection(unsigned char *level) {
     // Print Log Message
-    INFO("%s", "Saving Game");
+    INFO("Saving Game");
 
     // Call Original Method
     (*Level_saveLevelData)(level);

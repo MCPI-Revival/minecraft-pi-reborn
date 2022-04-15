@@ -180,7 +180,7 @@ void pre_bootstrap() {
 
 // Bootstrap
 void bootstrap(int argc, char *argv[]) {
-    INFO("%s", "Configuring Game...");
+    INFO("Configuring Game...");
 
     // Get Binary Directory
     char *binary_directory = get_binary_directory();
@@ -197,7 +197,7 @@ void bootstrap(int argc, char *argv[]) {
     // Resolve Binary Path & Set MCPI_DIRECTORY
     {
         // Log
-        DEBUG("%s", "Resolving File Paths...");
+        DEBUG("Resolving File Paths...");
 
         // Resolve Full Binary Path
         char *full_path = NULL;
@@ -218,21 +218,22 @@ void bootstrap(int argc, char *argv[]) {
     // Fix MCPI Dependencies
     {
         // Log
-        DEBUG("%s", "Patching ELF Dependencies...");
+        DEBUG("Patching ELF Dependencies...");
 
         // Find Linker
         char *linker = NULL;
+        // Preserve Existing Linker On ARM
 #ifndef __arm__
         safe_asprintf(&linker, "%s/usr/arm-linux-gnueabihf/lib/ld-linux-armhf.so.3", usr_prefix);
-#else
-        safe_asprintf(&linker, "/lib/ld-linux-armhf.so.3");
 #endif
 
         // Patch
         patch_mcpi_elf_dependencies(linker);
 
         // Free Linker Path
-        free(linker);
+        if (linker != NULL) {
+            free(linker);
+        }
 
         // Verify
         if (!starts_with(getenv("MCPI_EXECUTABLE_PATH"), "/tmp")) {
@@ -243,7 +244,7 @@ void bootstrap(int argc, char *argv[]) {
     // Configure LD_LIBRARY_PATH
     {
         // Log
-        DEBUG("%s", "Setting Linker Search Paths...");
+        DEBUG("Setting Linker Search Paths...");
 
         // Preserve
         PRESERVE_ENVIRONMENTAL_VARIABLE("LD_LIBRARY_PATH");
@@ -271,7 +272,7 @@ void bootstrap(int argc, char *argv[]) {
     // Configure LD_PRELOAD
     {
         // Log
-        DEBUG("%s", "Locating Mods...");
+        DEBUG("Locating Mods...");
 
         // Preserve
         PRESERVE_ENVIRONMENTAL_VARIABLE("LD_PRELOAD");
@@ -316,7 +317,7 @@ void bootstrap(int argc, char *argv[]) {
     free(binary_directory);
 
     // Start Game
-    INFO("%s", "Starting Game...");
+    INFO("Starting Game...");
 
     // Arguments
     int argv_start = 1; // argv = &new_args[argv_start]
