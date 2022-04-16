@@ -437,7 +437,7 @@ static PerfRenderer_debugFpsMeterKeyPress_t PerfRenderer_debugFpsMeterKeyPress =
 
 // TextEditScreen
 
-#define TEXT_EDIT_SCREEN_SIZE 0xd0
+#define TEXT_EDIT_SCREEN_SIZE 0xa9
 
 typedef unsigned char *(*TextEditScreen_t)(unsigned char *text_edit_screen, unsigned char *sign);
 static TextEditScreen_t TextEditScreen = (TextEditScreen_t) 0x3a840;

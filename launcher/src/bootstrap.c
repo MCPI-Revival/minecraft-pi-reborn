@@ -152,6 +152,8 @@ void pre_bootstrap() {
     if (owd != NULL && chdir(owd) != 0) {
         ERR("AppImage: Unable To Fix Current Directory: %s", strerror(errno));
     }
+    // AppImageCrafters/AppRun#53
+    set_and_print_env("APPDIR_FORCE_BUNDLE_RUNTIME", "1");
 #endif
 
     // Get Binary Directory

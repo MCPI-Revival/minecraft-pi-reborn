@@ -100,7 +100,7 @@ char *run_command(const char *const command[], int *return_code) {
         size_t bytes_read = 0;
         while ((bytes_read = read(output_pipe[0], (void *) buf, BUFFER_SIZE - 1 /* Account For NULL-Terminator */)) > 0) {
             buf[bytes_read] = '\0';
-            string_append(&output, buf);
+            string_append(&output, "%s", buf);
         }
         close(output_pipe[0]);
 

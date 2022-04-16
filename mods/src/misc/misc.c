@@ -92,7 +92,7 @@ static void LoginPacket_read_injection(unsigned char *packet, unsigned char *bit
 // formatting functionality.
 static unsigned char *RakNet_RakString_injection(unsigned char *rak_string, const char *format, ...) {
     // Call Original Method
-    return (*RakNet_RakString)(rak_string, format);
+    return (*RakNet_RakString)(rak_string, "%s", format);
 }
 
 // Print Error Message If RakNet Startup Fails

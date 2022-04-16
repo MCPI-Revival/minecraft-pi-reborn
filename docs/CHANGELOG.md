@@ -1,6 +1,7 @@
 # Changelog
 
 **2.3.4**
+* AppImage Fixes
 * Make Death Messages Customizable Server-Side
 * Fix Q-Key Behavior Behavior When Editing Signs
 * Add ``Force Touch Inventory`` Feature Flag (Disabled By Default)
