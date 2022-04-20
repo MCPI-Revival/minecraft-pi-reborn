@@ -152,8 +152,6 @@ void pre_bootstrap() {
     if (owd != NULL && chdir(owd) != 0) {
         ERR("AppImage: Unable To Fix Current Directory: %s", strerror(errno));
     }
-    // AppImageCrafters/AppRun#53
-    set_and_print_env("APPDIR_FORCE_BUNDLE_RUNTIME", "1");
 #endif
 
     // Get Binary Directory
@@ -243,6 +241,12 @@ void bootstrap(int argc, char *argv[]) {
         }
     }
 
+    // AppImage
+#ifdef MCPI_IS_APPIMAGE_BUILD
+    // Mark Patched MCPI As Part Of AppImage
+    set_and_print_env("APPDIR_MODULE_DIR", getenv("MCPI_EXECUTABLE_PATH"));
+#endif
+
     // Configure LD_LIBRARY_PATH
     {
         // Log
@@ -280,12 +284,15 @@ void bootstrap(int argc, char *argv[]) {
         PRESERVE_ENVIRONMENTAL_VARIABLE("LD_PRELOAD");
         char *new_ld_preload = NULL;
 
-        // Add LD_PRELOAD
+        // Built-In Mods
         {
-            char *value = get_env_safe("LD_PRELOAD");
-            if (strlen(value) > 0) {
-                string_append(&new_ld_preload, ":%s", value);
-            }
+            // Get Mods Folder
+            char *mods_folder = NULL;
+            safe_asprintf(&mods_folder, "%s/mods/", binary_directory);
+            // Load Mods From ./mods
+            load(&new_ld_preload, mods_folder);
+            // Free Mods Folder
+            free(mods_folder);
         }
 
         // ~/.minecraft-pi/mods
@@ -299,15 +306,12 @@ void bootstrap(int argc, char *argv[]) {
             free(mods_folder);
         }
 
-        // Built-In Mods
+        // Add LD_PRELOAD
         {
-            // Get Mods Folder
-            char *mods_folder = NULL;
-            safe_asprintf(&mods_folder, "%s/mods/", binary_directory);
-            // Load Mods From ./mods
-            load(&new_ld_preload, mods_folder);
-            // Free Mods Folder
-            free(mods_folder);
+            char *value = get_env_safe("LD_PRELOAD");
+            if (strlen(value) > 0) {
+                string_append(&new_ld_preload, ":%s", value);
+            }
         }
 
         // Set LD_PRELOAD
