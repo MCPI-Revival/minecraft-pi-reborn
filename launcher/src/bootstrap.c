@@ -209,10 +209,23 @@ void bootstrap(int argc, char *argv[]) {
         // Set MCPI_EXECUTABLE_PATH
         set_and_print_env("MCPI_EXECUTABLE_PATH", resolved_path);
 
-        // Set MCPI_DIRECTORY
-        chop_last_component(&resolved_path);
-        set_and_print_env("MCPI_DIRECTORY", resolved_path);
-        free(resolved_path);
+        // Set MCPI_VANILLA_ASSETS_PATH
+        {
+            chop_last_component(&resolved_path);
+            string_append(&resolved_path, "/data");
+            set_and_print_env("MCPI_VANILLA_ASSETS_PATH", resolved_path);
+            free(resolved_path);
+        }
+    }
+
+    // Set MCPI_REBORN_ASSETS_PATH
+    {
+        char *assets_path = realpath("/proc/self/exe", NULL);
+        ALLOC_CHECK(assets_path);
+        chop_last_component(&assets_path);
+        string_append(&assets_path, "/data");
+        set_and_print_env("MCPI_REBORN_ASSETS_PATH", assets_path);
+        free(assets_path);
     }
 
     // Fix MCPI Dependencies

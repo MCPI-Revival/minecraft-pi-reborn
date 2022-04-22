@@ -26,9 +26,6 @@ char *get_binary_directory();
 // Safe execvpe() Relative To Binary
 __attribute__((noreturn)) void safe_execvpe_relative_to_binary(const char *const argv[], const char *const envp[]);
 
-// Get MCPI Directory
-char *get_mcpi_directory();
-
 // Run Command And Get Output
 char *run_command(const char *const command[], int *return_code);
 

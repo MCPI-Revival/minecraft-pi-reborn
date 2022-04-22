@@ -467,6 +467,11 @@ static uint32_t FurnaceScreen_tile_entity_property_offset = 0x1d0; // FurnaceTil
 typedef ItemInstance *(*FurnaceTileEntity_getItem_t)(unsigned char *furnace_tile_entity, int32_t slot);
 static uint32_t FurnaceTileEntity_getItem_vtable_offset = 0x2c;
 
+// GuiComponent
+
+typedef void (*GuiComponent_blit_t)(unsigned char *component, int32_t param_1, int32_t param_2, int32_t param_3, int32_t param_4, int32_t param_5, int32_t param_6, int32_t param_7, int32_t param_8);
+static GuiComponent_blit_t GuiComponent_blit = (GuiComponent_blit_t) 0x282a4;
+
 // Screen
 
 typedef void (*Screen_updateEvents_t)(unsigned char *screen);
@@ -482,11 +487,15 @@ typedef void (*Screen_init_t)(unsigned char *screen);
 
 typedef void (*Screen_tick_t)(unsigned char *screen);
 
+typedef void (*Screen_render_t)(unsigned char *screen, int32_t param_1, int32_t param_2, float param_3);
+
 typedef int32_t (*Screen_handleBackEvent_t)(unsigned char *screen, bool param_1);
 
 static uint32_t Screen_minecraft_property_offset = 0x14; // Minecraft *
 static uint32_t Screen_rendered_buttons_property_offset = 0x18; // std::vector<Button *>
 static uint32_t Screen_selectable_buttons_property_offset = 0x30; // std::vector<Button *>
+static uint32_t Screen_width_property_offset = 0x8; // int32_t
+static uint32_t Screen_height_property_offset = 0xc; // int32_t
 
 // StartMenuScreen
 
@@ -808,6 +817,11 @@ static uint32_t OptionsFile_options_txt_path_property_offset = 0x0; // std::stri
 
 typedef void (*OptionsPane_unknown_toggle_creating_function_t)(unsigned char *options_pane, unsigned char *unknown_object, std::string const& name, unsigned char *option);
 static OptionsPane_unknown_toggle_creating_function_t OptionsPane_unknown_toggle_creating_function = (OptionsPane_unknown_toggle_creating_function_t) 0x24470;
+
+// Textures
+
+typedef void (*Textures_loadAndBindTexture_t)(unsigned char *textures, std::string const& name);
+static Textures_loadAndBindTexture_t Textures_loadAndBindTexture = (Textures_loadAndBindTexture_t) 0x539cc;
 
 #endif
 

@@ -26,11 +26,8 @@ void init_home() {
     // Store Data In ~/.minecraft-pi Instead Of ~/.minecraft
     patch_address((void *) default_path, (void *) HOME_SUBDIRECTORY_FOR_GAME_DATA);
 
-    // Change Directory To Binary Directory Manually
+    // The override code resolves assets manually,
+    // making changing directory redundant.
     unsigned char nop_patch[4] = {0x00, 0xf0, 0x20, 0xe3}; // "nop"
     patch((void *) 0xe0ac, nop_patch);
-    char *binary_directory = get_mcpi_directory();
-    if (chdir(binary_directory) != 0) {
-        ERR("Unable To Change Directory: %s", strerror(errno));
-    }
 }

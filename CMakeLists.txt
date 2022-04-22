@@ -123,3 +123,8 @@ endif()
 if(BUILD_ARM_COMPONENTS)
     add_subdirectory(mods)
 endif()
+
+# Include Images
+if(BUILD_NATIVE_COMPONENTS)
+    add_subdirectory(images)
+endif()

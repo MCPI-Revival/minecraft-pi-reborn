@@ -50,19 +50,24 @@ static void Options_initDefaultValue_injection(unsigned char *options) {
     // Call Original Method
     (*Options_initDefaultValue)(options);
 
-    // Enable Crosshair In Touch GUI
-    *(options + Options_split_controls_property_offset) = 1;
-    // 3D Anaglyph
-    *(options + Options_3d_anaglyph_property_offset) = anaglyph;
-    // Render Distance
-    *(int32_t *) (options + Options_render_distance_property_offset) = render_distance;
-
     // Default Graphics Settings
     *(options + Options_fancy_graphics_property_offset) = 1;
     *(options + Options_ambient_occlusion_property_offset) = 1;
 
     // Store
     stored_options = options;
+}
+static void Minecraft_init_injection(unsigned char *minecraft) {
+    // Call Original Method
+    (*Minecraft_init)(minecraft);
+
+    unsigned char *options = minecraft + Minecraft_options_property_offset;
+    // Enable Crosshair In Touch GUI
+    *(options + Options_split_controls_property_offset) = 1;
+    // 3D Anaglyph
+    *(options + Options_3d_anaglyph_property_offset) = anaglyph;
+    // Render Distance
+    *(int32_t *) (options + Options_render_distance_property_offset) = render_distance;
 }
 
 // Smooth Lighting
@@ -93,6 +98,7 @@ void init_options() {
 
     // Set Options
     overwrite_calls((void *) Options_initDefaultValue, (void *) Options_initDefaultValue_injection);
+    overwrite_calls((void *) Minecraft_init, (void *) Minecraft_init_injection);
 
     // Change Username
     const char *username = get_username();

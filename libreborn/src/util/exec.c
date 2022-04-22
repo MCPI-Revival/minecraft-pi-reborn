@@ -57,11 +57,6 @@ __attribute__((noreturn)) void safe_execvpe_relative_to_binary(const char *const
     safe_execvpe(new_argv, envp);
 }
 
-// Get MCPI Directory
-char *get_mcpi_directory() {
-    return getenv("MCPI_DIRECTORY");
-}
-
 // Run Command And Get Output
 char *run_command(const char *const command[], int *return_code) {
     // Store Output

@@ -19,7 +19,7 @@
 #define string_append(str, format, ...) \
     { \
         char *old = *str; \
-        safe_asprintf(str, "%s" format, *str == NULL ? "" : *str, __VA_ARGS__); \
+        safe_asprintf(str, "%s" format, *str == NULL ? "" : *str, ##__VA_ARGS__); \
         ALLOC_CHECK(*str); \
         if (old != NULL && old != *str) { \
             free(old); \

@@ -22,31 +22,29 @@ std::string _sound_get_source_file() {
     } else {
         // Resolve
 
-        // Get Binary Directory
-        char *binary_directory = get_mcpi_directory();
-        // Get Full Path
-        char *full_path = NULL;
-        safe_asprintf(&full_path, "%s/" SOURCE_FILE_BASE, binary_directory);
+        // Get Path
+        char *path = strdup(SOURCE_FILE_BASE);
+        ALLOC_CHECK(path);
 
         // Handle Overrides
-        char *overridden_full_path = override_get_path(full_path);
+        char *overridden_full_path = override_get_path(path);
         if (overridden_full_path != NULL) {
-            free(full_path);
-            full_path = overridden_full_path;
+            free(path);
+            path = overridden_full_path;
         }
 
         // Check If Sound Exists
-        if (access(full_path, F_OK) == -1) {
+        if (access(path, F_OK) == -1) {
             // Fail
             WARN("Audio Source File Doesn't Exist: " SOURCE_FILE_BASE);
             source.assign("");
         } else {
             // Set
-            source.assign(full_path);
+            source.assign(path);
         }
 
         // Free
-        free(full_path);
+        free(path);
 
         // Mark As Loaded
         source_loaded = true;

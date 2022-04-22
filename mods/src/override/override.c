@@ -8,7 +8,22 @@
 
 #include <libreborn/libreborn.h>
 
+#include "override.h"
 #include "../home/home.h"
+
+// Hook access
+HOOK(access, int, (const char *pathname, int mode)) {
+    char *new_path = override_get_path(pathname);
+    // Open File
+    ensure_access();
+    int ret = (*real_access)(new_path != NULL ? new_path : pathname, mode);
+    // Free Data
+    if (new_path != NULL) {
+        free(new_path);
+    }
+    // Return
+    return ret;
+}
 
 // Get Override Path For File (If It Exists)
 char *override_get_path(const char *filename) {
@@ -18,43 +33,45 @@ char *override_get_path(const char *filename) {
     char *overrides = NULL;
     safe_asprintf(&overrides, "%s/overrides", home_path);
 
-    // Get Data Path
-    char *data = NULL;
-    char *binary_directory = get_mcpi_directory();
-    safe_asprintf(&data, "%s/data", binary_directory);
-    int data_length = strlen(data);
+    // Data Prefiix
+    char *data_prefix = "data/";
+    int data_prefix_length = strlen(data_prefix);
 
-    // Get Full Path
-    char *full_path;
-    if (strlen(filename) > 0 && filename[0] == '/') {
-        // Absolute Path
-        full_path = strdup(filename);
-    } else {
-        // Relative Path
-        full_path = realpath(filename, NULL);
-    }
+    // Folders To Check
+    char *asset_folders[] = {
+        overrides,
+        getenv("MCPI_REBORN_ASSETS_PATH"),
+        getenv("MCPI_VANILLA_ASSETS_PATH"),
+        NULL
+    };
 
     // Check For Override
     char *new_path = NULL;
-    if (full_path != NULL) {
-        if (starts_with(full_path, data)) {
-            safe_asprintf(&new_path, "%s%s", overrides, &full_path[data_length]);
-            if (access(new_path, F_OK) == -1) {
+    if (starts_with(filename, data_prefix)) {
+        // Test Asset Folders
+        for (int i = 0; asset_folders[i] != NULL; i++) {
+            safe_asprintf(&new_path, "%s/%s", asset_folders[i], &filename[data_prefix_length]);
+            ensure_access();
+            if ((*real_access)(new_path, F_OK) == -1) {
+                // Not Found In Asset Folder
                 free(new_path);
                 new_path = NULL;
+                continue;
+            } else {
+                // Found
+                break;
             }
         }
-        free(full_path);
     }
 
-    // Free Variables
+    // Free
     free(overrides);
-    free(data);
 
     // Return
     return new_path;
 }
 
+// Hook fopen
 HOOK(fopen, FILE *, (const char *filename, const char *mode)) {
     char *new_path = override_get_path(filename);
     // Open File
@@ -68,6 +85,7 @@ HOOK(fopen, FILE *, (const char *filename, const char *mode)) {
     return file;
 }
 
+// Hook fopen64
 HOOK(fopen64, FILE *, (const char *filename, const char *mode)) {
     char *new_path = override_get_path(filename);
     // Open File
