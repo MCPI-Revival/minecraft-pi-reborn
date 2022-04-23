@@ -14,7 +14,7 @@
 // Read Asset File
 static AppPlatform_readAssetFile_return_value AppPlatform_readAssetFile_injection(__attribute__((unused)) unsigned char *app_platform, std::string const& path) {
     // Read File
-    std::string full_path("./data/");
+    std::string full_path("data/");
     full_path.append(path);
     std::ifstream stream(full_path);
     std::string str((std::istreambuf_iterator<char>(stream)), std::istreambuf_iterator<char>());

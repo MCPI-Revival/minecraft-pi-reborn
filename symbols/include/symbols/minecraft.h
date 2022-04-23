@@ -469,7 +469,7 @@ static uint32_t FurnaceTileEntity_getItem_vtable_offset = 0x2c;
 
 // GuiComponent
 
-typedef void (*GuiComponent_blit_t)(unsigned char *component, int32_t param_1, int32_t param_2, int32_t param_3, int32_t param_4, int32_t param_5, int32_t param_6, int32_t param_7, int32_t param_8);
+typedef void (*GuiComponent_blit_t)(unsigned char *component, int32_t x_dest, int32_t y_dest, int32_t x_src, int32_t y_src, int32_t width_dest, int32_t height_dest, int32_t width_src, int32_t height_src);
 static GuiComponent_blit_t GuiComponent_blit = (GuiComponent_blit_t) 0x282a4;
 
 // Screen

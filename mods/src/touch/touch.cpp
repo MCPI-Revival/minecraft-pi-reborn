@@ -32,8 +32,8 @@ static int32_t Button_hovered_injection(__attribute__((unused)) unsigned char *b
 }
 static void LargeImageButton_render_GuiComponent_drawCenteredString_injection(unsigned char *component, unsigned char *font, std::string const& text, int32_t x, int32_t y, int32_t color) {
     // Change Color On Hover
-    if (Button_hovered_injection(component, NULL, 0, 0)) {
-        color = 0x000ffffa0;
+    if (color == 0xe0e0e0 && Button_hovered_injection(component, NULL, 0, 0)) {
+        color = 0xffffa0;
     }
 
     // Call Original Method
