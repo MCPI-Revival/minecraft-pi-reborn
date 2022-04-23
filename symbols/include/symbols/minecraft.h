@@ -497,6 +497,16 @@ static uint32_t Screen_selectable_buttons_property_offset = 0x30; // std::vector
 static uint32_t Screen_width_property_offset = 0x8; // int32_t
 static uint32_t Screen_height_property_offset = 0xc; // int32_t
 
+// Button
+
+typedef int32_t (*Button_hovered_t)(unsigned char *button, unsigned char *minecraft, int32_t click_x, int32_t click_y);
+static Button_hovered_t Button_hovered = (Button_hovered_t) 0x1be2c;
+
+static uint32_t Button_width_property_offset = 0x14; // int32_t
+static uint32_t Button_height_property_offset = 0x18; // int32_t
+static uint32_t Button_x_property_offset = 0xc; // int32_t
+static uint32_t Button_y_property_offset = 0x10; // int32_t
+
 // StartMenuScreen
 
 static Screen_init_t StartMenuScreen_init = (Screen_init_t) 0x39cc0;
@@ -763,6 +773,11 @@ static Level_addParticle_t Level_addParticle = (Level_addParticle_t) 0xa449c;
 
 typedef void (*Gui_addMessage_t)(unsigned char *gui, std::string const& text);
 static Gui_addMessage_t Gui_addMessage = (Gui_addMessage_t) 0x27820;
+
+// GuiComponent
+
+typedef void (*GuiComponent_drawCenteredString_t)(unsigned char *component, unsigned char *font, std::string const& text, int32_t x, int32_t y, int32_t color);
+static GuiComponent_drawCenteredString_t GuiComponent_drawCenteredString = (GuiComponent_drawCenteredString_t) 0x2821c;
 
 // ServerSideNetworkHandler
 
