@@ -11,7 +11,7 @@ set(ZLIB_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../zlib/src" "${CMAKE_CURRENT_
 set(CMAKE_POLICY_DEFAULT_CMP0054 OLD) # Silence Warning
 add_subdirectory(src EXCLUDE_FROM_ALL)
 set(CMAKE_POLICY_DEFAULT_CMP0054 NEW) # Re-Enable New Behavior
-set_target_properties(png12 PROPERTIES LINK_FLAGS "-Wl,--version-script=${CMAKE_CURRENT_SOURCE_DIR}/libpng.vers") # Use Symbol Versioning
+set_target_properties(png12 PROPERTIES LINK_OPTIONS "LINKER:--version-script=${CMAKE_CURRENT_SOURCE_DIR}/libpng.vers") # Use Symbol Versioning
 set_target_properties(png12 PROPERTIES DEBUG_POSTFIX "") # Fix LibPNG Suffix In Debug Mode
 
 # Ensure Build
