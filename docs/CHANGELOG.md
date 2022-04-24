@@ -1,5 +1,13 @@
 # Changelog
 
+**2.3.5**
+* Rename Some Feature Flags
+* Add `Improved Title Background` Feature Flag (Enabled By Default)
+* Non-Touch GUI Rework
+  * Make `Full Touch GUI` Feature Flag Disabled By Default
+  * Add `Force Touch GUI Button Behavior` Feature Flag (Enabled By Default)
+  * Add `Improved Button Hover Behavior` Feature Flag (Enabled By Default)
+
 **2.3.4**
 * AppImage Fixes
 * Make Death Messages Customizable Server-Side
