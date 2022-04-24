@@ -254,12 +254,6 @@ void bootstrap(int argc, char *argv[]) {
         }
     }
 
-    // AppImage
-#ifdef MCPI_IS_APPIMAGE_BUILD
-    // Mark Patched MCPI As Part Of AppImage
-    set_and_print_env("APPDIR_MODULE_DIR", getenv("MCPI_EXECUTABLE_PATH"));
-#endif
-
     // Configure LD_LIBRARY_PATH
     {
         // Log

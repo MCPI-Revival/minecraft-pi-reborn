@@ -122,7 +122,8 @@ const runtime = {
         GTK_DATA_PREFIX: '${APPDIR}',
         GTK_THEME: 'Default',
         XDG_DATA_DIRS: '${APPDIR}/share:${APPDIR}/usr/share',
-        APPDIR_LIBRARY_PATH: `\${APPDIR}/usr/lib/${triplet}:\${APPDIR}/usr/${triplet}/lib:\${APPDIR}/lib/${triplet}:\${APPDIR}/usr/lib:\${APPDIR}/usr/lib/${triplet}/gdk-pixbuf-2.0/2.10.0/loaders`
+        APPDIR_LIBRARY_PATH: `\${APPDIR}/usr/lib/${triplet}:\${APPDIR}/usr/${triplet}/lib:\${APPDIR}/lib/${triplet}:\${APPDIR}/usr/lib:\${APPDIR}/usr/lib/${triplet}/gdk-pixbuf-2.0/2.10.0/loaders`,
+        APPDIR_MODULE_DIR: '/tmp/.minecraft-pi-tmp'
     } : undefined,
     preserve: arch !== 'armhf' ? [
         // On non-ARM32 systems, an ARM32 linker is embedded, this

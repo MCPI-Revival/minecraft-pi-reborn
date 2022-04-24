@@ -8,12 +8,26 @@
 #include "patchelf.h"
 
 // Duplicate MCPI Executable Into /tmp
+#define TMP_DIR "/tmp/.minecraft-pi-tmp"
 static void duplicate_mcpi_executable() {
     // Get Original Path
     const char *original_path = getenv("MCPI_EXECUTABLE_PATH");
 
+    // Ensure Temporary Directory
+    {
+        // Check If It Exists
+        struct stat tmp_stat;
+        int exists = stat(TMP_DIR, &tmp_stat) != 0 ? 0 : S_ISDIR(tmp_stat.st_mode);
+        if (!exists) {
+            // Doesn't Exist
+            if (mkdir(TMP_DIR, S_IRUSR | S_IWUSR | S_IXUSR) != 0) {
+                ERR("Unable To Create Temporary Folder: %s", strerror(errno));
+            }
+        }
+    }
+
     // Generate New File
-    char new_path[] = "/tmp/.minecraft-pi-XXXXXX";
+    char new_path[] = TMP_DIR "/XXXXXX";
     int new_file_fd = mkstemp(new_path);
     if (new_file_fd == -1) {
         ERR("Unable To Create Temporary File: %s", strerror(errno));
