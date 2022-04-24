@@ -1,5 +1,5 @@
 # Documentation
-* [View Manual Installation](INSTALL.md)
+* [View Installation](INSTALL.md)
 * [View Overriding Assets](OVERRIDING_ASSETS.md)
 * [View Dedicated Server](DEDICATED_SERVER.md)
 * [View Credits](CREDITS.md)

@@ -15,7 +15,7 @@
 * Non-ARM Host Architectures
   * QEMU User-Mode
 * Host Architecture Dependencies
-  * CLient Mode Only
+  * Client Mode Only
     * OpenGL ES 1.1
     * GLFW
     * FreeImage

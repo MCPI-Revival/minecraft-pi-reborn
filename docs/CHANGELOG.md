@@ -1,7 +1,7 @@
 # Changelog
 
 **2.3.5**
-* Rename Some Feature Flags
+* Renamed Some Feature Flags
 * Add `Improved Title Background` Feature Flag (Enabled By Default)
 * Non-Touch GUI Rework
   * Make `Full Touch GUI` Feature Flag Disabled By Default
