@@ -93,6 +93,7 @@ static char *get_new_options_txt_path() {
 // Modify Option Toggles
 static void OptionsPane_unknown_toggle_creating_function_injection(unsigned char *options_pane, unsigned char *unknown_object, std::string const& name, unsigned char *option) {
     // Modify
+    std::string new_name = name;
     if (name == "Fancy Graphics") {
         option = Options_Option_GRAPHICS;
     } else if (name == "Soft shadows") {
@@ -109,10 +110,13 @@ static void OptionsPane_unknown_toggle_creating_function_injection(unsigned char
     } else if (name == "Vibrate on destroy") {
         // This toggle requires vibration support, so disable it.
         return;
+    } else if (name == "Invert X-axis") {
+        // Fix Incorrect Name
+        new_name = "Invert Y-axis";
     }
 
     // Call Original Method
-    (*OptionsPane_unknown_toggle_creating_function)(options_pane, unknown_object, name, option);
+    (*OptionsPane_unknown_toggle_creating_function)(options_pane, unknown_object, new_name, option);
 }
 
 // Add Missing Options To Options::getBooleanValue

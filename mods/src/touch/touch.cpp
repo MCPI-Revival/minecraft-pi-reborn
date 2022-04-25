@@ -56,6 +56,9 @@ void init_touch() {
         if (feature_has("Force Touch GUI Inventory", server_disabled)) {
             overwrite_call((void *) 0x2943c, (void *) operator_new_IngameBlockSelectionScreen_injection);
             overwrite_call((void *) 0x29444, (void *) Touch_IngameBlockSelectionScreen);
+            // Make "Craft" And "Armor" Buttons Use Classic GUI Style (Button And TButton Have The Same Size)
+            overwrite_call((void *) 0x3b060, (void *) Button);
+            overwrite_call((void *) 0x3b08c, (void *) Button);
         }
 
         // Force Touch Button Behavior
