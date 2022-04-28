@@ -5,9 +5,9 @@
 #include <string.h>
 
 #include <libreborn/libreborn.h>
+#include <media-layer/core.h>
 
 #include "chat.h"
-#include "../input/input.h"
 
 // Run Command
 static char *run_command_proper(const char *command[], int *return_code) {
@@ -21,16 +21,24 @@ static char *run_command_proper(const char *command[], int *return_code) {
 
 // Count Chat Windows
 static pthread_mutex_t chat_counter_lock = PTHREAD_MUTEX_INITIALIZER;
-static unsigned int chat_counter = 0;
+static volatile unsigned int chat_counter = 0;
 unsigned int chat_get_counter() {
     return chat_counter;
 }
 
 // Chat Thread
+#define DIALOG_TITLE "Chat"
 static void *chat_thread(__attribute__((unused)) void *nop) {
     // Open
     int return_code;
-    const char *command[] = {"zenity", "--title", "Chat", "--class", GUI_TITLE, "--entry", "--text", "Enter Chat Message:", NULL};
+    const char *command[] = {
+        "zenity",
+        "--title", DIALOG_TITLE,
+        "--class", GUI_TITLE,
+        "--entry",
+        "--text", "Enter Chat Message:",
+        NULL
+    };
     char *output = run_command_proper(command, &return_code);
     // Handle Message
     if (output != NULL) {
@@ -62,8 +70,8 @@ static void *chat_thread(__attribute__((unused)) void *nop) {
 // Create Chat Thead
 void chat_open() {
     if (_chat_enabled) {
-        // Release Mouse
-        input_set_mouse_grab_state(1);
+        // Lock UI
+        media_set_interactable(0);
 
         // Update Counter
         pthread_mutex_lock(&chat_counter_lock);

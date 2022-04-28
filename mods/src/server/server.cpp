@@ -91,10 +91,10 @@ static void start_world(unsigned char *minecraft) {
     }
 
     // Open ProgressScreen
-    void *screen = ::operator new(PROGRESS_SCREEN_SIZE);
+    unsigned char *screen = (unsigned char *) ::operator new(PROGRESS_SCREEN_SIZE);
     ALLOC_CHECK(screen);
-    screen = (*ProgressScreen)((unsigned char *) screen);
-    (*Minecraft_setScreen)(minecraft, (unsigned char *) screen);
+    screen = (*ProgressScreen)(screen);
+    (*Minecraft_setScreen)(minecraft, screen);
 }
 
 // Check If Running In Whitelist Mode

@@ -2,10 +2,15 @@
 #include <cstring>
 #include <cstdio>
 #include <vector>
+#ifndef MCPI_SERVER_MODE
 #include <pthread.h>
+#endif
 
 #include <libreborn/libreborn.h>
 #include <symbols/minecraft.h>
+#ifndef MCPI_SERVER_MODE
+#include <media-layer/core.h>
+#endif
 
 #include "../init/init.h"
 #include "../feature/feature.h"
@@ -103,8 +108,8 @@ static void send_queued_messages(unsigned char *minecraft) {
     // If Message Was Submitted, No Other Chat Windows Are Open, And The Game Is Not Paused, Then Re-Lock Cursor
     unsigned int new_chat_counter = chat_get_counter();
     if (old_chat_counter > new_chat_counter && new_chat_counter == 0 && (*(unsigned char **) (minecraft + Minecraft_screen_property_offset)) == NULL) {
-        // Grab Mouse
-        input_set_mouse_grab_state(-1);
+        // Unlock UI
+        media_set_interactable(1);
     }
     old_chat_counter = new_chat_counter;
     // Loop

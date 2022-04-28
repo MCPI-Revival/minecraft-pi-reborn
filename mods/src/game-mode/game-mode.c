@@ -62,9 +62,12 @@ void init_game_mode() {
 
         // Disable CreatorMode-Specific API Features (Polling Block Hits) In SurvivalMode, This Is Preferable To Crashing
         overwrite_calls((void *) Minecraft_getCreator, (void *) Minecraft_getCreator_injection);
+    }
 
-        // Init C++
-        _init_game_mode_cpp();
+    // Create World Dialog
+    if (feature_has("Implement Create World Dialog", server_disabled)) {
+        // Init UI
+        _init_game_mode_ui();
     }
 
     // Allow Joining Survival Servers

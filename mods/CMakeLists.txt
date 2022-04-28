@@ -19,10 +19,13 @@ add_library(version SHARED src/version/version.cpp)
 target_link_libraries(version reborn-patch symbols)
 
 add_library(chat SHARED src/chat/chat.cpp src/chat/ui.c)
-target_link_libraries(chat reborn-patch symbols feature pthread)
+target_link_libraries(chat reborn-patch symbols feature)
 
 add_library(creative SHARED src/creative/creative.cpp)
 target_link_libraries(creative reborn-patch symbols feature)
+
+add_library(game-mode SHARED src/game-mode/game-mode.c src/game-mode/ui.cpp)
+target_link_libraries(game-mode reborn-patch symbols feature)
 
 if(MCPI_SERVER_MODE)
     add_library(server SHARED src/server/server.cpp src/server/server_properties.cpp)
@@ -30,7 +33,9 @@ if(MCPI_SERVER_MODE)
 else()
     target_link_libraries(compat input sign chat home dl)
 
-    target_link_libraries(chat input)
+    target_link_libraries(chat input media-layer-core pthread)
+
+    target_link_libraries(game-mode pthread media-layer-core)
 
     add_library(multiplayer SHARED src/multiplayer/multiplayer.cpp)
     target_link_libraries(multiplayer reborn-patch symbols home feature)
@@ -64,9 +69,6 @@ else()
         target_link_libraries(benchmark reborn-patch symbols compat misc media-layer-core)
     endif()
 endif()
-
-add_library(game-mode SHARED src/game-mode/game-mode.c src/game-mode/game-mode.cpp)
-target_link_libraries(game-mode reborn-patch symbols feature)
 
 add_library(death SHARED src/death/death.cpp)
 target_link_libraries(death reborn-patch symbols feature)

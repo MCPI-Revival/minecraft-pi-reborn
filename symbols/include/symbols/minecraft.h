@@ -448,7 +448,7 @@ static void *TextEditScreen_updateEvents_vtable_addr = (void *) 0x10531c;
 
 #define PROGRESS_SCREEN_SIZE 0x4c
 
-typedef void *(*ProgressScreen_t)(unsigned char *obj);
+typedef unsigned char *(*ProgressScreen_t)(unsigned char *obj);
 static ProgressScreen_t ProgressScreen = (ProgressScreen_t) 0x37044;
 
 // OptionsScreen
