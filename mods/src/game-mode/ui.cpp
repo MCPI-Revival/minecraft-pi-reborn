@@ -219,7 +219,7 @@ static unsigned char *get_minecraft_from_screen(unsigned char *screen) {
 }
 
 // Create World
-static void create_world(unsigned char *host_screen, std::string world_name) {
+static void create_world(unsigned char *host_screen, std::string folder_name) {
     // Get Minecraft
     unsigned char *minecraft = get_minecraft_from_screen(host_screen);
 
@@ -229,7 +229,8 @@ static void create_world(unsigned char *host_screen, std::string world_name) {
     settings.seed = create_world_state.seed;
 
     // Create World
-    (*Minecraft_selectLevel)(minecraft, world_name, world_name, settings);
+    std::string world_name = (char *) create_world_state.name;
+    (*Minecraft_selectLevel)(minecraft, folder_name, world_name, settings);
 
     // Multiplayer
     (*Minecraft_hostMultiplayer)(minecraft, 19132);
