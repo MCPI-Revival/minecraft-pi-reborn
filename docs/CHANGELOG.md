@@ -1,5 +1,8 @@
 # Changelog
 
+**2.3.8**
+* Switch Up Mod Loading Order
+
 **2.3.7**
 * Don't Append Hyphens To New World Name, Only Folder Names
 
