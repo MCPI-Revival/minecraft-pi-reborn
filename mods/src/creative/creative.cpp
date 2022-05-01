@@ -16,7 +16,7 @@ static void inventory_add_item(unsigned char *inventory, unsigned char *item, bo
 
 // Expand Creative Inventory
 static int32_t Inventory_setupDefault_FillingContainer_addItem_call_injection(unsigned char *filling_container, ItemInstance *item_instance) {
-    // Call Original
+    // Call Original Method
     int32_t ret = (*FillingContainer_addItem)(filling_container, item_instance);
 
     // Add Items
