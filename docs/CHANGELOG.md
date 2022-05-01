@@ -4,21 +4,21 @@
 * Don't Append Hyphens To New World Name, Only Folder Names
 
 **2.3.6**
-* Fix `Invert Y-axis` Option Name
+* Fix ``Invert Y-axis`` Option Name
 * Improve Touch GUI Inventory In Non-Touch GUI
 * New Create World Dialog
-  * Controlled By `Implement Create World Dialog` Feature Flag (Enabled By Default)
+  * Controlled By ``Implement Create World Dialog`` Feature Flag (Enabled By Default)
   * Custom World Names
   * Game-Mode Selection
   * Custom Seeds
 
 **2.3.5**
 * Renamed Some Feature Flags
-* Add `Improved Title Background` Feature Flag (Enabled By Default)
+* Add ``Improved Title Background`` Feature Flag (Enabled By Default)
 * Non-Touch GUI Rework
-  * Make `Full Touch GUI` Feature Flag Disabled By Default
-  * Add `Force Touch GUI Button Behavior` Feature Flag (Enabled By Default)
-  * Add `Improved Button Hover Behavior` Feature Flag (Enabled By Default)
+  * Make ``Full Touch GUI`` Feature Flag Disabled By Default
+  * Add ``Force Touch GUI Button Behavior`` Feature Flag (Enabled By Default)
+  * Add ``Improved Button Hover Behavior`` Feature Flag (Enabled By Default)
 
 **2.3.4**
 * AppImage Fixes
