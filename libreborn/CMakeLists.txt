@@ -1,6 +1,6 @@
 project(libreborn)
 
-add_library(reborn-util STATIC src/util/elf.c src/util/exec.c src/util/string.c src/util/util.c)
+add_library(reborn-util STATIC src/util/elf.c src/util/exec.c src/util/string.c src/util/util.c src/util/log.c)
 target_include_directories(reborn-util PUBLIC include)
 
 if(BUILD_ARM_COMPONENTS)

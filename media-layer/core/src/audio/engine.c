@@ -48,7 +48,7 @@ void _media_audio_init() {
     }
 
     // Log
-    INFO("Loaded Audio Engine");
+    DEBUG("Loaded Audio Engine");
     is_loaded = 1;
 }
 
@@ -80,6 +80,6 @@ void _media_audio_cleanup() {
         }
 
         // Log
-        INFO("Unloaded Audio Engine");
+        DEBUG("Unloaded Audio Engine");
     }
 }
