@@ -14,7 +14,7 @@ foreach(APT_FILE IN LISTS APT_FILES)
 endforeach()
 
 # Copy To Binary Directory
-set(APT_DIR "${CMAKE_CURRENT_BINARY_DIR}/apt")
+set(APT_DIR "${CMAKE_CURRENT_BINARY_DIR}/apt-build")
 file(REMOVE_RECURSE "${APT_DIR}")
 file(COPY "${CMAKE_CURRENT_SOURCE_DIR}/apt/." DESTINATION "${APT_DIR}")
 # Make Directories

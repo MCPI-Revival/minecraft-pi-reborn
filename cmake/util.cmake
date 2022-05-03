@@ -17,4 +17,3 @@ function(install_symlink target link)
         endif() \
     ")
 endfunction()
-
