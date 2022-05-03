@@ -100,6 +100,11 @@ if(MCPI_IS_APPIMAGE_BUILD)
 endif()
 
 # Version
+set_property(
+    DIRECTORY
+    APPEND
+    PROPERTY CMAKE_CONFIGURE_DEPENDS VERSION
+)
 file(STRINGS VERSION VERSION)
 add_definitions(-DVERSION="${VERSION}")
 
