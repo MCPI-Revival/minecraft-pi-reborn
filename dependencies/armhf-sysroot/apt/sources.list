@@ -1,2 +1,2 @@
-deb [arch=armhf] http://deb.debian.org/debian/ bullseye main
-deb [arch=armhf] http://deb.debian.org/debian/ bullseye-updates main
+deb http://deb.debian.org/debian/ bullseye main
+deb http://deb.debian.org/debian/ bullseye-updates main
