@@ -5,6 +5,7 @@ extern "C" {
 #endif
 
 void patch_mcpi_elf_dependencies(const char *linker);
+char *patch_get_interpreter(const char *file);
 
 #ifdef __cplusplus
 }

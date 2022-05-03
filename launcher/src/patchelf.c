@@ -112,3 +112,24 @@ void patch_mcpi_elf_dependencies(const char *linker) {
         ERR("Unable To Set File Permissions: %s: %s", exe, strerror(errno));
     }
 }
+
+// Get Interpreter
+char *patch_get_interpreter(const char *file) {
+    // Run
+    const char *const command[] = {
+        "patchelf",
+        "--print-interpreter",
+        file,
+        NULL
+    };
+    char *output = run_command(command, NULL);
+    if (output != NULL) {
+        // Trim
+        int length = strlen(output);
+        if (output[length - 1] == '\n') {
+            output[length - 1] = '\0';
+        }
+    }
+    // Return
+    return output;
+}

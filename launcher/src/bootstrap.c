@@ -185,15 +185,6 @@ void bootstrap(int argc, char *argv[]) {
     // Get Binary Directory
     char *binary_directory = get_binary_directory();
 
-    // Handle AppImage
-    char *usr_prefix = NULL;
-#ifdef MCPI_IS_APPIMAGE_BUILD
-    usr_prefix = getenv("APPDIR");
-#endif
-    if (usr_prefix == NULL) {
-        usr_prefix = "";
-    }
-
     // Resolve Binary Path & Set MCPI_DIRECTORY
     {
         // Log
@@ -235,9 +226,16 @@ void bootstrap(int argc, char *argv[]) {
 
         // Find Linker
         char *linker = NULL;
-        // Preserve Existing Linker On ARM
+        // Select Linker
 #ifndef __arm__
-        safe_asprintf(&linker, "%s/usr/arm-linux-gnueabihf/lib/ld-linux-armhf.so.3", usr_prefix);
+        // Use ARM Sysroot Linker
+        safe_asprintf(&linker, "%s/sysroot/lib/ld-linux-armhf.so.3", binary_directory);
+#else
+        // Use Current Linker
+        char *exe = realpath("/proc/self/exe", NULL);
+        ALLOC_CHECK(exe);
+        linker = patch_get_interpreter(exe);
+        free(exe);
 #endif
 
         // Patch
@@ -266,8 +264,10 @@ void bootstrap(int argc, char *argv[]) {
         // Add Library Directory
         safe_asprintf(&new_ld_path, "%s/lib", binary_directory);
 
-        // Load ARM Libraries (Ensure Priority)
-        string_append(&new_ld_path, ":%s/usr/lib/arm-linux-gnueabihf:%s/usr/arm-linux-gnueabihf/lib", usr_prefix, usr_prefix);
+        // Add ARM Sysroot Libraries (Ensure Priority) (Ignroe On Actual ARM System)
+#ifndef __arm__
+        string_append(&new_ld_path, ":%s/sysroot/lib/arm-linux-gnueabihf:%s/sysroot/usr/lib/arm-linux-gnueabihf", binary_directory, binary_directory);
+#endif
 
         // Add LD_LIBRARY_PATH
         {

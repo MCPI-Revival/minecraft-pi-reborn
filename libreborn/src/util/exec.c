@@ -102,7 +102,9 @@ char *run_command(const char *const command[], int *return_code) {
         // Get Return Code
         int status;
         waitpid(ret, &status, 0);
-        *return_code = WIFEXITED(status) ? WEXITSTATUS(status) : EXIT_FAILURE;
+        if (return_code != NULL) {
+            *return_code = WIFEXITED(status) ? WEXITSTATUS(status) : EXIT_FAILURE;
+        }
 
         // Return
         return output;

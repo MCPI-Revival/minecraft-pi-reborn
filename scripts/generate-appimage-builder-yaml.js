@@ -37,14 +37,8 @@ if (mode === 'client') {
         'libopenal1'
     );
 }
-if (arch !== 'armhf') {
-    packages.push(
-        'libc6-armhf-cross',
-        'libstdc++6-armhf-cross'
-    );
-    if (arch !== 'arm64') {
-        packages.push('qemu-user');
-    }
+if (arch !== 'armhf' && arch !== 'arm64') {
+    packages.push('qemu-user');
 }
 
 // Package Exclusions
@@ -101,6 +95,9 @@ const files = {
         'usr/share/doc/*/NEWS.*',
         'usr/share/doc/*/TODO.*',
         'usr/include',
+        'usr/share/lintian',
+        'usr/share/gcc',
+        'usr/share/gdb',
         'usr/share/locale',
         'usr/share/help',
         'usr/bin/update-mime-database'
@@ -131,8 +128,12 @@ const runtime = {
         // to use a (usually non-existent) system linker.
         `usr/lib/${name}/minecraft-pi`,
         `usr/lib/${name}/**/*.so`,
-        'usr/arm-linux-gnueabihf/lib'
-    ] : undefined
+        `usr/lib/${name}/sysroot`
+    ] : [
+        // MCPI's license prohibits distributing a modified
+        // minecraft-pi binary.
+        `usr/lib/${name}/minecraft-pi`
+    ]
 };
 
 // AppDir

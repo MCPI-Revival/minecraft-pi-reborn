@@ -20,3 +20,7 @@ endif()
 if(BUILD_NATIVE_COMPONENTS AND NOT MCPI_HEADLESS_MODE)
     add_subdirectory(zenity)
 endif()
+# Sysroot
+if(BUILD_NATIVE_COMPONENTS AND NOT CMAKE_SYSTEM_PROCESSOR MATCHES "^arm")
+    add_subdirectory(armhf-sysroot)
+endif()
