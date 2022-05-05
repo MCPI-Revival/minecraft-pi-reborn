@@ -20,21 +20,21 @@ setup() {
     cd "build/${MODE}-${ARCH}"
 
     # Prepare
-    local extra_arg='-DMCPI_USE_MEDIA_LAYER_PROXY=ON'
+    local server_mode='OFF'
     if [ "${MODE}" = "server" ]; then
-        extra_arg='-DMCPI_SERVER_MODE=ON'
+        server_mode='ON'
     fi
 
     # Build ARM Components
     mkdir arm
     cd arm
-    cmake -G Ninja -DCMAKE_TOOLCHAIN_FILE="${ARM_TOOLCHAIN_FILE}" -DMCPI_BUILD_MODE=arm "${extra_arg}" "$@" ../../..
+    cmake -G Ninja -DCMAKE_TOOLCHAIN_FILE="${ARM_TOOLCHAIN_FILE}" -DMCPI_BUILD_MODE=arm -DMCPI_IS_MIXED_BUILD=ON -DMCPI_SERVER_MODE="${server_mode}" "$@" ../../..
     cd ../
 
     # Build Native Components
     mkdir native
     cd native
-    cmake -G Ninja -DCMAKE_TOOLCHAIN_FILE="${toolchain_file}" -DMCPI_BUILD_MODE=native "${extra_arg}" "$@" ../../..
+    cmake -G Ninja -DCMAKE_TOOLCHAIN_FILE="${toolchain_file}" -DMCPI_BUILD_MODE=native -DMCPI_IS_MIXED_BUILD=ON -DMCPI_SERVER_MODE="${server_mode}" "$@" ../../..
     cd ../
 
     # Exit

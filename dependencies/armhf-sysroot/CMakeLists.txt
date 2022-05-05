@@ -26,6 +26,7 @@ else()
     # Make Directories
     file(MAKE_DIRECTORY "${APT_DIR}/apt.conf.d")
     file(MAKE_DIRECTORY "${APT_DIR}/preferences.d")
+    file(MAKE_DIRECTORY "${APT_DIR}/keys")
     file(MAKE_DIRECTORY "${APT_DIR}/dpkg")
     file(TOUCH "${APT_DIR}/dpkg/status")
 
@@ -48,8 +49,8 @@ else()
         "APT::Architecture \"armhf\";\n"
         "APT::Architectures { \"armhf\"; }\n"
         "Acquire::Languages \"none\";\n"
-        "APT::Get::AllowUnauthenticated \"False\";\n"
-        "Acquire::AllowInsecureRepositories \"False\";\n"
+        "APT::Get::AllowUnauthenticated \"True\";\n"
+        "Acquire::AllowInsecureRepositories \"True\";\n"
     )
     file(WRITE "${APT_DIR}/apt.conf" "${APT_CONFIG}")
 

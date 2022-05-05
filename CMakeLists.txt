@@ -1,9 +1,14 @@
 cmake_minimum_required(VERSION 3.13.0)
 
 # Specify Options
-option(MCPI_USE_MEDIA_LAYER_PROXY "Whether To Enable The Media Layer Proxy" FALSE)
+option(MCPI_IS_MIXED_BUILD "Whether The Architecture-Independent And ARM Code Are Different Architecture" FALSE)
 option(MCPI_SERVER_MODE "Server Mode" FALSE)
 option(MCPI_HEADLESS_MODE "Headless Mode" ${MCPI_SERVER_MODE})
+if(NOT MCPI_HEADLESS_MODE)
+    option(MCPI_USE_MEDIA_LAYER_PROXY "Whether To Enable The Media Layer Proxy" ${MCPI_IS_MIXED_BUILD})
+else()
+    set(MCPI_USE_MEDIA_LAYER_PROXY FALSE)
+endif()
 set(MCPI_BUILD_MODE "both" CACHE STRING "\"arm\" = Build Only Code That Must Be ARM; \"native\" = Build Architecture-Independent Code; \"both\" = Build All Code As ARM")
 set_property(CACHE MCPI_BUILD_MODE PROPERTY STRINGS "both" "arm" "native")
 option(MCPI_OPEN_SOURCE_ONLY "Only Install Open-Source Code (Will Result In Broken Install)" FALSE)

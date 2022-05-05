@@ -13,8 +13,7 @@ const name = `minecraft-pi-reborn-${mode}`;
 const updateURL = `https://jenkins.thebrokenrail.com/job/minecraft-pi-reborn/job/master/lastSuccessfulBuild/artifact/out/${name}-latest-${arch}.AppImage.zsync`;
 
 // APT Data
-const apt_distribution = 'bullseye';
-const apt_key_url = 'https://ftp-master.debian.org/keys/archive-key-11.asc';
+const apt_distribution = 'sid';
 
 // Version
 const fs = require('fs');
@@ -61,14 +60,10 @@ const apt = {
     arch: arch,
     sources: [
         {
-            sourceline: `deb [arch=${arch}] http://deb.debian.org/debian/ ${apt_distribution} main`,
-            key_url: apt_key_url
-        },
-        {
-            sourceline: `deb [arch=${arch}] http://deb.debian.org/debian/ ${apt_distribution}-updates main`,
-            key_url: apt_key_url
+            sourceline: `deb [arch=${arch}] https://deb.debian.org/debian/ ${apt_distribution} main`
         }
     ],
+    allow_unauthenticated: true,
     include: packages,
     exclude: packageExclusions
 };

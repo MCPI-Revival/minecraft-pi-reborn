@@ -1,2 +1,1 @@
-deb http://deb.debian.org/debian/ bullseye main
-deb http://deb.debian.org/debian/ bullseye-updates main
+deb https://deb.debian.org/debian/ sid main

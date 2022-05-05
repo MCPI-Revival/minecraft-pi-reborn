@@ -1,13 +1,8 @@
 project(media-layer)
 
 # Check Options
-if(MCPI_USE_MEDIA_LAYER_PROXY)
-    if(MCPI_HEADLESS_MODE)
-        message(FATAL_ERROR "Headless Mode With Media Layer Proxy Configuration Is Redundant")
-    endif()
-    if(MCPI_BUILD_MODE STREQUAL "both")
-        message(FATAL_ERROR "Media Layer Proxy Is Redundant When Building ARM And Native Components In The Same Build")
-    endif()
+if(MCPI_USE_MEDIA_LAYER_PROXY AND MCPI_BUILD_MODE STREQUAL "both")
+    message(FATAL_ERROR "Media Layer Proxy Is Redundant When Building ARM And Native Components In The Same Build")
 endif()
 
 # Add Headers
