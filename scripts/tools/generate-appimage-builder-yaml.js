@@ -1,5 +1,8 @@
 #!/usr/bin/env node
 
+// Child Process
+const child_process = require('child_process');
+
 // Arguments
 if (process.argv.length < 4) {
     throw new Error('Invalid Arguments');
@@ -12,8 +15,12 @@ const id = `com.thebrokenrail.MCPIReborn${mode === 'server' ? 'Server' : 'Client
 const name = `minecraft-pi-reborn-${mode}`;
 const updateURL = `https://jenkins.thebrokenrail.com/job/minecraft-pi-reborn/job/master/lastSuccessfulBuild/artifact/out/${name}-latest-${arch}.AppImage.zsync`;
 
-// APT Data
-const apt_distribution = 'sid';
+// APT Sources
+const apt_sources = child_process.execFileSync('./scripts/tools/get-apt-sources.sh', [], {encoding: 'utf-8'}).trim().split('\n');
+const apt_sources_formatted = [];
+for (const apt_source of apt_sources) {
+    apt_sources_formatted.push({sourceline: apt_source});
+}
 
 // Version
 const fs = require('fs');
@@ -58,11 +65,7 @@ const packageExclusions = [
 // APT
 const apt = {
     arch: arch,
-    sources: [
-        {
-            sourceline: `deb [arch=${arch}] https://deb.debian.org/debian/ ${apt_distribution} main`
-        }
-    ],
+    sources: apt_sources_formatted,
     allow_unauthenticated: true,
     include: packages,
     exclude: packageExclusions
@@ -113,7 +116,7 @@ const runtime = {
         GTK_PATH: `\${APPDIR}/usr/lib/${triplet}/gtk-3.0`,
         GTK_DATA_PREFIX: '${APPDIR}',
         GTK_THEME: 'Default',
-        XDG_DATA_DIRS: '${APPDIR}/share:${APPDIR}/usr/share',
+        XDG_DATA_DIRS: '${APPDIR}/share:${APPDIR}/usr/share:/share:/usr/share',
         APPDIR_LIBRARY_PATH: `\${APPDIR}/usr/lib/${triplet}:\${APPDIR}/usr/${triplet}/lib:\${APPDIR}/lib/${triplet}:\${APPDIR}/usr/lib:\${APPDIR}/usr/lib/${triplet}/gdk-pixbuf-2.0/2.10.0/loaders`,
         APPDIR_MODULE_DIR: '/tmp/.minecraft-pi-tmp'
     } : undefined,

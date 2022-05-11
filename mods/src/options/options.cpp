@@ -91,7 +91,7 @@ static char *get_new_options_txt_path() {
 #endif
 
 // Modify Option Toggles
-static void OptionsPane_unknown_toggle_creating_function_injection(unsigned char *options_pane, unsigned char *unknown_object, std::string const& name, unsigned char *option) {
+static void OptionsPane_unknown_toggle_creating_function_injection(unsigned char *options_pane, uint32_t group_id, std::string const& name, unsigned char *option) {
     // Modify
     std::string new_name = name;
     if (name == "Fancy Graphics") {
@@ -116,7 +116,7 @@ static void OptionsPane_unknown_toggle_creating_function_injection(unsigned char
     }
 
     // Call Original Method
-    (*OptionsPane_unknown_toggle_creating_function)(options_pane, unknown_object, new_name, option);
+    (*OptionsPane_unknown_toggle_creating_function)(options_pane, group_id, new_name, option);
 }
 
 // Add Missing Options To Options::getBooleanValue

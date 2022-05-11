@@ -9,26 +9,28 @@ else()
     # Download From APT
     set(APT_PACKAGES "libc6" "libstdc++6")
 
-    # Reconfigure CMake If APT Data Is Changed
-    file(GLOB_RECURSE APT_FILES "apt/*")
-    foreach(APT_FILE IN LISTS APT_FILES)
-        set_property(
-            DIRECTORY
-            APPEND
-            PROPERTY CMAKE_CONFIGURE_DEPENDS "${APT_FILE}"
-        )
-    endforeach()
-
     # Copy To Binary Directory
-    set(APT_DIR "${CMAKE_CURRENT_BINARY_DIR}/apt-build")
+    set(APT_DIR "${CMAKE_CURRENT_BINARY_DIR}/apt")
     file(REMOVE_RECURSE "${APT_DIR}")
-    file(COPY "${CMAKE_CURRENT_SOURCE_DIR}/apt/." DESTINATION "${APT_DIR}")
+    file(MAKE_DIRECTORY "${APT_DIR}")
     # Make Directories
     file(MAKE_DIRECTORY "${APT_DIR}/apt.conf.d")
     file(MAKE_DIRECTORY "${APT_DIR}/preferences.d")
     file(MAKE_DIRECTORY "${APT_DIR}/keys")
     file(MAKE_DIRECTORY "${APT_DIR}/dpkg")
     file(TOUCH "${APT_DIR}/dpkg/status")
+
+    # Create APT Sources
+    execute_process(
+        COMMAND "${CMAKE_SOURCE_DIR}/scripts/tools/get-apt-sources.sh"
+        OUTPUT_STRIP_TRAILING_WHITESPACE
+        OUTPUT_VARIABLE APT_SOURCES
+        RESULT_VARIABLE APT_SOURCES_RESULT
+    )
+    if(NOT APT_SOURCES_RESULT EQUAL 0)
+        message(FATAL_ERROR "Unable To Get APT Sources For ARMHF Sysroot")
+    endif()
+    file(WRITE "${APT_DIR}/sources.list" "${APT_SOURCES}")
 
     # Create APT Config
     string(CONCAT APT_CONFIG

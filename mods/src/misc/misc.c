@@ -192,6 +192,8 @@ static void GameRenderer_render_injection(unsigned char *game_renderer, float pa
 
     // Check If Cursor Should Render
     if (SDL_WM_GrabInput(SDL_GRAB_QUERY) == SDL_GRAB_OFF) {
+        // Fix GL Mode
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
         // Get X And Y
         float x = (*Mouse_getX)() * (*InvGuiScale);
         float y = (*Mouse_getY)() * (*InvGuiScale);

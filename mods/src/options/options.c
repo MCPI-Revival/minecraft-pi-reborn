@@ -51,8 +51,10 @@ static void Options_initDefaultValue_injection(unsigned char *options) {
     (*Options_initDefaultValue)(options);
 
     // Default Graphics Settings
+#ifndef MCPI_SERVER_MODE
     *(options + Options_fancy_graphics_property_offset) = 1;
     *(options + Options_ambient_occlusion_property_offset) = 1;
+#endif
 
     // Store
     stored_options = options;

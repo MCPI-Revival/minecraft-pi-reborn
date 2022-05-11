@@ -54,6 +54,7 @@ static ServerProperties &get_server_properties() {
 #define DEFAULT_PORT "19132"
 #define DEFAULT_SEED ""
 #define DEFAULT_FORCE_MOB_SPAWNING "false"
+#define DEFAULT_PEACEFUL_MODE "false"
 #define DEFAULT_WORLD_NAME "world"
 #define DEFAULT_MAX_PLAYERS "4"
 #define DEFAULT_WHITELIST "false"
@@ -71,6 +72,10 @@ static void start_world(unsigned char *minecraft) {
 
     // Log
     INFO("Loading World: %s", world_name.c_str());
+
+    // Peaceful Mode
+    unsigned char *options = minecraft + Minecraft_options_property_offset;
+    *(int32_t *) (options + Options_game_difficulty_property_offset) = get_server_properties().get_bool("peaceful-mode", DEFAULT_PEACEFUL_MODE) ? 0 : 2;
 
     // Specify Level Settings
     LevelSettings settings;
@@ -461,6 +466,8 @@ static void server_init() {
         properties_file_output << "seed=" DEFAULT_SEED "\n";
         properties_file_output << "# Force Mob Spawning (false = Disabled, true = Enabled)\n";
         properties_file_output << "force-mob-spawning=" DEFAULT_FORCE_MOB_SPAWNING "\n";
+        properties_file_output << "# Peaceful Mode (false = Disabled, true = Enabled)\n";
+        properties_file_output << "peaceful-mode=" DEFAULT_PEACEFUL_MODE "\n";
         properties_file_output << "# World To Select\n";
         properties_file_output << "world-name=" DEFAULT_WORLD_NAME "\n";
         properties_file_output << "# Maximum Player Count\n";

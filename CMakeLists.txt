@@ -2,6 +2,9 @@ cmake_minimum_required(VERSION 3.13.0)
 
 # Specify Options
 option(MCPI_IS_MIXED_BUILD "Whether The Architecture-Independent And ARM Code Are Different Architecture" FALSE)
+if(MCPI_IS_MIXED_BUILD)
+    option(MCPI_BUNDLE_ARMHF_SYSROOT "Whether To Include An ARMHF Sysroot" TRUE)
+endif()
 option(MCPI_SERVER_MODE "Server Mode" FALSE)
 option(MCPI_HEADLESS_MODE "Headless Mode" ${MCPI_SERVER_MODE})
 if(NOT MCPI_HEADLESS_MODE)
@@ -55,6 +58,11 @@ endif()
 # Start Project
 project(minecraft-pi-reborn)
 
+# Sanity Check
+if(BUILD_NATIVE_COMPONENTS AND NOT CMAKE_SYSTEM_PROCESSOR MATCHES "^arm" AND NOT MCPI_IS_MIXED_BUILD)
+    message(FATAL_ERROR "Project is configured as a mixed-buld, but MCPI_IS_MIXED_BUILD is disabled.")
+endif()
+
 # Require ARM Compilation
 if(USE_ARM32_TOOLCHAIN AND NOT CMAKE_SYSTEM_PROCESSOR MATCHES "^arm")
     message(FATAL_ERROR "ARM-Targeting Compiler Required")
@@ -88,6 +96,10 @@ add_subdirectory(dependencies)
 
 # Warnings
 add_compile_options(-Wall -Wextra -Werror -Wpointer-arith -Wshadow -Wnull-dereference)
+if(CMAKE_CXX_COMPILER_VERSION VERSION_GREATER 10.0)
+    # Prevents False Positives
+    add_compile_options(-Wno-stringop-overflow)
+endif()
 add_link_options(-Wl,--no-undefined)
 add_definitions(-D_GNU_SOURCE)
 set(CMAKE_C_STANDARD 99)
@@ -102,6 +114,9 @@ if(MCPI_HEADLESS_MODE)
 endif()
 if(MCPI_IS_APPIMAGE_BUILD)
     add_definitions(-DMCPI_IS_APPIMAGE_BUILD)
+endif()
+if(MCPI_BUNDLE_ARMHF_SYSROOT)
+    add_definitions(-DMCPI_BUNDLE_ARMHF_SYSROOT)
 endif()
 
 # Version

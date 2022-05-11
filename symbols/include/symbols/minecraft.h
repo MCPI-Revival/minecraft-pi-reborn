@@ -835,7 +835,7 @@ static uint32_t OptionsFile_options_txt_path_property_offset = 0x0; // std::stri
 
 // OptionsPane
 
-typedef void (*OptionsPane_unknown_toggle_creating_function_t)(unsigned char *options_pane, unsigned char *unknown_object, std::string const& name, unsigned char *option);
+typedef void (*OptionsPane_unknown_toggle_creating_function_t)(unsigned char *options_pane, uint32_t group_id, std::string const& name, unsigned char *option);
 static OptionsPane_unknown_toggle_creating_function_t OptionsPane_unknown_toggle_creating_function = (OptionsPane_unknown_toggle_creating_function_t) 0x24470;
 
 // Textures
