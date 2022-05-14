@@ -12,6 +12,7 @@
 
 #include "bootstrap.h"
 #include "patchelf.h"
+#include "crash-report.h"
 
 // Set Environmental Variable
 #define PRESERVE_ENVIRONMENTAL_VARIABLE(name) \
@@ -139,6 +140,14 @@ static void load(char **ld_preload, char *folder) {
 #define MCPI_BINARY "minecraft-pi"
 #define QEMU_BINARY "qemu-arm"
 
+// Exit Handler
+static void exit_handler(__attribute__((unused)) int signal_id) {
+    // Pass Signal To Child
+    murder_children();
+    while (wait(NULL) > 0) {}
+    _exit(EXIT_SUCCESS);
+}
+
 // Pre-Bootstrap
 void pre_bootstrap() {
     // GTK Dark Mode
@@ -148,9 +157,11 @@ void pre_bootstrap() {
 
     // AppImage
 #ifdef MCPI_IS_APPIMAGE_BUILD
-    char *owd = getenv("OWD");
-    if (owd != NULL && chdir(owd) != 0) {
-        ERR("AppImage: Unable To Fix Current Directory: %s", strerror(errno));
+    {
+        char *owd = getenv("OWD");
+        if (owd != NULL && chdir(owd) != 0) {
+            ERR("AppImage: Unable To Fix Current Directory: %s", strerror(errno));
+        }
     }
 #endif
 
@@ -176,6 +187,21 @@ void pre_bootstrap() {
 
     // Free Binary Directory
     free(binary_directory);
+
+    // Setup Crash Reports
+    setup_crash_report();
+
+    // Install Signal Handlers
+    struct sigaction act_sigint;
+    memset((void *) &act_sigint, 0, sizeof (struct sigaction));
+    act_sigint.sa_flags = SA_RESTART;
+    act_sigint.sa_handler = &exit_handler;
+    sigaction(SIGINT, &act_sigint, NULL);
+    struct sigaction act_sigterm;
+    memset((void *) &act_sigterm, 0, sizeof (struct sigaction));
+    act_sigterm.sa_flags = SA_RESTART;
+    act_sigterm.sa_handler = &exit_handler;
+    sigaction(SIGTERM, &act_sigterm, NULL);
 }
 
 // Bootstrap

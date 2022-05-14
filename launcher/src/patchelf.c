@@ -8,7 +8,7 @@
 #include "patchelf.h"
 
 // Duplicate MCPI Executable Into /tmp
-#define TMP_DIR "/tmp/.minecraft-pi-tmp"
+#define TMP_DIR "/tmp/.minecraft-pi-patched"
 static void duplicate_mcpi_executable() {
     // Get Original Path
     const char *original_path = getenv("MCPI_EXECUTABLE_PATH");

@@ -4,6 +4,7 @@
 #include <cstring>
 #include <sys/prctl.h>
 #include <csignal>
+#include <exception>
 
 #include "../common/common.h"
 
@@ -37,15 +38,29 @@ void _check_proxy_state() {
     }
 }
 
+// Exit Handler
+static volatile int exit_requested = 0;
+static void exit_handler(__attribute__((unused)) int signal_id) {
+    // Request Exit
+    exit_requested = 1;
+}
+
 // Main
 int main(int argc, char *argv[]) {
-    // Ignore SIGINT, Send Signal To Parent
-    signal(SIGINT, SIG_IGN);
+    // Install Signal Handlers
+    struct sigaction act_sigint;
+    memset((void *) &act_sigint, 0, sizeof (struct sigaction));
+    act_sigint.sa_handler = &exit_handler;
+    sigaction(SIGINT, &act_sigint, NULL);
+    struct sigaction act_sigterm;
+    memset((void *) &act_sigterm, 0, sizeof (struct sigaction));
+    act_sigterm.sa_handler = &exit_handler;
+    sigaction(SIGTERM, &act_sigterm, NULL);
 
     // Send Signal On Parent Death To Interrupt Connection Read/Write And Exit
     prctl(PR_SET_PDEATHSIG, SIGUSR1);
     struct sigaction sa;
-    sigemptyset(&sa.sa_mask);
+    memset((void *) &sa, 0, sizeof (struct sigaction));
     sa.sa_flags = SA_NOCLDSTOP;
     sa.sa_handler = &sigusr1_handler;
     if (sigaction(SIGUSR1, &sa, NULL) == -1) {
@@ -67,7 +82,7 @@ int main(int argc, char *argv[]) {
 
     // Loop
     int running = is_connection_open();
-    while (running) {
+    while (running && !exit_requested) {
         unsigned char unique_id = read_byte();
         if (get_handlers().size() > unique_id && get_handlers()[unique_id] != NULL) {
             // Run Method
@@ -83,6 +98,9 @@ int main(int argc, char *argv[]) {
         } else {
             PROXY_ERR("Invalid Method ID: %i", (int) unique_id);
         }
+    }
+    if (is_connection_open()) {
+        close_connection();
     }
 
     // Exit

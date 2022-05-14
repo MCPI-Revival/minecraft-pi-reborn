@@ -214,16 +214,21 @@ CALL(9, media_cleanup, void, ()) {
     if (is_connection_open()) {
         // Lock Proxy
         start_proxy_call();
+        // Block Until Cleanup Is Complete
+        flush_write_cache();
+        read_byte();
         // Close The Connection
         close_connection();
         // Release Proxy
         end_proxy_call();
     }
 #else
-    // Close The Connection
-    close_connection();
     // Run
     media_cleanup();
+    // Confirm Cleanup
+    write_byte(0);
+    // Close The Connection
+    close_connection();
 #endif
 }
 

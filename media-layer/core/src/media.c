@@ -273,18 +273,20 @@ void SDL_WM_SetCaption(const char *title, __attribute__((unused)) const char *ic
     glfwWindowHint(GLFW_AUTO_ICONIFY, GLFW_FALSE);
     glfwWindowHint(GLFW_ALPHA_BITS, 0); // Fix Transparent Window On Wayland
 
+    // Create Window
     glfw_window = glfwCreateWindow(DEFAULT_WIDTH, DEFAULT_HEIGHT, title, NULL, NULL);
     if (!glfw_window) {
         ERR("Unable To Create GLFW Window");
     }
 
-    // Don't Process Events In Headless Mode
+    // Event Handlers
     glfwSetKeyCallback(glfw_window, glfw_key);
     glfwSetCharCallback(glfw_window, glfw_char);
     glfwSetCursorPosCallback(glfw_window, glfw_motion);
     glfwSetMouseButtonCallback(glfw_window, glfw_click);
     glfwSetScrollCallback(glfw_window, glfw_scroll);
 
+    // Make Window Context Current
     glfwMakeContextCurrent(glfw_window);
 
     // Init OpenAL

@@ -6,6 +6,7 @@
 #include <string.h>
 #include <sys/wait.h>
 #include <fcntl.h>
+#include <sys/types.h>
 
 #include "log.h"
 #include "string.h"
@@ -28,6 +29,11 @@ __attribute__((noreturn)) void safe_execvpe_relative_to_binary(const char *const
 
 // Run Command And Get Output
 char *run_command(const char *const command[], int *return_code);
+
+// Track Children
+void track_child(pid_t pid);
+void untrack_child(pid_t pid);
+void murder_children();
 
 #ifdef __cplusplus
 }

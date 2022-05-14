@@ -28,14 +28,15 @@ int SDL_GetWMInfo(SDL_SysWMinfo *info) {
 }
 
 // Quit
-__attribute__ ((noreturn)) void SDL_Quit() {
+void SDL_Quit() {
     // Cleanup Media Layer
     media_cleanup();
 
     // Wait For Children To Stop
+    signal(SIGCHLD, SIG_IGN);
+    murder_children();
     while (wait(NULL) > 0) {}
 
     // Exit
     INFO("Stopped");
-    exit(EXIT_SUCCESS);
 }

@@ -84,6 +84,7 @@ static void start_media_layer_proxy_client(int read, int write) {
     } else {
         // Parent Process
         _client_pid = ret;
+        track_child(_client_pid);
     }
     update_client_state(1, 0);
 }

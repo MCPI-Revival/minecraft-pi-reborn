@@ -1,3 +1,6 @@
+#include <pthread.h>
+#include <signal.h>
+
 #include <libreborn/exec.h>
 
 // Safe execvpe()
@@ -86,13 +89,14 @@ char *run_command(const char *const command[], int *return_code) {
         safe_execvpe(command, (const char *const *) environ);
     } else {
         // Parent Process
+        track_child(ret);
 
         // Read stdout
         close(output_pipe[1]);
         char *output = NULL;
 #define BUFFER_SIZE 1024
         char buf[BUFFER_SIZE];
-        size_t bytes_read = 0;
+        ssize_t bytes_read = 0;
         while ((bytes_read = read(output_pipe[0], (void *) buf, BUFFER_SIZE - 1 /* Account For NULL-Terminator */)) > 0) {
             buf[bytes_read] = '\0';
             string_append(&output, "%s", buf);
@@ -102,6 +106,7 @@ char *run_command(const char *const command[], int *return_code) {
         // Get Return Code
         int status;
         waitpid(ret, &status, 0);
+        untrack_child(ret);
         if (return_code != NULL) {
             *return_code = WIFEXITED(status) ? WEXITSTATUS(status) : EXIT_FAILURE;
         }
@@ -109,4 +114,38 @@ char *run_command(const char *const command[], int *return_code) {
         // Return
         return output;
     }
+}
+
+
+// Track Children
+#define MAX_CHILDREN 128
+static pid_t children[MAX_CHILDREN] = { 0 };
+static pthread_mutex_t children_lock = PTHREAD_MUTEX_INITIALIZER;
+void track_child(pid_t pid) {
+    pthread_mutex_lock(&children_lock);
+    for (int i = 0; i < MAX_CHILDREN; i++) {
+        if (children[i] == 0) {
+            children[i] = pid;
+            break;
+        }
+    }
+    pthread_mutex_unlock(&children_lock);
+}
+void untrack_child(pid_t pid) {
+    pthread_mutex_lock(&children_lock);
+    for (int i = 0; i < MAX_CHILDREN; i++) {
+        if (children[i] == pid) {
+            children[i] = 0;
+        }
+    }
+    pthread_mutex_unlock(&children_lock);
+}
+void murder_children() {
+    pthread_mutex_lock(&children_lock);
+    for (int i = 0; i < MAX_CHILDREN; i++) {
+        if (children[i] != 0) {
+            kill(children[i], SIGTERM);
+        }
+    }
+    pthread_mutex_unlock(&children_lock);
 }

@@ -116,9 +116,17 @@ static void exit_handler(__attribute__((unused)) int data) {
     compat_request_exit();
 }
 void init_compat() {
-    // Install Exit Handler
-    signal(SIGINT, exit_handler);
-    signal(SIGTERM, exit_handler);
+    // Install Signal Handlers
+    struct sigaction act_sigint;
+    memset((void *) &act_sigint, 0, sizeof (struct sigaction));
+    act_sigint.sa_flags = SA_RESTART;
+    act_sigint.sa_handler = &exit_handler;
+    sigaction(SIGINT, &act_sigint, NULL);
+    struct sigaction act_sigterm;
+    memset((void *) &act_sigterm, 0, sizeof (struct sigaction));
+    act_sigterm.sa_flags = SA_RESTART;
+    act_sigterm.sa_handler = &exit_handler;
+    sigaction(SIGTERM, &act_sigterm, NULL);
 }
 
 // Cleanup Temporary Files

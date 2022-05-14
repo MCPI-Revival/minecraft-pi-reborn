@@ -96,7 +96,9 @@ void _overwrite_call(const char *file, int line, void *start, void *target) {
     // Add New Target To Code Block
     update_code_block(target);
 
-    uint32_t new_instruction = generate_bl_instruction(start, code_block, 0);
+    // Patch
+    int use_b_instruction = ((unsigned char *) start)[3] == B_INSTRUCTION;
+    uint32_t new_instruction = generate_bl_instruction(start, code_block, use_b_instruction);
     _patch(file, line, start, (unsigned char *) &new_instruction);
 
     // Increment Code Block Position
