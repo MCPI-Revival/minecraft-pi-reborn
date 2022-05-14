@@ -1,5 +1,12 @@
 # Changelog
 
+**2.3.10**
+* Add Crash Report Dialog
+* Disable V-Sync By Default
+* Refactor Child Process Management
+* Improve Build System
+  * Support For Building On Ubuntu 22.04
+
 **2.3.9**
 * Bundle An ARM Sysroot
   * Not Used On ARM32 Systems
