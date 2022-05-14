@@ -110,7 +110,7 @@ static void run_zenity_and_set_env(const char *env_name, std::vector<std::string
     // Create Full Command
     std::vector<std::string> full_command;
     full_command.push_back("zenity");
-    full_command.push_back("--class");
+    full_command.push_back("--name");
     full_command.push_back(GUI_TITLE);
     full_command.insert(full_command.end(), command.begin(), command.end());
     // Convert To C Array

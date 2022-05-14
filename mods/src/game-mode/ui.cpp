@@ -89,7 +89,7 @@ static void *create_world_thread(__attribute__((unused)) void *nop) {
             const char *command[] = {
                 "zenity",
                 "--title", DIALOG_TITLE,
-                "--class", GUI_TITLE,
+                "--name", GUI_TITLE,
                 "--entry",
                 "--text", "Enter World Name:",
                 "--entry-text", DEFAULT_WORLD_NAME,
@@ -116,7 +116,7 @@ static void *create_world_thread(__attribute__((unused)) void *nop) {
             const char *command[] = {
                 "zenity",
                 "--title", DIALOG_TITLE,
-                "--class", GUI_TITLE,
+                "--name", GUI_TITLE,
                 "--list",
                 "--radiolist",
                 "--width", GAME_MODE_DIALOG_SIZE,
@@ -149,7 +149,7 @@ static void *create_world_thread(__attribute__((unused)) void *nop) {
             const char *command[] = {
                 "zenity",
                 "--title", DIALOG_TITLE,
-                "--class", GUI_TITLE,
+                "--name", GUI_TITLE,
                 "--entry",
                 "--only-numerical",
                 "--text", "Enter Seed (Leave Blank For Random):",
