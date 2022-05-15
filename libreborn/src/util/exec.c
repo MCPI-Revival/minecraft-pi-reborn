@@ -1,5 +1,4 @@
 #include <pthread.h>
-#include <signal.h>
 
 #include <libreborn/exec.h>
 
@@ -61,7 +60,7 @@ __attribute__((noreturn)) void safe_execvpe_relative_to_binary(const char *const
 }
 
 // Run Command And Get Output
-char *run_command(const char *const command[], int *return_code) {
+char *run_command(const char *const command[], int *exit_status) {
     // Store Output
     int output_pipe[2];
     safe_pipe2(output_pipe, 0);
@@ -99,8 +98,8 @@ char *run_command(const char *const command[], int *return_code) {
         int status;
         waitpid(ret, &status, 0);
         untrack_child(ret);
-        if (return_code != NULL) {
-            *return_code = WIFEXITED(status) ? WEXITSTATUS(status) : EXIT_FAILURE;
+        if (exit_status != NULL) {
+            *exit_status = status;
         }
 
         // Return
@@ -108,6 +107,19 @@ char *run_command(const char *const command[], int *return_code) {
     }
 }
 
+// Get Exit Status String
+void get_exit_status_string(int status, char **out) {
+    if (out != NULL) {
+        *out =NULL;
+        if (WIFEXITED(status)) {
+            safe_asprintf(out, ": Exit Code: %i", WEXITSTATUS(status));
+        } else if (WIFSIGNALED(status)) {
+            safe_asprintf(out, ": Signal: %i%s", WTERMSIG(status), WCOREDUMP(status) ? " (Core Dumped)" : "");
+        } else {
+            safe_asprintf(out, ": Terminated");
+        }
+    }
+}
 
 // Track Children
 #define MAX_CHILDREN 128

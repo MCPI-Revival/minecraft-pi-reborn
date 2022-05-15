@@ -43,7 +43,7 @@ static void *chat_thread(__attribute__((unused)) void *nop) {
     // Handle Message
     if (output != NULL) {
         // Check Return Code
-        if (return_code == 0) {
+        if (is_exit_status_success(return_code)) {
             // Remove Ending Newline
             int length = strlen(output);
             if (output[length - 1] == '\n') {

@@ -25,7 +25,7 @@ static char *run_command_proper(const char *command[], bool allow_empty) {
     // Handle Message
     if (output != NULL) {
         // Check Return Code
-        if (return_code == 0) {
+        if (is_exit_status_success(return_code)) {
             // Remove Ending Newline
             int length = strlen(output);
             if (output[length - 1] == '\n') {
@@ -42,7 +42,7 @@ static char *run_command_proper(const char *command[], bool allow_empty) {
         free(output);
     }
     // Return
-    return return_code != 0 ? NULL : run_command_proper(command, allow_empty);
+    return !is_exit_status_success(return_code) ? NULL : run_command_proper(command, allow_empty);
 }
 
 // Track Create World State

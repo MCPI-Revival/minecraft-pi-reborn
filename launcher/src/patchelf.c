@@ -103,8 +103,11 @@ void patch_mcpi_elf_dependencies(const char *linker) {
     } else {
         return_code = patch_mcpi_elf_dependencies_with_extra_patchelf_args("--set-interpreter", linker);
     }
-    if (return_code != 0) {
-        ERR("patchelf Failed: Exit Code: %i", return_code);
+    if (!is_exit_status_success(return_code)) {
+        char *exit_status_line = NULL;
+        get_exit_status_string(return_code, &exit_status_line);
+        ERR("patchelf Failed%s", exit_status_line);
+        free(exit_status_line);
     }
 
     // Fix Permissions

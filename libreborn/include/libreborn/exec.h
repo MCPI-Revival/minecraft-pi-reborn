@@ -6,7 +6,7 @@
 #include <string.h>
 #include <sys/wait.h>
 #include <fcntl.h>
-#include <sys/types.h>
+#include <signal.h>
 
 #include "log.h"
 #include "string.h"
@@ -28,7 +28,11 @@ char *get_binary_directory();
 __attribute__((noreturn)) void safe_execvpe_relative_to_binary(const char *const argv[], const char *const envp[]);
 
 // Run Command And Get Output
-char *run_command(const char *const command[], int *return_code);
+char *run_command(const char *const command[], int *exit_status);
+#define is_exit_status_success(status) (WIFEXITED(status) && WEXITSTATUS(status) == 0)
+
+// Get Exit Status String
+void get_exit_status_string(int status, char **out);
 
 // Track Children
 void track_child(pid_t pid);

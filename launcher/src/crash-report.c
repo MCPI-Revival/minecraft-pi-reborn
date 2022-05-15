@@ -161,19 +161,16 @@ void setup_crash_report() {
         untrack_child(ret);
 
         // Check If Is Crash
-        int is_crash = WIFEXITED(status) ? WEXITSTATUS(status) != 0 : 1;
+        int is_crash = !is_exit_status_success(status);
 
         // Log Exit Code To log If Crash
         if (is_crash) {
             // Create Exit Code Log Line
+            char *exit_status = NULL;
+            get_exit_status_string(status, &exit_status);
             char *exit_code_line = NULL;
-            if (WIFEXITED(status)) {
-                safe_asprintf(&exit_code_line, "[CRASH]: Terminated: Exit Code: %i\n", WEXITSTATUS(status));
-            } else if (WIFSIGNALED(status)) {
-                safe_asprintf(&exit_code_line, "[CRASH]: Terminated: Signal: %i%s\n", WTERMSIG(status), WCOREDUMP(status) ? " (Core Dumped)" : "");
-            } else {
-                safe_asprintf(&exit_code_line, "[CRASH]: Terminated\n");
-            }
+            safe_asprintf(&exit_code_line, "[CRASH]: Terminated%s\n", exit_status);
+            free(exit_status);
 
             // Print Exit Code Log Line
             fprintf(stderr, "%s", exit_code_line);

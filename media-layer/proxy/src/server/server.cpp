@@ -26,13 +26,9 @@ void _check_proxy_state() {
     // Check Client State
     if (!_client_is_alive) {
         void_write_cache(); // Child Is Dead, No Reason To Send A Dead Process Data
-        if (WIFEXITED(_client_status)) {
-            PROXY_ERR("Client Terminated: Exit Code: %i", WEXITSTATUS(_client_status));
-        } else if (WIFSIGNALED(_client_status)) {
-            PROXY_ERR("Client Terminated: Signal: %i%s", WTERMSIG(_client_status), WCOREDUMP(_client_status) ? " (Core Dumped)" : "");
-        } else {
-            PROXY_ERR("Client Terminated");
-        }
+        char *exit_status = NULL;
+        get_exit_status_string(_client_status, &exit_status);
+        PROXY_ERR("Client Terminated%s", exit_status);
     }
 }
 
