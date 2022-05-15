@@ -1,10 +1,5 @@
 project(mods)
 
-## Setup
-
-# Disable C++11 String ABI
-add_definitions(-D_GLIBCXX_USE_CXX11_ABI=0)
-
 ## Mods
 
 add_library(compat SHARED src/compat/compat.c src/compat/egl.c src/compat/x11.c src/compat/bcm_host.c)

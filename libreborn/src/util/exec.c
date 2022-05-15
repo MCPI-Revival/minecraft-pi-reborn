@@ -77,14 +77,6 @@ char *run_command(const char *const command[], int *return_code) {
         close(output_pipe[0]);
         close(output_pipe[1]);
 
-        // Close stderr (But Not In Debug Mode)
-        const char *is_debug = getenv("MCPI_DEBUG");
-        if (is_debug == NULL || strlen(is_debug) < 1) {
-            int null_fd = open("/dev/null", O_WRONLY);
-            dup2(null_fd, STDERR_FILENO);
-            close(null_fd);
-        }
-
         // Run
         safe_execvpe(command, (const char *const *) environ);
     } else {

@@ -151,9 +151,17 @@ static void exit_handler(__attribute__((unused)) int signal_id) {
 // Pre-Bootstrap
 void pre_bootstrap() {
     // GTK Dark Mode
-#ifndef MCPI_HEADLESS_MODE
+#ifndef MCPI_SERVER_MODE
     set_and_print_env("GTK_THEME", "Adwaita:dark");
 #endif
+
+    // Debug Zenity
+    {
+        const char *is_debug = getenv("MCPI_DEBUG");
+        if (is_debug != NULL && strlen(is_debug) > 0) {
+            set_and_print_env("ZENITY_DEBUG", "1");
+        }
+    }
 
     // AppImage
 #ifdef MCPI_IS_APPIMAGE_BUILD
