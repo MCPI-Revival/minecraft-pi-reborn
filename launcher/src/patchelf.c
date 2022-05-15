@@ -107,7 +107,6 @@ void patch_mcpi_elf_dependencies(const char *linker) {
         char *exit_status_line = NULL;
         get_exit_status_string(return_code, &exit_status_line);
         ERR("patchelf Failed%s", exit_status_line);
-        free(exit_status_line);
     }
 
     // Fix Permissions
@@ -125,7 +124,13 @@ char *patch_get_interpreter(const char *file) {
         file,
         NULL
     };
-    char *output = run_command(command, NULL);
+    int return_code;
+    char *output = run_command(command, &return_code);
+    if (!is_exit_status_success(return_code)) {
+        char *exit_status_line = NULL;
+        get_exit_status_string(return_code, &exit_status_line);
+        ERR("patchelf Failed%s", exit_status_line);
+    }
     if (output != NULL) {
         // Trim
         int length = strlen(output);
