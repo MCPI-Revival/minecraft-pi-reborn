@@ -43,6 +43,7 @@ static void sigchld_handler(__attribute__((unused)) int sig) {
     // Only waitpid() Proxy Client, Other Sub-Processes Are Handled By pclose()
     if (waitpid(_client_pid, &status, WNOHANG) == _client_pid) {
         // Handle Client Death
+        untrack_child(_client_pid);
         update_client_state(0, status);
     }
     errno = saved_errno;
