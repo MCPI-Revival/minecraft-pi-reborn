@@ -202,6 +202,9 @@ static uint32_t Minecraft_perf_renderer_property_offset = 0xcbc; // PerfRenderer
 typedef void (*GameRenderer_render_t)(unsigned char *game_renderer, float param_1);
 static GameRenderer_render_t GameRenderer_render = (GameRenderer_render_t) 0x4a338;
 
+typedef void (*GameRenderer_setupCamera_t)(unsigned char *game_renderer, float param_1, int param_2);
+static GameRenderer_setupCamera_t GameRenderer_setupCamera = (GameRenderer_setupCamera_t) 0x489f8;
+
 static uint32_t GameRenderer_minecraft_property_offset = 0x4; // Minecraft *
 
 // Mouse
@@ -326,10 +329,12 @@ static uint32_t Entity_x_property_offset = 0x4; // float
 static uint32_t Entity_y_property_offset = 0x8; // float
 static uint32_t Entity_z_property_offset = 0xc; // float
 static uint32_t Entity_yaw_property_offset = 0x40; // float
+static uint32_t Entity_pitch_property_offset = 0x44; // float
 static uint32_t Entity_old_x_property_offset = 0x28; // float
 static uint32_t Entity_old_y_property_offset = 0x2c; // float
 static uint32_t Entity_old_z_property_offset = 0x30; // float
 static uint32_t Entity_old_yaw_property_offset = 0x48; // float
+static uint32_t Entity_old_pitch_property_offset = 0x4c; // float
 
 // Mob
 
