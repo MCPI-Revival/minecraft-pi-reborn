@@ -48,7 +48,7 @@ static void TextEditScreen_updateEvents_injection(unsigned char *screen) {
                 // Handle Backspace
                 (*(Screen_keyPressed_t *) (vtable + Screen_keyPressed_vtable_offset))(screen, BACKSPACE_KEY);
             } else {
-                // Handle Nrmal Key
+                // Handle Normal Key
                 (*(Screen_keyboardNewChar_t *) (vtable + Screen_keyboardNewChar_vtable_offset))(screen, key);
             }
         }
