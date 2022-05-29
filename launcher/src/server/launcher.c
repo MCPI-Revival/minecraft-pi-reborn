@@ -5,7 +5,7 @@
 
 int main(int argc, char *argv[]) {
     // Pre-Bootstrap
-    pre_bootstrap();
+    pre_bootstrap(argc, argv);
 
     // Set Home To Current Directory, So World Data Is Stored There
     char *launch_directory = getcwd(NULL, 0);

@@ -72,14 +72,48 @@ void glColorMask(GLboolean red, GLboolean green, GLboolean blue, GLboolean alpha
 void glTexSubImage2D(GLenum target, GLint level, GLint xoffset, GLint yoffset, GLsizei width, GLsizei height, GLenum format, GLenum type, const void *pixels) {
 }
 void glGenTextures(GLsizei n, GLuint *textures) {
+    static int i = 0;
+    for (int j = 0; j < n; j++) {
+        textures[j] = i++;
+    }
 }
 void glDeleteTextures(GLsizei n, const GLuint *textures) {
 }
 void glAlphaFunc(GLenum func, GLclampf ref) {
 }
 void glGetFloatv(GLenum pname, GLfloat *params) {
+    switch (pname) {
+        case GL_MODELVIEW_MATRIX:
+        case GL_PROJECTION_MATRIX: {
+            params[0] = 1;
+            params[1] = 0;
+            params[2] = 0;
+            params[3] = 0;
+            params[4] = 0;
+            params[5] = 1;
+            params[6] = 0;
+            params[7] = 0;
+            params[8] = 0;
+            params[9] = 0;
+            params[10] = 1;
+            params[11] = 0;
+            params[12] = 0;
+            params[13] = 0;
+            params[14] = 0;
+            params[15] = 1;
+            break;
+        }
+        default: {
+            params[0] = 0;
+            break;
+        }
+    }
 }
+static GLuint current_texture = 0;
 void glBindTexture(GLenum target, GLuint texture) {
+    if (target == GL_TEXTURE_2D) {
+        current_texture = texture;
+    }
 }
 void glTranslatef(GLfloat x, GLfloat y, GLfloat z) {
 }
@@ -101,6 +135,20 @@ GLboolean glIsEnabled(GLenum cap) {
     return GL_FALSE;
 }
 void glGetIntegerv(GLenum pname, GLint *data) {
+    switch (pname) {
+        case GL_TEXTURE_BINDING_2D: {
+            data[0] = current_texture;
+            break;
+        }
+        case GL_UNPACK_ALIGNMENT: {
+            data[0] = 1;
+            break;
+        }
+        default: {
+            data[0] = 0;
+            break;
+        }
+    }
 }
 void glReadPixels(GLint x, GLint y, GLsizei width, GLsizei height, GLenum format, GLenum type, void *data) {
 }

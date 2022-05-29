@@ -25,7 +25,7 @@ static AppPlatform_readAssetFile_return_value AppPlatform_readAssetFile_injectio
     return ret;
 }
 
-// Run Functions On Input Tick
+// Run Functions On Update
 static std::vector<misc_update_function_t> &get_misc_update_functions() {
     static std::vector<misc_update_function_t> functions;
     return functions;
@@ -33,14 +33,32 @@ static std::vector<misc_update_function_t> &get_misc_update_functions() {
 void misc_run_on_update(misc_update_function_t function) {
     get_misc_update_functions().push_back(function);
 }
-
 // Handle Custom Update Behavior
 static void Minecraft_update_injection(unsigned char *minecraft) {
     // Call Original Method
     (*Minecraft_update)(minecraft);
 
-    // Run Input Tick Functions
+    // Run Functions
     for (misc_update_function_t function : get_misc_update_functions()) {
+        (*function)(minecraft);
+    }
+}
+
+// Run Functions On Update
+static std::vector<misc_update_function_t> &get_misc_tick_functions() {
+    static std::vector<misc_update_function_t> functions;
+    return functions;
+}
+void misc_run_on_tick(misc_update_function_t function) {
+    get_misc_tick_functions().push_back(function);
+}
+// Handle Custom Tick Behavior
+static void Minecraft_tick_injection(unsigned char *minecraft, int32_t param_1, int32_t param_2) {
+    // Call Original Method
+    (*Minecraft_tick)(minecraft, param_1, param_2);
+
+    // Run Functions
+    for (misc_update_function_t function : get_misc_tick_functions()) {
         (*function)(minecraft);
     }
 }
@@ -88,6 +106,8 @@ void _init_misc_cpp() {
 
     // Handle Custom Update Behavior
     overwrite_calls((void *) Minecraft_update, (void *) Minecraft_update_injection);
+    // Handle Custom Tick Behavior
+    overwrite_calls((void *) Minecraft_tick, (void *) Minecraft_tick_injection);
 
     // Fix Pause Menu
     if (feature_has("Fix Pause Menu", server_disabled)) {

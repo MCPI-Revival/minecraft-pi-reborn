@@ -224,6 +224,29 @@ static void handle_server_stop(unsigned char *minecraft) {
     }
 }
 
+// Track TPS
+#define NANOSECONDS_IN_SECOND 1000000000ll
+static long long int get_time() {
+    struct timespec ts;
+    clock_gettime(CLOCK_MONOTONIC_RAW, &ts);
+    long long int a = (long long int) ts.tv_nsec;
+    long long int b = ((long long int) ts.tv_sec) * NANOSECONDS_IN_SECOND;
+    return a + b;
+}
+static bool is_last_tick_time_set = false;
+static long long int last_tick_time;
+static double tps = 0;
+static void Minecraft_tick_injection(__attribute__((unused)) unsigned char *minecraft) {
+    long long int time = get_time();
+    if (is_last_tick_time_set) {
+        long long int tick_time = time - last_tick_time;
+        tps = ((double) NANOSECONDS_IN_SECOND) / ((double) tick_time);
+    } else {
+        is_last_tick_time_set = true;
+    }
+    last_tick_time = time;
+}
+
 // Get ServerSideNetworkHandler From Minecraft
 static unsigned char *get_server_side_network_handler(unsigned char *minecraft) {
     return *(unsigned char **) (minecraft + Minecraft_network_handler_property_offset);
@@ -233,28 +256,26 @@ static unsigned char *get_server_side_network_handler(unsigned char *minecraft) 
 static volatile bool stdin_buffer_complete = false;
 static volatile char *stdin_buffer = NULL;
 static void *read_stdin_thread(__attribute__((unused)) void *data) {
-    // Check If STDIN Is A TTY
-    if (isatty(fileno(stdin))) {
-        // Loop
-        while (1) {
-            int bytes_available;
-            if (ioctl(fileno(stdin), FIONREAD, &bytes_available) == -1) {
-                bytes_available = 0;
-            }
-            for (int i = 0; i < bytes_available; i++) {
-                if (!stdin_buffer_complete) {
-                    // Read Data
-                    int x = fgetc(stdin);
-                    if (x != EOF) {
-                        if (x == '\n') {
-                            if (stdin_buffer == NULL) {
-                                stdin_buffer = strdup("");
-                            }
-                            stdin_buffer_complete = true;
-                        } else {
-                            string_append((char **) &stdin_buffer, "%c", (char) x);
-                        }
+    // Loop
+    while (1) {
+        int bytes_available;
+        if (ioctl(fileno(stdin), FIONREAD, &bytes_available) == -1) {
+            bytes_available = 0;
+        }
+        char buffer[bytes_available];
+        bytes_available = read(fileno(stdin), (void *) buffer, bytes_available);
+        for (int i = 0; i < bytes_available; i++) {
+            if (!stdin_buffer_complete) {
+                // Read Data
+                char x = buffer[i];
+                if (x == '\n') {
+                    if (stdin_buffer == NULL) {
+                        stdin_buffer = (volatile char *) malloc(1);
+                        stdin_buffer[0] = '\0';
                     }
+                    stdin_buffer_complete = true;
+                } else {
+                    string_append((char **) &stdin_buffer, "%c", (char) x);
                 }
             }
         }
@@ -282,6 +303,7 @@ static void handle_commands(unsigned char *minecraft) {
                 static std::string say_command("say ");
                 static std::string kill_command("kill ");
                 static std::string list_command("list");
+                static std::string tps_command("tps");
                 static std::string stop_command("stop");
                 static std::string help_command("help");
                 if (!is_whitelist() && data.rfind(ban_command, 0) == 0) {
@@ -301,6 +323,9 @@ static void handle_commands(unsigned char *minecraft) {
                     // List Players
                     INFO("All Players:");
                     find_players(minecraft, "", list_callback, true);
+                } else if (data == tps_command) {
+                    // Print TPS
+                    INFO("TPS: %f", tps);
                 } else if (data == stop_command) {
                     // Stop Server
                     compat_request_exit();
@@ -312,6 +337,7 @@ static void handle_commands(unsigned char *minecraft) {
                     INFO("    kill <Username> - Kill All Players With Specifed Username");
                     INFO("    say <Message>   - Print Specified Message To Chat");
                     INFO("    list            - List All Players");
+                    INFO("    tps             - Print TPS");
                     INFO("    stop            - Stop Server");
                     INFO("    help            - Print This Message");
                 } else {
@@ -522,6 +548,9 @@ static void server_init() {
 
     // Log IPs
     overwrite_call((void *) 0x75e54, (void *) ServerSideNetworkHandler_onReady_ClientGeneration_ServerSideNetworkHandler_popPendingPlayer_injection);
+
+    // Track TPS
+    misc_run_on_tick(Minecraft_tick_injection);
 
     // Start Reading STDIN
     pthread_t read_stdin_thread_obj;

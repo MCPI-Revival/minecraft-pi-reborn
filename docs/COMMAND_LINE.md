@@ -2,8 +2,11 @@
 
 ## Command Line Arguments
 
+### ``--version`` (Or ``-v``)
+If you run MCPI-Reborn with ``--version`` it will print its version to ``stdout``.
+
 ### ``--print-available-feature-flags`` (Client Mode Only)
-If you run MCPI-Reborn with ``--print-available-feature-flags``, it will print the available feature flags and then immediately exit.
+If you run MCPI-Reborn with ``--print-available-feature-flags``, it will print the available feature flags to ``stdout`` and then immediately exit.
 
 The feature flags are printed in the following format:
 ```

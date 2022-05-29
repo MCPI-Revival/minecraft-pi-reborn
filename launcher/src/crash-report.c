@@ -6,6 +6,7 @@
 #include <stdint.h>
 #include <signal.h>
 #include <poll.h>
+#include <sys/ioctl.h>
 
 #include <libreborn/libreborn.h>
 
@@ -41,14 +42,16 @@ static void exit_handler(__attribute__((unused)) int signal) {
 }
 
 // Setup
+#define PIPE_READ 0
+#define PIPE_WRITE 1
 void setup_crash_report() {
     // Store Output
-#ifndef MCPI_HEADLESS_MODE
     int output_pipe[2];
     safe_pipe2(output_pipe, 0);
     int error_pipe[2];
     safe_pipe2(error_pipe, 0);
-#endif
+    int input_pipe[2];
+    safe_pipe2(input_pipe, 0);
 
     // Fork
     pid_t ret = fork();
@@ -58,14 +61,15 @@ void setup_crash_report() {
         // Child Process
 
         // Pipe stdio
-#ifndef MCPI_HEADLESS_MODE
-        dup2(output_pipe[1], STDOUT_FILENO);
-        close(output_pipe[0]);
-        close(output_pipe[1]);
-        dup2(error_pipe[1], STDERR_FILENO);
-        close(error_pipe[0]);
-        close(error_pipe[1]);
-#endif
+        dup2(output_pipe[PIPE_WRITE], STDOUT_FILENO);
+        close(output_pipe[PIPE_READ]);
+        close(output_pipe[PIPE_WRITE]);
+        dup2(error_pipe[PIPE_WRITE], STDERR_FILENO);
+        close(error_pipe[PIPE_READ]);
+        close(error_pipe[PIPE_WRITE]);
+        dup2(input_pipe[PIPE_READ], STDIN_FILENO);
+        close(input_pipe[PIPE_READ]);
+        close(input_pipe[PIPE_WRITE]);
 
         // Create New Process Group
         setpgid(0, 0);
@@ -87,13 +91,12 @@ void setup_crash_report() {
         act_sigterm.sa_handler = &exit_handler;
         sigaction(SIGTERM, &act_sigterm, NULL);
 
-        // Capture stdio
-#ifndef MCPI_HEADLESS_MODE
         // Close Unneeded File Descriptors
-        close(output_pipe[1]);
-        close(error_pipe[1]);
+        close(output_pipe[PIPE_WRITE]);
+        close(error_pipe[PIPE_WRITE]);
+        close(input_pipe[PIPE_READ]);
 
-        // Create A Buffer
+        // Setup Logging
 #define BUFFER_SIZE 1024
         char buf[BUFFER_SIZE];
 
@@ -105,10 +108,11 @@ void setup_crash_report() {
         }
 
         // Setup Polling
-        int number_fds = 2;
+        int number_fds = 3;
         struct pollfd poll_fds[number_fds];
-        poll_fds[0].fd = output_pipe[0];
-        poll_fds[1].fd = error_pipe[0];
+        poll_fds[0].fd = output_pipe[PIPE_READ];
+        poll_fds[1].fd = error_pipe[PIPE_READ];
+        poll_fds[2].fd = STDIN_FILENO;
         for (int i = 0; i < number_fds; i++) {
             poll_fds[i].events = POLLIN;
         }
@@ -129,31 +133,51 @@ void setup_crash_report() {
             for (int i = 0; i < number_fds; i++) {
                 if (poll_fds[i].revents != 0) {
                     if (poll_fds[i].revents & POLLIN) {
-                        // Data Available
-                        ssize_t bytes_read = read(poll_fds[i].fd, (void *) buf, BUFFER_SIZE - 1 /* Account For NULL-Terminator */);
-                        if (bytes_read == -1) {
-                            ERR("Unable To Read Log Data: %s", strerror(errno));
-                        }
+                        if (poll_fds[i].fd == STDIN_FILENO) {
+                            // Data Available From stdin
+                            int bytes_available;
+                            if (ioctl(fileno(stdin), FIONREAD, &bytes_available) == -1) {
+                                bytes_available = 0;
+                            }
+                            // Read
+                            ssize_t bytes_read = read(poll_fds[i].fd, (void *) buf, BUFFER_SIZE);
+                            if (bytes_read == -1) {
+                                ERR("Unable To Read Log Data: %s", strerror(errno));
+                            }
+                            // Write To Child
+                            if (write(input_pipe[PIPE_WRITE], (void *) buf, bytes_read) == -1) {
+                                ERR("Unable To Write Input To Child: %s", strerror(errno));
+                            }
+                        } else {
+                            // Data Available From Child's stdout/stderr
+                            ssize_t bytes_read = read(poll_fds[i].fd, (void *) buf, BUFFER_SIZE - 1 /* Account For NULL-Terminator */);
+                            if (bytes_read == -1) {
+                                ERR("Unable To Read Log Data: %s", strerror(errno));
+                            }
 
-                        // Print To Terminal
-                        buf[bytes_read] = '\0';
-                        fprintf(i == 0 ? stdout : stderr, "%s", buf);
+                            // Print To Terminal
+                            buf[bytes_read] = '\0';
+                            fprintf(i == 0 ? stdout : stderr, "%s", buf);
 
-                        // Write To log
-                        if (write(log_file_fd, (void *) buf, bytes_read) == -1) {
-                            ERR("Unable To Write Log Data: %s", strerror(errno));
+                            // Write To log
+                            if (write(log_file_fd, (void *) buf, bytes_read) == -1) {
+                                ERR("Unable To Write Log Data: %s", strerror(errno));
+                            }
                         }
                     } else {
                         // File Descriptor No Longer Accessible
-                        if (close(poll_fds[i].fd) == -1) {
+                        if (poll_fds[i].events != 0 && close(poll_fds[i].fd) == -1) {
                             ERR("Unable To Close File Descriptor: %s", strerror(errno));
                         }
+                        poll_fds[i].events = 0;
                         number_open_fds--;
                     }
                 }
             }
         }
-#endif
+
+        // Close Input Pipe
+        close(input_pipe[PIPE_WRITE]);
 
         // Get Return Code
         int status;
@@ -176,33 +200,30 @@ void setup_crash_report() {
             fprintf(stderr, "%s", exit_code_line);
 
             // Write Exit Code Log Line
-#ifndef MCPI_HEADLESS_MODE
             if (write(log_file_fd, (void *) exit_code_line, strlen(exit_code_line)) == -1) {
                 ERR("Unable To Write Exit Code To Log: %s", strerror(errno));
             }
-#endif
 
             // Free Exit Code Log Line
             free(exit_code_line);
         }
 
-        // Show Crash Log
-#ifndef MCPI_HEADLESS_MODE
         // Close Log File FD
         if (close(log_file_fd) == -1) {
             ERR("Unable To Close Log File Descriptor: %s", strerror(errno));
         }
 
-        // Show Report
+        // Show Crash Log
+#ifndef MCPI_HEADLESS_MODE
         if (is_crash) {
             show_report(log_filename);
         }
+#endif
 
         // Delete Log File
         if (unlink(log_filename) == -1) {
             ERR("Unable To Delete Log File: %s", strerror(errno));
         }
-#endif
 
         // Exit
         exit(WIFEXITED(status) ? WEXITSTATUS(status) : EXIT_FAILURE);

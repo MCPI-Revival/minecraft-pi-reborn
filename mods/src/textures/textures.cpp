@@ -7,14 +7,12 @@
 #include <libreborn/libreborn.h>
 #include <symbols/minecraft.h>
 
+#include "../misc/misc.h"
 #include "../feature/feature.h"
 #include "../init/init.h"
 
 // Animated Water
-static void Minecraft_tick_injection(unsigned char *minecraft, int32_t param_1, int32_t param_2) {
-    // Call Original Method
-    (*Minecraft_tick)(minecraft, param_1, param_2);
-
+static void Minecraft_tick_injection(unsigned char *minecraft) {
     // Tick Dynamic Textures
     unsigned char *textures = *(unsigned char **) (minecraft + Minecraft_textures_property_offset);
     if (textures != NULL) {
@@ -77,7 +75,8 @@ static void get_texture_size(GLint id, GLsizei *width, GLsizei *height) {
         ++it;
     }
     // Not Found
-    ERR("Unable To Find Size Of Texture: %i", id);
+    *width = 0;
+    *height = 0;
 }
 
 // Scale Texture (Remember To Free)
@@ -167,7 +166,7 @@ static void Textures_tick_glTexSubImage2D_injection(GLenum target, GLint level, 
 void init_textures() {
     // Tick Dynamic Textures (Animated Water)
     if (feature_has("Animated Water", server_disabled)) {
-        overwrite_calls((void *) Minecraft_tick, (void *) Minecraft_tick_injection);
+        misc_run_on_tick(Minecraft_tick_injection);
     }
 
     // Scale Animated Textures

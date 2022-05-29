@@ -35,22 +35,6 @@ static void Gui_addMessage_injection(unsigned char *gui, std::string const& text
     free(new_message);
 }
 
-// Check If Two Percentages Are Different Enough To Be Logged
-#define SIGNIFICANT_PROGRESS 5
-static bool is_progress_difference_significant(int32_t new_val, int32_t old_val) {
-    if (new_val != old_val) {
-        if (new_val == -1 || old_val == -1) {
-            return true;
-        } else if (new_val == 0 || new_val == 100) {
-            return true;
-        } else {
-            return new_val - old_val >= SIGNIFICANT_PROGRESS;
-        }
-    } else {
-        return false;
-    }
-}
-
 // Print Progress Reports
 static int last_progress = -1;
 static const char *last_message = NULL;

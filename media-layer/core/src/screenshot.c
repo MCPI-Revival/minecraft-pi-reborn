@@ -70,7 +70,7 @@ void media_take_screenshot(char *home) {
     int height = viewport[3];
 
     // Get Line Size
-    int line_size = width * 3;
+    int line_size = width * 4;
     {
         // Handle Alignment
         int alignment;
@@ -85,14 +85,14 @@ void media_take_screenshot(char *home) {
 
     // Read Pixels
     unsigned char pixels[size];
-    glReadPixels(x, y, width, height, GL_RGB, GL_UNSIGNED_BYTE, pixels);
+    glReadPixels(x, y, width, height, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
 
     // Handle Little Endian Systems
 #if __BYTE_ORDER == __LITTLE_ENDIAN
     // Swap Red And Blue
     for (int j = 0; j < width; j++) {
         for (int k = 0; k < height; k++) {
-            int pixel = (k * line_size) + (j * 3);
+            int pixel = (k * line_size) + (j * 4);
             // Swap
             int red = pixels[pixel];
             int blue = pixels[pixel + 2];
@@ -103,7 +103,7 @@ void media_take_screenshot(char *home) {
 #endif
 
     // Save Image
-    FIBITMAP *image = FreeImage_ConvertFromRawBits(pixels, width, height, line_size, 24, FI_RGBA_RED_MASK, FI_RGBA_GREEN_MASK, FI_RGBA_BLUE_MASK, 0);
+    FIBITMAP *image = FreeImage_ConvertFromRawBits(pixels, width, height, line_size, 32, FI_RGBA_RED_MASK, FI_RGBA_GREEN_MASK, FI_RGBA_BLUE_MASK, 0);
     if (!FreeImage_Save(FIF_PNG, image, file, 0)) {
         INFO("Screenshot Failed: %s", file);
     } else {

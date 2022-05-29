@@ -108,18 +108,23 @@ const afterBundle = [
     'find ./AppDir/usr/bin -maxdepth 1 -name \'qemu-*\' -a ! -name \'qemu-arm\' -delete'
 ];
 
+// Environment
+const env = {
+    APPDIR_MODULE_DIR: '/tmp/.minecraft-pi-patched'
+};
+if (mode === 'client') {
+    // Make GTK Work (Zenity Uses GTK)
+    env.GTK_EXE_PREFIX = '${APPDIR}/usr';
+    env.GTK_PATH = `\${APPDIR}/usr/lib/${triplet}/gtk-3.0`;
+    env.GTK_DATA_PREFIX = '${APPDIR}';
+    env.GTK_THEME = 'Default';
+    env.XDG_DATA_DIRS = '${APPDIR}/share:${APPDIR}/usr/share:/share:/usr/share';
+    env.APPDIR_LIBRARY_PATH = `\${APPDIR}/usr/lib/${triplet}:\${APPDIR}/usr/${triplet}/lib:\${APPDIR}/lib/${triplet}:\${APPDIR}/usr/lib:\${APPDIR}/usr/lib/${triplet}/gdk-pixbuf-2.0/2.10.0/loaders`;
+}
+
 // Runtime
 const runtime = {
-    env: mode === 'client' ? {
-        // Make GTK Work (Zenity Uses GTK)
-        GTK_EXE_PREFIX: '${APPDIR}/usr',
-        GTK_PATH: `\${APPDIR}/usr/lib/${triplet}/gtk-3.0`,
-        GTK_DATA_PREFIX: '${APPDIR}',
-        GTK_THEME: 'Default',
-        XDG_DATA_DIRS: '${APPDIR}/share:${APPDIR}/usr/share:/share:/usr/share',
-        APPDIR_LIBRARY_PATH: `\${APPDIR}/usr/lib/${triplet}:\${APPDIR}/usr/${triplet}/lib:\${APPDIR}/lib/${triplet}:\${APPDIR}/usr/lib:\${APPDIR}/usr/lib/${triplet}/gdk-pixbuf-2.0/2.10.0/loaders`,
-        APPDIR_MODULE_DIR: '/tmp/.minecraft-pi-patched'
-    } : undefined,
+    env: env,
     preserve: arch !== 'armhf' ? [
         // On non-ARM32 systems, an ARM32 linker is embedded, this
         // prevents AppImage-Builder from modifying ARM32 binaries

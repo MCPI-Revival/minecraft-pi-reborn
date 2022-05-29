@@ -26,7 +26,7 @@ void init_death();
 void init_options();
 void init_chat();
 void init_home();
-#if !defined(MCPI_SERVER_MODE) && !defined(MCPI_HEADLESS_MODE)
+#ifndef MCPI_SERVER_MODE
 void init_benchmark();
 #endif
 

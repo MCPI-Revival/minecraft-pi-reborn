@@ -107,7 +107,7 @@ static void send_queued_messages(unsigned char *minecraft) {
     pthread_mutex_lock(&queue_mutex);
     // If Message Was Submitted, No Other Chat Windows Are Open, And The Game Is Not Paused, Then Re-Lock Cursor
     unsigned int new_chat_counter = chat_get_counter();
-    if (old_chat_counter > new_chat_counter && new_chat_counter == 0 && (*(unsigned char **) (minecraft + Minecraft_screen_property_offset)) == NULL) {
+    if (old_chat_counter > new_chat_counter && new_chat_counter == 0) {
         // Unlock UI
         media_set_interactable(1);
     }

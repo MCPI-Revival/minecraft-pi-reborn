@@ -207,21 +207,18 @@ static ALuint load_sound(const char *source, const char *name) {
 }
 
 // Store Buffers
-static std::unordered_map<std::string, ALuint> &get_buffers() {
-    static std::unordered_map<std::string, ALuint> buffers;
-    return buffers;
-}
+static std::unordered_map<std::string, ALuint> buffers;
 
 // Get Buffer For Sound
 ALuint _media_audio_get_buffer(const char *source, const char *name) {
     // Check
     if (_media_audio_is_loaded()) {
-        if (get_buffers().count(name) > 0) {
+        if (buffers.count(name) > 0) {
             // Return
-            return get_buffers()[name];
+            return buffers[name];
         } else {
             // Load And Return
-            get_buffers()[name] = load_sound(source, name);
+            buffers[name] = load_sound(source, name);
             return _media_audio_get_buffer(source, name);
         }
     } else {
@@ -232,11 +229,11 @@ ALuint _media_audio_get_buffer(const char *source, const char *name) {
 // Delete Buffers
 void _media_audio_delete_buffers() {
     if (_media_audio_is_loaded()) {
-        for (auto it : get_buffers()) {
+        for (auto it : buffers) {
             if (it.second && alIsBuffer(it.second)) {
                 alDeleteBuffers(1, &it.second);
             }
         }
     }
-    get_buffers().clear();
+    buffers.clear();
 }

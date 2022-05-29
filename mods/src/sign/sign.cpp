@@ -42,13 +42,13 @@ static void TextEditScreen_updateEvents_injection(unsigned char *screen) {
     (*Screen_updateEvents)(screen);
 
     if (*(char *)(screen + 4) == '\0') {
-        uint32_t vtable = *((uint32_t *) screen);
+        unsigned char *vtable = *(unsigned char **) screen;
         for (char key : input) {
             if (key == BACKSPACE_KEY) {
                 // Handle Backspace
                 (*(Screen_keyPressed_t *) (vtable + Screen_keyPressed_vtable_offset))(screen, BACKSPACE_KEY);
             } else {
-                // Handle Nrmal Key
+                // Handle Normal Key
                 (*(Screen_keyboardNewChar_t *) (vtable + Screen_keyboardNewChar_vtable_offset))(screen, key);
             }
         }

@@ -25,7 +25,7 @@
             dlerror(); \
             real_##name = (name##_t) dlsym(RTLD_NEXT, #name); \
             if (!real_##name) { \
-                ERR("Error Resolving Symbol: "#name": %s", dlerror()); \
+                ERR("Error Resolving Symbol: " #name ": %s", dlerror()); \
             } \
         } \
     } \
@@ -49,6 +49,8 @@ extern "C" {
 
 // Safe Version Of pipe()
 void safe_pipe2(int pipefd[2], int flags);
+// Check If Two Percentages Are Different Enough To Be Logged
+int is_progress_difference_significant(int32_t new_val, int32_t old_val);
 
 #ifdef __cplusplus
 }

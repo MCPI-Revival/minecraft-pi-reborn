@@ -1,13 +1,15 @@
 project(media-layer)
 
-# Check Options
-if(MCPI_USE_MEDIA_LAYER_PROXY AND MCPI_BUILD_MODE STREQUAL "both")
-    message(FATAL_ERROR "Media Layer Proxy Is Redundant When Building ARM And Native Components In The Same Build")
-endif()
+# Target Notes:
+#     media-layer-core-real: Fully Built Media Layer Core
+#     media-layer-core: Alias Target That Points To The Library MCPI Should Link To
 
 # Add Headers
 add_library(media-layer-headers INTERFACE)
 target_include_directories(media-layer-headers INTERFACE include)
+
+# Add GLESv1_CM Stubs Or Compatibility Layer
+add_subdirectory(gles)
 
 # Add Core
 add_subdirectory(core)
@@ -16,9 +18,6 @@ add_subdirectory(core)
 if(MCPI_USE_MEDIA_LAYER_PROXY)
     add_subdirectory(proxy)
 endif()
-
-# Add Stubs
-add_subdirectory(stubs)
 
 # Add Extras
 add_subdirectory(extras)

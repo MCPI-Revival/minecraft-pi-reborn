@@ -15,6 +15,7 @@ static std::vector<ALuint> &get_sources() {
     return sources;
 }
 
+// Error Checking
 #define AL_ERROR_CHECK() AL_ERROR_CHECK_MANUAL(alGetError())
 #define AL_ERROR_CHECK_MANUAL(val) \
     { \
@@ -73,6 +74,7 @@ void media_audio_update(float volume, float x, float y, float z, float yaw) {
     }
 }
 
+// Play
 void media_audio_play(const char *source, const char *name, float x, float y, float z, float pitch, float volume, int is_ui) {
     // Check
     if (_media_audio_is_loaded()) {

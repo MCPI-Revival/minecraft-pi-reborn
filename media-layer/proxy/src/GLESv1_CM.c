@@ -342,7 +342,7 @@ static int get_texture_size(GLsizei width, GLsizei height, GLenum format, GLenum
                 break;
             }
             default: {
-                PROXY_ERR("Invalid Texture Format: %u", (unsigned int) format);
+                PROXY_ERR("Unsupported Texture Format: %u", (unsigned int) format);
             }
         }
     } else {
@@ -858,7 +858,7 @@ static int get_glGetFloatv_params_size(GLenum pname) {
             return 16;
         }
         default: {
-            PROXY_ERR("Inavlid glGetFloatv Property: %u", pname);
+            PROXY_ERR("Unsupported glGetFloatv Property: %u", pname);
         }
     }
 }
@@ -1104,7 +1104,7 @@ static int get_glGetIntegerv_params_size(GLenum pname) {
             return 1;
         }
         default: {
-            PROXY_ERR("Inavlid glGetIntegerv Property: %u", pname);
+            PROXY_ERR("Unsupported glGetIntegerv Property: %u", pname);
         }
     }
 }

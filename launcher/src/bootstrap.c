@@ -149,7 +149,17 @@ static void exit_handler(__attribute__((unused)) int signal_id) {
 }
 
 // Pre-Bootstrap
-void pre_bootstrap() {
+void pre_bootstrap(int argc, char *argv[]) {
+    // Print Version
+    for (int i = 1; i < argc; i++) {
+        if (strcmp(argv[i], "--version") == 0 || strcmp(argv[i], "-v") == 0) {
+            // Print
+            printf("Reborn v%s\n", VERSION);
+            fflush(stdout);
+            exit(EXIT_SUCCESS);
+        }
+    }
+
     // GTK Dark Mode
 #ifndef MCPI_SERVER_MODE
     set_and_print_env("GTK_THEME", "Adwaita:dark");

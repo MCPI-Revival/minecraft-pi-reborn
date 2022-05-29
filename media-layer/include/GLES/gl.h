@@ -5,10 +5,10 @@ extern "C" {
 #endif
 
 #define GL_FALSE 0
-#define GL_FOG_COLOR 0xb66
 #define GL_ARRAY_BUFFER_BINDING 0x8894
 #define GL_TEXTURE_BINDING_2D 0x8069
 #define GL_UNSIGNED_BYTE 0x1401
+#define GL_FLOAT 0x1406
 #define GL_RGB 0x1907
 #define GL_RGBA 0x1908
 #define GL_MODELVIEW_MATRIX 0xba6
@@ -19,6 +19,25 @@ extern "C" {
 #define GL_UNPACK_ALIGNMENT 0xcf5
 #define GL_SRC_ALPHA 0x302
 #define GL_ONE_MINUS_SRC_ALPHA 0x303
+#define GL_MODELVIEW 0x1700
+#define GL_PROJECTION 0x1701
+#define GL_TEXTURE 0x1702
+#define GL_VERTEX_ARRAY 0x8074
+#define GL_COLOR_ARRAY 0x8076
+#define GL_TEXTURE_COORD_ARRAY 0x8078
+#define GL_GREATER 0x204
+#define GL_ALPHA_TEST 0xbc0
+#define GL_TEXTURE_2D 0xde1
+#define GL_COLOR_MATERIAL 0xb57
+#define GL_PERSPECTIVE_CORRECTION_HINT 0xc50
+#define GL_FOG 0xb60
+#define GL_LINEAR 0x2601
+#define GL_EXP 0x800
+#define GL_FOG_DENSITY 0xb62
+#define GL_FOG_START 0xb63
+#define GL_FOG_END 0xb64
+#define GL_FOG_MODE 0xb65
+#define GL_FOG_COLOR 0xb66
 
 #include <stdio.h>
 #include <stdint.h>
@@ -34,6 +53,7 @@ typedef intptr_t GLintptr;
 typedef int32_t GLfixed;
 typedef unsigned int GLbitfield;
 typedef unsigned int GLenum;
+typedef char GLchar;
 
 void glFogfv(GLenum pname, const GLfloat *params);
 void glVertexPointer(GLint size, GLenum type, GLsizei stride, const void *pointer);

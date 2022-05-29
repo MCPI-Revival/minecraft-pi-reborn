@@ -28,7 +28,7 @@ __attribute__((constructor)) static void _init_active(int argc, char *argv[]) {
 #define NANOSECONDS_IN_SECOND 1000000000ll
 
 // Config
-#define BENCHMARK_GAME_MODE 1 // Creative Mode
+#define BENCHMARK_GAME_MODE 0 // Survival Mode
 #define BENCHMARK_SEED 2048 // Random Number
 #define BENCHMARK_WORLD_NAME "_Benchmark" // Random Number
 #define BENCHMARK_LENGTH (180ll * NANOSECONDS_IN_SECOND) // 3 Minutes
@@ -62,11 +62,19 @@ static void start_world(unsigned char *minecraft) {
 }
 
 // Track Frames
+#ifndef MCPI_HEADLESS_MODE
 static unsigned long long int frames = 0;
 HOOK(media_swap_buffers, void, ()) {
     ensure_media_swap_buffers();
     (*real_media_swap_buffers)();
     frames++;
+}
+#endif
+
+// Track Ticks
+static unsigned long long int ticks = 0;
+static void Minecraft_tick_injection(__attribute__((unused)) unsigned char *minecraft) {
+    ticks++;
 }
 
 // Get Time
@@ -81,7 +89,13 @@ static long long int get_time() {
 // Store Time When World Loaded
 static int world_loaded = 0;
 static long long int world_loaded_time;
+#ifndef MCPI_HEADLESS_MODE
 static unsigned long long int world_loaded_frames;
+#endif
+static unsigned long long int world_loaded_ticks;
+
+// Last Logged Status Update
+static int32_t last_logged_status = -1;
 
 // Runs Every Tick
 static bool loaded = false;
@@ -97,14 +111,30 @@ static void Minecraft_update_injection(unsigned char *minecraft) {
     if (!world_loaded && (*Minecraft_isLevelGenerated)(minecraft)) {
         world_loaded = 1;
         world_loaded_time = get_time();
+#ifndef MCPI_HEADLESS_MODE
         world_loaded_frames = frames;
+#endif
+        world_loaded_ticks = ticks;
     }
 
     // Run Benchmark
     if (!exit_requested && world_loaded) {
         // Get Time
         long long int current_time = get_time() - world_loaded_time;
+#ifndef MCPI_HEADLESS_MODE
         unsigned long long int current_frames = frames - world_loaded_frames;
+#endif
+        unsigned long long int current_ticks = ticks - world_loaded_ticks;
+
+        // Log
+        int32_t status = (((double) current_time) / ((double) BENCHMARK_LENGTH)) * 100;
+        if (status > 100) {
+            status = 100;
+        }
+        if (is_progress_difference_significant(status, last_logged_status)) {
+            INFO("Benchmark Status: %i%%", status);
+            last_logged_status = status;
+        }
 
         // Rotate Player
         static long long int rotate_point = BENCHMARK_ROTATION_INTERVAL;
@@ -127,10 +157,17 @@ static void Minecraft_update_injection(unsigned char *minecraft) {
             // Disable Special Behavior After Requesting Exit
             exit_requested = true;
 
-            // Calculate FPS
+            // Calculate FPS & TPS
+            INFO("Benchmark Completed");
+            INFO("    Total Time: %lld Nanoseconds", current_time);
+#ifndef MCPI_HEADLESS_MODE
             static double frames_per_nanosecond = ((double) current_frames) / ((double) current_time);
             static double frames_per_second = frames_per_nanosecond * NANOSECONDS_IN_SECOND;
-            INFO("Benchmark Completed After %llu Frames In %lld Nanoseconds, Average FPS: %f", current_frames, current_time, frames_per_second);
+            INFO("    FPS: %f (%llu Total Frames)", frames_per_second, current_frames);
+#endif
+            static double ticks_per_nanosecond = ((double) current_ticks) / ((double) current_time);
+            static double ticks_per_second = ticks_per_nanosecond * NANOSECONDS_IN_SECOND;
+            INFO("    TPS: %f (%llu Total Ticks)", ticks_per_second, current_ticks);
         }
     }
 }
@@ -139,6 +176,8 @@ static void Minecraft_update_injection(unsigned char *minecraft) {
 void init_benchmark() {
     if (active) {
         misc_run_on_update(Minecraft_update_injection);
+        // Track Ticks
+        misc_run_on_tick(Minecraft_tick_injection);
         // Disable Interaction
         media_set_interactable(0);
         // Disable V-Sync

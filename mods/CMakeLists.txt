@@ -54,15 +54,13 @@ else()
     target_link_libraries(override reborn-patch symbols dl home)
 
     add_library(textures SHARED src/textures/textures.cpp)
-    target_link_libraries(textures reborn-patch symbols media-layer-core feature)
+    target_link_libraries(textures reborn-patch symbols media-layer-core feature misc)
 
     add_library(atlas SHARED src/atlas/atlas.cpp)
     target_link_libraries(atlas reborn-patch symbols feature GLESv1_CM)
 
-    if(NOT MCPI_HEADLESS_MODE)
-        add_library(benchmark SHARED src/benchmark/benchmark.cpp)
-        target_link_libraries(benchmark reborn-patch symbols compat misc media-layer-core)
-    endif()
+    add_library(benchmark SHARED src/benchmark/benchmark.cpp)
+    target_link_libraries(benchmark reborn-patch symbols compat misc media-layer-core)
 endif()
 
 add_library(death SHARED src/death/death.cpp)
@@ -85,10 +83,7 @@ target_link_libraries(init compat game-mode misc death options chat creative hom
 if(MCPI_SERVER_MODE)
     target_link_libraries(init server)
 else()
-    target_link_libraries(init multiplayer sound camera input sign touch textures atlas)
-    if(NOT MCPI_HEADLESS_MODE)
-        target_link_libraries(init benchmark)
-    endif()
+    target_link_libraries(init multiplayer sound camera input sign touch textures atlas benchmark)
 endif()
 
 ## Install Mods
@@ -96,8 +91,5 @@ install(TARGETS init compat readdir feature game-mode misc death options chat cr
 if(MCPI_SERVER_MODE)
     install(TARGETS server DESTINATION "${MCPI_INSTALL_DIR}/mods")
 else()
-    install(TARGETS multiplayer sound override camera input sign touch textures atlas DESTINATION "${MCPI_INSTALL_DIR}/mods")
-    if(NOT MCPI_HEADLESS_MODE)
-        install(TARGETS benchmark DESTINATION "${MCPI_INSTALL_DIR}/mods")
-    endif()
+    install(TARGETS multiplayer sound override camera input sign touch textures atlas benchmark DESTINATION "${MCPI_INSTALL_DIR}/mods")
 endif()
