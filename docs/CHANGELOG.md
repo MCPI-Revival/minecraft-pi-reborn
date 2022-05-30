@@ -1,5 +1,12 @@
 # Changelog
 
+**2.3.11**
+* ``--version`` Command Line Option
+* TPS Measured In Benchmark & Server
+* Front-Facing Third-Person
+* GLESv1 Comparability Layer
+* Miscellaneous Bug Fixes
+
 **2.3.10**
 * Add Crash Report Dialog
 * Disable V-Sync By Default

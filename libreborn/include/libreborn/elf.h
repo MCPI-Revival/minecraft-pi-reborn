@@ -13,9 +13,9 @@
 extern "C" {
 #endif
 
-// Find And Iterate Over All .text Sections In Current Binary
-typedef void (*text_section_callback_t)(ElfW(Addr) section, ElfW(Word) size, void *data);
-void iterate_text_sections(const char *exe, text_section_callback_t callback, void *data);
+// Find And Iterate Over All Segments In Current Binary
+typedef void (*segment_callback_t)(ElfW(Addr) section, ElfW(Word) size, void *data);
+void iterate_segments(segment_callback_t callback, void *data);
 
 #ifdef __cplusplus
 }

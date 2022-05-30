@@ -229,30 +229,6 @@ void bootstrap(int argc, char *argv[]) {
     // Get Binary Directory
     char *binary_directory = get_binary_directory();
 
-    // Resolve Binary Path & Set MCPI_DIRECTORY
-    {
-        // Log
-        DEBUG("Resolving File Paths...");
-
-        // Resolve Full Binary Path
-        char *full_path = NULL;
-        safe_asprintf(&full_path, "%s/" MCPI_BINARY, binary_directory);
-        char *resolved_path = realpath(full_path, NULL);
-        ALLOC_CHECK(resolved_path);
-        free(full_path);
-
-        // Set MCPI_EXECUTABLE_PATH
-        set_and_print_env("MCPI_EXECUTABLE_PATH", resolved_path);
-
-        // Set MCPI_VANILLA_ASSETS_PATH
-        {
-            chop_last_component(&resolved_path);
-            string_append(&resolved_path, "/data");
-            set_and_print_env("MCPI_VANILLA_ASSETS_PATH", resolved_path);
-            free(resolved_path);
-        }
-    }
-
     // Set MCPI_REBORN_ASSETS_PATH
     {
         char *assets_path = realpath("/proc/self/exe", NULL);
@@ -261,6 +237,20 @@ void bootstrap(int argc, char *argv[]) {
         string_append(&assets_path, "/data");
         set_and_print_env("MCPI_REBORN_ASSETS_PATH", assets_path);
         free(assets_path);
+    }
+
+    // Resolve Binary Path & Set MCPI_DIRECTORY
+    char *resolved_path = NULL;
+    {
+        // Log
+        DEBUG("Resolving File Paths...");
+
+        // Resolve Full Binary Path
+        char *full_path = NULL;
+        safe_asprintf(&full_path, "%s/" MCPI_BINARY, binary_directory);
+        resolved_path = realpath(full_path, NULL);
+        ALLOC_CHECK(resolved_path);
+        free(full_path);
     }
 
     // Fix MCPI Dependencies
@@ -283,7 +273,7 @@ void bootstrap(int argc, char *argv[]) {
 #endif
 
         // Patch
-        patch_mcpi_elf_dependencies(linker);
+        patch_mcpi_elf_dependencies(resolved_path, linker);
 
         // Free Linker Path
         if (linker != NULL) {
@@ -295,6 +285,19 @@ void bootstrap(int argc, char *argv[]) {
             IMPOSSIBLE();
         }
     }
+
+    // Set MCPI_VANILLA_ASSETS_PATH
+    {
+        char *assets_path = strdup(resolved_path);
+        ALLOC_CHECK(assets_path);
+        chop_last_component(&assets_path);
+        string_append(&assets_path, "/data");
+        set_and_print_env("MCPI_VANILLA_ASSETS_PATH", assets_path);
+        free(assets_path);
+    }
+
+    // Free Resolved Path
+    free(resolved_path);
 
     // Configure LD_LIBRARY_PATH
     {

@@ -9,10 +9,7 @@
 
 // Duplicate MCPI Executable Into /tmp
 #define TMP_DIR "/tmp/.minecraft-pi-patched"
-static void duplicate_mcpi_executable() {
-    // Get Original Path
-    const char *original_path = getenv("MCPI_EXECUTABLE_PATH");
-
+static void duplicate_mcpi_executable(const char *original_path) {
     // Ensure Temporary Directory
     {
         // Check If It Exists
@@ -89,9 +86,9 @@ static void duplicate_mcpi_executable() {
         } \
         _macro_return_code; \
     })
-void patch_mcpi_elf_dependencies(const char *linker) {
+void patch_mcpi_elf_dependencies(const char *original_path, const char *linker) {
     // Duplicate MCPI executable into /tmp so it can be modified.
-    duplicate_mcpi_executable();
+    duplicate_mcpi_executable(original_path);
 
     // Get Path
     char *exe = getenv("MCPI_EXECUTABLE_PATH");
