@@ -39,6 +39,21 @@ CALL(11, glFogfv, void, (GLenum pname, const GLfloat *params)) {
 #if defined(MEDIA_LAYER_PROXY_SERVER)
 #define CALL_GL_POINTER(unique_id, name) \
     CALL(unique_id, name, void, (GLint size, GLenum type, GLsizei stride, const void *pointer)) { \
+        /* Check */ \
+        static int last_set = 0; \
+        static GLint last_size; \
+        static GLenum last_type; \
+        static GLsizei last_stride; \
+        static const void *last_pointer; \
+        if (last_set && last_size == size && last_type == type && last_stride == stride && last_pointer == pointer) { \
+            return; \
+        } else { \
+            last_set = 1; \
+            last_size = size; \
+            last_type = type; \
+            last_stride = stride; \
+            last_pointer = pointer; \
+        } \
         /* Lock Proxy */ \
         start_proxy_call(); \
         \
@@ -107,6 +122,31 @@ CALL(14, glBlendFunc, void, (GLenum sfactor, GLenum dfactor)) {
 #endif
 }
 
+// Track Bindings
+#if defined(MEDIA_LAYER_PROXY_SERVER)
+static GLuint bound_buffer = 0;
+static GLuint bound_texture = 0;
+static unsigned char vertex_array_enabled = 0;
+static unsigned char color_array_enabled = 0;
+static unsigned char tex_coord_array_enabled = 0;
+static unsigned char *get_array_enabled_pointer(GLenum array) {
+    switch (array) {
+        case GL_VERTEX_ARRAY: {
+            return &vertex_array_enabled;
+        }
+        case GL_COLOR_ARRAY: {
+            return &color_array_enabled;
+        }
+        case GL_TEXTURE_COORD_ARRAY: {
+            return &tex_coord_array_enabled;
+        }
+        default: {
+            ERR("Unsupported Array Pointer: %i", array);
+        }
+    }
+}
+#endif
+
 CALL(15, glDrawArrays, void, (GLenum mode, GLint first, GLsizei count)) {
 #if defined(MEDIA_LAYER_PROXY_SERVER)
     // Lock Proxy
@@ -116,6 +156,13 @@ CALL(15, glDrawArrays, void, (GLenum mode, GLint first, GLsizei count)) {
     write_int((uint32_t) mode);
     write_int((uint32_t) first);
     write_int((uint32_t) count);
+    write_int(bound_buffer);
+    write_int(bound_texture);
+    if (!vertex_array_enabled) {
+        IMPOSSIBLE();
+    }
+    write_byte(color_array_enabled);
+    write_byte(tex_coord_array_enabled);
 
     // Release Proxy
     end_proxy_call();
@@ -123,7 +170,17 @@ CALL(15, glDrawArrays, void, (GLenum mode, GLint first, GLsizei count)) {
     GLenum mode = (GLenum) read_int();
     GLint first = (GLint) read_int();
     GLsizei count = (GLsizei) read_int();
+    GLuint bound_buffer = (GLuint) read_int();
+    GLuint bound_texture = (GLuint) read_int();
+    unsigned char color_array_enabled = read_byte();
+    unsigned char tex_coord_array_enabled = read_byte();
     // Run
+    glBindBuffer(GL_ARRAY_BUFFER, bound_buffer);
+    glBindTexture(GL_TEXTURE_2D, bound_texture);
+    glEnableClientState(GL_VERTEX_ARRAY);
+#define set_array_enabled(condition, enum) condition ? glEnableClientState(enum) : glDisableClientState(enum);
+    set_array_enabled(color_array_enabled, GL_COLOR_ARRAY);
+    set_array_enabled(tex_coord_array_enabled, GL_TEXTURE_COORD_ARRAY);
     glDrawArrays(mode, first, count);
 #endif
 }
@@ -187,6 +244,7 @@ CALL(18, glBufferData, void, (GLenum target, GLsizeiptr size, const void *data, 
     write_int((uint32_t) target);
     write_int((uint32_t) size);
     write_int((uint32_t) usage);
+    write_int(bound_buffer);
     // Write Data
     unsigned char is_null = data == NULL;
     write_byte(is_null);
@@ -200,6 +258,7 @@ CALL(18, glBufferData, void, (GLenum target, GLsizeiptr size, const void *data, 
     GLenum target = (GLenum) read_int();
     GLsizeiptr size = (GLsizeiptr) read_int();
     GLenum usage = (GLenum) read_int();
+    GLuint bound_buffer = (GLuint) read_int();
     // Load Data
     void *data = NULL;
     unsigned char is_null = read_byte();
@@ -223,6 +282,7 @@ CALL(18, glBufferData, void, (GLenum target, GLsizeiptr size, const void *data, 
         safe_read(data, (size_t) size);
     }
     // Run
+    glBindBuffer(GL_ARRAY_BUFFER, bound_buffer);
     glBufferData(target, size, data, usage);
 #endif
 }
@@ -316,6 +376,7 @@ CALL(24, glTexParameteri, void, (GLenum target, GLenum pname, GLint param)) {
     write_int((uint32_t) target);
     write_int((uint32_t) pname);
     write_int((uint32_t) param);
+    write_int(bound_texture);
 
     // Release Proxy
     end_proxy_call();
@@ -323,7 +384,9 @@ CALL(24, glTexParameteri, void, (GLenum target, GLenum pname, GLint param)) {
     GLenum target = (GLenum) read_int();
     GLenum pname = (GLenum) read_int();
     GLint param = (GLint) read_int();
+    GLuint bound_texture = (GLuint) read_int();
     // Run
+    glBindTexture(GL_TEXTURE_2D, bound_texture);
     glTexParameteri(target, pname, param);
 #endif
 }
@@ -383,6 +446,7 @@ CALL(25, glTexImage2D, void, (GLenum target, GLint level, GLint internalformat, 
     write_int((uint32_t) border);
     write_int((uint32_t) format);
     write_int((uint32_t) type);
+    write_int(bound_texture);
     write_byte(is_null);
     if (!is_null) {
         safe_write((void *) pixels, (size_t) size);
@@ -399,6 +463,7 @@ CALL(25, glTexImage2D, void, (GLenum target, GLint level, GLint internalformat, 
     GLint border = (GLint) read_int();
     GLenum format = (GLenum) read_int();
     GLenum type = (GLenum) read_int();
+    GLuint bound_texture = (GLuint) read_int();
     unsigned char is_null = read_byte();
     void *pixels = NULL;
     if (!is_null) {
@@ -408,6 +473,7 @@ CALL(25, glTexImage2D, void, (GLenum target, GLint level, GLint internalformat, 
         safe_read(pixels, (size_t) size);
     }
     // Run
+    glBindTexture(GL_TEXTURE_2D, bound_texture);
     glTexImage2D(target, level, internalformat, width, height, border, format, type, pixels);
     // Free
     if (!is_null) {
@@ -433,22 +499,17 @@ CALL(26, glEnable, void, (GLenum cap)) {
 #endif
 }
 
-CALL(27, glEnableClientState, void, (GLenum array)) {
 #if defined(MEDIA_LAYER_PROXY_SERVER)
-    // Lock Proxy
-    start_proxy_call();
-
-    // Arguments
-    write_int((uint32_t) array);
-
-    // Release Proxy
-    end_proxy_call();
-#else
-    GLenum array = (GLenum) read_int();
-    // Run
-    glEnableClientState(array);
-#endif
+void glEnableClientState(GLenum array) {
+    // Set
+    unsigned char *enabled = get_array_enabled_pointer(array);
+    if (*enabled) {
+        return;
+    } else {
+        *enabled = 1;
+    }
 }
+#endif
 
 CALL(28, glPolygonOffset, void, (GLfloat factor, GLfloat units)) {
 #if defined(MEDIA_LAYER_PROXY_SERVER)
@@ -469,22 +530,17 @@ CALL(28, glPolygonOffset, void, (GLfloat factor, GLfloat units)) {
 #endif
 }
 
-CALL(29, glDisableClientState, void, (GLenum array)) {
 #if defined(MEDIA_LAYER_PROXY_SERVER)
-    // Lock Proxy
-    start_proxy_call();
-
-    // Arguments
-    write_int((uint32_t) array);
-
-    // Release Proxy
-    end_proxy_call();
-#else
-    GLenum array = (GLenum) read_int();
-    // Run
-    glDisableClientState(array);
-#endif
+void glDisableClientState(GLenum array) {
+    // Set
+    unsigned char *enabled = get_array_enabled_pointer(array);
+    if (!*enabled) {
+        return;
+    } else {
+        *enabled = 0;
+    }
 }
+#endif
 
 CALL(30, glDepthRangef, void, (GLclampf near, GLclampf far)) {
 #if defined(MEDIA_LAYER_PROXY_SERVER)
@@ -522,24 +578,16 @@ CALL(31, glDepthFunc, void, (GLenum func)) {
 #endif
 }
 
-CALL(32, glBindBuffer, void, (GLenum target, GLuint buffer)) {
 #if defined(MEDIA_LAYER_PROXY_SERVER)
-    // Lock Proxy
-    start_proxy_call();
-
-    // Arguments
-    write_int((uint32_t) target);
-    write_int((uint32_t) buffer);
-
-    // Release Proxy
-    end_proxy_call();
-#else
-    GLenum target = (GLenum) read_int();
-    GLuint buffer = (GLuint) read_int();
-    // Run
-    glBindBuffer(target, buffer);
-#endif
+void glBindBuffer(GLenum target, GLuint buffer) {
+    // Set
+    if (target == GL_ARRAY_BUFFER) {
+        bound_buffer = buffer;
+    } else {
+        PROXY_ERR("Unsupported Buffer Binding: %u", target);
+    }
 }
+#endif
 
 CALL(33, glClearColor, void, (GLclampf red, GLclampf green, GLclampf blue, GLclampf alpha)) {
 #if defined(MEDIA_LAYER_PROXY_SERVER)
@@ -748,6 +796,7 @@ CALL(44, glTexSubImage2D, void, (GLenum target, GLint level, GLint xoffset, GLin
     write_int((uint32_t) height);
     write_int((uint32_t) format);
     write_int((uint32_t) type);
+    write_int(bound_texture);
     write_byte(is_null);
     if (!is_null) {
         safe_write((void *) pixels, (size_t) size);
@@ -764,6 +813,7 @@ CALL(44, glTexSubImage2D, void, (GLenum target, GLint level, GLint xoffset, GLin
     GLsizei height = (GLsizei) read_int();
     GLenum format = (GLenum) read_int();
     GLenum type = (GLenum) read_int();
+    GLuint bound_texture = (GLuint) read_int();
     unsigned char is_null = read_byte();
     void *pixels = NULL;
     if (!is_null) {
@@ -773,6 +823,7 @@ CALL(44, glTexSubImage2D, void, (GLenum target, GLint level, GLint xoffset, GLin
         safe_read(pixels, (size_t) size);
     }
     // Run
+    glBindTexture(GL_TEXTURE_2D, bound_texture);
     glTexSubImage2D(target, level, xoffset, yoffset, width, height, format, type, pixels);
     // Free
     if (!is_null) {
@@ -887,24 +938,16 @@ CALL(48, glGetFloatv, void, (GLenum pname, GLfloat *params)) {
 #endif
 }
 
-CALL(49, glBindTexture, void, (GLenum target, GLuint texture)) {
 #if defined(MEDIA_LAYER_PROXY_SERVER)
-    // Lock Proxy
-    start_proxy_call();
-
-    // Arguments
-    write_int((uint32_t) target);
-    write_int((uint32_t) texture);
-
-    // Release Proxy
-    end_proxy_call();
-#else
-    GLenum target = (GLenum) read_int();
-    GLuint texture = (GLuint) read_int();
-    // Run
-    glBindTexture(target, texture);
-#endif
+void glBindTexture(GLenum target, GLuint texture) {
+    // Set
+    if (target == GL_TEXTURE_2D) {
+        bound_texture = texture;
+    } else {
+        PROXY_ERR("Unsupported Texture Binding: %u", target);
+    }
 }
+#endif
 
 CALL(50, glTranslatef, void, (GLfloat x, GLfloat y, GLfloat z)) {
 #if defined(MEDIA_LAYER_PROXY_SERVER)

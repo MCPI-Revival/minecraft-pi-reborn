@@ -254,6 +254,7 @@ void bootstrap(int argc, char *argv[]) {
     }
 
     // Fix MCPI Dependencies
+    char new_mcpi_exe_path[] = MCPI_PATCHED_DIR "/XXXXXX";
     {
         // Log
         DEBUG("Patching ELF Dependencies...");
@@ -273,7 +274,7 @@ void bootstrap(int argc, char *argv[]) {
 #endif
 
         // Patch
-        patch_mcpi_elf_dependencies(resolved_path, linker);
+        patch_mcpi_elf_dependencies(resolved_path, new_mcpi_exe_path, linker);
 
         // Free Linker Path
         if (linker != NULL) {
@@ -281,7 +282,7 @@ void bootstrap(int argc, char *argv[]) {
         }
 
         // Verify
-        if (!starts_with(getenv("MCPI_EXECUTABLE_PATH"), "/tmp")) {
+        if (!starts_with(new_mcpi_exe_path, MCPI_PATCHED_DIR)) {
             IMPOSSIBLE();
         }
     }
@@ -391,7 +392,7 @@ void bootstrap(int argc, char *argv[]) {
     new_args[argv_start + argc] = NULL;
 
     // Set Executable Argument
-    new_args[argv_start] = getenv("MCPI_EXECUTABLE_PATH");
+    new_args[argv_start] = new_mcpi_exe_path;
 
     // Non-ARM Systems Need QEMU
 #ifndef __ARM_ARCH

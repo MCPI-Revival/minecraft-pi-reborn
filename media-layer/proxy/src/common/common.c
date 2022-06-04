@@ -1,6 +1,8 @@
 #include <errno.h>
 #include <string.h>
 #include <unistd.h>
+#include <math.h>
+#include <sys/ioctl.h>
 
 #include "common.h"
 
@@ -12,23 +14,80 @@
             PROXY_ERR("Attempting To Access Closed Connection"); \
         } \
     }
+// Buffer Reads
+static void *_read_cache = NULL;
+__attribute__((destructor)) static void _free_read_cache() {
+    if (_read_cache != NULL) {
+        free(_read_cache);
+    }
+}
+static size_t _read_cache_size = 0;
+static size_t _read_cache_actual_size = 0;
+static size_t _read_cache_position = 0;
+#define max(a, b) (((a) > (b)) ? (a) : (b))
+#define min(a, b) (((a) < (b)) ? (a) : (b))
 void safe_read(void *buf, size_t len) {
     // Check Data
     if (buf == NULL) {
         PROXY_ERR("Attempting To Read Into NULL Buffer");
     }
+    // Setup
+    size_t to_read = len;
+    // Copy From Read Buffer
+    if (_read_cache != NULL && _read_cache_size > 0) {
+        char *read_cache = (void *) (((unsigned char *) _read_cache) + _read_cache_position);
+        size_t read_cache_size = _read_cache_size - _read_cache_position;
+        if (read_cache_size > 0) {
+            size_t to_copy = min(to_read, read_cache_size);
+            memcpy(buf, read_cache, to_copy);
+            to_read -= to_copy;
+            _read_cache_position += to_copy;
+        }
+    }
+    // Check If Done
+    if (to_read < 1) {
+        return;
+    }
+    if (_read_cache_position < _read_cache_size) {
+        IMPOSSIBLE();
+    }
     // Flush Write Cache
     flush_write_cache();
-    // Read
-    size_t to_read = len;
-    while (to_read > 0) {
+    // Read Remaining Data
+    size_t to_read_to_cache;
+    {
+        int bytes_available;
+        if (ioctl(get_connection_read(), FIONREAD, &bytes_available) == -1) {
+            bytes_available = 0;
+        }
+        to_read_to_cache = max((size_t) bytes_available, to_read);
+    }
+    if (to_read_to_cache < 1) {
+        // Nothing To Read
+        return;
+    }
+    // Resize Buffer
+    _read_cache_position = 0;
+    _read_cache_size = to_read_to_cache;
+    if (_read_cache == NULL) {
+        _read_cache_actual_size = _read_cache_size;
+        _read_cache = malloc(_read_cache_actual_size);
+    } else if (_read_cache_size > _read_cache_actual_size) {
+        _read_cache_actual_size = _read_cache_size;
+        _read_cache = realloc(_read_cache, _read_cache_actual_size);
+    }
+    ALLOC_CHECK(_read_cache);
+    // Read Into Buffer
+    while (to_read_to_cache > 0) {
         CHECK_CONNECTION();
-        ssize_t x = read(get_connection_read(), (void *) (((unsigned char *) buf) + (len - to_read)), to_read);
+        ssize_t x = read(get_connection_read(), (void *) (((unsigned char *) _read_cache) + (_read_cache_size - to_read_to_cache)), to_read_to_cache);
         if (x == -1 && errno != EINTR) {
             PROXY_ERR("Failed Reading Data To Connection: %s", strerror(errno));
         }
-        to_read -= x;
+        to_read_to_cache -= x;
     }
+    // Copy Remaining Data
+    safe_read((void *) (((unsigned char *) buf) + (len - to_read)), to_read);
 }
 // Buffer Writes
 static void *_write_cache = NULL;

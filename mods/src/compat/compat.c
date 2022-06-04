@@ -133,13 +133,18 @@ void init_compat() {
 __attribute__((destructor)) static void cleanup_temporary() {
     // Cleanup Executable
     {
-        const char *exe = getenv("MCPI_EXECUTABLE_PATH");
-        // Check If Executable Is Temporary
-        if (exe != NULL && starts_with(exe, "/tmp")) {
-            // Cleanup Temporary File
-            if (unlink(exe) != 0) {
-                ERR("Unable To Cleanup Temporary File: %s", strerror(errno));
+        char *exe = realpath("/proc/self/exe", NULL);
+        // Check If Successful
+        if (exe != NULL) {
+            // Check If Executable Is Temporary
+            if (starts_with(exe, "/tmp")) {
+                // Cleanup Temporary File
+                if (unlink(exe) != 0) {
+                    ERR("Unable To Cleanup Temporary File: %s", strerror(errno));
+                }
             }
+            // Free
+            free(exe);
         }
     }
 }
