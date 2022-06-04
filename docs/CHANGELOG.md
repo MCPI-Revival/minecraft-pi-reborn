@@ -1,5 +1,9 @@
 # Changelog
 
+**2.3.12**
+* Media Layer Proxy Optimizations
+* Bug Fixes
+
 **2.3.11**
 * ``--version`` Command Line Option
 * TPS Measured In Benchmark & Server
