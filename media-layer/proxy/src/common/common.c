@@ -54,17 +54,13 @@ void safe_read(void *buf, size_t len) {
     // Flush Write Cache
     flush_write_cache();
     // Read Remaining Data
-    size_t to_read_to_cache;
-    {
+    size_t to_read_to_cache = 0;
+    while (to_read_to_cache < 1) {
         int bytes_available;
         if (ioctl(get_connection_read(), FIONREAD, &bytes_available) == -1) {
             bytes_available = 0;
         }
         to_read_to_cache = max((size_t) bytes_available, to_read);
-    }
-    if (to_read_to_cache < 1) {
-        // Nothing To Read
-        return;
     }
     // Resize Buffer
     _read_cache_position = 0;

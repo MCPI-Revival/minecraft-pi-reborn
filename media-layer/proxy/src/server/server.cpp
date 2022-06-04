@@ -86,6 +86,34 @@ static void start_media_layer_proxy_client(int read, int write) {
     update_client_state(1, 0);
 }
 
+// Maximize Pipe Buffer Size
+static void maximize_pipe_fd_size(int fd) {
+    // Read Maximum Pipe Size
+    std::ifstream max_size_file("/proc/sys/fs/pipe-max-size");
+    if (!max_size_file.good()) {
+        PROXY_ERR("%s", "Unable To Open Maximum Pipe Size File");
+    }
+    // Read One Line
+    int max_size;
+    std::string line;
+    if (std::getline(max_size_file, line) && line.size() > 0) {
+        max_size = std::stoi(line);
+    } else {
+        PROXY_ERR("%s", "Unable To Read Maximum Pipe Size File");
+    }
+    // Close
+    max_size_file.close();
+    // Set Maximum Pipe Size
+    errno = 0;
+    if (fcntl(fd, F_SETPIPE_SZ, max_size) < max_size) {
+        PROXY_ERR("Unable To Set Maximum Pipe Size: %s", errno != 0 ? strerror(errno) : "Unknown Error");
+    }
+}
+static void maximize_pipe_size(int pipe[2]) {
+    maximize_pipe_fd_size(pipe[0]);
+    maximize_pipe_fd_size(pipe[1]);
+}
+
 // Start Server
 static int loaded = 0;
 __attribute__((constructor)) void media_ensure_loaded() {
@@ -98,8 +126,10 @@ __attribute__((constructor)) void media_ensure_loaded() {
         // Create Connection
         int server_to_client_pipe[2];
         safe_pipe2(server_to_client_pipe, 0);
+        maximize_pipe_size(server_to_client_pipe);
         int client_to_server_pipe[2];
         safe_pipe2(client_to_server_pipe, 0);
+        maximize_pipe_size(client_to_server_pipe);
         // Set Connection
         set_connection(client_to_server_pipe[0], server_to_client_pipe[1]);
 
