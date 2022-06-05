@@ -235,13 +235,12 @@ __attribute__((destructor)) static void _free_glBufferData_data() {
     }
 }
 #endif
-CALL(18, glBufferData, void, (GLenum target, GLsizeiptr size, const void *data, GLenum usage)) {
+CALL(18, glBufferData, void, (__attribute__((unused)) GLenum target, GLsizeiptr size, const void *data, GLenum usage)) {
 #if defined(MEDIA_LAYER_PROXY_SERVER)
     // Lock Proxy
     start_proxy_call();
 
     // Arguments
-    write_int((uint32_t) target);
     write_int((uint32_t) size);
     write_int((uint32_t) usage);
     write_int(bound_buffer);
@@ -255,7 +254,6 @@ CALL(18, glBufferData, void, (GLenum target, GLsizeiptr size, const void *data, 
     // Release Proxy
     end_proxy_call();
 #else
-    GLenum target = (GLenum) read_int();
     GLsizeiptr size = (GLsizeiptr) read_int();
     GLenum usage = (GLenum) read_int();
     GLuint bound_buffer = (GLuint) read_int();
@@ -283,7 +281,7 @@ CALL(18, glBufferData, void, (GLenum target, GLsizeiptr size, const void *data, 
     }
     // Run
     glBindBuffer(GL_ARRAY_BUFFER, bound_buffer);
-    glBufferData(target, size, data, usage);
+    glBufferData(GL_ARRAY_BUFFER, size, data, usage);
 #endif
 }
 
@@ -367,13 +365,12 @@ CALL(23, glScissor, void, (GLint x, GLint y, GLsizei width, GLsizei height)) {
 #endif
 }
 
-CALL(24, glTexParameteri, void, (GLenum target, GLenum pname, GLint param)) {
+CALL(24, glTexParameteri, void, (__attribute__((unused)) GLenum target, GLenum pname, GLint param)) {
 #if defined(MEDIA_LAYER_PROXY_SERVER)
     // Lock Proxy
     start_proxy_call();
 
     // Arguments
-    write_int((uint32_t) target);
     write_int((uint32_t) pname);
     write_int((uint32_t) param);
     write_int(bound_texture);
@@ -381,13 +378,12 @@ CALL(24, glTexParameteri, void, (GLenum target, GLenum pname, GLint param)) {
     // Release Proxy
     end_proxy_call();
 #else
-    GLenum target = (GLenum) read_int();
     GLenum pname = (GLenum) read_int();
     GLint param = (GLint) read_int();
     GLuint bound_texture = (GLuint) read_int();
     // Run
     glBindTexture(GL_TEXTURE_2D, bound_texture);
-    glTexParameteri(target, pname, param);
+    glTexParameteri(GL_TEXTURE_2D, pname, param);
 #endif
 }
 
@@ -425,7 +421,7 @@ static int get_texture_size(GLsizei width, GLsizei height, GLenum format, GLenum
     return line_size * height; // This Should Have The Same Behavior On 32-Bit And 64-Bit Systems
 }
 
-CALL(25, glTexImage2D, void, (GLenum target, GLint level, GLint internalformat, GLsizei width, GLsizei height, GLint border, GLenum format, GLenum type, const void *pixels)) {
+CALL(25, glTexImage2D, void, (__attribute__((unused)) GLenum target, GLint level, GLint internalformat, GLsizei width, GLsizei height, GLint border, GLenum format, GLenum type, const void *pixels)) {
 #if defined(MEDIA_LAYER_PROXY_SERVER)
     // Get Texture Size
     unsigned char is_null = pixels == NULL;
@@ -438,7 +434,6 @@ CALL(25, glTexImage2D, void, (GLenum target, GLint level, GLint internalformat, 
     start_proxy_call();
 
     // Arguments
-    write_int((uint32_t) target);
     write_int((uint32_t) level);
     write_int((uint32_t) internalformat);
     write_int((uint32_t) width);
@@ -455,7 +450,6 @@ CALL(25, glTexImage2D, void, (GLenum target, GLint level, GLint internalformat, 
     // Release Proxy
     end_proxy_call();
 #else
-    GLenum target = (GLenum) read_int();
     GLint level = (GLint) read_int();
     GLint internalformat = (GLint) read_int();
     GLsizei width = (GLsizei) read_int();
@@ -474,7 +468,7 @@ CALL(25, glTexImage2D, void, (GLenum target, GLint level, GLint internalformat, 
     }
     // Run
     glBindTexture(GL_TEXTURE_2D, bound_texture);
-    glTexImage2D(target, level, internalformat, width, height, border, format, type, pixels);
+    glTexImage2D(GL_TEXTURE_2D, level, internalformat, width, height, border, format, type, pixels);
     // Free
     if (!is_null) {
         free(pixels);
@@ -775,7 +769,7 @@ CALL(43, glColorMask, void, (GLboolean red, GLboolean green, GLboolean blue, GLb
 #endif
 }
 
-CALL(44, glTexSubImage2D, void, (GLenum target, GLint level, GLint xoffset, GLint yoffset, GLsizei width, GLsizei height, GLenum format, GLenum type, const void *pixels)) {
+CALL(44, glTexSubImage2D, void, (__attribute__((unused)) GLenum target, GLint level, GLint xoffset, GLint yoffset, GLsizei width, GLsizei height, GLenum format, GLenum type, const void *pixels)) {
 #if defined(MEDIA_LAYER_PROXY_SERVER)
     // Get Texture Size
     unsigned char is_null = pixels == NULL;
@@ -788,7 +782,6 @@ CALL(44, glTexSubImage2D, void, (GLenum target, GLint level, GLint xoffset, GLin
     start_proxy_call();
 
     // Arguments
-    write_int((uint32_t) target);
     write_int((uint32_t) level);
     write_int((uint32_t) xoffset);
     write_int((uint32_t) yoffset);
@@ -805,7 +798,6 @@ CALL(44, glTexSubImage2D, void, (GLenum target, GLint level, GLint xoffset, GLin
     // Release Proxy
     end_proxy_call();
 #else
-    GLenum target = (GLenum) read_int();
     GLint level = (GLint) read_int();
     GLint xoffset = (GLint) read_int();
     GLint yoffset = (GLint) read_int();
@@ -824,7 +816,7 @@ CALL(44, glTexSubImage2D, void, (GLenum target, GLint level, GLint xoffset, GLin
     }
     // Run
     glBindTexture(GL_TEXTURE_2D, bound_texture);
-    glTexSubImage2D(target, level, xoffset, yoffset, width, height, format, type, pixels);
+    glTexSubImage2D(GL_TEXTURE_2D, level, xoffset, yoffset, width, height, format, type, pixels);
     // Free
     if (!is_null) {
         free(pixels);
@@ -1153,6 +1145,12 @@ static int get_glGetIntegerv_params_size(GLenum pname) {
 }
 CALL(61, glGetIntegerv, void, (GLenum pname, GLint *params)) {
 #if defined(MEDIA_LAYER_PROXY_SERVER)
+    // Stop Redudnant Proxy Call
+    if (pname == GL_TEXTURE_BINDING_2D) {
+        params[0] = bound_texture;
+        return;
+    }
+
     // Lock Proxy
     start_proxy_call();
 
