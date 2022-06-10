@@ -28,7 +28,7 @@ file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/launcher.desktop"
     "Type=Application\n"
     "Categories=Game;\n"
 )
-if(MCPI_SERVER_MODE)
+if(MCPI_HEADLESS_MODE)
     file(APPEND "${CMAKE_CURRENT_BINARY_DIR}/launcher.desktop"
         "Terminal=true\n"
         "NoDisplay=true\n"
@@ -54,7 +54,10 @@ file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/appstream.xml"
     "    <name>${MCPI_APP_TITLE}</name>\n"
     "    <metadata_license>CC0-1.0</metadata_license>\n"
     "    <summary>Fun with Blocks</summary>\n"
-    "    <description><p>Minecraft: Pi Edition Modding Project.</p><p>NOTE: This is not verified by, affiliated with, or supported by Mojang or Microsoft.</p></description>\n"
+    "    <description>\n"
+    "        <p>Minecraft: Pi Edition Modding Project.</p>\n"
+    "        <p>NOTE: This is not verified by, affiliated with, or supported by Mojang or Microsoft.</p>\n"
+    "    </description>\n"
     "    <url type=\"homepage\">https://gitea.thebrokenrail.com/TheBrokenRail/minecraft-pi-reborn</url>\n"
     "    <launchable type=\"desktop-id\">${MCPI_APP_ID}.desktop</launchable>\n"
     "    <provides>\n"
@@ -88,7 +91,7 @@ file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/appstream.xml"
     "        <release version=\"${MCPI_VERSION}\" date=\"${MCPI_VERSION_DATE}\">\n"
     "    </release>\n"
 )
-if(NOT MCPI_SERVER_MODE)
+if(NOT MCPI_HEADLESS_MODE)
     file(APPEND "${CMAKE_CURRENT_BINARY_DIR}/appstream.xml"
         "    <screenshots>\n"
         "        <screenshot type=\"default\">\n"
