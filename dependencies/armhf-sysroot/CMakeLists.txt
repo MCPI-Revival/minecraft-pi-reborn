@@ -1,7 +1,6 @@
 project(armhf-sysroot)
 
-# Allow Custom Sysroot
-set(MCPI_CUSTOM_BUNDLED_ARMHF_SYSROOT "" CACHE PATH "Custom Bundled ARMHF Sysroot")
+# Check If Using Custom Sysroot
 if(MCPI_CUSTOM_BUNDLED_ARMHF_SYSROOT)
     # Custom Sysroot
     set(SYSROOT_DIR "${MCPI_CUSTOM_BUNDLED_ARMHF_SYSROOT}")

@@ -20,7 +20,7 @@
 // Custom Title
 HOOK(SDL_WM_SetCaption, void, (__attribute__((unused)) const char *title, const char *icon)) {
     ensure_SDL_WM_SetCaption();
-    (*real_SDL_WM_SetCaption)(GUI_TITLE, icon);
+    (*real_SDL_WM_SetCaption)(MCPI_APP_TITLE, icon);
 }
 
 // Mouse Cursor Is Always Invisible In Vanilla MCPI

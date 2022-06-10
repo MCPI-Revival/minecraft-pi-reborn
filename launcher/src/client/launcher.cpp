@@ -106,12 +106,15 @@ static void run_command_and_set_env(const char *env_name, const char *command[])
 }
 
 // Use Zenity To Set Environmental Variable
+#define DIALOG_TITLE "Launcher"
 static void run_zenity_and_set_env(const char *env_name, std::vector<std::string> command) {
     // Create Full Command
     std::vector<std::string> full_command;
     full_command.push_back("zenity");
+    full_command.push_back("--title");
+    full_command.push_back(DIALOG_TITLE);
     full_command.push_back("--name");
-    full_command.push_back(GUI_TITLE);
+    full_command.push_back(MCPI_APP_TITLE);
     full_command.insert(full_command.end(), command.begin(), command.end());
     // Convert To C Array
     const char *full_command_array[full_command.size() + 1];

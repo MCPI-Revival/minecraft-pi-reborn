@@ -157,7 +157,7 @@ void pre_bootstrap(int argc, char *argv[]) {
     for (int i = 1; i < argc; i++) {
         if (strcmp(argv[i], "--version") == 0 || strcmp(argv[i], "-v") == 0) {
             // Print
-            printf("Reborn v%s\n", VERSION);
+            printf("Reborn v%s\n", MCPI_VERSION);
             fflush(stdout);
             exit(EXIT_SUCCESS);
         }

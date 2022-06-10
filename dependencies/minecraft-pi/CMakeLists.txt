@@ -14,7 +14,8 @@ FetchContent_Populate(minecraft-pi)
 # Install
 install(
     DIRECTORY "${minecraft-pi_SOURCE_DIR}/"
-    DESTINATION "${MCPI_INSTALL_DIR}"
+    DESTINATION "${MCPI_INSTALL_DIR}/game"
     USE_SOURCE_PERMISSIONS
     REGEX "api" EXCLUDE
 )
+install_symlink("game/minecraft-pi" "${MCPI_INSTALL_DIR}/minecraft-pi")

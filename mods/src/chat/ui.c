@@ -34,7 +34,7 @@ static void *chat_thread(__attribute__((unused)) void *nop) {
     const char *command[] = {
         "zenity",
         "--title", DIALOG_TITLE,
-        "--name", GUI_TITLE,
+        "--name", MCPI_APP_TITLE,
         "--entry",
         "--text", "Enter Chat Message:",
         NULL

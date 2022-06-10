@@ -1,10 +1,18 @@
-cmake_minimum_required(VERSION 3.13.0)
+cmake_minimum_required(VERSION 3.16.0)
 
 # Specify Options
 option(MCPI_IS_MIXED_BUILD "Whether The Architecture-Independent And ARM Code Are Different Architecture" FALSE)
-option(MCPI_BUNDLE_ARMHF_SYSROOT "Whether To Include An ARMHF Sysroot" ${MCPI_IS_MIXED_BUILD})
+set(MCPI_BUILD_MODE "both" CACHE STRING "\"arm\" = Build Only Code That Must Be ARM; \"native\" = Build Architecture-Independent Code; \"both\" = Build All Code As ARM")
+set_property(CACHE MCPI_BUILD_MODE PROPERTY STRINGS "both" "arm" "native")
+option(MCPI_OPEN_SOURCE_ONLY "Only Install Open-Source Code (Will Result In Broken Install)" FALSE)
+option(MCPI_IS_APPIMAGE_BUILD "AppImage Build" FALSE)
+# Server/Headless Builds
 option(MCPI_SERVER_MODE "Server Mode" FALSE)
 option(MCPI_HEADLESS_MODE "Headless Mode" ${MCPI_SERVER_MODE})
+# ARMHF Sysroot
+option(MCPI_BUNDLE_ARMHF_SYSROOT "Whether To Include An ARMHF Sysroot" ${MCPI_IS_MIXED_BUILD})
+set(MCPI_CUSTOM_BUNDLED_ARMHF_SYSROOT "" CACHE PATH "Custom Bundled ARMHF Sysroot")
+# Media Layer
 if(NOT MCPI_HEADLESS_MODE)
     option(MCPI_USE_MEDIA_LAYER_PROXY "Whether To Enable The Media Layer Proxy" ${MCPI_IS_MIXED_BUILD})
     option(MCPI_USE_GLES1_COMPATIBILITY_LAYER "Whether To Enable The GLESv1_CM Compatibility Layer" TRUE)
@@ -12,10 +20,22 @@ else()
     set(MCPI_USE_MEDIA_LAYER_PROXY FALSE)
     set(MCPI_USE_GLES1_COMPATIBILITY_LAYER FALSE)
 endif()
-set(MCPI_BUILD_MODE "both" CACHE STRING "\"arm\" = Build Only Code That Must Be ARM; \"native\" = Build Architecture-Independent Code; \"both\" = Build All Code As ARM")
-set_property(CACHE MCPI_BUILD_MODE PROPERTY STRINGS "both" "arm" "native")
-option(MCPI_OPEN_SOURCE_ONLY "Only Install Open-Source Code (Will Result In Broken Install)" FALSE)
-option(MCPI_IS_APPIMAGE_BUILD "AppImage Build" FALSE)
+# App ID
+set(DEFAULT_APP_ID "com.thebrokenrail.MCPIReborn")
+if(MCPI_SERVER_MODE)
+    string(APPEND DEFAULT_APP_ID "Server")
+else()
+    string(APPEND DEFAULT_APP_ID "Client")
+endif()
+set(MCPI_APP_ID "${DEFAULT_APP_ID}" CACHE STRING "App ID")
+# App Title
+set(DEFAULT_APP_TITLE "Minecraft: Pi Edition: Reborn")
+if(MCPI_SERVER_MODE)
+    string(APPEND DEFAULT_APP_TITLE " (Server)")
+else()
+    string(APPEND DEFAULT_APP_TITLE " (Client)")
+endif()
+set(MCPI_APP_TITLE "${DEFAULT_APP_TITLE}" CACHE STRING "App Title")
 
 # Configure Build Mode
 if(MCPI_BUILD_MODE STREQUAL "arm")
@@ -40,9 +60,9 @@ include(cmake/util.cmake)
 # Specify Variant Name
 set(MCPI_VARIANT_NAME "minecraft-pi-reborn")
 if(MCPI_SERVER_MODE)
-    set(MCPI_VARIANT_NAME "${MCPI_VARIANT_NAME}-server")
+    string(APPEND MCPI_VARIANT_NAME "-server")
 else()
-    set(MCPI_VARIANT_NAME "${MCPI_VARIANT_NAME}-client")
+    string(APPEND MCPI_VARIANT_NAME "-client")
 endif()
 
 # Specify Installation Paths
@@ -105,31 +125,14 @@ add_definitions(-D_GNU_SOURCE)
 set(CMAKE_C_STANDARD 99)
 set(CMAKE_CXX_STANDARD 11)
 
-# Specify Constants
-if(MCPI_SERVER_MODE)
-    add_definitions(-DMCPI_SERVER_MODE)
-endif()
-if(MCPI_HEADLESS_MODE)
-    add_definitions(-DMCPI_HEADLESS_MODE)
-endif()
-if(MCPI_IS_APPIMAGE_BUILD)
-    add_definitions(-DMCPI_IS_APPIMAGE_BUILD)
-endif()
-if(MCPI_BUNDLE_ARMHF_SYSROOT)
-    add_definitions(-DMCPI_BUNDLE_ARMHF_SYSROOT)
-endif()
-if(MCPI_USE_GLES1_COMPATIBILITY_LAYER)
-    add_definitions(-DMCPI_USE_GLES1_COMPATIBILITY_LAYER)
-endif()
-
 # Version
 set_property(
     DIRECTORY
     APPEND
     PROPERTY CMAKE_CONFIGURE_DEPENDS VERSION
 )
-file(STRINGS VERSION VERSION)
-add_definitions(-DVERSION="${VERSION}")
+file(STRINGS "${CMAKE_CURRENT_SOURCE_DIR}/VERSION" MCPI_VERSION)
+file(TIMESTAMP "${CMAKE_CURRENT_SOURCE_DIR}/VERSION" MCPI_VERSION_DATE "%Y-%m-%d" UTC)
 
 # Build libreborn
 add_subdirectory(libreborn)

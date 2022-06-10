@@ -8,3 +8,10 @@ if(NOT MCPI_SERVER_MODE)
         RENAME "titleBG.png"
     )
 endif()
+
+# Icon
+install(
+    FILES "icon.png"
+    DESTINATION "share/icons/hicolor/scalable/apps"
+    RENAME "${MCPI_APP_ID}.png"
+)
