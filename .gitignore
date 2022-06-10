@@ -9,5 +9,6 @@ appimage-builder-cache
 appimage-build
 AppDir
 *.zsync
+*.AppImage
 core*
 qemu_*
