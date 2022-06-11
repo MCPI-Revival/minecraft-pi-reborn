@@ -1,10 +1,14 @@
+// Config Needs To Load First
+#include <libreborn/libreborn.h>
+
+// Chat UI Code Is Useless In Headless Mode
 #ifndef MCPI_SERVER_MODE
+
 #include <stdio.h>
 #include <pthread.h>
 #include <unistd.h>
 #include <string.h>
 
-#include <libreborn/libreborn.h>
 #include <media-layer/core.h>
 
 #include "chat.h"
@@ -82,4 +86,5 @@ void chat_open() {
         pthread_create(&thread, NULL, chat_thread, NULL);
     }
 }
+
 #endif

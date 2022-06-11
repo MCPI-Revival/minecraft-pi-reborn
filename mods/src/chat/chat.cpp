@@ -1,3 +1,6 @@
+// Config Needs To Load First
+#include <libreborn/libreborn.h>
+
 #include <string>
 #include <cstring>
 #include <cstdio>
@@ -6,7 +9,6 @@
 #include <pthread.h>
 #endif
 
-#include <libreborn/libreborn.h>
 #include <symbols/minecraft.h>
 #ifndef MCPI_SERVER_MODE
 #include <media-layer/core.h>

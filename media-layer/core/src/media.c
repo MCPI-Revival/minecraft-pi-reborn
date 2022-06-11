@@ -1,13 +1,13 @@
 #include <unistd.h>
 
 #include <SDL/SDL.h>
+#include <libreborn/libreborn.h>
 
 #ifndef MCPI_HEADLESS_MODE
 #define GLFW_INCLUDE_NONE
 #include <GLFW/glfw3.h>
 #endif
 
-#include <libreborn/libreborn.h>
 #include <media-layer/core.h>
 #include <media-layer/internal.h>
 

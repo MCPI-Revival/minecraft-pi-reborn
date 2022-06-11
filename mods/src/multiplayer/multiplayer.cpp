@@ -1,3 +1,6 @@
+// Config Needs To Load First
+#include <libreborn/libreborn.h>
+
 #ifdef MCPI_SERVER_MODE
 #error "External Server Code Requires Client Mode"
 #endif
@@ -7,7 +10,6 @@
 #include <string>
 #include <vector>
 
-#include <libreborn/libreborn.h>
 #include <symbols/minecraft.h>
 
 #include "../home/home.h"

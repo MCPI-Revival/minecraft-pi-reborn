@@ -1,3 +1,5 @@
+#include <libreborn/libreborn.h>
+
 #include "init.h"
 
 #include <media-layer/core.h>

@@ -76,10 +76,10 @@ run() {
         desktop-file-utils \
         libgdk-pixbuf2.0-dev \
         fakeroot \
-        strace \
-        fuse \
         gtk-update-icon-cache \
         shared-mime-info \
+        squashfs-tools \
+        zsync \
         sed
 
     # Install Queue

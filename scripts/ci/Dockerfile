@@ -1,8 +1,5 @@
 FROM buildpack-deps:bullseye
 
-# Setup
-ENV ARM_PACKAGES_SUPPORTED=1
-
 # Install
 ADD ./scripts/install-dependencies.sh /
 RUN \

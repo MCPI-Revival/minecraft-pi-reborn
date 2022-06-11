@@ -1,3 +1,6 @@
+// Config Needs To Load First
+#include <libreborn/libreborn.h>
+
 #ifndef MCPI_SERVER_MODE
 #error "Server Code Requires Server Mode"
 #endif
@@ -16,7 +19,6 @@
 
 #include <SDL/SDL.h>
 
-#include <libreborn/libreborn.h>
 #include <symbols/minecraft.h>
 
 #include "server_properties.h"

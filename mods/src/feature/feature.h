@@ -1,5 +1,7 @@
 #pragma once
 
+#include <libreborn/libreborn.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif

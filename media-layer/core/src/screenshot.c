@@ -1,3 +1,6 @@
+// Config Needs To Load First
+#include <libreborn/libreborn.h>
+
 // Screenshot Code Is Useless In Headless Mode
 #ifndef MCPI_HEADLESS_MODE
 
@@ -12,8 +15,6 @@
 #include <FreeImage.h>
 
 #include <GLES/gl.h>
-
-#include <libreborn/libreborn.h>
 #include <media-layer/core.h>
 
 // Ensure Screenshots Folder Exists

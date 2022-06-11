@@ -1,3 +1,7 @@
+// Config Needs To Load First
+#include <libreborn/libreborn.h>
+
+// Game Mode UI Code Is Useless In Headless Mode
 #ifndef MCPI_SERVER_MODE
 
 #include <pthread.h>
@@ -6,7 +10,6 @@
 #include <string>
 #include <stdexcept>
 
-#include <libreborn/libreborn.h>
 #include <symbols/minecraft.h>
 #include <media-layer/core.h>
 
