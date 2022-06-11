@@ -8,7 +8,6 @@ RUN \
     rm -rf /var/lib/apt/lists/*
 
 # Copy
-RUN mkdir /app
 ADD ./out/server-amd64 /app
 
 # Setup Working Directory
