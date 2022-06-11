@@ -88,8 +88,8 @@ file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/appstream.xml"
     "        <content_attribute id=\"money-gambling\">none</content_attribute>\n"
     "    </content_rating>\n"
     "    <releases>\n"
-    "        <release version=\"${MCPI_VERSION}\" date=\"${MCPI_VERSION_DATE}\">\n"
-    "    </release>\n"
+    "        <release version=\"${MCPI_VERSION}\" date=\"${MCPI_VERSION_DATE}\"></release>\n"
+    "    </releases>\n"
 )
 if(NOT MCPI_HEADLESS_MODE)
     file(APPEND "${CMAKE_CURRENT_BINARY_DIR}/appstream.xml"
