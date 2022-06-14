@@ -28,8 +28,7 @@ run() {
 
     # Host Dependencies Needed For Compile
     queue_pkg \
-        libwayland-bin \
-        libfreeimage-dev
+        libwayland-bin
 
     # Host Dependencies Needed For Running
     queue_pkg \
@@ -44,7 +43,6 @@ run() {
 
         # Dependencies
         queue_pkg \
-            libfreeimage3:$1 \
             libopenal-dev:$1
 
         # GLFW Dependencies

@@ -3,12 +3,10 @@
 ## Build Dependencies
 * Common
   * ARM Compiler
-  * Host Compiler (Clang)
+  * Host Compiler
   * CMake
 * Host Architecture Dependencies
   * Client Mode Only
-    * GLFW
-    * FreeImage
     * OpenAL
 
 ## Runtime Dependencies
@@ -16,11 +14,8 @@
   * QEMU User-Mode
 * Host Architecture Dependencies
   * Client Mode Only
-    * OpenGL ES 1.1
-    * GLFW
-    * FreeImage
+    * OpenGL ES 2.0
     * OpenAL
-    * Zenity
 
 ## Instructions
 ```sh

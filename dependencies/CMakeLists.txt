@@ -1,13 +1,9 @@
 project(dependencies)
 
-# ZLib
-if(BUILD_ARM_COMPONENTS)
-    add_subdirectory(zlib)
-endif()
+# ZLib (Needed By libpng)
+add_subdirectory(zlib)
 # LibPNG
-if(BUILD_ARM_COMPONENTS)
-    add_subdirectory(libpng)
-endif()
+add_subdirectory(libpng)
 # Minecraft: Pi Edition
 if(BUILD_ARM_COMPONENTS AND NOT MCPI_OPEN_SOURCE_ONLY)
     add_subdirectory(minecraft-pi)

@@ -98,12 +98,11 @@ This component contains all MCPI symbols.
 ## Dependencies
 MCPI-Reborn has several dependencies:
 * MCPI (Bundled)
-* GLFW (Only In Client Mode)
-  * Open GL ES 1.1
+* GLFW (Only In Client Mode; Bundled)
+  * Open GL ES 2.0
   * EGL
 * OpenAL (Only In Client Mode)
 * ZLib (Required By LibPNG; Bundled)
 * LibPNG (Bundled)
-* FreeImage (Only In Client Mode)
 * QEMU User Mode (Only On Non-ARM Hosts; Runtime Only)
-* Zenity (Only In Client Mode; Runtime Only)
+* Zenity (Only In Client Mode; Runtime Only; Bundled)

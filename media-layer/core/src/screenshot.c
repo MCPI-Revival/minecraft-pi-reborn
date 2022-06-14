@@ -12,7 +12,7 @@
 #include <errno.h>
 #include <sys/stat.h>
 
-#include <FreeImage.h>
+#include <png.h>
 
 #include <GLES/gl.h>
 #include <media-layer/core.h>
@@ -35,6 +35,70 @@ static void ensure_screenshots_folder(char *screenshots) {
 #define TIME_SIZE 20
 
 // Take Screenshot
+static int save_png(const char *filename, unsigned char *pixels, int line_size, int width, int height) {
+    // Return value
+    int ret = 0;
+
+    // Variables
+    png_structp png = NULL;
+    png_infop info = NULL;
+    FILE *file = NULL;
+    png_colorp palette = NULL;
+    png_bytep rows[height];
+    for (int i = 0; i < height; ++i) {
+        rows[height - i - 1] = (png_bytep) (&pixels[i * line_size]);
+    }
+
+    // Init
+    png = png_create_write_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
+    if (!png) {
+        ret = 1;
+        goto ret;
+    }
+    info = png_create_info_struct(png);
+    if (!info) {
+        ret = 1;
+        goto ret;
+    }
+
+    // Open File
+    file = fopen(filename, "wb");
+    if (!file) {
+        ret = 1;
+        goto ret;
+    }
+
+    // Prepare To Write
+    png_init_io(png, file);
+    png_set_IHDR(png, info, width, height, 8 /* Depth */, PNG_COLOR_TYPE_RGB_ALPHA, PNG_INTERLACE_NONE, PNG_COMPRESSION_TYPE_BASE, PNG_FILTER_TYPE_BASE);
+    palette = (png_colorp) png_malloc(png, PNG_MAX_PALETTE_LENGTH * sizeof(png_color));
+    if (!palette) {
+        ret = 1;
+        goto ret;
+    }
+    png_set_PLTE(png, info, palette, PNG_MAX_PALETTE_LENGTH);
+    png_write_info(png, info);
+    png_set_packing(png);
+
+    // Write
+    png_write_image(png, rows);
+    png_write_end(png, info);
+
+ ret:
+    // Free
+    if (palette != NULL) {
+        png_free(png, palette);
+    }
+    if (file != NULL) {
+        fclose(file);
+    }
+    if (png != NULL) {
+        png_destroy_write_struct(&png, &info);
+    }
+
+    // Return
+    return ret;
+}
 void media_take_screenshot(char *home) {
     // Get Directory
     char *screenshots = NULL;
@@ -88,39 +152,16 @@ void media_take_screenshot(char *home) {
     unsigned char pixels[size];
     glReadPixels(x, y, width, height, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
 
-    // Handle Little Endian Systems
-#if __BYTE_ORDER == __LITTLE_ENDIAN
-    // Swap Red And Blue
-    for (int j = 0; j < width; j++) {
-        for (int k = 0; k < height; k++) {
-            int pixel = (k * line_size) + (j * 4);
-            // Swap
-            int red = pixels[pixel];
-            int blue = pixels[pixel + 2];
-            pixels[pixel] = blue;
-            pixels[pixel + 2] = red;
-        }
-    }
-#endif
-
     // Save Image
-    FIBITMAP *image = FreeImage_ConvertFromRawBits(pixels, width, height, line_size, 32, FI_RGBA_RED_MASK, FI_RGBA_GREEN_MASK, FI_RGBA_BLUE_MASK, 0);
-    if (!FreeImage_Save(FIF_PNG, image, file, 0)) {
+    if (save_png(file, pixels, line_size, width, height)) {
         INFO("Screenshot Failed: %s", file);
     } else {
         INFO("Screenshot Saved: %s", file);
     }
-    FreeImage_Unload(image);
 
     // Free
     free(file);
     free(screenshots);
-}
-
-// Init
-__attribute__((constructor)) static void init() {
-    // Init FreeImage
-    FreeImage_Initialise(0);
 }
 
 #else

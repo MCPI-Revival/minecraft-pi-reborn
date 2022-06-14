@@ -40,7 +40,6 @@ if (mode === 'client') {
         'libgdk-pixbuf2.0-0',
         'librsvg2-common',
         'shared-mime-info',
-        'libfreeimage3',
         'libopenal1'
     );
 }

@@ -26,12 +26,10 @@ if(TARGET media-layer-core-real)
     # Link
     target_link_libraries(media-layer-core-real media-layer-headers reborn-util pthread dl)
     if(NOT MCPI_HEADLESS_MODE)
-        # Find FreeImage
-        find_library(FREEIMAGE_LIBRARY NAMES freeimage libfreeimage.so.3 REQUIRED)
         # OpenAL
         find_library(OPENAL_LIBRARY NAMES openal REQUIRED)
         # Link
-        target_link_libraries(media-layer-core-real "${FREEIMAGE_LIBRARY}" "${OPENAL_LIBRARY}" m GLESv1_CM glfw)
+        target_link_libraries(media-layer-core-real png12_static "${OPENAL_LIBRARY}" m GLESv1_CM glfw)
     endif()
 endif()
 
