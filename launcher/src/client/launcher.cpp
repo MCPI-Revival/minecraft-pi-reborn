@@ -129,6 +129,11 @@ static void run_zenity_and_set_env(const char *env_name, std::vector<std::string
 // Launch
 #define LIST_DIALOG_SIZE "400"
 int main(int argc, char *argv[]) {
+    // Don't Run As Root
+    if (getuid() == 0 || geteuid() == 0) {
+        ERR("Don't Run As Root");
+    }
+
     // Pre-Bootstrap
     pre_bootstrap(argc, argv);
 
