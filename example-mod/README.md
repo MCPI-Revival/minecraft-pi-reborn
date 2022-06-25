@@ -6,4 +6,12 @@ This specific mod adds even more items and blocks to the Creative Inventory. It 
 ## The SDK
 The modding SDK is a collection of exported CMake targets that allows anyone to create their own MCPI mod!
 
-It is copied to ``~/.minecraft-pi/sdk/lib/minecraft-pi-reborn-client/sdk/sdk.cmake`` whenever MCPI-Reborn is started.
+The SDK is copied to ``~/.minecraft-pi/sdk/lib/minecraft-pi-reborn-client/sdk/sdk.cmake`` whenever MCPI-Reborn is started.
+
+## How do I use this?
+```sh
+mkdir build
+cd build
+cmake ..
+cp libexpanded-creative.so ~/.minecraft-pi/mods
+```
