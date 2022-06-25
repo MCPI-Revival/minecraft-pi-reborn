@@ -1,8 +1,8 @@
 #include <libreborn/libreborn.h>
 #include <symbols/minecraft.h>
 
-#include "version.h"
-#include "../init/init.h"
+#include <mods/version/version.h>
+#include <mods/init/init.h>
 
 // Get New Version
 char *version_get() {

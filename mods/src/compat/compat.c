@@ -2,8 +2,8 @@
 #include <signal.h>
 #include <errno.h>
 
-#include "compat.h"
-#include "../init/init.h"
+#include <mods/compat/compat.h>
+#include <mods/init/init.h>
 
 #include <libreborn/libreborn.h>
 
@@ -12,10 +12,10 @@
 
 #include <media-layer/core.h>
 
-#include "../input/input.h"
-#include "../sign/sign.h"
-#include "../chat/chat.h"
-#include "../home/home.h"
+#include <mods/input/input.h>
+#include <mods/sign/sign.h>
+#include <mods/chat/chat.h>
+#include <mods/home/home.h>
 
 // Custom Title
 HOOK(SDL_WM_SetCaption, void, (__attribute__((unused)) const char *title, const char *icon)) {

@@ -13,7 +13,7 @@
 #include <symbols/minecraft.h>
 #include <media-layer/core.h>
 
-#include "game-mode.h"
+#include "game-mode-internal.h"
 
 // Run Command
 static char *run_command_proper(const char *command[], bool allow_empty) {

@@ -3,9 +3,9 @@
 #include <libreborn/libreborn.h>
 #include <symbols/minecraft.h>
 
-#include "../feature/feature.h"
-#include "../init/init.h"
-#include "options.h"
+#include <mods/feature/feature.h>
+#include <mods/init/init.h>
+#include "options-internal.h"
 
 // Force Mob Spawning
 static bool LevelData_getSpawnMobs_injection(__attribute__((unused)) unsigned char *level_data) {

@@ -1,9 +1,9 @@
 #include <libreborn/libreborn.h>
 #include <symbols/minecraft.h>
 
-#include "../init/init.h"
-#include "../feature/feature.h"
-#include "creative.h"
+#include <mods/init/init.h>
+#include <mods/feature/feature.h>
+#include <mods/creative/creative.h>
 
 #ifndef MCPI_SERVER_MODE
 // Add Item To Inventory

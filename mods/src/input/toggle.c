@@ -1,8 +1,9 @@
 #include <libreborn/libreborn.h>
 #include <symbols/minecraft.h>
 
-#include "input.h"
-#include "../feature/feature.h"
+#include "input-internal.h"
+#include <mods/input/input.h>
+#include <mods/feature/feature.h>
 
 // Enable Toggles
 static int enable_toggles = 0;

@@ -11,7 +11,8 @@
 
 #include <media-layer/core.h>
 
-#include "chat.h"
+#include "chat-internal.h"
+#include <mods/chat/chat.h>
 
 // Run Command
 static char *run_command_proper(const char *command[], int *return_code) {

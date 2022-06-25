@@ -3,8 +3,8 @@
 #include <libreborn/libreborn.h>
 #include <symbols/minecraft.h>
 
-#include "../feature/feature.h"
-#include "../init/init.h"
+#include <mods/feature/feature.h>
+#include <mods/init/init.h>
 
 // Fix Grass And Leaves Inventory Rendering When The gui_blocks Atlas Is Disabled
 static void ItemRenderer_renderGuiItemCorrect_injection(unsigned char *font, unsigned char *textures, ItemInstance *item_instance, int32_t param_1, int32_t param_2) {

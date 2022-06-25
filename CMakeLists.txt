@@ -69,6 +69,9 @@ endif()
 set(MCPI_INSTALL_DIR "lib/${MCPI_VARIANT_NAME}")
 set(MCPI_LIB_DIR "${MCPI_INSTALL_DIR}/lib")
 set(MCPI_BIN_DIR "${MCPI_INSTALL_DIR}/bin")
+set(MCPI_SDK_DIR "${MCPI_INSTALL_DIR}/sdk")
+set(MCPI_SDK_LIB_DIR "${MCPI_SDK_DIR}/lib")
+set(MCPI_SDK_INCLUDE_DIR "${MCPI_SDK_DIR}/include")
 
 # Build Mode
 if(NOT CMAKE_BUILD_TYPE)
@@ -158,4 +161,9 @@ endif()
 # Include Images
 if(BUILD_NATIVE_COMPONENTS)
     add_subdirectory(images)
+endif()
+
+# Install SDK
+if(BUILD_ARM_COMPONENTS)
+    install(EXPORT sdk DESTINATION "${MCPI_SDK_DIR}" EXPORT_LINK_INTERFACE_LIBRARIES)
 endif()

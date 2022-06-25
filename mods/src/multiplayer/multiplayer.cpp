@@ -12,9 +12,9 @@
 
 #include <symbols/minecraft.h>
 
-#include "../home/home.h"
-#include "../init/init.h"
-#include "../feature/feature.h"
+#include <mods/home/home.h>
+#include <mods/init/init.h>
+#include <mods/feature/feature.h>
 
 // Load Server List
 struct server_list_entry {

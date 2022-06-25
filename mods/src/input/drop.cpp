@@ -1,9 +1,10 @@
 #include <libreborn/libreborn.h>
 #include <symbols/minecraft.h>
 
-#include "input.h"
-#include "../feature/feature.h"
-#include "../creative/creative.h"
+#include "input-internal.h"
+#include <mods/input/input.h>
+#include <mods/feature/feature.h>
+#include <mods/creative/creative.h>
 
 // Enable Item Dropping
 static int enable_drop = 0;

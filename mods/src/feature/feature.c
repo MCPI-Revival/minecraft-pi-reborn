@@ -3,7 +3,7 @@
 
 #include <libreborn/libreborn.h>
 
-#include "feature.h"
+#include <mods/feature/feature.h>
 
 // Check For Feature
 int _feature_has(const char *name) {

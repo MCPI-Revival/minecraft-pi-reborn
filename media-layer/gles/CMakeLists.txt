@@ -19,8 +19,12 @@ else()
     # Add GLESv1_CM Stubs For Linking
     add_library(GLESv1_CM SHARED src/stubs.c)
     # Install Fake GLESv1_CM Stubs In Server Mode
-    if(MCPI_HEADLESS_MODE AND BUILD_ARM_COMPONENTS)
-        install(TARGETS GLESv1_CM DESTINATION "${MCPI_LIB_DIR}")
+    if(BUILD_ARM_COMPONENTS)
+        if(MCPI_HEADLESS_MODE)
+            install(TARGETS GLESv1_CM DESTINATION "${MCPI_LIB_DIR}")
+        endif()
+        # SDK
+        install(TARGETS GLESv1_CM EXPORT sdk DESTINATION "${MCPI_SDK_LIB_DIR}")
     endif()
 endif()
 

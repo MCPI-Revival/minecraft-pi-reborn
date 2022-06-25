@@ -225,12 +225,57 @@ void pre_bootstrap(int argc, char *argv[]) {
     sigaction(SIGTERM, &act_sigterm, NULL);
 }
 
+// Copy SDK Into ~/.minecraft-pi
+static void run_simple_command(const char *const command[], const char *error) {
+    int status = 0;
+    char *output = run_command(command, &status);
+    if (output != NULL) {
+        free(output);
+    }
+    if (!is_exit_status_success(status)) {
+        ERR("%s", error);
+    }
+}
+static void copy_sdk(char *binary_directory) {
+    // Output Directory
+    char *output = NULL;
+    safe_asprintf(&output, "%s" HOME_SUBDIRECTORY_FOR_GAME_DATA "/sdk/" MCPI_SDK_DIR, getenv("HOME"));
+    // Source Directory
+    char *source = NULL;
+    safe_asprintf(&source, "%s/sdk/.", binary_directory);
+
+    // Clean
+    {
+        const char *const command[] = {"rm", "-rf", output, NULL};
+        run_simple_command(command, "Unable To Clean SDK Output Directory");
+    }
+
+    // Make Directory
+    {
+        const char *const command[] = {"mkdir", "-p", output, NULL};
+        run_simple_command(command, "Unable To Create SDK Output Directory");
+    }
+
+    // Copy
+    {
+        const char *const command[] = {"cp", "-ar", source, output, NULL};
+        run_simple_command(command, "Unable To Copy SDK");
+    }
+
+    // Free
+    free(output);
+    free(source);
+}
+
 // Bootstrap
 void bootstrap(int argc, char *argv[]) {
     INFO("Configuring Game...");
 
     // Get Binary Directory
     char *binary_directory = get_binary_directory();
+
+    // Copy SDK
+    copy_sdk(binary_directory);
 
     // Set MCPI_REBORN_ASSETS_PATH
     {

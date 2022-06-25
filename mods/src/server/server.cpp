@@ -21,13 +21,13 @@
 
 #include <symbols/minecraft.h>
 
-#include "server_properties.h"
+#include <mods/server/server_properties.h>
 
-#include "../feature/feature.h"
-#include "../init/init.h"
-#include "../home/home.h"
-#include "../compat/compat.h"
-#include "../misc/misc.h"
+#include <mods/feature/feature.h>
+#include <mods/init/init.h>
+#include <mods/home/home.h>
+#include <mods/compat/compat.h>
+#include <mods/misc/misc.h>
 
 // --only-generate: Ony Generate World And Then Exit
 static bool only_generate = false;

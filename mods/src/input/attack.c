@@ -1,8 +1,9 @@
 #include <libreborn/libreborn.h>
 #include <symbols/minecraft.h>
 
-#include "../feature/feature.h"
-#include "input.h"
+#include <mods/feature/feature.h>
+#include "input-internal.h"
+#include <mods/input/input.h>
 
 // Store Left Click (0 = Not Pressed, 1 = Pressed, 2 = Repeat)
 // This Is Set To Repeat After First Attempted Left-Click Build Interaction

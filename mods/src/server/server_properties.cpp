@@ -1,4 +1,4 @@
-#include "server_properties.h"
+#include <mods/server/server_properties.h>
 
 static bool is_true(std::string const& val) {
     return (val == "true" || val == "yes" || val == "1");

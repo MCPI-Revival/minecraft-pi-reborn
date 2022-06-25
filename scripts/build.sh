@@ -5,7 +5,7 @@ set -e
 # Build
 build() {
     # Use Build Dir
-    if [ ! -d "build/${MODE}-${ARCH}" ]; then
+    if [ ! -f "build/${MODE}-${ARCH}/arm/build.ninja" ] || [ ! -f "build/${MODE}-${ARCH}/native/build.ninja" ]; then
         ./scripts/setup.sh "${MODE}" "${ARCH}"
     fi
     cd "build/${MODE}-${ARCH}"
@@ -34,7 +34,7 @@ build() {
 # Build For ARM
 armhf_build() {
     # Use Build Dir
-    if [ ! -d "build/${MODE}-armhf" ]; then
+    if [ ! -f "build/${MODE}-armhf/build.ninja" ]; then
         ./scripts/setup.sh "${MODE}" armhf
     fi
     cd "build/${MODE}-armhf"

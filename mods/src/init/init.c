@@ -1,6 +1,6 @@
 #include <libreborn/libreborn.h>
 
-#include "init.h"
+#include <mods/init/init.h>
 
 #include <media-layer/core.h>
 

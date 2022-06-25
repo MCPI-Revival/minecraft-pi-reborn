@@ -4,9 +4,10 @@
 #include <symbols/minecraft.h>
 #include <media-layer/core.h>
 
-#include "../feature/feature.h"
-#include "../init/init.h"
-#include "input.h"
+#include <mods/feature/feature.h>
+#include <mods/init/init.h>
+#include "input-internal.h"
+#include <mods/input/input.h>
 
 // Run Functions On Input Tick
 static std::vector<input_tick_function_t> &get_input_tick_functions() {

@@ -3,10 +3,10 @@
 #include <libreborn/libreborn.h>
 #include <symbols/minecraft.h>
 
-#include "../init/init.h"
-#include "../feature/feature.h"
-#include "../input/input.h"
-#include "sign.h"
+#include <mods/init/init.h>
+#include <mods/feature/feature.h>
+#include <mods/input/input.h>
+#include <mods/sign/sign.h>
 
 // Open Sign Screen
 static void LocalPlayer_openTextEdit_injection(unsigned char *local_player, unsigned char *sign) {

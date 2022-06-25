@@ -8,8 +8,8 @@
 
 #include <libreborn/libreborn.h>
 
-#include "override.h"
-#include "../home/home.h"
+#include <mods/override/override.h>
+#include <mods/home/home.h>
 
 // Hook access
 HOOK(access, int, (const char *pathname, int mode)) {

@@ -10,9 +10,10 @@
 #include <SDL/SDL.h>
 #include <media-layer/core.h>
 
-#include "../init/init.h"
-#include "../feature/feature.h"
-#include "misc.h"
+#include <mods/init/init.h>
+#include <mods/feature/feature.h>
+#include "misc-internal.h"
+#include <mods/misc/misc.h>
 
 // Maximum Username Length
 #define MAX_USERNAME_LENGTH 16

@@ -1,6 +1,6 @@
-#include "game-mode.h"
-#include "../init/init.h"
-#include "../feature/feature.h"
+#include "game-mode-internal.h"
+#include <mods/init/init.h>
+#include <mods/feature/feature.h>
 
 #include <libreborn/libreborn.h>
 #include <symbols/minecraft.h>

@@ -7,9 +7,9 @@
 #include <libreborn/libreborn.h>
 #include <symbols/minecraft.h>
 
-#include "../misc/misc.h"
-#include "../feature/feature.h"
-#include "../init/init.h"
+#include <mods/misc/misc.h>
+#include <mods/feature/feature.h>
+#include <mods/init/init.h>
 
 // Animated Water
 static void Minecraft_tick_injection(unsigned char *minecraft) {

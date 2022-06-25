@@ -3,7 +3,8 @@
 #include <libreborn/libreborn.h>
 #include <symbols/minecraft.h>
 
-#include "misc.h"
+#include "misc-internal.h"
+#include <mods/misc/misc.h>
 
 // Print Chat To Log
 static bool Gui_addMessage_recursing = false;

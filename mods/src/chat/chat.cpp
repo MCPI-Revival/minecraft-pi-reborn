@@ -14,12 +14,13 @@
 #include <media-layer/core.h>
 #endif
 
-#include "../init/init.h"
-#include "../feature/feature.h"
+#include <mods/init/init.h>
+#include <mods/feature/feature.h>
 #ifndef MCPI_SERVER_MODE
-#include "../input/input.h"
+#include <mods/input/input.h>
 #endif
-#include "chat.h"
+#include "chat-internal.h"
+#include <mods/chat/chat.h>
 
 // Store If Chat is Enabled
 int _chat_enabled = 0;
@@ -49,7 +50,7 @@ static void send_api_chat_command(unsigned char *minecraft, char *str) {
 #endif
 
 // Send Message To Players
-static void send_message(unsigned char *server_side_network_handler, char *username, char *message) {
+void chat_send_message(unsigned char *server_side_network_handler, char *username, char *message) {
     char *full_message = NULL;
     safe_asprintf(&full_message, "<%s> %s", username, message);
     sanitize_string(&full_message, MAX_CHAT_MESSAGE_LENGTH, 0);
@@ -68,7 +69,7 @@ static void CommandServer_parse_CommandServer_dispatchPacket_injection(unsigned 
             // Hosting Multiplayer
             char *message = *(char **) (packet + ChatPacket_message_property_offset);
             unsigned char *server_side_network_handler = *(unsigned char **) (minecraft + Minecraft_network_handler_property_offset);
-            send_message(server_side_network_handler, *default_username, message);
+            chat_send_message(server_side_network_handler, *default_username, message);
         } else {
             // Client
             RakNetInstance_send_t RakNetInstance_send = *(RakNetInstance_send_t *) (rak_net_instance_vtable + RakNetInstance_send_vtable_offset);
@@ -83,7 +84,7 @@ static void ServerSideNetworkHandler_handle_ChatPacket_injection(unsigned char *
     if (player != NULL) {
         char *username = *(char **) (player + Player_username_property_offset);
         char *message = *(char **) (chat_packet + ChatPacket_message_property_offset);
-        send_message(server_side_network_handler, username, message);
+        chat_send_message(server_side_network_handler, username, message);
     }
 }
 

@@ -17,12 +17,6 @@ void input_set_is_left_click(int val);
 
 void input_set_mouse_grab_state(int state);
 
-__attribute__((visibility("internal"))) void _init_attack();
-__attribute__((visibility("internal"))) void _init_bow();
-__attribute__((visibility("internal"))) void _init_misc();
-__attribute__((visibility("internal"))) void _init_toggle();
-__attribute__((visibility("internal"))) void _init_drop();
-
 #ifdef __cplusplus
 }
 #endif

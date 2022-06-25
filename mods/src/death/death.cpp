@@ -3,8 +3,8 @@
 #include <libreborn/libreborn.h>
 #include <symbols/minecraft.h>
 
-#include "../init/init.h"
-#include "../feature/feature.h"
+#include <mods/init/init.h>
+#include <mods/feature/feature.h>
 
 // Death Messages
 static std::string get_death_message(unsigned char *player) {

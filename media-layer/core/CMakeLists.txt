@@ -17,19 +17,21 @@ if(NOT MCPI_USE_MEDIA_LAYER_PROXY AND BUILD_ARM_COMPONENTS)
     set_target_properties(media-layer-core-real PROPERTIES OUTPUT_NAME "media-layer-core")
     # Install
     install(TARGETS media-layer-core-real DESTINATION "${MCPI_LIB_DIR}")
+    install(TARGETS media-layer-core-real EXPORT sdk DESTINATION "${MCPI_SDK_LIB_DIR}")
     # Create Alias Target For Linking
     add_library(media-layer-core ALIAS media-layer-core-real)
+    set_target_properties(media-layer-core-real PROPERTIES EXPORT_NAME media-layer-core)
 endif()
 
 # Configure Media Layer Core If Built
 if(TARGET media-layer-core-real)
     # Link
-    target_link_libraries(media-layer-core-real media-layer-headers reborn-util pthread dl)
+    target_link_libraries(media-layer-core-real PUBLIC media-layer-headers PUBLIC reborn-util PUBLIC pthread PUBLIC dl)
     if(NOT MCPI_HEADLESS_MODE)
         # OpenAL
         find_library(OPENAL_LIBRARY NAMES openal REQUIRED)
         # Link
-        target_link_libraries(media-layer-core-real png12_static "${OPENAL_LIBRARY}" m GLESv1_CM glfw)
+        target_link_libraries(media-layer-core-real PRIVATE png12_static PRIVATE "${OPENAL_LIBRARY}" PRIVATE m PUBLIC GLESv1_CM PRIVATE glfw)
     endif()
 endif()
 

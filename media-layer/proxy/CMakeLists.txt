@@ -22,6 +22,8 @@ if(BUILD_ARM_COMPONENTS)
     install_symlink("libmedia-layer-core.so" "${MCPI_LIB_DIR}/libGLESv1_CM.so.1")
     # Install
     install(TARGETS media-layer-proxy-server DESTINATION "${MCPI_LIB_DIR}")
+    install(TARGETS media-layer-proxy-server EXPORT sdk DESTINATION "${MCPI_SDK_LIB_DIR}")
     # Create Alias Target For Linking
     add_library(media-layer-core ALIAS media-layer-proxy-server)
+    set_target_properties(media-layer-proxy-server PROPERTIES EXPORT_NAME media-layer-core)
 endif()

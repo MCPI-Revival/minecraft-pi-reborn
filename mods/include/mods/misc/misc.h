@@ -10,9 +10,6 @@ void misc_run_on_tick(misc_update_function_t function);
 
 void Level_saveLevelData_injection(unsigned char *level);
 
-__attribute__((visibility("internal"))) void _init_misc_cpp();
-__attribute__((visibility("internal"))) void _init_misc_logging();
-
 #ifdef __cplusplus
 }
 #endif

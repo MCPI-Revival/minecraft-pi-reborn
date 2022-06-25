@@ -7,3 +7,4 @@
 #cmakedefine MCPI_USE_GLES1_COMPATIBILITY_LAYER
 #cmakedefine MCPI_APP_TITLE "@MCPI_APP_TITLE@"
 #cmakedefine MCPI_VERSION "@MCPI_VERSION@"
+#cmakedefine MCPI_SDK_DIR "@MCPI_SDK_DIR@"

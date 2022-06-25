@@ -6,9 +6,9 @@
 #include <media-layer/core.h>
 #include <SDL/SDL.h>
 
-#include "../init/init.h"
-#include "../compat/compat.h"
-#include "../misc/misc.h"
+#include <mods/init/init.h>
+#include <mods/compat/compat.h>
+#include <mods/misc/misc.h>
 
 // --benchmark: Activate Benchmark
 static bool active = false;

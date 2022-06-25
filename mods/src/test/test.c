@@ -4,8 +4,8 @@
 
 #include <libreborn/libreborn.h>
 
-#include "../home/home.h"
-#include "../init/init.h"
+#include <mods/home/home.h>
+#include <mods/init/init.h>
 
 void run_tests() {
     // Test ~/.minecraft-pi Permissions

@@ -4,10 +4,10 @@
 #include <symbols/minecraft.h>
 #include <media-layer/audio.h>
 
-#include "sound.h"
-#include "../feature/feature.h"
-#include "../override/override.h"
-#include "../init/init.h"
+#include "sound-internal.h"
+#include <mods/feature/feature.h>
+#include <mods/override/override.h>
+#include <mods/init/init.h>
 
 // Resolve Source File Path
 #define SOURCE_FILE_BASE "data/libminecraftpe.so"

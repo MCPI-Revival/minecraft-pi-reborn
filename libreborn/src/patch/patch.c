@@ -91,7 +91,7 @@ static void increment_code_block() {
     code_block_remaining = code_block_remaining - CODE_SIZE;
 }
 
-// Overwrite Specific BL Instruction
+// Overwrite Specific B(L) Instruction
 void _overwrite_call(const char *file, int line, void *start, void *target) {
     // Add New Target To Code Block
     update_code_block(target);
@@ -105,7 +105,7 @@ void _overwrite_call(const char *file, int line, void *start, void *target) {
     increment_code_block();
 }
 
-// Overwrite Function Calls
+// Overwrite All B(L) Intrusctions That Target The Specified Address
 void _overwrite_calls(const char *file, int line, void *start, void *target) {
     // Add New Target To Code Block
     update_code_block(target);
@@ -126,6 +126,21 @@ void _overwrite_calls(const char *file, int line, void *start, void *target) {
     if (data.found < 1) {
         ERR("(%s:%i) Unable To Find Callsites For 0x%08x", file, line, (uint32_t) start);
     }
+}
+
+// Extract Target Address From B(L) Instruction
+void *extract_from_bl_instruction(unsigned char *from) {
+    unsigned char *pc = ((unsigned char *) from) + 8;
+
+    int32_t target = 0;
+    unsigned char *target_array = (unsigned char *) &target;
+    target_array[0] = from[0];
+    target_array[1] = from[1];
+    target_array[2] = from[2];
+
+    int32_t offset = target << 2;
+
+    return (void *) (pc + offset);
 }
 
 // Overwrite Function

@@ -5,9 +5,9 @@
 
 #include <libreborn/libreborn.h>
 
-#include "../feature/feature.h"
-#include "../home/home.h"
-#include "options.h"
+#include <mods/feature/feature.h>
+#include <mods/home/home.h>
+#include "options-internal.h"
 
 #include <symbols/minecraft.h>
 

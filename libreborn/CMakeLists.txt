@@ -6,7 +6,13 @@ configure_file(include/libreborn/config.h.in "${CMAKE_CURRENT_BINARY_DIR}/includ
 
 # Util
 add_library(reborn-util STATIC src/util/elf.c src/util/exec.c src/util/string.c src/util/util.c)
-target_include_directories(reborn-util PUBLIC include PUBLIC "${CMAKE_CURRENT_BINARY_DIR}/include")
+target_include_directories(
+    reborn-util
+    PUBLIC
+    "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>"
+    "$<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/include>"
+    "$<INSTALL_INTERFACE:${MCPI_SDK_INCLUDE_DIR}/libreborn>"
+)
 
 # Patch
 if(BUILD_ARM_COMPONENTS)
@@ -15,4 +21,9 @@ if(BUILD_ARM_COMPONENTS)
     target_compile_definitions(reborn-patch PUBLIC -DREBORN_HAS_PATCH_CODE)
     # Install
     install(TARGETS reborn-patch DESTINATION "${MCPI_LIB_DIR}")
+    # SDK
+    install(TARGETS reborn-patch EXPORT sdk DESTINATION "${MCPI_SDK_LIB_DIR}")
+    install(TARGETS reborn-util EXPORT sdk DESTINATION "${MCPI_SDK_LIB_DIR}")
+    install(DIRECTORY "include/" DESTINATION "${MCPI_SDK_INCLUDE_DIR}/libreborn")
+    install(DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/include/" DESTINATION "${MCPI_SDK_INCLUDE_DIR}/libreborn")
 endif()

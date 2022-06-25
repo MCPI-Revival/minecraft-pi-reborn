@@ -7,7 +7,7 @@
 #include <libreborn/libreborn.h>
 #include <media-layer/audio.h>
 
-#include "sound.h"
+#include "sound-internal.h"
 
 // Sound Repository Extracted From MCPE 0.6.1 APK
 static std::unordered_map<std::string, std::vector<std::string>> repository = {

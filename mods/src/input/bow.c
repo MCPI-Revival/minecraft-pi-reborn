@@ -1,8 +1,9 @@
 #include <libreborn/libreborn.h>
 #include <symbols/minecraft.h>
 
-#include "../feature/feature.h"
-#include "input.h"
+#include <mods/feature/feature.h>
+#include "input-internal.h"
+#include <mods/input/input.h>
 
 // Store Right-Click Status
 static int is_right_click = 0;

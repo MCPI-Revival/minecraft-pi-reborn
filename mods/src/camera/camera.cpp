@@ -2,9 +2,9 @@
 #include <media-layer/core.h>
 #include <symbols/minecraft.h>
 
-#include "../feature/feature.h"
-#include "../home/home.h"
-#include "../init/init.h"
+#include <mods/feature/feature.h>
+#include <mods/home/home.h>
+#include <mods/init/init.h>
 
 // Take Screenshot Using TripodCamera
 static void AppPlatform_linux_saveScreenshot_injection(__attribute__((unused)) unsigned char *app_platform, __attribute__((unused)) std::string const& path, __attribute__((unused)) int32_t width, __attribute__((unused)) int32_t height) {

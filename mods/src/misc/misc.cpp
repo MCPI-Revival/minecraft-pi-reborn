@@ -8,8 +8,9 @@
 #include <libreborn/libreborn.h>
 #include <symbols/minecraft.h>
 
-#include "../feature/feature.h"
-#include "misc.h"
+#include <mods/feature/feature.h>
+#include "misc-internal.h"
+#include <mods/misc/misc.h>
 
 // Read Asset File
 static AppPlatform_readAssetFile_return_value AppPlatform_readAssetFile_injection(__attribute__((unused)) unsigned char *app_platform, std::string const& path) {

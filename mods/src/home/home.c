@@ -3,8 +3,8 @@
 #include <libreborn/libreborn.h>
 #include <symbols/minecraft.h>
 
-#include "home.h"
-#include "../init/init.h"
+#include <mods/home/home.h>
+#include <mods/init/init.h>
 
 // Get MCPI Home Directory
 char *home_get() {
