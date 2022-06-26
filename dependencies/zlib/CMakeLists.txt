@@ -6,6 +6,7 @@ add_compile_options(-w)
 ## zlib
 
 # Download
+set(CMAKE_POLICY_DEFAULT_CMP0022 NEW) # Fix Error
 add_subdirectory(src EXCLUDE_FROM_ALL)
 
 # Ensure Build
