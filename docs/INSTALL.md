@@ -23,7 +23,7 @@ minecraft-pi-reborn-<Variant>_X.Y.Z_<Architecture>
 * ``arm64``: ARM 64-Bit, ``armhf`` but for 64-bit devices.
 
 ## Flatpak
-[![Download On Flathub](https://flathub.org/assets/badges/flathub-badge-en.svg)](https://flathub.org/apps/details/com.thebrokenrail.MCPIReborn)
+<a href="https://flathub.org/apps/details/com.thebrokenrail.MCPIReborn"><img width="240" alt="Download On Flathub" src="https://flathub.org/assets/badges/flathub-badge-en.svg" /></a>
 
 ### Note
 Game data is stored in ``~/.var/app/com.thebrokenrail.MCPIReborn/.minecraft-pi`` instead of ``~/.minecraft-pi``.
