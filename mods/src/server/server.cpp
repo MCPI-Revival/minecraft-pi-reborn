@@ -178,6 +178,7 @@ static char *get_player_ip(unsigned char *minecraft, unsigned char *player) {
 }
 
 // Ban Player
+static bool is_ip_in_blacklist(const char *ip);
 static void ban_callback(unsigned char *minecraft, std::string username, unsigned char *player) {
     // Get IP
     char *ip = get_player_ip(minecraft, player);
@@ -194,6 +195,8 @@ static void ban_callback(unsigned char *minecraft, std::string username, unsigne
             blacklist_output.close();
         }
     }
+    // Reload
+    is_ip_in_blacklist(NULL);
 }
 
 // Kill Player
@@ -305,6 +308,7 @@ static void handle_commands(unsigned char *minecraft) {
                 static std::string say_command("say ");
                 static std::string kill_command("kill ");
                 static std::string list_command("list");
+                static std::string reload_command("reload");
                 static std::string tps_command("tps");
                 static std::string stop_command("stop");
                 static std::string help_command("help");
@@ -312,6 +316,9 @@ static void handle_commands(unsigned char *minecraft) {
                     // IP-Ban Target Username
                     std::string ban_username = data.substr(ban_command.length());
                     find_players(minecraft, ban_username, ban_callback, false);
+                } else if (data == reload_command) {
+                    INFO("Reloading %s", is_whitelist() ? "Whitelist" : "Blacklist");
+                    is_ip_in_blacklist(NULL);
                 } else if (data.rfind(kill_command, 0) == 0) {
                     // Kill Target Username
                     std::string kill_username = data.substr(kill_command.length());
@@ -336,6 +343,7 @@ static void handle_commands(unsigned char *minecraft) {
                     if (!is_whitelist()) {
                         INFO("    ban <Username>  - IP-Ban All Players With Specifed Username");
                     }
+                    INFO("    reload          - Reload The %s", is_whitelist() ? "Whitelist" : "Blacklist");
                     INFO("    kill <Username> - Kill All Players With Specifed Username");
                     INFO("    say <Message>   - Print Specified Message To Chat");
                     INFO("    list            - List All Players");
@@ -379,39 +387,51 @@ static void Minecraft_update_injection(unsigned char *minecraft) {
     handle_server_stop(minecraft);
 }
 
-// Ban Players
-static bool RakNet_RakPeer_IsBanned_injection(__attribute__((unused)) unsigned char *rakpeer, const char *ip) {
-    // Check banned-ips.txt
-    std::string blacklist_file_path = get_blacklist_file();
-    std::ifstream blacklist_file(blacklist_file_path);
-    if (blacklist_file) {
-        bool ret = false;
-        if (blacklist_file.good()) {
-            std::string line;
-            while (std::getline(blacklist_file, line)) {
-                // Check Line
-                if (line.length() > 0) {
-                    if (line[0] == '#') {
-                        continue;
-                    }
-                    if (strcmp(line.c_str(), ip) == 0) {
-                        // Is In File
-                        ret = true;
-                        break;
+// Check Blacklist/Whitelist
+static bool is_ip_in_blacklist(const char *ip) {
+    static std::vector<std::string> ips;
+    if (ip == NULL) {
+        // Reload
+        ips.clear();
+        // Check banned-ips.txt
+        std::string blacklist_file_path = get_blacklist_file();
+        std::ifstream blacklist_file(blacklist_file_path);
+        if (blacklist_file) {
+            if (blacklist_file.good()) {
+                std::string line;
+                while (std::getline(blacklist_file, line)) {
+                    // Check Line
+                    if (line.length() > 0 && line[0] != '#') {
+                        ips.push_back(line);
                     }
                 }
             }
-        }
-        if (blacklist_file.is_open()) {
-            blacklist_file.close();
-        }
-        if (is_whitelist()) {
-            return !ret;
+            if (blacklist_file.is_open()) {
+                blacklist_file.close();
+            }
         } else {
-            return ret;
+            ERR("Unable To Read Blacklist/Whitelist");
         }
+        return false;
     } else {
-        ERR("Unable To Read Blacklist/Whitelist");
+        // Check List
+        for (std::string x : ips) {
+            if (x.compare(ip) == 0) {
+                return true;
+            }
+        }
+        return false;
+    }
+}
+
+// Ban Players
+static bool RakNet_RakPeer_IsBanned_injection(__attribute__((unused)) unsigned char *rakpeer, const char *ip) {
+    // Check List
+    bool ret = is_ip_in_blacklist(ip);
+    if (is_whitelist()) {
+        return !ret;
+    } else {
+        return ret;
     }
 }
 
@@ -530,6 +550,8 @@ static void server_init() {
     if (blacklist_file.is_open()) {
         blacklist_file.close();
     }
+    // Load Blacklist/Whitelist
+    is_ip_in_blacklist(NULL);
 
     // Prevent Main Player From Loading
     unsigned char player_patch[4] = {0x00, 0x20, 0xa0, 0xe3}; // "mov r2, #0x0"
