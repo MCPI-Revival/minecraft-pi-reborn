@@ -38,35 +38,24 @@ static void ItemRenderer_renderGuiItemCorrect_injection(unsigned char *font, uns
 
 // Fix Translucent Preview Items In Furnace UI Being Fully Opaque When The gui_blocks Atlas Is Disabled
 static int item_color_fix_mode = 0;
-#define FURNACE_ITEM_TRANSPARENCY 0x33
-#define INVALID_FURNACE_ITEM_VALUE 0x40
-#define FURNACE_ITEM_DEFAULT_COLOR 0x33ffffff
-#define INVALID_FURNACE_ITEM_DEFAULT_COLOR 0xff404040
-static void Tesselator_colorABGR_injection(unsigned char *tesselator, int32_t color) {
+#define POTENTIAL_FURNACE_ITEM_TRANSPARENCY 0x33
+#define INVALID_FURNACE_ITEM_MULTIPLIER 0.25f
+static void Tesselator_color_injection(unsigned char *tesselator, int32_t r, int32_t g, int32_t b, int32_t a) {
     // Fix Furnace UI
     if (item_color_fix_mode != 0) {
-        int32_t a;
-        int32_t b;
-        int32_t g;
-        int32_t r;
         // Force Translucent
         if (item_color_fix_mode == 1) {
-            a = FURNACE_ITEM_TRANSPARENCY;
-            b = (color & 0x00ff0000) >> 16;
-            g = (color & 0x0000ff00) >> 8;
-            r = (color & 0x000000ff) >> 0;
+            a = POTENTIAL_FURNACE_ITEM_TRANSPARENCY;
         } else {
-            a = 0xff;
-            b = INVALID_FURNACE_ITEM_VALUE;
-            g = INVALID_FURNACE_ITEM_VALUE;
-            r = INVALID_FURNACE_ITEM_VALUE;
+            static double multiplier = INVALID_FURNACE_ITEM_MULTIPLIER;
+            b *= multiplier;
+            g *= multiplier;
+            r *= multiplier;
         }
-        // New Color
-        color = r | (g << 8) | (b << 16) | (a << 24);
     }
 
     // Call Original Method
-    (*Tesselator_colorABGR)(tesselator, color);
+    (*Tesselator_color)(tesselator, r, g, b, a);
 }
 static void Tesselator_begin_injection(unsigned char *tesselator, int32_t mode) {
     // Call Original Method
@@ -75,25 +64,8 @@ static void Tesselator_begin_injection(unsigned char *tesselator, int32_t mode) 
     // Fix Furnace UI
     if (item_color_fix_mode != 0) {
         // Implict Translucent
-        (*Tesselator_colorABGR_injection)(tesselator, item_color_fix_mode == 1 ? FURNACE_ITEM_DEFAULT_COLOR : INVALID_FURNACE_ITEM_DEFAULT_COLOR);
+        (*Tesselator_color_injection)(tesselator, 0xff, 0xff, 0xff, 0xff);
     }
-}
-static void Tesselator_color_injection(unsigned char *tesselator, int32_t r, int32_t g, int32_t b, int32_t a) {
-    // Fix Furnace UI
-    if (item_color_fix_mode != 0) {
-        // Force Translucent
-        if (item_color_fix_mode == 1) {
-            a = FURNACE_ITEM_TRANSPARENCY;
-        } else {
-            a = 0xff;
-            b = INVALID_FURNACE_ITEM_VALUE;
-            g = INVALID_FURNACE_ITEM_VALUE;
-            r = INVALID_FURNACE_ITEM_VALUE;
-        }
-    }
-
-    // Call Original Method
-    (*Tesselator_color)(tesselator, r, g, b, a);
 }
 static void InventoryPane_renderBatch_Tesselator_color_injection(unsigned char *tesselator, int32_t r, int32_t g, int32_t b) {
     // Call Original Method
@@ -129,7 +101,6 @@ void init_atlas() {
         // Fix Grass And Leaves Inventory Rendering When The gui_blocks Atlas Is Disabled
         overwrite_calls((void *) ItemRenderer_renderGuiItemCorrect, (void *) ItemRenderer_renderGuiItemCorrect_injection);
         // Fix Furnace UI
-        overwrite_calls((void *) Tesselator_colorABGR, (void *) Tesselator_colorABGR_injection);
         overwrite_calls((void *) Tesselator_begin, (void *) Tesselator_begin_injection);
         overwrite_calls((void *) Tesselator_color, (void *) Tesselator_color_injection);
         overwrite_call((void *) 0x32324, (void *) FurnaceScreen_render_ItemRenderer_renderGuiItem_one_injection);
