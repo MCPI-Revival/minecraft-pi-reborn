@@ -1,0 +1,14 @@
+out
+debian/tmp
+.vscode
+build*
+CMakeLists.txt.user
+*.autosave
+AppImageBuilder.yml
+appimage-builder-cache
+appimage-build
+AppDir
+*.zsync
+*.AppImage
+core*
+qemu_*

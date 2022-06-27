@@ -722,6 +722,23 @@ static SoundEngine_update_t SoundEngine_update = (SoundEngine_update_t) 0x67778;
 static uint32_t SoundEngine_minecraft_property_offset = 0xa08; // Minecraft *
 static uint32_t SoundEngine_options_property_offset = 0x4; // Options *
 
+// Recipes
+
+// If there are multiple item IDs, the priority order is: "item" > "tile" > "instance"
+typedef struct {
+    unsigned char *item;
+    unsigned char *tile;
+    ItemInstance instance;
+    char letter;
+} Recipes_Type;
+
+typedef unsigned char *(*Recipes_t)(unsigned char *recipes);
+static Recipes_t Recipes = (Recipes_t) 0x9cabc;
+
+// FurnaceRecipes
+
+static Recipes_t FurnaceRecipes = (Recipes_t) 0xa0778;
+
 // Method That Require C++ Types
 #ifdef __cplusplus
 
@@ -847,6 +864,16 @@ static OptionsPane_unknown_toggle_creating_function_t OptionsPane_unknown_toggle
 
 typedef void (*Textures_loadAndBindTexture_t)(unsigned char *textures, std::string const& name);
 static Textures_loadAndBindTexture_t Textures_loadAndBindTexture = (Textures_loadAndBindTexture_t) 0x539cc;
+
+// Recipes
+
+typedef void (*Recipes_addShapelessRecipe_t)(unsigned char *recipes, ItemInstance const& result, std::vector<Recipes_Type> const& param_2);
+static Recipes_addShapelessRecipe_t Recipes_addShapelessRecipe = (Recipes_addShapelessRecipe_t) 0x9c3dc;
+
+// FurnaceRecipes
+
+typedef void (*FurnaceRecipes_addFurnaceRecipe_t)(unsigned char *recipes, int32_t input_item_id, ItemInstance const& result);
+static FurnaceRecipes_addFurnaceRecipe_t FurnaceRecipes_addFurnaceRecipe = (FurnaceRecipes_addFurnaceRecipe_t) 0xa0714;
 
 #endif
 

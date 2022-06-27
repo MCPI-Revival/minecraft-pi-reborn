@@ -3,6 +3,7 @@
 
 #include <mods/init/init.h>
 #include <mods/feature/feature.h>
+#include <mods/misc/misc.h>
 #include <mods/creative/creative.h>
 
 #ifndef MCPI_SERVER_MODE

@@ -157,6 +157,11 @@ static void use_shader(GLuint program) {
 
 // Array Pointer Drawing
 GL_FUNC(glDrawArrays, void, (GLenum mode, GLint first, GLsizei count));
+#define lazy_uniform(name) \
+    static GLint name##_handle = -1; \
+    if (name##_handle == -1) { \
+        name##_handle = real_glGetUniformLocation()(program, #name); \
+    }
 void glDrawArrays(GLenum mode, GLint first, GLsizei count) {
     // Verify
     if (gl_state.array_pointers.vertex.size != 3 || !gl_state.array_pointers.vertex.enabled || gl_state.array_pointers.vertex.type != GL_FLOAT) {
@@ -178,30 +183,30 @@ void glDrawArrays(GLenum mode, GLint first, GLsizei count) {
     use_shader(program);
 
     // Projection Matrix
-    GLint u_projection_handle = real_glGetUniformLocation()(program, "u_projection");
+    lazy_uniform(u_projection);
     matrix_t *p = &gl_state.matrix_stacks.projection.stack[gl_state.matrix_stacks.projection.i];
     real_glUniformMatrix4fv()(u_projection_handle, 1, 0, (GLfloat *) &p->data[0][0]);
 
     // Model View Matrix
-    GLint u_model_view_handle = real_glGetUniformLocation()(program, "u_model_view");
+    lazy_uniform(u_model_view);
     p = &gl_state.matrix_stacks.model_view.stack[gl_state.matrix_stacks.model_view.i];
     real_glUniformMatrix4fv()(u_model_view_handle, 1, 0, (GLfloat *) &p->data[0][0]);
 
     // Has Texture
-    GLint u_has_texture_handle = real_glGetUniformLocation()(program, "u_has_texture"); \
+    lazy_uniform(u_has_texture); \
     real_glUniform1i()(u_has_texture_handle, use_texture); \
 
     // Texture Matrix
-    GLint u_texture_handle = real_glGetUniformLocation()(program, "u_texture");
+    lazy_uniform(u_texture);
     p = &gl_state.matrix_stacks.texture.stack[gl_state.matrix_stacks.texture.i];
     real_glUniformMatrix4fv()(u_texture_handle, 1, 0, (GLfloat *) &p->data[0][0]);
 
     // Texture Unit
-    GLint u_texture_unit_handle = real_glGetUniformLocation()(program, "u_texture_unit");
+    lazy_uniform(u_texture_unit);
     real_glUniform1i()(u_texture_unit_handle, 0);
 
     // Alpha Test
-    GLint u_alpha_test_handle = real_glGetUniformLocation()(program, "u_alpha_test");
+    lazy_uniform(u_alpha_test);
     real_glUniform1i()(u_alpha_test_handle, gl_state.alpha_test);
 
     // Color
@@ -214,16 +219,16 @@ void glDrawArrays(GLenum mode, GLint first, GLsizei count) {
     }
 
     // Fog
-    GLint u_fog_handle = real_glGetUniformLocation()(program, "u_fog");
+    lazy_uniform(u_fog);
     real_glUniform1i()(u_fog_handle, gl_state.fog.enabled);
     if (gl_state.fog.enabled) {
-        GLint u_fog_color_handle = real_glGetUniformLocation()(program, "u_fog_color");
+        lazy_uniform(u_fog_color);
         real_glUniform4f()(u_fog_color_handle, gl_state.fog.color[0], gl_state.fog.color[1], gl_state.fog.color[2], gl_state.fog.color[3]);
-        GLint u_fog_is_linear_handle = real_glGetUniformLocation()(program, "u_fog_is_linear");
+        lazy_uniform(u_fog_is_linear);
         real_glUniform1i()(u_fog_is_linear_handle, gl_state.fog.mode == GL_LINEAR);
-        GLint u_fog_start_handle = real_glGetUniformLocation()(program, "u_fog_start");
+        lazy_uniform(u_fog_start);
         real_glUniform1f()(u_fog_start_handle, gl_state.fog.start);
-        GLint u_fog_end_handle = real_glGetUniformLocation()(program, "u_fog_end");
+        lazy_uniform(u_fog_end);
         real_glUniform1f()(u_fog_end_handle, gl_state.fog.end);
     }
 

@@ -258,4 +258,5 @@ void init_misc() {
     // Init C++ And Logging
     _init_misc_cpp();
     _init_misc_logging();
+    _init_misc_api();
 }

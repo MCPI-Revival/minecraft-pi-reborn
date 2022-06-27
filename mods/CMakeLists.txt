@@ -78,7 +78,7 @@ endif()
 add_library(death SHARED src/death/death.cpp)
 target_link_libraries(death mods-headers reborn-patch symbols feature)
 
-add_library(misc SHARED src/misc/misc.c src/misc/misc.cpp src/misc/logging.cpp)
+add_library(misc SHARED src/misc/misc.c src/misc/misc.cpp src/misc/logging.cpp src/misc/api.cpp)
 target_link_libraries(misc mods-headers reborn-patch symbols media-layer-core feature GLESv1_CM)
 
 add_library(options SHARED src/options/options.c src/options/options.cpp)
