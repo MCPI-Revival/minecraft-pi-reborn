@@ -35,6 +35,9 @@ static void Gui_addMessage_injection(unsigned char *gui, std::string const& text
     // Free
     free(new_message);
 }
+void misc_add_message(unsigned char *gui, const char *text) {
+    Gui_addMessage_injection(gui, text);
+}
 
 // Print Progress Reports
 static int last_progress = -1;

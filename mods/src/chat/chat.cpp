@@ -29,22 +29,25 @@ int _chat_enabled = 0;
 #define MAX_CHAT_MESSAGE_LENGTH 512
 
 // Send API Command
-#ifndef MCPI_SERVER_MODE
-static void send_api_command(unsigned char *minecraft, char *str) {
+std::string chat_send_api_command(unsigned char *minecraft, char *str) {
     struct ConnectedClient client;
     client.sock = -1;
     client.str = "";
     client.time = 0;
     unsigned char *command_server = *(unsigned char **) (minecraft + Minecraft_command_server_property_offset);
     if (command_server != NULL) {
-        (*CommandServer_parse)(command_server, client, str);
+        return (*CommandServer_parse)(command_server, client, str);
+    } else {
+        return "";
     }
 }
+
+#ifndef MCPI_SERVER_MODE
 // Send API Chat Command
 static void send_api_chat_command(unsigned char *minecraft, char *str) {
     char *command = NULL;
     safe_asprintf(&command, "chat.post(%s)\n", str);
-    send_api_command(minecraft, command);
+    chat_send_api_command(minecraft, command);
     free(command);
 }
 #endif
@@ -57,24 +60,28 @@ void chat_send_message(unsigned char *server_side_network_handler, char *usernam
     (*ServerSideNetworkHandler_displayGameMessage)(server_side_network_handler, std::string(full_message));
     free(full_message);
 }
+// Handle Chat packet Send
+void chat_handle_packet_send(unsigned char *minecraft, unsigned char *packet) {
+    unsigned char *rak_net_instance = *(unsigned char **) (minecraft + Minecraft_rak_net_instance_property_offset);
+    unsigned char *rak_net_instance_vtable = *(unsigned char **) rak_net_instance;
+    RakNetInstance_isServer_t RakNetInstance_isServer = *(RakNetInstance_isServer_t *) (rak_net_instance_vtable + RakNetInstance_isServer_vtable_offset);
+    if ((*RakNetInstance_isServer)(rak_net_instance)) {
+        // Hosting Multiplayer
+        char *message = *(char **) (packet + ChatPacket_message_property_offset);
+        unsigned char *server_side_network_handler = *(unsigned char **) (minecraft + Minecraft_network_handler_property_offset);
+        chat_send_message(server_side_network_handler, *default_username, message);
+    } else {
+        // Client
+        RakNetInstance_send_t RakNetInstance_send = *(RakNetInstance_send_t *) (rak_net_instance_vtable + RakNetInstance_send_vtable_offset);
+        (*RakNetInstance_send)(rak_net_instance, packet);
+    }
+}
 
 // Manually Send (And Loopback) ChatPacket
 static void CommandServer_parse_CommandServer_dispatchPacket_injection(unsigned char *command_server, unsigned char *packet) {
     unsigned char *minecraft = *(unsigned char **) (command_server + CommandServer_minecraft_property_offset);
     if (minecraft != NULL) {
-        unsigned char *rak_net_instance = *(unsigned char **) (minecraft + Minecraft_rak_net_instance_property_offset);
-        unsigned char *rak_net_instance_vtable = *(unsigned char **) rak_net_instance;
-        RakNetInstance_isServer_t RakNetInstance_isServer = *(RakNetInstance_isServer_t *) (rak_net_instance_vtable + RakNetInstance_isServer_vtable_offset);
-        if ((*RakNetInstance_isServer)(rak_net_instance)) {
-            // Hosting Multiplayer
-            char *message = *(char **) (packet + ChatPacket_message_property_offset);
-            unsigned char *server_side_network_handler = *(unsigned char **) (minecraft + Minecraft_network_handler_property_offset);
-            chat_send_message(server_side_network_handler, *default_username, message);
-        } else {
-            // Client
-            RakNetInstance_send_t RakNetInstance_send = *(RakNetInstance_send_t *) (rak_net_instance_vtable + RakNetInstance_send_vtable_offset);
-            (*RakNetInstance_send)(rak_net_instance, packet);
-        }
+        chat_handle_packet_send(minecraft, packet);
     }
 }
 

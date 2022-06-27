@@ -10,6 +10,9 @@ void misc_run_on_tick(misc_update_function_t function);
 
 void Level_saveLevelData_injection(unsigned char *level);
 
+// Use this instead of directly calling Gui::addMessage(), it has proper logging!
+void misc_add_message(unsigned char *gui, const char *text);
+
 #ifdef __cplusplus
 }
 #endif
