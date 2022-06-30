@@ -1,5 +1,5 @@
 #include "state.h"
-#include "passthrough.h"
+#include "../passthrough.h"
 
 #include <GLES/gl.h>
 

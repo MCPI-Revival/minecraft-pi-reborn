@@ -1,7 +1,7 @@
 #include <libreborn/libreborn.h>
 
 #include "state.h"
-#include "passthrough.h"
+#include "../passthrough.h"
 
 // GL State
 gl_state_t gl_state = {

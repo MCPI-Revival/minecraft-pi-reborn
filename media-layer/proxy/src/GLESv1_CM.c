@@ -38,17 +38,17 @@ CALL(11, glFogfv, void, (GLenum pname, const GLfloat *params)) {
 // 'pointer' Is Only Supported As An Integer, Not As An Actual Pointer
 #if defined(MEDIA_LAYER_PROXY_SERVER)
 #define CALL_GL_POINTER(unique_id, name) \
+    static int is_set_##name = 0; \
     CALL(unique_id, name, void, (GLint size, GLenum type, GLsizei stride, const void *pointer)) { \
         /* Check */ \
-        static int last_set = 0; \
         static GLint last_size; \
         static GLenum last_type; \
         static GLsizei last_stride; \
         static const void *last_pointer; \
-        if (last_set && last_size == size && last_type == type && last_stride == stride && last_pointer == pointer) { \
+        if (is_set_##name && last_size == size && last_type == type && last_stride == stride && last_pointer == pointer) { \
             return; \
         } else { \
-            last_set = 1; \
+            is_set_##name = 1; \
             last_size = size; \
             last_type = type; \
             last_stride = stride; \
@@ -524,6 +524,8 @@ CALL(28, glPolygonOffset, void, (GLfloat factor, GLfloat units)) {
 #endif
 }
 
+CALL_GL_POINTER(41, glTexCoordPointer)
+
 #if defined(MEDIA_LAYER_PROXY_SERVER)
 void glDisableClientState(GLenum array) {
     // Set
@@ -532,6 +534,23 @@ void glDisableClientState(GLenum array) {
         return;
     } else {
         *enabled = 0;
+        // Not needed when using compatibility layer
+#ifndef MCPI_USE_GLES1_COMPATIBILITY_LAYER
+        switch (array) {
+            case GL_VERTEX_ARRAY: {
+                is_set_glVertexPointer = 0;
+                break;
+            }
+            case GL_COLOR_ARRAY: {
+                is_set_glColorPointer = 0;
+                break;
+            }
+            case GL_TEXTURE_COORD_ARRAY: {
+                is_set_glTexCoordPointer = 0;
+                break;
+            }
+        }
+#endif
     }
 }
 #endif
@@ -719,8 +738,6 @@ CALL(40, glMultMatrixf, void, (const GLfloat *m)) {
     glMultMatrixf(m);
 #endif
 }
-
-CALL_GL_POINTER(41, glTexCoordPointer)
 
 CALL(42, glDeleteBuffers, void, (GLsizei n, const GLuint *buffers)) {
 #if defined(MEDIA_LAYER_PROXY_SERVER)

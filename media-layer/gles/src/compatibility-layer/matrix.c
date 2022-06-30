@@ -4,7 +4,6 @@
 #include <libreborn/libreborn.h>
 
 #include "state.h"
-#include "passthrough.h"
 
 // Matrix Common
 static void matrix_copy(matrix_t *src, matrix_t *dst) {
