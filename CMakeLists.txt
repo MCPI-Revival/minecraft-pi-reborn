@@ -2,8 +2,8 @@ cmake_minimum_required(VERSION 3.16.0)
 
 # Specify Options
 option(MCPI_IS_MIXED_BUILD "Whether The Architecture-Independent And ARM Code Are Different Architecture" FALSE)
-set(MCPI_BUILD_MODE "both" CACHE STRING "\"arm\" = Build Only Code That Must Be ARM; \"native\" = Build Architecture-Independent Code; \"both\" = Build All Code As ARM")
-set_property(CACHE MCPI_BUILD_MODE PROPERTY STRINGS "both" "arm" "native")
+set(MCPI_BUILD_MODE "native" CACHE STRING "\"arm\" = Build Only Code That Must Be ARM; \"native\" = Build Architecture-Independent Code")
+set_property(CACHE MCPI_BUILD_MODE PROPERTY STRINGS "arm" "native")
 option(MCPI_OPEN_SOURCE_ONLY "Only Install Open-Source Code (Will Result In Broken Install)" FALSE)
 option(MCPI_IS_APPIMAGE_BUILD "AppImage Build" FALSE)
 # Server/Headless Builds
@@ -46,10 +46,6 @@ elseif(MCPI_BUILD_MODE STREQUAL "native")
     set(USE_ARM32_TOOLCHAIN FALSE)
     set(BUILD_ARM_COMPONENTS FALSE)
     set(BUILD_NATIVE_COMPONENTS TRUE)
-elseif(MCPI_BUILD_MODE STREQUAL "both")
-    set(USE_ARM32_TOOLCHAIN TRUE)
-    set(BUILD_ARM_COMPONENTS TRUE)
-    set(BUILD_NATIVE_COMPONENTS TRUE)
 else()
     message(FATAL_ERROR "Invalid Mode")
 endif()
@@ -67,11 +63,18 @@ endif()
 
 # Specify Installation Paths
 set(MCPI_INSTALL_DIR "lib/${MCPI_VARIANT_NAME}")
-set(MCPI_LIB_DIR "${MCPI_INSTALL_DIR}/lib")
 set(MCPI_BIN_DIR "${MCPI_INSTALL_DIR}/bin")
 set(MCPI_SDK_DIR "${MCPI_INSTALL_DIR}/sdk")
 set(MCPI_SDK_LIB_DIR "${MCPI_SDK_DIR}/lib")
 set(MCPI_SDK_INCLUDE_DIR "${MCPI_SDK_DIR}/include")
+
+# Library Directory
+set(MCPI_LIB_DIR "${MCPI_INSTALL_DIR}/lib")
+if(BUILD_ARM_COMPONENTS)
+    string(APPEND MCPI_LIB_DIR "/arm")
+elseif(BUILD_NATIVE_COMPONENTS)
+    string(APPEND MCPI_LIB_DIR "/native")
+endif()
 
 # Build Mode
 if(NOT CMAKE_BUILD_TYPE)

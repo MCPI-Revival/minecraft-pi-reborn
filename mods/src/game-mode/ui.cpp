@@ -17,10 +17,6 @@
 
 // Run Command
 static char *run_command_proper(const char *command[], bool allow_empty) {
-    // Prepare Environment
-    RESET_ENVIRONMENTAL_VARIABLE("LD_LIBRARY_PATH");
-    RESET_ENVIRONMENTAL_VARIABLE("LD_PRELOAD");
-
     // Run
     int return_code;
     char *output = run_command(command, &return_code);

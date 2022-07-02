@@ -4,6 +4,12 @@
 
 // Safe execvpe()
 __attribute__((noreturn)) void safe_execvpe(const char *const argv[], const char *const envp[]) {
+    // Log
+    DEBUG("Running Command:");
+    for (int i = 0; argv[i] != NULL; i++) {
+        DEBUG("    %s", argv[i]);
+    }
+    // Run
     int ret = execvpe(argv[0], (char *const *) argv, (char *const *) envp);
     if (ret == -1) {
         ERR("Unable To Execute Program: %s: %s", argv[0], strerror(errno));

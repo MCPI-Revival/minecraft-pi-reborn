@@ -65,10 +65,6 @@ static void start_media_layer_proxy_client(int read, int write) {
     } else if (ret == 0) {
         // Child Process
 
-        // Prepare Environment
-        RESET_ENVIRONMENTAL_VARIABLE("LD_LIBRARY_PATH");
-        RESET_ENVIRONMENTAL_VARIABLE("LD_PRELOAD");
-
         // Prepare Arguments
         char *read_str = NULL;
         safe_asprintf(&read_str, "%i", read);

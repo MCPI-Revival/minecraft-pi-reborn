@@ -1,11 +1,5 @@
 project(media-layer-extras)
 
-if(BUILD_ARM_COMPONENTS)
-    # Add Source To Media Core
-    if(TARGET media-layer-core-real)
-        set(TARGET media-layer-core-real)
-    elseif(TARGET media-layer-proxy-server)
-        set(TARGET media-layer-proxy-server)
-    endif()
-    target_sources("${TARGET}" PRIVATE src/SDL.c)
-endif()
+# Build
+add_library(media-layer-extras OBJECT src/SDL.c)
+target_link_libraries(media-layer-extras media-layer-headers reborn-util)

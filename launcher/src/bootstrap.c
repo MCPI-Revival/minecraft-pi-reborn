@@ -15,13 +15,6 @@
 #include "crash-report.h"
 
 // Set Environmental Variable
-#define PRESERVE_ENVIRONMENTAL_VARIABLE(name) \
-    { \
-        char *original_env_value = getenv(name); \
-        if (original_env_value != NULL) { \
-            setenv("ORIGINAL_" name, original_env_value, 1); \
-        } \
-    }
 static void trim(char **value) {
     // Remove Trailing Colon
     int length = strlen(*value);
@@ -45,19 +38,6 @@ void set_and_print_env(const char *name, char *value) {
     // Set The Value
     setenv(name, value, 1);
 }
-#ifndef __ARM_ARCH
-#define PASS_ENVIRONMENTAL_VARIABLE_TO_QEMU(name) \
-    { \
-        char *old_value = getenv("QEMU_SET_ENV"); \
-        char *new_value = NULL; \
-        /* Pass Variable */ \
-        safe_asprintf(&new_value, "%s%s%s=%s", old_value == NULL ? "" : old_value, old_value == NULL ? "" : ",", name, getenv(name)); \
-        setenv("QEMU_SET_ENV", new_value, 1); \
-        free(new_value); \
-        /* Reset Variable */ \
-        RESET_ENVIRONMENTAL_VARIABLE(name); \
-    }
-#endif
 
 // Get Environmental Variable
 static char *get_env_safe(const char *name) {
@@ -102,7 +82,7 @@ static void load(char **ld_preload, char *folder) {
                         int result = access(name, R_OK);
                         if (result == 0) {
                             // Add To LD_PRELOAD
-                            string_append(ld_preload, ":%s", name);
+                            string_append(ld_preload, "%s%s", *ld_preload == NULL ? "" : ":", name);
                         } else if (result == -1 && errno != 0) {
                             // Fail
                             INFO("Unable To Acesss: %s: %s", name, strerror(errno));
@@ -169,12 +149,14 @@ void pre_bootstrap(int argc, char *argv[]) {
 #endif
 
     // Debug Zenity
+#ifndef MCPI_HEADLESS_MODE
     {
         const char *is_debug = getenv("MCPI_DEBUG");
         if (is_debug != NULL && strlen(is_debug) > 0) {
             set_and_print_env("ZENITY_DEBUG", "1");
         }
     }
+#endif
 
     // AppImage
 #ifdef MCPI_IS_APPIMAGE_BUILD
@@ -348,22 +330,17 @@ void bootstrap(int argc, char *argv[]) {
     // Free Resolved Path
     free(resolved_path);
 
-    // Configure LD_LIBRARY_PATH
+    // Configure Library Search Path
+    char *library_path = NULL;
     {
         // Log
         DEBUG("Setting Linker Search Paths...");
 
-        // Preserve
-        PRESERVE_ENVIRONMENTAL_VARIABLE("LD_LIBRARY_PATH");
+        // Prepare
         char *new_ld_path = NULL;
 
-        // Add Library Directory
-        safe_asprintf(&new_ld_path, "%s/lib", binary_directory);
-
-        // Add ARM Sysroot Libraries (Ensure Priority) (Ignore On Actual ARM System)
-#ifdef MCPI_BUNDLE_ARMHF_SYSROOT
-        string_append(&new_ld_path, ":%s/sysroot/lib:%s/sysroot/lib/arm-linux-gnueabihf:%s/sysroot/usr/lib:%s/sysroot/usr/lib/arm-linux-gnueabihf", binary_directory, binary_directory, binary_directory, binary_directory);
-#endif
+        // Add Native Library Directory
+        safe_asprintf(&new_ld_path, "%s/lib/native", binary_directory);
 
         // Add LD_LIBRARY_PATH
         {
@@ -373,19 +350,30 @@ void bootstrap(int argc, char *argv[]) {
             }
         }
 
-        // Set And Free
+        // Set LD_LIBRARY_PATH (Used For Everything Except MCPI)
         set_and_print_env("LD_LIBRARY_PATH", new_ld_path);
+
+        // Add ARM Library Directory
+        // (This Overrides LD_LIBRARY_PATH Using ld.so's --library-path Option)
+        safe_asprintf(&library_path, "%s/lib/arm", binary_directory);
+
+        // Add ARM Sysroot Libraries (Ensure Priority) (Ignore On Actual ARM System)
+#ifdef MCPI_BUNDLE_ARMHF_SYSROOT
+        string_append(&library_path, ":%s/sysroot/lib:%s/sysroot/lib/arm-linux-gnueabihf:%s/sysroot/usr/lib:%s/sysroot/usr/lib/arm-linux-gnueabihf", binary_directory, binary_directory, binary_directory, binary_directory);
+#endif
+
+        // Add Remaining LD_LIBRARY_PATH
+        string_append(&library_path, ":%s", new_ld_path);
+
+        // Free LD_LIBRARY_PATH
         free(new_ld_path);
     }
 
-    // Configure LD_PRELOAD
+    // Configure MCPI's Preloaded Objects
+    char *preload = NULL;
     {
         // Log
         DEBUG("Locating Mods...");
-
-        // Preserve
-        PRESERVE_ENVIRONMENTAL_VARIABLE("LD_PRELOAD");
-        char *new_ld_preload = NULL;
 
         // ~/.minecraft-pi/mods
         {
@@ -393,7 +381,7 @@ void bootstrap(int argc, char *argv[]) {
             char *mods_folder = NULL;
             safe_asprintf(&mods_folder, "%s" HOME_SUBDIRECTORY_FOR_GAME_DATA "/mods/", getenv("HOME"));
             // Load Mods From ./mods
-            load(&new_ld_preload, mods_folder);
+            load(&preload, mods_folder);
             // Free Mods Folder
             free(mods_folder);
         }
@@ -404,7 +392,7 @@ void bootstrap(int argc, char *argv[]) {
             char *mods_folder = NULL;
             safe_asprintf(&mods_folder, "%s/mods/", binary_directory);
             // Load Mods From ./mods
-            load(&new_ld_preload, mods_folder);
+            load(&preload, mods_folder);
             // Free Mods Folder
             free(mods_folder);
         }
@@ -413,13 +401,9 @@ void bootstrap(int argc, char *argv[]) {
         {
             char *value = get_env_safe("LD_PRELOAD");
             if (strlen(value) > 0) {
-                string_append(&new_ld_preload, ":%s", value);
+                string_append(&preload, ":%s", value);
             }
         }
-
-        // Set LD_PRELOAD
-        set_and_print_env("LD_PRELOAD", new_ld_preload);
-        free(new_ld_preload);
     }
 
     // Free Binary Directory
@@ -430,26 +414,28 @@ void bootstrap(int argc, char *argv[]) {
 
     // Arguments
     int argv_start = 1; // argv = &new_args[argv_start]
-    const char *new_args[argv_start /* 1 Potential Prefix Argument (QEMU) */ + argc + 1 /* NULL-Terminator */]; //
+    int real_argv_start = argv_start + 5; // ld.so Arguments
+    const char *new_args[real_argv_start /* 1 Potential Prefix Argument (QEMU) */ + argc + 1 /* NULL-Terminator */]; //
 
     // Copy Existing Arguments
     for (int i = 1; i < argc; i++) {
-        new_args[i + argv_start] = argv[i];
+        new_args[i + real_argv_start] = argv[i];
     }
     // NULL-Terminator
-    new_args[argv_start + argc] = NULL;
+    new_args[real_argv_start + argc] = NULL;
 
     // Set Executable Argument
-    new_args[argv_start] = new_mcpi_exe_path;
+    new_args[argv_start] = patch_get_interpreter(new_mcpi_exe_path);
+    new_args[argv_start + 1] = "--preload";
+    new_args[argv_start + 2] = preload;
+    new_args[argv_start + 3] = "--library-path";
+    new_args[argv_start + 4] = library_path;
+    new_args[real_argv_start] = new_mcpi_exe_path;
 
     // Non-ARM Systems Need QEMU
 #ifndef __ARM_ARCH
     argv_start--;
     new_args[argv_start] = QEMU_BINARY;
-
-    // Prevent QEMU From Being Modded
-    PASS_ENVIRONMENTAL_VARIABLE_TO_QEMU("LD_LIBRARY_PATH");
-    PASS_ENVIRONMENTAL_VARIABLE_TO_QEMU("LD_PRELOAD");
 #endif
 
     // Run

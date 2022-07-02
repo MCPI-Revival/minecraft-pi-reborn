@@ -5,7 +5,7 @@ file(MAKE_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/include/libreborn")
 configure_file(include/libreborn/config.h.in "${CMAKE_CURRENT_BINARY_DIR}/include/libreborn/config.h" ESCAPE_QUOTES @ONLY)
 
 # Util
-add_library(reborn-util STATIC src/util/elf.c src/util/exec.c src/util/string.c src/util/util.c)
+add_library(reborn-util SHARED src/util/elf.c src/util/exec.c src/util/string.c src/util/util.c)
 target_include_directories(
     reborn-util
     PUBLIC
@@ -13,6 +13,14 @@ target_include_directories(
     "$<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/include>"
     "$<INSTALL_INTERFACE:${MCPI_SDK_INCLUDE_DIR}/libreborn>"
 )
+# Install
+install(TARGETS reborn-util DESTINATION "${MCPI_LIB_DIR}")
+# SDK
+if(BUILD_ARM_COMPONENTS)
+    install(TARGETS reborn-util EXPORT sdk DESTINATION "${MCPI_SDK_LIB_DIR}")
+    install(DIRECTORY "include/" DESTINATION "${MCPI_SDK_INCLUDE_DIR}/libreborn")
+    install(DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/include/" DESTINATION "${MCPI_SDK_INCLUDE_DIR}/libreborn")
+endif()
 
 # Patch
 if(BUILD_ARM_COMPONENTS)
@@ -23,7 +31,4 @@ if(BUILD_ARM_COMPONENTS)
     install(TARGETS reborn-patch DESTINATION "${MCPI_LIB_DIR}")
     # SDK
     install(TARGETS reborn-patch EXPORT sdk DESTINATION "${MCPI_SDK_LIB_DIR}")
-    install(TARGETS reborn-util EXPORT sdk DESTINATION "${MCPI_SDK_LIB_DIR}")
-    install(DIRECTORY "include/" DESTINATION "${MCPI_SDK_INCLUDE_DIR}/libreborn")
-    install(DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/include/" DESTINATION "${MCPI_SDK_INCLUDE_DIR}/libreborn")
 endif()

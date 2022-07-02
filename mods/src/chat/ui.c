@@ -14,16 +14,6 @@
 #include "chat-internal.h"
 #include <mods/chat/chat.h>
 
-// Run Command
-static char *run_command_proper(const char *command[], int *return_code) {
-    // Prepare Environment
-    RESET_ENVIRONMENTAL_VARIABLE("LD_LIBRARY_PATH");
-    RESET_ENVIRONMENTAL_VARIABLE("LD_PRELOAD");
-
-    // Run
-    return run_command(command, return_code);
-}
-
 // Count Chat Windows
 static pthread_mutex_t chat_counter_lock = PTHREAD_MUTEX_INITIALIZER;
 static volatile unsigned int chat_counter = 0;
@@ -44,7 +34,7 @@ static void *chat_thread(__attribute__((unused)) void *nop) {
         "--text", "Enter Chat Message:",
         NULL
     };
-    char *output = run_command_proper(command, &return_code);
+    char *output = run_command(command, &return_code);
     // Handle Message
     if (output != NULL) {
         // Check Return Code

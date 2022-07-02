@@ -32,17 +32,6 @@
     \
     __attribute__((__used__)) return_type name args
 
-// Macro To Reset Environmental Variables To Pre-MCPI State
-#define RESET_ENVIRONMENTAL_VARIABLE(name) \
-    { \
-        char *original_env_value = getenv("ORIGINAL_" name); \
-        if (original_env_value != NULL) { \
-            setenv(name, original_env_value, 1); \
-        } else { \
-            unsetenv(name); \
-        } \
-    }
-
 #ifdef __cplusplus
 extern "C" {
 #endif

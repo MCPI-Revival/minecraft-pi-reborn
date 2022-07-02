@@ -31,35 +31,10 @@ build() {
     cd ../../
 }
 
-# Build For ARM
-armhf_build() {
-    # Use Build Dir
-    if [ ! -f "build/${MODE}-armhf/build.ninja" ]; then
-        ./scripts/setup.sh "${MODE}" armhf
-    fi
-    cd "build/${MODE}-armhf"
-
-    # Create Prefix
-    local prefix="$(cd ../../; pwd)/out/${MODE}-armhf"
-    rm -rf "${prefix}"
-    mkdir -p "${prefix}"
-
-    # Build All Components
-    cmake --build .
-    DESTDIR="${prefix}" cmake --install .
-
-    # Exit
-    cd ../../
-}
-
 # Variables
 MODE="$1"
 ARCH="$2"
 shift 2
 
 # Build
-if [ "${ARCH}" = "armhf" ]; then
-    armhf_build "${MODE}"
-else
-    build "${MODE}" "${ARCH}"
-fi
+build "${MODE}" "${ARCH}"

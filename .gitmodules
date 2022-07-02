@@ -2,10 +2,10 @@
 	path = dependencies/libpng/src
 	url = https://github.com/glennrp/libpng.git
 [submodule "dependencies/zlib/src"]
-	path = dependencies/zlib/src
+	path = dependencies/libpng/zlib/src
 	url = https://github.com/madler/zlib.git
 [submodule "dependencies/glfw/src"]
-	path = dependencies/glfw/src
+	path = media-layer/core/dependencies/glfw/src
 	url = https://github.com/glfw/glfw.git
 [submodule "dependencies/zenity/src"]
 	path = dependencies/zenity/src

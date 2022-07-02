@@ -1,9 +1,5 @@
 project(media-layer)
 
-# Target Notes:
-#     media-layer-core-real: Fully Built Media Layer Core
-#     media-layer-core: Alias Target That Points To The Library MCPI Should Link To
-
 # Add Headers
 add_library(media-layer-headers INTERFACE)
 target_include_directories(
@@ -21,13 +17,15 @@ endif()
 # Add GLESv1_CM Stubs Or Compatibility Layer
 add_subdirectory(gles)
 
+# Add Extras
+add_subdirectory(extras)
+
 # Add Core
-add_subdirectory(core)
+if((BUILD_NATIVE_COMPONENTS AND MCPI_USE_MEDIA_LAYER_PROXY) OR (BUILD_ARM_COMPONENTS AND NOT MCPI_USE_MEDIA_LAYER_PROXY))
+    add_subdirectory(core)
+endif()
 
 # Add Proxy
 if(MCPI_USE_MEDIA_LAYER_PROXY)
     add_subdirectory(proxy)
 endif()
-
-# Add Extras
-add_subdirectory(extras)

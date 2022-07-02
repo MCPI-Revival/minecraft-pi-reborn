@@ -8,6 +8,8 @@ else()
     target_sources(launcher PRIVATE src/client/launcher.cpp)
 endif()
 target_link_libraries(launcher reborn-util)
+# RPath
+set_target_properties(launcher PROPERTIES INSTALL_RPATH "$ORIGIN/lib/native")
 
 # Install
 install(TARGETS launcher DESTINATION "${MCPI_INSTALL_DIR}")
