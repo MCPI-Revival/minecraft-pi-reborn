@@ -10,13 +10,13 @@ else()
 
     # Copy To Binary Directory
     set(APT_DIR "${CMAKE_CURRENT_BINARY_DIR}/apt")
-    file(REMOVE_RECURSE "${APT_DIR}")
     file(MAKE_DIRECTORY "${APT_DIR}")
     # Make Directories
     file(MAKE_DIRECTORY "${APT_DIR}/apt.conf.d")
     file(MAKE_DIRECTORY "${APT_DIR}/preferences.d")
     file(MAKE_DIRECTORY "${APT_DIR}/keys")
     file(MAKE_DIRECTORY "${APT_DIR}/dpkg")
+    file(MAKE_DIRECTORY "${APT_DIR}/archives")
     file(TOUCH "${APT_DIR}/dpkg/status")
 
     # Create APT Sources
@@ -65,7 +65,6 @@ else()
 
     # Create Sysroot Directory
     set(SYSROOT_DIR "${CMAKE_CURRENT_BINARY_DIR}/sysroot")
-    file(REMOVE_RECURSE "${SYSROOT_DIR}")
     file(MAKE_DIRECTORY "${SYSROOT_DIR}")
 
     # Download
@@ -78,6 +77,7 @@ else()
     add_custom_command(
         OUTPUT "${APT_DIR}/.download-stamp"
         DEPENDS "${APT_DIR}/.update-stamp"
+        COMMAND find "${APT_DIR}/archives" -maxdepth 1 -type f -name "*.deb" -delete
         COMMAND ${APT_ENV} apt-get install -y --no-install-recommends --download-only ${APT_PACKAGES}
         COMMAND "${CMAKE_COMMAND}" -E touch "${APT_DIR}/.download-stamp"
         VERBATIM
@@ -85,7 +85,8 @@ else()
     add_custom_command(
         OUTPUT "${APT_DIR}/.extract-stamp"
         DEPENDS "${APT_DIR}/.download-stamp"
-        COMMAND ${APT_ENV} find "${APT_DIR}/archives" -maxdepth 1 -type f -name "*.deb" -exec dpkg -x {} "${SYSROOT_DIR}" ";"
+        COMMAND find "${SYSROOT_DIR}" -mindepth 1 -delete
+        COMMAND find "${APT_DIR}/archives" -maxdepth 1 -type f -name "*.deb" -exec dpkg -x {} "${SYSROOT_DIR}" ";"
         COMMAND "${CMAKE_COMMAND}" -E touch "${APT_DIR}/.extract-stamp"
         VERBATIM
     )

@@ -1,19 +1,10 @@
 # Symlink Function
 function(install_symlink target link)
-    install(CODE "\
-        # Prepare\n \
-        set(file \"\$ENV{DESTDIR}\${CMAKE_INSTALL_PREFIX}/${link}\")\n \
-        \
-        # Create Directory\n \
-        get_filename_component(dir \"\${file}\" DIRECTORY)\n \
-        file(MAKE_DIRECTORY \${dir})\n \
-        \
-        # Create Symlink\n \
-        if(NOT EXISTS \"\${file}\")\n \
-            execute_process(COMMAND \${CMAKE_COMMAND} -E create_symlink ${target} \"\${file}\")\n \
-            message(\"-- Installing: \${file}\")\n \
-        else()\n \
-            message(\"-- Up-to-date: \${file}\")\n \
-        endif() \
-    ")
+    get_filename_component(parent "${link}" DIRECTORY)
+    if(parent STREQUAL "")
+        set(parent ".")
+    endif()
+    file(MAKE_DIRECTORY "${CMAKE_BINARY_DIR}/symlink/${parent}")
+    file(CREATE_LINK "${target}" "${CMAKE_BINARY_DIR}/symlink/${link}" SYMBOLIC)
+    install(FILES "${CMAKE_BINARY_DIR}/symlink/${link}" DESTINATION "${parent}")
 endfunction()

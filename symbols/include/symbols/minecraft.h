@@ -15,6 +15,9 @@ typedef unsigned char bool;
 typedef void (*renderCursor_t)(float x, float y, unsigned char *minecraft);
 static renderCursor_t renderCursor = (renderCursor_t) 0x480c4;
 
+typedef void (*sleepMs_t)(int32_t x);
+static sleepMs_t sleepMs = (sleepMs_t) 0x13cf4;
+
 static char **default_path = (char **) 0xe264; // /.minecraft/
 static char **default_username = (char **) 0x18fd4; // StevePi
 static char **minecraft_pi_version = (char **) 0x39d94; // v0.1.1 alpha

@@ -24,7 +24,7 @@ run() {
         git \
         cmake \
         ninja-build \
-        nodejs
+        dpkg-dev
 
     # Host Dependencies Needed For Compile
     queue_pkg \
@@ -65,26 +65,30 @@ run() {
         architecture_specific_pkg "${arch}"
     done
 
-    # Install appimagetool & appimage-builder Dependencies
-    queue_pkg \
-        python3-pip \
-        python3-setuptools \
-        python3-wheel \
-        patchelf \
-        desktop-file-utils \
-        libgdk-pixbuf2.0-dev \
-        fakeroot \
-        gtk-update-icon-cache \
-        shared-mime-info \
-        squashfs-tools \
-        zsync \
-        sed
-
     # Install Queue
     sudo apt-get install --no-install-recommends -y ${PKG_QUEUE}
 
-    # Install appimage-builder
-    sudo pip3 install 'git+https://github.com/AppImageCrafters/appimage-builder.git'
+    # Install appimagetool
+    sudo rm -rf /opt/squashfs-root /opt/appimagetool.AppDir 
+    sudo rm -f /opt/appimagetool /usr/local/bin/appimagetool
+    case "$(dpkg-architecture -qDEB_BUILD_ARCH)" in
+        'armhf') APPIMAGE_ARCH='armhf';;
+        'arm64') APPIMAGE_ARCH='aarch64';;
+        'i386') APPIMAGE_ARCH='i686';;
+        'amd64') APPIMAGE_ARCH='x86_64';;
+    esac
+    sudo mkdir -p /opt
+    sudo wget -O /opt/appimagetool "https://github.com/AppImage/AppImageKit/releases/download/continuous/appimagetool-${APPIMAGE_ARCH}.AppImage"
+    sudo chmod +x /opt/appimagetool
+    # Workaround AppImage Issues With Docker
+    cd /opt
+    sudo sed -i '0,/AI\x02/{s|AI\x02|\x00\x00\x00|}' ./appimagetool
+    # Extract
+    sudo ./appimagetool --appimage-extract
+    sudo rm -f ./appimagetool
+    # Link
+    sudo mv ./squashfs-root ./appimagetool.AppDir
+    sudo ln -s /opt/appimagetool.AppDir/AppRun /usr/local/bin/appimagetool
 }
 
 # Run

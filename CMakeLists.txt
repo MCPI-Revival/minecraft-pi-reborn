@@ -96,7 +96,11 @@ endif()
 
 # Specify Default Installation Prefix
 if(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
-    set(CMAKE_INSTALL_PREFIX "/usr" CACHE PATH "" FORCE)
+    set(DEFAULT_PREFIX "/usr")
+    if(MCPI_IS_APPIMAGE_BUILD)
+        set(DEFAULT_PREFIX "/")
+    endif()
+    set(CMAKE_INSTALL_PREFIX "${DEFAULT_PREFIX}" CACHE PATH "" FORCE)
 endif()
 
 # Optimizations

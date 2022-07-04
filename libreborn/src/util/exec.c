@@ -12,6 +12,9 @@ __attribute__((noreturn)) void safe_execvpe(const char *const argv[], const char
     // Run
     int ret = execvpe(argv[0], (char *const *) argv, (char *const *) envp);
     if (ret == -1) {
+        if (errno == ENOENT && strcmp(argv[0], "qemu-qrm")) {
+            ERR("Unable to find QEMU! To install on Ubuntu/Debian, run \"sudo apt install qemu-user\". To install on Arch Linux, run \"sudo pacman -Sy qemu-user\".");
+        }
         ERR("Unable To Execute Program: %s: %s", argv[0], strerror(errno));
     } else {
         IMPOSSIBLE();

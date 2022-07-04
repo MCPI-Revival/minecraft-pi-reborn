@@ -110,3 +110,10 @@ install(
     DESTINATION "share/metainfo"
     RENAME "${MCPI_APP_ID}.appdata.xml"
 )
+
+# AppImage
+if(MCPI_IS_APPIMAGE_BUILD)
+    install_symlink("bin/${MCPI_VARIANT_NAME}" "AppRun")
+    install_symlink("share/applications/${MCPI_APP_ID}.desktop" "${MCPI_APP_ID}.desktop")
+    install_symlink("." "usr")
+endif()

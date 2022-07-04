@@ -205,6 +205,8 @@ static void GameRenderer_render_injection(unsigned char *game_renderer, float pa
 }
 
 // Init
+static void nop() {
+}
 void init_misc() {
     // Remove Invalid Item Background (A Red Background That Appears For Items That Are Not Included In The gui_blocks Atlas)
     if (feature_has("Remove Invalid Item Background", server_disabled)) {
@@ -253,6 +255,11 @@ void init_misc() {
     // Disable V-Sync
     if (feature_has("Disable V-Sync", server_disabled)) {
         media_disable_vsync();
+    }
+
+    // Remove Forced GUI Lag
+    if (feature_has("Remove Forced GUI Lag", server_enabled)) {
+        overwrite_calls((void *) sleepMs, (void *) nop);
     }
 
     // Init C++ And Logging

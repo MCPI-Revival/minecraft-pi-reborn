@@ -129,26 +129,6 @@ void init_compat() {
     sigaction(SIGTERM, &act_sigterm, NULL);
 }
 
-// Cleanup Temporary Files
-__attribute__((destructor)) static void cleanup_temporary() {
-    // Cleanup Executable
-    {
-        char *exe = realpath("/proc/self/exe", NULL);
-        // Check If Successful
-        if (exe != NULL) {
-            // Check If Executable Is Temporary
-            if (starts_with(exe, "/tmp")) {
-                // Cleanup Temporary File
-                if (unlink(exe) != 0) {
-                    ERR("Unable To Cleanup Temporary File: %s", strerror(errno));
-                }
-            }
-            // Free
-            free(exe);
-        }
-    }
-}
-
 // Store Exit Requests
 static int exit_requested = 0;
 int compat_check_exit_requested() {
