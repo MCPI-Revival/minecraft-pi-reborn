@@ -4,6 +4,7 @@ set -e
 
 # Prepare
 NAME='minecraft-pi-reborn'
+BRANCH='master'
 
 # Build
 ./scripts/setup.sh "$1" "$2" -DMCPI_IS_APPIMAGE_BUILD=ON
@@ -23,7 +24,7 @@ fi
 
 # Package
 ARCH="${RUNTIME_ARCH}" appimagetool \
-    --updateinformation "zsync|https://jenkins.thebrokenrail.com/job/minecraft-pi-reborn/job/master/lastSuccessfulBuild/artifact/out/${NAME}-latest-$2.AppImage.zsync" \
+    --updateinformation "zsync|https://jenkins.thebrokenrail.com/job/minecraft-pi-reborn/job/${BRANCH}/lastSuccessfulBuild/artifact/out/${NAME}-latest-$2.AppImage.zsync" \
     --runtime-file "build/appimage/runtime-$2" \
     --comp xz \
     "./out/$1-$2" \
