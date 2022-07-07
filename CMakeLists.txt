@@ -43,19 +43,14 @@ set(MCPI_APP_TITLE "${DEFAULT_APP_TITLE}" CACHE STRING "App Title")
 
 # Configure Build Mode
 if(MCPI_BUILD_MODE STREQUAL "arm")
-    set(USE_ARM32_TOOLCHAIN TRUE)
     set(BUILD_ARM_COMPONENTS TRUE)
     set(BUILD_NATIVE_COMPONENTS FALSE)
 elseif(MCPI_BUILD_MODE STREQUAL "native")
-    set(USE_ARM32_TOOLCHAIN FALSE)
     set(BUILD_ARM_COMPONENTS FALSE)
     set(BUILD_NATIVE_COMPONENTS TRUE)
 else()
     message(FATAL_ERROR "Invalid Mode")
 endif()
-
-# Utility Functions
-include(cmake/util.cmake)
 
 # Specify Variant Name
 set(MCPI_VARIANT_NAME "minecraft-pi-reborn")
@@ -99,13 +94,16 @@ endif()
 # Start Project
 project(minecraft-pi-reborn)
 
+# Utility Functions
+include(cmake/util.cmake)
+
 # Sanity Check
 if(BUILD_NATIVE_COMPONENTS AND NOT CMAKE_SYSTEM_PROCESSOR MATCHES "^arm" AND NOT MCPI_IS_MIXED_BUILD)
     message(FATAL_ERROR "Project is configured as a mixed-buld, but MCPI_IS_MIXED_BUILD is disabled.")
 endif()
 
 # Require ARM Compilation
-if(USE_ARM32_TOOLCHAIN AND NOT CMAKE_SYSTEM_PROCESSOR MATCHES "^arm")
+if(BUILD_ARM_COMPONENTS AND NOT CMAKE_SYSTEM_PROCESSOR MATCHES "^arm")
     message(FATAL_ERROR "ARM-Targeting Compiler Required")
 endif()
 
