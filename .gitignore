@@ -12,3 +12,4 @@ AppDir
 *.AppImage
 core*
 qemu_*
+.prebuilt-armhf-toolchain

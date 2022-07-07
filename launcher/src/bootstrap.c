@@ -292,7 +292,7 @@ void bootstrap(int argc, char *argv[]) {
         // Find Linker
         char *linker = NULL;
         // Select Linker
-#ifdef MCPI_BUNDLE_ARMHF_SYSROOT
+#ifdef MCPI_USE_PREBUILT_ARMHF_TOOLCHAIN
         // Use ARM Sysroot Linker
         safe_asprintf(&linker, "%s/sysroot/lib/ld-linux-armhf.so.3", binary_directory);
 #else
@@ -358,7 +358,7 @@ void bootstrap(int argc, char *argv[]) {
         safe_asprintf(&library_path, "%s/lib/arm", binary_directory);
 
         // Add ARM Sysroot Libraries (Ensure Priority) (Ignore On Actual ARM System)
-#ifdef MCPI_BUNDLE_ARMHF_SYSROOT
+#ifdef MCPI_USE_PREBUILT_ARMHF_TOOLCHAIN
         string_append(&library_path, ":%s/sysroot/lib:%s/sysroot/lib/arm-linux-gnueabihf:%s/sysroot/usr/lib:%s/sysroot/usr/lib/arm-linux-gnueabihf", binary_directory, binary_directory, binary_directory, binary_directory);
 #endif
 

@@ -11,9 +11,8 @@ option(MCPI_IS_APPIMAGE_BUILD "AppImage Build" FALSE)
 option(MCPI_SERVER_MODE "Server Mode" FALSE)
 option(MCPI_HEADLESS_MODE "Headless Mode" ${MCPI_SERVER_MODE})
 
-# ARMHF Sysroot
-option(MCPI_BUNDLE_ARMHF_SYSROOT "Whether To Include An ARMHF Sysroot" ${MCPI_IS_MIXED_BUILD})
-set(MCPI_CUSTOM_BUNDLED_ARMHF_SYSROOT "" CACHE PATH "Custom Bundled ARMHF Sysroot")
+# Prebuilt ARMHF Toolchain
+option(MCPI_USE_PREBUILT_ARMHF_TOOLCHAIN "Whether To Use A Prebuilt ARMHF Toolchain For Building ARM Components" ${MCPI_IS_MIXED_BUILD})
 
 # Media Layer
 if(NOT MCPI_HEADLESS_MODE)
@@ -90,6 +89,11 @@ endif()
 # Build Mode
 if(NOT CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE "Release")
+endif()
+
+# Setup Prebuilt ARMHF Toolchain
+if(BUILD_ARM_COMPONENTS AND MCPI_USE_PREBUILT_ARMHF_TOOLCHAIN)
+    include(cmake/prebuilt-armhf-toolchain.cmake)
 endif()
 
 # Start Project
