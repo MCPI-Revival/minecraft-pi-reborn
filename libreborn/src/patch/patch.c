@@ -72,6 +72,12 @@ static unsigned char *code_block = NULL;
 #define CODE_SIZE 8
 static int code_block_remaining = CODE_BLOCK_SIZE;
 
+static void _long_overwrite(void *start, void *target) {
+    unsigned char patch_data[4] = {0x04, 0xf0, 0x1f, 0xe5}; // "ldr pc, [pc, #-0x4]"
+
+    _patch(NULL, -1, start, patch_data);
+    _patch_address(NULL, -1, (void *) (((unsigned char *) start) + 4), target);
+}
 static void update_code_block(void *target) {
     // BL Instructions Can Only Access A Limited Portion of Memory, So This Allocates Memory Closer To The Original Instruction, That When Run, Will Jump Into The Actual Target
     if (code_block == NULL) {
@@ -84,7 +90,7 @@ static void update_code_block(void *target) {
     if (code_block_remaining < CODE_SIZE) {
         ERR("Maximum Amount Of overwrite_calls() Uses Reached");
     }
-    _overwrite(NULL, -1, code_block, target);
+    _long_overwrite(code_block, target);
 }
 static void increment_code_block() {
     code_block = code_block + CODE_SIZE;
@@ -92,17 +98,20 @@ static void increment_code_block() {
 }
 
 // Overwrite Specific B(L) Instruction
-void _overwrite_call(const char *file, int line, void *start, void *target) {
+static void _overwrite_call_internal(const char *file, int line, void *start, void *target, int use_b_instruction) {
     // Add New Target To Code Block
     update_code_block(target);
 
     // Patch
-    int use_b_instruction = ((unsigned char *) start)[3] == B_INSTRUCTION;
     uint32_t new_instruction = generate_bl_instruction(start, code_block, use_b_instruction);
     _patch(file, line, start, (unsigned char *) &new_instruction);
 
     // Increment Code Block Position
     increment_code_block();
+}
+void _overwrite_call(const char *file, int line, void *start, void *target) {
+    int use_b_instruction = ((unsigned char *) start)[3] == B_INSTRUCTION;
+    _overwrite_call_internal(file, line, start, target, use_b_instruction);
 }
 
 // Overwrite All B(L) Intrusctions That Target The Specified Address
@@ -144,12 +153,8 @@ void *extract_from_bl_instruction(unsigned char *from) {
 }
 
 // Overwrite Function
-// NOTE: "start" Must Be At Least 8 Bytes Long
 void _overwrite(const char *file, int line, void *start, void *target) {
-    unsigned char patch_data[4] = {0x04, 0xf0, 0x1f, 0xe5}; // "ldr pc, [pc, #-0x4]"
-
-    _patch(file, line, start, patch_data);
-    _patch_address(file, line, (void *) (((unsigned char *) start) + 4), target);
+    _overwrite_call_internal(file, line, start, target, 1);
 }
 
 // Print Patch Debug Data

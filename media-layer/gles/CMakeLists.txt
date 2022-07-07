@@ -1,4 +1,4 @@
-project(media-layer-stubs)
+project(media-layer-gles)
 
 # Stubs Only Needed For ARM
 if(NOT MCPI_HEADLESS_MODE AND ((BUILD_NATIVE_COMPONENTS AND MCPI_USE_MEDIA_LAYER_PROXY) OR (BUILD_ARM_COMPONENTS AND NOT MCPI_USE_MEDIA_LAYER_PROXY)))

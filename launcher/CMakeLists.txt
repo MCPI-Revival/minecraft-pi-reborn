@@ -44,7 +44,7 @@ else()
 endif()
 install(
     FILES "${CMAKE_CURRENT_BINARY_DIR}/launcher.desktop"
-    DESTINATION "share/applications"
+    DESTINATION "${MCPI_SHARE_DIR}/applications"
     RENAME "${MCPI_APP_ID}.desktop"
 )
 
@@ -107,13 +107,12 @@ file(APPEND "${CMAKE_CURRENT_BINARY_DIR}/appstream.xml"
 )
 install(
     FILES "${CMAKE_CURRENT_BINARY_DIR}/appstream.xml"
-    DESTINATION "share/metainfo"
+    DESTINATION "${MCPI_SHARE_DIR}/metainfo"
     RENAME "${MCPI_APP_ID}.appdata.xml"
 )
 
 # AppImage
 if(MCPI_IS_APPIMAGE_BUILD)
     install_symlink("bin/${MCPI_VARIANT_NAME}" "AppRun")
-    install_symlink("share/applications/${MCPI_APP_ID}.desktop" "${MCPI_APP_ID}.desktop")
-    install_symlink("." "usr")
+    install_symlink("${MCPI_SHARE_DIR}/applications/${MCPI_APP_ID}.desktop" "${MCPI_APP_ID}.desktop")
 endif()

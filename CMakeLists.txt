@@ -6,12 +6,15 @@ set(MCPI_BUILD_MODE "native" CACHE STRING "\"arm\" = Build Only Code That Must B
 set_property(CACHE MCPI_BUILD_MODE PROPERTY STRINGS "arm" "native")
 option(MCPI_OPEN_SOURCE_ONLY "Only Install Open-Source Code (Will Result In Broken Install)" FALSE)
 option(MCPI_IS_APPIMAGE_BUILD "AppImage Build" FALSE)
+
 # Server/Headless Builds
 option(MCPI_SERVER_MODE "Server Mode" FALSE)
 option(MCPI_HEADLESS_MODE "Headless Mode" ${MCPI_SERVER_MODE})
+
 # ARMHF Sysroot
 option(MCPI_BUNDLE_ARMHF_SYSROOT "Whether To Include An ARMHF Sysroot" ${MCPI_IS_MIXED_BUILD})
 set(MCPI_CUSTOM_BUNDLED_ARMHF_SYSROOT "" CACHE PATH "Custom Bundled ARMHF Sysroot")
+
 # Media Layer
 if(NOT MCPI_HEADLESS_MODE)
     option(MCPI_USE_MEDIA_LAYER_PROXY "Whether To Enable The Media Layer Proxy" ${MCPI_IS_MIXED_BUILD})
@@ -20,6 +23,7 @@ else()
     set(MCPI_USE_MEDIA_LAYER_PROXY FALSE)
     set(MCPI_USE_GLES1_COMPATIBILITY_LAYER FALSE)
 endif()
+
 # App ID
 set(DEFAULT_APP_ID "com.thebrokenrail.MCPIReborn")
 if(MCPI_SERVER_MODE)
@@ -28,6 +32,7 @@ else()
     string(APPEND DEFAULT_APP_ID "Client")
 endif()
 set(MCPI_APP_ID "${DEFAULT_APP_ID}" CACHE STRING "App ID")
+
 # App Title
 set(DEFAULT_APP_TITLE "Minecraft: Pi Edition: Reborn")
 if(MCPI_SERVER_MODE)
@@ -74,6 +79,12 @@ if(BUILD_ARM_COMPONENTS)
     string(APPEND MCPI_LIB_DIR "/arm")
 elseif(BUILD_NATIVE_COMPONENTS)
     string(APPEND MCPI_LIB_DIR "/native")
+endif()
+
+# Share Directory
+set(MCPI_SHARE_DIR "share")
+if(MCPI_IS_APPIMAGE_BUILD)
+    string(PREPEND MCPI_SHARE_DIR "usr/")
 endif()
 
 # Build Mode

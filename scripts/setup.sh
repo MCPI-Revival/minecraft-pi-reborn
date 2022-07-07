@@ -3,12 +3,12 @@
 set -e
 
 # ARM Toolchain File
-ARM_TOOLCHAIN_FILE="$(pwd)/cmake/armhf-toolchain.cmake"
+ARM_TOOLCHAIN_FILE="$(pwd)/cmake/toolchain/armhf-toolchain.cmake"
 
 # Setup
 setup() {
     # Find Toolchain
-    local toolchain_file="$(pwd)/cmake/${ARCH}-toolchain.cmake"
+    local toolchain_file="$(pwd)/cmake/toolchain/${ARCH}-toolchain.cmake"
     if [ ! -f "${toolchain_file}" ]; then
         echo "Invalid Architecture: ${ARCH}" > /dev/stderr
         exit 1
