@@ -35,6 +35,31 @@ CALL(11, glFogfv, void, (GLenum pname, const GLfloat *params)) {
 #endif
 }
 
+// Track Bindings
+#if defined(MEDIA_LAYER_PROXY_SERVER)
+static GLuint bound_buffer = 0;
+static GLuint bound_texture = 0;
+static unsigned char vertex_array_enabled = 0;
+static unsigned char color_array_enabled = 0;
+static unsigned char tex_coord_array_enabled = 0;
+static unsigned char *get_array_enabled_pointer(GLenum array) {
+    switch (array) {
+        case GL_VERTEX_ARRAY: {
+            return &vertex_array_enabled;
+        }
+        case GL_COLOR_ARRAY: {
+            return &color_array_enabled;
+        }
+        case GL_TEXTURE_COORD_ARRAY: {
+            return &tex_coord_array_enabled;
+        }
+        default: {
+            ERR("Unsupported Array Pointer: %i", array);
+        }
+    }
+}
+#endif
+
 // 'pointer' Is Only Supported As An Integer, Not As An Actual Pointer
 #if defined(MEDIA_LAYER_PROXY_SERVER)
 #define CALL_GL_POINTER(unique_id, name) \
@@ -58,6 +83,7 @@ CALL(11, glFogfv, void, (GLenum pname, const GLfloat *params)) {
         start_proxy_call(); \
         \
         /* Arguments */ \
+        write_int(bound_buffer); \
         write_int((uint32_t) size); \
         write_int((uint32_t) type); \
         write_int((uint32_t) stride); \
@@ -69,10 +95,11 @@ CALL(11, glFogfv, void, (GLenum pname, const GLfloat *params)) {
 #else
 #define CALL_GL_POINTER(unique_id, name) \
     CALL(unique_id, name, unused, unused) { \
+        /* Setup Buffer Binding */ \
+        GLuint bound_buffer = (GLuint) read_int(); \
+        glBindBuffer(GL_ARRAY_BUFFER, bound_buffer); \
         /* Check State */ \
-        GLint current_buffer = 0; \
-        glGetIntegerv(GL_ARRAY_BUFFER_BINDING, &current_buffer); \
-        if (current_buffer == 0) { \
+        if (bound_buffer == 0) { \
             PROXY_ERR("gl*Pointer() Functions Are Only Supported When A Buffer Is Bound To GL_ARRAY_BUFFER"); \
         } \
         GLint size = (GLint) read_int(); \
@@ -121,31 +148,6 @@ CALL(14, glBlendFunc, void, (GLenum sfactor, GLenum dfactor)) {
     glBlendFunc(sfactor, dfactor);
 #endif
 }
-
-// Track Bindings
-#if defined(MEDIA_LAYER_PROXY_SERVER)
-static GLuint bound_buffer = 0;
-static GLuint bound_texture = 0;
-static unsigned char vertex_array_enabled = 0;
-static unsigned char color_array_enabled = 0;
-static unsigned char tex_coord_array_enabled = 0;
-static unsigned char *get_array_enabled_pointer(GLenum array) {
-    switch (array) {
-        case GL_VERTEX_ARRAY: {
-            return &vertex_array_enabled;
-        }
-        case GL_COLOR_ARRAY: {
-            return &color_array_enabled;
-        }
-        case GL_TEXTURE_COORD_ARRAY: {
-            return &tex_coord_array_enabled;
-        }
-        default: {
-            ERR("Unsupported Array Pointer: %i", array);
-        }
-    }
-}
-#endif
 
 CALL(15, glDrawArrays, void, (GLenum mode, GLint first, GLsizei count)) {
 #if defined(MEDIA_LAYER_PROXY_SERVER)
@@ -599,6 +601,12 @@ void glBindBuffer(GLenum target, GLuint buffer) {
     } else {
         PROXY_ERR("Unsupported Buffer Binding: %u", target);
     }
+    // Not needed when using compatibility layer
+#ifndef MCPI_USE_GLES1_COMPATIBILITY_LAYER
+    is_set_glVertexPointer = 0;
+    is_set_glColorPointer = 0;
+    is_set_glTexCoordPointer = 0;
+#endif
 }
 #endif
 

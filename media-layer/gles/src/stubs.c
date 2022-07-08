@@ -45,7 +45,11 @@ void glDepthRangef(GLclampf near, GLclampf far) {
 }
 void glDepthFunc(GLenum func) {
 }
+static GLuint current_buffer = 0;
 void glBindBuffer(GLenum target, GLuint buffer) {
+    if (target == GL_ARRAY_BUFFER) {
+        current_buffer = buffer;
+    }
 }
 void glClearColor(GLclampf red, GLclampf green, GLclampf blue, GLclampf alpha) {
 }
@@ -138,6 +142,10 @@ void glGetIntegerv(GLenum pname, GLint *data) {
     switch (pname) {
         case GL_TEXTURE_BINDING_2D: {
             data[0] = current_texture;
+            break;
+        }
+        case GL_ARRAY_BUFFER_BINDING: {
+            data[0] = current_buffer;
             break;
         }
         case GL_UNPACK_ALIGNMENT: {

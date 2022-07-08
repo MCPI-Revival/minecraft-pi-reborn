@@ -1,5 +1,5 @@
 # Locations
-set(toolchain_dir "${CMAKE_CURRENT_SOURCE_DIR}/.prebuilt-armhf-toolchain")
+set(toolchain_dir "${CMAKE_CURRENT_LIST_DIR}/.prebuilt-armhf-toolchain")
 set(sysroot_dir "${CMAKE_CURRENT_BINARY_DIR}/bundled-armhf-sysroot")
 
 # Force Toolchain
@@ -16,7 +16,7 @@ if(NOT EXISTS "${CMAKE_C_COMPILER}")
     if(arch STREQUAL "x86_64")
         set(toolchain_url "https://developer.arm.com/-/media/Files/downloads/gnu/11.2-2022.02/binrel/gcc-arm-11.2-2022.02-x86_64-arm-none-linux-gnueabihf.tar.xz")
         set(toolchain_sha256 "c254f7199261fe76c32ef42187502839bda7efad0a66646cf739d074eff45fad")
-    elseif(arch STREQUAL "aarch64_be" OR arch STREQUAL "aarch64" OR arch STREQUAL "armv8b" OR arch STREQUAL "armv8l")
+    elseif(arch STREQUAL "aarch64" OR arch STREQUAL "armv8b" OR arch STREQUAL "armv8l")
         set(toolchain_url "https://developer.arm.com/-/media/Files/downloads/gnu/11.2-2022.02/binrel/gcc-arm-11.2-2022.02-aarch64-arm-none-linux-gnueabihf.tar.xz")
         set(toolchain_sha256 "c5603772af016008ddacb7e475dc226d0cccdf069925dfded43e452a59774fc3")
     else()
@@ -35,6 +35,7 @@ if(NOT EXISTS "${CMAKE_C_COMPILER}")
         SOURCE_DIR "${toolchain_dir}"
     )
     FetchContent_Populate(prebuilt-armhf-toolchain)
+
     # Force Sysroot Rebuild
     file(REMOVE_RECURSE "${sysroot_dir}")
 endif()
@@ -51,10 +52,11 @@ if(NOT EXISTS "${sysroot_dir}")
         USE_SOURCE_PERMISSIONS
         FILES_MATCHING
         PATTERN "*.so*"
-        PATTERN "*.py*" EXCLUDE
-        REGEX "gconv" EXCLUDE
-        REGEX "audit" EXCLUDE
     )
+
+    # Delete Unneeded Files
+    file(REMOVE_RECURSE "${sysroot_dir}/usr/lib/audit")
+    file(REMOVE_RECURSE "${sysroot_dir}/usr/lib/gconv")
 
     # Strip Files
     file(GLOB_RECURSE files LIST_DIRECTORIES FALSE "${sysroot_dir}/*")

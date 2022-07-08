@@ -149,7 +149,7 @@ void pre_bootstrap(int argc, char *argv[]) {
 #endif
 
     // Debug Zenity
-#ifndef MCPI_HEADLESS_MODE
+#ifndef MCPI_SERVER_MODE
     {
         const char *is_debug = getenv("MCPI_DEBUG");
         if (is_debug != NULL && strlen(is_debug) > 0) {

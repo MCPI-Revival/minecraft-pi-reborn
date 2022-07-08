@@ -253,7 +253,7 @@ void init_misc() {
     }
 
     // Disable V-Sync
-    if (feature_has("Disable V-Sync", server_disabled)) {
+    if (feature_has("Disable V-Sync", server_enabled)) {
         media_disable_vsync();
     }
 

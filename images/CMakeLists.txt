@@ -1,7 +1,7 @@
 project(images)
 
 # Title Background
-if(NOT MCPI_SERVER_MODE)
+if(NOT MCPI_HEADLESS_MODE)
     install(
         FILES "background.png"
         DESTINATION "${MCPI_INSTALL_DIR}/data/images/gui"

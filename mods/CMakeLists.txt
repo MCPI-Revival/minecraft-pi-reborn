@@ -62,9 +62,6 @@ else()
     add_library(touch SHARED src/touch/touch.cpp)
     target_link_libraries(touch mods-headers reborn-patch symbols feature)
 
-    add_library(override SHARED src/override/override.c)
-    target_link_libraries(override mods-headers reborn-patch symbols dl home)
-
     add_library(textures SHARED src/textures/textures.cpp)
     target_link_libraries(textures mods-headers reborn-patch symbols media-layer-core feature misc)
 
@@ -74,6 +71,9 @@ else()
     add_library(benchmark SHARED src/benchmark/benchmark.cpp)
     target_link_libraries(benchmark mods-headers reborn-patch symbols compat misc media-layer-core)
 endif()
+
+add_library(override SHARED src/override/override.c)
+target_link_libraries(override mods-headers reborn-patch symbols dl home)
 
 add_library(death SHARED src/death/death.cpp)
 target_link_libraries(death mods-headers reborn-patch symbols feature)
@@ -99,11 +99,11 @@ else()
 endif()
 
 ## Install Mods
-set(MODS_TO_INSTALL init compat readdir feature game-mode misc death options chat creative home version test)
+set(MODS_TO_INSTALL init compat readdir feature game-mode misc override death options chat creative home version test)
 if(MCPI_SERVER_MODE)
     list(APPEND MODS_TO_INSTALL server)
 else()
-    list(APPEND MODS_TO_INSTALL multiplayer sound override camera input sign touch textures atlas benchmark)
+    list(APPEND MODS_TO_INSTALL multiplayer sound camera input sign touch textures atlas benchmark)
 endif()
 install(TARGETS ${MODS_TO_INSTALL} DESTINATION "${MCPI_INSTALL_DIR}/mods")
 # SDK

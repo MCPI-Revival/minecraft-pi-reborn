@@ -7,16 +7,9 @@
 
 #include <libreborn/libreborn.h>
 
-#ifndef MCPI_SERVER_MODE
 #include <SDL/SDL.h>
 
-#include <media-layer/core.h>
-
-#include <mods/input/input.h>
-#include <mods/sign/sign.h>
-#include <mods/chat/chat.h>
-#include <mods/home/home.h>
-
+#ifndef MCPI_HEADLESS_MODE
 // Custom Title
 HOOK(SDL_WM_SetCaption, void, (__attribute__((unused)) const char *title, const char *icon)) {
     ensure_SDL_WM_SetCaption();
@@ -29,6 +22,15 @@ HOOK(SDL_ShowCursor, int, (int toggle)) {
     ensure_SDL_ShowCursor();
     return (*real_SDL_ShowCursor)(toggle == SDL_QUERY ? SDL_QUERY : SDL_DISABLE);
 }
+#endif
+
+#ifndef MCPI_SERVER_MODE
+#include <media-layer/core.h>
+
+#include <mods/input/input.h>
+#include <mods/sign/sign.h>
+#include <mods/chat/chat.h>
+#include <mods/home/home.h>
 
 // Intercept SDL Events
 HOOK(SDL_PollEvent, int, (SDL_Event *event)) {

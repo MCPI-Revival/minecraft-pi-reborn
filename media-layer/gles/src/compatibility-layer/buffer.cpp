@@ -29,6 +29,7 @@ void glDeleteBuffers(GLsizei n, const GLuint *buffers) {
     for (int i = 0; i < n; i++) {
         if (buffers_map.count(buffers[i]) > 0) {
             real_glDeleteBuffers()(1, &buffers_map[i]);
+            buffers_map.erase(buffers[i]);
         }
     }
 }

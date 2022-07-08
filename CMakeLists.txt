@@ -1,9 +1,20 @@
 cmake_minimum_required(VERSION 3.16.0)
 
-# Specify Options
-option(MCPI_IS_MIXED_BUILD "Whether The Architecture-Independent And ARM Code Are Different Architecture" FALSE)
+# Build Mode
 set(MCPI_BUILD_MODE "native" CACHE STRING "\"arm\" = Build Only Code That Must Be ARM; \"native\" = Build Architecture-Independent Code")
 set_property(CACHE MCPI_BUILD_MODE PROPERTY STRINGS "arm" "native")
+if(MCPI_BUILD_MODE STREQUAL "arm")
+    set(BUILD_ARM_COMPONENTS TRUE)
+    set(BUILD_NATIVE_COMPONENTS FALSE)
+elseif(MCPI_BUILD_MODE STREQUAL "native")
+    set(BUILD_ARM_COMPONENTS FALSE)
+    set(BUILD_NATIVE_COMPONENTS TRUE)
+else()
+    message(FATAL_ERROR "Invalid Mode")
+endif()
+
+# Specify Options
+option(MCPI_IS_MIXED_BUILD "Whether The Architecture-Independent And ARM Code Are Different Architecture" FALSE)
 option(MCPI_OPEN_SOURCE_ONLY "Only Install Open-Source Code (Will Result In Broken Install)" FALSE)
 option(MCPI_IS_APPIMAGE_BUILD "AppImage Build" FALSE)
 
@@ -11,16 +22,15 @@ option(MCPI_IS_APPIMAGE_BUILD "AppImage Build" FALSE)
 option(MCPI_SERVER_MODE "Server Mode" FALSE)
 option(MCPI_HEADLESS_MODE "Headless Mode" ${MCPI_SERVER_MODE})
 
-# Prebuilt ARMHF Toolchain
-option(MCPI_USE_PREBUILT_ARMHF_TOOLCHAIN "Whether To Use A Prebuilt ARMHF Toolchain For Building ARM Components" ${MCPI_IS_MIXED_BUILD})
-
 # Media Layer
-if(NOT MCPI_HEADLESS_MODE)
-    option(MCPI_USE_MEDIA_LAYER_PROXY "Whether To Enable The Media Layer Proxy" ${MCPI_IS_MIXED_BUILD})
-    option(MCPI_USE_GLES1_COMPATIBILITY_LAYER "Whether To Enable The GLESv1_CM Compatibility Layer" TRUE)
+if(MCPI_HEADLESS_MODE)
+    set(DEFAULT_USE_MEDIA_LAYER_PROXY FALSE)
 else()
-    set(MCPI_USE_MEDIA_LAYER_PROXY FALSE)
-    set(MCPI_USE_GLES1_COMPATIBILITY_LAYER FALSE)
+    set(DEFAULT_USE_MEDIA_LAYER_PROXY ${MCPI_IS_MIXED_BUILD})
+endif()
+option(MCPI_USE_MEDIA_LAYER_PROXY "Whether To Enable The Media Layer Proxy" ${DEFAULT_USE_MEDIA_LAYER_PROXY})
+if(NOT MCPI_HEADLESS_MODE)
+    option(MCPI_USE_GLES1_COMPATIBILITY_LAYER "Whether To Enable The GLESv1_CM Compatibility Layer" TRUE)
 endif()
 
 # App ID
@@ -40,17 +50,6 @@ else()
     string(APPEND DEFAULT_APP_TITLE " (Client)")
 endif()
 set(MCPI_APP_TITLE "${DEFAULT_APP_TITLE}" CACHE STRING "App Title")
-
-# Configure Build Mode
-if(MCPI_BUILD_MODE STREQUAL "arm")
-    set(BUILD_ARM_COMPONENTS TRUE)
-    set(BUILD_NATIVE_COMPONENTS FALSE)
-elseif(MCPI_BUILD_MODE STREQUAL "native")
-    set(BUILD_ARM_COMPONENTS FALSE)
-    set(BUILD_NATIVE_COMPONENTS TRUE)
-else()
-    message(FATAL_ERROR "Invalid Mode")
-endif()
 
 # Specify Variant Name
 set(MCPI_VARIANT_NAME "minecraft-pi-reborn")
@@ -86,7 +85,8 @@ if(NOT CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE "Release")
 endif()
 
-# Setup Prebuilt ARMHF Toolchain
+# Prebuilt ARMHF Toolchain
+option(MCPI_USE_PREBUILT_ARMHF_TOOLCHAIN "Whether To Use A Prebuilt ARMHF Toolchain For Building ARM Components" ${MCPI_IS_MIXED_BUILD})
 if(BUILD_ARM_COMPONENTS AND MCPI_USE_PREBUILT_ARMHF_TOOLCHAIN)
     include(cmake/prebuilt-armhf-toolchain.cmake)
 endif()
@@ -97,12 +97,10 @@ project(minecraft-pi-reborn)
 # Utility Functions
 include(cmake/util.cmake)
 
-# Sanity Check
+# Sanity Checks
 if(BUILD_NATIVE_COMPONENTS AND NOT CMAKE_SYSTEM_PROCESSOR MATCHES "^arm" AND NOT MCPI_IS_MIXED_BUILD)
     message(FATAL_ERROR "Project is configured as a mixed-buld, but MCPI_IS_MIXED_BUILD is disabled.")
 endif()
-
-# Require ARM Compilation
 if(BUILD_ARM_COMPONENTS AND NOT CMAKE_SYSTEM_PROCESSOR MATCHES "^arm")
     message(FATAL_ERROR "ARM-Targeting Compiler Required")
 endif()
@@ -139,7 +137,7 @@ add_subdirectory(dependencies)
 
 # Warnings
 add_compile_options(-Wall -Wextra -Werror -Wpointer-arith -Wshadow -Wnull-dereference)
-if(CMAKE_CXX_COMPILER_VERSION VERSION_GREATER 10.0)
+if(CMAKE_C_COMPILER_ID STREQUAL "GNU" AND CMAKE_CXX_COMPILER_VERSION VERSION_GREATER 10.0)
     # Prevents False Positives
     add_compile_options(-Wno-stringop-overflow)
 endif()
