@@ -6,6 +6,7 @@
 
 #include "engine.h"
 #include "file.h"
+#include "api.h"
 
 // Store Device
 static ALCdevice *device = NULL;
@@ -55,6 +56,9 @@ void _media_audio_init() {
 // De-Init
 void _media_audio_cleanup() {
     if (_media_audio_is_loaded()) {
+        // Delete Audio Sources
+        _media_audio_delete_sources();
+
         // Delete Audio Buffers
         _media_audio_delete_buffers();
 

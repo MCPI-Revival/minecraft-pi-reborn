@@ -8,9 +8,17 @@
 
 #include "file.h"
 #include "engine.h"
+#include "api.h"
 
 // Store Audio Sources
 static std::vector<ALuint> &get_sources() {
+    static std::vector<ALuint> sources;
+    return sources;
+}
+
+// Store Idle Audio Sources
+#define MAX_IDLE_SOURCES 50
+static std::vector<ALuint> &get_idle_sources() {
     static std::vector<ALuint> sources;
     return sources;
 }
@@ -24,6 +32,22 @@ static std::vector<ALuint> &get_sources() {
             ERR("OpenAL Error: %s", alGetString(__err)); \
         } \
     }
+
+// Delete Sources
+void _media_audio_delete_sources() {
+    if (_media_audio_is_loaded()) {
+        for (ALuint source : get_idle_sources()) {
+            alDeleteSources(1, &source);
+            AL_ERROR_CHECK();
+        }
+        for (ALuint source : get_sources()) {
+            alDeleteSources(1, &source);
+            AL_ERROR_CHECK();
+        }
+    }
+    get_idle_sources().clear();
+    get_sources().clear();
+}
 
 // Update Listener
 void media_audio_update(float volume, float x, float y, float z, float yaw) {
@@ -57,8 +81,12 @@ void media_audio_update(float volume, float x, float y, float z, float yaw) {
                 if (source_state != AL_PLAYING) {
                     // Finished Playing
                     remove = true;
-                    alDeleteSources(1, &source);
-                    AL_ERROR_CHECK();
+                    if (get_idle_sources().size() < MAX_IDLE_SOURCES) {
+                        get_idle_sources().push_back(source);
+                    } else {
+                        alDeleteSources(1, &source);
+                        AL_ERROR_CHECK();
+                    }
                 }
             } else {
                 // Not A Source
@@ -81,16 +109,23 @@ void media_audio_play(const char *source, const char *name, float x, float y, fl
         // Load Sound
         ALuint buffer = _media_audio_get_buffer(source, name);
         if (volume > 0.0f && buffer) {
-            // Create Source
+            // Get Source
             ALuint al_source;
-            alGenSources(1, &al_source);
-            // Special Out-Of-Memory Handling
-            {
-                ALenum err = alGetError();
-                if (err == AL_OUT_OF_MEMORY) {
-                    return;
-                } else {
-                    AL_ERROR_CHECK_MANUAL(err);
+            if (get_idle_sources().size() > 0) {
+                // Use Idle Source
+                al_source = get_idle_sources().back();
+                get_idle_sources().pop_back();
+            } else {
+                // Create Source
+                alGenSources(1, &al_source);
+                // Special Out-Of-Memory Handling
+                {
+                    ALenum err = alGetError();
+                    if (err == AL_OUT_OF_MEMORY) {
+                        return;
+                    } else {
+                        AL_ERROR_CHECK_MANUAL(err);
+                    }
                 }
             }
 
