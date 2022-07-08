@@ -126,6 +126,20 @@ static void run_zenity_and_set_env(const char *env_name, std::vector<std::string
     run_command_and_set_env(env_name, full_command_array);
 }
 
+// Set Variable If Not Already Set
+static void set_env_if_unset(const char *env_name, std::function<std::string()> callback) {
+    if (getenv(env_name) == NULL) {
+        char *value = strdup(callback().c_str());
+        ALLOC_CHECK(value);
+        set_and_print_env(env_name, value);
+        free(value);
+    }
+}
+
+// Defaults
+#define DEFAULT_USERNAME "StevePi"
+#define DEFAULT_RENDER_DISTANCE "Short"
+
 // Launch
 #define LIST_DIALOG_SIZE "400"
 int main(int argc, char *argv[]) {
@@ -146,6 +160,37 @@ int main(int argc, char *argv[]) {
                 fflush(stdout);
             });
             return 0;
+        }
+    }
+
+    // --default
+    for (int i = 1; i < argc; i++) {
+        if (strcmp(argv[i], "--default") == 0) {
+            // Use Default Feature Flags
+            set_env_if_unset("MCPI_FEATURE_FLAGS", []() {
+                std::string feature_flags = "";
+                load_available_feature_flags([&feature_flags](std::string flag) {
+                    bool default_value;
+                    // Strip Default Value
+                    std::string stripped_flag = strip_feature_flag_default(flag, &default_value);
+                    // Specify Default Value
+                    if (default_value) {
+                        // Enabled By Default
+                        feature_flags += stripped_flag + '|';
+                    }
+                });
+                if (feature_flags.length() > 0 && feature_flags[feature_flags.length() - 1] == '|') {
+                    feature_flags.pop_back();
+                }
+                return feature_flags;
+            });
+            set_env_if_unset("MCPI_RENDER_DISTANCE", []() {
+                return DEFAULT_RENDER_DISTANCE;
+            });
+            set_env_if_unset("MCPI_USERNAME", []() {
+                return DEFAULT_USERNAME;
+            });
+            break;
         }
     }
 
@@ -215,14 +260,11 @@ int main(int argc, char *argv[]) {
         command.push_back("Selected");
         command.push_back("--column");
         command.push_back("Name");
-        command.push_back("FALSE");
-        command.push_back("Far");
-        command.push_back("FALSE");
-        command.push_back("Normal");
-        command.push_back("TRUE");
-        command.push_back("Short");
-        command.push_back("FALSE");
-        command.push_back("Tiny");
+        std::string render_distances[] = {"Far", "Normal", "Short", "Tiny"};
+        for (std::string &render_distance : render_distances) {
+            command.push_back(render_distance.compare(DEFAULT_RENDER_DISTANCE) == 0 ? "TRUE" : "FALSE");
+            command.push_back(render_distance);
+        }
         // Run
         run_zenity_and_set_env("MCPI_RENDER_DISTANCE", command);
     }
@@ -233,7 +275,7 @@ int main(int argc, char *argv[]) {
         command.push_back("--text");
         command.push_back("Enter Minecraft Username:");
         command.push_back("--entry-text");
-        command.push_back("StevePi");
+        command.push_back(DEFAULT_USERNAME);
         // Run
         run_zenity_and_set_env("MCPI_USERNAME", command);
     }

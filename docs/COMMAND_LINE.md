@@ -14,6 +14,9 @@ TRUE This Flag Is On By Default
 FALSE This Flag Is Off By Default
 ```
 
+### ``--default`` (Client Mode Only)
+If you run MCPI-Reborn with ``--default``, it will skip the startup configuration dialogs and just use the default values.
+
 ### ``--only-generate`` (Server Mode Only)
 If you run MCPI-Reborn with ``--only-generate``, it will immediately exit once world generation has completed. This is mainly used for automatically testing MCPI-Reborn.
 
@@ -25,18 +28,18 @@ The world used will always be re-created on start and uses a hard-coded seed.
 ## Environmental Variables
 
 ### ``MCPI_DEBUG``
-This enables debug logging if you set it to any non-zero-length value.
+This enables debug logging if it is set.
 
 ### Client Mode Only
-If a value isn't set for any of the following variables, a GUI will open that allows you to select one.
+If any of the following variables aren't set, one configuration dialog will open on startup for each unset variable.
 
-### ``MCPI_FEATURE_FLAGS``
+#### ``MCPI_FEATURE_FLAGS``
 This corresponds to ``--print-available-feature-flags``. This is just a list of all enabled feature flags separated by ``|``.
 
 For instance, the string ``Feature A|Feature B`` would enable both ``Feature A`` and ``Feature B`` and *disable every other available feature flag*.
 
-### ``MCPI_RENDER_DISTANCE``
+#### ``MCPI_RENDER_DISTANCE``
 This is the render distance. The possible values are: ``Far``, ``Normal``, ``Short``, and ``Tiny``.
 
-### ``MCPI_USERNAME``
+#### ``MCPI_USERNAME``
 This is the username.
