@@ -585,5 +585,6 @@ static void server_init() {
 void init_server() {
     server_init();
     setenv("MCPI_FEATURE_FLAGS", get_features(), 1);
+    setenv("MCPI_RENDER_DISTANCE", "Tiny", 1);
     setenv("MCPI_USERNAME", get_motd().c_str(), 1);
 }

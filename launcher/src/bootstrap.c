@@ -78,14 +78,14 @@ static void load(char **ld_preload, char *folder) {
                         // Add Terminator
                         name[total_length] = '\0';
 
-                        // Check If File Is Executable
+                        // Check If File Is Accessible
                         int result = access(name, R_OK);
                         if (result == 0) {
                             // Add To LD_PRELOAD
                             string_append(ld_preload, "%s%s", *ld_preload == NULL ? "" : ":", name);
                         } else if (result == -1 && errno != 0) {
                             // Fail
-                            INFO("Unable To Acesss: %s: %s", name, strerror(errno));
+                            WARN("Unable To Acesss: %s: %s", name, strerror(errno));
                             errno = 0;
                         }
                     }

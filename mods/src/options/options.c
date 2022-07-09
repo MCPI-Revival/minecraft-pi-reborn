@@ -12,7 +12,6 @@ static bool LevelData_getSpawnMobs_injection(__attribute__((unused)) unsigned ch
     return 1;
 }
 
-#ifndef MCPI_SERVER_MODE
 // Get Custom Render Distance
 static int get_render_distance() {
     char *distance_str = getenv("MCPI_RENDER_DISTANCE");
@@ -31,7 +30,6 @@ static int get_render_distance() {
         ERR("Invalid Render Distance: %s", distance_str);
     }
 }
-#endif
 
 // Get Custom Username
 static char *get_username() {
@@ -91,12 +89,8 @@ void init_options() {
     // 3D Anaglyph
     anaglyph = feature_has("3D Anaglyph", server_disabled);
     // Render Distance
-#ifndef MCPI_SERVER_MODE
     render_distance = get_render_distance();
-    INFO("Setting Render Distance: %i", render_distance);
-#else
-    render_distance = 3;
-#endif
+    DEBUG("Setting Render Distance: %i", render_distance);
 
     // Set Options
     overwrite_calls((void *) Options_initDefaultValue, (void *) Options_initDefaultValue_injection);
@@ -104,9 +98,7 @@ void init_options() {
 
     // Change Username
     const char *username = get_username();
-#ifndef MCPI_SERVER_MODE
-    INFO("Setting Username: %s", username);
-#endif
+    DEBUG("Setting Username: %s", username);
     if (strcmp(*default_username, "StevePi") != 0) {
         ERR("Default Username Is Invalid");
     }

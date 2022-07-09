@@ -154,7 +154,7 @@ void media_take_screenshot(char *home) {
 
     // Save Image
     if (save_png(file, pixels, line_size, width, height)) {
-        INFO("Screenshot Failed: %s", file);
+        WARN("Screenshot Failed: %s", file);
     } else {
         INFO("Screenshot Saved: %s", file);
     }

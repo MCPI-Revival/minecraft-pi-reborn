@@ -10,7 +10,7 @@ static int is_survival = -1;
 // Patch Game Mode
 static void set_is_survival(int new_is_survival) {
     if (is_survival != new_is_survival) {
-        INFO("Setting Game Mode: %s", new_is_survival ? "Survival" : "Creative");
+        DEBUG("Setting Game Mode: %s", new_is_survival ? "Survival" : "Creative");
 
         // Correct Inventpry UI
         unsigned char inventory_patch[4] = {new_is_survival ? 0x00 : 0x01, 0x30, 0xa0, 0xe3}; // "mov r3, #0x0" or "mov r3, #0x1"
