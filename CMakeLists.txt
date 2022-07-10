@@ -137,9 +137,14 @@ add_subdirectory(dependencies)
 
 # Warnings
 add_compile_options(-Wall -Wextra -Werror -Wpointer-arith -Wshadow -Wnull-dereference)
-if(CMAKE_C_COMPILER_ID STREQUAL "GNU" AND CMAKE_CXX_COMPILER_VERSION VERSION_GREATER 10.0)
+if(CMAKE_C_COMPILER_ID STREQUAL "GNU")
     # Prevents False Positives
-    add_compile_options(-Wno-stringop-overflow)
+    if(CMAKE_C_COMPILER_VERSION VERSION_GREATER 10.0)
+        add_compile_options(-Wno-stringop-overflow)
+    endif()
+    if(CMAKE_C_COMPILER_VERSION VERSION_GREATER 11.0)
+        add_compile_options(-Wno-array-bounds -Wno-stringop-overread)
+    endif()
 endif()
 add_link_options(-Wl,--no-undefined)
 add_definitions(-D_GNU_SOURCE)

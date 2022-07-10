@@ -3,14 +3,11 @@
 #include <libreborn/libreborn.h>
 #include <symbols/minecraft.h>
 #include <mods/init/init.h>
+#include <mods/misc/misc.h>
 
 // The Actual Mod
 
-static FillingContainer_addItem_t original_mod;
-static int32_t Inventory_setupDefault_FillingContainer_addItem_call_injection(unsigned char *filling_container, ItemInstance *item_instance) {
-    // Call Original Modified Method
-    int32_t ret = (*original_mod)(filling_container, item_instance);
-
+static void Inventory_setupDefault_FillingContainer_addItem_call_injection(unsigned char *filling_container) {
     ItemInstance *fire_instance = new ItemInstance;
     ALLOC_CHECK(fire_instance);
     fire_instance->count = 255;
@@ -633,9 +630,6 @@ static int32_t Inventory_setupDefault_FillingContainer_addItem_call_injection(un
     chickenRaw_instance->auxiliary = 0;
     chickenRaw_instance->id = 365;
     (*FillingContainer_addItem)(filling_container, chickenRaw_instance);
-
-    // Return
-    return ret;
 }
 
 // Init
@@ -645,7 +639,5 @@ HOOK(init_creative, void, ()) {
 
     INFO("Loading Expanded Creative Mod");
 
-    void *point = (void *) 0x8e0fc;
-    original_mod = (FillingContainer_addItem_t) extract_from_bl_instruction((unsigned char *) point);
-    overwrite_call(point, (void *) Inventory_setupDefault_FillingContainer_addItem_call_injection);
+    misc_run_on_creative_inventory_setup(Inventory_setupDefault_FillingContainer_addItem_call_injection);
 }

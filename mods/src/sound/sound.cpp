@@ -113,9 +113,9 @@ static void SoundEngine_init_injection(unsigned char *sound_engine, unsigned cha
 void init_sound() {
     // Implement Sound Engine
     if (feature_has("Implement Sound Engine", server_disabled)) {
-        overwrite_calls((void *) SoundEngine_playUI, (void *) SoundEngine_playUI_injection);
-        overwrite_calls((void *) SoundEngine_play, (void *) SoundEngine_play_injection);
-        overwrite_calls((void *) SoundEngine_update, (void *) SoundEngine_update_injection);
+        overwrite((void *) SoundEngine_playUI, (void *) SoundEngine_playUI_injection);
+        overwrite((void *) SoundEngine_play, (void *) SoundEngine_play_injection);
+        overwrite((void *) SoundEngine_update, (void *) SoundEngine_update_injection);
         overwrite_calls((void *) SoundEngine_init, (void *) SoundEngine_init_injection);
     }
 }

@@ -11,17 +11,11 @@
 #include "api.h"
 
 // Store Audio Sources
-static std::vector<ALuint> &get_sources() {
-    static std::vector<ALuint> sources;
-    return sources;
-}
+static std::vector<ALuint> sources;
 
 // Store Idle Audio Sources
 #define MAX_IDLE_SOURCES 50
-static std::vector<ALuint> &get_idle_sources() {
-    static std::vector<ALuint> sources;
-    return sources;
-}
+static std::vector<ALuint> idle_sources;
 
 // Error Checking
 #define AL_ERROR_CHECK() AL_ERROR_CHECK_MANUAL(alGetError())
@@ -36,17 +30,17 @@ static std::vector<ALuint> &get_idle_sources() {
 // Delete Sources
 void _media_audio_delete_sources() {
     if (_media_audio_is_loaded()) {
-        for (ALuint source : get_idle_sources()) {
+        for (ALuint source : idle_sources) {
             alDeleteSources(1, &source);
             AL_ERROR_CHECK();
         }
-        for (ALuint source : get_sources()) {
+        for (ALuint source : sources) {
             alDeleteSources(1, &source);
             AL_ERROR_CHECK();
         }
     }
-    get_idle_sources().clear();
-    get_sources().clear();
+    idle_sources.clear();
+    sources.clear();
 }
 
 // Update Listener
@@ -68,8 +62,8 @@ void media_audio_update(float volume, float x, float y, float z, float yaw) {
         AL_ERROR_CHECK();
 
         // Clear Finished Sources
-        std::vector<ALuint>::iterator it = get_sources().begin();
-        while (it != get_sources().end()) {
+        std::vector<ALuint>::iterator it = sources.begin();
+        while (it != sources.end()) {
             ALuint source = *it;
             bool remove = false;
             // Check
@@ -81,8 +75,8 @@ void media_audio_update(float volume, float x, float y, float z, float yaw) {
                 if (source_state != AL_PLAYING) {
                     // Finished Playing
                     remove = true;
-                    if (get_idle_sources().size() < MAX_IDLE_SOURCES) {
-                        get_idle_sources().push_back(source);
+                    if (idle_sources.size() < MAX_IDLE_SOURCES) {
+                        idle_sources.push_back(source);
                     } else {
                         alDeleteSources(1, &source);
                         AL_ERROR_CHECK();
@@ -94,7 +88,7 @@ void media_audio_update(float volume, float x, float y, float z, float yaw) {
             }
             // Remove If Needed
             if (remove) {
-                it = get_sources().erase(it);
+                it = sources.erase(it);
             } else {
                 ++it;
             }
@@ -111,10 +105,10 @@ void media_audio_play(const char *source, const char *name, float x, float y, fl
         if (volume > 0.0f && buffer) {
             // Get Source
             ALuint al_source;
-            if (get_idle_sources().size() > 0) {
+            if (idle_sources.size() > 0) {
                 // Use Idle Source
-                al_source = get_idle_sources().back();
-                get_idle_sources().pop_back();
+                al_source = idle_sources.back();
+                idle_sources.pop_back();
             } else {
                 // Create Source
                 alGenSources(1, &al_source);
@@ -160,7 +154,7 @@ void media_audio_play(const char *source, const char *name, float x, float y, fl
             // Play
             alSourcePlay(al_source);
             AL_ERROR_CHECK();
-            get_sources().push_back(al_source);
+            sources.push_back(al_source);
         }
     }
 }

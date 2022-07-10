@@ -16,10 +16,7 @@ static void inventory_add_item(unsigned char *inventory, unsigned char *item, bo
 }
 
 // Expand Creative Inventory
-static int32_t Inventory_setupDefault_FillingContainer_addItem_call_injection(unsigned char *filling_container, ItemInstance *item_instance) {
-    // Call Original Method
-    int32_t ret = (*FillingContainer_addItem)(filling_container, item_instance);
-
+static void Inventory_setupDefault_FillingContainer_addItem_call_injection(unsigned char *filling_container) {
     // Add Items
     inventory_add_item(filling_container, *Item_flintAndSteel, false);
     inventory_add_item(filling_container, *Item_snowball, false);
@@ -79,8 +76,6 @@ static int32_t Inventory_setupDefault_FillingContainer_addItem_call_injection(un
         new_item_instance = (*ItemInstance_constructor_tile_extra)(new_item_instance, *Tile_stoneSlab, 1, 6);
         (*FillingContainer_addItem)(filling_container, new_item_instance);
     }
-
-    return ret;
 }
 #endif
 
@@ -111,7 +106,7 @@ void init_creative() {
     // Add Extra Items To Creative Inventory (Only Replace Specific Function Call)
     if (feature_has("Expand Creative Inventory", server_enabled)) {
 #ifndef MCPI_SERVER_MODE
-        overwrite_call((void *) 0x8e0fc, (void *) Inventory_setupDefault_FillingContainer_addItem_call_injection);
+        misc_run_on_creative_inventory_setup(Inventory_setupDefault_FillingContainer_addItem_call_injection);
 #endif
 
         // Use AuxDataTileItem by default instead of TileItem, so tiles in the Creative

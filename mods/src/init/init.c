@@ -27,6 +27,7 @@ __attribute__((constructor)) static void init() {
     init_death();
     init_options();
     init_chat();
+    init_bucket();
     init_home();
 #ifndef MCPI_SERVER_MODE
     init_benchmark();

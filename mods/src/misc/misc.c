@@ -204,6 +204,23 @@ static void GameRenderer_render_injection(unsigned char *game_renderer, float pa
     }
 }
 
+// Get Real Selected Slot
+int32_t misc_get_real_selected_slot(unsigned char *player) {
+    // Get Selected Slot
+    unsigned char *inventory = *(unsigned char **) (player + Player_inventory_property_offset);
+    int32_t selected_slot = *(int32_t *) (inventory + Inventory_selectedSlot_property_offset);
+
+    // Linked Slots
+    int32_t linked_slots_length = *(int32_t *) (inventory + FillingContainer_linked_slots_length_property_offset);
+    if (selected_slot < linked_slots_length) {
+        int32_t *linked_slots = *(int32_t **) (inventory + FillingContainer_linked_slots_property_offset);
+        selected_slot = linked_slots[selected_slot];
+    }
+
+    // Return
+    return selected_slot;
+}
+
 // Init
 static void nop() {
 }

@@ -184,6 +184,9 @@ static Minecraft_getCreator_t Minecraft_getCreator = (Minecraft_getCreator_t) 0x
 typedef unsigned char *(*Minecraft_getLevelSource_t)(unsigned char *minecraft);
 static Minecraft_getLevelSource_t Minecraft_getLevelSource = (Minecraft_getLevelSource_t) 0x16e84;
 
+typedef void (*Minecraft_handleMouseDown_t)(unsigned char *minecraft, int param_1, bool can_destroy);
+static Minecraft_handleMouseDown_t Minecraft_handleMouseDown = (Minecraft_handleMouseDown_t) 0x1584c;
+
 static uint32_t Minecraft_screen_width_property_offset = 0x20; // int32_t
 static uint32_t Minecraft_network_handler_property_offset = 0x174; // NetEventCallback *
 static uint32_t Minecraft_rak_net_instance_property_offset = 0x170; // RakNetInstance *
@@ -199,6 +202,9 @@ static uint32_t Minecraft_screen_property_offset = 0xc10; // Screen *
 static uint32_t Minecraft_gui_property_offset = 0x198; // Gui
 static uint32_t Minecraft_pov_property_offset = 0x150; // Mob *
 static uint32_t Minecraft_perf_renderer_property_offset = 0xcbc; // PerfRenderer *
+static uint32_t Minecraft_targeted_x_property_offset = 0xc3c; // int32_t
+static uint32_t Minecraft_targeted_y_property_offset = 0xc40; // int32_t
+static uint32_t Minecraft_targeted_z_property_offset = 0xc44; // int32_t
 
 // GameRenderer
 
@@ -291,25 +297,6 @@ typedef int32_t (*MouseBuildInput_tickBuild_t)(unsigned char *mouse_build_input,
 static MouseBuildInput_tickBuild_t MouseBuildInput_tickBuild = (MouseBuildInput_tickBuild_t) 0x17c98;
 static void *MouseBuildInput_tickBuild_vtable_addr = (void *) 0x102564;
 
-// Item
-
-static uint32_t Item_is_stacked_by_data_property_offset = 0x19; // unsigned char / bool
-static uint32_t Item_category_property_offset = 0x10; // int32_t
-static uint32_t Item_max_damage_property_offset = 0x8; // int32_t
-
-// TileItem
-
-typedef unsigned char *(*TileItem_t)(unsigned char *tile_item, int32_t id);
-static TileItem_t TileItem = (TileItem_t) 0xce3a4;
-
-// AuxDataTileItem
-
-#define AUX_DATA_TILE_ITEM_SIZE 0x2c
-
-static unsigned char *AuxDataTileItem_vtable = (unsigned char *) 0x114a58;
-
-static uint32_t AuxDataTileItem_icon_tile_property_offset = 0x28; // Tile *
-
 // ItemInstance
 
 typedef struct {
@@ -325,6 +312,50 @@ static ItemInstance_constructor_t ItemInstance_constructor_tile = (ItemInstance_
 typedef ItemInstance *(*ItemInstance_constructor_extra_t)(ItemInstance *item_instance, unsigned char *item, int32_t count, int32_t auxiliary);
 static ItemInstance_constructor_extra_t ItemInstance_constructor_tile_extra = (ItemInstance_constructor_extra_t) 0x99918;
 static ItemInstance_constructor_extra_t ItemInstance_constructor_item_extra = (ItemInstance_constructor_extra_t) 0x99960;
+
+typedef int32_t (*ItemInstance_getMaxStackSize_t)(ItemInstance *item_instance);
+static ItemInstance_getMaxStackSize_t ItemInstance_getMaxStackSize = (ItemInstance_getMaxStackSize_t) 0x99ac8;
+
+// Item
+
+#define ITEM_SIZE 0x24
+#define ITEM_VTABLE_SIZE 0x98
+
+static unsigned char *Item_vtable = (unsigned char *) 0x10f128;
+
+typedef void (*Item_initItems_t)();
+static Item_initItems_t Item_initItems = (Item_initItems_t) 0x94ed0;
+
+typedef unsigned char *(*Item_t)(unsigned char *item, int32_t id);
+static Item_t Item = (Item_t) 0x99488;
+
+typedef void (*Item_setIcon_t)(unsigned char *item, int32_t texture_x, int32_t texture_y);
+static uint32_t Item_setIcon_vtable_offset = 0x18;
+
+typedef int32_t (*Item_getIcon_t)(unsigned char *item, int32_t auxiliary);
+static uint32_t Item_getIcon_vtable_offset = 0x14;
+
+typedef int32_t (*Item_useOn_t)(unsigned char *item, ItemInstance *item_instance, unsigned char *player, unsigned char *level, int32_t x, int32_t y, int32_t z, int32_t hit_side, float hit_x, float hit_y, float hit_z);
+static uint32_t Item_useOn_vtable_offset = 0x20;
+
+static uint32_t Item_id_property_offset = 0x4; // int32_t
+static uint32_t Item_is_stacked_by_data_property_offset = 0x19; // unsigned char / bool
+static uint32_t Item_category_property_offset = 0x10; // int32_t
+static uint32_t Item_max_damage_property_offset = 0x8; // int32_t
+static uint32_t Item_max_stack_size_property_offset = 0x14; // int32_t
+
+// TileItem
+
+typedef unsigned char *(*TileItem_t)(unsigned char *tile_item, int32_t id);
+static TileItem_t TileItem = (TileItem_t) 0xce3a4;
+
+// AuxDataTileItem
+
+#define AUX_DATA_TILE_ITEM_SIZE 0x2c
+
+static unsigned char *AuxDataTileItem_vtable = (unsigned char *) 0x114a58;
+
+static uint32_t AuxDataTileItem_icon_tile_property_offset = 0x28; // Tile *
 
 // Entity
 
@@ -426,7 +457,21 @@ static Level_saveLevelData_t Level_saveLevelData = (Level_saveLevelData_t) 0xa2e
 typedef void (*Level_setTileAndData_t)(unsigned char *level, int32_t x, int32_t y, int32_t z, int32_t id, int32_t data);
 static Level_setTileAndData_t Level_setTileAndData = (Level_setTileAndData_t) 0xa38b4;
 
+typedef int32_t (*Level_getTile_t)(unsigned char *level, int32_t x, int32_t y, int32_t z);
+static Level_getTile_t Level_getTile = (Level_getTile_t) 0xa3380;
+
+typedef unsigned char *(*Level_getMaterial_t)(unsigned char *level, int32_t x, int32_t y, int32_t z);
+static Level_getMaterial_t Level_getMaterial = (Level_getMaterial_t) 0xa27f8;
+
+typedef void (*Level_clip_t)(unsigned char *level, unsigned char *param_1, unsigned char *param_2, bool param_3, bool clip_liquids);
+static Level_clip_t Level_clip = (Level_clip_t) 0xa3db0;
+
 static uint32_t Level_players_property_offset = 0x60; // std::vector<ServerPlayer *>
+
+// Material
+
+typedef bool (*Material_isSolid_t)(unsigned char *material);
+static uint32_t Material_isSolid_vtable_offset = 0x8;
 
 // LevelRenderer
 
@@ -557,7 +602,7 @@ static uint32_t Touch_SelectWorldScreen_world_created_property_offset = 0x151; /
 
 // FillingContainer
 
-typedef int32_t (*FillingContainer_addItem_t)(unsigned char *filling_container, ItemInstance *item_instance);
+typedef void (*FillingContainer_addItem_t)(unsigned char *filling_container, ItemInstance *item_instance);
 static FillingContainer_addItem_t FillingContainer_addItem = (FillingContainer_addItem_t) 0x92aa0;
 
 typedef ItemInstance *(*FillingContainer_getItem_t)(unsigned char *filling_container, int32_t slot);
@@ -565,6 +610,9 @@ static uint32_t FillingContainer_getItem_vtable_offset = 0x8;
 
 typedef void (*FillingContainer_setItem_t)(unsigned char *filling_container, int32_t slot, ItemInstance *item_instance);
 static uint32_t FillingContainer_setItem_vtable_offset = 0xc;
+
+typedef bool (*FillingContainer_add_t)(unsigned char *filling_container, ItemInstance *item_instance);
+static uint32_t FillingContainer_add_vtable_offset = 0x30;
 
 typedef void (*FillingContainer_clearSlot_t)(unsigned char *filling_container, int32_t slot);
 static FillingContainer_clearSlot_t FillingContainer_clearSlot = (FillingContainer_clearSlot_t) 0x922f8;
@@ -766,6 +814,14 @@ struct ConnectedClient {
 typedef unsigned char *(*Tile_setDescriptionId_t)(unsigned char *tile, std::string const& description_id);
 static uint32_t Tile_setDescriptionId_vtable_offset = 0xe0;
 
+// Item
+
+typedef void (*Item_setDescriptionId_t)(unsigned char *item, std::string const& name);
+static uint32_t Item_setDescriptionId_vtable_offset = 0x6c;
+
+typedef std::string (*Item_getDescriptionId_t)(unsigned char *item, const ItemInstance *item_instance);
+static uint32_t Item_getDescriptionId_vtable_offset = 0x7c;
+
 // AppPlatform
 
 typedef void (*AppPlatform_saveScreenshot_t)(unsigned char *app_platform, std::string const& path, int32_t width, int32_t height);
@@ -870,13 +926,27 @@ static Textures_loadAndBindTexture_t Textures_loadAndBindTexture = (Textures_loa
 
 // Recipes
 
-typedef void (*Recipes_addShapelessRecipe_t)(unsigned char *recipes, ItemInstance const& result, std::vector<Recipes_Type> const& param_2);
+typedef void (*Recipes_addShapelessRecipe_t)(unsigned char *recipes, ItemInstance const& result, std::vector<Recipes_Type> const& ingredients);
 static Recipes_addShapelessRecipe_t Recipes_addShapelessRecipe = (Recipes_addShapelessRecipe_t) 0x9c3dc;
+
+typedef void (*Recipes_addShapedRecipe_1_t)(unsigned char *recipes, ItemInstance const& result, std::string const& line_1, std::vector<Recipes_Type> const& ingredients);
+static Recipes_addShapedRecipe_1_t Recipes_addShapedRecipe_1 = (Recipes_addShapedRecipe_1_t) 0x9ca74;
+
+typedef void (*Recipes_addShapedRecipe_2_t)(unsigned char *recipes, ItemInstance const& result, std::string const& line_1, std::string const& line_2, std::vector<Recipes_Type> const& ingredients);
+static Recipes_addShapedRecipe_2_t Recipes_addShapedRecipe_2 = (Recipes_addShapedRecipe_2_t) 0x9ca24;
+
+typedef void (*Recipes_addShapedRecipe_3_t)(unsigned char *recipes, ItemInstance const& result, std::string const& line_1, std::string const& line_2, std::string const& line_3, std::vector<Recipes_Type> const& ingredients);
+static Recipes_addShapedRecipe_3_t Recipes_addShapedRecipe_3 = (Recipes_addShapedRecipe_3_t) 0x9c9d0;
 
 // FurnaceRecipes
 
 typedef void (*FurnaceRecipes_addFurnaceRecipe_t)(unsigned char *recipes, int32_t input_item_id, ItemInstance const& result);
 static FurnaceRecipes_addFurnaceRecipe_t FurnaceRecipes_addFurnaceRecipe = (FurnaceRecipes_addFurnaceRecipe_t) 0xa0714;
+
+// FurnaceTileEntity
+
+typedef int32_t (*FurnaceTileEntity_getBurnDuration_t)(ItemInstance const& item_instance);
+static FurnaceTileEntity_getBurnDuration_t FurnaceTileEntity_getBurnDuration = (FurnaceTileEntity_getBurnDuration_t) 0xd33f8;
 
 #endif
 

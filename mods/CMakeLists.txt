@@ -29,7 +29,7 @@ add_library(chat SHARED src/chat/chat.cpp src/chat/ui.c)
 target_link_libraries(chat mods-headers reborn-patch symbols feature)
 
 add_library(creative SHARED src/creative/creative.cpp)
-target_link_libraries(creative mods-headers reborn-patch symbols feature)
+target_link_libraries(creative mods-headers reborn-patch symbols feature misc)
 
 add_library(game-mode SHARED src/game-mode/game-mode.c src/game-mode/ui.cpp)
 target_link_libraries(game-mode mods-headers reborn-patch symbols feature)
@@ -54,7 +54,7 @@ else()
     target_link_libraries(camera mods-headers reborn-patch symbols media-layer-core feature home)
 
     add_library(input SHARED src/input/input.cpp src/input/bow.c src/input/attack.c src/input/toggle.c src/input/misc.c src/input/drop.cpp)
-    target_link_libraries(input mods-headers reborn-patch symbols creative feature media-layer-core)
+    target_link_libraries(input mods-headers reborn-patch symbols creative feature misc media-layer-core)
 
     add_library(sign SHARED src/sign/sign.cpp)
     target_link_libraries(sign mods-headers reborn-patch symbols feature input)
@@ -84,6 +84,9 @@ target_link_libraries(misc mods-headers reborn-patch symbols media-layer-core fe
 add_library(options SHARED src/options/options.c src/options/options.cpp)
 target_link_libraries(options mods-headers reborn-patch symbols feature home)
 
+add_library(bucket SHARED src/bucket/bucket.cpp)
+target_link_libraries(bucket mods-headers reborn-patch symbols feature misc)
+
 add_library(home SHARED src/home/home.c)
 target_link_libraries(home mods-headers reborn-patch symbols)
 
@@ -91,7 +94,7 @@ add_library(test SHARED src/test/test.c)
 target_link_libraries(test mods-headers reborn-patch home)
 
 add_library(init SHARED src/init/init.c)
-target_link_libraries(init mods-headers compat game-mode misc death options chat creative home version test media-layer-core)
+target_link_libraries(init mods-headers compat game-mode misc death options chat creative bucket home version test media-layer-core)
 if(MCPI_SERVER_MODE)
     target_link_libraries(init server)
 else()
@@ -99,7 +102,7 @@ else()
 endif()
 
 ## Install Mods
-set(MODS_TO_INSTALL init compat readdir feature game-mode misc override death options chat creative home version test)
+set(MODS_TO_INSTALL init compat readdir feature game-mode misc override death options chat creative bucket home version test)
 if(MCPI_SERVER_MODE)
     list(APPEND MODS_TO_INSTALL server)
 else()
