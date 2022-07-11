@@ -27,4 +27,5 @@ cd ../../
 export PATH="$(pwd)/out/client-$(dpkg-architecture -qDEB_BUILD_ARCH)/usr/bin:${PATH}"
 
 # Run Benchmark
+export HOME="$(pwd)/build/test"
 minecraft-pi-reborn-client --default --benchmark

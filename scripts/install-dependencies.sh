@@ -13,6 +13,9 @@ run() {
     sudo apt-get update
     sudo apt-get dist-upgrade -y
 
+    # Architecture Detection
+    sudo apt-get install --no-install-recommends -y dpkg-dev
+
     # Install Everything In One Go
     PKG_QUEUE=''
     queue_pkg() {
@@ -23,8 +26,7 @@ run() {
     queue_pkg \
         git \
         cmake \
-        ninja-build \
-        dpkg-dev
+        ninja-build
 
     # Host Dependencies Needed For Compile
     queue_pkg \
@@ -38,8 +40,22 @@ run() {
     # Architecture-Specific Dependencies
     architecture_specific_pkg() {
         # Compiler
-        queue_pkg \
-            crossbuild-essential-$1
+        if [ "$(dpkg-architecture -qDEB_BUILD_ARCH)" = "$1" ]; then
+            queue_pkg \
+                gcc \
+                g++
+        else
+            case "$1" in
+                'armhf') GCC_TARGET='arm-linux-gnueabihf';;
+                'arm64') GCC_TARGET='aarch64-linux-gnu';;
+                'i386') GCC_TARGET='i686-linux-gnu';;
+                'amd64') GCC_TARGET='x86-64-linux-gnu';;
+            esac
+            queue_pkg \
+                "gcc-${GCC_TARGET}" \
+                libc6-dev-$1-cross \
+                "g++-${GCC_TARGET}"
+        fi
 
         # Dependencies
         queue_pkg \
@@ -64,6 +80,10 @@ run() {
     for arch in "$@"; do
         architecture_specific_pkg "${arch}"
     done
+
+    # AppStream Verification
+    queue_pkg \
+        appstream
 
     # Install Queue
     sudo apt-get install --no-install-recommends -y ${PKG_QUEUE}
