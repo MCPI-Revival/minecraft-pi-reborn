@@ -3,6 +3,9 @@ project(media-layer-core)
 # Dependencies
 add_subdirectory(dependencies)
 
+# OpenGL
+add_subdirectory(gles)
+
 # Configuration
 set(CORE_SRC src/base.cpp src/media.c src/screenshot.c $<TARGET_OBJECTS:media-layer-extras>) # SDL Re-Implementation Using GLFW
 if(NOT MCPI_HEADLESS_MODE)
@@ -20,10 +23,10 @@ if(BUILD_ARM_COMPONENTS)
 endif()
 
 # Link
-target_link_libraries(media-layer-core PUBLIC media-layer-headers PUBLIC reborn-util PUBLIC pthread PUBLIC dl)
+target_link_libraries(media-layer-core PUBLIC media-layer-headers PUBLIC reborn-util PUBLIC GLESv1_CM PUBLIC pthread PUBLIC dl)
 if(NOT MCPI_HEADLESS_MODE)
     # OpenAL
     find_library(OPENAL_LIBRARY NAMES openal REQUIRED)
     # Link
-    target_link_libraries(media-layer-core PRIVATE png12 PRIVATE "${OPENAL_LIBRARY}" PRIVATE m PUBLIC GLESv1_CM PRIVATE glfw)
+    target_link_libraries(media-layer-core PRIVATE png12 PRIVATE "${OPENAL_LIBRARY}" PRIVATE m PRIVATE glfw)
 endif()

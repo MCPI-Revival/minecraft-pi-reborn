@@ -14,9 +14,6 @@ if(BUILD_ARM_COMPONENTS)
     install(DIRECTORY "include/" DESTINATION "${MCPI_SDK_INCLUDE_DIR}/media-layer")
 endif()
 
-# Add GLESv1_CM Stubs Or Compatibility Layer
-add_subdirectory(gles)
-
 # Add Extras
 add_subdirectory(extras)
 

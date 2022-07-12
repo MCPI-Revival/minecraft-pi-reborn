@@ -66,7 +66,7 @@ else()
     target_link_libraries(textures mods-headers reborn-patch symbols media-layer-core feature misc)
 
     add_library(atlas SHARED src/atlas/atlas.cpp)
-    target_link_libraries(atlas mods-headers reborn-patch symbols feature GLESv1_CM)
+    target_link_libraries(atlas mods-headers reborn-patch symbols feature media-layer-core)
 
     add_library(benchmark SHARED src/benchmark/benchmark.cpp)
     target_link_libraries(benchmark mods-headers reborn-patch symbols compat misc media-layer-core)
@@ -79,7 +79,7 @@ add_library(death SHARED src/death/death.cpp)
 target_link_libraries(death mods-headers reborn-patch symbols feature)
 
 add_library(misc SHARED src/misc/misc.c src/misc/misc.cpp src/misc/logging.cpp src/misc/api.cpp)
-target_link_libraries(misc mods-headers reborn-patch symbols media-layer-core feature GLESv1_CM)
+target_link_libraries(misc mods-headers reborn-patch symbols media-layer-core feature)
 
 add_library(options SHARED src/options/options.c src/options/options.cpp)
 target_link_libraries(options mods-headers reborn-patch symbols feature home)

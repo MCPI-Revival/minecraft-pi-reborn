@@ -275,7 +275,7 @@ void init_misc() {
     }
 
     // Remove Forced GUI Lag
-    if (feature_has("Remove Forced GUI Lag", server_enabled)) {
+    if (feature_has("Remove Forced GUI Lag (Cam Break Server Joining)", server_enabled)) {
         overwrite_calls((void *) sleepMs, (void *) nop);
     }
 
