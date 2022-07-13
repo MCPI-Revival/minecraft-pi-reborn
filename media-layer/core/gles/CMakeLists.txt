@@ -1,19 +1,19 @@
 project(media-layer-gles)
 
 # Build
-if(NOT MCPI_HEADLESS_MODE)
-    if(MCPI_USE_GLES1_COMPATIBILITY_LAYER)
-        # GLESv1_CM Compatibility Layer
-        set(GLES_SRC src/compatibility-layer/state.c src/compatibility-layer/passthrough.c src/compatibility-layer/matrix.c src/compatibility-layer/draw.c src/compatibility-layer/buffer.cpp)
-    else()
-        # Passthrough To glfwGetProcAddress()
-        set(GLES_SRC src/passthrough.c)
-    endif()
-    add_library(GLESv1_CM SHARED ${GLES_SRC})
-    target_link_libraries(GLESv1_CM PRIVATE glfw PUBLIC reborn-util PRIVATE dl PRIVATE m)
-else()
+if(MCPI_HEADLESS_MODE)
     # Stubs For Headless Mode
-    add_library(GLESv1_CM SHARED src/stubs.c)
+    set(GLES_SRC src/stubs.c)
+elseif(MCPI_USE_GLES1_COMPATIBILITY_LAYER)
+    # GLESv1_CM Compatibility Layer
+    set(GLES_SRC src/compatibility-layer/state.c src/compatibility-layer/passthrough.c src/compatibility-layer/matrix.c src/compatibility-layer/draw.c src/compatibility-layer/buffer.cpp)
+else()
+    # Passthrough To glfwGetProcAddress()
+    set(GLES_SRC src/passthrough.c)
+endif()
+add_library(GLESv1_CM SHARED ${GLES_SRC})
+if(NOT MCPI_HEADLESS_MODE)
+    target_link_libraries(GLESv1_CM PRIVATE glfw PUBLIC reborn-util PRIVATE dl PRIVATE m)
 endif()
 
 # Common

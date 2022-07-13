@@ -1,5 +1,8 @@
 project(launcher)
 
+# Dependencies
+add_subdirectory(dependencies)
+
 # Launcher
 add_executable(launcher src/bootstrap.c src/patchelf.c src/crash-report.c)
 if(MCPI_SERVER_MODE)

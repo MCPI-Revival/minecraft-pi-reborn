@@ -2,7 +2,6 @@
 
 #include <libreborn/libreborn.h>
 #include <symbols/minecraft.h>
-#include <mods/init/init.h>
 #include <mods/misc/misc.h>
 
 // The Actual Mod
@@ -633,11 +632,7 @@ static void Inventory_setupDefault_FillingContainer_addItem_call_injection(unsig
 }
 
 // Init
-HOOK(init_creative, void, ()) {
-    ensure_init_creative();
-    (*real_init_creative)();
-
+__attribute__((constructor)) static void init_expanded_creative() {
     INFO("Loading Expanded Creative Mod");
-
     misc_run_on_creative_inventory_setup(Inventory_setupDefault_FillingContainer_addItem_call_injection);
 }

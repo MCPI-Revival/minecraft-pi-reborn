@@ -10,3 +10,6 @@
 [submodule "dependencies/zenity/src"]
 	path = dependencies/zenity/src
 	url = https://gitea.thebrokenrail.com/TheBrokenRail/zenity.git
+[submodule "launcher/dependencies/patchelf/src"]
+	path = launcher/dependencies/patchelf/src
+	url = https://github.com/NixOS/patchelf.git

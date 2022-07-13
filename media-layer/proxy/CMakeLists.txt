@@ -19,6 +19,4 @@ elseif(BUILD_ARM_COMPONENTS)
     # Install
     install(TARGETS media-layer-core DESTINATION "${MCPI_LIB_DIR}")
     install(TARGETS media-layer-core EXPORT sdk DESTINATION "${MCPI_SDK_LIB_DIR}")
-    # Symlink GLESv1_CM To Media Layer Proxy Server
-    install_symlink("libmedia-layer-core.so" "${MCPI_LIB_DIR}/libGLESv1_CM.so.1")
 endif()

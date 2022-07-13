@@ -72,8 +72,9 @@ static void duplicate_mcpi_executable(const char *original_path, char *new_path)
             "--remove-needed", "libbcm_host.so", \
             "--remove-needed", "libX11.so.6", \
             "--remove-needed", "libEGL.so", \
-            "--replace-needed", "libGLESv2.so", "libGLESv1_CM.so.1", \
-            "--replace-needed", "libSDL-1.2.so.0", "libmedia-layer-core.so", \
+            "--remove-needed", "libGLESv2.so", \
+            "--remove-needed", "libSDL-1.2.so.0", \
+            "--add-needed", "libmedia-layer-core.so", \
             new_path, \
             NULL \
         }; \
