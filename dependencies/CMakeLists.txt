@@ -1,7 +1,9 @@
 project(dependencies)
 
 # LibPNG
-add_subdirectory(libpng)
+if(BUILD_ARM_COMPONENTS)
+    add_subdirectory(libpng)
+endif()
 # Minecraft: Pi Edition
 if(BUILD_ARM_COMPONENTS AND NOT MCPI_OPEN_SOURCE_ONLY)
     add_subdirectory(minecraft-pi)

@@ -16,6 +16,12 @@ install(DIRECTORY "include/" DESTINATION "${MCPI_SDK_INCLUDE_DIR}/mods")
 
 add_library(compat SHARED src/compat/compat.c src/compat/egl.c src/compat/x11.c src/compat/bcm_host.c)
 target_link_libraries(compat mods-headers reborn-patch media-layer-core)
+if(NOT MCPI_HEADLESS_MODE)
+    target_link_libraries(compat screenshot)
+endif()
+if(NOT MCPI_SERVER_MODE)
+    target_link_libraries(compat input sign chat home dl)
+endif()
 
 add_library(readdir SHARED src/readdir/readdir.c)
 
@@ -27,23 +33,23 @@ target_link_libraries(version mods-headers reborn-patch symbols)
 
 add_library(chat SHARED src/chat/chat.cpp src/chat/ui.c)
 target_link_libraries(chat mods-headers reborn-patch symbols feature)
+if(NOT MCPI_SERVER_MODE)
+    target_link_libraries(chat input media-layer-core pthread)
+endif()
 
 add_library(creative SHARED src/creative/creative.cpp)
 target_link_libraries(creative mods-headers reborn-patch symbols feature misc)
 
 add_library(game-mode SHARED src/game-mode/game-mode.c src/game-mode/ui.cpp)
 target_link_libraries(game-mode mods-headers reborn-patch symbols feature)
+if(NOT MCPI_SERVER_MODE)
+    target_link_libraries(game-mode pthread media-layer-core)
+endif()
 
 if(MCPI_SERVER_MODE)
     add_library(server SHARED src/server/server.cpp src/server/server_properties.cpp)
     target_link_libraries(server mods-headers reborn-patch symbols feature home misc compat dl media-layer-core pthread)
 else()
-    target_link_libraries(compat input sign chat home dl)
-
-    target_link_libraries(chat input media-layer-core pthread)
-
-    target_link_libraries(game-mode pthread media-layer-core)
-
     add_library(multiplayer SHARED src/multiplayer/multiplayer.cpp)
     target_link_libraries(multiplayer mods-headers reborn-patch symbols home feature)
 
@@ -51,7 +57,10 @@ else()
     target_link_libraries(sound mods-headers reborn-patch symbols feature override media-layer-core)
 
     add_library(camera SHARED src/camera/camera.cpp)
-    target_link_libraries(camera mods-headers reborn-patch symbols media-layer-core feature home)
+    target_link_libraries(camera mods-headers reborn-patch symbols feature home)
+    if(NOT MCPI_HEADLESS_MODE)
+        target_link_libraries(camera screenshot)
+    endif()
 
     add_library(input SHARED src/input/input.cpp src/input/bow.c src/input/attack.c src/input/toggle.c src/input/misc.c src/input/drop.cpp)
     target_link_libraries(input mods-headers reborn-patch symbols creative feature misc media-layer-core)
@@ -87,6 +96,11 @@ target_link_libraries(options mods-headers reborn-patch symbols feature home)
 add_library(bucket SHARED src/bucket/bucket.cpp)
 target_link_libraries(bucket mods-headers reborn-patch symbols feature misc)
 
+if(NOT MCPI_HEADLESS_MODE)
+    add_library(screenshot SHARED src/screenshot/screenshot.c)
+    target_link_libraries(screenshot mods-headers reborn-util media-layer-core png12)
+endif()
+
 add_library(home SHARED src/home/home.c)
 target_link_libraries(home mods-headers reborn-patch symbols)
 
@@ -107,6 +121,9 @@ if(MCPI_SERVER_MODE)
     list(APPEND MODS_TO_INSTALL server)
 else()
     list(APPEND MODS_TO_INSTALL multiplayer sound camera input sign touch textures atlas benchmark)
+endif()
+if(NOT MCPI_HEADLESS_MODE)
+    list(APPEND MODS_TO_INSTALL screenshot)
 endif()
 install(TARGETS ${MODS_TO_INSTALL} DESTINATION "${MCPI_INSTALL_DIR}/mods")
 # SDK

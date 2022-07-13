@@ -10,7 +10,6 @@ extern "C" {
 
 void media_ensure_loaded();
 
-void media_take_screenshot(char *home);
 void media_toggle_fullscreen();
 void media_swap_buffers();
 void media_cleanup();

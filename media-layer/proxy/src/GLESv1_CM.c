@@ -1160,8 +1160,12 @@ CALL(58, glIsEnabled, GLboolean, (GLenum cap)) {
 static int get_glGetIntegerv_params_size(GLenum pname) {
     switch (pname) {
         case GL_TEXTURE_BINDING_2D:
+        case GL_PACK_ALIGNMENT:
         case GL_UNPACK_ALIGNMENT: {
             return 1;
+        }
+        case GL_VIEWPORT: {
+            return 4;
         }
         default: {
             PROXY_ERR("Unsupported glGetIntegerv Property: %u", pname);
@@ -1196,5 +1200,45 @@ CALL(61, glGetIntegerv, void, (GLenum pname, GLint *params)) {
     glGetIntegerv(pname, params);
     // Return Value
     safe_write((void *) params, sizeof (GLint) * size);
+#endif
+}
+
+CALL(65, glReadPixels, void, (GLint x, GLint y, GLsizei width, GLsizei height, GLenum format, GLenum type, void *data)) {
+#if defined(MEDIA_LAYER_PROXY_SERVER)
+    // Get Texture Size
+    int size = get_texture_size(width, height, format, type);
+
+    // Lock Proxy
+    start_proxy_call();
+
+    // Arguments
+    write_int((uint32_t) x);
+    write_int((uint32_t) y);
+    write_int((uint32_t) width);
+    write_int((uint32_t) height);
+    write_int((uint32_t) format);
+    write_int((uint32_t) type);
+
+    // Get Return Value
+    safe_read((void *) data, size);
+
+    // Release Proxy
+    end_proxy_call();
+#else
+    GLint x = (GLint) read_int();
+    GLint y = (GLint) read_int();
+    GLsizei width = (GLsizei) read_int();
+    GLsizei height = (GLsizei) read_int();
+    GLenum format = (GLenum) read_int();
+    GLenum type = (GLenum) read_int();
+    int size = get_texture_size(width, height, format, type);
+    void *pixels = malloc(size);
+    ALLOC_CHECK(pixels);
+    // Run
+    glReadPixels(x, y, width, height, format, type, pixels);
+    // Return Value
+    safe_write((void *) pixels, (size_t) size);
+    // Free
+    free(pixels);
 #endif
 }

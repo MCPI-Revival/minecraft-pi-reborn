@@ -13,3 +13,6 @@ add_custom_target(zenity-build ALL DEPENDS zenity)
 
 # Install
 install(TARGETS zenity DESTINATION "${MCPI_BIN_DIR}")
+
+# License
+install(FILES src/COPYING DESTINATION "${MCPI_LEGAL_DIR}/zenity")

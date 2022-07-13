@@ -56,6 +56,7 @@ void safe_read(void *buf, size_t len) {
     // Read Remaining Data
     size_t to_read_to_cache = 0;
     while (to_read_to_cache < 1) {
+        CHECK_CONNECTION();
         int bytes_available;
         if (ioctl(get_connection_read(), FIONREAD, &bytes_available) == -1) {
             bytes_available = 0;

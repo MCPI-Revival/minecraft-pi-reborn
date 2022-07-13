@@ -11,3 +11,6 @@ add_subdirectory(src EXCLUDE_FROM_ALL)
 
 # Ensure Build
 add_custom_target(zlib-build ALL DEPENDS zlibstatic)
+
+# License
+install(FILES src/README DESTINATION "${MCPI_LEGAL_DIR}/zlib")

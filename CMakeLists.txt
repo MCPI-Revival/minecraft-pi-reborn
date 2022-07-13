@@ -62,6 +62,7 @@ endif()
 # Specify Installation Paths
 set(MCPI_INSTALL_DIR "lib/${MCPI_VARIANT_NAME}")
 set(MCPI_BIN_DIR "${MCPI_INSTALL_DIR}/bin")
+set(MCPI_LEGAL_DIR "${MCPI_INSTALL_DIR}/legal") # For Software Licenses
 set(MCPI_SDK_DIR "${MCPI_INSTALL_DIR}/sdk")
 set(MCPI_SDK_LIB_DIR "${MCPI_SDK_DIR}/lib")
 set(MCPI_SDK_INCLUDE_DIR "${MCPI_SDK_DIR}/include")

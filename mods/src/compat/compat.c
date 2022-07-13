@@ -3,6 +3,7 @@
 #include <errno.h>
 
 #include <mods/compat/compat.h>
+#include <mods/screenshot/screenshot.h>
 #include <mods/init/init.h>
 
 #include <libreborn/libreborn.h>
@@ -58,7 +59,9 @@ HOOK(SDL_PollEvent, int, (SDL_Event *event)) {
                     media_toggle_fullscreen();
                     handled = 1;
                 } else if (event->key.keysym.sym == SDLK_F2) {
-                    media_take_screenshot(home_get());
+#ifndef MCPI_HEADLESS_MODE
+                    screenshot_take(home_get());
+#endif
                     handled = 1;
                 } else if (event->key.keysym.sym == SDLK_F1) {
                     input_hide_gui();
@@ -119,11 +122,7 @@ static void exit_handler(__attribute__((unused)) int data) {
 }
 void init_compat() {
     // Install Signal Handlers
-    struct sigaction act_sigint;
-    memset((void *) &act_sigint, 0, sizeof (struct sigaction));
-    act_sigint.sa_flags = SA_RESTART;
-    act_sigint.sa_handler = &exit_handler;
-    sigaction(SIGINT, &act_sigint, NULL);
+    signal(SIGINT, SIG_IGN);
     struct sigaction act_sigterm;
     memset((void *) &act_sigterm, 0, sizeof (struct sigaction));
     act_sigterm.sa_flags = SA_RESTART;

@@ -7,7 +7,7 @@ add_subdirectory(dependencies)
 add_subdirectory(gles)
 
 # Configuration
-set(CORE_SRC src/base.cpp src/media.c src/screenshot.c $<TARGET_OBJECTS:media-layer-extras>) # SDL Re-Implementation Using GLFW
+set(CORE_SRC src/base.cpp src/media.c $<TARGET_OBJECTS:media-layer-extras>) # SDL Re-Implementation Using GLFW
 if(NOT MCPI_HEADLESS_MODE)
     list(APPEND CORE_SRC src/audio/api.cpp src/audio/engine.c src/audio/file.cpp)
 else()
@@ -28,5 +28,5 @@ if(NOT MCPI_HEADLESS_MODE)
     # OpenAL
     find_library(OPENAL_LIBRARY NAMES openal REQUIRED)
     # Link
-    target_link_libraries(media-layer-core PRIVATE png12 PRIVATE "${OPENAL_LIBRARY}" PRIVATE m PRIVATE glfw)
+    target_link_libraries(media-layer-core PRIVATE "${OPENAL_LIBRARY}" PRIVATE m PRIVATE glfw)
 endif()

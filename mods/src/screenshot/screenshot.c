@@ -1,9 +1,3 @@
-// Config Needs To Load First
-#include <libreborn/libreborn.h>
-
-// Screenshot Code Is Useless In Headless Mode
-#ifndef MCPI_HEADLESS_MODE
-
 #include <stdlib.h>
 #include <stdio.h>
 #include <unistd.h>
@@ -14,8 +8,9 @@
 
 #include <png.h>
 
+#include <libreborn/libreborn.h>
 #include <GLES/gl.h>
-#include <media-layer/core.h>
+#include <mods/screenshot/screenshot.h>
 
 // Ensure Screenshots Folder Exists
 static void ensure_screenshots_folder(char *screenshots) {
@@ -99,7 +94,7 @@ static int save_png(const char *filename, unsigned char *pixels, int line_size, 
     // Return
     return ret;
 }
-void media_take_screenshot(char *home) {
+void screenshot_take(char *home) {
     // Get Directory
     char *screenshots = NULL;
     safe_asprintf(&screenshots, "%s/screenshots", home);
@@ -163,9 +158,3 @@ void media_take_screenshot(char *home) {
     free(file);
     free(screenshots);
 }
-
-#else
-void media_take_screenshot() {
-    // NOP
-}
-#endif
