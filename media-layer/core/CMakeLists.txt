@@ -23,7 +23,7 @@ if(BUILD_ARM_COMPONENTS)
 endif()
 
 # Link
-target_link_libraries(media-layer-core PUBLIC media-layer-headers PUBLIC reborn-util PUBLIC GLESv1_CM PUBLIC pthread PUBLIC dl)
+target_link_libraries(media-layer-core PUBLIC media-layer-headers PUBLIC reborn-util PUBLIC GLESv1_CM PUBLIC dl)
 if(NOT MCPI_HEADLESS_MODE)
     # OpenAL
     find_library(OPENAL_LIBRARY NAMES openal REQUIRED)

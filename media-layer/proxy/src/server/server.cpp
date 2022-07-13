@@ -1,7 +1,6 @@
 #include <cerrno>
 #include <cstring>
 #include <unistd.h>
-#include <pthread.h>
 #include <csignal>
 #include <sys/wait.h>
 #include <fcntl.h>
@@ -156,16 +155,12 @@ unsigned char _get_unique_id(const char *name) {
     return get_unique_ids()[name]; // Assume ID Exists
 }
 
-// The Proxy Is Single-Threaded
-static pthread_mutex_t proxy_mutex = PTHREAD_MUTEX_INITIALIZER;
+// Proxy Call Functions
 void _start_proxy_call(unsigned char call_id) {
-    // Lock Proxy
-    pthread_mutex_lock(&proxy_mutex);
+    // Start Call
     write_byte(call_id);
 }
 void end_proxy_call() {
     // Flush Write Cache
     flush_write_cache();
-    // Release Proxy
-    pthread_mutex_unlock(&proxy_mutex);
 }
