@@ -9,13 +9,14 @@
 #include "../common/common.h"
 
 // Store Handlers
-static std::vector<proxy_handler_t> handlers;
+#define MAX_HANDLERS 100
+static proxy_handler_t handlers[MAX_HANDLERS];
 void _add_handler(unsigned char unique_id, proxy_handler_t handler) {
-    if (handlers.size() > unique_id && handlers[unique_id] != NULL) {
-        PROXY_ERR("Duplicate ID: %i", (int) unique_id);
+    if (unique_id >= MAX_HANDLERS) {
+        PROXY_ERR("ID Too Big: %i", (int) unique_id);
     }
-    if (handlers.size() <= unique_id) {
-        handlers.resize(unique_id + 1);
+    if (handlers[unique_id] != NULL) {
+        PROXY_ERR("Duplicate ID: %i", (int) unique_id);
     }
     handlers[unique_id] = handler;
 }
@@ -78,7 +79,7 @@ int main(int argc, char *argv[]) {
     int running = is_connection_open();
     while (running && !exit_requested) {
         unsigned char unique_id = read_byte();
-        if (handlers.size() > unique_id && handlers[unique_id] != NULL) {
+        if (handlers[unique_id] != NULL) {
             // Run Method
             handlers[unique_id]();
             // Check If Connection Is Still Open
