@@ -370,8 +370,8 @@ std::string _sound_pick(std::string sound) {
 void _sound_resolve_all() {
     std::string source = _sound_get_source_file();
     if (source.size() > 0) {
-        for (auto it : repository) {
-            for (std::string name : it.second) {
+        for (auto &it : repository) {
+            for (std::string &name : it.second) {
                 // Zero Volume Prevents An OpenAL Source From Being Allocated While Still Resolving The Sound
                 media_audio_play(source.c_str(), name.c_str(), 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f);
             }

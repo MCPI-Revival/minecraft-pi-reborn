@@ -229,7 +229,7 @@ ALuint _media_audio_get_buffer(const char *source, const char *name) {
 // Delete Buffers
 void _media_audio_delete_buffers() {
     if (_media_audio_is_loaded()) {
-        for (auto it : buffers) {
+        for (auto &it : buffers) {
             if (it.second && alIsBuffer(it.second)) {
                 alDeleteBuffers(1, &it.second);
             }

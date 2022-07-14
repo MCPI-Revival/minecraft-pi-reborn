@@ -1,4 +1,4 @@
-#include <fstream>
+#include <sstream>
 #include <cstring>
 #include <cerrno>
 #include <sys/wait.h>
@@ -36,46 +36,44 @@ static std::string strip_feature_flag_default(std::string flag, bool *default_re
 }
 
 // Load Available Feature Flags
+extern unsigned char available_feature_flags[];
+extern unsigned int available_feature_flags_len;
 static void load_available_feature_flags(std::function<void(std::string)> callback) {
     // Get Path
     char *binary_directory = get_binary_directory();
     std::string path = std::string(binary_directory) + "/available-feature-flags";
     free(binary_directory);
     // Load File
-    std::ifstream stream(path);
-    if (stream && stream.good()) {
-        std::vector<std::string> lines;
-        // Read File
-        {
-            std::string line;
-            while (std::getline(stream, line)) {
-                if (line.length() > 0) {
-                    // Verify Line
-                    if (line.find('|') == std::string::npos) {
-                        lines.push_back(line);
-                    } else {
-                        // Invalid Line
-                        ERR("Feature Flag Contains Invalid '|'");
-                    }
+    std::string data(available_feature_flags, available_feature_flags + available_feature_flags_len);
+    std::stringstream stream(data);
+    // Store Lines
+    std::vector<std::string> lines;
+    // Read File
+    {
+        std::string line;
+        while (std::getline(stream, line)) {
+            if (line.length() > 0) {
+                // Verify Line
+                if (line.find('|') == std::string::npos) {
+                    lines.push_back(line);
+                } else {
+                    // Invalid Line
+                    ERR("Feature Flag Contains Invalid '|'");
                 }
             }
         }
+    }
+    // Sort
+    std::sort(lines.begin(), lines.end(), [](std::string a, std::string b) {
+        // Strip Defaults
+        std::string stripped_a = strip_feature_flag_default(a, NULL);
+        std::string stripped_b = strip_feature_flag_default(b, NULL);
         // Sort
-        std::sort(lines.begin(), lines.end(), [](std::string a, std::string b) {
-            // Strip Defaults
-            std::string stripped_a = strip_feature_flag_default(a, NULL);
-            std::string stripped_b = strip_feature_flag_default(b, NULL);
-            // Sort
-            return stripped_a < stripped_b;
-        });
-        // Run Callbacks
-        for (std::string line : lines) {
-            callback(line);
-        }
-        // Close File
-        stream.close();
-    } else {
-        ERR("Unable To Load Available Feature Flags");
+        return stripped_a < stripped_b;
+    });
+    // Run Callbacks
+    for (std::string &line : lines) {
+        callback(line);
     }
 }
 

@@ -415,7 +415,7 @@ static bool is_ip_in_blacklist(const char *ip) {
         return false;
     } else {
         // Check List
-        for (std::string x : ips) {
+        for (std::string &x : ips) {
             if (x.compare(ip) == 0) {
                 return true;
             }
