@@ -7,6 +7,7 @@
 #include <signal.h>
 #include <poll.h>
 #include <sys/ioctl.h>
+#include <sys/stat.h>
 
 #include <libreborn/libreborn.h>
 
@@ -44,6 +45,7 @@ static void exit_handler(__attribute__((unused)) int signal) {
 // Setup
 #define PIPE_READ 0
 #define PIPE_WRITE 1
+#define MCPI_LOGS_DIR "/tmp/.minecraft-pi-logs"
 void setup_crash_report() {
     // Store Output
     int output_pipe[2];
@@ -100,8 +102,21 @@ void setup_crash_report() {
 #define BUFFER_SIZE 1024
         char buf[BUFFER_SIZE];
 
+        // Ensure Temporary Directory
+        {
+            // Check If It Exists
+            struct stat tmp_stat;
+            int exists = stat(MCPI_LOGS_DIR, &tmp_stat) != 0 ? 0 : S_ISDIR(tmp_stat.st_mode);
+            if (!exists) {
+                // Doesn't Exist
+                if (mkdir(MCPI_LOGS_DIR, S_IRUSR | S_IWUSR | S_IXUSR) != 0) {
+                    ERR("Unable To Create Temporary Folder: %s", strerror(errno));
+                }
+            }
+        }
+
         // Create Temporary File
-        char log_filename[] = "/tmp/.minecraft-pi-log-XXXXXX";
+        char log_filename[] = MCPI_LOGS_DIR "/XXXXXX";
         int log_file_fd = mkstemp(log_filename);
         if (log_file_fd == -1) {
             ERR("Unable To Create Log File: %s", strerror(errno));
