@@ -5,11 +5,10 @@
 #include "input-internal.h"
 #include <mods/input/input.h>
 
-// Store Left Click (0 = Not Pressed, 1 = Pressed, 2 = Repeat)
-// This Is Set To Repeat After First Attempted Left-Click Build Interaction
+// Store Left Click (0 = Not Pressed, 1 = Pressed)
 static int is_left_click = 0;
 void input_set_is_left_click(int val) {
-    if ((is_left_click == 0 && val == 1) || (is_left_click != 0 && val == 0) || (is_left_click == 1 && val == 2)) {
+    if ((is_left_click == 0 && val == 1) || (is_left_click != 0 && val == 0)) {
         is_left_click = val;
     }
 }
@@ -30,8 +29,6 @@ static int32_t MouseBuildInput_tickBuild_injection(unsigned char *mouse_build_in
             // Change BuildActionIntention To Attack/Place Mode (Place Will Not Happen Because The HitResult Is An Entity)
             *build_action_intention_return = 0x8;
         }
-        // Block Repeat Changes Without Releasing Left Click
-        is_left_click = 2;
     }
 
     // Return
