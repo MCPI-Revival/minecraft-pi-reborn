@@ -56,18 +56,23 @@ std::string _sound_get_source_file() {
 
 // Play Sound
 // The pitch value is unsued because it causes glitchy sounds, it is seemingly unused in MCPE as well.
-static void play(std::string name, float x, float y, float z, float volume, bool is_ui) {
+static void play(std::string name, float x, float y, float z, float volume, float pitch, bool is_ui) {
     std::string source = _sound_get_source_file();
     std::string resolved_name = _sound_pick(name);
+    if (pitch < 0.5f) {
+        pitch = 0.5f;
+    } else if (pitch > 2.0f) {
+        pitch = 2.0f;
+    }
     if (source.size() > 0 && resolved_name.size() > 0) {
-        media_audio_play(source.c_str(), resolved_name.c_str(), x, y, z, 1.0f, volume, is_ui);
+        media_audio_play(source.c_str(), resolved_name.c_str(), x, y, z, pitch, volume, is_ui);
     }
 }
-static void SoundEngine_playUI_injection(__attribute__((unused)) unsigned char *sound_engine, std::string const& name, __attribute__((unused)) float pitch, float volume) {
-    play(name, 0, 0, 0, volume, true);
+static void SoundEngine_playUI_injection(__attribute__((unused)) unsigned char *sound_engine, std::string const& name, float volume, float pitch) {
+    play(name, 0, 0, 0, volume, pitch, true);
 }
-static void SoundEngine_play_injection(__attribute__((unused)) unsigned char *sound_engine, std::string const& name, float x, float y, float z, __attribute__((unused)) float pitch, float volume) {
-    play(name, x, y, z, volume, false);
+static void SoundEngine_play_injection(__attribute__((unused)) unsigned char *sound_engine, std::string const& name, float x, float y, float z, float volume, float pitch) {
+    play(name, x, y, z, volume, pitch, false);
 }
 
 // Refresh Data

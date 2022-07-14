@@ -889,10 +889,10 @@ static SelectWorldScreen_getUniqueLevelName_t Touch_SelectWorldScreen_getUniqueL
 
 // SoundEngine
 
-typedef void (*SoundEngine_playUI_t)(unsigned char *sound_engine, std::string const& name, float pitch, float volume);
+typedef void (*SoundEngine_playUI_t)(unsigned char *sound_engine, std::string const& name, float volume, float pitch);
 static SoundEngine_playUI_t SoundEngine_playUI = (SoundEngine_playUI_t) 0x67864;
 
-typedef void (*SoundEngine_play_t)(unsigned char *sound_engine, std::string const& name, float x, float y, float z, float pitch, float volume);
+typedef void (*SoundEngine_play_t)(unsigned char *sound_engine, std::string const& name, float x, float y, float z, float volume, float pitch);
 static SoundEngine_play_t SoundEngine_play = (SoundEngine_play_t) 0x67860;
 
 // Common
