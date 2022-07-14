@@ -188,6 +188,7 @@ typedef void (*Minecraft_handleMouseDown_t)(unsigned char *minecraft, int param_
 static Minecraft_handleMouseDown_t Minecraft_handleMouseDown = (Minecraft_handleMouseDown_t) 0x1584c;
 
 static uint32_t Minecraft_screen_width_property_offset = 0x20; // int32_t
+static uint32_t Minecraft_screen_height_property_offset = 0x24; // int32_t
 static uint32_t Minecraft_network_handler_property_offset = 0x174; // NetEventCallback *
 static uint32_t Minecraft_rak_net_instance_property_offset = 0x170; // RakNetInstance *
 static uint32_t Minecraft_level_property_offset = 0x188; // Level *

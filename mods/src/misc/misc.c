@@ -15,13 +15,54 @@
 #include "misc-internal.h"
 #include <mods/misc/misc.h>
 
-// Maximum Username Length
-#define MAX_USERNAME_LENGTH 16
+// Classic HUD
+#define DEFAULT_HUD_PADDING 2
+#define HUD_ELEMENT_WIDTH 82
+#define HUD_ELEMENT_HEIGHT 9
+#define DEFAULT_BUBBLES_PADDING 1
+#define NUMBER_OF_SLOTS 9
+static int use_classic_hud = 0;
+static void Gui_renderHearts_GuiComponent_blit_hearts_injection(unsigned char *component, int32_t x_dest, int32_t y_dest, int32_t x_src, int32_t y_src, int32_t width_dest, int32_t height_dest, int32_t width_src, int32_t height_src) {
+    unsigned char *minecraft = *(unsigned char **) (component + Gui_minecraft_property_offset);
+    x_dest -= DEFAULT_HUD_PADDING;
+    x_dest += NUMBER_OF_SLOTS * -10 + ((((float) *(int32_t *) (minecraft + Minecraft_screen_width_property_offset)) * *InvGuiScale) / 2);
+    y_dest -= DEFAULT_HUD_PADDING;
+    y_dest += (((float) *(int32_t *) (minecraft + Minecraft_screen_height_property_offset)) * *InvGuiScale) - 31;
+    // Call Original Method
+    (*GuiComponent_blit)(component, x_dest, y_dest, x_src, y_src, width_dest, height_dest, width_src, height_src);
+}
+static void Gui_renderHearts_GuiComponent_blit_armor_injection(unsigned char *component, int32_t x_dest, int32_t y_dest, int32_t x_src, int32_t y_src, int32_t width_dest, int32_t height_dest, int32_t width_src, int32_t height_src) {
+    unsigned char *minecraft = *(unsigned char **) (component + Gui_minecraft_property_offset);
+    x_dest -= DEFAULT_HUD_PADDING + HUD_ELEMENT_WIDTH;
+    float width = ((float) *(int32_t *) (minecraft + Minecraft_screen_width_property_offset)) * *InvGuiScale;
+    x_dest += width - (NUMBER_OF_SLOTS * -10 + (width / 2)) - HUD_ELEMENT_WIDTH;
+    y_dest -= DEFAULT_HUD_PADDING;
+    y_dest += (((float) *(int32_t *) (minecraft + Minecraft_screen_height_property_offset)) * *InvGuiScale) - 31;
+    // Call Original Method
+    (*GuiComponent_blit)(component, x_dest, y_dest, x_src, y_src, width_dest, height_dest, width_src, height_src);
+}
+static void Gui_renderBubbles_GuiComponent_blit_injection(unsigned char *component, int32_t x_dest, int32_t y_dest, int32_t x_src, int32_t y_src, int32_t width_dest, int32_t height_dest, int32_t width_src, int32_t height_src) {
+    unsigned char *minecraft = *(unsigned char **) (component + Gui_minecraft_property_offset);
+    x_dest -= DEFAULT_HUD_PADDING;
+    x_dest += NUMBER_OF_SLOTS * -10 + ((((float) *(int32_t *) (minecraft + Minecraft_screen_width_property_offset)) * *InvGuiScale) / 2);
+    y_dest -= DEFAULT_HUD_PADDING + DEFAULT_BUBBLES_PADDING + HUD_ELEMENT_HEIGHT;
+    y_dest += (((float) *(int32_t *) (minecraft + Minecraft_screen_height_property_offset)) * *InvGuiScale) - 31 - HUD_ELEMENT_HEIGHT;
+    // Call Original Method
+    (*GuiComponent_blit)(component, x_dest, y_dest, x_src, y_src, width_dest, height_dest, width_src, height_src);
+}
 
 // Additional GUI Rendering
 static int hide_chat_messages = 0;
 static int render_selected_item_text = 0;
 static void Gui_renderChatMessages_injection(unsigned char *gui, int32_t y_offset, uint32_t max_messages, bool disable_fading, unsigned char *font) {
+    // Handle Classic HUD
+    if (use_classic_hud) {
+        unsigned char *minecraft = *(unsigned char **) (gui + Gui_minecraft_property_offset);
+        if (!(*Minecraft_isCreativeMode)(minecraft)) {
+            y_offset -= HUD_ELEMENT_HEIGHT * 2;
+        }
+    }
+
     // Call Original Method
     if (!hide_chat_messages) {
         (*Gui_renderChatMessages)(gui, y_offset, max_messages, disable_fading, font);
@@ -67,6 +108,7 @@ static void Inventory_selectSlot_injection(unsigned char *inventory, int32_t slo
 }
 
 // Sanitize Username
+#define MAX_USERNAME_LENGTH 16
 static void LoginPacket_read_injection(unsigned char *packet, unsigned char *bit_stream) {
     // Call Original Method
     (*LoginPacket_read)(packet, bit_stream);
@@ -229,6 +271,16 @@ void init_misc() {
     if (feature_has("Remove Invalid Item Background", server_disabled)) {
         unsigned char invalid_item_background_patch[4] = {0x00, 0xf0, 0x20, 0xe3}; // "nop"
         patch((void *) 0x63c98, invalid_item_background_patch);
+    }
+
+    // Classic HUD
+    if (feature_has("Classic HUD", server_disabled)) {
+        use_classic_hud = 1;
+        overwrite_call((void *) 0x266f8, (void *) Gui_renderHearts_GuiComponent_blit_hearts_injection);
+        overwrite_call((void *) 0x26758, (void *) Gui_renderHearts_GuiComponent_blit_hearts_injection);
+        overwrite_call((void *) 0x267c8, (void *) Gui_renderHearts_GuiComponent_blit_hearts_injection);
+        overwrite_call((void *) 0x2656c, (void *) Gui_renderHearts_GuiComponent_blit_armor_injection);
+        overwrite_call((void *) 0x268c4, (void *) Gui_renderBubbles_GuiComponent_blit_injection);
     }
 
     // Render Selected Item Text + Hide Chat Messages
