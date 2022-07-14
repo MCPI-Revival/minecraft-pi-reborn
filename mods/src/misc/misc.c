@@ -17,17 +17,22 @@
 
 // Classic HUD
 #define DEFAULT_HUD_PADDING 2
+#define NEW_HUD_PADDING 1
 #define HUD_ELEMENT_WIDTH 82
 #define HUD_ELEMENT_HEIGHT 9
+#define TOOLBAR_HEIGHT 22
+#define SLOT_WIDTH 20
 #define DEFAULT_BUBBLES_PADDING 1
 #define NUMBER_OF_SLOTS 9
 static int use_classic_hud = 0;
 static void Gui_renderHearts_GuiComponent_blit_hearts_injection(unsigned char *component, int32_t x_dest, int32_t y_dest, int32_t x_src, int32_t y_src, int32_t width_dest, int32_t height_dest, int32_t width_src, int32_t height_src) {
     unsigned char *minecraft = *(unsigned char **) (component + Gui_minecraft_property_offset);
     x_dest -= DEFAULT_HUD_PADDING;
-    x_dest += NUMBER_OF_SLOTS * -10 + ((((float) *(int32_t *) (minecraft + Minecraft_screen_width_property_offset)) * *InvGuiScale) / 2);
+    float width = ((float) *(int32_t *) (minecraft + Minecraft_screen_width_property_offset)) * *InvGuiScale;
+    float height = ((float) *(int32_t *) (minecraft + Minecraft_screen_width_property_offset)) * *InvGuiScale;
+    x_dest += (width + (NUMBER_OF_SLOTS * SLOT_WIDTH)) / 2;
     y_dest -= DEFAULT_HUD_PADDING;
-    y_dest += (((float) *(int32_t *) (minecraft + Minecraft_screen_height_property_offset)) * *InvGuiScale) - 31;
+    y_dest += height - HUD_ELEMENT_HEIGHT - TOOLBAR_HEIGHT - NEW_HUD_PADDING;
     // Call Original Method
     (*GuiComponent_blit)(component, x_dest, y_dest, x_src, y_src, width_dest, height_dest, width_src, height_src);
 }
@@ -35,18 +40,21 @@ static void Gui_renderHearts_GuiComponent_blit_armor_injection(unsigned char *co
     unsigned char *minecraft = *(unsigned char **) (component + Gui_minecraft_property_offset);
     x_dest -= DEFAULT_HUD_PADDING + HUD_ELEMENT_WIDTH;
     float width = ((float) *(int32_t *) (minecraft + Minecraft_screen_width_property_offset)) * *InvGuiScale;
-    x_dest += width - (NUMBER_OF_SLOTS * -10 + (width / 2)) - HUD_ELEMENT_WIDTH;
+    float height = ((float) *(int32_t *) (minecraft + Minecraft_screen_width_property_offset)) * *InvGuiScale;
+    x_dest += width - ((width + (NUMBER_OF_SLOTS * SLOT_WIDTH)) / 2) - HUD_ELEMENT_WIDTH;
     y_dest -= DEFAULT_HUD_PADDING;
-    y_dest += (((float) *(int32_t *) (minecraft + Minecraft_screen_height_property_offset)) * *InvGuiScale) - 31;
+    y_dest += height - HUD_ELEMENT_HEIGHT - TOOLBAR_HEIGHT - NEW_HUD_PADDING;
     // Call Original Method
     (*GuiComponent_blit)(component, x_dest, y_dest, x_src, y_src, width_dest, height_dest, width_src, height_src);
 }
 static void Gui_renderBubbles_GuiComponent_blit_injection(unsigned char *component, int32_t x_dest, int32_t y_dest, int32_t x_src, int32_t y_src, int32_t width_dest, int32_t height_dest, int32_t width_src, int32_t height_src) {
     unsigned char *minecraft = *(unsigned char **) (component + Gui_minecraft_property_offset);
     x_dest -= DEFAULT_HUD_PADDING;
-    x_dest += NUMBER_OF_SLOTS * -10 + ((((float) *(int32_t *) (minecraft + Minecraft_screen_width_property_offset)) * *InvGuiScale) / 2);
+    float width = ((float) *(int32_t *) (minecraft + Minecraft_screen_width_property_offset)) * *InvGuiScale;
+    float height = ((float) *(int32_t *) (minecraft + Minecraft_screen_width_property_offset)) * *InvGuiScale;
+    x_dest += (width + (NUMBER_OF_SLOTS * SLOT_WIDTH)) / 2;
     y_dest -= DEFAULT_HUD_PADDING + DEFAULT_BUBBLES_PADDING + HUD_ELEMENT_HEIGHT;
-    y_dest += (((float) *(int32_t *) (minecraft + Minecraft_screen_height_property_offset)) * *InvGuiScale) - 31 - HUD_ELEMENT_HEIGHT;
+    y_dest += height - HUD_ELEMENT_HEIGHT - TOOLBAR_HEIGHT - HUD_ELEMENT_HEIGHT - NEW_HUD_PADDING;
     // Call Original Method
     (*GuiComponent_blit)(component, x_dest, y_dest, x_src, y_src, width_dest, height_dest, width_src, height_src);
 }
@@ -59,7 +67,7 @@ static void Gui_renderChatMessages_injection(unsigned char *gui, int32_t y_offse
     if (use_classic_hud) {
         unsigned char *minecraft = *(unsigned char **) (gui + Gui_minecraft_property_offset);
         if (!(*Minecraft_isCreativeMode)(minecraft)) {
-            y_offset -= HUD_ELEMENT_HEIGHT * 2;
+            y_offset -= (HUD_ELEMENT_HEIGHT * 2) + NEW_HUD_PADDING;
         }
     }
 
@@ -105,6 +113,19 @@ static void Inventory_selectSlot_injection(unsigned char *inventory, int32_t slo
     if (render_selected_item_text) {
         reset_selected_item_text_timer = 1;
     }
+}
+
+// Translucent Toolbar
+static void Gui_renderToolBar_injection(unsigned char *gui, float param_1, int32_t param_2, int32_t param_3) {
+    // Call Original Method
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    (*Gui_renderToolBar)(gui, param_1, param_2, param_3);
+    glDisable(GL_BLEND);
+}
+static void Gui_renderToolBar_glColor4f_injection(GLfloat red, GLfloat green, GLfloat blue, __attribute__((unused)) GLfloat alpha) {
+    // Fix Alpha
+    glColor4f(red, green, blue, 1.0f);
 }
 
 // Sanitize Username
@@ -289,6 +310,12 @@ void init_misc() {
     overwrite_calls((void *) Gui_renderChatMessages, (void *) Gui_renderChatMessages_injection);
     overwrite_calls((void *) Gui_tick, (void *) Gui_tick_injection);
     overwrite_calls((void *) Inventory_selectSlot, (void *) Inventory_selectSlot_injection);
+
+    // Translucent Toolbar
+    if (feature_has("Translucent Toolbar", server_disabled)) {
+        overwrite_calls((void *) Gui_renderToolBar, (void *) Gui_renderToolBar_injection);
+        overwrite_call((void *) 0x26c5c, (void *) Gui_renderToolBar_glColor4f_injection);
+    }
 
     // Sanitize Username
     patch_address(LoginPacket_read_vtable_addr, (void *) LoginPacket_read_injection);

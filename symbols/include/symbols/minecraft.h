@@ -427,6 +427,9 @@ static Gui_handleClick_t Gui_handleClick = (Gui_handleClick_t) 0x2599c;
 typedef void (*Gui_renderOnSelectItemNameText_t)(unsigned char *gui, int32_t param_1, unsigned char *font, int32_t param_2);
 static Gui_renderOnSelectItemNameText_t Gui_renderOnSelectItemNameText = (Gui_renderOnSelectItemNameText_t) 0x26aec;
 
+typedef void (*Gui_renderToolBar_t)(unsigned char *gui, float param_1, int32_t param_2, int32_t param_3);
+static Gui_renderToolBar_t Gui_renderToolBar = (Gui_renderToolBar_t) 0x26c30;
+
 typedef void (*Gui_renderChatMessages_t)(unsigned char *gui, int32_t y_offset, uint32_t max_messages, bool disable_fading, unsigned char *font);
 static Gui_renderChatMessages_t Gui_renderChatMessages = (Gui_renderChatMessages_t) 0x273d8;
 

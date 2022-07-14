@@ -40,3 +40,4 @@ TRUE Implement Create World Dialog
 FALSE Remove Forced GUI Lag (Can Break Joining Servers)
 TRUE Add Buckets
 TRUE Classic HUD
+TRUE Translucent Toolbar
