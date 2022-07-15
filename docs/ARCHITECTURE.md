@@ -2,6 +2,11 @@
 
 ## Launch Sequence
 
+### Common
+1. The launcher forks itself
+   1. The child process continues the launch sequence.
+   2. The original process monitors the child process for crashes.
+
 ### Client
 1. The launcher is started by the user
    1. The launcher starts several Zenity dialogs to configure MCPI-Reborn
@@ -34,12 +39,11 @@ The Media Layer handles MCPI's graphics calls and user input. It replaces MCPI's
 This sub-component re-implements a subset of SDL 1.2 calls with GLFW. It also provides a few utility functions that are used internally by MCPI-Reborn.
 
 The utility functions include:
-* Taking Screenshots
 * Fullscreen
 * Audio
 * Etc
 
-This is always compiled for the host system's architecture.
+This is always compiled for the host system's architecture unless the Media Layer Proxy is disabled.
 
 This was created because SDL 1.2 has numerous bugs and is in-general unsupported.
 
@@ -60,20 +64,12 @@ It is made of two parts:
 
 While proxying all Media Layer Core API calls across UNIX pipes does hurt performance, it is better than emulating the entire graphics stack.
 
-Using this in server-mode is redundant (and disallowed).
+Using this in server-mode is redundant.
 
 #### Extras
 This sub-component contains code that must always be linked directly to MCPI.
 
 This is always compiled for ARM.
-
-#### Stubs
-This sub-component implements stubs for various redundant libraries used by MCPI to silence linker errors.
-
-This is always compiled for ARM.
-
-##### What To Stub And What To Patch?
-Most libraries (like ``bcm_host``) can just be replaced with stubs, because they don't need to do anything and aren't used by anything else. However, some libraries (like EGL and X11) might be used by some of MCPI-Reborn's dependencies (like GLFW) so instead of being replaced by a stub, each call is manually patched out from MCPI. A stub is still generated just in case that library isn't present on the system to silence linker errors, but it is only loaded if no other version is available.
 
 #### Headers
 This sub-component includes headers for SDL, GLES, and EGL allowing easy (cross-)compilation.

@@ -1,7 +1,7 @@
 # Dedicated Server
 The dedicated server is a version of Minecraft: Pi Edition modified to run in a headless environment. It loads settings from a ``server.properties`` file.
 
-This server is also compatible with MCPE Alpha v0.6.1.
+This server is also compatible with MCPE Alpha v0.6.1[^1].
 
 ## Setup
 
@@ -15,3 +15,5 @@ An official Docker image is also provided: [thebrokenrail/minecraft-pi-reborn-se
 * Player data is not saved because of limitations with MCPE LAN worlds
   * An easy workaround is to place your inventory in a chest before logging off
 * Survival Mode servers are incompatible with unmodded MCPI
+
+[^1]: The exception to this is buckets, those will crash MCPE players.

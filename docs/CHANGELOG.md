@@ -1,5 +1,20 @@
 # Changelog
 
+**2.4.0**
+* [Modding SDK](../example-mods/README.md)
+* Cache Blacklist/Whitelist
+* More Reliable AppImages
+* CMake Refactors
+* Disable Broken Touchscreen-Specific Block Outline Behavior
+* Add ``Remove Forced GUI Lag (Can Break Joining Servers)`` Feature Flag (Disabled By Default)
+* Add ``Add Buckets`` Feature Flag (Enabled By Default)
+* Add ``Classic HUD`` Feature Flag (Enabled By Default)
+* Add ``Translucent Toolbar`` Feature Flag (Enabled By Default)
+* Fix Sound Pitch/Volume/Attenuation
+* Fix Holding Left-Click When Attacking
+* Don't Force EGL (Should Fix Some NVIDIA Systems)
+* Performance Fixes
+
 **2.3.13**
 * Fix Texture Bug
 

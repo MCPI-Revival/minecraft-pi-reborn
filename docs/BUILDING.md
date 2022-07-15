@@ -1,21 +1,11 @@
 # Building
 
-## Build Dependencies
-* Common
-  * ARM Compiler
-  * Host Compiler
-  * CMake
-* Host Architecture Dependencies
-  * Client Mode Only
-    * OpenAL
+## Dependencies
 
-## Runtime Dependencies
-* Non-ARM Host Architectures
-  * QEMU User-Mode
-* Host Architecture Dependencies
-  * Client Mode Only
-    * OpenGL ES 2.0
-    * OpenAL
+### Debian/Ubuntu
+```sh
+./scripts/install-dependencies.sh
+```
 
 ## Instructions
 ```sh
@@ -29,4 +19,4 @@
 ```
 
 ### Environment Variables
-- ``MCPI_TOOLCHAIN_USE_DEFAULT_SEARCH_PATHS``: Use Default CMake Search Paths Rather Than Guessing
+* ``MCPI_TOOLCHAIN_USE_DEFAULT_SEARCH_PATHS``: Use Default CMake Search Paths Rather Than Guessing
