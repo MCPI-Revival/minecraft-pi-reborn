@@ -3,7 +3,7 @@ FROM debian:bullseye-slim
 # Install
 RUN \
     apt-get update && \
-    apt-get install -y tini sed patchelf qemu-user && \
+    apt-get install -y tini qemu-user && \
     apt-get --fix-broken install -y && \
     rm -rf /var/lib/apt/lists/*
 
