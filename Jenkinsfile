@@ -5,7 +5,7 @@ pipeline {
             agent {
                 dockerfile {
                     filename 'scripts/ci/Dockerfile'
-                    args '-v /var/run/docker.sock:/var/run/docker.sock'
+                    args '-v /var/run/docker.sock:/var/run/docker.sock --network host'
                 }
             }
             stages {
