@@ -29,8 +29,8 @@ static void Gui_renderHearts_GuiComponent_blit_hearts_injection(unsigned char *c
     unsigned char *minecraft = *(unsigned char **) (component + Gui_minecraft_property_offset);
     x_dest -= DEFAULT_HUD_PADDING;
     float width = ((float) *(int32_t *) (minecraft + Minecraft_screen_width_property_offset)) * *InvGuiScale;
-    float height = ((float) *(int32_t *) (minecraft + Minecraft_screen_width_property_offset)) * *InvGuiScale;
-    x_dest += (width + (NUMBER_OF_SLOTS * SLOT_WIDTH)) / 2;
+    float height = ((float) *(int32_t *) (minecraft + Minecraft_screen_height_property_offset)) * *InvGuiScale;
+    x_dest += (width - (NUMBER_OF_SLOTS * SLOT_WIDTH)) / 2;
     y_dest -= DEFAULT_HUD_PADDING;
     y_dest += height - HUD_ELEMENT_HEIGHT - TOOLBAR_HEIGHT - NEW_HUD_PADDING;
     // Call Original Method
@@ -40,8 +40,8 @@ static void Gui_renderHearts_GuiComponent_blit_armor_injection(unsigned char *co
     unsigned char *minecraft = *(unsigned char **) (component + Gui_minecraft_property_offset);
     x_dest -= DEFAULT_HUD_PADDING + HUD_ELEMENT_WIDTH;
     float width = ((float) *(int32_t *) (minecraft + Minecraft_screen_width_property_offset)) * *InvGuiScale;
-    float height = ((float) *(int32_t *) (minecraft + Minecraft_screen_width_property_offset)) * *InvGuiScale;
-    x_dest += width - ((width + (NUMBER_OF_SLOTS * SLOT_WIDTH)) / 2) - HUD_ELEMENT_WIDTH;
+    float height = ((float) *(int32_t *) (minecraft + Minecraft_screen_height_property_offset)) * *InvGuiScale;
+    x_dest += width - ((width - (NUMBER_OF_SLOTS * SLOT_WIDTH)) / 2) - HUD_ELEMENT_WIDTH;
     y_dest -= DEFAULT_HUD_PADDING;
     y_dest += height - HUD_ELEMENT_HEIGHT - TOOLBAR_HEIGHT - NEW_HUD_PADDING;
     // Call Original Method
@@ -51,8 +51,8 @@ static void Gui_renderBubbles_GuiComponent_blit_injection(unsigned char *compone
     unsigned char *minecraft = *(unsigned char **) (component + Gui_minecraft_property_offset);
     x_dest -= DEFAULT_HUD_PADDING;
     float width = ((float) *(int32_t *) (minecraft + Minecraft_screen_width_property_offset)) * *InvGuiScale;
-    float height = ((float) *(int32_t *) (minecraft + Minecraft_screen_width_property_offset)) * *InvGuiScale;
-    x_dest += (width + (NUMBER_OF_SLOTS * SLOT_WIDTH)) / 2;
+    float height = ((float) *(int32_t *) (minecraft + Minecraft_screen_height_property_offset)) * *InvGuiScale;
+    x_dest += (width - (NUMBER_OF_SLOTS * SLOT_WIDTH)) / 2;
     y_dest -= DEFAULT_HUD_PADDING + DEFAULT_BUBBLES_PADDING + HUD_ELEMENT_HEIGHT;
     y_dest += height - HUD_ELEMENT_HEIGHT - TOOLBAR_HEIGHT - HUD_ELEMENT_HEIGHT - NEW_HUD_PADDING;
     // Call Original Method
