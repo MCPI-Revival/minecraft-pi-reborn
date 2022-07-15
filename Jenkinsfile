@@ -1,7 +1,7 @@
 pipeline {
     agent none
     stages {
-        stage('Debian Bullseye') {
+        stage('Debian Buster') {
             agent {
                 dockerfile {
                     filename 'scripts/ci/Dockerfile'
