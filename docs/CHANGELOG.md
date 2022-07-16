@@ -10,6 +10,7 @@
 * Add ``Add Buckets`` Feature Flag (Enabled By Default)
 * Add ``Classic HUD`` Feature Flag (Enabled By Default)
 * Add ``Translucent Toolbar`` Feature Flag (Enabled By Default)
+* Add ``Force EGL`` Feature Flag (Disabled By Default)
 * Fix Sound Pitch/Volume/Attenuation
 * Fix Holding Left-Click When Attacking
 * Don't Force EGL (Should Fix Some NVIDIA Systems)

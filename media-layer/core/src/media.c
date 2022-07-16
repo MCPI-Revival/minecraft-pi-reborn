@@ -251,6 +251,15 @@ void media_disable_vsync() {
 #endif
 }
 
+// Force EGL
+static int force_egl = 0;
+void media_force_egl() {
+    if (force_egl == -1) {
+        IMPOSSIBLE();
+    }
+    force_egl = 1;
+}
+
 // Init Media Layer
 #define GL_VERSION 0x1f02
 typedef const unsigned char *(*glGetString_t)(unsigned int name);
@@ -273,6 +282,11 @@ void SDL_WM_SetCaption(const char *title, __attribute__((unused)) const char *ic
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 1);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 1);
 #endif
+    // Use EGL
+    if (force_egl) {
+        glfwWindowHint(GLFW_CONTEXT_CREATION_API, GLFW_EGL_CONTEXT_API);
+    }
+    force_egl = -1;
     // Extra Settings
     glfwWindowHint(GLFW_AUTO_ICONIFY, GLFW_FALSE);
     glfwWindowHint(GLFW_ALPHA_BITS, 0); // Fix Transparent Window On Wayland

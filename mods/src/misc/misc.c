@@ -116,16 +116,31 @@ static void Inventory_selectSlot_injection(unsigned char *inventory, int32_t slo
 }
 
 // Translucent Toolbar
+static GLfloat reset_red;
+static GLfloat reset_green;
+static GLfloat reset_blue;
+static GLfloat reset_alpha;
 static void Gui_renderToolBar_injection(unsigned char *gui, float param_1, int32_t param_2, int32_t param_3) {
     // Call Original Method
-    glEnable(GL_BLEND);
+    int was_blend_enabled = glIsEnabled(GL_BLEND);
+    if (!was_blend_enabled) {
+        glEnable(GL_BLEND);
+    }
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     (*Gui_renderToolBar)(gui, param_1, param_2, param_3);
-    glDisable(GL_BLEND);
+    glColor4f(reset_red, reset_green, reset_blue, reset_alpha);
+    if (!was_blend_enabled) {
+        glDisable(GL_BLEND);
+    }
 }
-static void Gui_renderToolBar_glColor4f_injection(GLfloat red, GLfloat green, GLfloat blue, __attribute__((unused)) GLfloat alpha) {
+static void Gui_renderToolBar_glColor4f_injection(GLfloat red, GLfloat green, GLfloat blue, GLfloat alpha) {
     // Fix Alpha
     glColor4f(red, green, blue, 1.0f);
+    // Stroe For Reset
+    reset_red = red;
+    reset_green = green;
+    reset_blue = blue;
+    reset_alpha = alpha;
 }
 
 // Sanitize Username
@@ -351,6 +366,11 @@ void init_misc() {
     // Disable V-Sync
     if (feature_has("Disable V-Sync", server_enabled)) {
         media_disable_vsync();
+    }
+
+    // Force EGL
+    if (feature_has("Force EGL", server_disabled)) {
+        media_force_egl();
     }
 
     // Remove Forced GUI Lag

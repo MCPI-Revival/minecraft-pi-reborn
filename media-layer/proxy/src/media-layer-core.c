@@ -339,3 +339,15 @@ CALL(64, media_set_raw_mouse_motion_enabled, void, (int enabled)) {
     media_set_raw_mouse_motion_enabled(enabled);
 #endif
 }
+
+CALL(66, media_force_egl, void, ()) {
+#if defined(MEDIA_LAYER_PROXY_SERVER)
+    // Lock Proxy
+    start_proxy_call();
+    // Release Proxy
+    end_proxy_call();
+#else
+    // Run
+    media_force_egl();
+#endif
+}
