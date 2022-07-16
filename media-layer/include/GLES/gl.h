@@ -40,6 +40,8 @@ extern "C" {
 #define GL_FOG_MODE 0xb65
 #define GL_FOG_COLOR 0xb66
 #define GL_BLEND 0xbe2
+#define GL_ONE 1
+#define GL_ZERO 0
 
 #include <stdio.h>
 #include <stdint.h>

@@ -116,6 +116,14 @@ static void Inventory_selectSlot_injection(unsigned char *inventory, int32_t slo
 }
 
 // Translucent Toolbar
+static GLenum blend_sfactor = GL_ONE;
+static GLenum blend_dfactor = GL_ZERO;
+HOOK(glBlendFunc, void, (GLenum sfactor, GLenum dfactor)) {
+    blend_sfactor = sfactor;
+    blend_dfactor = dfactor;
+    ensure_glBlendFunc();
+    (*real_glBlendFunc)(sfactor, dfactor);
+}
 static GLfloat reset_red;
 static GLfloat reset_green;
 static GLfloat reset_blue;
@@ -126,9 +134,12 @@ static void Gui_renderToolBar_injection(unsigned char *gui, float param_1, int32
     if (!was_blend_enabled) {
         glEnable(GL_BLEND);
     }
+    GLenum old_sfactor = blend_sfactor;
+    GLenum old_dfactor = blend_dfactor;
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     (*Gui_renderToolBar)(gui, param_1, param_2, param_3);
     glColor4f(reset_red, reset_green, reset_blue, reset_alpha);
+    glBlendFunc(old_sfactor, old_dfactor);
     if (!was_blend_enabled) {
         glDisable(GL_BLEND);
     }
