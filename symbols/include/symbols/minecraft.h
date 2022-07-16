@@ -545,6 +545,7 @@ typedef void (*Screen_init_t)(unsigned char *screen);
 typedef void (*Screen_tick_t)(unsigned char *screen);
 
 typedef void (*Screen_render_t)(unsigned char *screen, int32_t param_1, int32_t param_2, float param_3);
+static Screen_render_t Screen_render = (Screen_render_t) 0x28a00;
 
 typedef int32_t (*Screen_handleBackEvent_t)(unsigned char *screen, bool param_1);
 

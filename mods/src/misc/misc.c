@@ -116,42 +116,29 @@ static void Inventory_selectSlot_injection(unsigned char *inventory, int32_t slo
 }
 
 // Translucent Toolbar
-static GLenum blend_sfactor = GL_ONE;
-static GLenum blend_dfactor = GL_ZERO;
-HOOK(glBlendFunc, void, (GLenum sfactor, GLenum dfactor)) {
-    blend_sfactor = sfactor;
-    blend_dfactor = dfactor;
-    ensure_glBlendFunc();
-    (*real_glBlendFunc)(sfactor, dfactor);
-}
-static GLfloat reset_red;
-static GLfloat reset_green;
-static GLfloat reset_blue;
-static GLfloat reset_alpha;
 static void Gui_renderToolBar_injection(unsigned char *gui, float param_1, int32_t param_2, int32_t param_3) {
     // Call Original Method
     int was_blend_enabled = glIsEnabled(GL_BLEND);
     if (!was_blend_enabled) {
         glEnable(GL_BLEND);
     }
-    GLenum old_sfactor = blend_sfactor;
-    GLenum old_dfactor = blend_dfactor;
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     (*Gui_renderToolBar)(gui, param_1, param_2, param_3);
-    glColor4f(reset_red, reset_green, reset_blue, reset_alpha);
-    glBlendFunc(old_sfactor, old_dfactor);
     if (!was_blend_enabled) {
         glDisable(GL_BLEND);
     }
 }
-static void Gui_renderToolBar_glColor4f_injection(GLfloat red, GLfloat green, GLfloat blue, GLfloat alpha) {
+static void Gui_renderToolBar_glColor4f_injection(GLfloat red, GLfloat green, GLfloat blue, __attribute__((unused)) GLfloat alpha) {
     // Fix Alpha
     glColor4f(red, green, blue, 1.0f);
-    // Stroe For Reset
-    reset_red = red;
-    reset_green = green;
-    reset_blue = blue;
-    reset_alpha = alpha;
+}
+
+// Fix Screen Rendering When GUI is Hidden
+static void Screen_render_injection(unsigned char *screen, int32_t param_1, int32_t param_2, float param_3) {
+    // Fix
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    // Call Original Method
+    (*Screen_render)(screen, param_1, param_2, param_3);
 }
 
 // Sanitize Username
@@ -342,6 +329,9 @@ void init_misc() {
         overwrite_calls((void *) Gui_renderToolBar, (void *) Gui_renderToolBar_injection);
         overwrite_call((void *) 0x26c5c, (void *) Gui_renderToolBar_glColor4f_injection);
     }
+
+    // Fix Screen Rendering When GUI is Hidden
+    overwrite_calls((void *) Screen_render, (void *) Screen_render_injection);
 
     // Sanitize Username
     patch_address(LoginPacket_read_vtable_addr, (void *) LoginPacket_read_injection);
