@@ -142,7 +142,7 @@ static void set_env_if_unset(const char *env_name, std::function<std::string()> 
 #define LIST_DIALOG_SIZE "400"
 int main(int argc, char *argv[]) {
     // Don't Run As Root
-    if (getuid() == 0 || geteuid() == 0) {
+    if (getenv("_MCPI_SKIP_ROOT_CHECK") == NULL && (getuid() == 0 || geteuid() == 0)) {
         ERR("Don't Run As Root");
     }
 
