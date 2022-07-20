@@ -1,6 +1,8 @@
 #include <stdlib.h>
 #include <unistd.h>
 
+#include <libreborn/libreborn.h>
+
 #include "../bootstrap.h"
 
 int main(int argc, char *argv[]) {

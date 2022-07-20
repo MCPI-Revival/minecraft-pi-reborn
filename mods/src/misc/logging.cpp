@@ -20,7 +20,9 @@ static void Gui_addMessage_injection(unsigned char *gui, std::string const& text
         Gui_addMessage_recursing = true;
 
         // Print Log Message
-        fprintf(stderr, "[CHAT]: %s\n", new_message);
+        char *safe_message = from_cp437(new_message);
+        fprintf(stderr, "[CHAT]: %s\n", safe_message);
+        free(safe_message);
 
         // Call Original Method
         (*Gui_addMessage)(gui, std::string(new_message));

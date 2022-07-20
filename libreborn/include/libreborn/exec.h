@@ -16,16 +16,21 @@
 extern "C" {
 #endif
 
+// Set Environmental Variable
+void set_and_print_env(const char *name, const char *value);
+
 // Safe execvpe()
+#define for_each_special_environmental_variable(handle) \
+    handle("LD_LIBRARY_PATH"); \
+    handle("GCONV_PATH"); \
+    handle("LD_PRELOAD");
+void setup_exec_environment(int is_arm_component);
 __attribute__((noreturn)) void safe_execvpe(const char *const argv[], const char *const envp[]);
 
 // Chop Off Last Component
 void chop_last_component(char **str);
 // Get Binary Directory (Remember To Free)
 char *get_binary_directory();
-
-// Safe execvpe() Relative To Binary
-__attribute__((noreturn)) void safe_execvpe_relative_to_binary(const char *const argv[], const char *const envp[]);
 
 // Run Command And Get Output
 char *run_command(const char *const command[], int *exit_status);

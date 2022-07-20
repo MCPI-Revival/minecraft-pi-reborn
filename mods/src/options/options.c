@@ -39,6 +39,10 @@ static char *get_username() {
     }
     return username;
 }
+static char *safe_username = NULL;
+__attribute__((destructor)) static void _free_safe_username() {
+    free(safe_username);
+}
 
 static int anaglyph;
 static int render_distance;
@@ -102,7 +106,8 @@ void init_options() {
     if (strcmp(*default_username, "StevePi") != 0) {
         ERR("Default Username Is Invalid");
     }
-    patch_address((void *) default_username, (void *) username);
+    safe_username = to_cp437(username);
+    patch_address((void *) default_username, (void *) safe_username);
 
     // Disable Autojump By Default
     if (feature_has("Disable Autojump By Default", server_disabled)) {

@@ -64,7 +64,11 @@ static ServerProperties &get_server_properties() {
 
 // Get World Name
 static std::string get_world_name() {
-    return get_server_properties().get_string("world-name", DEFAULT_WORLD_NAME);
+    std::string name = get_server_properties().get_string("world-name", DEFAULT_WORLD_NAME);
+    char *safe_name_c = to_cp437(name.c_str());
+    std::string safe_name = safe_name_c;
+    free(safe_name_c);
+    return safe_name;
 }
 
 // Create/Start World
@@ -120,8 +124,12 @@ static std::vector<unsigned char *> get_players_in_level(unsigned char *level) {
     return *(std::vector<unsigned char *> *) (level + Level_players_property_offset);
 }
 // Get Player's Username
-static std::string *get_player_username(unsigned char *player) {
-    return (std::string *) (player + Player_username_property_offset);
+static std::string get_player_username(unsigned char *player) {
+    std::string *username = (std::string *) (player + Player_username_property_offset);
+    char *safe_username_c = from_cp437(username->c_str());
+    std::string safe_username = safe_username_c;
+    free(safe_username_c);
+    return safe_username;
 }
 // Get Level From Minecraft
 static unsigned char *get_level(unsigned char *minecraft) {
@@ -137,7 +145,7 @@ static void find_players(unsigned char *minecraft, std::string target_username, 
     for (std::size_t i = 0; i < players.size(); i++) {
         // Iterate Players
         unsigned char *player = players[i];
-        std::string username = *get_player_username(player);
+        std::string username = get_player_username(player);
         if (all_players || username == target_username) {
             // Run Callback
             (*callback)(minecraft, username, player);
@@ -326,8 +334,11 @@ static void handle_commands(unsigned char *minecraft) {
                 } else if (data.rfind(say_command, 0) == 0) {
                     // Format Message
                     std::string message = "[Server] " + data.substr(say_command.length());
+                    char *safe_message = to_cp437(message.c_str());
                     // Post Message To Chat
-                    (*ServerSideNetworkHandler_displayGameMessage)(server_side_network_handler, message);
+                    (*ServerSideNetworkHandler_displayGameMessage)(server_side_network_handler, safe_message);
+                    // Free
+                    free(safe_message);
                 } else if (data == list_command) {
                     // List Players
                     INFO("All Players:");
@@ -584,7 +595,7 @@ static void server_init() {
 // Init Server
 void init_server() {
     server_init();
-    setenv("MCPI_FEATURE_FLAGS", get_features(), 1);
-    setenv("MCPI_RENDER_DISTANCE", "Tiny", 1);
-    setenv("MCPI_USERNAME", get_motd().c_str(), 1);
+    set_and_print_env("MCPI_FEATURE_FLAGS", get_features());
+    set_and_print_env("MCPI_RENDER_DISTANCE", "Tiny");
+    set_and_print_env("MCPI_USERNAME", get_motd().c_str());
 }

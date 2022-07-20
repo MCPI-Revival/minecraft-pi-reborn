@@ -2,7 +2,32 @@
 
 #include <libreborn/exec.h>
 
+// Set Environmental Variable
+static void setenv_safe(const char *name, const char *value) {
+    if (value != NULL) {
+        setenv(name, value, 1);
+    } else {
+        unsetenv(name);
+    }
+}
+void set_and_print_env(const char *name, const char *value) {
+    // Print New Value
+    DEBUG("Set %s = %s", name, value != NULL ? value : "(unset)");
+
+    // Set The Value
+    setenv_safe(name, value);
+}
+
 // Safe execvpe()
+#define handle_environmental_variable(var) \
+    { \
+        const char *full_var = is_arm_component ? "MCPI_ARM_" var : "MCPI_NATIVE_" var; \
+        const char *var_value = getenv(full_var); \
+        set_and_print_env(var, var_value); \
+    }
+void setup_exec_environment(int is_arm_component) {
+    for_each_special_environmental_variable(handle_environmental_variable);
+}
 __attribute__((noreturn)) void safe_execvpe(const char *const argv[], const char *const envp[]) {
     // Log
     DEBUG("Running Command:");
@@ -45,29 +70,6 @@ char *get_binary_directory() {
     return exe;
 }
 
-// Safe execvpe() Relative To Binary
-__attribute__((noreturn)) void safe_execvpe_relative_to_binary(const char *const argv[], const char *const envp[]) {
-    // Get Binary Directory
-    char *binary_directory = get_binary_directory();
-    // Create Full Path
-    char *full_path = NULL;
-    safe_asprintf(&full_path, "%s/%s", binary_directory, argv[0]);
-    // Free Binary Directory
-    free(binary_directory);
-
-    // Build New argv
-    int argc;
-    for (argc = 0; argv[argc] != NULL; argc++);
-    const char *new_argv[argc + 1];
-    for (int i = 1; i < argc; i++) {
-        new_argv[i] = argv[i];
-    }
-    new_argv[0] = full_path;
-    new_argv[argc] = NULL;
-    // Run
-    safe_execvpe(new_argv, envp);
-}
-
 // Run Command And Get Output
 char *run_command(const char *const command[], int *exit_status) {
     // Store Output
@@ -84,6 +86,9 @@ char *run_command(const char *const command[], int *exit_status) {
         dup2(output_pipe[1], STDOUT_FILENO);
         close(output_pipe[0]);
         close(output_pipe[1]);
+
+        // Setup Environment
+        setup_exec_environment(0);
 
         // Run
         safe_execvpe(command, (const char *const *) environ);

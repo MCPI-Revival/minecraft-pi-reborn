@@ -156,7 +156,7 @@ static void glfw_key(__attribute__((unused)) GLFWwindow *window, int key, int sc
         event.key.keysym.sym = glfw_key_to_sdl_key(key);
         SDL_PushEvent(&event);
         if (key == GLFW_KEY_BACKSPACE && !up) {
-            character_event((char) '\b');
+            character_event('\b');
         }
     }
 }
@@ -164,7 +164,25 @@ static void glfw_key(__attribute__((unused)) GLFWwindow *window, int key, int sc
 // Pass Text To Minecraft
 static void glfw_char(__attribute__((unused)) GLFWwindow *window, unsigned int codepoint) {
     if (is_interactable) {
-        character_event((char) codepoint);
+        // Signs Only Accepts ASCII Characters
+        size_t in_size = 4; // 1 UTF-32LE Codepoint
+        size_t out_size = 4; // 4 ASCII Characters Max
+        size_t real_out_size = out_size + 1 /* NULL-terminator */;
+        char *output = (char *) malloc(real_out_size);
+        ALLOC_CHECK(output);
+        memset(output, 0, real_out_size);
+        iconv_t cd = iconv_open("ASCII//TRANSLIT", "UTF-32LE");
+        if (cd != (iconv_t) -1) {
+            safe_iconv(cd, (char *) &codepoint, in_size, output, out_size);
+            iconv_close(cd);
+        } else {
+            IMPOSSIBLE();
+        }
+        for (size_t i = 0; output[i] != '\0'; i++) {
+            character_event(output[i]);
+        }
+        // Free
+        free(output);
     }
 }
 

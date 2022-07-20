@@ -71,6 +71,9 @@ static void start_media_layer_proxy_client(int read, int write) {
         safe_asprintf(&write_str, "%i", write);
         const char *argv[] = {"media-layer-proxy-client", read_str, write_str, NULL};
 
+        // Setup Environment
+        setup_exec_environment(0);
+
         // Run
         safe_execvpe(argv, (const char *const *) environ);
     } else {

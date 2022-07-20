@@ -186,7 +186,9 @@ static void *create_world_thread(__attribute__((unused)) void *nop) {
         pthread_mutex_lock(&create_world_state_lock);
         reset_create_world_state();
         create_world_state.dialog_state = DIALOG_SUCCESS;
-        create_world_state.name = world_name;
+        char *safe_name = to_cp437(world_name);
+        create_world_state.name = safe_name;
+        free(world_name);
         create_world_state.game_mode = game_mode;
         create_world_state.seed = seed;
         pthread_mutex_unlock(&create_world_state_lock);

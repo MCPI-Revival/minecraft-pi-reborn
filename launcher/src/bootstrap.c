@@ -14,38 +14,6 @@
 #include "patchelf.h"
 #include "crash-report.h"
 
-// Set Environmental Variable
-static void trim(char **value) {
-    // Remove Trailing Colon
-    int length = strlen(*value);
-    if ((*value)[length - 1] == ':') {
-        (*value)[length - 1] = '\0';
-    }
-    if ((*value)[0] == ':') {
-        *value = &(*value)[1];
-    }
-}
-void set_and_print_env(const char *name, char *value) {
-    // Set Variable With No Trailing Colon
-    static const char *unmodified_name_prefix = "MCPI_";
-    if (!starts_with(name, unmodified_name_prefix)) {
-        trim(&value);
-    }
-
-    // Print New Value
-    DEBUG("Set %s = %s", name, value);
-
-    // Set The Value
-    setenv(name, value, 1);
-}
-
-// Get Environmental Variable
-static char *get_env_safe(const char *name) {
-    // Get Variable Or Blank String If Not Set
-    char *ret = getenv(name);
-    return ret != NULL ? ret : "";
-}
-
 // Get All Mods In Folder
 static void load(char **ld_preload, char *folder) {
     int folder_name_length = strlen(folder);
@@ -133,6 +101,10 @@ void pre_bootstrap(int argc, char *argv[]) {
     // Disable stdout Buffering
     setvbuf(stdout, NULL, _IONBF, 0);
 
+    // Set Default Native Component Environment
+#define set_variable_default(name) set_and_print_env("MCPI_NATIVE_" name, getenv(name));
+    for_each_special_environmental_variable(set_variable_default);
+
     // Print Version
     for (int i = 1; i < argc; i++) {
         if (strcmp(argv[i], "--version") == 0 || strcmp(argv[i], "-v") == 0) {
@@ -178,8 +150,8 @@ void pre_bootstrap(int argc, char *argv[]) {
         safe_asprintf(&new_path, "%s/bin", binary_directory);
         // Add Existing PATH
         {
-            char *value = get_env_safe("PATH");
-            if (strlen(value) > 0) {
+            char *value = getenv("PATH");
+            if (value != NULL && strlen(value) > 0) {
                 string_append(&new_path, ":%s", value);
             }
         }
@@ -331,78 +303,121 @@ void bootstrap(int argc, char *argv[]) {
     free(resolved_path);
 
     // Configure Library Search Path
-    char *library_path = NULL;
     {
         // Log
         DEBUG("Setting Linker Search Paths...");
 
         // Prepare
-        char *new_ld_path = NULL;
+        char *transitive_ld_path = NULL;
+        char *mcpi_ld_path = NULL;
 
-        // Add Native Library Directory
-        safe_asprintf(&new_ld_path, "%s/lib/native", binary_directory);
-
-        // Add LD_LIBRARY_PATH
+        // Library Search Path For Native Components
         {
-            char *value = get_env_safe("LD_LIBRARY_PATH");
-            if (strlen(value) > 0) {
-                string_append(&new_ld_path, ":%s", value);
+            // Add Native Library Directory
+            safe_asprintf(&transitive_ld_path, "%s/lib/native", binary_directory);
+
+            // Add Host LD_LIBRARY_PATH
+            {
+                char *value = getenv("LD_LIBRARY_PATH");
+                if (value != NULL && strlen(value) > 0) {
+                    string_append(&transitive_ld_path, ":%s", value);
+                }
             }
+
+            // Set
+            set_and_print_env("MCPI_NATIVE_LD_LIBRARY_PATH", transitive_ld_path);
+            free(transitive_ld_path);
         }
 
-        // Set LD_LIBRARY_PATH (Used For Everything Except MCPI)
-        set_and_print_env("LD_LIBRARY_PATH", new_ld_path);
+        // Library Search Path For ARM Components
+        {
+            // Add ARM Library Directory
+            // (This Overrides LD_LIBRARY_PATH Using ld.so's --library-path Option)
+            safe_asprintf(&mcpi_ld_path, "%s/lib/arm", binary_directory);
 
-        // Add ARM Library Directory
-        // (This Overrides LD_LIBRARY_PATH Using ld.so's --library-path Option)
-        safe_asprintf(&library_path, "%s/lib/arm", binary_directory);
-
-        // Add ARM Sysroot Libraries (Ensure Priority) (Ignore On Actual ARM System)
+            // Add ARM Sysroot Libraries (Ensure Priority) (Ignore On Actual ARM System)
 #ifdef MCPI_USE_PREBUILT_ARMHF_TOOLCHAIN
-        string_append(&library_path, ":%s/sysroot/lib:%s/sysroot/lib/arm-linux-gnueabihf:%s/sysroot/usr/lib:%s/sysroot/usr/lib/arm-linux-gnueabihf", binary_directory, binary_directory, binary_directory, binary_directory);
+            string_append(&mcpi_ld_path, ":%s/sysroot/lib:%s/sysroot/lib/arm-linux-gnueabihf:%s/sysroot/usr/lib:%s/sysroot/usr/lib/arm-linux-gnueabihf", binary_directory, binary_directory, binary_directory, binary_directory);
 #endif
 
-        // Add Remaining LD_LIBRARY_PATH
-        string_append(&library_path, ":%s", new_ld_path);
+            // Add Host LD_LIBRARY_PATH
+            {
+                char *value = getenv("LD_LIBRARY_PATH");
+                if (value != NULL && strlen(value) > 0) {
+                    string_append(&transitive_ld_path, ":%s", value);
+                }
+            }
 
-        // Free LD_LIBRARY_PATH
-        free(new_ld_path);
+            // Set
+            set_and_print_env("MCPI_ARM_LD_LIBRARY_PATH", mcpi_ld_path);
+            free(mcpi_ld_path);
+        }
+
+        // Setup iconv
+        {
+            // Native Components
+            char *host_gconv_path = getenv("GCONV_PATH");
+            set_and_print_env("MCPI_NATIVE_GCONV_PATH", host_gconv_path);
+
+            // ARM Components
+#ifdef MCPI_USE_PREBUILT_ARMHF_TOOLCHAIN
+            char *gconv_path = NULL;
+            safe_asprintf(&gconv_path, "%s/sysroot/usr/lib/gconv", binary_directory);
+            set_and_print_env("MCPI_ARM_GCONV_PATH", gconv_path);
+            free(gconv_path);
+#else
+            set_and_print_env("MCPI_ARM_GCONV_PATH", host_gconv_path);
+#endif
+        }
     }
 
-    // Configure MCPI's Preloaded Objects
-    char *preload = NULL;
+    // Configure Preloaded Objects
     {
         // Log
         DEBUG("Locating Mods...");
 
-        // ~/.minecraft-pi/mods
-        {
-            // Get Mods Folder
-            char *mods_folder = NULL;
-            safe_asprintf(&mods_folder, "%s" HOME_SUBDIRECTORY_FOR_GAME_DATA "/mods/", getenv("HOME"));
-            // Load Mods From ./mods
-            load(&preload, mods_folder);
-            // Free Mods Folder
-            free(mods_folder);
-        }
+        // Native Components
+        char *host_ld_preload = getenv("LD_PRELOAD");
+        set_and_print_env("MCPI_NATIVE_LD_PRELOAD", host_ld_preload);
 
-        // Built-In Mods
+        // ARM Components
         {
-            // Get Mods Folder
-            char *mods_folder = NULL;
-            safe_asprintf(&mods_folder, "%s/mods/", binary_directory);
-            // Load Mods From ./mods
-            load(&preload, mods_folder);
-            // Free Mods Folder
-            free(mods_folder);
-        }
+            // Prepare
+            char *preload = NULL;
 
-        // Add LD_PRELOAD
-        {
-            char *value = get_env_safe("LD_PRELOAD");
-            if (strlen(value) > 0) {
-                string_append(&preload, ":%s", value);
+            // ~/.minecraft-pi/mods
+            {
+                // Get Mods Folder
+                char *mods_folder = NULL;
+                safe_asprintf(&mods_folder, "%s" HOME_SUBDIRECTORY_FOR_GAME_DATA "/mods/", getenv("HOME"));
+                // Load Mods From ./mods
+                load(&preload, mods_folder);
+                // Free Mods Folder
+                free(mods_folder);
             }
+
+            // Built-In Mods
+            {
+                // Get Mods Folder
+                char *mods_folder = NULL;
+                safe_asprintf(&mods_folder, "%s/mods/", binary_directory);
+                // Load Mods From ./mods
+                load(&preload, mods_folder);
+                // Free Mods Folder
+                free(mods_folder);
+            }
+
+            // Add LD_PRELOAD
+            {
+                char *value = getenv("LD_PRELOAD");
+                if (value != NULL && strlen(value) > 0) {
+                    string_append(&preload, ":%s", value);
+                }
+            }
+
+            // Set
+            set_and_print_env("MCPI_ARM_LD_PRELOAD", preload);
+            free(preload);
         }
     }
 
@@ -414,28 +429,36 @@ void bootstrap(int argc, char *argv[]) {
 
     // Arguments
     int argv_start = 1; // argv = &new_args[argv_start]
-    int real_argv_start = argv_start + 5; // ld.so Arguments
-    const char *new_args[real_argv_start /* 1 Potential Prefix Argument (QEMU) */ + argc + 1 /* NULL-Terminator */]; //
+    const char *new_args[argv_start /* 1 Potential Prefix Argument (QEMU) */ + argc + 1 /* NULL-Terminator */]; //
 
     // Copy Existing Arguments
     for (int i = 1; i < argc; i++) {
-        new_args[i + real_argv_start] = argv[i];
+        new_args[i + argv_start] = argv[i];
     }
     // NULL-Terminator
-    new_args[real_argv_start + argc] = NULL;
+    new_args[argv_start + argc] = NULL;
 
     // Set Executable Argument
-    new_args[argv_start] = patch_get_interpreter(new_mcpi_exe_path);
-    new_args[argv_start + 1] = "--preload";
-    new_args[argv_start + 2] = preload;
-    new_args[argv_start + 3] = "--library-path";
-    new_args[argv_start + 4] = library_path;
-    new_args[real_argv_start] = new_mcpi_exe_path;
+    new_args[argv_start] = new_mcpi_exe_path;
 
     // Non-ARM Systems Need QEMU
 #ifndef __ARM_ARCH
     argv_start--;
     new_args[argv_start] = QEMU_BINARY;
+#endif
+
+    // Setup Environment
+    setup_exec_environment(1);
+
+    // Pass LD_* Variables Through QEMU
+#ifndef __ARM_ARCH
+    char *qemu_set_env = NULL;
+#define pass_variable_through_qemu(name) string_append(&qemu_set_env, "%s%s=%s", qemu_set_env == NULL ? "" : ",", name, getenv(name));
+    for_each_special_environmental_variable(pass_variable_through_qemu);
+    set_and_print_env("QEMU_SET_ENV", qemu_set_env);
+    free(qemu_set_env);
+    // Treat QEMU Itself As A Native Component
+    setup_exec_environment(0);
 #endif
 
     // Run

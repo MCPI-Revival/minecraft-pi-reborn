@@ -1,5 +1,9 @@
 # Changelog
 
+**2.4.1**
+* Allow More Characters In Usernames And Chat
+* Fix Running On ARMHF Debian Buster
+
 **2.4.0**
 * [Modding SDK](../example-mods/README.md)
 * Cache Blacklist/Whitelist

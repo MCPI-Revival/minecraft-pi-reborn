@@ -56,7 +56,6 @@ if(NOT EXISTS "${sysroot_dir}")
 
     # Delete Unneeded Files
     file(REMOVE_RECURSE "${sysroot_dir}/usr/lib/audit")
-    file(REMOVE_RECURSE "${sysroot_dir}/usr/lib/gconv")
 
     # Strip Files
     file(GLOB_RECURSE files LIST_DIRECTORIES FALSE "${sysroot_dir}/*")
@@ -68,6 +67,13 @@ if(NOT EXISTS "${sysroot_dir}")
             file(REMOVE "${file}")
         endif()
     endforeach()
+
+    # Setup gconv
+    file(
+        COPY "${toolchain_dir}/arm-none-linux-gnueabihf/libc/usr/lib/gconv/gconv-modules"
+        DESTINATION "${sysroot_dir}/usr/lib/gconv"
+        USE_SOURCE_PERMISSIONS
+    )
 endif()
 
 # Install Sysroot (Skipping Empty Directories)

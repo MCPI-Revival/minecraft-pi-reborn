@@ -108,7 +108,7 @@ add_library(test SHARED src/test/test.c)
 target_link_libraries(test mods-headers reborn-patch home)
 
 add_library(init SHARED src/init/init.c)
-target_link_libraries(init mods-headers compat game-mode misc death options chat creative bucket home version test media-layer-core)
+target_link_libraries(init mods-headers reborn-util compat game-mode misc death options chat creative bucket home version test media-layer-core)
 if(MCPI_SERVER_MODE)
     target_link_libraries(init server)
 else()

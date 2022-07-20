@@ -48,7 +48,9 @@ static void *chat_thread(__attribute__((unused)) void *nop) {
             // Don't Allow Empty Strings
             if (length > 0) {
                 // Submit
-                _chat_queue_message(output);
+                char *safe_output = to_cp437(output);
+                _chat_queue_message(safe_output);
+                free(safe_output);
             }
         }
         // Free Output
