@@ -308,6 +308,9 @@ void SDL_WM_SetCaption(const char *title, __attribute__((unused)) const char *ic
     // Extra Settings
     glfwWindowHint(GLFW_AUTO_ICONIFY, GLFW_FALSE);
     glfwWindowHint(GLFW_ALPHA_BITS, 0); // Fix Transparent Window On Wayland
+    // App ID
+    glfwWindowHintString(GLFW_X11_CLASS_NAME, MCPI_APP_ID);
+    glfwWindowHintString(GLFW_WAYLAND_APP_ID, MCPI_APP_ID);
 
     // Create Window
     glfw_window = glfwCreateWindow(DEFAULT_WIDTH, DEFAULT_HEIGHT, title, NULL, NULL);

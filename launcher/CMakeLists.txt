@@ -8,14 +8,8 @@ add_executable(launcher src/bootstrap.c src/patchelf.c src/crash-report.c)
 if(MCPI_SERVER_MODE)
     target_sources(launcher PRIVATE src/server/launcher.c)
 else()
-    add_custom_command(
-        OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/available-feature-flags.c"
-        COMMAND xxd -i available-feature-flags "${CMAKE_CURRENT_BINARY_DIR}/available-feature-flags.c"
-        DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/src/client/available-feature-flags"
-        WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/src/client"
-        VERBATIM
-    )
-    target_sources(launcher PRIVATE src/client/launcher.cpp "${CMAKE_CURRENT_BINARY_DIR}/available-feature-flags.c")
+    embed_resource(launcher src/client/available-feature-flags)
+    target_sources(launcher PRIVATE src/client/launcher.cpp)
 endif()
 target_link_libraries(launcher reborn-util)
 # RPath
@@ -44,7 +38,7 @@ else()
     file(APPEND "${CMAKE_CURRENT_BINARY_DIR}/launcher.desktop"
         "Terminal=false\n"
         "StartupNotify=false\n"
-        "StartupWMClass=${MCPI_APP_TITLE}\n"
+        "StartupWMClass=${MCPI_APP_ID}\n"
     )
 endif()
 install(

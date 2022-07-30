@@ -14,6 +14,11 @@ endif()
 add_library(GLESv1_CM SHARED ${GLES_SRC})
 if(NOT MCPI_HEADLESS_MODE)
     target_link_libraries(GLESv1_CM PRIVATE glfw PUBLIC reborn-util PRIVATE dl PRIVATE m)
+    # Shaders
+    if(MCPI_USE_GLES1_COMPATIBILITY_LAYER)
+        embed_resource(GLESv1_CM src/compatibility-layer/shaders/main.vert)
+        embed_resource(GLESv1_CM src/compatibility-layer/shaders/main.frag)
+    endif()
 endif()
 
 # Common

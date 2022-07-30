@@ -30,8 +30,7 @@ run() {
 
     # Host Dependencies Needed For Compile
     queue_pkg \
-        libwayland-bin \
-        xxd
+        libwayland-bin
 
     # Host Dependencies Needed For Running
     queue_pkg \

@@ -22,7 +22,7 @@ static void show_report(const char *log_filename) {
     const char *command[] = {
         "zenity",
         "--title", DIALOG_TITLE,
-        "--name", MCPI_APP_TITLE,
+        "--name", MCPI_APP_ID,
         "--width", CRASH_REPORT_DIALOG_WIDTH,
         "--height", CRASH_REPORT_DIALOG_HEIGHT,
         "--text-info",

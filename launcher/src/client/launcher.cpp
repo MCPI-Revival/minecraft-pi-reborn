@@ -37,7 +37,7 @@ static std::string strip_feature_flag_default(std::string flag, bool *default_re
 
 // Load Available Feature Flags
 extern unsigned char available_feature_flags[];
-extern unsigned int available_feature_flags_len;
+extern size_t available_feature_flags_len;
 static void load_available_feature_flags(std::function<void(std::string)> callback) {
     // Get Path
     char *binary_directory = get_binary_directory();
@@ -112,7 +112,7 @@ static void run_zenity_and_set_env(const char *env_name, std::vector<std::string
     full_command.push_back("--title");
     full_command.push_back(DIALOG_TITLE);
     full_command.push_back("--name");
-    full_command.push_back(MCPI_APP_TITLE);
+    full_command.push_back(MCPI_APP_ID);
     full_command.insert(full_command.end(), command.begin(), command.end());
     // Convert To C Array
     const char *full_command_array[full_command.size() + 1];

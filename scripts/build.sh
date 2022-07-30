@@ -11,20 +11,22 @@ build() {
     cd "build/${MODE}-${ARCH}"
 
     # Create Prefix
-    local prefix="$(cd ../../; pwd)/out/${MODE}-${ARCH}"
-    rm -rf "${prefix}"
-    mkdir -p "${prefix}"
+    if [ -z "${DESTDIR+x}" ]; then
+        export DESTDIR="$(cd ../../; pwd)/out/${MODE}-${ARCH}"
+        rm -rf "${DESTDIR}"
+        mkdir -p "${DESTDIR}"
+    fi
 
     # Build ARM Components
     cd arm
     cmake --build .
-    DESTDIR="${prefix}" cmake --install .
+    cmake --install .
     cd ../
 
     # Build Native Components
     cd native
     cmake --build .
-    DESTDIR="${prefix}" cmake --install .
+    cmake --install .
     cd ../
 
     # Exit

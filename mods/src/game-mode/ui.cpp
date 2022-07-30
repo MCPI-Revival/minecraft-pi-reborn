@@ -88,7 +88,7 @@ static void *create_world_thread(__attribute__((unused)) void *nop) {
             const char *command[] = {
                 "zenity",
                 "--title", DIALOG_TITLE,
-                "--name", MCPI_APP_TITLE,
+                "--name", MCPI_APP_ID,
                 "--entry",
                 "--text", "Enter World Name:",
                 "--entry-text", DEFAULT_WORLD_NAME,
@@ -115,7 +115,7 @@ static void *create_world_thread(__attribute__((unused)) void *nop) {
             const char *command[] = {
                 "zenity",
                 "--title", DIALOG_TITLE,
-                "--name", MCPI_APP_TITLE,
+                "--name", MCPI_APP_ID,
                 "--list",
                 "--radiolist",
                 "--width", GAME_MODE_DIALOG_SIZE,
@@ -148,7 +148,7 @@ static void *create_world_thread(__attribute__((unused)) void *nop) {
             const char *command[] = {
                 "zenity",
                 "--title", DIALOG_TITLE,
-                "--name", MCPI_APP_TITLE,
+                "--name", MCPI_APP_ID,
                 "--entry",
                 "--only-numerical",
                 "--text", "Enter Seed (Leave Blank For Random):",

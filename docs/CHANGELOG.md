@@ -1,5 +1,9 @@
 # Changelog
 
+**2.4.2**
+* Fix Picking Up Lava
+* Fix Wayland App ID
+
 **2.4.1**
 * Allow More Characters In Usernames And Chat
 * Fix Running On ARMHF Debian Buster

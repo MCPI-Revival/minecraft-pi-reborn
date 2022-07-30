@@ -40,7 +40,7 @@ static int32_t BucketItem_useOn(__attribute__((unused)) unsigned char *item, Ite
         if (tile == *(int32_t *) (*Tile_calmWater + Tile_id_property_offset)) {
             new_auxiliary = *(int32_t *) (*Tile_water + Tile_id_property_offset);
         } else if (tile == *(int32_t *) (*Tile_calmLava + Tile_id_property_offset)) {
-            new_auxiliary = *(int32_t *) (*Tile_water + Tile_id_property_offset);
+            new_auxiliary = *(int32_t *) (*Tile_lava + Tile_id_property_offset);
         }
         if (new_auxiliary != 0) {
             // Valid
@@ -107,6 +107,9 @@ static int32_t BucketItem_useOn(__attribute__((unused)) unsigned char *item, Ite
             unsigned char *material_vtable = *(unsigned char **) material;
             Material_isSolid_t Material_isSolid = *(Material_isSolid_t *) (material_vtable + Material_isSolid_vtable_offset);
             valid = !(*Material_isSolid)(material);
+        }
+        if (item_instance->auxiliary != *(int32_t *) (*Tile_water + Tile_id_property_offset) && item_instance->auxiliary != *(int32_t *) (*Tile_lava + Tile_id_property_offset)) {
+            valid = false;
         }
         if (valid) {
             (*Level_setTileAndData)(level, x, y, z, item_instance->auxiliary, 0);

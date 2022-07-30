@@ -54,16 +54,16 @@ static void log_shader(GLuint shader, const char *name) {
         ERR("Failed To Compile %s Shader", name);
     }
 }
-static GLuint compile_shader(const char *vertex_shader_text, const char *fragment_shader_text) {
+static GLuint compile_shader(const char *vertex_shader_text, const int vertex_shader_length, const char *fragment_shader_text, const int fragment_shader_length) {
     // Vertex Shader
     const GLuint vertex_shader = real_glCreateShader()(REAL_GL_VERTEX_SHADER);
-    real_glShaderSource()(vertex_shader, 1, &vertex_shader_text, NULL);
+    real_glShaderSource()(vertex_shader, 1, &vertex_shader_text, &vertex_shader_length);
     real_glCompileShader()(vertex_shader);
     log_shader(vertex_shader, "Vertex");
 
     // Fragment Shader
     const GLuint fragment_shader = real_glCreateShader()(REAL_GL_FRAGMENT_SHADER);
-    real_glShaderSource()(fragment_shader, 1, &fragment_shader_text, NULL);
+    real_glShaderSource()(fragment_shader, 1, &fragment_shader_text, &fragment_shader_length);
     real_glCompileShader()(fragment_shader);
     log_shader(fragment_shader, "Fragment");
 
@@ -78,70 +78,14 @@ static GLuint compile_shader(const char *vertex_shader_text, const char *fragmen
 }
 
 // Shader
+extern unsigned char main_vert[];
+extern size_t main_vert_len;
+extern unsigned char main_frag[];
+extern size_t main_frag_len;
 static GLuint get_shader() {
     static GLuint program = 0;
     if (program == 0) {
-        static const char *vertex_shader_text =
-            "#version 100\n"
-            "precision mediump float;\n"
-            // Matrices
-            "uniform mat4 u_projection;\n"
-            "uniform mat4 u_model_view;\n"
-            "uniform mat4 u_texture;\n"
-            // Texture
-            "attribute vec3 a_vertex_coords;\n"
-            "attribute vec2 a_texture_coords;\n"
-            "varying vec4 v_texture_pos;\n"
-            // Color
-            "attribute vec4 a_color;\n"
-            "varying vec4 v_color;\n"
-            // Fog
-            "varying vec4 v_fog_eye_position;\n"
-            // Main
-            "void main() {\n"
-            "    v_texture_pos = u_texture * vec4(a_texture_coords.xy, 0.0, 1.0);\n"
-            "    gl_Position = u_projection * u_model_view * vec4(a_vertex_coords.xyz, 1.0);\n"
-            "    v_color = a_color;\n"
-            "    v_fog_eye_position = u_model_view * vec4(a_vertex_coords.xyz, 1.0);\n"
-            "}";
-        static const char *fragment_shader_text =
-            "#version 100\n"
-            "precision mediump float;\n"
-            // Texture
-            "uniform bool u_has_texture;"
-            "uniform sampler2D u_texture_unit;\n"
-            // Color
-            "varying vec4 v_color;\n"
-            "varying vec4 v_texture_pos;\n"
-            // Alpha Test
-            "uniform bool u_alpha_test;\n"
-            // Fog
-            "uniform bool u_fog;\n"
-            "uniform vec4 u_fog_color;\n"
-            "uniform bool u_fog_is_linear;\n"
-            "uniform float u_fog_start;\n"
-            "uniform float u_fog_end;\n"
-            "varying vec4 v_fog_eye_position;\n"
-            // Main
-            "void main(void) {\n"
-            "    gl_FragColor = v_color;\n"
-            "    if (u_has_texture) {\n"
-            "        gl_FragColor *= texture2D(u_texture_unit, v_texture_pos.xy);\n"
-            "    }\n"
-            "    if (u_alpha_test && gl_FragColor.a <= 0.1) {\n"
-            "        discard;\n"
-            "    }\n"
-            "    if (u_fog) {\n"
-            "        float fog_factor;\n"
-            "        if (u_fog_is_linear) {\n"
-            "            fog_factor = (u_fog_end - length(v_fog_eye_position)) / (u_fog_end - u_fog_start);\n"
-            "        } else {\n"
-            "            fog_factor = exp(-u_fog_start * length(v_fog_eye_position));\n"
-            "        }\n"
-            "        gl_FragColor = mix(gl_FragColor, u_fog_color, 1.0 - clamp(fog_factor, 0.0, 1.0));\n"
-            "    }\n"
-            "}";
-        program = compile_shader(vertex_shader_text, fragment_shader_text);
+        program = compile_shader((const char *) main_vert, main_vert_len, (const char *) main_frag, main_frag_len);
     }
     return program;
 }
