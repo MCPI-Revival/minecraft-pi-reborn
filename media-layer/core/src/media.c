@@ -155,34 +155,42 @@ static void glfw_key(__attribute__((unused)) GLFWwindow *window, int key, int sc
         event.key.keysym.mod = glfw_modifier_to_sdl_modifier(mods);
         event.key.keysym.sym = glfw_key_to_sdl_key(key);
         SDL_PushEvent(&event);
-        if (key == GLFW_KEY_BACKSPACE && !up) {
-            character_event('\b');
-        }
     }
 }
 
 // Pass Text To Minecraft
+static void codepoint_to_utf8(unsigned char *const buffer, const unsigned int code) {
+    // https://stackoverflow.com/a/42013433/16198887
+    if (code <= 0x7f) {
+        buffer[0] = code;
+    } else if (code <= 0x7ff) {
+        buffer[0] = 0xc0 | (code >> 6); // 110xxxxx
+        buffer[1] = 0x80 | (code & 0x3f); // 10xxxxxx
+    } else if (code <= 0xffff) {
+        buffer[0] = 0xe0 | (code >> 12); // 1110xxxx
+        buffer[1] = 0x80 | ((code >> 6) & 0x3f); // 10xxxxxx
+        buffer[2] = 0x80 | (code & 0x3f); // 10xxxxxx
+    } else if (code <= 0x10ffff) {
+        buffer[0] = 0xf0 | (code >> 18); // 11110xxx
+        buffer[1] = 0x80 | ((code >> 12) & 0x3f); // 10xxxxxx
+        buffer[2] = 0x80 | ((code >> 6) & 0x3f); // 10xxxxxx
+        buffer[3] = 0x80 | (code & 0x3f); // 10xxxxxx
+    }
+}
 static void glfw_char(__attribute__((unused)) GLFWwindow *window, unsigned int codepoint) {
     if (is_interactable) {
-        // Signs Only Accepts ASCII Characters
-        size_t in_size = 4; // 1 UTF-32LE Codepoint
-        size_t out_size = 4; // 4 ASCII Characters Max
-        size_t real_out_size = out_size + 1 /* NULL-terminator */;
-        char *output = (char *) malloc(real_out_size);
-        ALLOC_CHECK(output);
-        memset(output, 0, real_out_size);
-        iconv_t cd = iconv_open("ASCII//TRANSLIT", "UTF-32LE");
-        if (cd != (iconv_t) -1) {
-            safe_iconv(cd, (char *) &codepoint, in_size, output, out_size);
-            iconv_close(cd);
-        } else {
-            IMPOSSIBLE();
-        }
-        for (size_t i = 0; output[i] != '\0'; i++) {
-            character_event(output[i]);
+        // Convert
+        size_t str_size = 4 /* Maximum UTF-8 character size */ + 1 /* NULL-terminator */;
+        char str[str_size];
+        memset(str, 0, str_size);
+        codepoint_to_utf8((unsigned char *) str, codepoint);
+        char *cp437_str = to_cp437(str);
+        // Send Event·
+        for (int i = 0; cp437_str[i] != '\0'; i++) {
+            character_event(cp437_str[i]);
         }
         // Free
-        free(output);
+        free(cp437_str);
     }
 }
 

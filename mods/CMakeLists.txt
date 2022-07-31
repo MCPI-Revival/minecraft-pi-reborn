@@ -66,7 +66,7 @@ else()
     target_link_libraries(input mods-headers reborn-patch symbols creative feature misc media-layer-core)
 
     add_library(sign SHARED src/sign/sign.cpp)
-    target_link_libraries(sign mods-headers reborn-patch symbols feature input)
+    target_link_libraries(sign mods-headers reborn-patch symbols feature input media-layer-core)
 
     add_library(touch SHARED src/touch/touch.cpp)
     target_link_libraries(touch mods-headers reborn-patch symbols feature)

@@ -18,6 +18,9 @@ static renderCursor_t renderCursor = (renderCursor_t) 0x480c4;
 typedef void (*sleepMs_t)(int32_t x);
 static sleepMs_t sleepMs = (sleepMs_t) 0x13cf4;
 
+typedef int32_t (*sdl_key_to_minecraft_key_t)(int32_t sdl_key);
+static sdl_key_to_minecraft_key_t sdl_key_to_minecraft_key = (sdl_key_to_minecraft_key_t) 0x1243c;
+
 static char **default_path = (char **) 0xe264; // /.minecraft/
 static char **default_username = (char **) 0x18fd4; // StevePi
 static char **minecraft_pi_version = (char **) 0x39d94; // v0.1.1 alpha
@@ -554,6 +557,7 @@ static uint32_t Screen_rendered_buttons_property_offset = 0x18; // std::vector<B
 static uint32_t Screen_selectable_buttons_property_offset = 0x30; // std::vector<Button *>
 static uint32_t Screen_width_property_offset = 0x8; // int32_t
 static uint32_t Screen_height_property_offset = 0xc; // int32_t
+static uint32_t Screen_passthrough_input_property_offset = 0x10; // bool
 
 // Button
 
