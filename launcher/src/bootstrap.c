@@ -53,7 +53,7 @@ static void load(char **ld_preload, char *folder) {
                             string_append(ld_preload, "%s%s", *ld_preload == NULL ? "" : ":", name);
                         } else if (result == -1 && errno != 0) {
                             // Fail
-                            WARN("Unable To Acesss: %s: %s", name, strerror(errno));
+                            WARN("Unable To Access: %s: %s", name, strerror(errno));
                             errno = 0;
                         }
                     }
@@ -146,7 +146,7 @@ void pre_bootstrap(int argc, char *argv[]) {
     // Configure PATH
     {
         // Add Library Directory
-        char *new_path;
+        char *new_path = NULL;
         safe_asprintf(&new_path, "%s/bin", binary_directory);
         // Add Existing PATH
         {
@@ -332,7 +332,6 @@ void bootstrap(int argc, char *argv[]) {
         // Library Search Path For ARM Components
         {
             // Add ARM Library Directory
-            // (This Overrides LD_LIBRARY_PATH Using ld.so's --library-path Option)
             safe_asprintf(&mcpi_ld_path, "%s/lib/arm", binary_directory);
 
             // Add ARM Sysroot Libraries (Ensure Priority) (Ignore On Actual ARM System)
@@ -344,7 +343,7 @@ void bootstrap(int argc, char *argv[]) {
             {
                 char *value = getenv("LD_LIBRARY_PATH");
                 if (value != NULL && strlen(value) > 0) {
-                    string_append(&transitive_ld_path, ":%s", value);
+                    string_append(&mcpi_ld_path, ":%s", value);
                 }
             }
 

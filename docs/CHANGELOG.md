@@ -1,5 +1,8 @@
 # Changelog
 
+**2.4.3**
+* Fix Signs With CP-437
+
 **2.4.2**
 * Fix Picking Up Lava
 * Fix Wayland App ID
