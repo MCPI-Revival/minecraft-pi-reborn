@@ -115,42 +115,46 @@ if(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
     set(CMAKE_INSTALL_PREFIX "${DEFAULT_PREFIX}" CACHE PATH "" FORCE)
 endif()
 
-# Optimizations
-if(CMAKE_BUILD_TYPE STREQUAL "Release")
-    add_compile_options(-O3 -s)
-else()
-    add_compile_options(-g)
-endif()
+# Required Compile Flags
+string(CONCAT COMPILE_FLAGS_SETUP
+    # Optimizations
+    "if(CMAKE_BUILD_TYPE STREQUAL \"Release\")\n"
+    "    add_compile_options(-O3 -s)\n"
+    "else()\n"
+    "    add_compile_options(-g)\n"
+    "endif()\n"
 
-# Use LLD When Using Clang
-if(CMAKE_C_COMPILER_ID STREQUAL "Clang")
-    add_link_options("-fuse-ld=lld")
-endif()
+    # PIC
+    "set(CMAKE_POSITION_INDEPENDENT_CODE TRUE)\n"
 
-# PIC
-set(CMAKE_POSITION_INDEPENDENT_CODE TRUE)
+    # Fast Math
+    "add_compile_options(-ffast-math)\n"
 
-# Fast Math
-add_compile_options(-ffast-math)
+    # Warnings
+    "add_compile_options(-Wall -Wextra -Werror -Wpointer-arith -Wshadow -Wnull-dereference)\n"
+    "if(CMAKE_C_COMPILER_ID STREQUAL \"GNU\")\n"
+    # Prevents False Positives
+    "    if(CMAKE_C_COMPILER_VERSION VERSION_GREATER 10.0)\n"
+    "        add_compile_options(-Wno-stringop-overflow)\n"
+    "    endif()\n"
+    "    if(CMAKE_C_COMPILER_VERSION VERSION_GREATER 11.0)\n"
+    "        add_compile_options(-Wno-array-bounds -Wno-stringop-overread)\n"
+    "    endif()\n"
+    "endif()\n"
+    "add_link_options(-Wl,--no-undefined)\n"
+
+    # C Standard
+    "add_definitions(-D_GNU_SOURCE)\n"
+    "set(CMAKE_C_STANDARD 99)\n"
+    "set(CMAKE_CXX_STANDARD 11)\n"
+
+    # Skip RPath
+    "set(CMAKE_SKIP_BUILD_RPATH TRUE)"
+)
+cmake_language(EVAL CODE "${COMPILE_FLAGS_SETUP}")
 
 # Buld Dependencies
 add_subdirectory(dependencies)
-
-# Warnings
-add_compile_options(-Wall -Wextra -Werror -Wpointer-arith -Wshadow -Wnull-dereference)
-if(CMAKE_C_COMPILER_ID STREQUAL "GNU")
-    # Prevents False Positives
-    if(CMAKE_C_COMPILER_VERSION VERSION_GREATER 10.0)
-        add_compile_options(-Wno-stringop-overflow)
-    endif()
-    if(CMAKE_C_COMPILER_VERSION VERSION_GREATER 11.0)
-        add_compile_options(-Wno-array-bounds -Wno-stringop-overread)
-    endif()
-endif()
-add_link_options(-Wl,--no-undefined)
-add_definitions(-D_GNU_SOURCE)
-set(CMAKE_C_STANDARD 99)
-set(CMAKE_CXX_STANDARD 11)
 
 # Version
 set_property(
@@ -189,5 +193,15 @@ endif()
 
 # Install SDK
 if(BUILD_ARM_COMPONENTS)
-    install(EXPORT sdk DESTINATION "${MCPI_SDK_DIR}" EXPORT_LINK_INTERFACE_LIBRARIES)
+    install(EXPORT sdk DESTINATION "${MCPI_SDK_DIR}" FILE "sdk-targets.cmake" EXPORT_LINK_INTERFACE_LIBRARIES)
+    string(CONCAT SDK_SETUP
+        # Compile Flags
+        "${COMPILE_FLAGS_SETUP}\n"
+        # Log
+        "message(STATUS \"Using Reborn SDK v${MCPI_VERSION}\")\n"
+        # Include Targets
+        "include(\"\${CMAKE_CURRENT_LIST_DIR}/sdk-targets.cmake\")\n"
+    )
+    file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/sdk.cmake" "${SDK_SETUP}")
+    install(FILES "${CMAKE_CURRENT_BINARY_DIR}/sdk.cmake" DESTINATION "${MCPI_SDK_DIR}")
 endif()
