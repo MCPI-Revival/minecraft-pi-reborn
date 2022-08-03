@@ -127,20 +127,7 @@ string(CONCAT COMPILE_FLAGS_SETUP
     # PIC
     "set(CMAKE_POSITION_INDEPENDENT_CODE TRUE)\n"
 
-    # Fast Math
-    "add_compile_options(-ffast-math)\n"
-
     # Warnings
-    "add_compile_options(-Wall -Wextra -Werror -Wpointer-arith -Wshadow -Wnull-dereference)\n"
-    "if(CMAKE_C_COMPILER_ID STREQUAL \"GNU\")\n"
-    # Prevents False Positives
-    "    if(CMAKE_C_COMPILER_VERSION VERSION_GREATER 10.0)\n"
-    "        add_compile_options(-Wno-stringop-overflow)\n"
-    "    endif()\n"
-    "    if(CMAKE_C_COMPILER_VERSION VERSION_GREATER 11.0)\n"
-    "        add_compile_options(-Wno-array-bounds -Wno-stringop-overread)\n"
-    "    endif()\n"
-    "endif()\n"
     "add_link_options(-Wl,--no-undefined)\n"
 
     # C Standard
@@ -152,6 +139,21 @@ string(CONCAT COMPILE_FLAGS_SETUP
     "set(CMAKE_SKIP_BUILD_RPATH TRUE)"
 )
 cmake_language(EVAL CODE "${COMPILE_FLAGS_SETUP}")
+
+# Fast Math
+add_compile_options(-ffast-math)
+
+# Warnings
+add_compile_options(-Wall -Wextra -Werror -Wpointer-arith -Wshadow -Wnull-dereference)
+if(CMAKE_C_COMPILER_ID STREQUAL \"GNU\")
+    # Prevents False Positives
+    if(CMAKE_C_COMPILER_VERSION VERSION_GREATER 10.0)
+        add_compile_options(-Wno-stringop-overflow)
+    endif()
+    if(CMAKE_C_COMPILER_VERSION VERSION_GREATER 11.0)
+        add_compile_options(-Wno-array-bounds -Wno-stringop-overread)
+    endif()
+endif()
 
 # Buld Dependencies
 add_subdirectory(dependencies)
