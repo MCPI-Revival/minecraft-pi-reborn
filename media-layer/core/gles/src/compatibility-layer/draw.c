@@ -78,14 +78,14 @@ static GLuint compile_shader(const char *vertex_shader_text, const int vertex_sh
 }
 
 // Shader
-extern unsigned char main_vert[];
-extern size_t main_vert_len;
-extern unsigned char main_frag[];
-extern size_t main_frag_len;
+extern unsigned char main_vsh[];
+extern size_t main_vsh_len;
+extern unsigned char main_fsh[];
+extern size_t main_fsh_len;
 static GLuint get_shader() {
     static GLuint program = 0;
     if (program == 0) {
-        program = compile_shader((const char *) main_vert, main_vert_len, (const char *) main_frag, main_frag_len);
+        program = compile_shader((const char *) main_vsh, main_vsh_len, (const char *) main_fsh, main_fsh_len);
     }
     return program;
 }

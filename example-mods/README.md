@@ -1,5 +1,5 @@
 # Example Mods
-This is an example of a mod that cane be built using the modding SDK.
+This is an example of a mod that can be built using the modding SDK.
 
 * **Expanded Creative Mod**: This specific mod adds even more items and blocks to the Creative Inventory. It was originally by [@Bigjango13](https://github.com/bigjango13).
 * **Chat Commands Mod**: This specific mod makes an chat message starting with a ``/`` handled by the MCPI API.

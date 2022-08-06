@@ -10,22 +10,17 @@ function(install_symlink target link)
 endfunction()
 
 # Embed Resources
+set(util_list_dir "${CMAKE_CURRENT_LIST_DIR}")
 function(embed_resource target file)
-    # Read Hex Data
-    file(READ "${file}" data HEX)
-    # Convert Hex Data For C Compatibility
-    string(REGEX REPLACE "([0-9a-f][0-9a-f])" "0x\\1," data "${data}")
     # Get C Name
     get_filename_component(name "${file}" NAME)
     string(MAKE_C_IDENTIFIER "${name}" name)
-    # Write Data
-    file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/${name}.c" "#include <stddef.h>\nconst unsigned char ${name}[] = {${data}};\nconst size_t ${name}_len = sizeof (${name});\n")
+    # Add Command
+    add_custom_command(OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/${name}.c"
+        COMMAND "${CMAKE_COMMAND}"
+        ARGS "-DEMBED_IN=${CMAKE_CURRENT_SOURCE_DIR}/${file}" "-DEMBED_OUT=${CMAKE_CURRENT_BINARY_DIR}/${name}.c" "-P" "${util_list_dir}/embed-resource.cmake"
+        DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/${file}" "${util_list_dir}/embed-resource.cmake"
+    )
     # Add To Target
     target_sources("${target}" PRIVATE "${CMAKE_CURRENT_BINARY_DIR}/${name}.c")
-    # Mark Dependency
-    set_property(
-        DIRECTORY
-        APPEND
-        PROPERTY CMAKE_CONFIGURE_DEPENDS "${file}"
-    )
 endfunction()

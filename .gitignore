@@ -12,4 +12,3 @@
 /*.AppImage
 /core*
 /qemu_*
-/cmake/.prebuilt-armhf-toolchain

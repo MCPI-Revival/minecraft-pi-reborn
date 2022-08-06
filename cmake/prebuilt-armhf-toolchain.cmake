@@ -9,20 +9,32 @@ set(CMAKE_SYSTEM_NAME "Linux")
 set(CMAKE_SYSTEM_PROCESSOR "arm")
 unset(CMAKE_TOOLCHAIN_FILE CACHE)
 
+# Pick URL
+execute_process(COMMAND uname -m OUTPUT_VARIABLE arch OUTPUT_STRIP_TRAILING_WHITESPACE)
+if(arch STREQUAL "x86_64")
+    set(toolchain_url "https://developer.arm.com/-/media/Files/downloads/gnu-a/10.3-2021.07/binrel/gcc-arm-10.3-2021.07-x86_64-arm-none-linux-gnueabihf.tar.xz")
+    set(toolchain_sha256 "aa074fa8371a4f73fecbd16bd62c8b1945f23289e26414794f130d6ccdf8e39c")
+elseif(arch STREQUAL "aarch64" OR arch STREQUAL "armv8b" OR arch STREQUAL "armv8l")
+    set(toolchain_url "https://developer.arm.com/-/media/Files/downloads/gnu-a/10.3-2021.07/binrel/gcc-arm-10.3-2021.07-aarch64-arm-none-linux-gnueabihf.tar.xz")
+    set(toolchain_sha256 "fccd7af76988da2b077f939eb2a78baa9935810918d2bf3f837bc74f52efa825")
+else()
+    message(FATAL_ERROR "Unable To Download Prebuilt ARMHF Toolchain")
+endif()
+
+# Check Toolchain
+set(toolchain_valid FALSE)
+if(EXISTS "${toolchain_dir}/.last_sha256")
+    file(STRINGS "${toolchain_dir}/.last_sha256" toolchain_last_sha256)
+    if(toolchain_last_sha256 STREQUAL toolchain_sha256)
+        set(toolchain_valid TRUE)
+    endif()
+endif()
+if(NOT toolchain_valid)
+    file(REMOVE_RECURSE "${toolchain_dir}")
+endif()
+
 # Download If Needed
 if(NOT EXISTS "${CMAKE_C_COMPILER}")
-    # Pick URL
-    execute_process(COMMAND uname -m OUTPUT_VARIABLE arch OUTPUT_STRIP_TRAILING_WHITESPACE)
-    if(arch STREQUAL "x86_64")
-        set(toolchain_url "https://developer.arm.com/-/media/Files/downloads/gnu-a/10.3-2021.07/binrel/gcc-arm-10.3-2021.07-x86_64-arm-none-linux-gnueabihf.tar.xz")
-        set(toolchain_sha256 "aa074fa8371a4f73fecbd16bd62c8b1945f23289e26414794f130d6ccdf8e39c")
-    elseif(arch STREQUAL "aarch64" OR arch STREQUAL "armv8b" OR arch STREQUAL "armv8l")
-        set(toolchain_url "https://developer.arm.com/-/media/Files/downloads/gnu-a/10.3-2021.07/binrel/gcc-arm-10.3-2021.07-aarch64-arm-none-linux-gnueabihf.tar.xz")
-        set(toolchain_sha256 "fccd7af76988da2b077f939eb2a78baa9935810918d2bf3f837bc74f52efa825")
-    else()
-        message(FATAL_ERROR "Unable To Download Prebuilt ARMHF Toolchain")
-    endif()
-
     # Download
     message(STATUS "Downloading Prebuilt ARMHF Toolchain...")
     file(REMOVE_RECURSE "${toolchain_dir}")
@@ -35,6 +47,12 @@ if(NOT EXISTS "${CMAKE_C_COMPILER}")
         SOURCE_DIR "${toolchain_dir}"
     )
     FetchContent_Populate(prebuilt-armhf-toolchain)
+
+    # Write Last SHA256
+    file(WRITE "${toolchain_dir}/.last_sha256" "${toolchain_sha256}")
+
+    # Write .gitignore
+    file(WRITE "${toolchain_dir}/.gitignore" "/*\n")
 
     # Force Sysroot Rebuild
     file(REMOVE_RECURSE "${sysroot_dir}")
