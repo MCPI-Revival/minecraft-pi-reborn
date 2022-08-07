@@ -4,6 +4,7 @@
 [submodule "dependencies/zlib/src"]
 	path = dependencies/libpng/zlib/src
 	url = https://github.com/madler/zlib.git
+	ignore = dirty
 [submodule "dependencies/glfw/src"]
 	path = media-layer/core/dependencies/glfw/src
 	url = https://github.com/glfw/glfw.git
