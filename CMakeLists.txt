@@ -200,7 +200,7 @@ endif()
 # Install SDK
 if(BUILD_ARM_COMPONENTS)
     install(EXPORT sdk DESTINATION "${MCPI_SDK_DIR}" FILE "sdk-targets.cmake" EXPORT_LINK_INTERFACE_LIBRARIES)
-    string(CONCAT SDK_SETUP
+    file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/sdk.cmake"
         # Compile Flags
         "${COMPILE_FLAGS_SETUP}\n"
         # Log
@@ -208,6 +208,5 @@ if(BUILD_ARM_COMPONENTS)
         # Include Targets
         "include(\"\${CMAKE_CURRENT_LIST_DIR}/sdk-targets.cmake\")\n"
     )
-    file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/sdk.cmake" "${SDK_SETUP}")
     install(FILES "${CMAKE_CURRENT_BINARY_DIR}/sdk.cmake" DESTINATION "${MCPI_SDK_DIR}")
 endif()

@@ -32,8 +32,7 @@ static int32_t BucketItem_getIcon(__attribute__((unused)) unsigned char *item, i
 static int32_t BucketItem_useOn(__attribute__((unused)) unsigned char *item, ItemInstance *item_instance, unsigned char *player, unsigned char *level, int32_t x, int32_t y, int32_t z, int32_t hit_side, __attribute__((unused)) float hit_x, __attribute__((unused)) float hit_y, __attribute__((unused)) float hit_z) {
     if (item_instance->count < 1) {
         return 0;
-    }
-    if (item_instance->auxiliary == 0) {
+    } else if (item_instance->auxiliary == 0) {
         // Empty Bucket
         int32_t new_auxiliary = 0;
         int32_t tile = (*Level_getTile)(level, x, y, z);
