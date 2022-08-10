@@ -1,7 +1,3 @@
-# Locations
-set(toolchain_dir "${CMAKE_CURRENT_BINARY_DIR}/prebuilt-armhf-toolchain")
-set(sysroot_dir "${CMAKE_CURRENT_BINARY_DIR}/bundled-armhf-sysroot")
-
 # Pick URL
 execute_process(COMMAND uname -m OUTPUT_VARIABLE arch OUTPUT_STRIP_TRAILING_WHITESPACE)
 if(arch STREQUAL "x86_64")
@@ -21,10 +17,10 @@ FetchContent_Declare(
     prebuilt-armhf-toolchain
     URL "${toolchain_url}"
     URL_HASH "SHA256=${toolchain_sha256}"
-    SOURCE_DIR "${toolchain_dir}"
 )
 FetchContent_MakeAvailable(prebuilt-armhf-toolchain)
 set(FETCHCONTENT_QUIET TRUE)
+set(toolchain_dir "${prebuilt-armhf-toolchain_SOURCE_DIR}")
 
 # Force Toolchain
 file(WRITE "${toolchain_dir}/toolchain.cmake"
@@ -36,6 +32,7 @@ file(WRITE "${toolchain_dir}/toolchain.cmake"
 set(CMAKE_TOOLCHAIN_FILE "${toolchain_dir}/toolchain.cmake" CACHE STRING "" FORCE)
 
 # Build Sysroot
+set(sysroot_dir "${CMAKE_CURRENT_BINARY_DIR}/bundled-armhf-sysroot")
 if("${toolchain_dir}/bin/arm-none-linux-gnueabihf-gcc" IS_NEWER_THAN "${sysroot_dir}")
     # Create Directory
     file(REMOVE_RECURSE "${sysroot_dir}")
