@@ -164,6 +164,4 @@ void _start_proxy_call(unsigned char call_id) {
     write_byte(call_id);
 }
 void end_proxy_call() {
-    // Flush Write Cache
-    flush_write_cache();
 }

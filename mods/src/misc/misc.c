@@ -297,6 +297,11 @@ int32_t misc_get_real_selected_slot(unsigned char *player) {
     return selected_slot;
 }
 
+// Properly Generate Buffers
+static void anGenBuffers_injection(int32_t count, uint32_t *buffers) {
+    glGenBuffers(count, buffers);
+}
+
 // Init
 static void nop() {
 }
@@ -378,6 +383,9 @@ void init_misc() {
     if (feature_has("Remove Forced GUI Lag (Can Break Joining Servers)", server_enabled)) {
         overwrite_calls((void *) sleepMs, (void *) nop);
     }
+
+    // Properly Generate Buffers
+    overwrite((void *) anGenBuffers, (void *) anGenBuffers_injection);
 
     // Init C++ And Logging
     _init_misc_cpp();

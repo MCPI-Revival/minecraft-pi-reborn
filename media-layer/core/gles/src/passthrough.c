@@ -202,3 +202,7 @@ GL_FUNC(glReadPixels, void, (GLint x, GLint y, GLsizei width, GLsizei height, GL
 void glReadPixels(GLint x, GLint y, GLsizei width, GLsizei height, GLenum format, GLenum type, void *data) {
     real_glReadPixels()(x, y, width, height, format, type, data);
 }
+GL_FUNC(glGenBuffers, void, (GLsizei n, GLuint *buffers));
+void glGenBuffers(GLsizei n, GLuint *buffers) {
+    real_glGenBuffers()(n, buffers);
+}

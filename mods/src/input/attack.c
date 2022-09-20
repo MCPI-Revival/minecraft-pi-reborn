@@ -22,8 +22,8 @@ static int32_t MouseBuildInput_tickBuild_injection(unsigned char *mouse_build_in
     if (ret != 0 && is_left_click == 1 && *build_action_intention_return == 0xa) {
         // Get Target HitResult
         unsigned char *minecraft = *(unsigned char **) (local_player + LocalPlayer_minecraft_property_offset);
-        unsigned char *hit_result = minecraft + Minecraft_hit_result_property_offset;
-        int32_t hit_result_type = *(int32_t *) (hit_result + HitResult_type_property_offset);
+        HitResult *hit_result = (HitResult *) (minecraft + Minecraft_hit_result_property_offset);
+        int32_t hit_result_type = hit_result->type;
         // Check if The Target Is An Entity Using HitResult
         if (hit_result_type == 1) {
             // Change BuildActionIntention To Attack/Place Mode (Place Will Not Happen Because The HitResult Is An Entity)

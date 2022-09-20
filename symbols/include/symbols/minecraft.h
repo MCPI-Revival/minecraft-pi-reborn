@@ -21,6 +21,9 @@ static sleepMs_t sleepMs = (sleepMs_t) 0x13cf4;
 typedef int32_t (*sdl_key_to_minecraft_key_t)(int32_t sdl_key);
 static sdl_key_to_minecraft_key_t sdl_key_to_minecraft_key = (sdl_key_to_minecraft_key_t) 0x1243c;
 
+typedef void (*anGenBuffers_t)(int32_t count, uint32_t *buffers);
+static anGenBuffers_t anGenBuffers = (anGenBuffers_t) 0x5f28c;
+
 static char **default_path = (char **) 0xe264; // /.minecraft/
 static char **default_username = (char **) 0x18fd4; // StevePi
 static char **minecraft_pi_version = (char **) 0x39d94; // v0.1.1 alpha
@@ -261,9 +264,26 @@ static uint32_t StartGamePacket_game_mode_property_offset = 0x14; // int32_t
 
 static uint32_t ChatPacket_message_property_offset = 0xc; // char *
 
+// Vec3
+
+typedef struct {
+    float x;
+    float y;
+    float z;
+} Vec3;
+
 // HitResult
 
-static uint32_t HitResult_type_property_offset = 0x0;
+typedef struct {
+    int32_t type;
+    int32_t x;
+    int32_t y;
+    int32_t z;
+    int32_t side;
+    Vec3 exact;
+    unsigned char *entity;
+    unsigned char unknown;
+} HitResult;
 
 // Options
 
@@ -470,7 +490,7 @@ static Level_getTile_t Level_getTile = (Level_getTile_t) 0xa3380;
 typedef unsigned char *(*Level_getMaterial_t)(unsigned char *level, int32_t x, int32_t y, int32_t z);
 static Level_getMaterial_t Level_getMaterial = (Level_getMaterial_t) 0xa27f8;
 
-typedef void (*Level_clip_t)(unsigned char *level, unsigned char *param_1, unsigned char *param_2, bool param_3, bool clip_liquids);
+typedef HitResult (*Level_clip_t)(unsigned char *level, unsigned char *param_1, unsigned char *param_2, bool clip_liquids, bool param_3);
 static Level_clip_t Level_clip = (Level_clip_t) 0xa3db0;
 
 static uint32_t Level_players_property_offset = 0x60; // std::vector<ServerPlayer *>

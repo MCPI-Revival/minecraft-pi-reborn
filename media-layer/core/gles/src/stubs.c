@@ -76,7 +76,7 @@ void glColorMask(GLboolean red, GLboolean green, GLboolean blue, GLboolean alpha
 void glTexSubImage2D(GLenum target, GLint level, GLint xoffset, GLint yoffset, GLsizei width, GLsizei height, GLenum format, GLenum type, const void *pixels) {
 }
 void glGenTextures(GLsizei n, GLuint *textures) {
-    static int i = 0;
+    static int i = 1;
     for (int j = 0; j < n; j++) {
         textures[j] = i++;
     }
@@ -159,6 +159,12 @@ void glGetIntegerv(GLenum pname, GLint *data) {
     }
 }
 void glReadPixels(GLint x, GLint y, GLsizei width, GLsizei height, GLenum format, GLenum type, void *data) {
+}
+void glGenBuffers(GLsizei n, GLuint *buffers) {
+    static int i = 1;
+    for (int j = 0; j < n; j++) {
+        buffers[j] = i++;
+    }
 }
 
 #pragma GCC diagnostic pop

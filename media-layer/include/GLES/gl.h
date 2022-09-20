@@ -1,5 +1,8 @@
 #pragma once
 
+#include <stdio.h>
+#include <stdint.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -40,9 +43,6 @@ extern "C" {
 #define GL_FOG_MODE 0xb65
 #define GL_FOG_COLOR 0xb66
 #define GL_BLEND 0xbe2
-
-#include <stdio.h>
-#include <stdint.h>
 
 typedef float GLfloat;
 typedef float GLclampf;
@@ -107,6 +107,7 @@ void glNormal3f(GLfloat nx, GLfloat ny, GLfloat nz);
 GLboolean glIsEnabled(GLenum cap);
 void glGetIntegerv(GLenum pname, GLint *data);
 void glReadPixels(GLint x, GLint y, GLsizei width, GLsizei height, GLenum format, GLenum type, void *data);
+void glGenBuffers(GLsizei n, GLuint *buffers);
 
 #ifdef __cplusplus
 }

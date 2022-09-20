@@ -182,6 +182,7 @@ CALL(8, media_swap_buffers, void, ()) {
     start_proxy_call();
     // Release Proxy
     end_proxy_call();
+    flush_write_cache();
 #else
     // Run
     media_swap_buffers();

@@ -197,9 +197,9 @@ static void Inventory_setupDefault_FillingContainer_addItem_call_injection(unsig
 
 // Make Liquids Selectable
 static bool is_holding_bucket = false;
-static void Mob_pick_Level_clip_injection(unsigned char *level, unsigned char *param_1, unsigned char *param_2, bool param_3, __attribute__((unused)) bool clip_liquids) {
+static HitResult Mob_pick_Level_clip_injection(unsigned char *level, unsigned char *param_1, unsigned char *param_2, __attribute__((unused)) bool clip_liquids, bool param_3) {
     // Call Original Method
-    (*Level_clip)(level, param_1, param_2, param_3, is_holding_bucket);
+    return (*Level_clip)(level, param_1, param_2, is_holding_bucket, param_3);
 }
 static void handle_tick(unsigned char *minecraft) {
     unsigned char *player = *(unsigned char **) (minecraft + Minecraft_player_property_offset);

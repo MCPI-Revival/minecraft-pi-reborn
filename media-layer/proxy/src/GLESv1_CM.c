@@ -168,6 +168,7 @@ CALL(15, glDrawArrays, void, (GLenum mode, GLint first, GLsizei count)) {
 
     // Release Proxy
     end_proxy_call();
+    flush_write_cache();
 #else
     GLenum mode = (GLenum) read_int();
     GLint first = (GLint) read_int();
@@ -1240,5 +1241,32 @@ CALL(65, glReadPixels, void, (GLint x, GLint y, GLsizei width, GLsizei height, G
     safe_write((void *) pixels, (size_t) size);
     // Free
     free(pixels);
+#endif
+}
+
+CALL(67, glGenBuffers, void, (GLsizei n, GLuint *buffers)) {
+#if defined(MEDIA_LAYER_PROXY_SERVER)
+    // Lock Proxy
+    start_proxy_call();
+
+    // Arguments
+    write_int((uint32_t) n);
+
+    // Get Return Value
+    for (GLsizei i = 0; i < n; i++) {
+        buffers[i] = (GLuint) read_int();
+    }
+
+    // Release Proxy
+    end_proxy_call();
+#else
+    GLsizei n = (GLsizei) read_int();
+    GLuint buffers[n];
+    // Run
+    glGenBuffers(n, buffers);
+    // Return Value
+    for (GLsizei i = 0; i < n; i++) {
+        write_int((uint32_t) buffers[i]);
+    }
 #endif
 }

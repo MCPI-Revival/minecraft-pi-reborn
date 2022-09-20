@@ -39,6 +39,10 @@ GL_FUNC(glDepthRangef, void, (GLclampf near, GLclampf far));
 void glDepthRangef(GLclampf near, GLclampf far) {
     real_glDepthRangef()(near, far);
 }
+GL_FUNC(glBindBuffer, void, (GLenum target, GLuint buffer));
+void glBindBuffer(GLenum target, GLuint buffer) {
+    real_glBindBuffer()(target, buffer);
+}
 GL_FUNC(glDepthFunc, void, (GLenum func));
 void glDepthFunc(GLenum func) {
     real_glDepthFunc()(func);
@@ -56,6 +60,10 @@ void glHint(GLenum target, GLenum mode) {
     if (target != GL_PERSPECTIVE_CORRECTION_HINT) {
         real_glHint()(target, mode);
     }
+}
+GL_FUNC(glDeleteBuffers, void, (GLsizei n, const GLuint *buffers));
+void glDeleteBuffers(GLsizei n, const GLuint *buffers) {
+    real_glDeleteBuffers()(n, buffers);
 }
 GL_FUNC(glColorMask, void, (GLboolean red, GLboolean green, GLboolean blue, GLboolean alpha));
 void glColorMask(GLboolean red, GLboolean green, GLboolean blue, GLboolean alpha) {
@@ -102,4 +110,8 @@ void glShadeModel(__attribute__((unused)) GLenum mode) {
 }
 void glNormal3f(__attribute__((unused)) GLfloat nx, __attribute__((unused)) GLfloat ny, __attribute__((unused)) GLfloat nz) {
     // Do Nothing
+}
+GL_FUNC(glGenBuffers, void, (GLsizei n, GLuint *buffers));
+void glGenBuffers(GLsizei n, GLuint *buffers) {
+    real_glGenBuffers()(n, buffers);
 }
