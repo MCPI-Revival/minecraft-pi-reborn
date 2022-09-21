@@ -1,6 +1,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
 
 #include <GLES/gl.h>
 
@@ -307,6 +309,25 @@ static void HumanoidMobRenderer_render_injection(unsigned char *model_renderer, 
     (*HumanoidMobRenderer_render)(model_renderer, entity, param_2, param_3, param_4, param_5, param_6);
     unsigned char *model = *(unsigned char **) (model_renderer + HumanoidMobRenderer_model_property_offset);
     *(bool *) (model + HumanoidModel_is_sneaking_property_offset) = 0;
+}
+
+// Custom API Port
+HOOK(bind, int, (int sockfd, const struct sockaddr *addr, socklen_t addrlen)) {
+    const struct sockaddr *new_addr = addr;
+    struct sockaddr_in in_addr;
+    if (addr->sa_family == AF_INET) {
+        in_addr = *(const struct sockaddr_in *) new_addr;
+        if (in_addr.sin_port == ntohs(4711)) {
+            const char *new_port_str = getenv("MCPI_API_PORT");
+            long int new_port;
+            if (new_port_str != NULL && (new_port = strtol(new_port_str, NULL, 0)) != 0L) {
+                in_addr.sin_port = htons(new_port);
+            }
+        }
+        new_addr = (const struct sockaddr *) &in_addr;
+    }
+    ensure_bind();
+    return (*real_bind)(sockfd, new_addr, addrlen);
 }
 
 // Init

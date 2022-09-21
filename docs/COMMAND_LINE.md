@@ -30,6 +30,9 @@ The world used will always be re-created on start and uses a hard-coded seed.
 ### ``MCPI_DEBUG``
 This enables debug logging if it is set.
 
+### ``MCPI_API_PORT``
+This configures the API to use a different port (the default is 4711).
+
 ### Client Mode Only
 If any of the following variables aren't set, one configuration dialog will open on startup for each unset variable.
 
