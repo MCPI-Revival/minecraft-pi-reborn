@@ -16,12 +16,12 @@ __attribute__((constructor)) static void init() {
     init_sound();
     init_input();
     init_sign();
-    init_creative();
     init_camera();
     init_touch();
     init_textures();
     init_atlas();
 #endif
+    init_creative();
     init_game_mode();
     init_misc();
     init_death();

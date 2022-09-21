@@ -121,7 +121,7 @@ void init_creative() {
     }
 
     // Remove Creative Restrictions (Opening Chests, Crafting, Etc)
-    if (feature_has("Remove Creative Mode Restrictions", server_disabled)) {
+    if (feature_has("Remove Creative Mode Restrictions", server_enabled)) {
         unsigned char nop_patch[4] = {0x00, 0xf0, 0x20, 0xe3}; // "nop"
         // Remove Restrictions
         patch((void *) 0x43ee8, nop_patch);

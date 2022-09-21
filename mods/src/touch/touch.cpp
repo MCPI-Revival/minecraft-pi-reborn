@@ -87,9 +87,4 @@ void init_touch() {
     int block_outlines = feature_has("Show Block Outlines", server_disabled);
     unsigned char outline_patch[4] = {(unsigned char) (block_outlines ? !touch_gui : touch_gui), 0x00, 0x50, 0xe3}; // "cmp r0, #0x1" or "cmp r0, #0x0"
     patch((void *) 0x4a210, outline_patch);
-    if (block_outlines) {
-        // Disable Broken Touchscreen-Specific Block Outline Behavior
-        unsigned char block_highlight_patch[4] = {0x03, 0x00, 0x53, 0xe1}; // "cmp r3, r3"
-        patch((void *) 0x494b4, block_highlight_patch);
-    }
 }

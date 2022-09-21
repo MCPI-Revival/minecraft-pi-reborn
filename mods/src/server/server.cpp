@@ -503,6 +503,7 @@ static unsigned char get_max_players() {
     return (unsigned char) val;
 }
 
+// Real Init Server
 static void server_init() {
     // Open Properties File
     std::string file(home_get());

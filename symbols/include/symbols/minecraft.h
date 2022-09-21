@@ -819,6 +819,21 @@ static Recipes_t Recipes = (Recipes_t) 0x9cabc;
 
 static Recipes_t FurnaceRecipes = (Recipes_t) 0xa0778;
 
+// HumanoidMobRenderer
+
+typedef void (*HumanoidMobRenderer_render_t)(unsigned char *model_renderer, unsigned char *entity, float param_2, float param_3, float param_4, float param_5, float param_6);
+static HumanoidMobRenderer_render_t HumanoidMobRenderer_render = (HumanoidMobRenderer_render_t) 0x62b8c;
+
+static uint32_t HumanoidMobRenderer_model_property_offset = 0x14; // HumanoidModel *
+
+// HumanoidModel
+
+static uint32_t HumanoidModel_is_sneaking_property_offset = 0x236; // bool
+
+// PlayerRenderer
+
+static void *PlayerRenderer_render_vtable_addr = (void *) 0x107f08;
+
 // Method That Require C++ Types
 #ifdef __cplusplus
 

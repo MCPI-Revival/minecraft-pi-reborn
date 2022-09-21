@@ -302,6 +302,13 @@ static void anGenBuffers_injection(int32_t count, uint32_t *buffers) {
     glGenBuffers(count, buffers);
 }
 
+// Fix Graphics Bug When Switching To First-Person While Sneaking
+static void HumanoidMobRenderer_render_injection(unsigned char *model_renderer, unsigned char *entity, float param_2, float param_3, float param_4, float param_5, float param_6) {
+    (*HumanoidMobRenderer_render)(model_renderer, entity, param_2, param_3, param_4, param_5, param_6);
+    unsigned char *model = *(unsigned char **) (model_renderer + HumanoidMobRenderer_model_property_offset);
+    *(bool *) (model + HumanoidModel_is_sneaking_property_offset) = 0;
+}
+
 // Init
 static void nop() {
 }
@@ -386,6 +393,9 @@ void init_misc() {
 
     // Properly Generate Buffers
     overwrite((void *) anGenBuffers, (void *) anGenBuffers_injection);
+
+    // Fix Graphics Bug When Switching To First-Person While Sneaking
+    patch_address(PlayerRenderer_render_vtable_addr, (void *) HumanoidMobRenderer_render_injection);
 
     // Init C++ And Logging
     _init_misc_cpp();
