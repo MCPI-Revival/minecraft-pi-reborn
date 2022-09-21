@@ -11,7 +11,6 @@ FALSE Remove Creative Mode Restrictions
 TRUE Animated Water
 TRUE Remove Invalid Item Background
 TRUE Disable "gui_blocks" Atlas
-FALSE 3D Anaglyph
 TRUE Fix Camera Rendering
 TRUE Implement Chat
 FALSE Hide Chat Messages

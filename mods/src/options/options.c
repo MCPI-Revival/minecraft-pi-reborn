@@ -44,7 +44,6 @@ __attribute__((destructor)) static void _free_safe_username() {
     free(safe_username);
 }
 
-static int anaglyph;
 static int render_distance;
 // Configure Options
 unsigned char *stored_options = NULL;
@@ -68,8 +67,6 @@ static void Minecraft_init_injection(unsigned char *minecraft) {
     unsigned char *options = minecraft + Minecraft_options_property_offset;
     // Enable Crosshair In Touch GUI
     *(options + Options_split_controls_property_offset) = 1;
-    // 3D Anaglyph
-    *(options + Options_3d_anaglyph_property_offset) = anaglyph;
     // Render Distance
     *(int32_t *) (options + Options_render_distance_property_offset) = render_distance;
 }
@@ -90,8 +87,6 @@ void init_options() {
         overwrite((void *) LevelData_getSpawnMobs, (void *) LevelData_getSpawnMobs_injection);
     }
 
-    // 3D Anaglyph
-    anaglyph = feature_has("3D Anaglyph", server_disabled);
     // Render Distance
     render_distance = get_render_distance();
     DEBUG("Setting Render Distance: %i", render_distance);

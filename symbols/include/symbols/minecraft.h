@@ -31,6 +31,7 @@ static char **options_txt_path = (char **) 0x19bc8; // options.txt
 static char **options_txt_fopen_mode_when_loading = (char **) 0x19d24; // w
 static char ***feedback_vibration_options_txt_name_1 = (char ***) 0x198a0; // feedback_vibration
 static char ***feedback_vibration_options_txt_name_2 = (char ***) 0x194bc; // feedback_vibration
+static char ***gfx_lowquality_options_txt_name = (char ***) 0x194c4; // gfx_lowquality
 
 static unsigned char **Material_stone = (unsigned char **) 0x180a9c; // Material
 
@@ -68,6 +69,7 @@ static float *InvGuiScale = (float *) 0x135d98;
 
 static unsigned char *Options_Option_GRAPHICS = (unsigned char *) 0x136c2c; // Option
 static unsigned char *Options_Option_AMBIENT_OCCLUSION = (unsigned char *) 0x136c38; // Option
+static unsigned char *Options_Option_ANAGLYPH = (unsigned char *) 0x136c08; // Option
 
 static bool *Minecraft_useAmbientOcclusion = (bool *) 0x136b90;
 

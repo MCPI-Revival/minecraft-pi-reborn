@@ -33,6 +33,9 @@ static void Options_save_Options_addOptionToSaveOutput_injection(unsigned char *
     // Save Fancy Graphics
     (*Options_addOptionToSaveOutput)(options, data, "gfx_fancygraphics", *(options + Options_fancy_graphics_property_offset));
 
+    // Save 3D Anaglyph
+    (*Options_addOptionToSaveOutput)(options, data, "gfx_anaglyph", *(options + Options_3d_anaglyph_property_offset));
+
     // Save File
     unsigned char *options_file = options + Options_options_file_property_offset;
     (*OptionsFile_save)(options_file, data);
@@ -117,6 +120,11 @@ static void OptionsPane_unknown_toggle_creating_function_injection(unsigned char
 
     // Call Original Method
     (*OptionsPane_unknown_toggle_creating_function)(options_pane, group_id, new_name, option);
+
+    // Add 3D Anaglyph
+    if (option == Options_Option_GRAPHICS) {
+        (*OptionsPane_unknown_toggle_creating_function)(options_pane, group_id, "3D Anaglyph", Options_Option_ANAGLYPH);
+    }
 }
 
 // Add Missing Options To Options::getBooleanValue
@@ -213,18 +221,27 @@ void _init_options_cpp() {
     // Replace "feedback_vibration" Loading/Saving With "gfx_ao"
     {
         // Replace String
-        static const char *new_feedback_vibration_options_txt_nam = "gfx_ao";
-        patch_address((void *) feedback_vibration_options_txt_name_1, (void *) &new_feedback_vibration_options_txt_nam);
-        patch_address((void *) feedback_vibration_options_txt_name_2, (void *) &new_feedback_vibration_options_txt_nam);
+        static const char *new_feedback_vibration_options_txt_name = "gfx_ao";
+        patch_address((void *) feedback_vibration_options_txt_name_1, (void *) &new_feedback_vibration_options_txt_name);
+        patch_address((void *) feedback_vibration_options_txt_name_2, (void *) &new_feedback_vibration_options_txt_name);
         // Loading
-        unsigned char gfx_ao_loading_patch[4] = {(unsigned char) Options_ambient_occlusion_property_offset, 0x10, 0x84, 0xe2}; // "add param_2, r4, #OFFSET"
+        unsigned char gfx_ao_loading_patch[4] = {(unsigned char) Options_ambient_occlusion_property_offset, 0x10, 0x84, 0xe2}; // "add r1, r4, #OFFSET"
         patch((void *) 0x193b8, gfx_ao_loading_patch);
         // Saving
         unsigned char gfx_ao_saving_patch[4] = {(unsigned char) Options_ambient_occlusion_property_offset, 0x30, 0xd4, 0xe5}; // "ldrb r3, [r4, #OFFSET]"
         patch((void *) 0x197f8, gfx_ao_saving_patch);
     }
 
-    // Disable "gfx_lowquality" Loading
-    patch((void *) 0x19414, nop_patch);
-    patch((void *) 0x1941c, nop_patch);
+    // Replace "gfx_lowquality" Loading With "gfx_anaglyph"
+    {
+        // Replace String
+        static const char *new_gfx_lowquality_options_txt_name = "gfx_anaglyph";
+        patch_address((void *) gfx_lowquality_options_txt_name, (void *) &new_gfx_lowquality_options_txt_name);
+        // Loading
+        unsigned char gfx_anaglyph_loading_patch[4] = {(unsigned char) Options_3d_anaglyph_property_offset, 0x10, 0x84, 0xe2}; // "add r1, r4, #OFFSET"
+        patch((void *) 0x19400, gfx_anaglyph_loading_patch);
+        // Disable Loading Side Effects
+        patch((void *) 0x19414, nop_patch);
+        patch((void *) 0x1941c, nop_patch);
+    }
 }
