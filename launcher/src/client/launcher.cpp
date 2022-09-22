@@ -205,22 +205,11 @@ int main(int argc, char *argv[]) {
     }
 
     // Create ~/.minecraft-pi If Needed
-    // Minecraft Folder
     {
         char *minecraft_folder = NULL;
-        safe_asprintf(&minecraft_folder, "%s/.minecraft-pi", getenv("HOME"));
-        {
-            // Check Minecraft Folder
-            struct stat obj;
-            if (stat(minecraft_folder, &obj) != 0 || !S_ISDIR(obj.st_mode)) {
-                // Create Minecraft Folder
-                int ret = mkdir(minecraft_folder, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
-                if (ret != 0) {
-                    // Unable To Create Folder
-                    ERR("Error Creating Directory: %s: %s", minecraft_folder, strerror(errno));
-                }
-            }
-        }
+        safe_asprintf(&minecraft_folder, "%s" HOME_SUBDIRECTORY_FOR_GAME_DATA, getenv("HOME"));
+        const char *const command[] = {"mkdir", "-p", minecraft_folder, NULL};
+        run_simple_command(command, "Unable To Create Data Directory");
         free(minecraft_folder);
     }
 

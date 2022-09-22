@@ -16,7 +16,7 @@ static std::string get_cache_path() {
     if (home == NULL) {
         IMPOSSIBLE();
     }
-    return std::string(home) + "/.minecraft-pi/.launcher-cache";
+    return std::string(home) + HOME_SUBDIRECTORY_FOR_GAME_DATA "/.launcher-cache";
 }
 
 // Load
@@ -44,7 +44,11 @@ launcher_cache load_cache() {
     unsigned char cache_version;
     stream.read((char *) &cache_version, 1);
     if (stream.eof() || cache_version != (unsigned char) CACHE_VERSION) {
-        WARN("Invalid Launcher Cache Version");
+        if (!stream.eof()) {
+            WARN("Invalid Launcher Cache Version (Expected: %i, Actual: %i)", CACHE_VERSION, cache_version);
+        } else {
+            WARN("Unable To Read Launcher Cache Version");
+        }
         stream.close();
         return empty_cache;
     }
@@ -68,7 +72,7 @@ launcher_cache load_cache() {
     // Finish
     stream.close();
     if (!stream) {
-        WARN("Failure While Loading Launcher Cache: %s", strerror(errno));
+        WARN("Failure While Loading Launcher Cache");
         return empty_cache;
     }
 
