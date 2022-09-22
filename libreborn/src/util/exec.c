@@ -82,6 +82,9 @@ char *run_command(const char *const command[], int *exit_status) {
     } else if (ret == 0) {
         // Child Process
 
+        // Set Debug Tag
+        reborn_debug_tag = CHILD_PROCESS_TAG;
+
         // Pipe stdout
         dup2(output_pipe[1], STDOUT_FILENO);
         close(output_pipe[0]);

@@ -10,9 +10,11 @@
 #include <libreborn/libreborn.h>
 
 #include "../bootstrap.h"
+#include "launcher.h"
+#include "cache.h"
 
 // Strip Feature Flag Default
-static std::string strip_feature_flag_default(std::string flag, bool *default_ret) {
+std::string strip_feature_flag_default(std::string flag, bool *default_ret) {
     // Valid Values
     std::string true_str = "TRUE ";
     std::string false_str = "FALSE ";
@@ -38,7 +40,7 @@ static std::string strip_feature_flag_default(std::string flag, bool *default_re
 // Load Available Feature Flags
 extern unsigned char available_feature_flags[];
 extern size_t available_feature_flags_len;
-static void load_available_feature_flags(std::function<void(std::string)> callback) {
+void load_available_feature_flags(std::function<void(std::string)> callback) {
     // Get Path
     char *binary_directory = get_binary_directory();
     std::string path = std::string(binary_directory) + "/available-feature-flags";
@@ -134,16 +136,17 @@ static void set_env_if_unset(const char *env_name, std::function<std::string()> 
     }
 }
 
-// Defaults
-#define DEFAULT_USERNAME "StevePi"
-#define DEFAULT_RENDER_DISTANCE "Short"
-
 // Launch
 #define LIST_DIALOG_SIZE "400"
 int main(int argc, char *argv[]) {
     // Don't Run As Root
     if (getenv("_MCPI_SKIP_ROOT_CHECK") == NULL && (getuid() == 0 || geteuid() == 0)) {
         ERR("Don't Run As Root");
+    }
+
+    // Ensure HOME
+    if (getenv("HOME") == NULL) {
+        ERR("$HOME Isn't Set");
     }
 
     // Pre-Bootstrap
@@ -192,6 +195,15 @@ int main(int argc, char *argv[]) {
         }
     }
 
+    // --no-cache
+    bool no_cache = false;
+    for (int i = 1; i < argc; i++) {
+        if (strcmp(argv[i], "--no-cache") == 0) {
+            no_cache = true;
+            break;
+        }
+    }
+
     // Create ~/.minecraft-pi If Needed
     // Minecraft Folder
     {
@@ -212,6 +224,9 @@ int main(int argc, char *argv[]) {
         free(minecraft_folder);
     }
 
+    // Load Cache
+    launcher_cache cache = no_cache ? empty_cache : load_cache();
+
     // Setup MCPI_FEATURE_FLAGS
     {
         std::vector<std::string> command;
@@ -225,12 +240,16 @@ int main(int argc, char *argv[]) {
         command.push_back("Enabled");
         command.push_back("--column");
         command.push_back("Feature");
-        load_available_feature_flags([&command](std::string flag) {
-            bool default_value;
+        load_available_feature_flags([&command, &cache](std::string flag) {
+            bool value;
             // Strip Default Value
-            std::string stripped_flag = strip_feature_flag_default(flag, &default_value);
+            std::string stripped_flag = strip_feature_flag_default(flag, &value);
+            // Use Cache
+            if (cache.feature_flags.count(stripped_flag) > 0) {
+                value = cache.feature_flags[stripped_flag];
+            }
             // Specify Default Value
-            if (default_value) {
+            if (value) {
                 // Enabled By Default
                 command.push_back("TRUE");
             } else {
@@ -260,7 +279,7 @@ int main(int argc, char *argv[]) {
         command.push_back("Name");
         std::string render_distances[] = {"Far", "Normal", "Short", "Tiny"};
         for (std::string &render_distance : render_distances) {
-            command.push_back(render_distance.compare(DEFAULT_RENDER_DISTANCE) == 0 ? "TRUE" : "FALSE");
+            command.push_back(render_distance.compare(cache.render_distance) == 0 ? "TRUE" : "FALSE");
             command.push_back(render_distance);
         }
         // Run
@@ -273,9 +292,14 @@ int main(int argc, char *argv[]) {
         command.push_back("--text");
         command.push_back("Enter Minecraft Username:");
         command.push_back("--entry-text");
-        command.push_back(DEFAULT_USERNAME);
+        command.push_back(cache.username);
         // Run
         run_zenity_and_set_env("MCPI_USERNAME", command);
+    }
+
+    // Save Cache
+    if (!no_cache) {
+        save_cache();
     }
 
     // Bootstrap

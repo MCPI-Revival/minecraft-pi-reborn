@@ -31,4 +31,4 @@ export _MCPI_SKIP_ROOT_CHECK=1
 
 # Run Benchmark
 export HOME="$(pwd)/build/test"
-minecraft-pi-reborn-client --default --benchmark
+minecraft-pi-reborn-client --default --no-cache --benchmark

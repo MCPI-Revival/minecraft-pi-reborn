@@ -98,6 +98,9 @@ void setup_crash_report() {
         close(error_pipe[PIPE_WRITE]);
         close(input_pipe[PIPE_READ]);
 
+        // Set Debug Tag
+        reborn_debug_tag = "(Crash Reporter) ";
+
         // Setup Logging
 #define BUFFER_SIZE 1024
         char buf[BUFFER_SIZE];

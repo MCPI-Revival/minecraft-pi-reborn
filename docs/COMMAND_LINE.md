@@ -25,6 +25,9 @@ If you run MCPI-Reborn with ``--benchmark``, it will enter a simple benchmark mo
 
 The world used will always be re-created on start and uses a hard-coded seed.
 
+### ``--no-cache`` (Client Mode Only)
+If you run MCPI-Reborn with ``--no-cache``, it will skip loading and saving the cached launcher configuration.
+
 ## Environmental Variables
 
 ### ``MCPI_DEBUG``

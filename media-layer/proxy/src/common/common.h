@@ -22,7 +22,7 @@ extern "C" {
 
 #define CONNECTED_MSG "Connected"
 
-#define PROXY_INFO(format, ...) DEBUG(PROXY_LOG_TAG format, ##__VA_ARGS__);
+#define PROXY_INFO(format, ...) RAW_DEBUG(PROXY_LOG_TAG, format, ##__VA_ARGS__);
 #define PROXY_ERR(format, ...) { close_connection(); ERR(PROXY_LOG_TAG format, ##__VA_ARGS__); }
 
 // Safely Send/Receive Data From The Connection

@@ -32,6 +32,9 @@ void chop_last_component(char **str);
 // Get Binary Directory (Remember To Free)
 char *get_binary_directory();
 
+// Debug Tag
+#define CHILD_PROCESS_TAG "(Child Process) "
+
 // Run Command And Get Output
 char *run_command(const char *const command[], int *exit_status);
 #define is_exit_status_success(status) (WIFEXITED(status) && WEXITSTATUS(status) == 0)

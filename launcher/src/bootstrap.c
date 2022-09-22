@@ -101,6 +101,9 @@ void pre_bootstrap(int argc, char *argv[]) {
     // Disable stdout Buffering
     setvbuf(stdout, NULL, _IONBF, 0);
 
+    // Set Debug Tag
+    reborn_debug_tag = "(Launcher) ";
+
     // Set Default Native Component Environment
 #define set_variable_default(name) set_and_print_env("MCPI_NATIVE_" name, getenv(name));
     for_each_special_environmental_variable(set_variable_default);

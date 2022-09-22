@@ -45,6 +45,9 @@ static void exit_handler(__attribute__((unused)) int signal_id) {
 
 // Main
 int main(int argc, char *argv[]) {
+    // Set Debug Tag
+    reborn_debug_tag = PROXY_LOG_TAG;
+
     // Install Signal Handlers
     signal(SIGINT, SIG_IGN);
     struct sigaction act_sigterm;

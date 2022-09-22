@@ -64,6 +64,9 @@ static void start_media_layer_proxy_client(int read, int write) {
     } else if (ret == 0) {
         // Child Process
 
+        // Set Debug Tag
+        reborn_debug_tag = CHILD_PROCESS_TAG;
+
         // Prepare Arguments
         char *read_str = NULL;
         safe_asprintf(&read_str, "%i", read);
