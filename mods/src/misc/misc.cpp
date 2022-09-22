@@ -50,15 +50,6 @@ static void PauseScreen_init_injection(unsigned char *screen) {
     }
 }
 
-// Improved Title Background
-static void StartMenuScreen_render_Screen_renderBackground_injection(unsigned char *screen) {
-    // Draw
-    unsigned char *minecraft = *(unsigned char **) (screen + Screen_minecraft_property_offset);
-    unsigned char *textures = *(unsigned char **) (minecraft + Minecraft_textures_property_offset);
-    (*Textures_loadAndBindTexture)(textures, "gui/titleBG.png");
-    (*GuiComponent_blit)(screen, 0, 0, 0, 0, *(int32_t *) (screen + Screen_width_property_offset), *(int32_t *) (screen + Screen_height_property_offset), 0x100, 0x100);
-}
-
 // Init
 void _init_misc_cpp() {
     // Implement AppPlatform::readAssetFile So Translations Work
@@ -70,15 +61,5 @@ void _init_misc_cpp() {
     if (feature_has("Fix Pause Menu", server_disabled)) {
         // Add Missing Buttons To Pause Menu
         patch_address(PauseScreen_init_vtable_addr, (void *) PauseScreen_init_injection);
-    }
-
-    // Improved Title Background
-    if (feature_has("Improved Title Background", server_disabled)) {
-        // Switch Background
-        overwrite_call((void *) 0x39528, (void *) StartMenuScreen_render_Screen_renderBackground_injection);
-        overwrite_call((void *) 0x3dee0, (void *) StartMenuScreen_render_Screen_renderBackground_injection);
-        // Text Color
-        patch_address((void *) 0x397ac, (void *) 0xffffffff);
-        patch_address((void *) 0x3e10c, (void *) 0xffffffff);
     }
 }

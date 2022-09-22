@@ -32,7 +32,7 @@ TRUE Disable V-Sync
 TRUE Fix Options Screen
 TRUE Force Touch GUI Inventory
 TRUE Fix Pause Menu
-TRUE Improved Title Background
+TRUE Improved Title Screen Background
 TRUE Force Touch GUI Button Behavior
 TRUE Improved Button Hover Behavior
 TRUE Implement Create World Dialog
@@ -41,3 +41,4 @@ TRUE Add Buckets
 TRUE Classic HUD
 TRUE Translucent Toolbar
 FALSE Force EGL
+TRUE Improved Classic Title Screen

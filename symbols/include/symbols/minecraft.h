@@ -32,6 +32,7 @@ static char **options_txt_fopen_mode_when_loading = (char **) 0x19d24; // w
 static char ***feedback_vibration_options_txt_name_1 = (char ***) 0x198a0; // feedback_vibration
 static char ***feedback_vibration_options_txt_name_2 = (char ***) 0x194bc; // feedback_vibration
 static char ***gfx_lowquality_options_txt_name = (char ***) 0x194c4; // gfx_lowquality
+static char **classic_create_button_text = (char **) 0x39bec; // Create
 
 static unsigned char **Material_stone = (unsigned char **) 0x180a9c; // Material
 
@@ -574,6 +575,8 @@ static Screen_render_t Screen_render = (Screen_render_t) 0x28a00;
 
 typedef int32_t (*Screen_handleBackEvent_t)(unsigned char *screen, bool param_1);
 
+typedef void (*Screen_buttonClicked_t)(unsigned char *screen, unsigned char *button);
+
 static uint32_t Screen_minecraft_property_offset = 0x14; // Minecraft *
 static uint32_t Screen_rendered_buttons_property_offset = 0x18; // std::vector<Button *>
 static uint32_t Screen_selectable_buttons_property_offset = 0x30; // std::vector<Button *>
@@ -596,7 +599,11 @@ static uint32_t Button_y_property_offset = 0x10; // int32_t
 static Screen_init_t StartMenuScreen_init = (Screen_init_t) 0x39cc0;
 static void *StartMenuScreen_init_vtable_addr = (void *) 0x105194;
 
+static Screen_buttonClicked_t StartMenuScreen_buttonClicked = (Screen_buttonClicked_t) 0x397b0;
+static void *StartMenuScreen_buttonClicked_vtable_addr = (void *) 0x1051e8;
+
 static uint32_t StartMenuScreen_options_button_property_offset = 0x98; // Button
+static uint32_t StartMenuScreen_create_button_property_offset = 0xc0; // Button
 
 // PauseScreen
 

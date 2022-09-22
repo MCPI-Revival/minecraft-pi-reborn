@@ -77,6 +77,9 @@ else()
     add_library(atlas SHARED src/atlas/atlas.cpp)
     target_link_libraries(atlas mods-headers reborn-patch symbols feature media-layer-core)
 
+    add_library(title-screen SHARED src/title-screen/title-screen.cpp)
+    target_link_libraries(title-screen mods-headers reborn-patch symbols feature compat)
+
     add_library(benchmark SHARED src/benchmark/benchmark.cpp)
     target_link_libraries(benchmark mods-headers reborn-patch symbols compat misc media-layer-core)
 endif()
@@ -112,7 +115,7 @@ target_link_libraries(init mods-headers reborn-util compat game-mode misc death 
 if(MCPI_SERVER_MODE)
     target_link_libraries(init server)
 else()
-    target_link_libraries(init multiplayer sound camera input sign touch textures atlas benchmark)
+    target_link_libraries(init multiplayer sound camera input sign touch textures atlas title-screen benchmark)
 endif()
 
 ## Install Mods
@@ -120,7 +123,7 @@ set(MODS_TO_INSTALL init compat readdir feature game-mode misc override death op
 if(MCPI_SERVER_MODE)
     list(APPEND MODS_TO_INSTALL server)
 else()
-    list(APPEND MODS_TO_INSTALL multiplayer sound camera input sign touch textures atlas benchmark)
+    list(APPEND MODS_TO_INSTALL multiplayer sound camera input sign touch textures atlas title-screen benchmark)
 endif()
 if(NOT MCPI_HEADLESS_MODE)
     list(APPEND MODS_TO_INSTALL screenshot)

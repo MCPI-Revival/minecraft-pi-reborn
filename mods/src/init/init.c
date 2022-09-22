@@ -20,6 +20,7 @@ __attribute__((constructor)) static void init() {
     init_touch();
     init_textures();
     init_atlas();
+    init_title_screen();
 #endif
     init_creative();
     init_game_mode();

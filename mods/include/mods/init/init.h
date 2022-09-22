@@ -20,6 +20,7 @@ void init_camera();
 void init_touch();
 void init_textures();
 void init_atlas();
+void init_title_screen();
 #endif
 void init_creative();
 void init_game_mode();
