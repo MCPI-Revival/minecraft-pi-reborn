@@ -32,7 +32,7 @@ TRUE Disable V-Sync
 TRUE Fix Options Screen
 TRUE Force Touch GUI Inventory
 TRUE Fix Pause Menu
-TRUE Improved Title Screen Background
+TRUE Add Title Screen Background
 TRUE Force Touch GUI Button Behavior
 TRUE Improved Button Hover Behavior
 TRUE Implement Create World Dialog

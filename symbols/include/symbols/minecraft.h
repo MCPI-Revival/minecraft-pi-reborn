@@ -226,6 +226,11 @@ static GameRenderer_setupCamera_t GameRenderer_setupCamera = (GameRenderer_setup
 
 static uint32_t GameRenderer_minecraft_property_offset = 0x4; // Minecraft *
 
+// ParticleEngine
+
+typedef void (*ParticleEngine_render_t)(unsigned char *particle_engine, unsigned char *entity, float param_2);
+static ParticleEngine_render_t ParticleEngine_render = (ParticleEngine_render_t) 0x43060;
+
 // Mouse
 
 typedef int (*Mouse_get_t)();

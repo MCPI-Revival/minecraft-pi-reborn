@@ -42,32 +42,58 @@ static void _handle_toggle_options(unsigned char *minecraft) {
 }
 
 // Font-Facing View
+static void invert_rotation(unsigned char *entity) {
+    if (entity != NULL) {
+        *(float *) (entity + Entity_yaw_property_offset) = 180.f + (*(float *) (entity + Entity_yaw_property_offset));
+        *(float *) (entity + Entity_old_yaw_property_offset) = 180.f + (*(float *) (entity + Entity_old_yaw_property_offset));
+        *(float *) (entity + Entity_pitch_property_offset) = -(*(float *) (entity + Entity_pitch_property_offset));
+        *(float *) (entity + Entity_old_pitch_property_offset) = -(*(float *) (entity + Entity_old_pitch_property_offset));
+    }
+}
+static void revert_rotation(unsigned char *entity) {
+    if (entity != NULL) {
+        *(float *) (entity + Entity_yaw_property_offset) = -180.f + (*(float *) (entity + Entity_yaw_property_offset));
+        *(float *) (entity + Entity_old_yaw_property_offset) = -180.f + (*(float *) (entity + Entity_old_yaw_property_offset));
+        *(float *) (entity + Entity_pitch_property_offset) = -(*(float *) (entity + Entity_pitch_property_offset));
+        *(float *) (entity + Entity_old_pitch_property_offset) = -(*(float *) (entity + Entity_old_pitch_property_offset));
+    }
+}
+static int is_front_facing = 0;
+static unsigned char *stored_player = NULL;
 static void GameRenderer_setupCamera_injection(unsigned char *game_renderer, float param_1, int param_2) {
     // Get Objects
     unsigned char *minecraft = *(unsigned char **) (game_renderer + GameRenderer_minecraft_property_offset);
-    unsigned char *player = *(unsigned char **) (minecraft + Minecraft_player_property_offset);
+    stored_player = *(unsigned char **) (minecraft + Minecraft_player_property_offset);
 
     // Check If In Third-Person
     unsigned char *options = minecraft + Minecraft_options_property_offset;
-    int is_font_facing = (*(options + Options_third_person_property_offset) == 2);
+    is_front_facing = (*(options + Options_third_person_property_offset) == 2);
 
     // Invert Rotation
-    if (is_font_facing && player != NULL) {
-        *(float *) (player + Entity_yaw_property_offset) = 180.f + (*(float *) (player + Entity_yaw_property_offset));
-        *(float *) (player + Entity_old_yaw_property_offset) = 180.f + (*(float *) (player + Entity_old_yaw_property_offset));
-        *(float *) (player + Entity_pitch_property_offset) = -(*(float *) (player + Entity_pitch_property_offset));
-        *(float *) (player + Entity_old_pitch_property_offset) = -(*(float *) (player + Entity_old_pitch_property_offset));
+    if (is_front_facing) {
+        invert_rotation(stored_player);
     }
 
     // Call Original Method
     (*GameRenderer_setupCamera)(game_renderer, param_1, param_2);
 
     // Revert
-    if (is_font_facing && player != NULL) {
-        *(float *) (player + Entity_yaw_property_offset) = -180.f + (*(float *) (player + Entity_yaw_property_offset));
-        *(float *) (player + Entity_old_yaw_property_offset) = -180.f + (*(float *) (player + Entity_old_yaw_property_offset));
-        *(float *) (player + Entity_pitch_property_offset) = -(*(float *) (player + Entity_pitch_property_offset));
-        *(float *) (player + Entity_old_pitch_property_offset) = -(*(float *) (player + Entity_old_pitch_property_offset));
+    if (is_front_facing) {
+        revert_rotation(stored_player);
+    }
+}
+static void ParticleEngine_render_injection(unsigned char *particle_engine, unsigned char *entity, float param_2) {
+    // Invert Rotation
+    if (is_front_facing && stored_player == entity) {
+        invert_rotation(stored_player);
+    }
+
+    // Call Original Method
+    (*ParticleEngine_render)(particle_engine, entity, param_2);
+
+    // Revert
+    if (is_front_facing && stored_player == entity) {
+        revert_rotation(stored_player);
     }
 }
 
@@ -79,5 +105,6 @@ void _init_toggle() {
     // Font-Facing View
     if (enable_toggles) {
         overwrite_calls((void *) GameRenderer_setupCamera, (void *) GameRenderer_setupCamera_injection);
+        overwrite_calls((void *) ParticleEngine_render, (void *) ParticleEngine_render_injection);
     }
 }

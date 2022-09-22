@@ -45,7 +45,7 @@ static void StartMenuScreen_buttonClicked_injection(unsigned char *screen, unsig
 // Init
 void init_title_screen() {
     // Improved Title Screen Background
-    if (feature_has("Improved Title Screen Background", server_disabled)) {
+    if (feature_has("Add Title Screen Background", server_disabled)) {
         // Switch Background
         overwrite_call((void *) 0x39528, (void *) StartMenuScreen_render_Screen_renderBackground_injection);
         overwrite_call((void *) 0x3dee0, (void *) StartMenuScreen_render_Screen_renderBackground_injection);
