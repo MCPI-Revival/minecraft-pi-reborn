@@ -70,8 +70,8 @@ void init_game_mode() {
         _init_game_mode_ui();
     }
 
-    // Allow Joining Survival Servers
-    if (feature_has("Allow Joining Survival Servers", server_enabled)) {
+    // Allow Joining Survival Mode Servers
+    if (feature_has("Allow Joining Survival Mode Servers", server_enabled)) {
         unsigned char server_patch[4] = {0x0f, 0x00, 0x00, 0xea}; // "b 0x6dcb4"
         patch((void *) 0x6dc70, server_patch);
     }

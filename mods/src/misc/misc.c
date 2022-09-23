@@ -424,6 +424,12 @@ void init_misc() {
         patch((void *) 0x494b4, disable_speed_bridging_patch);
     }
 
+    // Disable Creative Mode Mining Delay
+    if (feature_has("Disable Creative Mode Mining Delay", server_disabled)) {
+        unsigned char nop_patch[4] = {0x00, 0xf0, 0x20, 0xe3}; // "nop"
+        patch((void *) 0x19fa0, nop_patch);
+    }
+
     // Init C++ And Logging
     _init_misc_cpp();
     _init_misc_logging();

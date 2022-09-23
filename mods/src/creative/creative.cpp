@@ -104,7 +104,7 @@ int creative_is_restricted() {
 // Init
 void init_creative() {
     // Add Extra Items To Creative Inventory (Only Replace Specific Function Call)
-    if (feature_has("Expand Creative Inventory", server_enabled)) {
+    if (feature_has("Expand Creative Mode Inventory", server_enabled)) {
 #ifndef MCPI_SERVER_MODE
         misc_run_on_creative_inventory_setup(Inventory_setupDefault_FillingContainer_addItem_call_injection);
 #endif
@@ -120,7 +120,7 @@ void init_creative() {
         }
     }
 
-    // Remove Creative Restrictions (Opening Chests, Crafting, Etc)
+    // Remove Creative Mode Restrictions (Opening Chests, Crafting, Etc)
     if (feature_has("Remove Creative Mode Restrictions", server_enabled)) {
         unsigned char nop_patch[4] = {0x00, 0xf0, 0x20, 0xe3}; // "nop"
         // Remove Restrictions

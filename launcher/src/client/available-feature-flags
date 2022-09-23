@@ -6,7 +6,7 @@ TRUE Disable Autojump By Default
 TRUE Display Nametags By Default
 TRUE Fix Sign Placement
 TRUE Show Block Outlines
-FALSE Expand Creative Inventory
+FALSE Expand Creative Mode Inventory
 FALSE Remove Creative Mode Restrictions
 TRUE Animated Water
 TRUE Remove Invalid Item Background
@@ -16,7 +16,7 @@ TRUE Implement Chat
 FALSE Hide Chat Messages
 TRUE Implement Death Messages
 TRUE Implement Game-Mode Switching
-TRUE Allow Joining Survival Servers
+TRUE Allow Joining Survival Mode Servers
 TRUE Miscellaneous Input Fixes
 TRUE Bind "Q" Key To Item Dropping
 TRUE Bind Common Toggleable Options To Function Keys
@@ -43,3 +43,4 @@ TRUE Translucent Toolbar
 FALSE Force EGL
 TRUE Improved Classic Title Screen
 FALSE Disable Speed Bridging
+FALSE Disable Creative Mode Mining Delay
