@@ -42,3 +42,4 @@ TRUE Classic HUD
 TRUE Translucent Toolbar
 FALSE Force EGL
 TRUE Improved Classic Title Screen
+FALSE Disable Speed Bridging

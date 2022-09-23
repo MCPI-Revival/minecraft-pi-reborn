@@ -418,6 +418,12 @@ void init_misc() {
     // Fix Graphics Bug When Switching To First-Person While Sneaking
     patch_address(PlayerRenderer_render_vtable_addr, (void *) HumanoidMobRenderer_render_injection);
 
+    // Disable Speed Bridging
+    if (feature_has("Disable Speed Bridging", server_disabled)) {
+        unsigned char disable_speed_bridging_patch[4] = {0x03, 0x00, 0x53, 0xe1}; // "cmp r3, r3"
+        patch((void *) 0x494b4, disable_speed_bridging_patch);
+    }
+
     // Init C++ And Logging
     _init_misc_cpp();
     _init_misc_logging();
