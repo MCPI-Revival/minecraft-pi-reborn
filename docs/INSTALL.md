@@ -7,15 +7,15 @@ Download packages [here](https://jenkins.thebrokenrail.com/job/minecraft-pi-rebo
 * Debian Buster/Ubuntu 18.04 Or Higher
 * QEMU User-Mode
   * Debian/Ubuntu: ``sudo apt install qemu-user``
-  * Arch: ``sudo pacman -Sy qemu-user``
+  * Arch: ``sudo pacman -S qemu-user``
 * Client-Only Dependencies
   * Graphics Drivers
   * GTK+ 3
     * Debian/Ubuntu: ``sudo apt install libgtk-3-0``
-    * Arch: ``sudo pacman -Sy gtk3``
+    * Arch: ``sudo pacman -S gtk3``
   * OpenAL
     * Debian/Ubuntu: ``sudo apt install libopenal1``
-    * Arch: ``sudo pacman -Sy openal``
+    * Arch: ``sudo pacman -S openal``
 
 ### Running
 Follow [these](https://docs.appimage.org/introduction/quickstart.html#how-to-run-an-appimage) instructions.

@@ -3,20 +3,23 @@
 ## Launch Sequence
 
 ### Common
-1. The launcher forks itself
+1. The launcher forks itself.
    1. The child process continues the launch sequence.
    2. The original process monitors the child process for crashes.
 
 ### Client
-1. The launcher is started by the user
-   1. The launcher starts several Zenity dialogs to configure MCPI-Reborn
-2. The launcher replaces itself with MCPI
-   1. MCPI-Reborn components are loaded using ``LD_PRELOAD`` and ``LD_LIBRARY_PATH``
-   2. If the Media Layer Proxy is enabled, the Media Layer Proxy Client is started as a sub-process
+1. The launcher is started by the user.
+   1. The launcher starts several Zenity dialogs to configure MCPI-Reborn.
+      1. If the corresponding environmental variable for a setting is specified, it will be used instead of the dialog.
+      2. If a setting is cached, then the dialog's default value will be the cached value instead of the normal default.
+      3. When configuration has been completed, the settings specified will be cached.
+2. The launcher replaces itself with MCPI.
+   1. MCPI-Reborn components are loaded using ``LD_PRELOAD`` and ``LD_LIBRARY_PATH``.
+   2. If the Media Layer Proxy is enabled, then the Media Layer Proxy Client is started as a sub-process.
 
 ### Server
-1. The launcher is started by the user
-2. The launcher replaces itself with MCPI
+1. The launcher is started by the user.
+2. The launcher replaces itself with MCPI.
 
 ## Components
 
@@ -25,7 +28,8 @@ This component configures the various environmental variables required for MCPI-
 
 The environmental variables configured by this component includes:
 * ``LD_PRELOAD``
-* ``LD_LIBRAR_PATH``
+* ``LD_LIBRARY_PATH``
+* ``GCONV_PATH``
 * ``MCPI_FEATURE_FLAGS``
 * ``MCPI_RENDER_DISTANCE``
 * ``MCPI_USERNAME``
@@ -64,7 +68,7 @@ It is made of two parts:
 
 While proxying all Media Layer Core API calls across UNIX pipes does hurt performance, it is better than emulating the entire graphics stack.
 
-Using this in server-mode is redundant.
+Using this in server-mode is redundant (but is possible).
 
 #### Extras
 This sub-component contains code that must always be linked directly to MCPI.
@@ -75,7 +79,7 @@ This is always compiled for ARM.
 This sub-component includes headers for SDL, GLES, and EGL allowing easy (cross-)compilation.
 
 ### Mods
-This component links directly to MCPI and patches it to modify its behavior.
+This component patches MCPI to modify its behavior. It's loaded using ``LD_PRELOAD``.
 
 This is always compiled for ARM.
 
@@ -95,8 +99,7 @@ This component contains all MCPI symbols.
 MCPI-Reborn has several dependencies:
 * MCPI (Bundled)
 * GLFW (Only In Client Mode; Bundled)
-  * Open GL ES 2.0
-  * EGL
+  * OpenGL ES 2.0
 * OpenAL (Only In Client Mode)
 * ZLib (Required By LibPNG; Bundled)
 * LibPNG (Bundled)

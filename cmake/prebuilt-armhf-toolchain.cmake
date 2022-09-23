@@ -28,6 +28,7 @@ file(WRITE "${toolchain_dir}/toolchain.cmake"
     "set(CMAKE_CXX_COMPILER \"\${CMAKE_CURRENT_LIST_DIR}/bin/arm-none-linux-gnueabihf-g++\")\n"
     "set(CMAKE_SYSTEM_NAME \"Linux\")\n"
     "set(CMAKE_SYSTEM_PROCESSOR \"arm\")\n"
+    "set(CMAKE_FIND_ROOT_PATH_MODE_PROGRAM NEVER)\n"
 )
 set(CMAKE_TOOLCHAIN_FILE "${toolchain_dir}/toolchain.cmake" CACHE STRING "" FORCE)
 

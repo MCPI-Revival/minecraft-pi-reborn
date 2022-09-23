@@ -46,7 +46,7 @@ launcher_cache load_cache() {
     stream.read((char *) &cache_version, 1);
     if (stream.eof() || cache_version != (unsigned char) CACHE_VERSION) {
         if (!stream.eof()) {
-            WARN("Invalid Launcher Cache Version (Expected: %i, Actual: %i)", CACHE_VERSION, cache_version);
+            WARN("Invalid Launcher Cache Version (Expected: %i, Actual: %i)", (int) CACHE_VERSION, (int) cache_version);
         } else {
             WARN("Unable To Read Launcher Cache Version");
         }
