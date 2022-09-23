@@ -4,6 +4,7 @@
 #include <unordered_map>
 #include <sstream>
 #include <sys/stat.h>
+#include <unistd.h>
 
 #include <libreborn/libreborn.h>
 
@@ -137,5 +138,16 @@ void save_cache() {
     stream.close();
     if (!stream.good()) {
         WARN("Failure While Saving Launcher Cache");
+    }
+}
+
+// Wipe Cache
+void wipe_cache() {
+    // Log
+    INFO("Wiping Launcher Cache...");
+
+    // Unlink File
+    if (unlink(get_cache_path().c_str()) != 0) {
+        WARN("Failure While Wiping Cache: %s", strerror(errno));
     }
 }

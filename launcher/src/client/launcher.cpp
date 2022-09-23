@@ -149,9 +149,6 @@ int main(int argc, char *argv[]) {
         ERR("$HOME Isn't Set");
     }
 
-    // Pre-Bootstrap
-    pre_bootstrap(argc, argv);
-
     // Print Features
     for (int i = 1; i < argc; i++) {
         if (strcmp(argv[i], "--print-available-feature-flags") == 0) {
@@ -164,33 +161,22 @@ int main(int argc, char *argv[]) {
         }
     }
 
-    // --default
+    // Pre-Bootstrap
+    pre_bootstrap(argc, argv);
+
+    // Create ~/.minecraft-pi If Needed
+    {
+        char *minecraft_folder = NULL;
+        safe_asprintf(&minecraft_folder, "%s" HOME_SUBDIRECTORY_FOR_GAME_DATA, getenv("HOME"));
+        const char *const command[] = {"mkdir", "-p", minecraft_folder, NULL};
+        run_simple_command(command, "Unable To Create Data Directory");
+        free(minecraft_folder);
+    }
+
+    // --wipe-cache
     for (int i = 1; i < argc; i++) {
-        if (strcmp(argv[i], "--default") == 0) {
-            // Use Default Feature Flags
-            set_env_if_unset("MCPI_FEATURE_FLAGS", []() {
-                std::string feature_flags = "";
-                load_available_feature_flags([&feature_flags](std::string flag) {
-                    bool default_value;
-                    // Strip Default Value
-                    std::string stripped_flag = strip_feature_flag_default(flag, &default_value);
-                    // Specify Default Value
-                    if (default_value) {
-                        // Enabled By Default
-                        feature_flags += stripped_flag + '|';
-                    }
-                });
-                if (feature_flags.length() > 0 && feature_flags[feature_flags.length() - 1] == '|') {
-                    feature_flags.pop_back();
-                }
-                return feature_flags;
-            });
-            set_env_if_unset("MCPI_RENDER_DISTANCE", []() {
-                return DEFAULT_RENDER_DISTANCE;
-            });
-            set_env_if_unset("MCPI_USERNAME", []() {
-                return DEFAULT_USERNAME;
-            });
+        if (strcmp(argv[i], "--wipe-cache") == 0) {
+            wipe_cache();
             break;
         }
     }
@@ -203,18 +189,43 @@ int main(int argc, char *argv[]) {
             break;
         }
     }
-
-    // Create ~/.minecraft-pi If Needed
-    {
-        char *minecraft_folder = NULL;
-        safe_asprintf(&minecraft_folder, "%s" HOME_SUBDIRECTORY_FOR_GAME_DATA, getenv("HOME"));
-        const char *const command[] = {"mkdir", "-p", minecraft_folder, NULL};
-        run_simple_command(command, "Unable To Create Data Directory");
-        free(minecraft_folder);
-    }
-
     // Load Cache
     launcher_cache cache = no_cache ? empty_cache : load_cache();
+
+    // --default
+    for (int i = 1; i < argc; i++) {
+        if (strcmp(argv[i], "--default") == 0) {
+            // Use Default Feature Flags
+            set_env_if_unset("MCPI_FEATURE_FLAGS", [&cache]() {
+                std::string feature_flags = "";
+                load_available_feature_flags([&feature_flags, &cache](std::string flag) {
+                    bool value;
+                    // Strip Default Value
+                    std::string stripped_flag = strip_feature_flag_default(flag, &value);
+                    // Use Cache
+                    if (cache.feature_flags.count(stripped_flag) > 0) {
+                        value = cache.feature_flags[stripped_flag];
+                    }
+                    // Specify Default Value
+                    if (value) {
+                        // Enabled By Default
+                        feature_flags += stripped_flag + '|';
+                    }
+                });
+                if (feature_flags.length() > 0 && feature_flags[feature_flags.length() - 1] == '|') {
+                    feature_flags.pop_back();
+                }
+                return feature_flags;
+            });
+            set_env_if_unset("MCPI_RENDER_DISTANCE", [&cache]() {
+                return cache.render_distance;
+            });
+            set_env_if_unset("MCPI_USERNAME", [&cache]() {
+                return cache.username;
+            });
+            break;
+        }
+    }
 
     // Setup MCPI_FEATURE_FLAGS
     {

@@ -17,3 +17,6 @@ launcher_cache load_cache();
 
 // Save Cache
 void save_cache();
+
+// Wipe Cache
+void wipe_cache();
