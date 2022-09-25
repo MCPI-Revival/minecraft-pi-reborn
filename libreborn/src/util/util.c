@@ -1,3 +1,6 @@
+#include <fcntl.h>
+#include <sys/file.h>
+
 #include <libreborn/util.h>
 
 // Safe Version Of pipe()
@@ -21,4 +24,22 @@ int is_progress_difference_significant(int32_t new_val, int32_t old_val) {
     } else {
         return 0;
     }
+}
+
+// Lock File
+int lock_file(const char *file) {
+    int fd = open(file, O_WRONLY | O_CREAT, S_IWUSR);
+    if (fd == -1) {
+        ERR("Unable To Open Lock File: %s: %s", file, strerror(errno));
+    }
+    if (flock(fd, LOCK_EX) == -1) {
+        ERR("Unable To Lock File: %s: %s", file, strerror(errno));
+    }
+    return fd;
+}
+void unlock_file(const char *file, int fd) {
+    if (flock(fd, LOCK_UN) == -1) {
+        ERR("Unable To Unlock File: %s: %s", file, strerror(errno));
+    }
+    close(fd);
 }

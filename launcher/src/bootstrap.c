@@ -193,10 +193,24 @@ void run_simple_command(const char *const command[], const char *error) {
         ERR("%s", error);
     }
 }
+#define HOME_SUBDIRECTORY_FOR_SDK HOME_SUBDIRECTORY_FOR_GAME_DATA "/sdk"
 static void copy_sdk(char *binary_directory) {
+    // Ensure SDK Directory
+    {
+        char *sdk_path = NULL;
+        safe_asprintf(&sdk_path, "%s" HOME_SUBDIRECTORY_FOR_SDK, getenv("HOME"));
+        const char *const command[] = {"mkdir", "-p", sdk_path, NULL};
+        run_simple_command(command, "Unable To Create SDK Directory");
+    }
+
+    // Lock File
+    char *lock_file_path = NULL;
+    safe_asprintf(&lock_file_path, "%s" HOME_SUBDIRECTORY_FOR_SDK "/.lock", getenv("HOME"));
+    int lock_file_fd = lock_file(lock_file_path);
+
     // Output Directory
     char *output = NULL;
-    safe_asprintf(&output, "%s" HOME_SUBDIRECTORY_FOR_GAME_DATA "/sdk/" MCPI_SDK_DIR, getenv("HOME"));
+    safe_asprintf(&output, "%s" HOME_SUBDIRECTORY_FOR_SDK "/" MCPI_SDK_DIR, getenv("HOME"));
     // Source Directory
     char *source = NULL;
     safe_asprintf(&source, "%s/sdk/.", binary_directory);
@@ -222,6 +236,10 @@ static void copy_sdk(char *binary_directory) {
     // Free
     free(output);
     free(source);
+
+    // Unlock File
+    unlock_file(lock_file_path, lock_file_fd);
+    free(lock_file_path);
 }
 
 // Bootstrap

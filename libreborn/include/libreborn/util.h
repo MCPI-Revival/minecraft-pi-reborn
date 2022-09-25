@@ -41,6 +41,10 @@ void safe_pipe2(int pipefd[2], int flags);
 // Check If Two Percentages Are Different Enough To Be Logged
 int is_progress_difference_significant(int32_t new_val, int32_t old_val);
 
+// Lock File
+int lock_file(const char *file);
+void unlock_file(const char *file, int fd);
+
 #ifdef __cplusplus
 }
 #endif
