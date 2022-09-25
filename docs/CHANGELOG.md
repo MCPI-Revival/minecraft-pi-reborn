@@ -1,5 +1,21 @@
 # Changelog
 
+**2.4.4**
+* Cache Previous Launcher Configuration
+* Add ``MCPI_API_PORT`` Environmental Variable
+* Fix Particles In Front-Facing View
+* Fixed Launch Crash On Ubuntu ARM64
+  * PatchELF Replaced With LIEF
+* Moved ``3D Anaglyph`` Feature Flag To Options Screen
+* Add ``Improved Classic Title Screen`` Feature Flag (Enabled By Default)
+  * Add Quit button
+  * Add Options Button (Moved From ``Fix Options Screen`` Feature Flag)
+* Add ``Disable Speed Bridging`` Feature Flag (Disabled By Default)
+* Add ``Disable Creative Mode Mining Delay`` Feature Flag (Disabled By Default)
+* Improved Feature Flag Names
+* Miscellaneous Bug Fixes
+* Improved Build System
+
 **2.4.3**
 * Fix Signs With CP-437
 
