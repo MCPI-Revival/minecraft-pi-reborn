@@ -272,10 +272,7 @@ void bootstrap(int argc, char *argv[]) {
         safe_asprintf(&linker, "%s/sysroot/lib/ld-linux-armhf.so.3", binary_directory);
 #else
         // Use Current Linker
-        char *exe = realpath("/proc/self/exe", NULL);
-        ALLOC_CHECK(exe);
-        linker = patch_get_interpreter(exe);
-        free(exe);
+        linker = patch_get_interpreter();
 #endif
 
         // Patch

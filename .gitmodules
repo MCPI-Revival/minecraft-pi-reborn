@@ -11,6 +11,6 @@
 [submodule "dependencies/zenity/src"]
 	path = dependencies/zenity/src
 	url = https://gitea.thebrokenrail.com/minecraft-pi-reborn/zenity.git
-[submodule "launcher/dependencies/patchelf/src"]
-	path = launcher/dependencies/patchelf/src
-	url = https://github.com/NixOS/patchelf.git
+[submodule "dependencies/LIEF/src"]
+	path = dependencies/LIEF/src
+	url = https://github.com/lief-project/LIEF.git

@@ -28,5 +28,5 @@ if(NOT MCPI_HEADLESS_MODE)
     # OpenAL
     find_library(OPENAL_LIBRARY NAMES openal REQUIRED)
     # Link
-    target_link_libraries(media-layer-core PRIVATE "${OPENAL_LIBRARY}" PRIVATE m PRIVATE glfw)
+    target_link_libraries(media-layer-core PRIVATE "${OPENAL_LIBRARY}" PRIVATE m PRIVATE glfw PRIVATE LIB_LIEF)
 endif()

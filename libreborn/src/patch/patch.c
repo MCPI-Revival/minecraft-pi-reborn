@@ -5,7 +5,6 @@
 #include <sys/mman.h>
 #include <stdint.h>
 #include <errno.h>
-#include <elf.h>
 
 #include <libreborn/libreborn.h>
 

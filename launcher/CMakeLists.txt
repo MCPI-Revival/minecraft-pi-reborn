@@ -1,17 +1,14 @@
 project(launcher)
 
-# Dependencies
-add_subdirectory(dependencies)
-
 # Launcher
-add_executable(launcher src/bootstrap.c src/patchelf.c src/crash-report.c)
+add_executable(launcher src/bootstrap.c src/patchelf.cpp src/crash-report.c)
 if(MCPI_SERVER_MODE)
     target_sources(launcher PRIVATE src/server/launcher.c)
 else()
     embed_resource(launcher src/client/available-feature-flags)
     target_sources(launcher PRIVATE src/client/launcher.cpp src/client/cache.cpp)
 endif()
-target_link_libraries(launcher reborn-util)
+target_link_libraries(launcher reborn-util LIB_LIEF)
 # RPath
 set_target_properties(launcher PROPERTIES INSTALL_RPATH "$ORIGIN/lib/native")
 
