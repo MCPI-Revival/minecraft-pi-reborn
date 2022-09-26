@@ -28,7 +28,7 @@ int is_progress_difference_significant(int32_t new_val, int32_t old_val) {
 
 // Lock File
 int lock_file(const char *file) {
-    int fd = open(file, O_WRONLY | O_CREAT, S_IWUSR);
+    int fd = open(file, O_WRONLY | O_CREAT, S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH);
     if (fd == -1) {
         ERR("Unable To Open Lock File: %s: %s", file, strerror(errno));
     }

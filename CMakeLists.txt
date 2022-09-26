@@ -1,5 +1,10 @@
 cmake_minimum_required(VERSION 3.16.0)
 
+# Avoid Warning About DOWNLOAD_EXTRACT_TIMESTAMP
+if(CMAKE_VERSION VERSION_GREATER_EQUAL 3.24.0)
+    cmake_policy(SET CMP0135 NEW)
+endif()
+
 # Build Mode
 set(MCPI_BUILD_MODE "native" CACHE STRING "\"arm\" = Build Only Code That Must Be ARM; \"native\" = Build Architecture-Independent Code")
 set_property(CACHE MCPI_BUILD_MODE PROPERTY STRINGS "arm" "native")

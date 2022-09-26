@@ -30,9 +30,6 @@ launcher_cache load_cache() {
     // Log
     DEBUG("Loading Launcher Cache...");
 
-    // Lock File
-    int lock_fd = lock_file(get_cache_path().c_str());
-
     // Return Value
     launcher_cache ret = empty_cache;
 
@@ -46,6 +43,9 @@ launcher_cache load_cache() {
             WARN("Unable To Open Launcher Cache For Loading");
         }
     } else {
+        // Lock File
+        int lock_fd = lock_file(get_cache_path().c_str());
+
         // Check Version
         unsigned char cache_version;
         stream.read((char *) &cache_version, 1);
@@ -84,10 +84,10 @@ launcher_cache load_cache() {
                 ret = cache;
             }
         }
-    }
 
-    // Unlock File
-    unlock_file(get_cache_path().c_str(), lock_fd);
+        // Unlock File
+        unlock_file(get_cache_path().c_str(), lock_fd);
+    }
 
     // Return
     return ret;
@@ -106,15 +106,15 @@ void save_cache() {
     // Log
     DEBUG("Saving Launcher Cache...");
 
-    // Lock File
-    int lock_fd = lock_file(get_cache_path().c_str());
-
     // Open File
     std::ofstream stream(get_cache_path(), std::ios::out | std::ios::binary);
     if (!stream) {
         // Fail
         WARN("Unable To Open Launcher Cache For Saving");
     } else {
+        // Lock File
+        int lock_fd = lock_file(get_cache_path().c_str());
+
         // Save Cache Version
         unsigned char cache_version = (unsigned char) CACHE_VERSION;
         stream.write((const char *) &cache_version, 1);
@@ -153,10 +153,10 @@ void save_cache() {
         if (!stream.good()) {
             WARN("Failure While Saving Launcher Cache");
         }
-    }
 
-    // Unlock File
-    unlock_file(get_cache_path().c_str(), lock_fd);
+        // Unlock File
+        unlock_file(get_cache_path().c_str(), lock_fd);
+    }
 }
 
 // Wipe Cache
