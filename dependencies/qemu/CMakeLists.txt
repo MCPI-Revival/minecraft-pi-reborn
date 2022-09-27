@@ -9,12 +9,16 @@ include(ExternalProject)
 ExternalProject_Add(qemu
     SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/src"
     CONFIGURE_COMMAND
-        "${CMAKE_COMMAND}" "-E" "env" "PKG_CONFIG_LIBDIR=$ENV{PKG_CONFIG_LIBDIR}"
+        "${CMAKE_COMMAND}" "-E" "env"
+        "PKG_CONFIG_LIBDIR=$ENV{PKG_CONFIG_LIBDIR}"
+        "CFLAGS=-s"
+        "CXXFLAGS=-s"
         "<SOURCE_DIR>/configure"
         "--prefix=${CMAKE_INSTALL_PREFIX}"
         "--cross-prefix="
         "--cc=${CMAKE_C_COMPILER}"
         "--cxx=${CMAKE_CXX_COMPILER}"
+        "--disable-debug-info"
         "--target-list=arm-linux-user"
         "--without-default-features"
     USES_TERMINAL_CONFIGURE TRUE

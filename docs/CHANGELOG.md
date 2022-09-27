@@ -1,5 +1,8 @@
 # Changelog
 
+**2.4.5**
+* Bundle QEMU
+
 **2.4.4**
 * Cache Previous Launcher Configuration
 * Add ``MCPI_API_PORT`` Environmental Variable
