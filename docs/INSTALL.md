@@ -5,9 +5,6 @@ Download packages [here](https://jenkins.thebrokenrail.com/job/minecraft-pi-rebo
 
 ### System Requirements
 * Debian Buster/Ubuntu 18.04 Or Higher
-* QEMU User-Mode
-  * Debian/Ubuntu: ``sudo apt install qemu-user``
-  * Arch: ``sudo pacman -S qemu-user``
 * Client-Only Dependencies
   * Graphics Drivers
   * GTK+ 3

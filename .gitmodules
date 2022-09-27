@@ -14,3 +14,7 @@
 [submodule "dependencies/LIEF/src"]
 	path = dependencies/LIEF/src
 	url = https://github.com/lief-project/LIEF.git
+[submodule "dependencies/qemu/src"]
+	path = dependencies/qemu/src
+	url = https://gitlab.com/qemu-project/qemu.git
+	ignore = dirty
