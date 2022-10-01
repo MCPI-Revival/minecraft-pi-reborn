@@ -101,6 +101,14 @@ void pre_bootstrap(int argc, char *argv[]) {
     // Disable stdout Buffering
     setvbuf(stdout, NULL, _IONBF, 0);
 
+    // --debug
+    for (int i = 1; i < argc; i++) {
+        if (strcmp(argv[i], "--debug") == 0) {
+            set_and_print_env("MCPI_DEBUG", "1");
+            break;
+        }
+    }
+
     // Set Debug Tag
     reborn_debug_tag = "(Launcher) ";
 

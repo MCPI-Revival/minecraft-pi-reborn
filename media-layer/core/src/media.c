@@ -4,6 +4,8 @@
 #include <libreborn/libreborn.h>
 
 #ifndef MCPI_HEADLESS_MODE
+#include <time.h>
+
 #define GLFW_INCLUDE_NONE
 #include <GLFW/glfw3.h>
 #endif
@@ -16,12 +18,25 @@
 #endif
 
 // Allow Disabling Interaction
+static void emit_events_after_is_interactable_change();
 static void update_cursor();
 static int is_interactable = 1;
 void media_set_interactable(int toggle) {
-    is_interactable = toggle;
-    update_cursor();
+    if (toggle != is_interactable) {
+        is_interactable = toggle;
+        update_cursor();
+#ifndef MCPI_HEADLESS_MODE
+        emit_events_after_is_interactable_change();
+#endif
+    }
 }
+
+// Track Media Layer State
+static volatile int is_running = 0;
+
+// Store Cursor State
+static int cursor_grabbed = 0;
+static int cursor_visible = 1;
 
 // GLFW Code Not Needed In Headless Mode
 #ifndef MCPI_HEADLESS_MODE
@@ -145,16 +160,19 @@ static SDLMod glfw_modifier_to_sdl_modifier(int mods) {
 }
 
 // Pass Key Presses To SDL
+static void glfw_key_raw(int key, int scancode, int action, int mods) {
+    SDL_Event event;
+    int up = action == GLFW_RELEASE;
+    event.type = up ? SDL_KEYUP : SDL_KEYDOWN;
+    event.key.state = up ? SDL_RELEASED : SDL_PRESSED;
+    event.key.keysym.scancode = scancode;
+    event.key.keysym.mod = glfw_modifier_to_sdl_modifier(mods);
+    event.key.keysym.sym = glfw_key_to_sdl_key(key);
+    SDL_PushEvent(&event);
+}
 static void glfw_key(__attribute__((unused)) GLFWwindow *window, int key, int scancode, int action, int mods) {
     if (is_interactable) {
-        SDL_Event event;
-        int up = action == GLFW_RELEASE;
-        event.type = up ? SDL_KEYUP : SDL_KEYDOWN;
-        event.key.state = up ? SDL_RELEASED : SDL_PRESSED;
-        event.key.keysym.scancode = scancode;
-        event.key.keysym.mod = glfw_modifier_to_sdl_modifier(mods);
-        event.key.keysym.sym = glfw_key_to_sdl_key(key);
-        SDL_PushEvent(&event);
+        glfw_key_raw(key, scancode, action, mods);
     }
 }
 
@@ -218,23 +236,24 @@ static void glfw_motion(__attribute__((unused)) GLFWwindow *window, double xpos,
 
 // Create And Push SDL Mouse Click Event
 static void click_event(int button, int up) {
-    if (is_interactable) {
-        SDL_Event event;
-        event.type = up ? SDL_MOUSEBUTTONUP : SDL_MOUSEBUTTONDOWN;
-        event.button.x = last_mouse_x;
-        event.button.y = last_mouse_y;
-        event.button.state = up ? SDL_RELEASED : SDL_PRESSED;
-        event.button.button = button;
-        SDL_PushEvent(&event);
-    }
+    SDL_Event event;
+    event.type = up ? SDL_MOUSEBUTTONUP : SDL_MOUSEBUTTONDOWN;
+    event.button.x = last_mouse_x;
+    event.button.y = last_mouse_y;
+    event.button.state = up ? SDL_RELEASED : SDL_PRESSED;
+    event.button.button = button;
+    SDL_PushEvent(&event);
 }
 
 // Pass Mouse Click To SDL
+static void glfw_click_raw(int button, int action) {
+    int up = action == GLFW_RELEASE;
+    int sdl_button = button == GLFW_MOUSE_BUTTON_RIGHT ? SDL_BUTTON_RIGHT : (button == GLFW_MOUSE_BUTTON_LEFT ? SDL_BUTTON_LEFT : SDL_BUTTON_MIDDLE);
+    click_event(sdl_button, up);
+}
 static void glfw_click(__attribute__((unused)) GLFWwindow *window, int button, int action, __attribute__((unused)) int mods) {
     if (is_interactable) {
-        int up = action == GLFW_RELEASE;
-        int sdl_button = button == GLFW_MOUSE_BUTTON_RIGHT ? SDL_BUTTON_RIGHT : (button == GLFW_MOUSE_BUTTON_LEFT ? SDL_BUTTON_LEFT : SDL_BUTTON_MIDDLE);
-        click_event(sdl_button, up);
+        glfw_click_raw(button, action);
     }
 }
 
@@ -247,10 +266,248 @@ static void glfw_scroll(__attribute__((unused)) GLFWwindow *window, __attribute_
     }
 }
 
-#endif
+// Controller Events
+static SDLKey glfw_controller_button_to_key(int button) {
+    switch (button) {
+        // Jump
+        case GLFW_GAMEPAD_BUTTON_A:
+            return GLFW_KEY_SPACE;
+        // Drop Item
+        case GLFW_GAMEPAD_BUTTON_DPAD_DOWN:
+            return GLFW_KEY_Q;
+        // Inventory
+        case GLFW_GAMEPAD_BUTTON_Y:
+            return GLFW_KEY_E;
+        // Third-Person
+        case GLFW_GAMEPAD_BUTTON_DPAD_UP:
+            return GLFW_KEY_F5;
+        // Sneak
+        case GLFW_GAMEPAD_BUTTON_B:
+            return GLFW_KEY_LEFT_SHIFT;
+        // Chat
+        case GLFW_GAMEPAD_BUTTON_DPAD_RIGHT:
+            return GLFW_KEY_T;
+        // Pause
+        case GLFW_GAMEPAD_BUTTON_START:
+        case GLFW_GAMEPAD_BUTTON_BACK:
+            return GLFW_KEY_ESCAPE;
+        // Unknown
+        default:
+            return GLFW_KEY_UNKNOWN;
+    }
+}
+static void glfw_controller_button(int button, int action) {
+    int key = glfw_controller_button_to_key(button);
+    if (key != GLFW_KEY_UNKNOWN) {
+        glfw_key_raw(key, glfwGetKeyScancode(key), action, 0);
+    } else {
+        // Scrolling
+        if (button == GLFW_GAMEPAD_BUTTON_LEFT_BUMPER) {
+            key = SDL_BUTTON_WHEELUP;
+        } else if (button == GLFW_GAMEPAD_BUTTON_RIGHT_BUMPER) {
+            key = SDL_BUTTON_WHEELDOWN;
+        }
+        if (key != GLFW_KEY_UNKNOWN) {
+            click_event(key, action == GLFW_PRESS);
+        }
+    }
+}
 
-// Track Media Layer State
-static volatile int is_running = 0;
+// Controller Movement Axis
+static int controller_horizontal_key = GLFW_KEY_UNKNOWN;
+static int controller_vertical_key = GLFW_KEY_UNKNOWN;
+static void release_and_press_key(int *old_key, int new_key) {
+    if (*old_key != new_key) {
+        if (*old_key != GLFW_KEY_UNKNOWN) {
+            glfw_key_raw(*old_key, glfwGetKeyScancode(*old_key), GLFW_RELEASE, 0);
+        }
+        if (new_key != GLFW_KEY_UNKNOWN) {
+            glfw_key_raw(new_key, glfwGetKeyScancode(new_key), GLFW_PRESS, 0);
+        }
+    }
+    *old_key = new_key;
+}
+#define verify_controller_axis_value(value, threshold) \
+    if ((value < (threshold) && value > 0) || (value > -(threshold) && value < 0)) { \
+        value = 0; \
+    }
+#define CONTROLLER_MOVEMENT_AXIS_THRESHOLD 0.5f
+static void glfw_controller_movement(float x, float y) {
+    // Verify
+    verify_controller_axis_value(x, CONTROLLER_MOVEMENT_AXIS_THRESHOLD);
+    verify_controller_axis_value(y, CONTROLLER_MOVEMENT_AXIS_THRESHOLD);
+    // Horizontal Movement
+    if (x > 0) {
+        release_and_press_key(&controller_horizontal_key, GLFW_KEY_D);
+    } else if (x < 0) {
+        release_and_press_key(&controller_horizontal_key, GLFW_KEY_A);
+    } else {
+        release_and_press_key(&controller_horizontal_key, GLFW_KEY_UNKNOWN);
+    }
+    // Vertical Movement
+    if (y < 0) {
+        release_and_press_key(&controller_vertical_key, GLFW_KEY_W);
+    } else if (y > 0) {
+        release_and_press_key(&controller_vertical_key, GLFW_KEY_S);
+    } else {
+        release_and_press_key(&controller_vertical_key, GLFW_KEY_UNKNOWN);
+    }
+}
+
+// Get Time
+#define NANOSECONDS_IN_SECOND 1000000000ll
+static long long int get_time() {
+    struct timespec ts;
+    clock_gettime(CLOCK_MONOTONIC_RAW, &ts);
+    long long int a = (long long int) ts.tv_nsec;
+    long long int b = ((long long int) ts.tv_sec) * NANOSECONDS_IN_SECOND;
+    return a + b;
+}
+
+// Controller Look Axis
+#define CONTROLLER_LOOK_EVENT_PERIOD 50000000ll // 1/20 Seconds
+#define CONTROLLER_LOOK_AXIS_THRESHOLD 0.2f
+#define CONTROLLER_LOOK_AXIS_SENSITIVITY 70
+static void glfw_controller_look(float x, float y) {
+    // Current Time
+    long long int current_time = get_time();
+    // Last Time
+    static long long int last_time = 0;
+    static int is_last_time_set = 0;
+    if (!is_last_time_set) {
+        is_last_time_set = 1;
+        last_time = current_time;
+    }
+
+    // Check If Period Has Passed
+    if ((current_time - last_time) > CONTROLLER_LOOK_EVENT_PERIOD) {
+        // Reset Last Time
+        last_time = current_time;
+
+        // Verify
+        verify_controller_axis_value(x, CONTROLLER_LOOK_AXIS_THRESHOLD);
+        verify_controller_axis_value(y, CONTROLLER_LOOK_AXIS_THRESHOLD);
+
+        // Send Event
+        SDL_Event event;
+        event.type = SDL_MOUSEMOTION;
+        event.motion.x = last_mouse_x;
+        event.motion.y = last_mouse_y;
+        event.motion.xrel = x * CONTROLLER_LOOK_AXIS_SENSITIVITY;
+        event.motion.yrel = y * CONTROLLER_LOOK_AXIS_SENSITIVITY;
+        SDL_PushEvent(&event);
+    }
+}
+
+// Controller Place/Mine Triggers
+#define CONTROLLER_TRIGGER_THRESHOLD 0
+#define CONTROLLER_TRIGGER_COUNT 2
+static void glfw_controller_trigger(int trigger, int action) {
+    glfw_click_raw(trigger == GLFW_GAMEPAD_AXIS_RIGHT_TRIGGER ? GLFW_MOUSE_BUTTON_LEFT : GLFW_MOUSE_BUTTON_RIGHT, action);
+}
+
+// Current Controller
+static int current_controller = -1;
+
+// Track Controller State
+static void update_controller_state() {
+    // Store Button/Trigger State
+    static int controller_buttons[GLFW_GAMEPAD_BUTTON_LAST + 1];
+    static int controller_triggers[CONTROLLER_TRIGGER_COUNT];
+
+    // Get State
+    GLFWgamepadstate state;
+    int controller_enabled = cursor_grabbed && is_interactable;
+    int controller_valid = controller_enabled && current_controller != -1 && glfwGetGamepadState(current_controller, &state);
+    if (!controller_valid) {
+        // Invalid Controller
+
+        // Generate Blank State
+        for (int i = GLFW_GAMEPAD_BUTTON_A; i <= GLFW_GAMEPAD_BUTTON_LAST; i++) {
+            state.buttons[i] = GLFW_RELEASE;
+        }
+        for (int i = GLFW_GAMEPAD_AXIS_LEFT_X; i <= GLFW_GAMEPAD_AXIS_LAST; i++) {
+            int is_trigger = i == GLFW_GAMEPAD_AXIS_LEFT_TRIGGER || i == GLFW_GAMEPAD_AXIS_RIGHT_TRIGGER;
+            state.axes[i] = is_trigger ? -1 : 0;
+        }
+    }
+
+    // Check Buttons
+    for (int i = GLFW_GAMEPAD_BUTTON_A; i <= GLFW_GAMEPAD_BUTTON_LAST; i++) {
+        int old_state = controller_buttons[i];
+        controller_buttons[i] = state.buttons[i];
+        if (old_state != controller_buttons[i]) {
+            // State Changed
+            glfw_controller_button(i, controller_buttons[i]);
+        }
+    }
+
+    // Handle Movement & Look
+    glfw_controller_movement(state.axes[GLFW_GAMEPAD_AXIS_LEFT_X], state.axes[GLFW_GAMEPAD_AXIS_LEFT_Y]);
+    glfw_controller_look(state.axes[GLFW_GAMEPAD_AXIS_RIGHT_X], state.axes[GLFW_GAMEPAD_AXIS_RIGHT_Y]);
+
+    // Check Triggers
+    for (int i = 0; i < CONTROLLER_TRIGGER_COUNT; i++) {
+        int old_state = controller_triggers[i];
+        int trigger_id = i == 0 ? GLFW_GAMEPAD_AXIS_LEFT_TRIGGER : GLFW_GAMEPAD_AXIS_RIGHT_TRIGGER;
+        controller_triggers[i] = state.axes[trigger_id] < CONTROLLER_TRIGGER_THRESHOLD ? GLFW_RELEASE : GLFW_PRESS;
+        if (old_state != controller_triggers[i]) {
+            // State Changed
+            glfw_controller_trigger(trigger_id, controller_triggers[i]);
+        }
+    }
+}
+
+// Pick Controller
+static int joysticks[GLFW_JOYSTICK_LAST + 1];
+static void pick_new_controller() {
+    current_controller = -1;
+    for (int i = GLFW_JOYSTICK_1; i <= GLFW_JOYSTICK_LAST; i++) {
+        if (joysticks[i] == 1) {
+            current_controller = i;
+            DEBUG("Using Controller: %s (%s)", glfwGetGamepadName(i), glfwGetJoystickName(i));
+            break;
+        }
+    }
+}
+static void find_controllers() {
+    for (int i = GLFW_JOYSTICK_1; i <= GLFW_JOYSTICK_LAST; i++) {
+        joysticks[i] = glfwJoystickIsGamepad(i);
+    }
+    pick_new_controller();
+}
+static void glfw_joystick(int jid, int event) {
+    if (event == GLFW_CONNECTED && glfwJoystickIsGamepad(jid)) {
+        joysticks[jid] = 1;
+        pick_new_controller();
+    } else if (event == GLFW_DISCONNECTED) {
+        joysticks[jid] = 0;
+        if (jid == current_controller) {
+            DEBUG("Controller Disconnected");
+            pick_new_controller();
+        }
+    }
+}
+
+// Release all keys/buttons when interaction is disabled and vice versa.
+static void emit_events_after_is_interactable_change() {
+    if (is_running) {
+        for (int i = GLFW_KEY_SPACE; i <= GLFW_KEY_LAST; i++) {
+            int state = glfwGetKey(glfw_window, i);
+            if (state == GLFW_PRESS) {
+                glfw_key_raw(i, glfwGetKeyScancode(i), is_interactable ? GLFW_PRESS : GLFW_RELEASE, 0);
+            }
+        }
+        for (int i = GLFW_MOUSE_BUTTON_1; i <= GLFW_MOUSE_BUTTON_LAST; i++) {
+            int state = glfwGetMouseButton(glfw_window, i);
+            if (state == GLFW_PRESS) {
+                glfw_click_raw(i, is_interactable ? GLFW_PRESS : GLFW_RELEASE);
+            }
+        }
+    }
+}
+
+#endif
 
 // Track If Raw Mouse Motion Is Enabled
 static int raw_mouse_motion_enabled = 1;
@@ -333,6 +590,10 @@ void SDL_WM_SetCaption(const char *title, __attribute__((unused)) const char *ic
     glfwSetMouseButtonCallback(glfw_window, glfw_click);
     glfwSetScrollCallback(glfw_window, glfw_scroll);
 
+    // Setup Controller Support
+    find_controllers();
+    glfwSetJoystickCallback(glfw_joystick);
+
     // Make Window Context Current
     glfwMakeContextCurrent(glfw_window);
 
@@ -408,6 +669,9 @@ void _media_handle_SDL_PollEvent() {
     // Process GLFW Events
     glfwPollEvents();
 
+    // Controller
+    update_controller_state();
+
     // Close Window
     if (glfwWindowShouldClose(glfw_window)) {
         SDL_Event event;
@@ -438,10 +702,6 @@ void media_cleanup() {
         is_running = 0;
     }
 }
-
-// Store Cursor State
-static int cursor_grabbed = 0;
-static int cursor_visible = 1;
 
 // Update GLFW Cursor State (Client Only)
 static void update_cursor() {
@@ -475,9 +735,16 @@ static void update_cursor() {
             glfwSetInputMode(glfw_window, GLFW_CURSOR, new_mode);
 
             // Handle Cursor Lock/Unlock
-            if (raw_mouse_motion_enabled && ((new_mode == GLFW_CURSOR_DISABLED && old_mode != GLFW_CURSOR_DISABLED) || (new_mode != GLFW_CURSOR_DISABLED && old_mode == GLFW_CURSOR_DISABLED))) {
+            if ((new_mode == GLFW_CURSOR_DISABLED && old_mode != GLFW_CURSOR_DISABLED) || (new_mode != GLFW_CURSOR_DISABLED && old_mode == GLFW_CURSOR_DISABLED)) {
                 // Use Raw Mouse Motion
-                glfwSetInputMode(glfw_window, GLFW_RAW_MOUSE_MOTION, new_mode == GLFW_CURSOR_DISABLED ? GLFW_TRUE : GLFW_FALSE);
+                if (raw_mouse_motion_enabled) {
+                    glfwSetInputMode(glfw_window, GLFW_RAW_MOUSE_MOTION, new_mode == GLFW_CURSOR_DISABLED ? GLFW_TRUE : GLFW_FALSE);
+                }
+
+                // Request Focus
+                if (!glfwGetWindowAttrib(glfw_window, GLFW_FOCUSED)) {
+                    glfwRequestWindowAttention(glfw_window);
+                }
             }
 
             // Reset Mouse Position When Unlocking

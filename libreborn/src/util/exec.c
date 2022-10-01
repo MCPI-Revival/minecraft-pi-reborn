@@ -11,11 +11,11 @@ static void setenv_safe(const char *name, const char *value) {
     }
 }
 void set_and_print_env(const char *name, const char *value) {
-    // Print New Value
-    DEBUG("Set %s = %s", name, value != NULL ? value : "(unset)");
-
     // Set The Value
     setenv_safe(name, value);
+
+    // Print New Value
+    DEBUG("Set %s = %s", name, value != NULL ? value : "(unset)");
 }
 
 // Safe execvpe()

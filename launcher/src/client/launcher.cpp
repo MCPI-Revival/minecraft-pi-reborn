@@ -99,7 +99,7 @@ static void run_command_and_set_env(const char *env_name, const char *command[])
         }
         // Check Return Code
         if (!is_exit_status_success(return_code)) {
-            INFO("Launch Interrupted");
+            // Launch Interrupted
             exit(EXIT_SUCCESS);
         }
     }

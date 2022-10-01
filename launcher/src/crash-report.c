@@ -19,20 +19,27 @@
 #define CRASH_REPORT_DIALOG_WIDTH "640"
 #define CRASH_REPORT_DIALOG_HEIGHT "480"
 static void show_report(const char *log_filename) {
-    const char *command[] = {
-        "zenity",
-        "--title", DIALOG_TITLE,
-        "--name", MCPI_APP_ID,
-        "--width", CRASH_REPORT_DIALOG_WIDTH,
-        "--height", CRASH_REPORT_DIALOG_HEIGHT,
-        "--text-info",
-        "--text", "Minecraft: Pi Edition: Reborn has crashed!\n\nNeed help? Consider asking on the <a href=\"https://discord.com/invite/aDqejQGMMy\">Discord server</a>!",
-        "--filename", log_filename,
-        "--no-wrap",
-        "--font", "Monospace",
-        NULL
-    };
-    free(run_command(command, NULL));
+    // Fork
+    pid_t pid = fork();
+    if (pid == 0) {
+        // Child
+        setsid();
+        const char *command[] = {
+            "zenity",
+            "--title", DIALOG_TITLE,
+            "--name", MCPI_APP_ID,
+            "--width", CRASH_REPORT_DIALOG_WIDTH,
+            "--height", CRASH_REPORT_DIALOG_HEIGHT,
+            "--text-info",
+            "--text", "Minecraft: Pi Edition: Reborn has crashed!\n\nNeed help? Consider asking on the <a href=\"https://discord.com/invite/aDqejQGMMy\">Discord server</a>! <i>If you believe this is a problem with Minecraft: Pi Edition: Reborn itself, please upload this crash report to the #bugs Discord channel.</i>",
+            "--filename", log_filename,
+            "--no-wrap",
+            "--font", "Monospace",
+            NULL
+        };
+        reborn_debug_tag = CHILD_PROCESS_TAG;
+        safe_execvpe(command, (const char *const *) environ);
+    }
 }
 #endif
 
@@ -92,6 +99,7 @@ void setup_crash_report() {
         act_sigterm.sa_flags = SA_RESTART;
         act_sigterm.sa_handler = &exit_handler;
         sigaction(SIGTERM, &act_sigterm, NULL);
+        atexit(murder_children);
 
         // Close Unneeded File Descriptors
         close(output_pipe[PIPE_WRITE]);
@@ -237,11 +245,6 @@ void setup_crash_report() {
             show_report(log_filename);
         }
 #endif
-
-        // Delete Log File
-        if (unlink(log_filename) == -1) {
-            ERR("Unable To Delete Log File: %s", strerror(errno));
-        }
 
         // Exit
         exit(WIFEXITED(status) ? WEXITSTATUS(status) : EXIT_FAILURE);
