@@ -48,7 +48,8 @@ endif()
 set(MCPI_APP_ID "${DEFAULT_APP_ID}" CACHE STRING "App ID")
 
 # App Title
-set(DEFAULT_APP_TITLE "Minecraft: Pi Edition: Reborn")
+set(MCPI_APP_BASE_TITLE "Minecraft: Pi Edition: Reborn" CACHE STRING "Base App Title")
+set(DEFAULT_APP_TITLE "${MCPI_APP_BASE_TITLE}")
 if(MCPI_SERVER_MODE)
     string(APPEND DEFAULT_APP_TITLE " (Server)")
 else()

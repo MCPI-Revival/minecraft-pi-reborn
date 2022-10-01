@@ -75,7 +75,7 @@ static int dl_iterate_callback(struct dl_phdr_info *info, __attribute__((unused)
         for (int i = 0; i < info->dlpi_phnum; i++) {
             if (info->dlpi_phdr[i].p_type == PT_INTERP) {
                 // Callback
-                *(char **) data = (char *) info->dlpi_phdr[i].p_vaddr;
+                *(char **) data = (char *) (info->dlpi_addr + info->dlpi_phdr[i].p_vaddr);
             }
         }
     }

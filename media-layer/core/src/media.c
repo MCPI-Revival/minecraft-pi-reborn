@@ -18,8 +18,10 @@
 #endif
 
 // Allow Disabling Interaction
-static void emit_events_after_is_interactable_change();
 static void update_cursor();
+#ifndef MCPI_HEADLESS_MODE
+static void emit_events_after_is_interactable_change();
+#endif
 static int is_interactable = 1;
 void media_set_interactable(int toggle) {
     if (toggle != is_interactable) {
