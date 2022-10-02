@@ -35,7 +35,7 @@ static int32_t MouseBuildInput_tickBuild_injection(unsigned char *mouse_build_in
     return ret;
 }
 
-// Fix Holding Right-Click
+// Fix Holding Attack
 static bool last_player_attack_successful = 0;
 static bool Player_attack_Entity_hurt_injection(unsigned char *entity, unsigned char *attacker, int32_t damage) {
     // Call Original Method
@@ -60,7 +60,7 @@ void _init_attack() {
     if (feature_has("Fix Attacking", server_disabled)) {
         patch_address(MouseBuildInput_tickBuild_vtable_addr, (void *) MouseBuildInput_tickBuild_injection);
 
-        // Fix Holding Right-Click
+        // Fix Holding Attack
         overwrite_call((void *) 0x8fc1c, (void *) Player_attack_Entity_hurt_injection);
         overwrite_call((void *) 0x8fc24, (void *) Player_attack_Inventory_getSelected_injection);
     }
