@@ -24,6 +24,9 @@ static void show_report(const char *log_filename) {
     if (pid == 0) {
         // Child
         setsid();
+        ALLOC_CHECK(freopen("/dev/null", "w", stdout));
+        ALLOC_CHECK(freopen("/dev/null", "w", stderr));
+        ALLOC_CHECK(freopen("/dev/null", "r", stdin));
         const char *command[] = {
             "zenity",
             "--title", DIALOG_TITLE,
@@ -37,7 +40,6 @@ static void show_report(const char *log_filename) {
             "--font", "Monospace",
             NULL
         };
-        reborn_debug_tag = CHILD_PROCESS_TAG;
         safe_execvpe(command, (const char *const *) environ);
     }
 }
@@ -53,6 +55,21 @@ static void exit_handler(__attribute__((unused)) int signal) {
 #define PIPE_READ 0
 #define PIPE_WRITE 1
 #define MCPI_LOGS_DIR "/tmp/.minecraft-pi-logs"
+static char log_filename[] = MCPI_LOGS_DIR "/XXXXXX";
+static int log_file_fd = -1;
+void setup_log_file() {
+    // Create Temporary File
+    log_file_fd = mkstemp(log_filename);
+    if (log_file_fd == -1) {
+        ERR("Unable To Create Log File: %s", strerror(errno));
+    }
+
+    // Setup Environment
+    char *log_file_fd_env = NULL;
+    safe_asprintf(&log_file_fd_env, "%i", log_file_fd);
+    set_and_print_env("MCPI_LOG_FILE_FD", log_file_fd_env);
+    free(log_file_fd_env);
+}
 void setup_crash_report() {
     // Store Output
     int output_pipe[2];
@@ -126,13 +143,6 @@ void setup_crash_report() {
             }
         }
 
-        // Create Temporary File
-        char log_filename[] = MCPI_LOGS_DIR "/XXXXXX";
-        int log_file_fd = mkstemp(log_filename);
-        if (log_file_fd == -1) {
-            ERR("Unable To Create Log File: %s", strerror(errno));
-        }
-
         // Setup Polling
         int number_fds = 3;
         struct pollfd poll_fds[number_fds];
@@ -144,8 +154,8 @@ void setup_crash_report() {
         }
 
         // Poll Data
-        int number_open_fds = number_fds;
-        while (number_open_fds > 0) {
+        int status;
+        while (waitpid(ret, &status, WNOHANG) != ret) {
             int poll_ret = poll(poll_fds, number_fds, -1);
             if (poll_ret == -1) {
                 if (errno == EINTR) {
@@ -183,7 +193,7 @@ void setup_crash_report() {
 
                             // Print To Terminal
                             buf[bytes_read] = '\0';
-                            fprintf(i == 0 ? stdout : stderr, "%s", buf);
+                            fprintf(poll_fds[i].fd == output_pipe[PIPE_READ] ? stdout : stderr, "%s", buf);
 
                             // Write To log
                             if (write(log_file_fd, (void *) buf, bytes_read) == -1) {
@@ -192,23 +202,19 @@ void setup_crash_report() {
                         }
                     } else {
                         // File Descriptor No Longer Accessible
-                        if (poll_fds[i].events != 0 && close(poll_fds[i].fd) == -1) {
-                            ERR("Unable To Close File Descriptor: %s", strerror(errno));
-                        }
                         poll_fds[i].events = 0;
-                        number_open_fds--;
                     }
                 }
             }
         }
 
-        // Close Input Pipe
-        close(input_pipe[PIPE_WRITE]);
-
-        // Get Return Code
-        int status;
-        waitpid(ret, &status, 0);
+        // Untrack Process
         untrack_child(ret);
+
+        // Close Pipes
+        close(output_pipe[PIPE_READ]);
+        close(error_pipe[PIPE_READ]);
+        close(input_pipe[PIPE_WRITE]);
 
         // Check If Is Crash
         int is_crash = !is_exit_status_success(status);

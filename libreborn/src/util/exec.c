@@ -87,6 +87,15 @@ char *run_command(const char *const command[], int *exit_status) {
         close(output_pipe[0]);
         close(output_pipe[1]);
 
+        // Setup stderr
+        if (getenv("MCPI_DEBUG") == NULL) {
+            const char *log_file_fd_env = getenv("MCPI_LOG_FILE_FD");
+            if (log_file_fd_env == NULL) {
+                IMPOSSIBLE();
+            }
+            dup2(atoi(log_file_fd_env), STDERR_FILENO);
+        }
+
         // Setup Environment
         setup_exec_environment(0);
 

@@ -5,6 +5,9 @@
 ### ``--version`` (Or ``-v``)
 If you run MCPI-Reborn with ``--version`` it will print its version to ``stdout``.
 
+### ``--debug``
+This sets ``MCPI_DEBUG``.
+
 ### Client Mode Only
 
 #### ``--print-available-feature-flags``
