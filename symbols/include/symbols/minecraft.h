@@ -391,6 +391,9 @@ static uint32_t AuxDataTileItem_icon_tile_property_offset = 0x28; // Tile *
 
 // Entity
 
+typedef bool (*Entity_hurt_t)(unsigned char *entity, unsigned char *attacker, int32_t damage);
+static uint32_t Entity_hurt_vtable_offset = 0xa4;
+
 static uint32_t Entity_x_property_offset = 0x4; // float
 static uint32_t Entity_y_property_offset = 0x8; // float
 static uint32_t Entity_z_property_offset = 0xc; // float
@@ -758,6 +761,9 @@ static uint32_t ServerSideNetworkHandler_minecraft_property_offset = 0x8; // Min
 
 typedef void (*Inventory_selectSlot_t)(unsigned char *inventory, int32_t slot);
 static Inventory_selectSlot_t Inventory_selectSlot = (Inventory_selectSlot_t) 0x8d13c;
+
+typedef ItemInstance *(*Inventory_getSelected_t)(unsigned char *inventory);
+static Inventory_getSelected_t Inventory_getSelected = (Inventory_getSelected_t) 0x8d134;
 
 static uint32_t Inventory_selectedSlot_property_offset = 0x28; // int32_t
 
