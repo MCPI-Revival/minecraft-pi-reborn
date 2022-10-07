@@ -1,6 +1,6 @@
 # In-Game Controls
 
-### Keyboard & Mouse
+## Keyboard & Mouse
 | Action | Function |
 | --- | --- |
 | W | Move Forward |
@@ -25,7 +25,7 @@
 | Left-CLick | Attack/Destroy |
 | Right-Click | Use Item/Place Block |
 
-### Game Controller
+## Game Controller
 | Action | Function |
 | --- | --- |
 | A | Jump |
