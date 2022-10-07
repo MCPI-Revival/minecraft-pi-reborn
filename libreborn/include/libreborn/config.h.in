@@ -9,4 +9,5 @@
 #cmakedefine MCPI_APP_TITLE "@MCPI_APP_TITLE@"
 #cmakedefine MCPI_APP_ID "@MCPI_APP_ID@"
 #cmakedefine MCPI_VERSION "@MCPI_VERSION@"
+#cmakedefine MCPI_VARIANT_NAME "@MCPI_VARIANT_NAME@"
 #cmakedefine MCPI_SDK_DIR "@MCPI_SDK_DIR@"

@@ -38,6 +38,8 @@ static void show_report(const char *log_filename) {
             "--filename", log_filename,
             "--no-wrap",
             "--font", "Monospace",
+            "--save-filename", MCPI_VARIANT_NAME "-crash-report.log",
+            "--ok-label", "Exit",
             NULL
         };
         safe_execvpe(command, (const char *const *) environ);
@@ -58,6 +60,19 @@ static void exit_handler(__attribute__((unused)) int signal) {
 static char log_filename[] = MCPI_LOGS_DIR "/XXXXXX";
 static int log_file_fd = -1;
 void setup_log_file() {
+    // Ensure Temporary Directory
+    {
+        // Check If It Exists
+        struct stat tmp_stat;
+        int exists = stat(MCPI_LOGS_DIR, &tmp_stat) != 0 ? 0 : S_ISDIR(tmp_stat.st_mode);
+        if (!exists) {
+            // Doesn't Exist
+            if (mkdir(MCPI_LOGS_DIR, S_IRUSR | S_IWUSR | S_IXUSR) != 0) {
+                ERR("Unable To Create Temporary Folder: %s", strerror(errno));
+            }
+        }
+    }
+
     // Create Temporary File
     log_file_fd = mkstemp(log_filename);
     if (log_file_fd == -1) {
@@ -129,19 +144,6 @@ void setup_crash_report() {
         // Setup Logging
 #define BUFFER_SIZE 1024
         char buf[BUFFER_SIZE];
-
-        // Ensure Temporary Directory
-        {
-            // Check If It Exists
-            struct stat tmp_stat;
-            int exists = stat(MCPI_LOGS_DIR, &tmp_stat) != 0 ? 0 : S_ISDIR(tmp_stat.st_mode);
-            if (!exists) {
-                // Doesn't Exist
-                if (mkdir(MCPI_LOGS_DIR, S_IRUSR | S_IWUSR | S_IXUSR) != 0) {
-                    ERR("Unable To Create Temporary Folder: %s", strerror(errno));
-                }
-            }
-        }
 
         // Setup Polling
         int number_fds = 3;
