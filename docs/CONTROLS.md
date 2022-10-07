@@ -39,7 +39,7 @@
 | Left Trigger | Use Item/Place Block |
 | Right Trigger | Attack/Destroy |
 | Start/Back | Pause |
-| Left Stick | Camera Control |
-| Right Stick | Movement |
+| Left Stick | Movement |
+| Right Stick | Camera Control |
 
 [^1]: Unlike Minecraft: Bedrock Edition, this *is not* a toggle.
