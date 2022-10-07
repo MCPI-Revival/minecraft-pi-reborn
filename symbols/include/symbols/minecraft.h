@@ -854,6 +854,13 @@ static uint32_t HumanoidModel_is_sneaking_property_offset = 0x236; // bool
 
 static void *PlayerRenderer_render_vtable_addr = (void *) 0x107f08;
 
+// WorkbenchScreen
+
+#define WORKBENCH_SCREEN_SIZE 0x180
+
+typedef unsigned char *(*WorkbenchScreen_t)(unsigned char *screen, int32_t param_1);
+static WorkbenchScreen_t WorkbenchScreen = (WorkbenchScreen_t) 0x301cc;
+
 // Method That Require C++ Types
 #ifdef __cplusplus
 

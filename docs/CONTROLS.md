@@ -29,10 +29,11 @@
 | Action | Function |
 | --- | --- |
 | A | Jump |
-| D-Pad Down | Drop Item |
 | Y | Open Inventory |
-| D-Pad Up | Change Perspective |
 | B | Sneak[^1] |
+| X | Open Crafting |
+| D-Pad Up | Change Perspective |
+| D-Pad Down | Drop Item |
 | D-Pad Right | Open Chat |
 | Left/Right Bumper | Cycle Selected Item In Toolbar |
 | Left Trigger | Attack/Destroy |

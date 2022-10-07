@@ -12,6 +12,7 @@ void input_hide_gui();
 void input_third_person();
 int input_back();
 void input_drop(int drop_slot);
+void input_open_crafting();
 
 void input_set_is_left_click(int val);
 

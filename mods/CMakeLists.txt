@@ -62,7 +62,7 @@ else()
         target_link_libraries(camera screenshot)
     endif()
 
-    add_library(input SHARED src/input/input.cpp src/input/bow.c src/input/attack.c src/input/toggle.c src/input/misc.c src/input/drop.cpp)
+    add_library(input SHARED src/input/input.cpp src/input/bow.c src/input/attack.c src/input/toggle.c src/input/misc.c src/input/drop.cpp src/input/crafting.cpp)
     target_link_libraries(input mods-headers reborn-patch symbols creative feature misc media-layer-core)
 
     add_library(sign SHARED src/sign/sign.cpp)

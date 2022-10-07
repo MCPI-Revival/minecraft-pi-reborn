@@ -60,6 +60,7 @@ static void character_event(char c) {
 }
 
 // Convert GLFW Key To SDL Key
+#define IMAGINARY_GLFW_CRAFTING_KEY GLFW_KEY_LAST
 static SDLKey glfw_key_to_sdl_key(int key) {
     switch (key) {
         // Movement
@@ -136,6 +137,9 @@ static SDLKey glfw_key_to_sdl_key(int key) {
         // Chat
         case GLFW_KEY_T:
             return SDLK_t;
+        // Crafting
+        case IMAGINARY_GLFW_CRAFTING_KEY:
+            return SDLK_WORLD_0;
         // Unknown
         default:
             return SDLK_UNKNOWN;
@@ -293,6 +297,9 @@ static SDLKey glfw_controller_button_to_key(int button) {
         case GLFW_GAMEPAD_BUTTON_START:
         case GLFW_GAMEPAD_BUTTON_BACK:
             return GLFW_KEY_ESCAPE;
+        // Crafting
+        case GLFW_GAMEPAD_BUTTON_X:
+            return IMAGINARY_GLFW_CRAFTING_KEY;
         // Unknown
         default:
             return GLFW_KEY_UNKNOWN;

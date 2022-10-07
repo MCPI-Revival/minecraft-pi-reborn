@@ -84,6 +84,10 @@ HOOK(SDL_PollEvent, int, (SDL_Event *event)) {
                     // Drop Item
                     input_drop((event->key.keysym.mod & KMOD_CTRL) != 0);
                     handled = 1;
+                } else if (event->key.keysym.sym == SDLK_WORLD_0) {
+                    // Crafting
+                    input_open_crafting();
+                    handled = 1;
                 }
                 break;
             }
