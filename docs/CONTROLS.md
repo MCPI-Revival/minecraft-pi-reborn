@@ -36,8 +36,8 @@
 | D-Pad Down | Drop Item |
 | D-Pad Right | Open Chat |
 | Left/Right Bumper | Cycle Selected Item In Toolbar |
-| Left Trigger | Attack/Destroy |
-| Right Trigger | Use Item/Place Block |
+| Left Trigger | Use Item/Place Block |
+| Right Trigger | Attack/Destroy |
 | Start/Back | Pause |
 | Left Stick | Camera Control |
 | Right Stick | Movement |
