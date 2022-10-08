@@ -1,5 +1,11 @@
 # Changelog
 
+**2.4.6**
+* [Minimal Controller Support](CONTROLS.md)
+* Fix Holding Left-Click When Attacking
+* Fix Crashing On ARMHF
+* Heavily Improved Crash Report Dialog
+
 **2.4.5**
 * Bundle QEMU
 
