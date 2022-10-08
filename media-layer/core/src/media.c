@@ -679,6 +679,12 @@ void _media_handle_SDL_PollEvent() {
     // Process GLFW Events
     glfwPollEvents();
 
+    // Fix Joystick Detection While Running (Remove When glfw/glfw#2198 Is Merged)
+    extern void _glfwDetectJoystickConnectionLinux(void);
+    if (glfwGetPlatform() == GLFW_PLATFORM_WAYLAND) {
+        _glfwDetectJoystickConnectionLinux();
+    }
+
     // Controller
     update_controller_state();
 
