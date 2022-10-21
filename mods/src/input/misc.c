@@ -22,6 +22,12 @@ int input_back() {
 
 // Handle Back Button Presses
 static void _handle_back(unsigned char *minecraft) {
+    // If Minecraft's Level property is initialized, but Minecraft's Player property is NULL, then Minecraft::handleBack may crash.
+    if ((*(unsigned char **) (minecraft + Minecraft_level_property_offset)) != NULL && (*(unsigned char **) (minecraft + Minecraft_player_property_offset)) == NULL) {
+        // Unable to safely run Minecraft::handleBack, deferring until safe.
+        return;
+    }
+    // Send Event
     unsigned char *minecraft_vtable = *(unsigned char **) minecraft;
     Minecraft_handleBack_t Minecraft_handleBack = *(Minecraft_handleBack_t *) (minecraft_vtable + Minecraft_handleBack_vtable_offset);
     for (int i = 0; i < back_button_presses; i++) {
