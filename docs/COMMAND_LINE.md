@@ -59,3 +59,7 @@ This is the render distance. The possible values are: ``Far``, ``Normal``, ``Sho
 
 #### ``MCPI_USERNAME``
 This is the username.
+
+### GALLIUM_HUD
+Options are ``simple``, ``fps``, and ``cpu``.
+To have multiple in use at once just separate them with a comma: ``export GALLIUM_HUD=simple,fps``.
