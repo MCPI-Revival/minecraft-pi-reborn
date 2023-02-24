@@ -265,6 +265,7 @@ static int32_t FurnaceScreen_handleAddItem_injection(unsigned char *furnace_scre
 //
 // The default behavior for Touch GUI is to only render the cursor when the mouse is clicking, this fixes that.
 // This also makes the cursor always render if the mouse is unlocked, instead of just when there is a Screen showing.
+#ifndef MCPI_HEADLESS_MODE
 static void GameRenderer_render_injection(unsigned char *game_renderer, float param_1) {
     // Call Original Method
     (*GameRenderer_render)(game_renderer, param_1);
@@ -281,6 +282,7 @@ static void GameRenderer_render_injection(unsigned char *game_renderer, float pa
         (*renderCursor)(x, y, minecraft);
     }
 }
+#endif
 
 // Get Real Selected Slot
 int32_t misc_get_real_selected_slot(unsigned char *player) {
@@ -388,6 +390,10 @@ void init_misc() {
         overwrite_calls((void *) FurnaceScreen_handleAddItem, (void *) FurnaceScreen_handleAddItem_injection);
     }
 
+#ifdef MCPI_HEADLESS_MODE
+    // Don't Render Game In Headless Mode
+    overwrite_calls((void *) GameRenderer_render, (void *) nop);
+#else
     // Improved Cursor Rendering
     if (feature_has("Improved Cursor Rendering", server_disabled)) {
         // Disable Normal Cursor Rendering
@@ -396,6 +402,7 @@ void init_misc() {
         // Add Custom Cursor Rendering
         overwrite_calls((void *) GameRenderer_render, (void *) GameRenderer_render_injection);
     }
+#endif
 
     // Disable V-Sync
     if (feature_has("Disable V-Sync", server_enabled)) {
