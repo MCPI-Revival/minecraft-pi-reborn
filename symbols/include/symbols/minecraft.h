@@ -74,6 +74,8 @@ static unsigned char *Options_Option_ANAGLYPH = (unsigned char *) 0x136c08; // O
 
 static bool *Minecraft_useAmbientOcclusion = (bool *) 0x136b90;
 
+static bool *HeavyTile_instaFall = (bool *) 0x180cc0;
+
 // Structures
 
 struct AABB {
@@ -882,6 +884,23 @@ static WorkbenchScreen_t WorkbenchScreen = (WorkbenchScreen_t) 0x301cc;
 
 static uint32_t Biome_color_property_offset = 0x2c; // int32_t
 static uint32_t Biome_leaf_color_property_offset = 0x34; // int32_t
+
+// LargeFeature
+
+typedef void (*LargeFeature_apply_t)(unsigned char *large_feature, unsigned char *chunk_source, unsigned char *level, int32_t chunk_x, int32_t chunk_y, unsigned char *chunk_data, int32_t unused);
+static uint32_t LargeFeature_apply_vtable_offset = 0x8;
+
+// RandomLevelSource
+
+typedef void (*RandomLevelSource_postProcess_t)(unsigned char *random_level_source, unsigned char *chunk_source, int32_t chunk_x, int32_t chunk_y);
+static RandomLevelSource_postProcess_t RandomLevelSource_postProcess = (RandomLevelSource_postProcess_t) 0xb2238;
+static void *RandomLevelSource_postProcess_vtable_addr = (void *) 0x1105ac;
+
+typedef void (*RandomLevelSource_buildSurface_t)(unsigned char *random_level_source, int32_t chunk_x, int32_t chunk_y, unsigned char *chunk_data, unsigned char **biomes);
+static RandomLevelSource_buildSurface_t RandomLevelSource_buildSurface = (RandomLevelSource_buildSurface_t) 0xb32ec;
+
+static uint32_t RandomLevelSource_cave_feature_property_offset = 0x8; // LargeCaveFeature
+static uint32_t RandomLevelSource_level_property_offset = 0x72c8; // Level *
 
 // Method That Require C++ Types
 #ifdef __cplusplus

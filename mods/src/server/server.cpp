@@ -60,7 +60,8 @@ static ServerProperties &get_server_properties() {
 #define DEFAULT_WORLD_NAME "world"
 #define DEFAULT_MAX_PLAYERS "4"
 #define DEFAULT_WHITELIST "false"
-#define DEFAULT_DEATH_MESSAGES "false"
+#define DEFAULT_DEATH_MESSAGES "true"
+#define DEFAULT_GENERATE_CAVES "true"
 
 // Get World Name
 static std::string get_world_name() {
@@ -487,6 +488,9 @@ static const char *get_features() {
         if (get_server_properties().get_bool("death-messages", DEFAULT_DEATH_MESSAGES)) {
             features += "Implement Death Messages|";
         }
+        if (get_server_properties().get_bool("generate-caves", DEFAULT_GENERATE_CAVES)) {
+            features += "Generate Caves|";
+        }
     }
     return features.c_str();
 }
@@ -536,6 +540,8 @@ static void server_init() {
         properties_file_output << "whitelist=" DEFAULT_WHITELIST "\n";
         properties_file_output << "# Enable Death Messages\n";
         properties_file_output << "death-messages=" DEFAULT_DEATH_MESSAGES "\n";
+        properties_file_output << "# Generate Caves\n";
+        properties_file_output << "generate-caves=" DEFAULT_GENERATE_CAVES "\n";
         properties_file_output.close();
         // Re-Open File
         properties_file = std::ifstream(file);

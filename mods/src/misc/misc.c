@@ -373,6 +373,23 @@ static int32_t TallGrass_getColor_injection(unsigned char *tile, unsigned char *
     }
 }
 
+// Generate Caves
+static void RandomLevelSource_buildSurface_injection(unsigned char *random_level_source, int32_t chunk_x, int32_t chunk_y, unsigned char *chunk_data, unsigned char **biomes) {
+    // Call Original Method
+    (*RandomLevelSource_buildSurface)(random_level_source, chunk_x, chunk_y, chunk_data, biomes);
+
+    // Get Level
+    unsigned char *level = *(unsigned char **) (random_level_source + RandomLevelSource_level_property_offset);
+
+    // Get Cave Feature
+    unsigned char *cave_feature = random_level_source + RandomLevelSource_cave_feature_property_offset;
+    unsigned char *cave_feature_vtable = *(unsigned char **) cave_feature;
+
+    // Generate
+    LargeFeature_apply_t LargeCaveFeature_apply = *(LargeFeature_apply_t *) (cave_feature_vtable + LargeFeature_apply_vtable_offset);
+    (*LargeCaveFeature_apply)(cave_feature, random_level_source, level, chunk_x, chunk_y, chunk_data, 0);
+}
+
 // Init
 static void nop() {
 }
@@ -482,6 +499,11 @@ void init_misc() {
     if (feature_has("Add Biome Colors To Grass", server_disabled)) {
         patch_address((void *) GrassTile_getColor_vtable_addr, (void *) GrassTile_getColor_injection);
         patch_address((void *) TallGrass_getColor_vtable_addr, (void *) TallGrass_getColor_injection);
+    }
+
+    // Generate Caves
+    if (feature_has("Generate Caves", server_auto)) {
+        overwrite_calls((void *) RandomLevelSource_buildSurface, (void *) RandomLevelSource_buildSurface_injection);
     }
 
     // Init C++ And Logging
