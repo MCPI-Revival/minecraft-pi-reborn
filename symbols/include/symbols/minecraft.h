@@ -127,8 +127,20 @@ static uint32_t Tile_setSoundType_vtable_offset = 0xe8;
 typedef int32_t (*Tile_use_t)(unsigned char *tile, unsigned char *level, int32_t x, int32_t y, int32_t z, unsigned char *player);
 static uint32_t Tile_use_vtable_offset = 0x98;
 
+typedef int32_t (*Tile_getColor_t)(unsigned char *tile, unsigned char *level_source, int32_t x, int32_t y, int32_t z);
+static uint32_t Tile_getColor_vtable_offset = 0xb8;
+
 static uint32_t Tile_id_property_offset = 0x8; // int32_t
 static uint32_t Tile_category_property_offset = 0x3c; // int32_t
+
+// GrassTile
+
+static void *GrassTile_getColor_vtable_addr = (void *) 0x111660;
+
+// TallGrass
+
+static Tile_getColor_t TallGrass_getColor = (Tile_getColor_t) 0xc25fc;
+static void *TallGrass_getColor_vtable_addr = (void *) 0x1121f0;
 
 // TileRenderer
 
@@ -506,6 +518,11 @@ static Level_clip_t Level_clip = (Level_clip_t) 0xa3db0;
 
 static uint32_t Level_players_property_offset = 0x60; // std::vector<ServerPlayer *>
 
+// LevelSource
+
+typedef unsigned char *(*LevelSource_getBiome_t)(unsigned char *level_source, int32_t x, int32_t z);
+static uint32_t LevelSource_getBiome_vtable_offset = 0x24;
+
 // Material
 
 typedef bool (*Material_isSolid_t)(unsigned char *material);
@@ -860,6 +877,11 @@ static void *PlayerRenderer_render_vtable_addr = (void *) 0x107f08;
 
 typedef unsigned char *(*WorkbenchScreen_t)(unsigned char *screen, int32_t param_1);
 static WorkbenchScreen_t WorkbenchScreen = (WorkbenchScreen_t) 0x301cc;
+
+// Biome
+
+static uint32_t Biome_color_property_offset = 0x2c; // int32_t
+static uint32_t Biome_leaf_color_property_offset = 0x34; // int32_t
 
 // Method That Require C++ Types
 #ifdef __cplusplus
