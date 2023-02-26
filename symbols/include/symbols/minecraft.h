@@ -501,13 +501,6 @@ static void *SurvivalMode = (void *) 0x1b7d8;
 typedef uint32_t (*LevelData_getSpawnMobs_t)(unsigned char *level_data);
 static LevelData_getSpawnMobs_t LevelData_getSpawnMobs = (LevelData_getSpawnMobs_t) 0xbabec;
 
-// LevelSource
-
-typedef unsigned char *(*LevelSource_getBiome_t)(unsigned char *level_source, int32_t x, int32_t z);
-static uint32_t LevelSource_getBiome_vtable_offset = 0x24;
-
-typedef float (*LevelSource_getBrightness_t)(unsigned char *level_source, int32_t x, int32_t y, int32_t z);
-
 // Level
 
 typedef void (*Level_saveLevelData_t)(unsigned char *level);
@@ -525,13 +518,12 @@ static Level_getMaterial_t Level_getMaterial = (Level_getMaterial_t) 0xa27f8;
 typedef HitResult (*Level_clip_t)(unsigned char *level, unsigned char *param_1, unsigned char *param_2, bool clip_liquids, bool param_3);
 static Level_clip_t Level_clip = (Level_clip_t) 0xa3db0;
 
-static LevelSource_getBrightness_t Level_getBrightness = (LevelSource_getBrightness_t) 0xa3b84;
-
 static uint32_t Level_players_property_offset = 0x60; // std::vector<ServerPlayer *>
 
-// Region
+// LevelSource
 
-static LevelSource_getBrightness_t Region_getBrightness = (LevelSource_getBrightness_t) 0xadaa8;
+typedef unsigned char *(*LevelSource_getBiome_t)(unsigned char *level_source, int32_t x, int32_t z);
+static uint32_t LevelSource_getBiome_vtable_offset = 0x24;
 
 // Material
 

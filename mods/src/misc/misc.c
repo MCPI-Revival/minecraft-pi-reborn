@@ -390,11 +390,6 @@ static void RandomLevelSource_buildSurface_injection(unsigned char *random_level
     (*LargeCaveFeature_apply)(cave_feature, random_level_source, level, chunk_x, chunk_y, chunk_data, 0);
 }
 
-// Night Vision
-static float LevelSource_getBrightness_injection(__attribute__((unused)) unsigned char *level_source, __attribute__((unused)) int32_t x, __attribute__((unused)) int32_t y, __attribute__((unused)) int32_t z) {
-    return 1.0f;
-}
-
 // Init
 static void nop() {
 }
@@ -509,12 +504,6 @@ void init_misc() {
     // Generate Caves
     if (feature_has("Generate Caves", server_auto)) {
         overwrite_calls((void *) RandomLevelSource_buildSurface, (void *) RandomLevelSource_buildSurface_injection);
-    }
-
-    // Night Vision
-    if (feature_has("Night Vision", server_disabled)) {
-        overwrite((void *) Level_getBrightness, (void *) LevelSource_getBrightness_injection);
-        overwrite((void *) Region_getBrightness, (void *) LevelSource_getBrightness_injection);
     }
 
     // Init C++ And Logging
