@@ -1,5 +1,11 @@
 # Changelog
 
+**2.4.7**
+* Improve Server Performance
+* Add ``Add Biome Colors To Grass`` Feature Flag (Disabled By Default)
+* Add ``Generate Caves`` Feature Flag (Enabled By Default)
+* Allow Mods To Access The Original GLFW Keycode For Key Events
+
 **2.4.6**
 * [Minimal Controller Support](CONTROLS.md)
 * Fix Holding Left-Click When Attacking
