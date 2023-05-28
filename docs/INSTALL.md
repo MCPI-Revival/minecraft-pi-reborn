@@ -22,3 +22,6 @@ Follow [these](https://docs.appimage.org/introduction/quickstart.html#how-to-run
 
 ### Note
 Game data is stored in ``~/.var/app/com.thebrokenrail.MCPIReborn/.minecraft-pi`` instead of ``~/.minecraft-pi``.
+
+## Arch User Repository (Arch Linux Only)
+The [``minecraft-pi-reborn-git``](https://aur.archlinux.org/packages/minecraft-pi-reborn-git) is available in the AUR.
