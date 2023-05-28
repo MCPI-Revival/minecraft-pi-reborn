@@ -103,8 +103,10 @@ HOOK(SDL_PollEvent, int, (SDL_Event *event)) {
             }
             case SDL_USEREVENT: {
                 // SDL_UserEvent Is Never Used In MCPI, So It Is Repurposed For Character Events
-                sign_key_press((char) event->user.code);
-                handled = 1;
+                if (event->user.code == USER_EVENT_CHARACTER) {
+                    sign_key_press((char) event->user.data1);
+                    handled = 1;
+                }
                 break;
             }
         }

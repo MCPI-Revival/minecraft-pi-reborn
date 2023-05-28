@@ -18,6 +18,10 @@
 
 // Generate A BL Instruction
 static uint32_t generate_bl_instruction(void *from, void *to, int use_b_instruction) {
+    if (abs(((int32_t) to) - ((int32_t) from)) > 32000000) {
+        IMPOSSIBLE();
+    }
+
     uint32_t instruction;
     unsigned char *instruction_array = (unsigned char *) &instruction;
 
@@ -140,11 +144,8 @@ void _overwrite_calls(const char *file, int line, void *start, void *target) {
 void *extract_from_bl_instruction(unsigned char *from) {
     unsigned char *pc = ((unsigned char *) from) + 8;
 
-    int32_t target = 0;
-    unsigned char *target_array = (unsigned char *) &target;
-    target_array[0] = from[0];
-    target_array[1] = from[1];
-    target_array[2] = from[2];
+    int32_t target = *(int32_t *) from;
+    target = (target << 8) >> 8;
 
     int32_t offset = target << 2;
 

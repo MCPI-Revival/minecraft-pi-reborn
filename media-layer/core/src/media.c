@@ -55,7 +55,8 @@ static void character_event(char c) {
     // SDL_UserEvent Is Never Used In MCPI, So It Is Repurposed For Character Events
     SDL_Event event;
     event.type = SDL_USEREVENT;
-    event.user.code = (int) c;
+    event.user.code = USER_EVENT_CHARACTER;
+    event.user.data1 = (int) c;
     SDL_PushEvent(&event);
 }
 
@@ -166,15 +167,22 @@ static SDLMod glfw_modifier_to_sdl_modifier(int mods) {
 }
 
 // Pass Key Presses To SDL
-static void glfw_key_raw(int key, __attribute__((unused)) int scancode, int action, int mods) {
-    SDL_Event event;
+static void glfw_key_raw(int key, int scancode, int action, int mods) {
+    SDL_Event event1;
     int up = action == GLFW_RELEASE;
-    event.type = up ? SDL_KEYUP : SDL_KEYDOWN;
-    event.key.state = up ? SDL_RELEASED : SDL_PRESSED;
-    event.key.keysym.scancode = key; // Allow MCPI To Access Original GLFW Keycode
-    event.key.keysym.mod = glfw_modifier_to_sdl_modifier(mods);
-    event.key.keysym.sym = glfw_key_to_sdl_key(key);
-    SDL_PushEvent(&event);
+    event1.type = up ? SDL_KEYUP : SDL_KEYDOWN;
+    event1.key.state = up ? SDL_RELEASED : SDL_PRESSED;
+    event1.key.keysym.scancode = scancode;
+    event1.key.keysym.mod = glfw_modifier_to_sdl_modifier(mods);
+    event1.key.keysym.sym = glfw_key_to_sdl_key(key);
+    SDL_PushEvent(&event1);
+    // Allow MCPI To Access Original GLFW Keycode
+    SDL_Event event2;
+    event2.type = SDL_USEREVENT;
+    event2.user.code = USER_EVENT_REAL_KEY;
+    event2.user.data1 = event1.key.state;
+    event2.user.data2 = key;
+    SDL_PushEvent(&event2);
 }
 static void glfw_key(__attribute__((unused)) GLFWwindow *window, int key, int scancode, int action, int mods) {
     if (is_interactable) {
@@ -678,12 +686,6 @@ void _media_handle_SDL_PollEvent() {
 #ifndef MCPI_HEADLESS_MODE
     // Process GLFW Events
     glfwPollEvents();
-
-    // Fix Joystick Detection While Running (Remove When glfw/glfw#2198 Is Merged)
-    extern void _glfwDetectJoystickConnectionLinux(void);
-    if (glfwGetPlatform() == GLFW_PLATFORM_WAYLAND) {
-        _glfwDetectJoystickConnectionLinux();
-    }
 
     // Controller
     update_controller_state();

@@ -12,14 +12,14 @@
 #include "engine.h"
 
 // Load Symbol From ELF File
-static void load_symbol(const char *source, const char *name, std::function<void(unsigned char *, uint32_t)> callback) {
+static void load_symbol(const char *source, const char *name, std::function<void(const unsigned char *, uint32_t)> callback) {
     static std::unique_ptr<LIEF::ELF::Binary> binary = NULL;
     if (binary == NULL) {
         binary = LIEF::ELF::Parser::parse(source);
     }
     const LIEF::ELF::Symbol *symbol = binary->get_dynamic_symbol(name);
     if (symbol != NULL) {
-        std::vector<uint8_t> data = binary->get_content_from_virtual_address(symbol->value(), symbol->size(), LIEF::Binary::VA_TYPES::VA);
+        LIEF::span<const uint8_t> data = binary->get_content_from_virtual_address(symbol->value(), symbol->size(), LIEF::Binary::VA_TYPES::VA);
         callback(data.data(), data.size());
     } else {
         WARN("Unable To Find Symbol: %s", name);
@@ -45,7 +45,7 @@ static ALuint load_sound(const char *source, const char *name) {
     ALuint buffer = 0;
 
     // Load Symbol
-    load_symbol(source, name, [name, &buffer](unsigned char *symbol, uint32_t size) {
+    load_symbol(source, name, [name, &buffer](const unsigned char *symbol, uint32_t size) {
         // Load Metadata
         if (size < sizeof (audio_metadata)) {
             WARN("Symbol Too Small To Contain Audio Metadata: %s", name);
@@ -77,7 +77,7 @@ static ALuint load_sound(const char *source, const char *name) {
             WARN("Symbol Too Small To Contain Specified Audio Data: %s", name);
             return;
         }
-        unsigned char *data = symbol + sizeof (audio_metadata);
+        const unsigned char *data = symbol + sizeof (audio_metadata);
 
         // Create Buffer
         alGenBuffers(1, &buffer);

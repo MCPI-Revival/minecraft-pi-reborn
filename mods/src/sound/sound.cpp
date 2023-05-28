@@ -59,10 +59,8 @@ std::string _sound_get_source_file() {
 static void play(std::string name, float x, float y, float z, float volume, float pitch, bool is_ui) {
     std::string source = _sound_get_source_file();
     std::string resolved_name = _sound_pick(name);
-    if (pitch < 0.5f) {
-        pitch = 0.5f;
-    } else if (pitch > 2.0f) {
-        pitch = 2.0f;
+    if (pitch < 0.01f) {
+        pitch = 1;
     }
     if (source.size() > 0 && resolved_name.size() > 0) {
         media_audio_play(source.c_str(), resolved_name.c_str(), x, y, z, pitch, volume, is_ui);

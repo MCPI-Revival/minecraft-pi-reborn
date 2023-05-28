@@ -8,6 +8,10 @@ extern "C" {
 #define DEFAULT_WIDTH 840
 #define DEFAULT_HEIGHT 480
 
+// SDL User Events
+#define USER_EVENT_CHARACTER 0 // data1 = 8-Bit Character
+#define USER_EVENT_REAL_KEY 1 // data1 = SDL_RELEASED/PRESSED, data2 = GLFW Key Code
+
 void media_ensure_loaded();
 
 void media_toggle_fullscreen();

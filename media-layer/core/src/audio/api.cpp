@@ -140,11 +140,11 @@ void media_audio_play(const char *source, const char *name, float x, float y, fl
             // Set Attenuation
             alSourcei(al_source, AL_DISTANCE_MODEL, AL_LINEAR_DISTANCE_CLAMPED);
             AL_ERROR_CHECK();
-            alSourcef(al_source, AL_MAX_DISTANCE, 22.0f);
+            alSourcef(al_source, AL_MAX_DISTANCE, 16.0f);
             AL_ERROR_CHECK();
-            alSourcef(al_source, AL_ROLLOFF_FACTOR, 1.0f);
+            alSourcef(al_source, AL_ROLLOFF_FACTOR, 6.0f);
             AL_ERROR_CHECK();
-            alSourcef(al_source, AL_REFERENCE_DISTANCE, 2.0f);
+            alSourcef(al_source, AL_REFERENCE_DISTANCE, 5.0f);
             AL_ERROR_CHECK();
 
             // Set Buffer
