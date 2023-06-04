@@ -1,0 +1,26 @@
+name: 'Build'
+
+on: push
+
+jobs:
+  check-and-test:
+    runs-on: ubuntu-latest
+    container: buildpack-deps:buster
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+      - name: Install CMake
+        run: |
+          echo 'deb http://deb.debian.org/debian buster-backports main' > /etc/apt/sources.list.d/backports.list
+          apt-get update
+          apt-get install --no-install-recommends -y -t buster-backports cmake
+      - name: Install Dependencies
+        run: ./scripts/install-dependencies.sh amd64 armhf arm64
+      - name: Build
+        run: |
+          chmod +x ./scripts/ci/run.sh
+          ./scripts/ci/run.sh
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          path: ./out/**/*.AppImage

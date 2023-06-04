@@ -2,6 +2,13 @@
 
 set -e
 
+# Don't Use Sudo When Running As Root
+if [ "$(id -u)" -eq 0 ]; then
+    sudo() {
+        "$@"
+    }
+fi
+
 # Main Script
 run() {
     # Add ARM Repository
