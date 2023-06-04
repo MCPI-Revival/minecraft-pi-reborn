@@ -39,11 +39,6 @@ run() {
     queue_pkg \
         libwayland-bin
 
-    # Host Dependencies Needed For Running
-    queue_pkg \
-        qemu-user \
-        patchelf
-
     # Architecture-Specific Dependencies
     architecture_specific_pkg() {
         # Compiler
