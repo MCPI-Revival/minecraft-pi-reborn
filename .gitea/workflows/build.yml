@@ -3,7 +3,7 @@ name: 'Build'
 on: push
 
 jobs:
-  check-and-test:
+  build:
     runs-on: ubuntu-latest
     container: node:16-buster
     steps:
