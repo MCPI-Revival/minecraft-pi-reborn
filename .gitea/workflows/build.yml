@@ -5,7 +5,7 @@ on: push
 jobs:
   check-and-test:
     runs-on: ubuntu-latest
-    container: buildpack-deps:buster
+    container: node:16-buster
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v3
