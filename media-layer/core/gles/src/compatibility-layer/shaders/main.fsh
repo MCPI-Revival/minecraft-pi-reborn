@@ -22,10 +22,6 @@ void main(void) {
     if (u_has_texture) {
         gl_FragColor *= texture2D(u_texture_unit, v_texture_pos.xy);
     }
-    // Alpha Test
-    if (u_alpha_test && gl_FragColor.a <= 0.1) {
-        discard;
-    }
     // Fog
     if (u_fog) {
         float fog_factor;
@@ -34,6 +30,11 @@ void main(void) {
         } else {
             fog_factor = exp(-u_fog_start * length(v_fog_eye_position));
         }
-        gl_FragColor = mix(gl_FragColor, u_fog_color, 1.0 - clamp(fog_factor, 0.0, 1.0));
+        fog_factor = clamp(fog_factor, 0.0, 1.0);
+        gl_FragColor.rgb = mix(gl_FragColor, u_fog_color, 1.0 - fog_factor).rgb;
+    }
+    // Alpha Test
+    if (u_alpha_test && gl_FragColor.a <= 0.1) {
+        discard;
     }
 }
