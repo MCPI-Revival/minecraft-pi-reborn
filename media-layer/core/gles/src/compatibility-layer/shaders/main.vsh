@@ -1,5 +1,5 @@
 #version 100
-precision mediump float;
+precision highp float;
 // Matrices
 uniform mat4 u_projection;
 uniform mat4 u_model_view;

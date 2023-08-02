@@ -1,5 +1,5 @@
 #version 100
-precision mediump float;
+precision highp float;
 // Texture
 uniform bool u_has_texture;
 uniform sampler2D u_texture_unit;

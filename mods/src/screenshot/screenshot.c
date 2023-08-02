@@ -144,7 +144,8 @@ void screenshot_take(char *home) {
     int size = height * line_size;
 
     // Read Pixels
-    unsigned char pixels[size];
+    unsigned char *pixels = (unsigned char *) malloc(size);
+    ALLOC_CHECK(pixels);
     glReadPixels(x, y, width, height, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
 
     // Save Image
@@ -157,4 +158,5 @@ void screenshot_take(char *home) {
     // Free
     free(file);
     free(screenshots);
+    free(pixels);
 }
