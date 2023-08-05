@@ -1,6 +1,6 @@
 #include <GLES/gl.h>
 
-#include "passthrough.h"
+#include "../dependencies/gles-compatibility-layer/src/passthrough.h"
 
 GL_FUNC(glFogfv, void, (GLenum pname, const GLfloat *params));
 void glFogfv(GLenum pname, const GLfloat *params) {
