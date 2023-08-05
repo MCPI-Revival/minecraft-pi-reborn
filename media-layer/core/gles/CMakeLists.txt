@@ -1,5 +1,8 @@
 project(media-layer-gles)
 
+# Dependencies
+add_subdirectory(dependencies)
+
 # Build
 if(MCPI_HEADLESS_MODE)
     # Stubs For Headless Mode
@@ -7,9 +10,6 @@ if(MCPI_HEADLESS_MODE)
     target_link_libraries(GLESv1_CM PRIVATE media-layer-headers)
 elseif(MCPI_USE_GLES1_COMPATIBILITY_LAYER)
     # GLESv1_CM Compatibility Layer
-    set(GLES_COMPATIBILITY_LAYER_USE_SDL FALSE CACHE BOOL "" FORCE)
-    set(GLES_COMPATIBILITY_LAYER_DEPENDENCY glfw CACHE STRING "" FORCE)
-    add_subdirectory(dependencies/gles-compatibility-layer)
     add_library(GLESv1_CM INTERFACE)
     target_link_libraries(GLESv1_CM INTERFACE gles-compatibility-layer)
 else()
