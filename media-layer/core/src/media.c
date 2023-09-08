@@ -577,7 +577,7 @@ void SDL_WM_SetCaption(const char *title, __attribute__((unused)) const char *ic
     // Create OpenGL ES Context
     glfwWindowHint(GLFW_CLIENT_API, GLFW_OPENGL_ES_API);
 #ifdef MCPI_USE_GLES1_COMPATIBILITY_LAYER
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 2);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
 #else
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 1);
