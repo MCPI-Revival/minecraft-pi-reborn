@@ -1,5 +1,11 @@
 # Changelog
 
+**2.4.9**
+* Allow Overriding GUI Scale With ``MCPI_GUI_SCALE`` Environmental Variable
+* Add ``Disable Block Tinting`` Feature Flag (Disabled By Default)
+* Add ``Disable Hostile AI In Creative Mode`` Feature Flag (Enabled By Default)
+* Allow Accessing Configuration At Runtime (Useful For Mods That Need To Support Multiple Versions)
+
 **2.4.8**
 * Fix Bug In ``extract_from_bl_instruction``
 * Update LIEF And GLFW

@@ -144,6 +144,18 @@ static void *GrassTile_getColor_vtable_addr = (void *) 0x111660;
 static Tile_getColor_t TallGrass_getColor = (Tile_getColor_t) 0xc25fc;
 static void *TallGrass_getColor_vtable_addr = (void *) 0x1121f0;
 
+// StemTile
+
+static void *StemTile_getColor_vtable_addr = (void *) 0x111088;
+
+// LeafTile
+
+static void *LeafTile_getColor_vtable_addr = (void *) 0x112980;
+
+// LiquidTile
+
+static Tile_getColor_t LiquidTile_getColor = (Tile_getColor_t) 0xc8774;
+
 // TileRenderer
 
 typedef void (*TileRenderer_tesselateBlockInWorld_t)(unsigned char *tile_renderer, unsigned char *tile, int32_t x, int32_t y, int32_t z);
@@ -432,6 +444,11 @@ static uint32_t Mob_die_vtable_offset = 0x130;
 
 static uint32_t Mob_health_property_offset = 0xec; // int32_t
 
+// PathfinderMob
+
+typedef unsigned char *(*PathfinderMob_findAttackTarget_t)(unsigned char *mob);
+static uint32_t PathfinderMob_findAttackTarget_vtable_offset = 0x204;
+
 // Player
 
 typedef int (*Player_isUsingItem_t)(unsigned char *player);
@@ -690,6 +707,7 @@ static FillingContainer_compressLinkedSlotList_t FillingContainer_compressLinked
 
 static uint32_t FillingContainer_linked_slots_property_offset = 0xc; // int32_t[]
 static uint32_t FillingContainer_linked_slots_length_property_offset = 0x14; // int32_t
+static uint32_t FillingContainer_is_creative_property_offset = 0x24; // bool
 
 // RakNet::RakString
 

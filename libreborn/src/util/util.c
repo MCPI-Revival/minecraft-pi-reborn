@@ -2,6 +2,7 @@
 #include <sys/file.h>
 
 #include <libreborn/util.h>
+#include <libreborn/config.h>
 
 // Safe Version Of pipe()
 void safe_pipe2(int pipefd[2], int flags) {
@@ -42,4 +43,23 @@ void unlock_file(const char *file, int fd) {
         ERR("Unable To Unlock File: %s: %s", file, strerror(errno));
     }
     close(fd);
+}
+
+// Access Configuration At Runtime
+const char *reborn_get_version() {
+    return MCPI_VERSION;
+}
+int reborn_is_headless() {
+#ifdef MCPI_HEADLESS_MODE
+    return 1;
+#else
+    return 0;
+#endif
+}
+int reborn_is_server() {
+#ifdef MCPI_SERVER_MODE
+    return 1;
+#else
+    return 0;
+#endif
 }

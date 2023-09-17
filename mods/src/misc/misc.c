@@ -390,6 +390,31 @@ static void RandomLevelSource_buildSurface_injection(unsigned char *random_level
     (*LargeCaveFeature_apply)(cave_feature, random_level_source, level, chunk_x, chunk_y, chunk_data, 0);
 }
 
+// No Block Tinting
+static int32_t Tile_getColor_injection() {
+    return 0xffffff;
+}
+
+// Disable Hostile AI In Creative Mode
+static unsigned char *PathfinderMob_findAttackTarget_injection(unsigned char *mob) {
+    // Call Original Method
+    unsigned char *mob_vtable = *(unsigned char **) mob;
+    PathfinderMob_findAttackTarget_t PathfinderMob_findAttackTarget = *(PathfinderMob_findAttackTarget_t *) (mob_vtable + PathfinderMob_findAttackTarget_vtable_offset);
+    unsigned char *target = (*PathfinderMob_findAttackTarget)(mob);
+
+    // Check If Creative Mode
+    if (target != NULL) {
+        unsigned char *inventory = *(unsigned char **) (target + Player_inventory_property_offset);
+        bool is_creative = *(bool *) (inventory + FillingContainer_is_creative_property_offset);
+        if (is_creative) {
+            target = NULL;
+        }
+    }
+
+    // Return
+    return target;
+}
+
 // Init
 static void nop() {
 }
@@ -504,6 +529,32 @@ void init_misc() {
     // Generate Caves
     if (feature_has("Generate Caves", server_auto)) {
         overwrite_calls((void *) RandomLevelSource_buildSurface, (void *) RandomLevelSource_buildSurface_injection);
+    }
+
+    // Disable Block Tinting
+    if (feature_has("Disable Block Tinting", server_disabled)) {
+        patch_address((void *) GrassTile_getColor_vtable_addr, (void *) Tile_getColor_injection);
+        patch_address((void *) TallGrass_getColor_vtable_addr, (void *) Tile_getColor_injection);
+        patch_address((void *) StemTile_getColor_vtable_addr, (void *) Tile_getColor_injection);
+        patch_address((void *) LeafTile_getColor_vtable_addr, (void *) Tile_getColor_injection);
+        overwrite((void *) LiquidTile_getColor, (void *) Tile_getColor_injection);
+    }
+
+    // Custom GUI Scale
+    const char *gui_scale_str = getenv("MCPI_GUI_SCALE");
+    if (gui_scale_str != NULL) {
+        unsigned char nop_patch[4] = {0x00, 0xf0, 0x20, 0xe3}; // "nop"
+        patch((void *) 0x173e8, nop_patch);
+        patch((void *) 0x173f0, nop_patch);
+        float gui_scale = strtof(gui_scale_str, NULL);
+        uint32_t gui_scale_raw;
+        memcpy(&gui_scale_raw, &gui_scale, sizeof (gui_scale_raw));
+        patch_address((void *) 0x17520, (void *) gui_scale_raw);
+    }
+
+    // Disable Hostile AI In Creative Mode
+    if (feature_has("Disable Hostile AI In Creative Mode", server_enabled)) {
+        overwrite_call((void *) 0x83b8c, (void *) PathfinderMob_findAttackTarget_injection);
     }
 
     // Init C++ And Logging
