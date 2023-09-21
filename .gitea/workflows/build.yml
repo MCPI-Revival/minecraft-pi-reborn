@@ -33,6 +33,7 @@ jobs:
                 path: ./out/*.AppImage*
           - name: Setup Go
             uses: actions/setup-go@v4
+            if: startsWith(github.ref, 'refs/tags/')
             with:
                 go-version: '>=1.20.1'
           - name: Create Release
@@ -41,4 +42,5 @@ jobs:
             with:
                 files: ./out/*.AppImage*        
                 api_key: ${{ secrets.RELEASE_TOKEN }}
-                draft: true
+                title: v${{ github.ref_name }}
+                body: "[View Changelog](https://gitea.thebrokenrail.com/minecraft-pi-reborn/minecraft-pi-reborn/src/branch/master/docs/CHANGELOG.md)"
