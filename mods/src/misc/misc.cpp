@@ -21,8 +21,8 @@ static AppPlatform_readAssetFile_return_value AppPlatform_readAssetFile_injectio
     stream.read(buf, len);
     // Return String
     AppPlatform_readAssetFile_return_value ret;
-    ret.length = str.length();
-    ret.data = strdup(str.c_str());
+    ret.length = len;
+    ret.data = strdup(buf);
     return ret;
 }
 
