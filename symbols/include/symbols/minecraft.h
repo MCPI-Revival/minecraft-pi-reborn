@@ -443,6 +443,7 @@ typedef void (*Mob_die_t)(unsigned char *entity, unsigned char *cause);
 static uint32_t Mob_die_vtable_offset = 0x130;
 
 static uint32_t Mob_health_property_offset = 0xec; // int32_t
+static uint32_t Mob_texture_property_offset = 0xb54; // std::string
 
 // PathfinderMob
 
@@ -1051,8 +1052,11 @@ static OptionsPane_unknown_toggle_creating_function_t OptionsPane_unknown_toggle
 
 // Textures
 
-typedef void (*Textures_loadAndBindTexture_t)(unsigned char *textures, std::string const& name);
+typedef int32_t (*Textures_loadAndBindTexture_t)(unsigned char *textures, std::string const& name);
 static Textures_loadAndBindTexture_t Textures_loadAndBindTexture = (Textures_loadAndBindTexture_t) 0x539cc;
+
+typedef int32_t (*Textures_assignTexture_t)(unsigned char *textures, std::string const& name, unsigned char *data);
+static Textures_assignTexture_t Textures_assignTexture = (Textures_assignTexture_t) 0x5354c;
 
 // Recipes
 

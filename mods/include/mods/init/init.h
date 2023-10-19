@@ -21,6 +21,7 @@ void init_touch();
 void init_textures();
 void init_atlas();
 void init_title_screen();
+void init_skin();
 #endif
 void init_creative();
 void init_game_mode();

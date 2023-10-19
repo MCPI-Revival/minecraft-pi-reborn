@@ -80,6 +80,9 @@ else()
     add_library(title-screen SHARED src/title-screen/title-screen.cpp)
     target_link_libraries(title-screen mods-headers reborn-patch symbols feature compat)
 
+    add_library(skin SHARED src/skin/skin.cpp src/skin/loader.cpp)
+    target_link_libraries(skin mods-headers reborn-patch symbols feature misc textures media-layer-core png12)
+
     add_library(benchmark SHARED src/benchmark/benchmark.cpp)
     target_link_libraries(benchmark mods-headers reborn-patch symbols compat misc media-layer-core)
 endif()
@@ -115,7 +118,7 @@ target_link_libraries(init mods-headers reborn-util compat game-mode misc death 
 if(MCPI_SERVER_MODE)
     target_link_libraries(init server)
 else()
-    target_link_libraries(init multiplayer sound camera input sign touch textures atlas title-screen benchmark)
+    target_link_libraries(init multiplayer sound camera input sign touch textures atlas title-screen skin benchmark)
 endif()
 
 ## Install Mods
@@ -123,7 +126,7 @@ set(MODS_TO_INSTALL init compat readdir feature game-mode misc override death op
 if(MCPI_SERVER_MODE)
     list(APPEND MODS_TO_INSTALL server)
 else()
-    list(APPEND MODS_TO_INSTALL multiplayer sound camera input sign touch textures atlas title-screen benchmark)
+    list(APPEND MODS_TO_INSTALL multiplayer sound camera input sign touch textures atlas title-screen skin benchmark)
 endif()
 if(NOT MCPI_HEADLESS_MODE)
     list(APPEND MODS_TO_INSTALL screenshot)

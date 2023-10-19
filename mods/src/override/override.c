@@ -27,6 +27,12 @@ HOOK(access, int, (const char *pathname, int mode)) {
 
 // Get Override Path For File (If It Exists)
 char *override_get_path(const char *filename) {
+    // Custom Skin
+    if (starts_with(filename, "data/images/$")) {
+        // Fallback Texture
+        filename = "data/images/mob/char.png";
+    }
+
     // Get MCPI Home Path
     char *home_path = home_get();
     // Get Asset Override Path

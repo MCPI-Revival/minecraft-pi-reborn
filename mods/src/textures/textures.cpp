@@ -9,6 +9,7 @@
 
 #include <mods/misc/misc.h>
 #include <mods/feature/feature.h>
+#include <mods/textures/textures.h>
 #include <mods/init/init.h>
 
 // Animated Water
@@ -124,7 +125,7 @@ static void *scale_texture(const unsigned char *src, GLsizei old_width, GLsizei 
 }
 
 // Scale Animated Textures
-static void Textures_tick_glTexSubImage2D_injection(GLenum target, GLint level, GLint xoffset, GLint yoffset, GLsizei width, GLsizei height, GLenum format, GLenum type, const void *pixels) {
+void glTexSubImage2D_with_scaling(GLenum target, GLint level, GLint xoffset, GLint yoffset, GLsizei width, GLsizei height, GLsizei normal_texture_width, GLsizei normal_texture_height, GLenum format, GLenum type, const void *pixels) {
     // Get Current Texture Size
     GLint current_texture;
     glGetIntegerv(GL_TEXTURE_BINDING_2D, &current_texture);
@@ -133,8 +134,8 @@ static void Textures_tick_glTexSubImage2D_injection(GLenum target, GLint level, 
     get_texture_size(current_texture, &texture_width, &texture_height);
 
     // Calculate Factor
-    float width_factor = ((float) texture_width) / 256.0f;
-    float height_factor = ((float) texture_height) / 256.0f;
+    float width_factor = ((float) texture_width) / ((float) normal_texture_width);
+    float height_factor = ((float) texture_height) / ((float) normal_texture_height);
 
     // Only Scale If Needed
     if (width_factor == 1.0f && height_factor == 1.0f) {
@@ -160,6 +161,9 @@ static void Textures_tick_glTexSubImage2D_injection(GLenum target, GLint level, 
         // Free
         free(new_pixels);
     }
+}
+static void Textures_tick_glTexSubImage2D_injection(GLenum target, GLint level, GLint xoffset, GLint yoffset, GLsizei width, GLsizei height, GLenum format, GLenum type, const void *pixels) {
+    glTexSubImage2D_with_scaling(target, level, xoffset, yoffset, width, height, 256, 256, format, type, pixels);
 }
 
 // Init

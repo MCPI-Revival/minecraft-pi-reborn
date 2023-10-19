@@ -11,3 +11,4 @@
 #cmakedefine MCPI_VERSION "@MCPI_VERSION@"
 #cmakedefine MCPI_VARIANT_NAME "@MCPI_VARIANT_NAME@"
 #cmakedefine MCPI_SDK_DIR "@MCPI_SDK_DIR@"
+#cmakedefine MCPI_SKIN_SERVER "@MCPI_SKIN_SERVER@"

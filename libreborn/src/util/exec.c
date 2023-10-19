@@ -107,15 +107,49 @@ char *run_command(const char *const command[], int *exit_status) {
 
         // Read stdout
         close(output_pipe[1]);
-        char *output = NULL;
 #define BUFFER_SIZE 1024
+        size_t size = BUFFER_SIZE;
+        char *output = malloc(size);
         char buf[BUFFER_SIZE];
+        size_t position = 0;
         ssize_t bytes_read = 0;
-        while ((bytes_read = read(output_pipe[0], (void *) buf, BUFFER_SIZE - 1 /* Account For NULL-Terminator */)) > 0) {
-            buf[bytes_read] = '\0';
-            string_append(&output, "%s", buf);
+        while ((bytes_read = read(output_pipe[0], (void *) buf, BUFFER_SIZE)) > 0) {
+            // Grow Output If Needed
+            size_t needed_size = position + bytes_read;
+            if (needed_size > size) {
+                // More Memeory Needed
+                size_t new_size = size;
+                while (new_size < needed_size) {
+                    new_size += BUFFER_SIZE;
+                }
+                char *new_output = realloc(output, new_size);
+                if (new_output == NULL) {
+                    ERR("Unable To Grow Output Buffer");
+                } else {
+                    output = new_output;
+                    size = new_size;
+                }
+            }
+
+            // Copy Data To Output
+            memcpy(output + position, buf, bytes_read);
+            position += bytes_read;
         }
         close(output_pipe[0]);
+
+        // Add NULL-Terminator To Output
+        size_t needed_size = position + 1;
+        if (needed_size > size) {
+            // More Memeory Needed
+            size_t new_size = size + 1;
+            char *new_output = realloc(output, new_size);
+            if (new_output == NULL) {
+                ERR("Unable To Grow Output Buffer (For NULL-Terminator)");
+            } else {
+                output = new_output;
+            }
+        }
+        output[position] = '\0';
 
         // Get Return Code
         int status;
