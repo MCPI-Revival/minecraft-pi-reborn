@@ -45,6 +45,23 @@ static int32_t OptionsScreen_handleBackEvent_injection(unsigned char *screen, bo
     return 1;
 }
 
+// Fix "Sleeping Beaty" Bug
+static int32_t InBedScreen_handleBackEvent_injection(unsigned char *screen, bool do_nothing) {
+    if (!do_nothing) {
+        // Close Screen
+        unsigned char *minecraft = *(unsigned char **) (screen + Screen_minecraft_property_offset);
+        (*Minecraft_setScreen)(minecraft, NULL);
+        // Stop Sleeping
+        unsigned char *player = *(unsigned char **) (minecraft + Minecraft_player_property_offset);
+        if (player != NULL) {
+            unsigned char *player_vtable = *(unsigned char **) player;
+            Player_stopSleepInBed_t Player_stopSleepInBed = *(Player_stopSleepInBed_t *) (player_vtable + Player_stopSleepInBed_vtable_offset);
+            (*Player_stopSleepInBed)(player, 1, 1, 1);
+        }
+    }
+    return 1;
+}
+
 // Set Mouse Grab State
 static int mouse_grab_state = 0;
 void input_set_mouse_grab_state(int state) {
@@ -90,6 +107,8 @@ void _init_misc() {
     if (enable_misc) {
         // Fix OptionsScreen Ignoring The Back Button
         patch_address(OptionsScreen_handleBackEvent_vtable_addr, (void *) OptionsScreen_handleBackEvent_injection);
+        // Fix "Sleeping Beauty" Bug
+        patch_address(InBedScreen_handleBackEvent_vtable_addr, (void *) InBedScreen_handleBackEvent_injection);
         // Disable Opening Inventory Using The Cursor When Cursor Is Hidden
         overwrite_calls((void *) Gui_handleClick, (void *) Gui_handleClick_injection);
     }

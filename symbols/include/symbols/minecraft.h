@@ -460,6 +460,9 @@ static uint32_t Player_drop_vtable_offset = 0x208;
 
 static Mob_getWalkingSpeedModifier_t Player_getWalkingSpeedModifier = (Mob_getWalkingSpeedModifier_t) 0x8ea0c;
 
+typedef void (*Player_stopSleepInBed_t)(unsigned char *player, bool param_1, bool param_2, bool param_3);
+static uint32_t Player_stopSleepInBed_vtable_offset = 0x228;
+
 static uint32_t Player_username_property_offset = 0xbf4; // std::string
 static uint32_t Player_inventory_property_offset = 0xbe0; // Inventory *
 
@@ -589,6 +592,10 @@ typedef int32_t (*FurnaceScreen_handleAddItem_t)(unsigned char *furnace_screen, 
 static FurnaceScreen_handleAddItem_t FurnaceScreen_handleAddItem = (FurnaceScreen_handleAddItem_t) 0x327a0;
 
 static uint32_t FurnaceScreen_tile_entity_property_offset = 0x1d0; // FurnaceTileEntity *
+
+// InBedScreen
+
+static void *InBedScreen_handleBackEvent_vtable_addr = (void *) 0x104614;
 
 // FurnaceTileEntity
 
