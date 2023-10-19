@@ -2,7 +2,7 @@
 #include <symbols/minecraft.h>
 
 #include <mods/init/init.h>
-
+#include <mods/feature/feature.h>
 #include "skin-internal.h"
 
 // Base64 Encode (https://gist.github.com/tomykaira/f0fd86b6c73063283afe550bc5d77594)
@@ -79,16 +79,19 @@ static int32_t Textures_loadAndBindTexture_injection(unsigned char *textures, __
 
 // Init
 void init_skin() {
-    // LocalPlayer
-    overwrite_call((void *) 0x44c28, (void *) Player_username_assign_injection);
-    // RemotePlayer
-    overwrite_call((void *) 0x6ce58, (void *) Player_username_assign_injection_2);
-    // ServerPlayer
-    overwrite_call((void *) 0x7639c, (void *) Player_username_assign_injection_2);
+    // Check Feature Flag
+    if (feature_has("Load Custom Skins", server_disabled)) {
+        // LocalPlayer
+        overwrite_call((void *) 0x44c28, (void *) Player_username_assign_injection);
+        // RemotePlayer
+        overwrite_call((void *) 0x6ce58, (void *) Player_username_assign_injection_2);
+        // ServerPlayer
+        overwrite_call((void *) 0x7639c, (void *) Player_username_assign_injection_2);
 
-    // HUD
-    overwrite_call((void *) 0x4c6d0, (void *) Textures_loadAndBindTexture_injection);
+        // HUD
+        overwrite_call((void *) 0x4c6d0, (void *) Textures_loadAndBindTexture_injection);
 
-    // Loader
-    _init_skin_loader();
+        // Loader
+        _init_skin_loader();
+    }
 }
