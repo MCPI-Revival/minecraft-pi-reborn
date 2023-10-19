@@ -19,5 +19,5 @@
 	url = https://gitlab.com/qemu-project/qemu.git
 	ignore = dirty
 [submodule "media-layer/core/gles/dependencies/gles-compatibility-layer"]
-	path = media-layer/core/gles/dependencies/gles-compatibility-layer
+	path = media-layer/core/gles/dependencies/gles-compatibility-layer/src
 	url = https://gitea.thebrokenrail.com/minecraft-pi-reborn/gles-compatibility-layer.git
