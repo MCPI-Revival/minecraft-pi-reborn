@@ -10,4 +10,5 @@
 * [View Multiplayer](MULTIPLAYER.md)
 * [View Sound](SOUND.md)
 * [View In-Game Controls](CONTROLS.md)
+* [View Custom Skins](CUSTOM_SKINS.md)
 * [View Changelog](CHANGELOG.md)

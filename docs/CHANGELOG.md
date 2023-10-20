@@ -1,5 +1,9 @@
 # Changelog
 
+**2.5.0**
+* [Custom skin support](CUSTOM_SKINS.md)!
+* Add ``Load Custom Skins`` Feature Flag (Enabled By Default)
+
 **2.4.9**
 * Allow Overriding GUI Scale With ``MCPI_GUI_SCALE`` Environmental Variable
 * Add ``Disable Block Tinting`` Feature Flag (Disabled By Default)
