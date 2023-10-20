@@ -14,14 +14,15 @@
 // Read Asset File
 static AppPlatform_readAssetFile_return_value AppPlatform_readAssetFile_injection(__attribute__((unused)) unsigned char *app_platform, std::string const& path) {
     // Read File
-    std::string full_path("data/");
-    full_path.append(path);
-    std::ifstream stream(full_path);
-    std::string str((std::istreambuf_iterator<char>(stream)), std::istreambuf_iterator<char>());
+    std::ifstream stream("data/" + path, std::ios_base::binary | std::ios_base::ate);
+    long len = stream.tellg();
+    char *buf = new char[len];
+    stream.seekg(0, stream.beg);
+    stream.read(buf, len);
     // Return String
     AppPlatform_readAssetFile_return_value ret;
-    ret.length = str.length();
-    ret.data = strdup(str.c_str());
+    ret.length = len;
+    ret.data = strdup(buf);
     return ret;
 }
 
