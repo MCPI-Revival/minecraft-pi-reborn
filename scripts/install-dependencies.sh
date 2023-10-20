@@ -33,7 +33,9 @@ run() {
     queue_pkg \
         git \
         cmake \
-        ninja-build
+        ninja-build \
+        python3 \
+        python3-venv
 
     # Host Dependencies Needed For Compile
     queue_pkg \
