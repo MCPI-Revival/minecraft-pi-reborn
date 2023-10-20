@@ -66,7 +66,7 @@ else()
 endif()
 
 # Skin Server
-set(MCPI_SKIN_SERVER "http://localhost:8000" CACHE STRING "Skin Server")
+set(MCPI_SKIN_SERVER "https://raw.githubusercontent.com/MCPI-Revival/Skins/data" CACHE STRING "Skin Server")
 
 # Specify Installation Paths
 set(MCPI_INSTALL_DIR "lib/${MCPI_VARIANT_NAME}")
