@@ -6,6 +6,8 @@ on:
           - master
         tags:
           - '*'
+        tags-ignore:
+          - flatpak
 
 jobs:
     build:
