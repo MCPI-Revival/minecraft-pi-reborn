@@ -18,7 +18,7 @@ if(BUILD_ARM_COMPONENTS)
         DESTINATION "${MCPI_SDK_INCLUDE_DIR}/media-layer"
         PATTERN "${GLES_HEADERS}" EXCLUDE
     )
-    file(REAL_PATH "${GLES_HEADERS}" GLES_HEADERS)
+    get_filename_component(GLES_HEADERS "${GLES_HEADERS}" REALPATH)
     install(
         DIRECTORY "${GLES_HEADERS}/"
         DESTINATION "${MCPI_SDK_INCLUDE_DIR}/media-layer/GLES"
