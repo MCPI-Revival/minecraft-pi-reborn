@@ -38,7 +38,7 @@ static void load_servers() {
         // Write Defaults
         std::ofstream server_list_file_output(file);
         server_list_file_output << "# External Servers File\n";
-        server_list_file_output << "thebrokenrail.com\n";
+        server_list_file_output << "# Example: thebrokenrail.com\n";
         server_list_file_output.close();
         // Re-Open Stream
         server_list_file = std::ifstream(file);

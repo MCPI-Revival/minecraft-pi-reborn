@@ -1,5 +1,9 @@
 # Changelog
 
+**2.5.1**
+* Allow Overriidng Custom Skin Server Using ``MCPI_SKIN_SERVER`` Environmental Variable
+* Fix Bug With SDK Generation
+
 **2.5.0**
 * [Custom skin support](CUSTOM_SKINS.md)!
 * Add ``Load Custom Skins`` Feature Flag (Enabled By Default)

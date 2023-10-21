@@ -45,7 +45,7 @@ static int32_t OptionsScreen_handleBackEvent_injection(unsigned char *screen, bo
     return 1;
 }
 
-// Fix "Sleeping Beaty" Bug
+// Fix "Sleeping Beauty" Bug
 static int32_t InBedScreen_handleBackEvent_injection(unsigned char *screen, bool do_nothing) {
     if (!do_nothing) {
         // Close Screen

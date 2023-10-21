@@ -11,7 +11,18 @@ target_include_directories(
 # SDK
 if(BUILD_ARM_COMPONENTS)
     install(TARGETS media-layer-headers EXPORT sdk DESTINATION "${MCPI_SDK_LIB_DIR}")
-    install(DIRECTORY "include/" DESTINATION "${MCPI_SDK_INCLUDE_DIR}/media-layer")
+    # Copy Headers
+    set(GLES_HEADERS "include/GLES")
+    install(
+        DIRECTORY "include/"
+        DESTINATION "${MCPI_SDK_INCLUDE_DIR}/media-layer"
+        PATTERN "${GLES_HEADERS}" EXCLUDE
+    )
+    file(REAL_PATH "${GLES_HEADERS}" GLES_HEADERS)
+    install(
+        DIRECTORY "${GLES_HEADERS}/"
+        DESTINATION "${MCPI_SDK_INCLUDE_DIR}/media-layer/GLES"
+    )
 endif()
 
 # Add Extras

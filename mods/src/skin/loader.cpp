@@ -95,6 +95,16 @@ static void load_pending_skins(__attribute__((unused)) unsigned char *minecraft)
     pthread_mutex_unlock(&pending_skins_lock);
 }
 
+// Skin Server
+static std::string get_skin_server() {
+    const char *custom_server = getenv("MCPI_SKIN_SERVER");
+    if (custom_server != NULL) {
+        return custom_server;
+    } else {
+        return MCPI_SKIN_SERVER;
+    }
+}
+
 // Skin Loader
 struct loader_data {
     int32_t texture_id;
@@ -105,7 +115,7 @@ static void *loader_thread(void *user_data) {
     loader_data *data = (loader_data *) user_data;
 
     // Download
-    std::string url = std::string(MCPI_SKIN_SERVER) + '/' + data->name + ".png";
+    std::string url = get_skin_server() + '/' + data->name + ".png";
     int return_code;
     const char *command[] = {"wget", "-O", "-", url.c_str(), NULL};
     char *output = run_command(command, &return_code);
@@ -159,4 +169,6 @@ void _init_skin_loader() {
     overwrite_calls((void *) Textures_assignTexture, (void *) Textures_assignTexture_injection);
     // Pending Skins
     misc_run_on_tick(load_pending_skins);
+    // Log
+    DEBUG("Skin Server: %s", get_skin_server().c_str());
 }
