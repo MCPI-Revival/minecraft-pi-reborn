@@ -108,15 +108,23 @@ project(minecraft-pi-reborn)
 include(cmake/util.cmake)
 
 # Sanity Checks
-set(IS_ARM_TARGETING FALSE)
-if(CMAKE_SYSTEM_PROCESSOR STREQUAL "arm" OR CMAKE_SYSTEM_PROCESSOR STREQUAL "armv7l")
-    set(IS_ARM_TARGETING TRUE)
+string(CONCAT ARM_SANITY_CHECK
+    "set(IS_ARM_TARGETING FALSE)\n"
+    "if(CMAKE_SYSTEM_PROCESSOR STREQUAL \"arm\" OR CMAKE_SYSTEM_PROCESSOR STREQUAL \"armv7l\")\n"
+    "    set(IS_ARM_TARGETING TRUE)\n"
+    "endif()"
+)
+if(BUILD_ARM_COMPONENTS)
+    string(CONCAT ARM_SANITY_CHECK
+        "${ARM_SANITY_CHECK}\n"
+        "if(NOT IS_ARM_TARGETING)\n"
+        "    message(FATAL_ERROR \"ARM-Targeting Compiler Required\")\n"
+        "endif()"
+    )
 endif()
+cmake_language(EVAL CODE "${ARM_SANITY_CHECK}")
 if(BUILD_NATIVE_COMPONENTS AND NOT IS_ARM_TARGETING AND NOT MCPI_IS_MIXED_BUILD)
     message(FATAL_ERROR "Project is configured as a mixed-buld, but MCPI_IS_MIXED_BUILD is disabled.")
-endif()
-if(BUILD_ARM_COMPONENTS AND NOT IS_ARM_TARGETING)
-    message(FATAL_ERROR "ARM-Targeting Compiler Required")
 endif()
 
 # Specify Default Installation Prefix
@@ -213,6 +221,8 @@ if(BUILD_ARM_COMPONENTS)
     file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/sdk.cmake"
         # Compile Flags
         "${COMPILE_FLAGS_SETUP}\n"
+        # Snaity Check
+        "${ARM_SANITY_CHECK}\n"
         # Log
         "message(STATUS \"Using Reborn SDK v${MCPI_VERSION}\")\n"
         # Include Targets
