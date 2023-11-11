@@ -370,23 +370,6 @@ void bootstrap(int argc, char *argv[]) {
             set_and_print_env("MCPI_ARM_LD_LIBRARY_PATH", mcpi_ld_path);
             free(mcpi_ld_path);
         }
-
-        // Setup iconv
-        {
-            // Native Components
-            char *host_gconv_path = getenv("GCONV_PATH");
-            set_and_print_env("MCPI_NATIVE_GCONV_PATH", host_gconv_path);
-
-            // ARM Components
-#ifdef MCPI_USE_PREBUILT_ARMHF_TOOLCHAIN
-            char *gconv_path = NULL;
-            safe_asprintf(&gconv_path, "%s/sysroot/usr/lib/gconv", binary_directory);
-            set_and_print_env("MCPI_ARM_GCONV_PATH", gconv_path);
-            free(gconv_path);
-#else
-            set_and_print_env("MCPI_ARM_GCONV_PATH", host_gconv_path);
-#endif
-        }
     }
 
     // Configure Preloaded Objects

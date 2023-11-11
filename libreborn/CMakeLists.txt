@@ -5,7 +5,7 @@ file(MAKE_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/include/libreborn")
 configure_file(include/libreborn/config.h.in "${CMAKE_CURRENT_BINARY_DIR}/include/libreborn/config.h" ESCAPE_QUOTES @ONLY)
 
 # Util
-add_library(reborn-util SHARED src/util/elf.c src/util/exec.c src/util/string.c src/util/util.c src/util/log.c)
+add_library(reborn-util SHARED src/util/elf.c src/util/exec.c src/util/string.c src/util/util.c src/util/log.c src/util/cp437.cpp)
 target_include_directories(
     reborn-util
     PUBLIC
@@ -13,6 +13,7 @@ target_include_directories(
     "$<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/include>"
     "$<INSTALL_INTERFACE:${MCPI_SDK_INCLUDE_DIR}/libreborn>"
 )
+target_link_libraries(reborn-util PRIVATE utf8cpp)
 # Install
 install(TARGETS reborn-util DESTINATION "${MCPI_LIB_DIR}")
 # SDK

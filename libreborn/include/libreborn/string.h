@@ -3,7 +3,6 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-#include <iconv.h>
 #include <stdint.h>
 
 #include "util.h"
@@ -36,7 +35,6 @@ extern "C" {
 void sanitize_string(char **str, int max_length, unsigned int allow_newlines);
 
 // CP437
-void safe_iconv(iconv_t cd, char *input, size_t input_size, char *output, size_t output_size);
 char *to_cp437(const char *input);
 char *from_cp437(const char *input);
 

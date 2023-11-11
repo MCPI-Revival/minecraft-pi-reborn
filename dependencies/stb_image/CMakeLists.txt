@@ -21,6 +21,8 @@ install(TARGETS stb_image DESTINATION "${MCPI_LIB_DIR}")
 install(
     DIRECTORY "include/"
     DESTINATION "${MCPI_SDK_INCLUDE_DIR}/stb_image"
+    FILES_MATCHING
+    PATTERN "*.h"
 )
 install(TARGETS stb_image EXPORT sdk DESTINATION "${MCPI_SDK_LIB_DIR}")
 

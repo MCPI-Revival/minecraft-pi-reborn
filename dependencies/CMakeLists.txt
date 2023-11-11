@@ -28,3 +28,5 @@ endif()
 if(BUILD_NATIVE_COMPONENTS AND NOT MCPI_HEADLESS_MODE AND MCPI_USE_GLES1_COMPATIBILITY_LAYER)
     add_subdirectory(gles-compatibility-layer)
 endif()
+# UTF8-CPP
+add_subdirectory(utf8cpp)

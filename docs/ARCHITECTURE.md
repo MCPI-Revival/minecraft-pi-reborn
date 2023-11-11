@@ -29,7 +29,6 @@ This component configures the various environmental variables required for MCPI-
 The environmental variables configured by this component includes:
 * ``LD_PRELOAD``
 * ``LD_LIBRARY_PATH``
-* ``GCONV_PATH``
 * ``MCPI_FEATURE_FLAGS``
 * ``MCPI_RENDER_DISTANCE``
 * ``MCPI_USERNAME``
