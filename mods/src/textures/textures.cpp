@@ -12,6 +12,8 @@
 #include <mods/textures/textures.h>
 #include <mods/init/init.h>
 
+#include "stb_image.h"
+
 // Animated Water
 static void Minecraft_tick_injection(unsigned char *minecraft) {
     // Tick Dynamic Textures
@@ -166,6 +168,38 @@ static void Textures_tick_glTexSubImage2D_injection(GLenum target, GLint level, 
     glTexSubImage2D_with_scaling(target, level, xoffset, yoffset, width, height, 256, 256, format, type, pixels);
 }
 
+// Load Textures
+static Texture AppPlatform_linux_loadTexture_injection(__attribute__((unused)) unsigned char *app_platform, std::string const& path, bool b) {
+    Texture out;
+    std::string real_path = path;
+    if (b) {
+        real_path = "data/images/" + real_path;
+    }
+
+    // Read Image
+    int width = 0, height = 0, channels = 0;
+    stbi_uc *img = stbi_load(real_path.c_str(), &width, &height, &channels, STBI_rgb_alpha);
+    if (!img)
+    {
+        // Failed To Parse Image
+        WARN("Unable To Load Texture: %s", real_path.c_str());
+        return out;
+    }
+
+    // Copy Image
+    unsigned char *img2 = new unsigned char[width * height * channels];
+    memcpy(img2, img, width * height * channels);
+    stbi_image_free(img);
+
+    // Create Texture
+    out.width = width;
+    out.height = height;
+    out.data = img2;
+
+    // Return
+    return out;
+}
+
 // Init
 void init_textures() {
     // Tick Dynamic Textures (Animated Water)
@@ -175,4 +209,7 @@ void init_textures() {
 
     // Scale Animated Textures
     overwrite_call((void *) 0x53274, (void *) Textures_tick_glTexSubImage2D_injection);
+
+    // Load Textures
+    overwrite((void *) AppPlatform_linux_loadTexture, (void *) AppPlatform_linux_loadTexture_injection);
 }

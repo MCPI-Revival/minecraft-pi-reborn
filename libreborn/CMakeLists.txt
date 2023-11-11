@@ -32,3 +32,17 @@ if(BUILD_ARM_COMPONENTS)
     # SDK
     install(TARGETS reborn-patch EXPORT sdk DESTINATION "${MCPI_SDK_LIB_DIR}")
 endif()
+
+# Fake LibPNG To Satisy Symbol Versioning Requirement
+if(BUILD_ARM_COMPONENTS)
+    file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/fake-libpng.c" "")
+    file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/fake-libpng.vers" "PNG12_0 { global: *; };")
+    add_library(fake-libpng SHARED "${CMAKE_CURRENT_BINARY_DIR}/fake-libpng.c")
+    set_target_properties(fake-libpng PROPERTIES
+        OUTPUT_NAME "png12"
+        SOVERSION 0
+        LINK_OPTIONS "LINKER:--version-script=${CMAKE_CURRENT_BINARY_DIR}/fake-libpng.vers"
+    )
+    # Install
+    install(TARGETS fake-libpng DESTINATION "${MCPI_LIB_DIR}")
+endif()

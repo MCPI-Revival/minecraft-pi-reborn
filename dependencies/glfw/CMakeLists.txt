@@ -23,9 +23,6 @@ add_custom_target(glfw-build ALL DEPENDS glfw)
 
 # Install
 install(TARGETS glfw DESTINATION "${MCPI_LIB_DIR}")
-if(BUILD_ARM_COMPONENTS)
-    install(TARGETS glfw EXPORT sdk DESTINATION "${MCPI_SDK_LIB_DIR}")
-endif()
 
 # License
 install(FILES src/LICENSE.md DESTINATION "${MCPI_LEGAL_DIR}/glfw")

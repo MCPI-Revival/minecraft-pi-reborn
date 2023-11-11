@@ -6,7 +6,8 @@
 #include <errno.h>
 #include <sys/stat.h>
 
-#include <png.h>
+#include "stb_image.h"
+#include "stb_image_write.h"
 
 #include <libreborn/libreborn.h>
 #include <GLES/gl.h>
@@ -31,68 +32,11 @@ static void ensure_screenshots_folder(char *screenshots) {
 
 // Take Screenshot
 static int save_png(const char *filename, unsigned char *pixels, int line_size, int width, int height) {
-    // Return value
-    int ret = 0;
+    // Setup
+    stbi_flip_vertically_on_write(1);
 
-    // Variables
-    png_structp png = NULL;
-    png_infop info = NULL;
-    FILE *file = NULL;
-    png_colorp palette = NULL;
-    png_bytep rows[height];
-    for (int i = 0; i < height; ++i) {
-        rows[height - i - 1] = (png_bytep) (&pixels[i * line_size]);
-    }
-
-    // Init
-    png = png_create_write_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
-    if (!png) {
-        ret = 1;
-        goto ret;
-    }
-    info = png_create_info_struct(png);
-    if (!info) {
-        ret = 1;
-        goto ret;
-    }
-
-    // Open File
-    file = fopen(filename, "wb");
-    if (!file) {
-        ret = 1;
-        goto ret;
-    }
-
-    // Prepare To Write
-    png_init_io(png, file);
-    png_set_IHDR(png, info, width, height, 8 /* Depth */, PNG_COLOR_TYPE_RGB_ALPHA, PNG_INTERLACE_NONE, PNG_COMPRESSION_TYPE_BASE, PNG_FILTER_TYPE_BASE);
-    palette = (png_colorp) png_malloc(png, PNG_MAX_PALETTE_LENGTH * sizeof(png_color));
-    if (!palette) {
-        ret = 1;
-        goto ret;
-    }
-    png_set_PLTE(png, info, palette, PNG_MAX_PALETTE_LENGTH);
-    png_write_info(png, info);
-    png_set_packing(png);
-
-    // Write
-    png_write_image(png, rows);
-    png_write_end(png, info);
-
- ret:
-    // Free
-    if (palette != NULL) {
-        png_free(png, palette);
-    }
-    if (file != NULL) {
-        fclose(file);
-    }
-    if (png != NULL) {
-        png_destroy_write_struct(&png, &info);
-    }
-
-    // Return
-    return ret;
+    // Write Image
+    return !stbi_write_png(filename, width, height, 4, pixels, line_size);
 }
 void screenshot_take(char *home) {
     // Get Directory

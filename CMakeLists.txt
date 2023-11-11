@@ -37,6 +37,11 @@ option(MCPI_USE_MEDIA_LAYER_PROXY "Whether To Enable The Media Layer Proxy" ${DE
 if(NOT MCPI_HEADLESS_MODE)
     option(MCPI_USE_GLES1_COMPATIBILITY_LAYER "Whether To Enable The GLESv1_CM Compatibility Layer" TRUE)
 endif()
+if(MCPI_USE_MEDIA_LAYER_PROXY)
+    set(BUILD_MEDIA_LAYER_CORE "${BUILD_NATIVE_COMPONENTS}")
+else()
+    set(BUILD_MEDIA_LAYER_CORE "${BUILD_ARM_COMPONENTS}")
+endif()
 
 # App ID
 set(DEFAULT_APP_ID "com.thebrokenrail.MCPIReborn")

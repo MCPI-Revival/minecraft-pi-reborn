@@ -34,7 +34,7 @@ static void *chat_thread(__attribute__((unused)) void *nop) {
         "--text", "Enter Chat Message:",
         NULL
     };
-    char *output = run_command(command, &return_code);
+    char *output = run_command(command, &return_code, NULL);
     // Handle Message
     if (output != NULL) {
         // Check Return Code

@@ -85,7 +85,7 @@ static void run_command_and_set_env(const char *env_name, const char *command[])
     if (getenv(env_name) == NULL) {
         // Run
         int return_code;
-        char *output = run_command(command, &return_code);
+        char *output = run_command(command, &return_code, NULL);
         if (output != NULL) {
             // Trim
             int length = strlen(output);

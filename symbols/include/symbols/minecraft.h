@@ -947,6 +947,22 @@ struct ConnectedClient {
     long time;
 };
 
+struct Texture {
+    int32_t width = 0;
+    int32_t height = 0;
+    unsigned char *data = NULL;
+    int32_t field3_0xc = 0;
+    bool field4_0x10 = true;
+    bool field5_0x11 = false;
+    int32_t field6_0x14 = 0;
+    int32_t field7_0x18 = -1;
+};
+
+// AppPlatform_linux
+
+typedef Texture (*AppPlatform_linux_loadTexture_t)(unsigned char *app_platform, std::string const& path, bool b);
+static AppPlatform_linux_loadTexture_t AppPlatform_linux_loadTexture = (AppPlatform_linux_loadTexture_t) 0x12c20;
+
 // Tile
 
 typedef unsigned char *(*Tile_setDescriptionId_t)(unsigned char *tile, std::string const& description_id);

@@ -13,12 +13,21 @@
 
 // Read Asset File
 static AppPlatform_readAssetFile_return_value AppPlatform_readAssetFile_injection(__attribute__((unused)) unsigned char *app_platform, std::string const& path) {
-    // Read File
+    // Open File
     std::ifstream stream("data/" + path, std::ios_base::binary | std::ios_base::ate);
+    if (!stream) {
+        // Does Not Exist
+        AppPlatform_readAssetFile_return_value ret;
+        ret.length = -1;
+        ret.data = NULL;
+        return ret;
+    }
+    // Read File
     long len = stream.tellg();
     char *buf = new char[len];
     stream.seekg(0, stream.beg);
     stream.read(buf, len);
+    stream.close();
     // Return String
     AppPlatform_readAssetFile_return_value ret;
     ret.length = len;

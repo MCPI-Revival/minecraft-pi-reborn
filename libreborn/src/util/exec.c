@@ -68,7 +68,7 @@ char *get_binary_directory() {
 }
 
 // Run Command And Get Output
-char *run_command(const char *const command[], int *exit_status) {
+char *run_command(const char *const command[], int *exit_status, size_t *output_size) {
     // Store Output
     int output_pipe[2];
     safe_pipe2(output_pipe, 0);
@@ -149,7 +149,12 @@ char *run_command(const char *const command[], int *exit_status) {
                 output = new_output;
             }
         }
-        output[position] = '\0';
+        output[position++] = '\0';
+
+        // Return Output Size
+        if (output_size != NULL) {
+            *output_size = position;
+        }
 
         // Get Return Code
         int status;

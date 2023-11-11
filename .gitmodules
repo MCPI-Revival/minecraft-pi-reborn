@@ -1,12 +1,5 @@
-[submodule "dependencies/libpng/src"]
-	path = dependencies/libpng/src
-	url = https://gitea.thebrokenrail.com/minecraft-pi-reborn/libpng.git
-[submodule "dependencies/zlib/src"]
-	path = dependencies/libpng/zlib/src
-	url = https://github.com/madler/zlib.git
-	ignore = dirty
 [submodule "dependencies/glfw/src"]
-	path = media-layer/core/dependencies/glfw/src
+	path = dependencies/glfw/src
 	url = https://github.com/glfw/glfw.git
 [submodule "dependencies/zenity/src"]
 	path = dependencies/zenity/src
@@ -19,5 +12,8 @@
 	url = https://gitlab.com/qemu-project/qemu.git
 	ignore = dirty
 [submodule "media-layer/core/gles/dependencies/gles-compatibility-layer"]
-	path = media-layer/core/gles/dependencies/gles-compatibility-layer/src
+	path = dependencies/gles-compatibility-layer/src
 	url = https://gitea.thebrokenrail.com/minecraft-pi-reborn/gles-compatibility-layer.git
+[submodule "dependencies/stb_image/include"]
+	path = dependencies/stb_image/include
+	url = https://github.com/nothings/stb.git

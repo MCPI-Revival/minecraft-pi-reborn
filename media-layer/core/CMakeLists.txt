@@ -1,8 +1,5 @@
 project(media-layer-core)
 
-# Dependencies
-add_subdirectory(dependencies)
-
 # OpenGL
 add_subdirectory(gles)
 
@@ -15,18 +12,19 @@ else()
 endif()
 
 # Build
-add_library(media-layer-core SHARED ${CORE_SRC}) # Dependencies Are Setup Later
-# Install
-install(TARGETS media-layer-core DESTINATION "${MCPI_LIB_DIR}")
-if(BUILD_ARM_COMPONENTS)
-    install(TARGETS media-layer-core EXPORT sdk DESTINATION "${MCPI_SDK_LIB_DIR}")
+add_library(media-layer-core-real SHARED ${CORE_SRC}) # Dependencies Are Setup Later
+set_target_properties(media-layer-core-real PROPERTIES OUTPUT_NAME "media-layer-core")
+if(BUILD_NATIVE_COMPONENTS)
+    add_library(media-layer-core ALIAS media-layer-core-real)
 endif()
+# Install
+install(TARGETS media-layer-core-real DESTINATION "${MCPI_LIB_DIR}")
 
 # Link
-target_link_libraries(media-layer-core PUBLIC media-layer-headers PUBLIC reborn-util PUBLIC GLESv1_CM PUBLIC dl)
+target_link_libraries(media-layer-core-real PUBLIC media-layer-headers PUBLIC reborn-util PUBLIC GLESv1_CM PUBLIC dl)
 if(NOT MCPI_HEADLESS_MODE)
     # OpenAL
     find_library(OPENAL_LIBRARY NAMES openal REQUIRED)
     # Link
-    target_link_libraries(media-layer-core PRIVATE "${OPENAL_LIBRARY}" PRIVATE m PRIVATE glfw PRIVATE LIB_LIEF)
+    target_link_libraries(media-layer-core-real PRIVATE "${OPENAL_LIBRARY}" PRIVATE m PRIVATE glfw PRIVATE LIB_LIEF)
 endif()

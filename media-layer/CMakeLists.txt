@@ -29,11 +29,11 @@ endif()
 add_subdirectory(extras)
 
 # Add Core
-if((BUILD_NATIVE_COMPONENTS AND MCPI_USE_MEDIA_LAYER_PROXY) OR (BUILD_ARM_COMPONENTS AND NOT MCPI_USE_MEDIA_LAYER_PROXY))
+if(BUILD_MEDIA_LAYER_CORE)
     add_subdirectory(core)
 endif()
 
 # Add Proxy
-if(MCPI_USE_MEDIA_LAYER_PROXY)
+if(MCPI_USE_MEDIA_LAYER_PROXY OR BUILD_ARM_COMPONENTS)
     add_subdirectory(proxy)
 endif()

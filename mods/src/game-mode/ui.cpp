@@ -19,7 +19,7 @@
 static char *run_command_proper(const char *command[], bool allow_empty) {
     // Run
     int return_code;
-    char *output = run_command(command, &return_code);
+    char *output = run_command(command, &return_code, NULL);
 
     // Handle Message
     if (output != NULL) {

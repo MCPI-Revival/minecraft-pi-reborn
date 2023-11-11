@@ -36,7 +36,7 @@ char *get_binary_directory();
 #define CHILD_PROCESS_TAG "(Child Process) "
 
 // Run Command And Get Output
-char *run_command(const char *const command[], int *exit_status);
+char *run_command(const char *const command[], int *exit_status, size_t *output_size);
 #define is_exit_status_success(status) (WIFEXITED(status) && WEXITSTATUS(status) == 0)
 
 // Get Exit Status String

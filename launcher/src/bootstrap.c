@@ -186,7 +186,7 @@ void pre_bootstrap(int argc, char *argv[]) {
 // Copy SDK Into ~/.minecraft-pi
 void run_simple_command(const char *const command[], const char *error) {
     int status = 0;
-    char *output = run_command(command, &status);
+    char *output = run_command(command, &status, NULL);
     if (output != NULL) {
         free(output);
     }
