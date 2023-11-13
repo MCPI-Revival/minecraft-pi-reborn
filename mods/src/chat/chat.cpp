@@ -5,18 +5,18 @@
 #include <cstring>
 #include <cstdio>
 #include <vector>
-#ifndef MCPI_SERVER_MODE
+#ifndef MCPI_HEADLESS_MODE
 #include <pthread.h>
 #endif
 
 #include <symbols/minecraft.h>
-#ifndef MCPI_SERVER_MODE
+#ifndef MCPI_HEADLESS_MODE
 #include <media-layer/core.h>
 #endif
 
 #include <mods/init/init.h>
 #include <mods/feature/feature.h>
-#ifndef MCPI_SERVER_MODE
+#ifndef MCPI_HEADLESS_MODE
 #include <mods/input/input.h>
 #endif
 #include "chat-internal.h"
@@ -42,7 +42,7 @@ std::string chat_send_api_command(unsigned char *minecraft, char *str) {
     }
 }
 
-#ifndef MCPI_SERVER_MODE
+#ifndef MCPI_HEADLESS_MODE
 // Send API Chat Command
 static void send_api_chat_command(unsigned char *minecraft, char *str) {
     char *command = NULL;
@@ -95,7 +95,7 @@ static void ServerSideNetworkHandler_handle_ChatPacket_injection(unsigned char *
     }
 }
 
-#ifndef MCPI_SERVER_MODE
+#ifndef MCPI_HEADLESS_MODE
 // Message Queue
 static pthread_mutex_t queue_mutex = PTHREAD_MUTEX_INITIALIZER;
 static std::vector<std::string> queue;
@@ -144,7 +144,7 @@ void init_chat() {
         // Re-Broadcast ChatPacket
         patch_address(ServerSideNetworkHandler_handle_ChatPacket_vtable_addr, (void *) ServerSideNetworkHandler_handle_ChatPacket_injection);
         // Send Messages On Input Tick
-#ifndef MCPI_SERVER_MODE
+#ifndef MCPI_HEADLESS_MODE
         input_run_on_tick(send_queued_messages);
 #endif
     }

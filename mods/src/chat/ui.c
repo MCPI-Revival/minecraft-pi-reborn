@@ -2,7 +2,7 @@
 #include <libreborn/libreborn.h>
 
 // Chat UI Code Is Useless In Headless Mode
-#ifndef MCPI_SERVER_MODE
+#ifndef MCPI_HEADLESS_MODE
 
 #include <stdio.h>
 #include <pthread.h>

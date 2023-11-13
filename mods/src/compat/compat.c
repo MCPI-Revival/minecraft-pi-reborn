@@ -25,7 +25,7 @@ HOOK(SDL_ShowCursor, int, (int toggle)) {
 }
 #endif
 
-#ifndef MCPI_SERVER_MODE
+#ifndef MCPI_HEADLESS_MODE
 #include <media-layer/core.h>
 
 #include <mods/input/input.h>
@@ -37,12 +37,14 @@ HOOK(SDL_ShowCursor, int, (int toggle)) {
 HOOK(SDL_PollEvent, int, (SDL_Event *event)) {
     // In Server Mode, Exit Requests Are Handled In src/server/server.cpp
     // Check If Exit Is Requested
+#ifndef MCPI_SERVER_MODE
     if (compat_check_exit_requested()) {
         // Send SDL_QUIT
         SDL_Event new_event;
         new_event.type = SDL_QUIT;
         SDL_PushEvent(&new_event);
     }
+#endif
 
     // Poll Events
     ensure_SDL_PollEvent();
@@ -59,9 +61,7 @@ HOOK(SDL_PollEvent, int, (SDL_Event *event)) {
                     media_toggle_fullscreen();
                     handled = 1;
                 } else if (event->key.keysym.sym == SDLK_F2) {
-#ifndef MCPI_HEADLESS_MODE
                     screenshot_take(home_get());
-#endif
                     handled = 1;
                 } else if (event->key.keysym.sym == SDLK_F1) {
                     input_hide_gui();
