@@ -13,6 +13,9 @@ void init_compat();
 void init_server();
 #else
 void init_multiplayer();
+void init_benchmark();
+#endif
+#ifndef MCPI_HEADLESS_MODE
 void init_sound();
 void init_input();
 void init_sign();
@@ -31,9 +34,6 @@ void init_options();
 void init_chat();
 void init_bucket();
 void init_home();
-#ifndef MCPI_SERVER_MODE
-void init_benchmark();
-#endif
 
 #ifdef __cplusplus
 }

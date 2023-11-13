@@ -13,6 +13,8 @@ __attribute__((constructor)) static void init() {
     init_server();
 #else
     init_multiplayer();
+#endif
+#ifndef MCPI_HEADLESS_MODE
     init_sound();
     init_input();
     init_sign();

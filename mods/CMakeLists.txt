@@ -53,14 +53,16 @@ else()
     add_library(multiplayer SHARED src/multiplayer/multiplayer.cpp)
     target_link_libraries(multiplayer mods-headers reborn-patch symbols home feature)
 
+    add_library(benchmark SHARED src/benchmark/benchmark.cpp)
+    target_link_libraries(benchmark mods-headers reborn-patch symbols compat misc media-layer-core)
+endif()
+
+if(NOT MCPI_HEADLESS_MODE)
     add_library(sound SHARED src/sound/sound.cpp src/sound/repository.cpp)
     target_link_libraries(sound mods-headers reborn-patch symbols feature override media-layer-core)
 
     add_library(camera SHARED src/camera/camera.cpp)
-    target_link_libraries(camera mods-headers reborn-patch symbols feature home)
-    if(NOT MCPI_HEADLESS_MODE)
-        target_link_libraries(camera screenshot)
-    endif()
+    target_link_libraries(camera mods-headers reborn-patch symbols feature home screenshot)
 
     add_library(input SHARED src/input/input.cpp src/input/bow.c src/input/attack.c src/input/toggle.c src/input/misc.c src/input/drop.cpp src/input/crafting.cpp)
     target_link_libraries(input mods-headers reborn-patch symbols creative feature misc media-layer-core)
@@ -78,10 +80,10 @@ else()
     target_link_libraries(title-screen mods-headers reborn-patch symbols feature compat)
 
     add_library(skin SHARED src/skin/skin.cpp src/skin/loader.cpp)
-    target_link_libraries(skin mods-headers reborn-patch symbols feature misc textures media-layer-core)
+    target_link_libraries(skin mods-headers reborn-patch symbols feature misc textures media-layer-core stb_image)
 
-    add_library(benchmark SHARED src/benchmark/benchmark.cpp)
-    target_link_libraries(benchmark mods-headers reborn-patch symbols compat misc media-layer-core)
+    add_library(screenshot SHARED src/screenshot/screenshot.c)
+    target_link_libraries(screenshot mods-headers reborn-util media-layer-core stb_image)
 endif()
 
 if(NOT MCPI_HEADLESS_MODE)
@@ -109,11 +111,6 @@ target_link_libraries(options mods-headers reborn-patch symbols feature home)
 add_library(bucket SHARED src/bucket/bucket.cpp)
 target_link_libraries(bucket mods-headers reborn-patch symbols feature misc)
 
-if(NOT MCPI_HEADLESS_MODE)
-    add_library(screenshot SHARED src/screenshot/screenshot.c)
-    target_link_libraries(screenshot mods-headers reborn-util media-layer-core stb_image)
-endif()
-
 add_library(home SHARED src/home/home.c)
 target_link_libraries(home mods-headers reborn-patch symbols)
 
@@ -125,7 +122,10 @@ target_link_libraries(init mods-headers reborn-util compat game-mode misc death 
 if(MCPI_SERVER_MODE)
     target_link_libraries(init server)
 else()
-    target_link_libraries(init multiplayer sound camera input sign touch atlas title-screen skin benchmark)
+    target_link_libraries(init multiplayer benchmark)
+endif()
+if(NOT MCPI_HEADLESS_MODE)
+    target_link_libraries(init sound camera input sign touch atlas title-screen skin)
 endif()
 
 ## Install Mods
@@ -133,10 +133,10 @@ set(MODS_TO_INSTALL init compat readdir feature game-mode misc override death op
 if(MCPI_SERVER_MODE)
     list(APPEND MODS_TO_INSTALL server)
 else()
-    list(APPEND MODS_TO_INSTALL multiplayer sound camera input sign touch atlas title-screen skin benchmark)
+    list(APPEND MODS_TO_INSTALL multiplayer benchmark)
 endif()
 if(NOT MCPI_HEADLESS_MODE)
-    list(APPEND MODS_TO_INSTALL screenshot)
+    list(APPEND MODS_TO_INSTALL sound camera input sign touch atlas title-screen skin screenshot)
 endif()
 install(TARGETS ${MODS_TO_INSTALL} DESTINATION "${MCPI_INSTALL_DIR}/mods")
 # SDK
