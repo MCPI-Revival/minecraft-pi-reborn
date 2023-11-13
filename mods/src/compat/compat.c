@@ -11,6 +11,14 @@
 #include <SDL/SDL.h>
 
 #ifndef MCPI_HEADLESS_MODE
+#include <media-layer/core.h>
+
+#include <mods/input/input.h>
+#include <mods/sign/sign.h>
+#include <mods/chat/chat.h>
+#include <mods/home/home.h>
+#endif
+
 // Custom Title
 HOOK(SDL_WM_SetCaption, void, (__attribute__((unused)) const char *title, const char *icon)) {
     ensure_SDL_WM_SetCaption();
@@ -23,15 +31,6 @@ HOOK(SDL_ShowCursor, int, (int toggle)) {
     ensure_SDL_ShowCursor();
     return (*real_SDL_ShowCursor)(toggle == SDL_QUERY ? SDL_QUERY : SDL_DISABLE);
 }
-#endif
-
-#ifndef MCPI_HEADLESS_MODE
-#include <media-layer/core.h>
-
-#include <mods/input/input.h>
-#include <mods/sign/sign.h>
-#include <mods/chat/chat.h>
-#include <mods/home/home.h>
 
 // Intercept SDL Events
 HOOK(SDL_PollEvent, int, (SDL_Event *event)) {
@@ -54,6 +53,7 @@ HOOK(SDL_PollEvent, int, (SDL_Event *event)) {
     if (ret == 1 && event != NULL) {
         int handled = 0;
 
+#ifndef MCPI_HEADLESS_MODE
         switch (event->type) {
             case SDL_KEYDOWN: {
                 // Handle Key Presses
@@ -110,6 +110,7 @@ HOOK(SDL_PollEvent, int, (SDL_Event *event)) {
                 break;
             }
         }
+#endif
 
         if (handled) {
             // Event Was Handled
@@ -119,7 +120,6 @@ HOOK(SDL_PollEvent, int, (SDL_Event *event)) {
 
     return ret;
 }
-#endif
 
 // Exit Handler
 static void exit_handler(__attribute__((unused)) int data) {
