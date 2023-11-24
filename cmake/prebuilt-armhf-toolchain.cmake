@@ -1,25 +1,21 @@
-# Pick URL
+# Pick Archive
+set(toolchain_version "13.2.rel1")
 execute_process(COMMAND uname -m OUTPUT_VARIABLE arch OUTPUT_STRIP_TRAILING_WHITESPACE)
 if(arch STREQUAL "x86_64")
-    set(toolchain_url "https://developer.arm.com/-/media/Files/downloads/gnu/12.3.rel1/binrel/arm-gnu-toolchain-12.3.rel1-x86_64-arm-none-linux-gnueabihf.tar.xz")
-    set(toolchain_sha256 "f5f3c1cfcb429833d363e8fec31bb1282974b119ca8169d6277ce8a549e26d54")
+    set(toolchain_file "arm-gnu-toolchain-${toolchain_version}-x86_64-arm-none-linux-gnueabihf.tar.xz")
 elseif(arch STREQUAL "aarch64" OR arch STREQUAL "armv8b" OR arch STREQUAL "armv8l")
-    set(toolchain_url "https://developer.arm.com/-/media/Files/downloads/gnu/12.3.rel1/binrel/arm-gnu-toolchain-12.3.rel1-aarch64-arm-none-linux-gnueabihf.tar.xz")
-    set(toolchain_sha256 "ac2806f4c1ba772817aded18a5b730b5004592b1f1224d8296de69942e3704bd")
+    set(toolchain_file "arm-gnu-toolchain-${toolchain_version}-aarch64-arm-none-linux-gnueabihf.tar.xz")
 else()
     message(FATAL_ERROR "Unable To Download Prebuilt ARMHF Toolchain")
 endif()
 
 # Download If Needed
 include(FetchContent)
-set(FETCHCONTENT_QUIET FALSE)
 FetchContent_Declare(
     prebuilt-armhf-toolchain
-    URL "${toolchain_url}"
-    URL_HASH "SHA256=${toolchain_sha256}"
+    URL "file://${CMAKE_CURRENT_LIST_DIR}/../archives/${toolchain_file}"
 )
 FetchContent_MakeAvailable(prebuilt-armhf-toolchain)
-set(FETCHCONTENT_QUIET TRUE)
 set(toolchain_dir "${prebuilt-armhf-toolchain_SOURCE_DIR}")
 
 # Force Toolchain

@@ -7,10 +7,6 @@
 [submodule "dependencies/LIEF/src"]
 	path = dependencies/LIEF/src
 	url = https://github.com/lief-project/LIEF.git
-[submodule "dependencies/qemu/src"]
-	path = dependencies/qemu/src
-	url = https://gitlab.com/qemu-project/qemu.git
-	ignore = dirty
 [submodule "media-layer/core/gles/dependencies/gles-compatibility-layer"]
 	path = dependencies/gles-compatibility-layer/src
 	url = https://gitea.thebrokenrail.com/minecraft-pi-reborn/gles-compatibility-layer.git
@@ -20,3 +16,6 @@
 [submodule "dependencies/utf8cpp/src"]
 	path = dependencies/utf8cpp/src
 	url = https://github.com/nemtrif/utfcpp.git
+[submodule "archives"]
+	path = archives
+	url = https://gitea.thebrokenrail.com/minecraft-pi-reborn/archives.git

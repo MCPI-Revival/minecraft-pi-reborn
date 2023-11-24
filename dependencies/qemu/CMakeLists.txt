@@ -2,12 +2,15 @@ project(qemu)
 
 ## QEMU
 
+# Version
+set(QEMU_VERSION "8.1.3")
+
 # Build
 include(ProcessorCount)
 ProcessorCount(NPROC)
 include(ExternalProject)
 ExternalProject_Add(qemu
-    SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/src"
+    URL "file://${CMAKE_CURRENT_SOURCE_DIR}/../../archives/qemu-${QEMU_VERSION}.tar.xz"
     CONFIGURE_COMMAND
         "${CMAKE_COMMAND}" "-E" "env"
         "PKG_CONFIG_LIBDIR=$ENV{PKG_CONFIG_LIBDIR}"
@@ -34,4 +37,5 @@ ExternalProject_Get_property(qemu BINARY_DIR)
 install(PROGRAMS "${BINARY_DIR}/qemu-arm" DESTINATION "${MCPI_BIN_DIR}")
 
 # License
-install(FILES src/COPYING DESTINATION "${MCPI_LEGAL_DIR}/qemu")
+ExternalProject_Get_property(qemu SOURCE_DIR)
+install(FILES "${SOURCE_DIR}/COPYING" DESTINATION "${MCPI_LEGAL_DIR}/qemu")

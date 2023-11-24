@@ -1,7 +1,7 @@
 # Installation
 
 ## AppImage
-Download packages [here](https://jenkins.thebrokenrail.com/job/minecraft-pi-reborn/job/master/lastSuccessfulBuild/artifact/out/).
+Download packages [here](https://gitea.thebrokenrail.com/minecraft-pi-reborn/minecraft-pi-reborn/releases).
 
 ### System Requirements
 * Debian Buster/Ubuntu 18.04 Or Higher

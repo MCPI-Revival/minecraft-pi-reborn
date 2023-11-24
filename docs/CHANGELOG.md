@@ -1,5 +1,11 @@
 # Changelog
 
+**2.5.2**
+* Add ``3D Chest Model`` Feature Flag (Enabled By Default)
+* Stop Using Jenkins
+* Replace ``iconv``
+* Replace LibPNG
+
 **2.5.1**
 * Allow Overriidng Custom Skin Server Using ``MCPI_SKIN_SERVER`` Environmental Variable
 * Fix Bug With SDK Generation
