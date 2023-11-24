@@ -34,8 +34,8 @@ build() {
 }
 
 # Variables
-MODE="$1"
-ARCH="$2"
+MODE="$(echo "$1" | tr '[:upper:]' '[:lower:]')"
+ARCH="$(echo "$2" | tr '[:upper:]' '[:lower:]')"
 shift 2
 
 # Build

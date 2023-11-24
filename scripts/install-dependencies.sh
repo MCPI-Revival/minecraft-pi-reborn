@@ -82,7 +82,7 @@ run() {
             libglib2.0-dev:$1
     }
     for arch in "$@"; do
-        architecture_specific_pkg "${arch}"
+        architecture_specific_pkg "$(echo "${arch}" | tr '[:upper:]' '[:lower:]')"
     done
 
     # AppStream Verification

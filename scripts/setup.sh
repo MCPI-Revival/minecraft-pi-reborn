@@ -8,7 +8,7 @@ ARM_TOOLCHAIN_FILE="$(pwd)/cmake/toolchain/armhf-toolchain.cmake"
 # Setup
 setup() {
     # Find Toolchain
-    local toolchain_file="$(pwd)/cmake/toolchain/${ARCH}-toolchain.cmake"
+    toolchain_file="$(pwd)/cmake/toolchain/${ARCH}-toolchain.cmake"
     if [ ! -f "${toolchain_file}" ]; then
         echo "Invalid Architecture: ${ARCH}" > /dev/stderr
         exit 1
@@ -20,27 +20,28 @@ setup() {
     cd "build/${MODE}-${ARCH}"
 
     # Server Build
-    local server_mode='OFF'
+    server_mode='OFF'
     if [ "${MODE}" = "server" ]; then
         server_mode='ON'
     fi
-
     # Mixed Build
-    local mixed_build='ON'
+    mixed_build='ON'
     if [ "${ARCH}" = "armhf" ]; then
         mixed_build='OFF'
     fi
+    # Extra Flags
+    extra_flags="-DMCPI_IS_MIXED_BUILD=${mixed_build} -DMCPI_SERVER_MODE=${server_mode}"
 
     # Build ARM Components
     mkdir arm
     cd arm
-    cmake -G Ninja -DCMAKE_TOOLCHAIN_FILE="${ARM_TOOLCHAIN_FILE}" -DMCPI_BUILD_MODE=arm -DMCPI_IS_MIXED_BUILD="${mixed_build}" -DMCPI_SERVER_MODE="${server_mode}" "$@" ../../..
+    cmake -G Ninja -DCMAKE_TOOLCHAIN_FILE="${ARM_TOOLCHAIN_FILE}" -DMCPI_BUILD_MODE=arm ${extra_flags} "$@" ../../..
     cd ../
 
     # Build Native Components
     mkdir native
     cd native
-    cmake -G Ninja -DCMAKE_TOOLCHAIN_FILE="${toolchain_file}" -DMCPI_BUILD_MODE=native -DMCPI_IS_MIXED_BUILD="${mixed_build}" -DMCPI_SERVER_MODE="${server_mode}" "$@" ../../..
+    cmake -G Ninja -DCMAKE_TOOLCHAIN_FILE="${toolchain_file}" -DMCPI_BUILD_MODE=native ${extra_flags} "$@" ../../..
     cd ../
 
     # Exit
@@ -48,8 +49,8 @@ setup() {
 }
 
 # Variables
-MODE="$1"
-ARCH="$2"
+MODE="$(echo "$1" | tr '[:upper:]' '[:lower:]')"
+ARCH="$(echo "$2" | tr '[:upper:]' '[:lower:]')"
 shift 2
 
 # Verify Mode

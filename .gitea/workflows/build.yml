@@ -9,39 +9,83 @@ on:
           - '!flatpak'
 
 jobs:
+    # Build Project
     build:
+        strategy:
+            fail-fast: false
+            matrix:
+                mode:
+                  - Client
+                  - Server
+                arch:
+                  - AMD64
+                  - ARM64
+                  - ARMHF
+        name: ${{ matrix.mode }} (${{ matrix.arch }})
         runs-on: ubuntu-latest
         container: node:16-buster
         steps:
           - name: Checkout Repository
-            uses: actions/checkout@v3
+            uses: actions/checkout@v4
             with:
                 submodules: true
-            # Dependencies
-          - name: Install Go
-            uses: actions/setup-go@v4
-            with:
-                go-version: '>=1.20.1'
+          # Dependencies
           - name: Install CMake
             run: |
                 echo 'deb http://deb.debian.org/debian buster-backports main' > /etc/apt/sources.list.d/backports.list
                 apt-get update
                 apt-get install --no-install-recommends -y -t buster-backports cmake
           - name: Install Dependencies
-            run: ./scripts/install-dependencies.sh amd64 armhf arm64
-            # Build
+            run: ./scripts/install-dependencies.sh ${{ matrix.arch }}
+          # Build
           - name: Build
-            run: ./scripts/package-all.sh
-          - name: Test
-            run: ./scripts/test.sh
+            run: ./scripts/package.sh ${{ matrix.mode }} ${{ matrix.arch }}
           - name: Upload Artifacts
             uses: actions/upload-artifact@v3
             with:
+                name: ${{ matrix.mode }}-${{ matrix.arch }}
                 path: ./out/*.AppImage*
-            # Create Release
+    # Test Project
+    test:
+        name: Test
+        runs-on: ubuntu-latest
+        container: node:16-buster
+        steps:
+          - name: Checkout Repository
+            uses: actions/checkout@v4
+            with:
+                submodules: true
+          # Dependencies
+          - name: Install CMake
+            run: |
+                echo 'deb http://deb.debian.org/debian buster-backports main' > /etc/apt/sources.list.d/backports.list
+                apt-get update
+                apt-get install --no-install-recommends -y -t buster-backports cmake
+          - name: Install Dependencies
+            run: ./scripts/install-dependencies.sh
+          # Test
+          - name: Test
+            run: ./scripts/test.sh
+    # Create Release
+    release:
+        if: startsWith(github.ref, 'refs/tags/')
+        needs: build
+        name: Release
+        runs-on: ubuntu-latest
+        container: node:16-buster
+        steps:
+          # Dependencies
+          - name: Install Go
+            uses: actions/setup-go@v4
+            with:
+                go-version: '>=1.20.1'
+          # Download Artifacts
+          - uses: actions/download-artifact@v3
+            with:
+                path: out
+          # Create Release
           - name: Create Release
             uses: https://gitea.com/actions/release-action@main
-            if: startsWith(github.ref, 'refs/tags/')
             with:
                 files: ./out/*.AppImage*        
                 api_key: ${{ secrets.RELEASE_TOKEN }}
