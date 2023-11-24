@@ -233,7 +233,7 @@ void pre_bootstrap(int argc, char *argv[]) {
 #ifndef USE_QEMU
     long page_size = sysconf(_SC_PAGESIZE);
     if (page_size != REQUIRED_PAGE_SIZE) {
-        ERR("Invalid page size! A page size of %ld bytes is required, but the system size is %ld bytes.", REQUIRED_PAGE_SIZE, page_size);
+        ERR("Invalid page size! A page size of %ld bytes is required, but the system size is %ld bytes.", (long) REQUIRED_PAGE_SIZE, page_size);
     }
 #endif
 
