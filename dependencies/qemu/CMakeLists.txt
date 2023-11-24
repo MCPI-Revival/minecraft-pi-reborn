@@ -5,6 +5,12 @@ project(qemu)
 # Version
 set(QEMU_VERSION "8.1.3")
 
+# Flatpak Support
+set(QEMU_PATCH "")
+if(MCPI_IS_FLATPAK_BUILD)
+    set(QEMU_PATCH "sed" "-i" "s/libdrm/libdrm-dis/g" "<SOURCE_DIR>/meson.build")
+endif()
+
 # Build
 include(ProcessorCount)
 ProcessorCount(NPROC)
@@ -29,6 +35,7 @@ ExternalProject_Add(qemu
     USES_TERMINAL_BUILD TRUE
     INSTALL_COMMAND ""
     TEST_COMMAND ""
+    PATCH_COMMAND ${QEMU_PATCH}
     BUILD_BYPRODUCTS "<BINARY_DIR>/qemu-arm"
 )
 
