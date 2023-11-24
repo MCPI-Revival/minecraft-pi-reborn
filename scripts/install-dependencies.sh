@@ -13,7 +13,7 @@ fi
 run() {
     # Add ARM Repository
     for arch in "$@"; do
-        sudo dpkg --add-architecture "${arch}"
+        sudo dpkg --add-architecture "$(echo "${arch}" | tr '[:upper:]' '[:lower:]')"
     done
 
     # Update APT

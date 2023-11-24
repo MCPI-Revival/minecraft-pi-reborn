@@ -21,7 +21,7 @@ jobs:
                   - AMD64
                   - ARM64
                   - ARMHF
-        name: ${{ matrix.mode }} (${{ matrix.arch }})
+        name: Build
         runs-on: ubuntu-latest
         container: node:16-buster
         steps:
