@@ -835,16 +835,38 @@ static EntityRenderDispatcher_assign_t EntityRenderDispatcher_assign = (EntityRe
 
 static uint32_t TileEntity_id_property_offset = 0x18; // int32_t
 static uint32_t TileEntity_renderer_id_property_offset = 0x24; // int32_t
+static uint32_t TileEntity_is_client_property_offset = 0x20; // bool
 
 // ChestTileEntity
 
 typedef unsigned char *(*ChestTileEntity_t)(unsigned char *tile_entity);
 static ChestTileEntity_t ChestTileEntity = (ChestTileEntity_t) 0xcfa78;
 
+static uint32_t ChestTileEntity_container_property_offset = 0x30; // Container
+
 // ModelPart
 
 typedef void (*ModelPart_render_t)(unsigned char *model_part, float scale);
 static ModelPart_render_t ModelPart_render = (ModelPart_render_t) 0x416dc;
+
+// Container
+
+typedef void (*Container_startOpen_t)(unsigned char *container);
+static uint32_t Container_startOpen_vtable_offset = 0x24;
+
+typedef Container_startOpen_t Container_stopOpen_t;
+static uint32_t Container_stopOpen_vtable_offset = 0x28;
+
+// ContainerMenu
+
+typedef unsigned char *(*ContainerMenu_t)(unsigned char *container_menu, unsigned char *container, int32_t param_1);
+static ContainerMenu_t ContainerMenu = (ContainerMenu_t) 0x919a8;
+
+typedef unsigned char *(*ContainerMenu_destructor_t)(unsigned char *container_menu);
+static ContainerMenu_destructor_t ContainerMenu_destructor = (ContainerMenu_destructor_t) 0x91a74;
+static void *ContainerMenu_destructor_vtable_addr = (void *) 0x10e1b8;
+
+static uint32_t ContainerMenu_container_property_offset = 0x1c; // Container *
 
 // ItemRenderer
 

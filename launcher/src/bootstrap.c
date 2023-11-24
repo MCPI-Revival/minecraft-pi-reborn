@@ -307,6 +307,7 @@ void bootstrap(int argc, char *argv[]) {
 
     // Get Binary Directory
     char *binary_directory = get_binary_directory();
+    DEBUG("Binary Directory: %s", binary_directory);
 
     // Copy SDK
     copy_sdk(binary_directory);

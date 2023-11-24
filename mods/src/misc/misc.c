@@ -461,6 +461,38 @@ static bool ChestTileEntity_shouldSave_injection(__attribute__((unused)) unsigne
     return 1;
 }
 
+// Animated 3D Chest
+static unsigned char *ContainerMenu_injection(unsigned char *container_menu, unsigned char *container, int32_t param_1) {
+    // Call Original Method
+    (*ContainerMenu)(container_menu, container, param_1);
+
+    // Play Animation
+    unsigned char *tile_entity = container - ChestTileEntity_container_property_offset;
+    bool is_client = *(bool *) (tile_entity + TileEntity_is_client_property_offset);
+    if (!is_client) {
+        unsigned char *container_vtable = *(unsigned char **) container;
+        Container_startOpen_t Container_startOpen = *(Container_startOpen_t *) (container_vtable + Container_startOpen_vtable_offset);
+        (*Container_startOpen)(container);
+    }
+
+    // Return
+    return container_menu;
+}
+static unsigned char *ContainerMenu_destructor_injection(unsigned char *container_menu) {
+    // Play Animation
+    unsigned char *container = *(unsigned char **) (container_menu + ContainerMenu_container_property_offset);
+    unsigned char *tile_entity = container - ChestTileEntity_container_property_offset;
+    bool is_client = *(bool *) (tile_entity + TileEntity_is_client_property_offset);
+    if (!is_client) {
+        unsigned char *container_vtable = *(unsigned char **) container;
+        Container_stopOpen_t Container_stopOpen = *(Container_stopOpen_t *) (container_vtable + Container_stopOpen_vtable_offset);
+        (*Container_stopOpen)(container);
+    }
+
+    // Call Original Method
+    return (*ContainerMenu_destructor)(container_menu);
+}
+
 // Init
 static void nop() {
 }
@@ -615,6 +647,11 @@ void init_misc() {
         patch((void *) 0x66fc8, chest_model_patch);
         unsigned char chest_color_patch[4] = {0x00, 0xf0, 0x20, 0xe3}; // "nop"
         patch((void *) 0x66404, chest_color_patch);
+
+        // Animation
+        overwrite_calls((void *) ContainerMenu, (void *) ContainerMenu_injection);
+        overwrite_calls((void *) ContainerMenu_destructor, (void *) ContainerMenu_destructor_injection);
+        patch_address(ContainerMenu_destructor_vtable_addr, (void *) ContainerMenu_destructor_injection);
     }
     patch_address((void *) 0x115b48, (void *) ChestTileEntity_shouldSave_injection);
 
