@@ -415,6 +415,52 @@ static unsigned char *PathfinderMob_findAttackTarget_injection(unsigned char *mo
     return target;
 }
 
+// 3D Chests
+static int32_t Tile_getRenderShape_injection(unsigned char *tile) {
+    if (tile == *Tile_chest) {
+        // Don't Render "Simple" Chest Model
+        return -1;
+    } else {
+        // Call Original Method
+        unsigned char *tile_vtable = *(unsigned char **) tile;
+        Tile_getRenderShape_t Tile_getRenderShape = *(Tile_getRenderShape_t *) (tile_vtable + Tile_getRenderShape_vtable_offset);
+        return (*Tile_getRenderShape)(tile);
+    }
+}
+static unsigned char *ChestTileEntity_injection(unsigned char *tile_entity) {
+    // Call Original Method
+    (*ChestTileEntity)(tile_entity);
+
+    // Enable Renderer
+    *(int32_t *) (tile_entity + TileEntity_renderer_id_property_offset) = 1;
+
+    // Return
+    return tile_entity;
+}
+static bool is_rendering_chest = 0;
+static void ModelPart_render_injection(unsigned char *model_part, float scale) {
+    // Start
+    is_rendering_chest = 1;
+
+    // Call Original Method
+    (*ModelPart_render)(model_part, scale);
+
+    // Stop
+    is_rendering_chest = 0;
+}
+static void Tesselator_vertexUV_injection(unsigned char *tesselator, float x, float y, float z, float u, float v) {
+    // Fix Chest Texture
+    if (is_rendering_chest) {
+        v /= 2;
+    }
+
+    // Call Original Method
+    (*Tesselator_vertexUV)(tesselator, x, y, z, u, v);
+}
+static bool ChestTileEntity_shouldSave_injection(__attribute__((unused)) unsigned char *tile_entity) {
+    return 1;
+}
+
 // Init
 static void nop() {
 }
@@ -556,6 +602,21 @@ void init_misc() {
     if (feature_has("Disable Hostile AI In Creative Mode", server_enabled)) {
         overwrite_call((void *) 0x83b8c, (void *) PathfinderMob_findAttackTarget_injection);
     }
+
+    // 3D Chests
+    if (feature_has("3D Chest Model", server_disabled)) {
+        overwrite_call((void *) 0x5e830, (void *) Tile_getRenderShape_injection);
+        overwrite_calls((void *) ChestTileEntity, (void *) ChestTileEntity_injection);
+        overwrite_call((void *) 0x6655c, (void *) ModelPart_render_injection);
+        overwrite_call((void *) 0x66568, (void *) ModelPart_render_injection);
+        overwrite_call((void *) 0x66574, (void *) ModelPart_render_injection);
+        overwrite_calls((void *) Tesselator_vertexUV, (void *) Tesselator_vertexUV_injection);
+        unsigned char chest_model_patch[4] = {0x13, 0x20, 0xa0, 0xe3}; // "mov r2, #0x13"
+        patch((void *) 0x66fc8, chest_model_patch);
+        unsigned char chest_color_patch[4] = {0x00, 0xf0, 0x20, 0xe3}; // "nop"
+        patch((void *) 0x66404, chest_color_patch);
+    }
+    patch_address((void *) 0x115b48, (void *) ChestTileEntity_shouldSave_injection);
 
     // Init C++ And Logging
     _init_misc_cpp();
