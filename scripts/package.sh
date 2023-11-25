@@ -31,7 +31,7 @@ case "${ARCH}" in
     'amd64') APPIMAGE_ARCH='x86_64';;
 esac
 ARCH="${APPIMAGE_ARCH}" appimagetool \
-    --updateinformation "zsync|https://gitea.thebrokenrail.com/minecraft-pi-reborn/minecraft-pi-reborn/releases/download/latest/${NAME}-latest-${ARCH}.AppImage.zsync" \
+    --updateinformation "zsync|https://gitea.thebrokenrail.com/minecraft-pi-reborn/minecraft-pi-reborn/releases/download/latest/${NAME}-${MODE}-latest-${ARCH}.AppImage.zsync" \
     --runtime-file "build/appimage/runtime-${ARCH}" \
     --comp xz \
     "./out/${MODE}-${ARCH}" \
