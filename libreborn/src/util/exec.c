@@ -43,30 +43,6 @@ __attribute__((noreturn)) void safe_execvpe(const char *const argv[], const char
     }
 }
 
-// Chop Off Last Component
-void chop_last_component(char **str) {
-    size_t length = strlen(*str);
-    for (size_t i = 0; i < length; i++) {
-        size_t j = length - i - 1;
-        if ((*str)[j] == '/') {
-            (*str)[j] = '\0';
-            break;
-        }
-    }
-}
-// Get Binary Directory (Remember To Free)
-char *get_binary_directory() {
-    // Get Path To Current Executable
-    char *exe = realpath("/proc/self/exe", NULL);
-    ALLOC_CHECK(exe);
-
-    // Chop Off Last Component
-    chop_last_component(&exe);
-
-    // Return
-    return exe;
-}
-
 // Run Command And Get Output
 char *run_command(const char *const command[], int *exit_status, size_t *output_size) {
     // Store Output

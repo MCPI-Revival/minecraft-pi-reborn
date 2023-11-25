@@ -9,6 +9,7 @@
 
 #include <libreborn/libreborn.h>
 
+#include "../util.h"
 #include "../bootstrap.h"
 #include "launcher.h"
 #include "cache.h"

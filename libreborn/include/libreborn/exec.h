@@ -26,11 +26,6 @@ void set_and_print_env(const char *name, const char *value);
 void setup_exec_environment(int is_arm_component);
 __attribute__((noreturn)) void safe_execvpe(const char *const argv[], const char *const envp[]);
 
-// Chop Off Last Component
-void chop_last_component(char **str);
-// Get Binary Directory (Remember To Free)
-char *get_binary_directory();
-
 // Debug Tag
 #define CHILD_PROCESS_TAG "(Child Process) "
 

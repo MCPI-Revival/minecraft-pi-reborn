@@ -10,6 +10,7 @@
 
 #include <libreborn/libreborn.h>
 
+#include "util.h"
 #include "bootstrap.h"
 #include "patchelf.h"
 #include "crash-report.h"
@@ -242,16 +243,6 @@ void pre_bootstrap(int argc, char *argv[]) {
 }
 
 // Copy SDK Into ~/.minecraft-pi
-void run_simple_command(const char *const command[], const char *error) {
-    int status = 0;
-    char *output = run_command(command, &status, NULL);
-    if (output != NULL) {
-        free(output);
-    }
-    if (!is_exit_status_success(status)) {
-        ERR("%s", error);
-    }
-}
 #define HOME_SUBDIRECTORY_FOR_SDK HOME_SUBDIRECTORY_FOR_GAME_DATA "/sdk"
 static void copy_sdk(char *binary_directory) {
     // Ensure SDK Directory
