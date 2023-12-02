@@ -4,12 +4,7 @@ The dedicated server is a version of Minecraft: Pi Edition modified to run in a 
 This server is also compatible with MCPE Alpha v0.6.1[^1].
 
 ## Setup
-
-### Debian Package
-To use, install and run ``minecraft-pi-reborn-server``. It will generate the world and ``server.properties`` in the current directory.
-
-### Docker Image
-An official Docker image is also provided: [thebrokenrail/minecraft-pi-reborn-server](https://hub.docker.com/r/thebrokenrail/minecraft-pi-reborn-server).
+To use, install and run the ``minecraft-pi-reborn-server`` AppImage. It will generate the world and ``server.properties`` in the current directory.
 
 ## Server Limitations
 * Player data is not saved because of limitations with MCPE LAN worlds

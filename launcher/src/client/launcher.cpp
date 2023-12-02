@@ -150,6 +150,13 @@ int main(int argc, char *argv[]) {
         ERR("$HOME Isn't Set");
     }
 
+    // Check For Display
+#ifndef MCPI_HEADLESS_MODE
+    if (getenv("DISPLAY") == NULL || getenv("WAYLAND_DISPLAY") == NULL) {
+        ERR("No display attached! Make sure $DISPLAY or $WAYLAND_DISPLAY is set.");
+    }
+#endif
+
     // Print Features
     for (int i = 1; i < argc; i++) {
         if (strcmp(argv[i], "--print-available-feature-flags") == 0) {
