@@ -152,7 +152,7 @@ int main(int argc, char *argv[]) {
 
     // Check For Display
 #ifndef MCPI_HEADLESS_MODE
-    if (getenv("DISPLAY") == NULL || getenv("WAYLAND_DISPLAY") == NULL) {
+    if (getenv("DISPLAY") == NULL && getenv("WAYLAND_DISPLAY") == NULL) {
         ERR("No display attached! Make sure $DISPLAY or $WAYLAND_DISPLAY is set.");
     }
 #endif
