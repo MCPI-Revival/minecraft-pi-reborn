@@ -170,6 +170,11 @@ static TileRenderer_tesselateBlockInWorld_t TileRenderer_tesselateBlockInWorld =
 typedef void (*GameMode_releaseUsingItem_t)(unsigned char *game_mode, unsigned char *player);
 static uint32_t GameMode_releaseUsingItem_vtable_offset = 0x5c;
 
+// NinecraftApp
+
+typedef void (*NinecraftApp_initGLStates_t)(unsigned char *minecraft);
+static NinecraftApp_initGLStates_t NinecraftApp_initGLStates = (NinecraftApp_initGLStates_t) 0x148c8;
+
 // Minecraft
 
 typedef void (*Minecraft_init_t)(unsigned char *minecraft);
@@ -506,6 +511,9 @@ static Gui_renderToolBar_t Gui_renderToolBar = (Gui_renderToolBar_t) 0x26c30;
 typedef void (*Gui_renderChatMessages_t)(unsigned char *gui, int32_t y_offset, uint32_t max_messages, bool disable_fading, unsigned char *font);
 static Gui_renderChatMessages_t Gui_renderChatMessages = (Gui_renderChatMessages_t) 0x273d8;
 
+typedef void (*Gui_onConfigChanged_t)(unsigned char *gui, unsigned char *config);
+static Gui_onConfigChanged_t Gui_onConfigChanged = (Gui_onConfigChanged_t) 0x255bc;
+
 static uint32_t Gui_minecraft_property_offset = 0x9f4; // Minecraft *
 static uint32_t Gui_selected_item_text_timer_property_offset = 0x9fc; // float
 
@@ -562,6 +570,9 @@ static LevelRenderer_render_t LevelRenderer_render = (LevelRenderer_render_t) 0x
 
 typedef void (*LevelRenderer_renderDebug_t)(unsigned char *level_renderer, struct AABB *aabb, float delta);
 static LevelRenderer_renderDebug_t LevelRenderer_renderDebug = (LevelRenderer_renderDebug_t) 0x4d310;
+
+typedef void (*LevelRenderer_generateSky_t)(unsigned char *level_renderer);
+static LevelRenderer_generateSky_t LevelRenderer_generateSky = (LevelRenderer_generateSky_t) 0x4d0d4;
 
 static uint32_t LevelRenderer_minecraft_property_offset = 0x4; // Minecraft *
 

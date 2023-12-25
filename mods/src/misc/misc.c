@@ -301,10 +301,12 @@ int32_t misc_get_real_selected_slot(unsigned char *player) {
     return selected_slot;
 }
 
+#ifndef MCPI_HEADLESS_MODE
 // Properly Generate Buffers
 static void anGenBuffers_injection(int32_t count, uint32_t *buffers) {
     glGenBuffers(count, buffers);
 }
+#endif
 
 // Fix Graphics Bug When Switching To First-Person While Sneaking
 static void HumanoidMobRenderer_render_injection(unsigned char *model_renderer, unsigned char *entity, float param_2, float param_3, float param_4, float param_5, float param_6) {
@@ -554,6 +556,9 @@ void init_misc() {
 #ifdef MCPI_HEADLESS_MODE
     // Don't Render Game In Headless Mode
     overwrite_calls((void *) GameRenderer_render, (void *) nop);
+    overwrite_calls((void *) NinecraftApp_initGLStates, (void *) nop);
+    overwrite_calls((void *) Gui_onConfigChanged, (void *) nop);
+    overwrite_calls((void *) LevelRenderer_generateSky, (void *) nop);
 #else
     // Improved Cursor Rendering
     if (feature_has("Improved Cursor Rendering", server_disabled)) {
@@ -580,8 +585,10 @@ void init_misc() {
         overwrite_calls((void *) sleepMs, (void *) nop);
     }
 
+#ifndef MCPI_HEADLESS_MODE
     // Properly Generate Buffers
     overwrite((void *) anGenBuffers, (void *) anGenBuffers_injection);
+#endif
 
     // Fix Graphics Bug When Switching To First-Person While Sneaking
     patch_address(PlayerRenderer_render_vtable_addr, (void *) HumanoidMobRenderer_render_injection);

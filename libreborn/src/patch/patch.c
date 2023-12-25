@@ -40,6 +40,26 @@ static uint32_t generate_bl_instruction(void *from, void *to, int use_b_instruct
 }
 
 // Run For Every .text Section
+static int _overwrite_calls_within_internal(const char *file, int line, void *from, void *to, void *target, void *replacement) {
+    int found = 0;
+    for (uint32_t i = (uint32_t) from; i < (uint32_t) to; i = i + 4) {
+        unsigned char *addr = (unsigned char *) i;
+        int use_b_instruction = addr[3] == B_INSTRUCTION;
+        // Check If Instruction is B Or BL
+        if (addr[3] == BL_INSTRUCTION || use_b_instruction) {
+            uint32_t check_instruction = generate_bl_instruction(addr, target, use_b_instruction);
+            unsigned char *check_instruction_array = (unsigned char *) &check_instruction;
+            // Check If Instruction Calls Target
+            if (addr[0] == check_instruction_array[0] && addr[1] == check_instruction_array[1] && addr[2] == check_instruction_array[2]) {
+                // Patch Instruction
+                uint32_t new_instruction = generate_bl_instruction(addr, replacement, use_b_instruction);
+                _patch(file, line, addr, (unsigned char *) &new_instruction);
+                found++;
+            }
+        }
+    }
+    return found;
+}
 struct overwrite_data {
     const char *file;
     int line;
@@ -50,23 +70,7 @@ struct overwrite_data {
 static void overwrite_calls_callback(ElfW(Addr) section_addr, ElfW(Word) size, void *data) {
     struct overwrite_data *args = (struct overwrite_data *) data;
     void *section = (void *) section_addr;
-
-    for (uint32_t i = 0; i < size; i = i + 4) {
-        unsigned char *addr = ((unsigned char *) section) + i;
-        int use_b_instruction = addr[3] == B_INSTRUCTION;
-        // Check If Instruction is B Or BL
-        if (addr[3] == BL_INSTRUCTION || use_b_instruction) {
-            uint32_t check_instruction = generate_bl_instruction(addr, args->target, use_b_instruction);
-            unsigned char *check_instruction_array = (unsigned char *) &check_instruction;
-            // Check If Instruction Calls Target
-            if (addr[0] == check_instruction_array[0] && addr[1] == check_instruction_array[1] && addr[2] == check_instruction_array[2]) {
-                // Patch Instruction
-                uint32_t new_instruction = generate_bl_instruction(addr, args->replacement, use_b_instruction);
-                _patch(args->file, args->line, addr, (unsigned char *) &new_instruction);
-                args->found++;
-            }
-        }
-    }
+    args->found += _overwrite_calls_within_internal(args->file, args->line, section, (void *) (section_addr + size), args->target, args->replacement);
 }
 
 // Limit To 512 overwrite_calls() Uses
@@ -138,6 +142,20 @@ void _overwrite_calls(const char *file, int line, void *start, void *target) {
     if (data.found < 1) {
         ERR("(%s:%i) Unable To Find Callsites For 0x%08x", file, line, (uint32_t) start);
     }
+}
+void _overwrite_calls_within(const char *file, int line, void *from, void *to, void *target, void *replacement) {
+    // Add New Target To Code Block
+    update_code_block(replacement);
+
+    // Patch
+    int found = _overwrite_calls_within_internal(file, line, from, to, target, code_block);
+    // Check
+    if (found < 1) {
+        ERR("(%s:%i) Unable To Find Callsites For 0x%08x", file, line, (uint32_t) target);
+    }
+
+    // Increment Code Block Position
+    increment_code_block();
 }
 
 // Extract Target Address From B(L) Instruction
