@@ -926,6 +926,10 @@ static int get_glGetFloatv_params_size(GLenum pname) {
         case GL_PROJECTION_MATRIX: {
             return 16;
         }
+        case GL_ALIASED_LINE_WIDTH_RANGE:
+        case GL_SMOOTH_LINE_WIDTH_RANGE: {
+            return 2;
+        }
         default: {
             PROXY_ERR("Unsupported glGetFloatv Property: %u", pname);
         }

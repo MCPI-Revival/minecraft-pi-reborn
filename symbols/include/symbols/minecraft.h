@@ -574,6 +574,10 @@ static LevelRenderer_renderDebug_t LevelRenderer_renderDebug = (LevelRenderer_re
 typedef void (*LevelRenderer_generateSky_t)(unsigned char *level_renderer);
 static LevelRenderer_generateSky_t LevelRenderer_generateSky = (LevelRenderer_generateSky_t) 0x4d0d4;
 
+typedef void (*LevelRenderer_renderHitSelect_t)(unsigned char *level_renderer, unsigned char* player, unsigned char *hit_result, int32_t i, void *vp, float f);
+static LevelRenderer_renderHitSelect_t LevelRenderer_renderHitSelect = (LevelRenderer_renderHitSelect_t) 0x4e318;
+static LevelRenderer_renderHitSelect_t LevelRenderer_renderHitOutline = (LevelRenderer_renderHitSelect_t) 0x4dc14;
+
 static uint32_t LevelRenderer_minecraft_property_offset = 0x4; // Minecraft *
 
 // PerfRenderer

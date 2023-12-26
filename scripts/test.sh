@@ -2,6 +2,8 @@
 
 set -e
 
+## Server Test
+
 # Build Test
 ARCH="$(dpkg-architecture -qDEB_BUILD_ARCH)"
 ./scripts/setup.sh server "${ARCH}"
@@ -19,6 +21,8 @@ cd build/test
 minecraft-pi-reborn-server --only-generate
 cd ../../
 
+## Client Test
+
 # Build Benchmark
 ./scripts/setup.sh client "${ARCH}" -DMCPI_HEADLESS_MODE=ON
 ./scripts/build.sh client "${ARCH}"
@@ -32,3 +36,16 @@ export _MCPI_SKIP_ROOT_CHECK=1
 # Run Benchmark
 export HOME="$(pwd)/build/test"
 minecraft-pi-reborn-client --default --no-cache --benchmark
+
+## Example Mods Test
+
+# Build
+for project in example-mods/*/; do
+    cd "${project}"
+    rm -rf build
+    mkdir build
+    cd build
+    cmake -GNinja ..
+    cmake --build .
+    cd ../../../
+done

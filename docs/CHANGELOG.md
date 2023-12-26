@@ -1,5 +1,11 @@
 # Changelog
 
+**2.5.3**
+* Add ``Replace Block Highlight With Outline`` Feature Flag (Enabled By Default)
+  * By Default, The Outline Width Is Set Using The GUI Scale
+  * This Can Be Overridden Using The ``MCPI_BLOCK_OUTLINE_WIDTH`` Environmental Variable
+* Added ``overwrite_calls_within`` Function
+
 **2.5.2**
 * Add ``3D Chest Model`` Feature Flag (Enabled By Default)
 * Stop Using Jenkins
@@ -7,7 +13,7 @@
 * Replace LibPNG
 
 **2.5.1**
-* Allow Overriidng Custom Skin Server Using ``MCPI_SKIN_SERVER`` Environmental Variable
+* Allow Overriding Custom Skin Server Using ``MCPI_SKIN_SERVER`` Environmental Variable
 * Fix Bug With SDK Generation
 
 **2.5.0**

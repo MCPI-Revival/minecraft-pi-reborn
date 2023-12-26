@@ -122,6 +122,7 @@ void _overwrite_call(const char *file, int line, void *start, void *target) {
 }
 
 // Overwrite All B(L) Intrusctions That Target The Specified Address
+#define NO_CALLSITE_ERROR "(%s:%i) Unable To Find Callsites For 0x%08x"
 void _overwrite_calls(const char *file, int line, void *start, void *target) {
     // Add New Target To Code Block
     update_code_block(target);
@@ -140,10 +141,10 @@ void _overwrite_calls(const char *file, int line, void *start, void *target) {
 
     // Check
     if (data.found < 1) {
-        ERR("(%s:%i) Unable To Find Callsites For 0x%08x", file, line, (uint32_t) start);
+        ERR(NO_CALLSITE_ERROR, file, line, (uint32_t) start);
     }
 }
-void _overwrite_calls_within(const char *file, int line, void *from, void *to, void *target, void *replacement) {
+void _overwrite_calls_within(const char *file, int line, void *from /* inclusive */, void *to /* exclusive */, void *target, void *replacement) {
     // Add New Target To Code Block
     update_code_block(replacement);
 
@@ -151,7 +152,7 @@ void _overwrite_calls_within(const char *file, int line, void *from, void *to, v
     int found = _overwrite_calls_within_internal(file, line, from, to, target, code_block);
     // Check
     if (found < 1) {
-        ERR("(%s:%i) Unable To Find Callsites For 0x%08x", file, line, (uint32_t) target);
+        ERR(NO_CALLSITE_ERROR, file, line, (uint32_t) target);
     }
 
     // Increment Code Block Position

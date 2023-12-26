@@ -50,3 +50,4 @@ FALSE Disable Block Tinting
 TRUE Disable Hostile AI In Creative Mode
 TRUE Load Custom Skins
 TRUE 3D Chest Model
+TRUE Replace Block Highlight With Outline

@@ -4,7 +4,9 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 
+#ifndef MCPI_HEADLESS_MODE
 #include <GLES/gl.h>
+#endif
 
 #include <libreborn/libreborn.h>
 #include <symbols/minecraft.h>
@@ -495,6 +497,35 @@ static unsigned char *ContainerMenu_destructor_injection(unsigned char *containe
     return (*ContainerMenu_destructor)(container_menu);
 }
 
+#ifndef MCPI_HEADLESS_MODE
+// Custom Outline Color
+static void glColor4f_injection(__attribute__((unused)) GLfloat red, __attribute__((unused)) GLfloat green, __attribute__((unused)) GLfloat blue, __attribute__((unused)) GLfloat alpha) {
+    // Set Color
+    glColor4f(0, 0, 0, 1);
+
+    // Find Line Width
+    char *custom_line_width = getenv("MCPI_BLOCK_OUTLINE_WIDTH");
+    float line_width;
+    if (custom_line_width != NULL) {
+        // Custom
+        line_width = strtof(custom_line_width, NULL);
+    } else {
+        // Guess
+        line_width = 1.75 / (*InvGuiScale);
+    }
+    // Clamp Line Width
+    float range[2];
+    glGetFloatv(GL_ALIASED_LINE_WIDTH_RANGE, range);
+    if (range[1] < line_width) {
+        line_width = range[1];
+    } else if (range[0] > line_width) {
+        line_width = range[0];
+    }
+    // Set Line Width
+    glLineWidth(line_width);
+}
+#endif
+
 // Init
 static void nop() {
 }
@@ -661,6 +692,16 @@ void init_misc() {
         patch_address(ContainerMenu_destructor_vtable_addr, (void *) ContainerMenu_destructor_injection);
     }
     patch_address((void *) 0x115b48, (void *) ChestTileEntity_shouldSave_injection);
+
+#ifndef MCPI_HEADLESS_MODE
+    // Replace Block Highlight With Outline
+    if (feature_has("Replace Block Highlight With Outline", server_disabled)) {
+        overwrite((void *) LevelRenderer_renderHitSelect, (void *) LevelRenderer_renderHitOutline);
+        unsigned char fix_outline_patch[4] = {0x00, 0xf0, 0x20, 0xe3}; // "nop"
+        patch((void *) 0x4d830, fix_outline_patch);
+        overwrite_call((void *) 0x4d764, (void *) glColor4f_injection);
+    }
+#endif
 
     // Init C++ And Logging
     _init_misc_cpp();

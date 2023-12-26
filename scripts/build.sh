@@ -6,6 +6,7 @@ set -e
 build() {
     # Use Build Dir
     if [ ! -f "build/${MODE}-${ARCH}/arm/build.ninja" ] || [ ! -f "build/${MODE}-${ARCH}/native/build.ninja" ]; then
+        # Run CMake
         ./scripts/setup.sh "${MODE}" "${ARCH}"
     fi
     cd "build/${MODE}-${ARCH}"
