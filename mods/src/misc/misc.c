@@ -501,7 +501,7 @@ static unsigned char *ContainerMenu_destructor_injection(unsigned char *containe
 // Custom Outline Color
 static void glColor4f_injection(__attribute__((unused)) GLfloat red, __attribute__((unused)) GLfloat green, __attribute__((unused)) GLfloat blue, __attribute__((unused)) GLfloat alpha) {
     // Set Color
-    glColor4f(0, 0, 0, 1);
+    glColor4f(0, 0, 0, 0.4);
 
     // Find Line Width
     char *custom_line_width = getenv("MCPI_BLOCK_OUTLINE_WIDTH");
@@ -511,7 +511,7 @@ static void glColor4f_injection(__attribute__((unused)) GLfloat red, __attribute
         line_width = strtof(custom_line_width, NULL);
     } else {
         // Guess
-        line_width = 1.75 / (*InvGuiScale);
+        line_width = 2 / (*InvGuiScale);
     }
     // Clamp Line Width
     float range[2];
