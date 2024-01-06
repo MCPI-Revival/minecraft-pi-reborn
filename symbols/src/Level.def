@@ -7,4 +7,4 @@ method void setTileAndData(int x, int y, int z, int id, int data) = 0xa38b4;
 method HitResult clip(uchar *param_1, uchar *param_2, bool clip_liquids, bool param_3) = 0xa3db0;
 method void addParticle(std::string *particle, float x, float y, float z, float deltaX, float deltaY, float deltaZ, int count) = 0xa449c;
 
-property std::vector<ServerPlayer*> players = 0x60;
+property std::vector<Player*> players = 0x60;

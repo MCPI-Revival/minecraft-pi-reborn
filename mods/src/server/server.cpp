@@ -73,7 +73,7 @@ static std::string get_world_name() {
 }
 
 // Create/Start World
-static void start_world(unsigned char *minecraft) {
+static void start_world(Minecraft *minecraft) {
     // Get World Name
     std::string world_name = get_world_name();
 
@@ -81,8 +81,8 @@ static void start_world(unsigned char *minecraft) {
     INFO("Loading World: %s", world_name.c_str());
 
     // Peaceful Mode
-    unsigned char *options = minecraft + Minecraft_options_property_offset;
-    *(int32_t *) (options + Options_game_difficulty_property_offset) = get_server_properties().get_bool("peaceful-mode", DEFAULT_PEACEFUL_MODE) ? 0 : 2;
+    Options *options = &minecraft->options;
+    options->game_difficulty = get_server_properties().get_bool("peaceful-mode", DEFAULT_PEACEFUL_MODE) ? 0 : 2;
 
     // Specify Level Settings
     LevelSettings settings;
@@ -92,7 +92,7 @@ static void start_world(unsigned char *minecraft) {
     settings.seed = seed;
 
     // Select Level
-    (*Minecraft_selectLevel)(minecraft, world_name, world_name, settings);
+    minecraft->vtable->selectLevel(minecraft, &world_name, &world_name, &settings);
 
     // Don't Open Port When Using --only-generate
     if (!only_generate) {
@@ -103,10 +103,10 @@ static void start_world(unsigned char *minecraft) {
     }
 
     // Open ProgressScreen
-    unsigned char *screen = (unsigned char *) ::operator new(PROGRESS_SCREEN_SIZE);
+    ProgressScreen *screen = alloc_ProgressScreen();
     ALLOC_CHECK(screen);
-    screen = (*ProgressScreen)(screen);
-    (*Minecraft_setScreen)(minecraft, screen);
+    screen = (*ProgressScreen_constructor)(screen);
+    (*Minecraft_setScreen)(minecraft, (Screen *) screen);
 }
 
 // Check If Running In Whitelist Mode
@@ -121,31 +121,31 @@ static std::string get_blacklist_file() {
 }
 
 // Get Vector Of Players In Level
-static std::vector<unsigned char *> get_players_in_level(unsigned char *level) {
-    return *(std::vector<unsigned char *> *) (level + Level_players_property_offset);
+static std::vector<Player *> get_players_in_level(Level *level) {
+    return level->players;
 }
 // Get Player's Username
-static std::string get_player_username(unsigned char *player) {
-    std::string *username = (std::string *) (player + Player_username_property_offset);
+static std::string get_player_username(Player *player) {
+    std::string *username = &player->username;
     char *safe_username_c = from_cp437(username->c_str());
     std::string safe_username = safe_username_c;
     free(safe_username_c);
     return safe_username;
 }
 // Get Level From Minecraft
-static unsigned char *get_level(unsigned char *minecraft) {
-    return *(unsigned char **) (minecraft + Minecraft_level_property_offset);
+static Level *get_level(Minecraft *minecraft) {
+    return minecraft->level;
 }
 
 // Find Players With Username And Run Callback
-typedef void (*player_callback_t)(unsigned char *minecraft, std::string username, unsigned char *player);
-static void find_players(unsigned char *minecraft, std::string target_username, player_callback_t callback, bool all_players) {
-    unsigned char *level = get_level(minecraft);
-    std::vector<unsigned char *> players = get_players_in_level(level);
+typedef void (*player_callback_t)(Minecraft *minecraft, std::string username, Player *player);
+static void find_players(Minecraft *minecraft, std::string target_username, player_callback_t callback, bool all_players) {
+    Level *level = get_level(minecraft);
+    std::vector<Player *> players = get_players_in_level(level);
     bool found_player = false;
     for (std::size_t i = 0; i < players.size(); i++) {
         // Iterate Players
-        unsigned char *player = players[i];
+        Player *player = players[i];
         std::string username = get_player_username(player);
         if (all_players || username == target_username) {
             // Run Callback
@@ -159,36 +159,33 @@ static void find_players(unsigned char *minecraft, std::string target_username, 
 }
 
 // Get RakNet Objects
-static RakNet_RakNetGUID get_rak_net_guid(unsigned char *player) {
-    return *(RakNet_RakNetGUID *) (player + ServerPlayer_guid_property_offset);
+static RakNet_RakNetGUID get_rak_net_guid(Player *player) {
+    return ((ServerPlayer *) player)->guid;
 }
-static RakNet_SystemAddress get_system_address(unsigned char *rak_peer, RakNet_RakNetGUID guid) {
-    unsigned char *rak_peer_vtable = *(unsigned char **) rak_peer;
-    RakNet_RakPeer_GetSystemAddressFromGuid_t RakNet_RakPeer_GetSystemAddressFromGuid = *(RakNet_RakPeer_GetSystemAddressFromGuid_t *) (rak_peer_vtable + RakNet_RakPeer_GetSystemAddressFromGuid_vtable_offset);
+static RakNet_SystemAddress get_system_address(RakNet_RakPeer *rak_peer, RakNet_RakNetGUID guid) {
     // Get SystemAddress
-    return (*RakNet_RakPeer_GetSystemAddressFromGuid)(rak_peer, guid);
+    return rak_peer->vtable->GetSystemAddressFromGuid(rak_peer, guid);
 }
-static unsigned char *get_rak_peer(unsigned char *minecraft) {
-    unsigned char *rak_net_instance = *(unsigned char **) (minecraft + Minecraft_rak_net_instance_property_offset);
-    return *(unsigned char **) (rak_net_instance + RakNetInstance_peer_property_offset);
+static RakNet_RakPeer *get_rak_peer(Minecraft *minecraft) {
+    return minecraft->rak_net_instance->peer;
 }
-static char *get_rak_net_guid_ip(unsigned char *rak_peer, RakNet_RakNetGUID guid) {
+static char *get_rak_net_guid_ip(RakNet_RakPeer *rak_peer, RakNet_RakNetGUID guid) {
     RakNet_SystemAddress address = get_system_address(rak_peer, guid);
     // Get IP
     return (*RakNet_SystemAddress_ToString)(&address, false, '|');
 }
 
 // Get IP From Player
-static char *get_player_ip(unsigned char *minecraft, unsigned char *player) {
-    unsigned char *rak_peer = get_rak_peer(minecraft);
+static char *get_player_ip(Minecraft *minecraft, Player *player) {
+    RakNet_RakPeer *rak_peer = get_rak_peer(minecraft);
     RakNet_RakNetGUID guid = get_rak_net_guid(player);
     // Return
-    return get_rak_net_guid_ip(rak_peer,guid);
+    return get_rak_net_guid_ip(rak_peer, guid);
 }
 
 // Ban Player
 static bool is_ip_in_blacklist(const char *ip);
-static void ban_callback(unsigned char *minecraft, std::string username, unsigned char *player) {
+static void ban_callback(Minecraft *minecraft, std::string username, Player *player) {
     // Get IP
     char *ip = get_player_ip(minecraft, player);
 
@@ -209,24 +206,22 @@ static void ban_callback(unsigned char *minecraft, std::string username, unsigne
 }
 
 // Kill Player
-static void kill_callback(__attribute__((unused)) unsigned char *minecraft, __attribute__((unused)) std::string username, unsigned char *player) {
-    unsigned char *player_vtable = *(unsigned char **) player;
-    Mob_actuallyHurt_t Player_actuallyHurt = *(Mob_actuallyHurt_t *) (player_vtable + Mob_actuallyHurt_vtable_offset);
-    (*Player_actuallyHurt)(player, INT32_MAX);
+static void kill_callback(__attribute__((unused)) Minecraft *minecraft, __attribute__((unused)) std::string username, Player *player) {
+    player->vtable->actuallyHurt(player, INT32_MAX);
     INFO("Killed: %s", username.c_str());
 }
 
 // List Player
-static void list_callback(unsigned char *minecraft, std::string username, unsigned char *player) {
+static void list_callback(Minecraft *minecraft, std::string username, Player *player) {
     INFO(" - %s (%s)", username.c_str(), get_player_ip(minecraft, player));
 }
 
 // Handle Server Stop
-static void handle_server_stop(unsigned char *minecraft) {
+static void handle_server_stop(Minecraft *minecraft) {
     if (compat_check_exit_requested()) {
         INFO("Stopping Server");
         // Save And Exit
-        unsigned char *level = get_level(minecraft);
+        Level *level = get_level(minecraft);
         if (level != NULL) {
             Level_saveLevelData_injection(level);
         }
@@ -250,7 +245,7 @@ static long long int get_time() {
 static bool is_last_tick_time_set = false;
 static long long int last_tick_time;
 static double tps = 0;
-static void Minecraft_tick_injection(__attribute__((unused)) unsigned char *minecraft) {
+static void Minecraft_tick_injection(__attribute__((unused)) Minecraft *minecraft) {
     long long int time = get_time();
     if (is_last_tick_time_set) {
         long long int tick_time = time - last_tick_time;
@@ -262,8 +257,8 @@ static void Minecraft_tick_injection(__attribute__((unused)) unsigned char *mine
 }
 
 // Get ServerSideNetworkHandler From Minecraft
-static unsigned char *get_server_side_network_handler(unsigned char *minecraft) {
-    return *(unsigned char **) (minecraft + Minecraft_network_handler_property_offset);
+static ServerSideNetworkHandler *get_server_side_network_handler(Minecraft *minecraft) {
+    return (ServerSideNetworkHandler *) minecraft->network_handler;
 }
 
 // Read STDIN Thread
@@ -304,12 +299,12 @@ __attribute__((destructor)) static void _free_stdin_buffer() {
 }
 
 // Handle Commands
-static void handle_commands(unsigned char *minecraft) {
+static void handle_commands(Minecraft *minecraft) {
     // Check If Level Is Generated
     if ((*Minecraft_isLevelGenerated)(minecraft) && stdin_buffer_complete) {
         // Command Ready; Run It
         if (stdin_buffer != NULL) {
-            unsigned char *server_side_network_handler = get_server_side_network_handler(minecraft);
+            ServerSideNetworkHandler *server_side_network_handler = get_server_side_network_handler(minecraft);
             if (server_side_network_handler != NULL) {
                 std::string data((char *) stdin_buffer);
 
@@ -336,8 +331,9 @@ static void handle_commands(unsigned char *minecraft) {
                     // Format Message
                     std::string message = "[Server] " + data.substr(say_command.length());
                     char *safe_message = to_cp437(message.c_str());
+                    std::string cpp_string = safe_message;
                     // Post Message To Chat
-                    (*ServerSideNetworkHandler_displayGameMessage)(server_side_network_handler, safe_message);
+                    (*ServerSideNetworkHandler_displayGameMessage)(server_side_network_handler, &cpp_string);
                     // Free
                     free(safe_message);
                 } else if (data == list_command) {
@@ -377,7 +373,7 @@ static void handle_commands(unsigned char *minecraft) {
 
 // Runs Every Tick
 static bool loaded = false;
-static void Minecraft_update_injection(unsigned char *minecraft) {
+static void Minecraft_update_injection(Minecraft *minecraft) {
     // Create/Start World
     if (!loaded) {
         start_world(minecraft);
@@ -448,16 +444,16 @@ static bool RakNet_RakPeer_IsBanned_injection(__attribute__((unused)) unsigned c
 }
 
 // Log IPs
-static unsigned char *ServerSideNetworkHandler_onReady_ClientGeneration_ServerSideNetworkHandler_popPendingPlayer_injection(unsigned char *server_side_network_handler, RakNet_RakNetGUID *guid) {
+static Player *ServerSideNetworkHandler_onReady_ClientGeneration_ServerSideNetworkHandler_popPendingPlayer_injection(ServerSideNetworkHandler *server_side_network_handler, RakNet_RakNetGUID *guid) {
     // Call Original Method
-    unsigned char *player = (*ServerSideNetworkHandler_popPendingPlayer)(server_side_network_handler, guid);
+    Player *player = (*ServerSideNetworkHandler_popPendingPlayer)(server_side_network_handler, guid);
 
     // Check If Player Is Null
     if (player != NULL) {
         // Get Data
-        std::string *username = (std::string *) (player + Player_username_property_offset);
-        unsigned char *minecraft = *(unsigned char **) (server_side_network_handler + ServerSideNetworkHandler_minecraft_property_offset);
-        unsigned char *rak_peer = get_rak_peer(minecraft);
+        std::string *username = &player->username;
+        Minecraft *minecraft = server_side_network_handler->minecraft;
+        RakNet_RakPeer *rak_peer = get_rak_peer(minecraft);
         char *ip = get_rak_net_guid_ip(rak_peer, *guid);
 
         // Log
@@ -580,7 +576,7 @@ static void server_init() {
     unsigned char max_players_patch[4] = {get_max_players(), 0x30, 0xa0, 0xe3}; // "mov r3, #MAX_PLAYERS"
     patch((void *) 0x166d0, max_players_patch);
     // Custom Banned IP List
-    overwrite((void *) RakNet_RakPeer_IsBanned, (void *) RakNet_RakPeer_IsBanned_injection);
+    overwrite((void *) RakNet_RakPeer_IsBanned_non_virtual, (void *) RakNet_RakPeer_IsBanned_injection);
 
     // Show The MineCon Icon Next To MOTD In Server List
     if (get_server_properties().get_bool("show-minecon-badge", DEFAULT_SHOW_MINECON_BADGE)) {
