@@ -207,7 +207,7 @@ static void ban_callback(Minecraft *minecraft, std::string username, Player *pla
 
 // Kill Player
 static void kill_callback(__attribute__((unused)) Minecraft *minecraft, __attribute__((unused)) std::string username, Player *player) {
-    player->vtable->actuallyHurt(player, INT32_MAX);
+    player->vtable->hurt(player, NULL, INT32_MAX);
     INFO("Killed: %s", username.c_str());
 }
 
