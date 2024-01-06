@@ -8,11 +8,12 @@
 
 // Print Chat To Log
 static bool Gui_addMessage_recursing = false;
-static void Gui_addMessage_injection(unsigned char *gui, std::string const& text) {
+static void Gui_addMessage_injection(Gui *gui, std::string *text) {
     // Sanitize Message
-    char *new_message = strdup(text.c_str());
+    char *new_message = strdup(text->c_str());
     ALLOC_CHECK(new_message);
     sanitize_string(&new_message, -1, 1);
+    std::string cpp_str = new_message;
 
     // Process Message
     if (!Gui_addMessage_recursing) {
@@ -25,28 +26,29 @@ static void Gui_addMessage_injection(unsigned char *gui, std::string const& text
         free(safe_message);
 
         // Call Original Method
-        (*Gui_addMessage)(gui, std::string(new_message));
+        (*Gui_addMessage)(gui, &cpp_str);
 
         // End Recursing
         Gui_addMessage_recursing = false;
     } else {
         // Call Original Method
-        (*Gui_addMessage)(gui, std::string(new_message));
+        (*Gui_addMessage)(gui, &cpp_str);
     }
 
     // Free
     free(new_message);
 }
-void misc_add_message(unsigned char *gui, const char *text) {
-    Gui_addMessage_injection(gui, text);
+void misc_add_message(Gui *gui, const char *text) {
+    std::string str = text;
+    Gui_addMessage_injection(gui, &str);
 }
 
 // Print Progress Reports
 static int last_progress = -1;
 static const char *last_message = NULL;
-static void print_progress(unsigned char *minecraft) {
+static void print_progress(Minecraft *minecraft) {
     const char *message = (*Minecraft_getProgressMessage)(minecraft);
-    int32_t progress = *(int32_t *) (minecraft + Minecraft_progress_property_offset);
+    int32_t progress = minecraft->progress;
     if ((*Minecraft_isLevelGenerated)(minecraft)) {
         message = "Ready";
         progress = -1;
@@ -71,13 +73,13 @@ static void print_progress(unsigned char *minecraft) {
 }
 
 // Print Progress Reports Regularly
-static void Minecraft_update_injection(unsigned char *minecraft) {
+static void Minecraft_update_injection(Minecraft *minecraft) {
     // Print Progress Reports
     print_progress(minecraft);
 }
 
 // Log When Game Is Saved
-void Level_saveLevelData_injection(unsigned char *level) {
+void Level_saveLevelData_injection(Level *level) {
     // Print Log Message
     DEBUG("Saving Game");
 

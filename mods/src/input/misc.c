@@ -21,42 +21,38 @@ int input_back() {
 }
 
 // Handle Back Button Presses
-static void _handle_back(unsigned char *minecraft) {
+static void _handle_back(Minecraft *minecraft) {
     // If Minecraft's Level property is initialized, but Minecraft's Player property is NULL, then Minecraft::handleBack may crash.
-    if ((*(unsigned char **) (minecraft + Minecraft_level_property_offset)) != NULL && (*(unsigned char **) (minecraft + Minecraft_player_property_offset)) == NULL) {
+    if (minecraft->level != NULL && minecraft->player == NULL) {
         // Unable to safely run Minecraft::handleBack, deferring until safe.
         return;
     }
     // Send Event
-    unsigned char *minecraft_vtable = *(unsigned char **) minecraft;
-    Minecraft_handleBack_t Minecraft_handleBack = *(Minecraft_handleBack_t *) (minecraft_vtable + Minecraft_handleBack_vtable_offset);
     for (int i = 0; i < back_button_presses; i++) {
-        (*Minecraft_handleBack)(minecraft, 0);
+        minecraft->vtable->handleBack(minecraft, 0);
     }
     back_button_presses = 0;
 }
 
 // Fix OptionsScreen Ignoring The Back Button
-static int32_t OptionsScreen_handleBackEvent_injection(unsigned char *screen, bool do_nothing) {
+static int32_t OptionsScreen_handleBackEvent_injection(OptionsScreen *screen, bool do_nothing) {
     if (!do_nothing) {
-        unsigned char *minecraft = *(unsigned char **) (screen + Screen_minecraft_property_offset);
+        Minecraft *minecraft = screen->minecraft;
         (*Minecraft_setScreen)(minecraft, NULL);
     }
     return 1;
 }
 
 // Fix "Sleeping Beauty" Bug
-static int32_t InBedScreen_handleBackEvent_injection(unsigned char *screen, bool do_nothing) {
+static int32_t InBedScreen_handleBackEvent_injection(InBedScreen *screen, bool do_nothing) {
     if (!do_nothing) {
         // Close Screen
-        unsigned char *minecraft = *(unsigned char **) (screen + Screen_minecraft_property_offset);
+        Minecraft *minecraft = screen->minecraft;
         (*Minecraft_setScreen)(minecraft, NULL);
         // Stop Sleeping
-        unsigned char *player = *(unsigned char **) (minecraft + Minecraft_player_property_offset);
+        LocalPlayer *player = minecraft->player;
         if (player != NULL) {
-            unsigned char *player_vtable = *(unsigned char **) player;
-            Player_stopSleepInBed_t Player_stopSleepInBed = *(Player_stopSleepInBed_t *) (player_vtable + Player_stopSleepInBed_vtable_offset);
-            (*Player_stopSleepInBed)(player, 1, 1, 1);
+            player->vtable->stopSleepInBed(player, 1, 1, 1);
         }
     }
     return 1;
@@ -69,7 +65,7 @@ void input_set_mouse_grab_state(int state) {
 }
 
 // Grab/Un-Grab Mouse
-static void _handle_mouse_grab(unsigned char *minecraft) {
+static void _handle_mouse_grab(Minecraft *minecraft) {
     if (mouse_grab_state == -1) {
         // Grab
         (*Minecraft_grabMouse)(minecraft);
@@ -83,7 +79,7 @@ static void _handle_mouse_grab(unsigned char *minecraft) {
 #include <SDL/SDL.h>
 
 // Block UI Interaction When Mouse Is Locked
-static bool Gui_tickItemDrop_Minecraft_isCreativeMode_call_injection(unsigned char *minecraft) {
+static bool Gui_tickItemDrop_Minecraft_isCreativeMode_call_injection(Minecraft *minecraft) {
     if (!enable_misc || SDL_WM_GrabInput(SDL_GRAB_QUERY) == SDL_GRAB_OFF) {
         // Call Original Method
         return creative_is_restricted() && (*Minecraft_isCreativeMode)(minecraft);
@@ -94,7 +90,7 @@ static bool Gui_tickItemDrop_Minecraft_isCreativeMode_call_injection(unsigned ch
 }
 
 // Block UI Interaction When Mouse Is Locked
-static void Gui_handleClick_injection(unsigned char *gui, int32_t param_2, int32_t param_3, int32_t param_4) {
+static void Gui_handleClick_injection(Gui *gui, int32_t param_2, int32_t param_3, int32_t param_4) {
     if (SDL_WM_GrabInput(SDL_GRAB_QUERY) == SDL_GRAB_OFF) {
         // Call Original Method
         (*Gui_handleClick)(gui, param_2, param_3, param_4);

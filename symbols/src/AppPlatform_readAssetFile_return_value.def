@@ -1,0 +1,4 @@
+size 0x8;
+
+property char *data = 0x0;
+property int length = 0x4;

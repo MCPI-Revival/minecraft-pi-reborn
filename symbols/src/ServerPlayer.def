@@ -1,0 +1,6 @@
+extends Player;
+
+vtable 0x109e38;
+
+property Minecraft *minecraft = 0xc8c;
+property RakNet_RakNetGUID guid = 0xc08;

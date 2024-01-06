@@ -1,0 +1,4 @@
+method void render(float param_1) = 0x4a338;
+method void setupCamera(float param_1, int param_2) = 0x489f8;
+
+property Minecraft *minecraft = 0x4;

@@ -1,0 +1,17 @@
+size 0xa74;
+
+extends GuiComponent;
+
+method void tick() = 0x27778;
+method void handleClick(int param_2, int param_3, int param_4) = 0x2599c;
+method void renderOnSelectItemNameText(int param_1, Font *font, int param_2) = 0x26aec;
+method void renderToolBar(float param_1, int param_2, int param_3) = 0x26c30;
+method void renderChatMessages(int y_offset, uint max_messages, bool disable_fading, Font *font) = 0x273d8;
+method void onConfigChanged(Config *config) = 0x255bc;
+method void addMessage(std::string *text) = 0x27820;
+
+property Minecraft *minecraft = 0x9f4;
+property float selected_item_text_timer = 0x9fc;
+
+// Globals
+static-property float InvGuiScale = 0x135d98;

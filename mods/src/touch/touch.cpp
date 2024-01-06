@@ -6,7 +6,7 @@
 #include <symbols/minecraft.h>
 
 // Enable Touch GUI
-static int32_t Minecraft_isTouchscreen_injection(__attribute__((unused)) unsigned char *minecraft) {
+static int32_t Minecraft_isTouchscreen_injection(__attribute__((unused)) Minecraft *minecraft) {
     return 1;
 }
 
@@ -16,23 +16,23 @@ static unsigned char *operator_new_IngameBlockSelectionScreen_injection(__attrib
 }
 
 // Improved Button Hover Behavior
-static int32_t Button_hovered_injection(__attribute__((unused)) unsigned char *button, __attribute__((unused)) unsigned char *minecraft, __attribute__((unused)) int32_t click_x, __attribute__((unused)) int32_t click_y) {
+static int32_t Button_hovered_injection(__attribute__((unused)) Button *button, __attribute__((unused)) Minecraft *minecraft, __attribute__((unused)) int32_t click_x, __attribute__((unused)) int32_t click_y) {
     // Get Mouse Position
-    int32_t x = (*Mouse_getX)() * (*InvGuiScale);
-    int32_t y = (*Mouse_getY)() * (*InvGuiScale);
+    int32_t x = (*Mouse_getX)() * (*Gui_InvGuiScale);
+    int32_t y = (*Mouse_getY)() * (*Gui_InvGuiScale);
 
     // Get Button Position
-    int32_t button_x1 = *(int32_t *) (button + Button_x_property_offset);
-    int32_t button_y1 = *(int32_t *) (button + Button_y_property_offset);
-    int32_t button_x2 = button_x1 + (*(int32_t *) (button + Button_width_property_offset));
-    int32_t button_y2 = button_y1 + (*(int32_t *) (button + Button_height_property_offset));
+    int32_t button_x1 = button->x;
+    int32_t button_y1 = button->y;
+    int32_t button_x2 = button_x1 + button->width;
+    int32_t button_y2 = button_y1 + button->height;
 
     // Check
     return x >= button_x1 && x <= button_x2 && y >= button_y1 && y <= button_y2;
 }
-static void LargeImageButton_render_GuiComponent_drawCenteredString_injection(unsigned char *component, unsigned char *font, std::string const& text, int32_t x, int32_t y, int32_t color) {
+static void LargeImageButton_render_GuiComponent_drawCenteredString_injection(GuiComponent *component, Font *font, std::string *text, int32_t x, int32_t y, int32_t color) {
     // Change Color On Hover
-    if (color == 0xe0e0e0 && Button_hovered_injection(component, NULL, 0, 0)) {
+    if (color == 0xe0e0e0 && Button_hovered_injection((Button *) component, NULL, 0, 0)) {
         color = 0xffffa0;
     }
 
@@ -55,10 +55,10 @@ void init_touch() {
         // Force Touch Inventory
         if (feature_has("Force Touch GUI Inventory", server_disabled)) {
             overwrite_call((void *) 0x2943c, (void *) operator_new_IngameBlockSelectionScreen_injection);
-            overwrite_call((void *) 0x29444, (void *) Touch_IngameBlockSelectionScreen);
+            overwrite_call((void *) 0x29444, (void *) Touch_IngameBlockSelectionScreen_constructor);
             // Make "Craft" And "Armor" Buttons Use Classic GUI Style (Button And TButton Have The Same Size)
-            overwrite_call((void *) 0x3b060, (void *) Button);
-            overwrite_call((void *) 0x3b08c, (void *) Button);
+            overwrite_call((void *) 0x3b060, (void *) Button_constructor);
+            overwrite_call((void *) 0x3b08c, (void *) Button_constructor);
         }
 
         // Force Touch Button Behavior

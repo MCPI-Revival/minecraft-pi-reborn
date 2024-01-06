@@ -12,7 +12,7 @@
 #include <mods/misc/misc.h>
 
 // Read Asset File
-static AppPlatform_readAssetFile_return_value AppPlatform_readAssetFile_injection(__attribute__((unused)) unsigned char *app_platform, std::string const& path) {
+static AppPlatform_readAssetFile_return_value AppPlatform_readAssetFile_injection(__attribute__((unused)) AppPlatform *app_platform, std::string const& path) {
     // Open File
     std::ifstream stream("data/" + path, std::ios_base::binary | std::ios_base::ate);
     if (!stream) {
@@ -36,21 +36,19 @@ static AppPlatform_readAssetFile_return_value AppPlatform_readAssetFile_injectio
 }
 
 // Add Missing Buttons To Pause Menu
-static void PauseScreen_init_injection(unsigned char *screen) {
+static void PauseScreen_init_injection(PauseScreen *screen) {
     // Call Original Method
-    (*PauseScreen_init)(screen);
+    (*PauseScreen_init_non_virtual)(screen);
 
     // Check If Server
-    unsigned char *minecraft = *(unsigned char **) (screen + Screen_minecraft_property_offset);
-    unsigned char *rak_net_instance = *(unsigned char **) (minecraft + Minecraft_rak_net_instance_property_offset);
+    Minecraft *minecraft = screen->minecraft;
+    RakNetInstance *rak_net_instance = minecraft->rak_net_instance;
     if (rak_net_instance != NULL) {
-        unsigned char *rak_net_instance_vtable = *(unsigned char**) rak_net_instance;
-        RakNetInstance_isServer_t RakNetInstance_isServer = *(RakNetInstance_isServer_t *) (rak_net_instance_vtable + RakNetInstance_isServer_vtable_offset);
-        if ((*RakNetInstance_isServer)(rak_net_instance)) {
+        if (rak_net_instance->vtable->isServer(rak_net_instance)) {
             // Add Button
-            std::vector<unsigned char *> *rendered_buttons = (std::vector<unsigned char *> *) (screen + Screen_rendered_buttons_property_offset);
-            std::vector<unsigned char *> *selectable_buttons = (std::vector<unsigned char *> *) (screen + Screen_selectable_buttons_property_offset);
-            unsigned char *button = *(unsigned char **) (screen + PauseScreen_server_visibility_button_property_offset);
+            std::vector<Button *> *rendered_buttons = &screen->rendered_buttons;
+            std::vector<Button *> *selectable_buttons = &screen->selectable_buttons;
+            Button *button = screen->server_visibility_button;
             rendered_buttons->push_back(button);
             selectable_buttons->push_back(button);
 
@@ -64,7 +62,7 @@ static void PauseScreen_init_injection(unsigned char *screen) {
 void _init_misc_cpp() {
     // Implement AppPlatform::readAssetFile So Translations Work
     if (feature_has("Load Language Files", server_enabled)) {
-        overwrite((void *) AppPlatform_readAssetFile, (void *) AppPlatform_readAssetFile_injection);
+        overwrite((void *) *AppPlatform_readAssetFile_vtable_addr, (void *) AppPlatform_readAssetFile_injection);
     }
 
     // Fix Pause Menu

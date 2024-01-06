@@ -1,0 +1,6 @@
+size 0x4;
+
+method std::vector<std::string> getOptionStrings() = 0x19c1c;
+method void save(std::vector<std::string> *data) = 0x19bcc;
+
+property std::string options_txt_path = 0x0;

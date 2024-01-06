@@ -1,0 +1,3 @@
+extends Screen;
+
+vtable 0x1045f0;

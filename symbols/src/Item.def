@@ -1,0 +1,27 @@
+static-method void initItems() = 0x94ed0;
+
+vtable-size 0x98;
+vtable 0x10f128;
+
+size 0x24;
+constructor (int id) = 0x99488;
+
+virtual-method void setIcon(int texture_x, int texture_y) = 0x18;
+virtual-method int getIcon(int auxiliary) = 0x14;
+virtual-method int useOn(ItemInstance *item_instance, Player *player, Level *level, int x, int y, int z, int hit_side, float hit_x, float hit_y, float hit_z) = 0x20;
+virtual-method void setDescriptionId(std::string *name) = 0x6c;
+virtual-method std::string getDescriptionId(ItemInstance *item_instance) = 0x7c;
+
+property int id = 0x4;
+property bool is_stacked_by_data = 0x19;
+property int category = 0x10;
+property int max_damage = 0x8;
+property int max_stack_size = 0x14;
+
+// Items
+static-property Item *flintAndSteel = 0x17ba70;
+static-property Item *snowball = 0x17bbb0;
+static-property Item *shears = 0x17bbf0;
+static-property Item *egg = 0x17bbd0;
+static-property Item *dye_powder = 0x17bbe0;
+static-property Item *camera = 0x17bc14;

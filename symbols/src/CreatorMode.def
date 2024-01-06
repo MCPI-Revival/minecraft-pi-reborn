@@ -1,0 +1,5 @@
+extends GameMode;
+
+size 0x1c;
+
+constructor (Minecraft *minecraft) = 0x1a044;

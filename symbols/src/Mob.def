@@ -1,0 +1,10 @@
+extends Entity;
+
+vtable 0x10ad60;
+
+virtual-method void actuallyHurt(int damage) = 0x16c;
+virtual-method void die(Entity *cause) = 0x130;
+virtual-method float getWalkingSpeedModifier() = 0x1e8;
+
+property int health = 0xec;
+property std::string texture = 0xb54;

@@ -1,0 +1,1 @@
+virtual-method void releaseUsingItem(Player *player) = 0x5c;

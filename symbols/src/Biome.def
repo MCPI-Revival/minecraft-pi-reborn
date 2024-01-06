@@ -1,0 +1,2 @@
+property int color = 0x2c;
+property int leaf_color = 0x34;

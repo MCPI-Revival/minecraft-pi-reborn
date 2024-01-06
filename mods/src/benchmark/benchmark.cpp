@@ -36,7 +36,7 @@ __attribute__((constructor)) static void _init_active(int argc, char *argv[]) {
 #define BENCHMARK_ROTATION_AMOUNT 10
 
 // Create/Start World
-static void start_world(unsigned char *minecraft) {
+static void start_world(Minecraft *minecraft) {
     // Log
     INFO("Loading Benchmark");
 
@@ -46,19 +46,18 @@ static void start_world(unsigned char *minecraft) {
     settings.seed = BENCHMARK_SEED;
 
     // Delete World If It Already Exists
-    unsigned char *level_source = (*Minecraft_getLevelSource)(minecraft);
-    unsigned char *level_source_vtable = *(unsigned char **) level_source;
-    ExternalFileLevelStorageSource_deleteLevel_t ExternalFileLevelStorageSource_deleteLevel = *(ExternalFileLevelStorageSource_deleteLevel_t *) (level_source_vtable + ExternalFileLevelStorageSource_deleteLevel_vtable_offset);
-    (*ExternalFileLevelStorageSource_deleteLevel)(level_source, BENCHMARK_WORLD_NAME);
+    LevelStorageSource *level_source = (*Minecraft_getLevelSource)(minecraft);
+    std::string name = BENCHMARK_WORLD_NAME;
+    level_source->vtable->deleteLevel(level_source, &name);
 
     // Select Level
-    (*Minecraft_selectLevel)(minecraft, BENCHMARK_WORLD_NAME, BENCHMARK_WORLD_NAME, settings);
+    minecraft->vtable->selectLevel(minecraft, &name, &name, &settings);
 
     // Open ProgressScreen
-    void *screen = ::operator new(PROGRESS_SCREEN_SIZE);
+    ProgressScreen *screen = alloc_ProgressScreen();
     ALLOC_CHECK(screen);
-    screen = (*ProgressScreen)((unsigned char *) screen);
-    (*Minecraft_setScreen)(minecraft, (unsigned char *) screen);
+    screen = (*ProgressScreen_constructor)(screen);
+    (*Minecraft_setScreen)(minecraft, (Screen *) screen);
 }
 
 // Track Frames
@@ -73,7 +72,7 @@ HOOK(media_swap_buffers, void, ()) {
 
 // Track Ticks
 static unsigned long long int ticks = 0;
-static void Minecraft_tick_injection(__attribute__((unused)) unsigned char *minecraft) {
+static void Minecraft_tick_injection(__attribute__((unused)) Minecraft *minecraft) {
     ticks++;
 }
 
@@ -100,7 +99,7 @@ static int32_t last_logged_status = -1;
 // Runs Every Tick
 static bool loaded = false;
 static bool exit_requested = false;
-static void Minecraft_update_injection(unsigned char *minecraft) {
+static void Minecraft_update_injection(Minecraft *minecraft) {
     // Create/Start World
     if (!loaded) {
         start_world(minecraft);

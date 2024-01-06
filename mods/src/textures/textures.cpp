@@ -15,9 +15,9 @@
 #include "stb_image.h"
 
 // Animated Water
-static void Minecraft_tick_injection(unsigned char *minecraft) {
+static void Minecraft_tick_injection(Minecraft *minecraft) {
     // Tick Dynamic Textures
-    unsigned char *textures = *(unsigned char **) (minecraft + Minecraft_textures_property_offset);
+    Textures *textures = minecraft->textures;
     if (textures != NULL) {
         (*Textures_tick)(textures, true);
     }
@@ -169,12 +169,22 @@ static void Textures_tick_glTexSubImage2D_injection(GLenum target, GLint level, 
 }
 
 // Load Textures
-static Texture AppPlatform_linux_loadTexture_injection(__attribute__((unused)) unsigned char *app_platform, std::string const& path, bool b) {
+static Texture AppPlatform_linux_loadTexture_injection(__attribute__((unused)) AppPlatform_linux *app_platform, std::string *path, bool b) {
     Texture out;
-    std::string real_path = path;
+    std::string real_path = *path;
     if (b) {
         real_path = "data/images/" + real_path;
     }
+
+    // Empty Texture
+    out.width = 0;
+    out.height = 0;
+    out.data = NULL;
+    out.field3_0xc = 0;
+    out.field4_0x10 = true;
+    out.field5_0x11 = false;
+    out.field6_0x14 = 0;
+    out.field7_0x18 = -1;
 
     // Read Image
     int width = 0, height = 0, channels = 0;
@@ -211,5 +221,5 @@ void init_textures() {
     overwrite_call((void *) 0x53274, (void *) Textures_tick_glTexSubImage2D_injection);
 
     // Load Textures
-    overwrite((void *) AppPlatform_linux_loadTexture, (void *) AppPlatform_linux_loadTexture_injection);
+    overwrite((void *) AppPlatform_linux_loadTexture_non_virtual, (void *) AppPlatform_linux_loadTexture_injection);
 }

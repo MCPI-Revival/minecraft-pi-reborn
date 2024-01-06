@@ -1,0 +1,5 @@
+extends Screen;
+
+size 0x180;
+
+constructor (int param_1) = 0x301cc;

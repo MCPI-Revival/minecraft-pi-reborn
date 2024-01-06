@@ -1,0 +1,7 @@
+static-method std::string *getGameVersionString(std::string *version_suffix) = 0x15068;
+
+// These are not actually part of "Common", but they have to go somewhere.
+static-method void renderCursor(float x, float y, Minecraft *minecraft) = 0x480c4;
+static-method void sleepMs(int x) = 0x13cf4;
+static-method int sdl_key_to_minecraft_key(int sdl_key) = 0x1243c;
+static-method void anGenBuffers(int count, uint *buffers) = 0x5f28c;

@@ -1,0 +1,3 @@
+property int id = 0x18;
+property int renderer_id = 0x24;
+property bool is_client = 0x20;

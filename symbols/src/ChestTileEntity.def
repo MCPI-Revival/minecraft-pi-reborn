@@ -1,0 +1,5 @@
+extends TileEntity;
+
+constructor () = 0xcfa78;
+
+property Container container = 0x30;

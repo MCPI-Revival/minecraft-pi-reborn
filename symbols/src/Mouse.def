@@ -1,0 +1,2 @@
+static-method int getX() = 0x1385c;
+static-method int getY() = 0x1386c;

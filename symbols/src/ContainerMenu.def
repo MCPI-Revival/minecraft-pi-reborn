@@ -1,0 +1,6 @@
+vtable 0x10e1b8;
+
+constructor (Container *container, int param_1) = 0x919a8;
+virtual-method uchar *destructor() = 0x0;
+
+property Container *container = 0x1c;

@@ -1,0 +1,3 @@
+extends HumanoidMobRenderer;
+
+vtable 0x107f00;

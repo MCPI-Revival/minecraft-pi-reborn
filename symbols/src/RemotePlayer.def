@@ -1,0 +1,3 @@
+extends Player;
+
+vtable 0x106498;

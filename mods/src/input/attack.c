@@ -14,15 +14,15 @@ void input_set_is_left_click(int val) {
 }
 
 // Add Attacking To MouseBuildInput
-static int32_t MouseBuildInput_tickBuild_injection(unsigned char *mouse_build_input, unsigned char *local_player, uint32_t *build_action_intention_return) {
+static int32_t MouseBuildInput_tickBuild_injection(MouseBuildInput *mouse_build_input, Player *local_player, uint32_t *build_action_intention_return) {
     // Call Original Method
-    int32_t ret = (*MouseBuildInput_tickBuild)(mouse_build_input, local_player, build_action_intention_return);
+    int32_t ret = (*MouseBuildInput_tickBuild_non_virtual)(mouse_build_input, local_player, build_action_intention_return);
 
     // Use Attack/Place BuildActionIntention If No Other Valid BuildActionIntention Was Selected And This Was Not A Repeated Left Click
     if (ret != 0 && is_left_click == 1 && *build_action_intention_return == 0xa) {
         // Get Target HitResult
-        unsigned char *minecraft = *(unsigned char **) (local_player + LocalPlayer_minecraft_property_offset);
-        HitResult *hit_result = (HitResult *) (minecraft + Minecraft_hit_result_property_offset);
+        Minecraft *minecraft = ((LocalPlayer *) local_player)->minecraft;
+        HitResult *hit_result = &minecraft->hit_result;
         int32_t hit_result_type = hit_result->type;
         // Check if The Target Is An Entity Using HitResult
         if (hit_result_type == 1) {
@@ -37,14 +37,12 @@ static int32_t MouseBuildInput_tickBuild_injection(unsigned char *mouse_build_in
 
 // Fix Holding Attack
 static bool last_player_attack_successful = 0;
-static bool Player_attack_Entity_hurt_injection(unsigned char *entity, unsigned char *attacker, int32_t damage) {
+static bool Player_attack_Entity_hurt_injection(Entity *entity, Entity *attacker, int32_t damage) {
     // Call Original Method
-    unsigned char *entity_vtable = *(unsigned char **) entity;
-    Entity_hurt_t Entity_hurt = *(Entity_hurt_t *) (entity_vtable + Entity_hurt_vtable_offset);
-    last_player_attack_successful = (*Entity_hurt)(entity, attacker, damage);
+    last_player_attack_successful = entity->vtable->hurt(entity, attacker, damage);
     return last_player_attack_successful;
 }
-static ItemInstance *Player_attack_Inventory_getSelected_injection(unsigned char *inventory) {
+static ItemInstance *Player_attack_Inventory_getSelected_injection(Inventory *inventory) {
     // Check If Attack Was Successful
     if (!last_player_attack_successful) {
         return NULL;

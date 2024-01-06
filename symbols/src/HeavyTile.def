@@ -1,0 +1,4 @@
+extends Tile;
+
+// Sand/Gravel Instant Falling
+static-property bool instaFall = 0x180cc0;

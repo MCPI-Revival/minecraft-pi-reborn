@@ -1,0 +1,1 @@
+method void unknown_toggle_creating_function(uint group_id, std::string *name, Options_Option *option) = 0x24470;

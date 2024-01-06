@@ -6,22 +6,22 @@
 #include <mods/misc/misc.h>
 
 // Items
-unsigned char *bucket = NULL;
+Item *bucket = NULL;
 
 // Description And Texture
-static std::string BucketItem_getDescriptionId(__attribute__((unused)) unsigned char *item, const ItemInstance *item_instance) {
-    if (item_instance->auxiliary == *(int32_t *) (*Tile_water + Tile_id_property_offset)) {
+static std::string BucketItem_getDescriptionId(__attribute__((unused)) Item *item, ItemInstance *item_instance) {
+    if (item_instance->auxiliary == (*Tile_water)->id) {
         return "item.bucketWater";
-    } else if (item_instance->auxiliary == *(int32_t *) (*Tile_lava + Tile_id_property_offset)) {
+    } else if (item_instance->auxiliary == (*Tile_lava)->id) {
         return "item.bucketLava";
     } else {
         return "item.bucket";
     }
 }
-static int32_t BucketItem_getIcon(__attribute__((unused)) unsigned char *item, int32_t auxiliary) {
-    if (auxiliary == *(int32_t *) (*Tile_water + Tile_id_property_offset)) {
+static int32_t BucketItem_getIcon(__attribute__((unused)) Item *item, int32_t auxiliary) {
+    if (auxiliary == (*Tile_water)->id) {
         return 75;
-    } else if (auxiliary == *(int32_t *) (*Tile_lava + Tile_id_property_offset)) {
+    } else if (auxiliary == (*Tile_lava)->id) {
         return 76;
     } else {
         return 74;
@@ -29,17 +29,17 @@ static int32_t BucketItem_getIcon(__attribute__((unused)) unsigned char *item, i
 }
 
 // Use Bucket
-static int32_t BucketItem_useOn(__attribute__((unused)) unsigned char *item, ItemInstance *item_instance, unsigned char *player, unsigned char *level, int32_t x, int32_t y, int32_t z, int32_t hit_side, __attribute__((unused)) float hit_x, __attribute__((unused)) float hit_y, __attribute__((unused)) float hit_z) {
+static int32_t BucketItem_useOn(__attribute__((unused)) Item *item, ItemInstance *item_instance, Player *player, Level *level, int32_t x, int32_t y, int32_t z, int32_t hit_side, __attribute__((unused)) float hit_x, __attribute__((unused)) float hit_y, __attribute__((unused)) float hit_z) {
     if (item_instance->count < 1) {
         return 0;
     } else if (item_instance->auxiliary == 0) {
         // Empty Bucket
         int32_t new_auxiliary = 0;
-        int32_t tile = (*Level_getTile)(level, x, y, z);
-        if (tile == *(int32_t *) (*Tile_calmWater + Tile_id_property_offset)) {
-            new_auxiliary = *(int32_t *) (*Tile_water + Tile_id_property_offset);
-        } else if (tile == *(int32_t *) (*Tile_calmLava + Tile_id_property_offset)) {
-            new_auxiliary = *(int32_t *) (*Tile_lava + Tile_id_property_offset);
+        int32_t tile = level->vtable->getTile(level, x, y, z);
+        if (tile == (*Tile_calmWater)->id) {
+            new_auxiliary = (*Tile_water)->id;
+        } else if (tile == (*Tile_calmLava)->id) {
+            new_auxiliary = (*Tile_lava)->id;
         }
         if (new_auxiliary != 0) {
             // Valid
@@ -49,13 +49,11 @@ static int32_t BucketItem_useOn(__attribute__((unused)) unsigned char *item, Ite
                 success = true;
             } else {
                 ItemInstance new_item;
-                new_item.id = *(int32_t *) (bucket + Item_id_property_offset);
+                new_item.id = bucket->id;
                 new_item.count = 1;
                 new_item.auxiliary = new_auxiliary;
-                unsigned char *inventory = *(unsigned char **) (player + Player_inventory_property_offset);
-                unsigned char *inventory_vtable = *(unsigned char **) inventory;
-                FillingContainer_add_t FillingContainer_add = *(FillingContainer_add_t *) (inventory_vtable + FillingContainer_add_vtable_offset);
-                if ((*FillingContainer_add)(inventory, &new_item)) {
+                Inventory *inventory = player->inventory;
+                if (inventory->vtable->add(inventory, &new_item)) {
                     // Added To Inventory
                     success = true;
                     item_instance->count -= 1;
@@ -101,13 +99,11 @@ static int32_t BucketItem_useOn(__attribute__((unused)) unsigned char *item, Ite
         }
         // Get Current Tile
         bool valid = false;
-        unsigned char *material = (*Level_getMaterial)(level, x, y, z);
+        Material *material = level->vtable->getMaterial(level, x, y, z);
         if (material != NULL) {
-            unsigned char *material_vtable = *(unsigned char **) material;
-            Material_isSolid_t Material_isSolid = *(Material_isSolid_t *) (material_vtable + Material_isSolid_vtable_offset);
-            valid = !(*Material_isSolid)(material);
+            valid = !material->vtable->isSolid(material);
         }
-        if (item_instance->auxiliary != *(int32_t *) (*Tile_water + Tile_id_property_offset) && item_instance->auxiliary != *(int32_t *) (*Tile_lava + Tile_id_property_offset)) {
+        if (item_instance->auxiliary != (*Tile_water)->id && item_instance->auxiliary != (*Tile_lava)->id) {
             valid = false;
         }
         if (valid) {
@@ -121,59 +117,49 @@ static int32_t BucketItem_useOn(__attribute__((unused)) unsigned char *item, Ite
 }
 
 // Bucket VTable
-static unsigned char *get_bucket_vtable() {
-    static unsigned char *vtable = NULL;
+static Item_vtable *get_bucket_vtable() {
+    static Item_vtable *vtable = NULL;
     if (vtable == NULL) {
         // Init
-        vtable = (unsigned char *) malloc(ITEM_VTABLE_SIZE);
+        vtable = dup_Item_vtable(Item_vtable_base);
         ALLOC_CHECK(vtable);
-        // Copy Old VTable
-        memcpy((void *) vtable, (void *) Item_vtable, ITEM_VTABLE_SIZE);
 
         // Modify
-        *(Item_getDescriptionId_t *) (vtable + Item_getDescriptionId_vtable_offset) = BucketItem_getDescriptionId;
-        *(Item_getIcon_t *) (vtable + Item_getIcon_vtable_offset) = BucketItem_getIcon;
-        *(Item_useOn_t *) (vtable + Item_useOn_vtable_offset) = BucketItem_useOn;
+        vtable->getDescriptionId = BucketItem_getDescriptionId;
+        vtable->getIcon = BucketItem_getIcon;
+        vtable->useOn = BucketItem_useOn;
     }
     return vtable;
 }
-__attribute__((destructor)) static void free_bucket_vtable() {
-    free(get_bucket_vtable());
-}
 
 // Create Items
-static unsigned char *create_bucket(int32_t id, int32_t texture_x, int32_t texture_y, const char *name) {
+static Item *create_bucket(int32_t id, int32_t texture_x, int32_t texture_y, std::string name) {
     // Construct
-    unsigned char *item = (unsigned char *) ::operator new(ITEM_SIZE);
+    Item *item = alloc_Item();
     ALLOC_CHECK(item);
-    (*Item)(item, id);
+    (*Item_constructor)(item, id);
 
     // Set VTable
-    *(unsigned char **) item = get_bucket_vtable();
-
-    // Get Functions
-    unsigned char *vtable = *(unsigned char **) item;
-    Item_setIcon_t Item_setIcon = *(Item_setIcon_t *) (vtable + Item_setIcon_vtable_offset);
-    Item_setDescriptionId_t Item_setDescriptionId = *(Item_setDescriptionId_t *) (vtable + Item_setDescriptionId_vtable_offset);
+    item->vtable = get_bucket_vtable();
 
     // Setup
-    (*Item_setIcon)(item, texture_x, texture_y);
-    (*Item_setDescriptionId)(item, name);
-    *(int32_t *) (item + Item_is_stacked_by_data_property_offset) = 1;
-    *(int32_t *) (item + Item_category_property_offset) = 2;
-    *(int32_t *) (item + Item_max_damage_property_offset) = 0;
-    *(int32_t *) (item + Item_max_stack_size_property_offset) = 1;
+    item->vtable->setIcon(item, texture_x, texture_y);
+    item->vtable->setDescriptionId(item, &name);
+    item->is_stacked_by_data = 1;
+    item->category = 2;
+    item->max_damage = 0;
+    item->max_stack_size = 1;
 
     // Return
     return item;
 }
-static void Item_initItems_injection(__attribute__((unused)) unsigned char *null) {
+static void Item_initItems_injection(__attribute__((unused)) void *null) {
     bucket = create_bucket(69, 10, 4, "bucket");
 }
 
 // Change Max Stack Size Based On Auxiliary
 static int32_t ItemInstance_getMaxStackSize_injection(ItemInstance *item_instance) {
-    if (item_instance->id == *(int32_t *) (bucket + Item_id_property_offset) && item_instance->auxiliary == 0) {
+    if (item_instance->id == bucket->id && item_instance->auxiliary == 0) {
         // Custom Value
         return 16;
     } else {
@@ -183,60 +169,56 @@ static int32_t ItemInstance_getMaxStackSize_injection(ItemInstance *item_instanc
 }
 
 // Creative Inventory
-static void inventory_add_item(unsigned char *inventory, unsigned char *item, int32_t auxiliary) {
+static void inventory_add_item(FillingContainer *inventory, Item *item, int32_t auxiliary) {
     ItemInstance *item_instance = new ItemInstance;
     ALLOC_CHECK(item_instance);
     item_instance = (*ItemInstance_constructor_item_extra)(item_instance, item, 1, auxiliary);
     (*FillingContainer_addItem)(inventory, item_instance);
 }
-static void Inventory_setupDefault_FillingContainer_addItem_call_injection(unsigned char *filling_container) {
+static void Inventory_setupDefault_FillingContainer_addItem_call_injection(FillingContainer *filling_container) {
     inventory_add_item(filling_container, bucket, 0);
-    inventory_add_item(filling_container, bucket, *(int32_t *) (*Tile_water + Tile_id_property_offset));
-    inventory_add_item(filling_container, bucket, *(int32_t *) (*Tile_lava + Tile_id_property_offset));
+    inventory_add_item(filling_container, bucket, (*Tile_water)->id);
+    inventory_add_item(filling_container, bucket, (*Tile_lava)->id);
 }
 
 // Make Liquids Selectable
 static bool is_holding_bucket = false;
-static HitResult Mob_pick_Level_clip_injection(unsigned char *level, unsigned char *param_1, unsigned char *param_2, __attribute__((unused)) bool clip_liquids, bool param_3) {
+static HitResult Mob_pick_Level_clip_injection(Level *level, unsigned char *param_1, unsigned char *param_2, __attribute__((unused)) bool clip_liquids, bool param_3) {
     // Call Original Method
     return (*Level_clip)(level, param_1, param_2, is_holding_bucket, param_3);
 }
-static void handle_tick(unsigned char *minecraft) {
-    unsigned char *player = *(unsigned char **) (minecraft + Minecraft_player_property_offset);
+static void handle_tick(Minecraft *minecraft) {
+    LocalPlayer *player = minecraft->player;
     if (player != NULL) {
         // Get Selected Slot
-        int32_t selected_slot = misc_get_real_selected_slot(player);
-        unsigned char *inventory = *(unsigned char **) (player + Player_inventory_property_offset);
-
-        // Prepare
-        unsigned char *inventory_vtable = *(unsigned char **) inventory;
-        FillingContainer_getItem_t FillingContainer_getItem = *(FillingContainer_getItem_t *) (inventory_vtable + FillingContainer_getItem_vtable_offset);
+        int32_t selected_slot = misc_get_real_selected_slot((Player *) player);
+        Inventory *inventory = player->inventory;
 
         // Get Item
-        ItemInstance *inventory_item = (*FillingContainer_getItem)(inventory, selected_slot);
+        ItemInstance *inventory_item = inventory->vtable->getItem(inventory, selected_slot);
         // Check
-        is_holding_bucket = inventory_item != NULL && inventory_item->id == (*(int32_t *) (bucket + Item_id_property_offset)) && inventory_item->auxiliary == 0;
+        is_holding_bucket = inventory_item != NULL && inventory_item->id == bucket->id && inventory_item->auxiliary == 0;
     }
 }
 
 // Prevent Breaking Liquid
 static bool is_calm_liquid(int32_t id) {
-    if (id == *(int32_t *) (*Tile_calmWater + Tile_id_property_offset)) {
+    if (id == (*Tile_calmWater)->id) {
         return true;
-    } else if (id == *(int32_t *) (*Tile_calmLava + Tile_id_property_offset)) {
+    } else if (id == (*Tile_calmLava)->id) {
         return true;
     } else {
         return false;
     }
 }
-static void Minecraft_handleMouseDown_injection(unsigned char *minecraft, int param_1, bool can_destroy) {
+static void Minecraft_handleMouseDown_injection(Minecraft *minecraft, int param_1, bool can_destroy) {
     // Check
-    unsigned char *level = *(unsigned char **) (minecraft + Minecraft_level_property_offset);
+    Level *level = minecraft->level;
     if (level != NULL) {
-        int32_t x = *(int32_t *) (minecraft + Minecraft_targeted_x_property_offset);
-        int32_t y = *(int32_t *) (minecraft + Minecraft_targeted_y_property_offset);
-        int32_t z = *(int32_t *) (minecraft + Minecraft_targeted_z_property_offset);
-        int32_t tile = (*Level_getTile)(level, x, y, z);
+        int32_t x = minecraft->hit_result.x;
+        int32_t y = minecraft->hit_result.y;
+        int32_t z = minecraft->hit_result.z;
+        int32_t tile = level->vtable->getTile(level, x, y, z);
         if (is_calm_liquid(tile)) {
             can_destroy = false;
         }
@@ -247,7 +229,7 @@ static void Minecraft_handleMouseDown_injection(unsigned char *minecraft, int pa
 }
 
 // Custom Crafting Recipes
-static void Recipes_injection(unsigned char *recipes) {
+static void Recipes_injection(Recipes *recipes) {
     // Add
     Recipes_Type type1 = {
         .item = 0,
@@ -261,15 +243,18 @@ static void Recipes_injection(unsigned char *recipes) {
     };
     ItemInstance result = {
         .count = 1,
-        .id = (*(int32_t *) (bucket + Item_id_property_offset)),
+        .id = bucket->id,
         .auxiliary = 0
     };
-    (*Recipes_addShapedRecipe_2)(recipes, result, "# #", " # ", {type1});
+    std::string line1 = "# #";
+    std::string line2 = " # ";
+    std::vector<Recipes_Type> types = {type1};
+    (*Recipes_addShapedRecipe_2)(recipes, &result, &line1, &line2, &types);
 }
 
 // Custom Furnace Fuel
-static int32_t FurnaceTileEntity_getBurnDuration_injection(ItemInstance const& item_instance) {
-    if (item_instance.count > 0 && item_instance.id == (*(int32_t *) (bucket + Item_id_property_offset)) && item_instance.auxiliary == (*(int32_t *) (*Tile_lava + Tile_id_property_offset))) {
+static int32_t FurnaceTileEntity_getBurnDuration_injection(ItemInstance *item_instance) {
+    if (item_instance->count > 0 && item_instance->id == bucket->id && item_instance->auxiliary == (*Tile_lava)->id) {
         return 20000;
     } else {
         // Call Original Method
@@ -278,7 +263,7 @@ static int32_t FurnaceTileEntity_getBurnDuration_injection(ItemInstance const& i
 }
 static void FurnaceTileEntity_tick_ItemInstance_setNull_injection(ItemInstance *item_instance) {
     // Replace Lava Bucket With Empty Bucket When It Burns Out
-    if (item_instance->id == (*(int32_t *) (bucket + Item_id_property_offset))) {
+    if (item_instance->id == bucket->id) {
         item_instance->auxiliary = 0;
     } else {
         // Original Behavior

@@ -1,0 +1,10 @@
+// Fake Class To Hold String References
+static-property char *default_path = 0xe264; // /.minecraft/
+static-property char *default_username = 0x18fd4; // StevePi
+static-property char *minecraft_pi_version = 0x39d94; // v0.1.1 alpha
+static-property char *options_txt_path = 0x19bc8; // options.txt
+static-property char *options_txt_fopen_mode_when_loading = 0x19d24; // w
+static-property char **feedback_vibration_options_txt_name_1 = 0x198a0; // feedback_vibration
+static-property char **feedback_vibration_options_txt_name_2 = 0x194bc; // feedback_vibration
+static-property char **gfx_lowquality_options_txt_name = 0x194c4; // gfx_lowquality
+static-property char *classic_create_button_text = 0x39bec; // Create

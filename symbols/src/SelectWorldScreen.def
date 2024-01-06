@@ -1,0 +1,8 @@
+extends Screen;
+
+vtable 0x104f50;
+
+method std::string getUniqueLevelName(std::string *name) = 0x388ec;
+
+property bool should_create_world = 0xfc;
+property bool world_created = 0xf9;

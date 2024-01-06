@@ -51,12 +51,12 @@ typedef enum {
     DIALOG_OPEN,
     DIALOG_SUCCESS
 } create_world_state_dialog_t;
-typedef struct {
+struct create_world_state_t {
     volatile create_world_state_dialog_t dialog_state = DIALOG_CLOSED;
     volatile char *name = NULL;
     volatile int32_t game_mode = 0;
     volatile int32_t seed = 0;
-} create_world_state_t;
+};
 static create_world_state_t create_world_state;
 // Destructor
 __attribute__((destructor)) static void _free_create_world_state_name() {
@@ -80,9 +80,9 @@ static void reset_create_world_state() {
 #define GAME_MODE_DIALOG_SIZE "200"
 static void *create_world_thread(__attribute__((unused)) void *nop) {
     // Run Dialogs
+    char *world_name = NULL;
     {
         // World Name
-        char *world_name = NULL;
         {
             // Open
             const char *command[] = {
@@ -201,6 +201,7 @@ static void *create_world_thread(__attribute__((unused)) void *nop) {
     pthread_mutex_lock(&create_world_state_lock);
     reset_create_world_state();
     pthread_mutex_unlock(&create_world_state_lock);
+    free(world_name);
     // Return
     return NULL;
 }
@@ -214,15 +215,10 @@ static void open_create_world() {
     pthread_create(&thread, NULL, create_world_thread, NULL);
 }
 
-// Get Minecraft From Screen
-static unsigned char *get_minecraft_from_screen(unsigned char *screen) {
-    return *(unsigned char **) (screen + Screen_minecraft_property_offset);
-}
-
 // Create World
-static void create_world(unsigned char *host_screen, std::string folder_name) {
+static void create_world(Screen *host_screen, std::string folder_name) {
     // Get Minecraft
-    unsigned char *minecraft = get_minecraft_from_screen(host_screen);
+    Minecraft *minecraft = host_screen->minecraft;
 
     // Settings
     LevelSettings settings;
@@ -231,16 +227,16 @@ static void create_world(unsigned char *host_screen, std::string folder_name) {
 
     // Create World
     std::string world_name = (char *) create_world_state.name;
-    (*Minecraft_selectLevel)(minecraft, folder_name, world_name, settings);
+    minecraft->vtable->selectLevel(minecraft, &folder_name, &world_name, &settings);
 
     // Multiplayer
     (*Minecraft_hostMultiplayer)(minecraft, 19132);
 
     // Open ProgressScreen
-    unsigned char *screen = (unsigned char *) ::operator new(PROGRESS_SCREEN_SIZE);
+    ProgressScreen *screen = alloc_ProgressScreen();
     ALLOC_CHECK(screen);
-    screen = (*ProgressScreen)(screen);
-    (*Minecraft_setScreen)(minecraft, screen);
+    screen = (*ProgressScreen_constructor)(screen);
+    (*Minecraft_setScreen)(minecraft, (Screen *) screen);
 
     // Reset
     reset_create_world_state();
@@ -248,11 +244,11 @@ static void create_world(unsigned char *host_screen, std::string folder_name) {
 
 // Redirect Create World Button
 #define create_SelectWorldScreen_tick_injection(prefix) \
-    static void prefix##SelectWorldScreen_tick_injection(unsigned char *screen) { \
+    static void prefix##SelectWorldScreen_tick_injection(prefix##SelectWorldScreen *screen) { \
         /* Lock */ \
         pthread_mutex_lock(&create_world_state_lock); \
         \
-        bool *should_create_world = (bool *) (screen + prefix##SelectWorldScreen_should_create_world_property_offset); \
+        bool *should_create_world = &screen->should_create_world; \
         if (*should_create_world) { \
             /* Check State */ \
             if (create_world_state.dialog_state == DIALOG_CLOSED) { \
@@ -264,7 +260,7 @@ static void create_world(unsigned char *host_screen, std::string folder_name) {
             *should_create_world = false; \
         } else { \
             /* Call Original Method */ \
-            (*prefix##SelectWorldScreen_tick)(screen); \
+            (*prefix##SelectWorldScreen_tick_non_virtual)(screen); \
         } \
         \
         /* Create World If Dialog Succeeded */ \
@@ -273,10 +269,10 @@ static void create_world(unsigned char *host_screen, std::string folder_name) {
             \
             /* Get New World Name */ \
             std::string name = (char *) create_world_state.name; \
-            std::string new_name = (*prefix##SelectWorldScreen_getUniqueLevelName)(screen, name); \
+            std::string new_name = (*prefix##SelectWorldScreen_getUniqueLevelName)(screen, &name); \
             \
             /* Create World */ \
-            create_world(screen, new_name); \
+            create_world((Screen *) screen, new_name); \
         } \
         \
         /* Lock/Unlock UI */ \

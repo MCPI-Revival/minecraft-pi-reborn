@@ -1,0 +1,5 @@
+constructor (const char *format, ...) = 0xea5cc;
+
+method void Assign(const char *str) = 0xe9e34;
+
+property RakNet_RakString_SharedString *sharedString = 0x0;

@@ -1,0 +1,5 @@
+extends Screen;
+
+size 0x4c;
+
+constructor () = 0x37044;

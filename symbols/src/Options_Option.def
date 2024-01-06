@@ -1,0 +1,3 @@
+static-property Options_Option GRAPHICS = 0x136c2c;
+static-property Options_Option AMBIENT_OCCLUSION = 0x136c38;
+static-property Options_Option ANAGLYPH = 0x136c08;

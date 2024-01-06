@@ -21,14 +21,14 @@ static void set_is_survival(int new_is_survival) {
         patch((void *) 0x16ee4, size_patch);
 
         // Replace Default CreatorMode Constructor With CreatorMode Or SurvivalMode Constructor
-        overwrite_call((void *) 0x16ef4, new_is_survival ? SurvivalMode : CreatorMode);
+        overwrite_call((void *) 0x16ef4, new_is_survival ? (void *) SurvivalMode_constructor : (void *) CreatorMode_constructor);
 
         is_survival = new_is_survival;
     }
 }
 
 // Handle Gamemode Switching
-static void Minecraft_setIsCreativeMode_injection(unsigned char *this, int32_t new_game_mode) {
+static void Minecraft_setIsCreativeMode_injection(Minecraft *this, int32_t new_game_mode) {
     set_is_survival(!new_game_mode);
 
     // Call Original Method
@@ -36,7 +36,7 @@ static void Minecraft_setIsCreativeMode_injection(unsigned char *this, int32_t n
 }
 
 // Disable CreatorMode-Specific API Features (Polling Block Hits) In SurvivalMode, This Is Preferable To Crashing
-static unsigned char *Minecraft_getCreator_injection(unsigned char *minecraft) {
+static unsigned char *Minecraft_getCreator_injection(Minecraft *minecraft) {
     if (is_survival) {
         // SurvivalMode, Return NULL
         return NULL;
@@ -54,7 +54,7 @@ void init_game_mode() {
         overwrite_calls((void *) Minecraft_setIsCreativeMode, (void *) Minecraft_setIsCreativeMode_injection);
 
         // Replace CreatorLevel With ServerLevel (This Fixes Beds And Mob Spawning)
-        overwrite_call((void *) 0x16f84, (void *) ServerLevel);
+        overwrite_call((void *) 0x16f84, (void *) ServerLevel_constructor);
 
         // Allocate Correct Size For ServerLevel
         uint32_t level_size = SERVER_LEVEL_SIZE;

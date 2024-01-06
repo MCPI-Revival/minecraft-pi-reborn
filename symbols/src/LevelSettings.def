@@ -1,0 +1,4 @@
+size 0x8;
+
+property int seed = 0x0;
+property int game_type = 0x4;

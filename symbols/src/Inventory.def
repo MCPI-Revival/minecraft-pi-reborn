@@ -1,0 +1,6 @@
+extends FillingContainer;
+
+method void selectSlot(int slot) = 0x8d13c;
+method ItemInstance *getSelected() = 0x8d134;
+
+property int selectedSlot = 0x28;

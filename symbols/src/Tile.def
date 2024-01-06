@@ -1,0 +1,49 @@
+static-method void initTiles() = 0xc358c;
+
+vtable 0x115670;
+vtable-size 0x104;
+
+constructor (int id, int texture, void *material) = 0xc33a0;
+size 0x5c;
+
+method Tile *init() = 0xc34dc;
+virtual-method Tile *setDestroyTime(float destroy_time) = 0xf8;
+virtual-method Tile *setExplodeable(float explodeable) = 0xf4;
+virtual-method Tile *setSoundType(Tile_SoundType *sound_type) = 0xe8;
+virtual-method int use(Level *level, int x, int y, int z, Player *player) = 0x98;
+virtual-method int getColor(LevelSource *level_source, int x, int y, int z) = 0xb8;
+virtual-method int getRenderShape() = 0xc;
+virtual-method Tile *setDescriptionId(std::string *description_id) = 0xe0;
+
+property int id = 0x8;
+property int category = 0x3c;
+
+// Globals
+static-property Tile *tiles = 0x180e08;
+
+// Tiles
+static-property Tile *chest = 0x181d60;
+static-property Tile *water = 0x181b3c;
+static-property Tile *lava = 0x181cc8;
+static-property Tile *calmWater = 0x181b40;
+static-property Tile *calmLava = 0x181ccc;
+static-property Tile *glowingObsidian = 0x181dcc;
+static-property Tile *web = 0x181d08;
+static-property Tile *topSnow = 0x181b30;
+static-property Tile *ice = 0x181d80;
+static-property Tile *invisible_bedrock = 0x181d94;
+static-property Tile *netherReactor = 0x181dd0;
+static-property Tile *info_updateGame1 = 0x181c68;
+static-property Tile *info_updateGame2 = 0x181c6c;
+static-property Tile *bedrock = 0x181cc4;
+static-property Tile *tallgrass = 0x181d0c;
+static-property Tile *stoneSlab = 0x181b44;
+
+// "Carried" Tiles
+static-property Tile *leaves = 0x18120c;
+static-property Tile *leaves_carried = 0x181dd8;
+static-property Tile *grass = 0x181b14;
+static-property Tile *grass_carried = 0x181dd4;
+
+// Sounds
+static-property Tile_SoundType SOUND_STONE = 0x181c80;

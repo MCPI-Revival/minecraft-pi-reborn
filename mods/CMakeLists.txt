@@ -8,6 +8,7 @@ target_include_directories(
     "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>"
     "$<INSTALL_INTERFACE:${MCPI_SDK_INCLUDE_DIR}/mods>"
 )
+target_link_libraries(mods-headers INTERFACE symbols)
 # SDK
 install(TARGETS mods-headers EXPORT sdk DESTINATION "${MCPI_SDK_LIB_DIR}")
 install(DIRECTORY "include/" DESTINATION "${MCPI_SDK_INCLUDE_DIR}/mods")
@@ -115,7 +116,7 @@ add_library(test SHARED src/test/test.c)
 target_link_libraries(test mods-headers reborn-patch home)
 
 add_library(init SHARED src/init/init.c)
-target_link_libraries(init mods-headers reborn-util compat game-mode misc death options chat creative bucket textures home version test media-layer-core)
+target_link_libraries(init symbols mods-headers reborn-util compat game-mode misc death options chat creative bucket textures home version test media-layer-core)
 if(MCPI_SERVER_MODE)
     target_link_libraries(init server)
 else()

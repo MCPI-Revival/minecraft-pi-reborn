@@ -1,0 +1,7 @@
+extends Item;
+
+vtable 0x114a58;
+
+size 0x2c;
+
+property Tile *icon_tile = 0x28;

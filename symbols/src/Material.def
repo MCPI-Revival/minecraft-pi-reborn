@@ -1,0 +1,4 @@
+virtual-method bool isSolid() = 0x8;
+
+// Globals
+static-property Material *Material_stone = 0x180a9c;

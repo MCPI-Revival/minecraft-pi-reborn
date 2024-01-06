@@ -7,9 +7,9 @@
 #include <mods/init/init.h>
 
 // Fix Grass And Leaves Inventory Rendering When The gui_blocks Atlas Is Disabled
-static void ItemRenderer_renderGuiItemCorrect_injection(unsigned char *font, unsigned char *textures, ItemInstance *item_instance, int32_t param_1, int32_t param_2) {
-    int32_t leaves_id = *(int32_t *) (*Tile_leaves + Tile_id_property_offset);
-    int32_t grass_id = *(int32_t *) (*Tile_grass + Tile_id_property_offset);
+static void ItemRenderer_renderGuiItemCorrect_injection(Font *font, Textures *textures, ItemInstance *item_instance, int32_t param_1, int32_t param_2) {
+    int32_t leaves_id = (*Tile_leaves)->id;
+    int32_t grass_id = (*Tile_grass)->id;
     // Replace Rendered Item With Carried Variant
     ItemInstance carried_item_instance;
     bool use_carried = false;
@@ -40,7 +40,7 @@ static void ItemRenderer_renderGuiItemCorrect_injection(unsigned char *font, uns
 static int item_color_fix_mode = 0;
 #define POTENTIAL_FURNACE_ITEM_TRANSPARENCY 0x33
 #define INVALID_FURNACE_ITEM_MULTIPLIER 0.25f
-static void Tesselator_color_injection(unsigned char *tesselator, int32_t r, int32_t g, int32_t b, int32_t a) {
+static void Tesselator_color_injection(Tesselator *tesselator, int32_t r, int32_t g, int32_t b, int32_t a) {
     // Fix Furnace UI
     if (item_color_fix_mode != 0) {
         // Force Translucent
@@ -57,7 +57,7 @@ static void Tesselator_color_injection(unsigned char *tesselator, int32_t r, int
     // Call Original Method
     (*Tesselator_color)(tesselator, r, g, b, a);
 }
-static void Tesselator_begin_injection(unsigned char *tesselator, int32_t mode) {
+static void Tesselator_begin_injection(Tesselator *tesselator, int32_t mode) {
     // Call Original Method
     (*Tesselator_begin)(tesselator, mode);
 
@@ -67,21 +67,21 @@ static void Tesselator_begin_injection(unsigned char *tesselator, int32_t mode) 
         (*Tesselator_color_injection)(tesselator, 0xff, 0xff, 0xff, 0xff);
     }
 }
-static void InventoryPane_renderBatch_Tesselator_color_injection(unsigned char *tesselator, int32_t r, int32_t g, int32_t b) {
+static void InventoryPane_renderBatch_Tesselator_color_injection(Tesselator *tesselator, int32_t r, int32_t g, int32_t b) {
     // Call Original Method
     (*Tesselator_color)(tesselator, r, g, b, 0xff);
 
     // Enable Item Color Fix
     item_color_fix_mode = 2;
 }
-static void ItemRenderer_renderGuiItem_two_injection(unsigned char *font, unsigned char *textures, ItemInstance *item_instance, float param_1, float param_2, float param_3, float param_4, bool param_5) {
+static void ItemRenderer_renderGuiItem_two_injection(Font *font, Textures *textures, ItemInstance *item_instance, float param_1, float param_2, float param_3, float param_4, bool param_5) {
     // Call Original Method
     (*ItemRenderer_renderGuiItem_two)(font, textures, item_instance, param_1, param_2, param_3, param_4, param_5);
 
     // Disable Item Color Fix
     item_color_fix_mode = 0;
 }
-static void FurnaceScreen_render_ItemRenderer_renderGuiItem_one_injection(unsigned char *font, unsigned char *textures, ItemInstance *item_instance, float param_1, float param_2, bool param_3) {
+static void FurnaceScreen_render_ItemRenderer_renderGuiItem_one_injection(Font *font, Textures *textures, ItemInstance *item_instance, float param_1, float param_2, bool param_3) {
     // Enable Item Color Fix
     item_color_fix_mode = 1;
 

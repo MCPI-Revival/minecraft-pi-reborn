@@ -1,0 +1,3 @@
+extends Mob;
+
+virtual-method Entity *findAttackTarget() = 0x204;

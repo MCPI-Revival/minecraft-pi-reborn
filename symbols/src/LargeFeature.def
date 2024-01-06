@@ -1,0 +1,1 @@
+virtual-method void apply(ChunkSource *chunk_source, Level *level, int chunk_x, int chunk_y, uchar *chunk_data, int unused) = 0x8;

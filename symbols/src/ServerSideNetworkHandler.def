@@ -1,0 +1,9 @@
+extends NetEventCallback;
+
+vtable 0x109b98;
+
+method Player *getPlayer(RakNet_RakNetGUID *guid) = 0x75464;
+method Player *popPendingPlayer(RakNet_RakNetGUID *guid) = 0x75db4;
+method void displayGameMessage(std::string *message) = 0x750c4;
+
+property Minecraft *minecraft = 0x8;

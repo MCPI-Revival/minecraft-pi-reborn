@@ -1,0 +1,10 @@
+size 0x28;
+
+property int type = 0x0;
+property int x = 0x4;
+property int y = 0x8;
+property int z = 0xc;
+property int side = 0x10;
+property Vec3 exact = 0x14;
+property Entity *entity = 0x20;
+property uchar unknown = 0x24;

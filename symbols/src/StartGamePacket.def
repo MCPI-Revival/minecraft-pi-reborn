@@ -1,0 +1,5 @@
+extends Packet;
+
+vtable 0x109258;
+
+property int game_mode = 0x14;

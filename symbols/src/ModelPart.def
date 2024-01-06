@@ -1,0 +1,1 @@
+method void render(float scale) = 0x416dc;

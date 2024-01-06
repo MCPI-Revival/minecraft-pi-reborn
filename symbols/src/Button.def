@@ -1,0 +1,10 @@
+extends GuiComponent;
+
+constructor (int param_1, std::string *text) = 0x1bc54;
+
+method int hovered(Minecraft *minecraft, int click_x, int click_y) = 0x1be2c;
+
+property int width = 0x14;
+property int height = 0x18;
+property int x = 0xc;
+property int y = 0x10;

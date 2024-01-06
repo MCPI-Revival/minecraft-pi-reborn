@@ -1,0 +1,3 @@
+method void tick(bool param_1) = 0x531c4;
+method int loadAndBindTexture(std::string *name) = 0x539cc;
+method int assignTexture(std::string *name, uchar *data) = 0x5354c;

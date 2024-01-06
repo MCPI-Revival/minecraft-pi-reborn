@@ -1,0 +1,3 @@
+static-method void renderGuiItem_one(Font *font, Textures *textures, ItemInstance *item_instance, float param_1, float param_2, bool param_3) = 0x63e58;
+static-method void renderGuiItem_two(Font *font, Textures *textures, ItemInstance *item_instance, float param_1, float param_2, float param_3, float param_4, bool param_5) = 0x63be0;
+static-method void renderGuiItemCorrect(Font *font, Textures *textures, ItemInstance *item_instance, int param_1, int param_2) = 0x639a0;

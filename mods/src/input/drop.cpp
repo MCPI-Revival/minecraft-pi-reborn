@@ -24,23 +24,17 @@ void input_drop(int drop_slot) {
 }
 
 // Handle Drop Item Presses
-static void _handle_drop(unsigned char *minecraft) {
-    if (((*(unsigned char **) (minecraft + Minecraft_screen_property_offset)) == NULL) && (!creative_is_restricted() || !(*Minecraft_isCreativeMode)(minecraft)) && (drop_item_presses > 0 || drop_slot_pressed)) {
+static void _handle_drop(Minecraft *minecraft) {
+    if ((minecraft->screen == NULL) && (!creative_is_restricted() || !(*Minecraft_isCreativeMode)(minecraft)) && (drop_item_presses > 0 || drop_slot_pressed)) {
         // Get Player
-        unsigned char *player = *(unsigned char **) (minecraft + Minecraft_player_property_offset);
+        LocalPlayer *player = minecraft->player;
         if (player != NULL) {
             // Get Selected Slot
-            int32_t selected_slot = misc_get_real_selected_slot(player);
-            unsigned char *inventory = *(unsigned char **) (player + Player_inventory_property_offset);
-
-            // Prepare
-            unsigned char *player_vtable = *(unsigned char **) player;
-            Player_drop_t Player_drop = *(Player_drop_t *) (player_vtable + Player_drop_vtable_offset);
-            unsigned char *inventory_vtable = *(unsigned char **) inventory;
-            FillingContainer_getItem_t FillingContainer_getItem = *(FillingContainer_getItem_t *) (inventory_vtable + FillingContainer_getItem_vtable_offset);
+            int32_t selected_slot = misc_get_real_selected_slot((Player *) player);
+            Inventory *inventory = player->inventory;
 
             // Get Item
-            ItemInstance *inventory_item = (*FillingContainer_getItem)(inventory, selected_slot);
+            ItemInstance *inventory_item = inventory->vtable->getItem(inventory, selected_slot);
             // Check
             if (inventory_item != NULL && inventory_item->count > 0) {
                 // Copy
@@ -65,12 +59,12 @@ static void _handle_drop(unsigned char *minecraft) {
 
                 // Empty Slot If Needed
                 if (inventory_item->count < 1) {
-                    (*FillingContainer_release)(inventory, selected_slot);
-                    (*FillingContainer_compressLinkedSlotList)(inventory, selected_slot);
+                    (*Inventory_release)(inventory, selected_slot);
+                    (*Inventory_compressLinkedSlotList)(inventory, selected_slot);
                 }
 
                 // Drop
-                (*Player_drop)(player, dropped_item, false);
+                player->vtable->drop(player, dropped_item, false);
             }
         }
     }

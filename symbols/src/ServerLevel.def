@@ -1,0 +1,5 @@
+extends Level;
+
+size 0xb80;
+
+constructor (uchar *storage, uchar *name, LevelSettings *settings, int param_4, uchar *dimension) = 0x7692c;

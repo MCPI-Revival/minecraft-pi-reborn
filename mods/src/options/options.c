@@ -46,35 +46,35 @@ __attribute__((destructor)) static void _free_safe_username() {
 
 static int render_distance;
 // Configure Options
-unsigned char *stored_options = NULL;
-static void Options_initDefaultValue_injection(unsigned char *options) {
+Options *stored_options = NULL;
+static void Options_initDefaultValue_injection(Options *options) {
     // Call Original Method
     (*Options_initDefaultValue)(options);
 
     // Default Graphics Settings
 #ifndef MCPI_SERVER_MODE
-    *(options + Options_fancy_graphics_property_offset) = 1;
-    *(options + Options_ambient_occlusion_property_offset) = 1;
+    options->fancy_graphics = 1;
+    options->ambient_occlusion = 1;
 #endif
 
     // Store
     stored_options = options;
 }
-static void Minecraft_init_injection(unsigned char *minecraft) {
+static void Minecraft_init_injection(Minecraft *minecraft) {
     // Call Original Method
-    (*Minecraft_init)(minecraft);
+    (*Minecraft_init_non_virtual)(minecraft);
 
-    unsigned char *options = minecraft + Minecraft_options_property_offset;
+    Options *options = &minecraft->options;
     // Enable Crosshair In Touch GUI
-    *(options + Options_split_controls_property_offset) = 1;
+    options->split_controls = 1;
     // Render Distance
-    *(int32_t *) (options + Options_render_distance_property_offset) = render_distance;
+    options->render_distance = render_distance;
 }
 
 // Smooth Lighting
-static void TileRenderer_tesselateBlockInWorld_injection(unsigned char *tile_renderer, unsigned char *tile, int32_t x, int32_t y, int32_t z) {
+static void TileRenderer_tesselateBlockInWorld_injection(TileRenderer *tile_renderer, Tile *tile, int32_t x, int32_t y, int32_t z) {
     // Set Variable
-    *Minecraft_useAmbientOcclusion = *(stored_options + Options_ambient_occlusion_property_offset);
+    *Minecraft_useAmbientOcclusion = stored_options->ambient_occlusion;
 
     // Call Original Method
     (*TileRenderer_tesselateBlockInWorld)(tile_renderer, tile, x, y, z);
@@ -93,16 +93,16 @@ void init_options() {
 
     // Set Options
     overwrite_calls((void *) Options_initDefaultValue, (void *) Options_initDefaultValue_injection);
-    overwrite_calls((void *) Minecraft_init, (void *) Minecraft_init_injection);
+    overwrite_calls((void *) Minecraft_init_non_virtual, (void *) Minecraft_init_injection);
 
     // Change Username
     const char *username = get_username();
     DEBUG("Setting Username: %s", username);
-    if (strcmp(*default_username, "StevePi") != 0) {
+    if (strcmp(*Strings_default_username, "StevePi") != 0) {
         ERR("Default Username Is Invalid");
     }
     safe_username = to_cp437(username);
-    patch_address((void *) default_username, (void *) safe_username);
+    patch_address((void *) Strings_default_username, (void *) safe_username);
 
     // Disable Autojump By Default
     if (feature_has("Disable Autojump By Default", server_disabled)) {

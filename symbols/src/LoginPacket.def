@@ -1,0 +1,5 @@
+extends Packet;
+
+vtable 0x108dc0;
+
+property RakNet_RakString username = 0xc;

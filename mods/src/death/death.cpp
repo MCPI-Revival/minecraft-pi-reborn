@@ -7,9 +7,9 @@
 #include <mods/feature/feature.h>
 
 // Death Messages
-static std::string get_death_message(unsigned char *player) {
+static std::string get_death_message(Player *player) {
     // Get Username
-    std::string *username = (std::string *) (player + Player_username_property_offset);
+    std::string *username = &player->username;
 
     // Prepare Death Message
     std::string message;
@@ -20,44 +20,36 @@ static std::string get_death_message(unsigned char *player) {
     return message;
 }
 
-// Common Death Message Logic
-static void Player_actuallyHurt_injection_helper(unsigned char *player, int32_t damage, bool is_local_player) {
-    // Store Old Health
-    int32_t old_health = *(int32_t *) (player + Mob_health_property_offset);
-
-    // Call Original Method
-    (*(is_local_player ? LocalPlayer_actuallyHurt : Mob_actuallyHurt))(player, damage);
-
-    // Store New Health
-    int32_t new_health = *(int32_t *) (player + Mob_health_property_offset);
-
-    // Get Variables
-    unsigned char *minecraft = *(unsigned char **) (player + (is_local_player ? LocalPlayer_minecraft_property_offset : ServerPlayer_minecraft_property_offset));
-    unsigned char *rak_net_instance = *(unsigned char **) (minecraft + Minecraft_rak_net_instance_property_offset);
-    unsigned char *rak_net_instance_vtable = *(unsigned char **) rak_net_instance;
-    // Only Run On Server-Side
-    RakNetInstance_isServer_t RakNetInstance_isServer = *(RakNetInstance_isServer_t *) (rak_net_instance_vtable + RakNetInstance_isServer_vtable_offset);
-    if ((*RakNetInstance_isServer)(rak_net_instance)) {
-        // Check Health
-        if (new_health < 1 && old_health >= 1) {
-            // Get Death Message
-            std::string message = get_death_message(player);
-
-            // Post Death Message
-            unsigned char *server_side_network_handler = *(unsigned char **) (minecraft + Minecraft_network_handler_property_offset);
-            (*ServerSideNetworkHandler_displayGameMessage)(server_side_network_handler, message);
-        }
+// Death Message Logic
+#define Player_actuallyHurt_injection(type) \
+    static void type##Player_actuallyHurt_injection(type##Player *player, int32_t damage) { \
+        /* Store Old Health */ \
+        int32_t old_health = player->health; \
+        \
+        /* Call Original Method */ \
+        (*type##Player_actuallyHurt_non_virtual)(player, damage); \
+        \
+        /* Store New Health */ \
+        int32_t new_health = player->health; \
+        \
+        /* Get Variables */ \
+        Minecraft *minecraft = player->minecraft; \
+        RakNetInstance *rak_net_instance = minecraft->rak_net_instance; \
+        /* Only Run On Server-Side */ \
+        if (rak_net_instance->vtable->isServer(rak_net_instance)) { \
+            /* Check Health */ \
+            if (new_health < 1 && old_health >= 1) { \
+                /* Get Death Message */ \
+                std::string message = get_death_message((Player *) player); \
+                \
+                /* Post Death Message */ \
+                ServerSideNetworkHandler *server_side_network_handler = (ServerSideNetworkHandler *) minecraft->network_handler; \
+                (*ServerSideNetworkHandler_displayGameMessage)(server_side_network_handler, &message); \
+            } \
+        } \
     }
-}
-
-// ServerPlayer Death Message Logic
-static void ServerPlayer_actuallyHurt_injection(unsigned char *player, int32_t damage) {
-    Player_actuallyHurt_injection_helper(player, damage, false);
-}
-// LocalPlayer Death Message Logic
-static void LocalPlayer_actuallyHurt_injection(unsigned char *player, int32_t damage) {
-    Player_actuallyHurt_injection_helper(player, damage, true);
-}
+Player_actuallyHurt_injection(Local)
+Player_actuallyHurt_injection(Server)
 
 // Init
 void init_death() {

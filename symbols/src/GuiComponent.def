@@ -1,0 +1,2 @@
+method void blit(int x_dest, int y_dest, int x_src, int y_src, int width_dest, int height_dest, int width_src, int height_src) = 0x282a4;
+method void drawCenteredString(Font *font, std::string *text, int x, int y, int color) = 0x2821c;

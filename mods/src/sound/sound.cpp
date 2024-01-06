@@ -74,7 +74,7 @@ static void SoundEngine_play_injection(__attribute__((unused)) unsigned char *so
 }
 
 // Refresh Data
-static void SoundEngine_update_injection(unsigned char *sound_engine, unsigned char *listener_mob, __attribute__((unused)) float listener_angle) {
+static void SoundEngine_update_injection(SoundEngine *sound_engine, Mob *listener_mob, __attribute__((unused)) float listener_angle) {
     // Variables
     static float volume = 0;
     static float x = 0;
@@ -83,19 +83,19 @@ static void SoundEngine_update_injection(unsigned char *sound_engine, unsigned c
     static float yaw = 0;
 
     // SoundEngine Properties
-    unsigned char *options = *(unsigned char **) (sound_engine + SoundEngine_options_property_offset);
+    Options *options = sound_engine->options;
 
     // Volume
-    int32_t sound_enabled = *(int32_t *) (options + Options_sound_property_offset);
+    int32_t sound_enabled = options->sound;
     volume = sound_enabled ? 1 : 0;
 
     // Position And Rotation
     if (listener_mob != NULL) {
         // Values
-        x = *(float *) (listener_mob + Entity_x_property_offset);
-        y = *(float *) (listener_mob + Entity_y_property_offset);
-        z = *(float *) (listener_mob + Entity_z_property_offset);
-        yaw = *(float *) (listener_mob + Entity_yaw_property_offset);
+        x = listener_mob->x;
+        y = listener_mob->y;
+        z = listener_mob->z;
+        yaw = listener_mob->yaw;
     }
 
     // Log
@@ -104,7 +104,7 @@ static void SoundEngine_update_injection(unsigned char *sound_engine, unsigned c
 
 // Resolve All Sounds On Init
 // SoundEngine::init Is Called After The Audio Engine Has Been Loaded
-static void SoundEngine_init_injection(unsigned char *sound_engine, unsigned char *minecraft, unsigned char *options) {
+static void SoundEngine_init_injection(SoundEngine *sound_engine, Minecraft *minecraft, Options *options) {
     // Call Original Method
     (*SoundEngine_init)(sound_engine, minecraft, options);
 

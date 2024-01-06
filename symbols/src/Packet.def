@@ -1,0 +1,1 @@
+virtual-method void read(uchar *bit_stream) = 0xc;

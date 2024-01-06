@@ -1,0 +1,1 @@
+virtual-method void deleteLevel(std::string *level_name) = 0x20;

@@ -29,14 +29,14 @@ int _chat_enabled = 0;
 #define MAX_CHAT_MESSAGE_LENGTH 512
 
 // Send API Command
-std::string chat_send_api_command(unsigned char *minecraft, char *str) {
+std::string chat_send_api_command(Minecraft *minecraft, std::string str) {
     struct ConnectedClient client;
     client.sock = -1;
     client.str = "";
     client.time = 0;
-    unsigned char *command_server = *(unsigned char **) (minecraft + Minecraft_command_server_property_offset);
+    CommandServer *command_server = minecraft->command_server;
     if (command_server != NULL) {
-        return (*CommandServer_parse)(command_server, client, str);
+        return (*CommandServer_parse)(command_server, &client, &str);
     } else {
         return "";
     }
@@ -44,7 +44,7 @@ std::string chat_send_api_command(unsigned char *minecraft, char *str) {
 
 #ifndef MCPI_HEADLESS_MODE
 // Send API Chat Command
-static void send_api_chat_command(unsigned char *minecraft, char *str) {
+static void send_api_chat_command(Minecraft *minecraft, char *str) {
     char *command = NULL;
     safe_asprintf(&command, "chat.post(%s)\n", str);
     chat_send_api_command(minecraft, command);
@@ -53,45 +53,43 @@ static void send_api_chat_command(unsigned char *minecraft, char *str) {
 #endif
 
 // Send Message To Players
-void chat_send_message(unsigned char *server_side_network_handler, char *username, char *message) {
+void chat_send_message(ServerSideNetworkHandler *server_side_network_handler, char *username, char *message) {
     char *full_message = NULL;
     safe_asprintf(&full_message, "<%s> %s", username, message);
     sanitize_string(&full_message, MAX_CHAT_MESSAGE_LENGTH, 0);
-    (*ServerSideNetworkHandler_displayGameMessage)(server_side_network_handler, std::string(full_message));
+    std::string cpp_string = full_message;
     free(full_message);
+    (*ServerSideNetworkHandler_displayGameMessage)(server_side_network_handler, &cpp_string);
 }
 // Handle Chat packet Send
-void chat_handle_packet_send(unsigned char *minecraft, unsigned char *packet) {
-    unsigned char *rak_net_instance = *(unsigned char **) (minecraft + Minecraft_rak_net_instance_property_offset);
-    unsigned char *rak_net_instance_vtable = *(unsigned char **) rak_net_instance;
-    RakNetInstance_isServer_t RakNetInstance_isServer = *(RakNetInstance_isServer_t *) (rak_net_instance_vtable + RakNetInstance_isServer_vtable_offset);
-    if ((*RakNetInstance_isServer)(rak_net_instance)) {
+void chat_handle_packet_send(Minecraft *minecraft, ChatPacket *packet) {
+    RakNetInstance *rak_net_instance = minecraft->rak_net_instance;
+    if (rak_net_instance->vtable->isServer(rak_net_instance)) {
         // Hosting Multiplayer
-        char *message = *(char **) (packet + ChatPacket_message_property_offset);
-        unsigned char *server_side_network_handler = *(unsigned char **) (minecraft + Minecraft_network_handler_property_offset);
-        chat_send_message(server_side_network_handler, *default_username, message);
+        char *message = packet->message;
+        ServerSideNetworkHandler *server_side_network_handler = (ServerSideNetworkHandler *) minecraft->network_handler;
+        chat_send_message(server_side_network_handler, *Strings_default_username, message);
     } else {
         // Client
-        RakNetInstance_send_t RakNetInstance_send = *(RakNetInstance_send_t *) (rak_net_instance_vtable + RakNetInstance_send_vtable_offset);
-        (*RakNetInstance_send)(rak_net_instance, packet);
+        rak_net_instance->vtable->send(rak_net_instance, (Packet *) packet);
     }
 }
 
 // Manually Send (And Loopback) ChatPacket
-static void CommandServer_parse_CommandServer_dispatchPacket_injection(unsigned char *command_server, unsigned char *packet) {
-    unsigned char *minecraft = *(unsigned char **) (command_server + CommandServer_minecraft_property_offset);
+static void CommandServer_parse_CommandServer_dispatchPacket_injection(CommandServer *command_server, Packet *packet) {
+    Minecraft *minecraft = command_server->minecraft;
     if (minecraft != NULL) {
-        chat_handle_packet_send(minecraft, packet);
+        chat_handle_packet_send(minecraft, (ChatPacket *) packet);
     }
 }
 
 // Handle ChatPacket Server-Side
-static void ServerSideNetworkHandler_handle_ChatPacket_injection(unsigned char *server_side_network_handler, RakNet_RakNetGUID *rak_net_guid, unsigned char *chat_packet) {
-    unsigned char *player = (*ServerSideNetworkHandler_getPlayer)(server_side_network_handler, rak_net_guid);
+static void ServerSideNetworkHandler_handle_ChatPacket_injection(ServerSideNetworkHandler *server_side_network_handler, RakNet_RakNetGUID *rak_net_guid, ChatPacket *chat_packet) {
+    Player *player = (*ServerSideNetworkHandler_getPlayer)(server_side_network_handler, rak_net_guid);
     if (player != NULL) {
-        char *username = *(char **) (player + Player_username_property_offset);
-        char *message = *(char **) (chat_packet + ChatPacket_message_property_offset);
-        chat_send_message(server_side_network_handler, username, message);
+        const char *username = player->username.c_str();
+        char *message = chat_packet->message;
+        chat_send_message(server_side_network_handler, (char *) username, message);
     }
 }
 
@@ -112,7 +110,7 @@ void _chat_queue_message(char *message) {
 }
 // Empty Queue
 unsigned int old_chat_counter = 0;
-static void send_queued_messages(unsigned char *minecraft) {
+static void send_queued_messages(Minecraft *minecraft) {
     // Lock
     pthread_mutex_lock(&queue_mutex);
     // If Message Was Submitted, No Other Chat Windows Are Open, And The Game Is Not Paused, Then Re-Lock Cursor

@@ -1,0 +1,6 @@
+constructor () = 0x9cabc;
+
+method void addShapelessRecipe(ItemInstance *result, std::vector<Recipes_Type> *ingredients) = 0x9c3dc;
+method void addShapedRecipe_1(ItemInstance *result, std::string *line_1, std::vector<Recipes_Type> *ingredients) = 0x9ca74;
+method void addShapedRecipe_2(ItemInstance *result, std::string *line_1, std::string *line_2, std::vector<Recipes_Type> *ingredients) = 0x9ca24;
+method void addShapedRecipe_3(ItemInstance *result, std::string *line_1, std::string *line_2, std::string *line_3, std::vector<Recipes_Type> *ingredients) = 0x9c9d0;

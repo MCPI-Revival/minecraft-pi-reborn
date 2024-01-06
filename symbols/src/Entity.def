@@ -1,0 +1,12 @@
+virtual-method bool hurt(Entity *attacker, int damage) = 0xa4;
+
+property float x = 0x4;
+property float y = 0x8;
+property float z = 0xc;
+property float yaw = 0x40;
+property float pitch = 0x44;
+property float old_x = 0x28;
+property float old_y = 0x2c;
+property float old_z = 0x30;
+property float old_yaw = 0x48;
+property float old_pitch = 0x4c;

@@ -1,0 +1,12 @@
+size 0xc;
+
+constructor item(Item *item) = 0x9992c;
+constructor tile(Tile *item) = 0x998e4;
+constructor tile_extra(Tile *item, int count, int auxiliary) = 0x99918;
+constructor item_extra(Item *item, int count, int auxiliary) = 0x99960;
+
+method int getMaxStackSize() = 0x99ac8;
+
+property int count = 0x0;
+property int id = 0x4;
+property int auxiliary = 0x8;

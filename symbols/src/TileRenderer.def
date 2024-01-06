@@ -1,0 +1,1 @@
+method void tesselateBlockInWorld(Tile *tile, int x, int y, int z) = 0x59e30;

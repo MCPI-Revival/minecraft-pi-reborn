@@ -1,0 +1,8 @@
+method void init(Minecraft *minecraft, Options *options) = 0x67760;
+method void enable(bool state) = 0x6776c;
+method void update(Mob *listener_mob, float listener_angle) = 0x67778;
+method void playUI(std::string *name, float volume, float pitch) = 0x67864;
+method void play(std::string *name, float x, float y, float z, float volume, float pitch) = 0x67860;
+
+property Minecraft *minecraft = 0xa08;
+property Options *options = 0x4;

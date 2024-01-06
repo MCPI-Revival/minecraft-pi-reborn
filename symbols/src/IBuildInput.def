@@ -1,0 +1,1 @@
+virtual-method int tickBuild(Player *player, uint *build_action_intention_return) = 0xc;

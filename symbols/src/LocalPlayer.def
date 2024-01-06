@@ -1,0 +1,5 @@
+extends Player;
+
+vtable 0x106230;
+
+property Minecraft *minecraft = 0xc90;

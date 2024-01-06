@@ -30,3 +30,7 @@ if(BUILD_MEDIA_LAYER_CORE AND NOT MCPI_HEADLESS_MODE AND MCPI_USE_GLES1_COMPATIB
 endif()
 # UTF8-CPP
 add_subdirectory(utf8cpp)
+# Symbol Prcoessor
+if(BUILD_ARM_COMPONENTS)
+    add_subdirectory(symbol-processor)
+endif()

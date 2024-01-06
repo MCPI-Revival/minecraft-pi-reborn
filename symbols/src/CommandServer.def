@@ -1,0 +1,3 @@
+method std::string parse(ConnectedClient *client, std::string *command) = 0x6aa8c;
+
+property Minecraft *minecraft = 0x18;

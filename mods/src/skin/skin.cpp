@@ -52,9 +52,9 @@ static void Player_username_assign_injection(std::string *target, std::string *u
     *target = *username;
 
     // Get Player
-    unsigned char *player = ((unsigned char *) target) - Player_username_property_offset;
+    Player *player = (Player *) (((unsigned char *) target) - offsetof(Player, username));
     // Get Texture
-    std::string *texture = (std::string *) (player + Mob_texture_property_offset);
+    std::string *texture = &player->texture;
 
     // Set Texture
     *texture = '$' + base64_encode(*username);
@@ -65,16 +65,16 @@ static void Player_username_assign_injection_2(std::string *target, const char *
 }
 
 // Change Texture For HUD
-static int32_t Textures_loadAndBindTexture_injection(unsigned char *textures, __attribute__((unused)) std::string const& name) {
+static int32_t Textures_loadAndBindTexture_injection(Textures *textures, __attribute__((unused)) std::string const& name) {
     // Change Texture
     static std::string new_texture;
     if (new_texture.length() == 0) {
-        std::string username = base64_encode(*default_username);
+        std::string username = base64_encode(*Strings_default_username);
         new_texture = '$' + username;
     }
 
     // Call Original Method
-    return (*Textures_loadAndBindTexture)(textures, new_texture);
+    return (*Textures_loadAndBindTexture)(textures, &new_texture);
 }
 
 // Init

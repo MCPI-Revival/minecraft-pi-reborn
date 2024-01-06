@@ -1,0 +1,11 @@
+method void addItem(ItemInstance *item_instance) = 0x92aa0;
+virtual-method ItemInstance *getItem(int slot) = 0x8;
+virtual-method void setItem(int slot, ItemInstance *item_instance) = 0xc;
+virtual-method bool add(ItemInstance *item_instance) = 0x30;
+method void clearSlot(int slot) = 0x922f8;
+method void release(int slot) = 0x92058;
+method void compressLinkedSlotList(int slot) = 0x92280;
+
+property int *linked_slots = 0xc;
+property int linked_slots_length = 0x14;
+property bool is_creative = 0x24;

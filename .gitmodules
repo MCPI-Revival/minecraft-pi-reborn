@@ -19,3 +19,6 @@
 [submodule "archives"]
 	path = archives
 	url = https://gitea.thebrokenrail.com/minecraft-pi-reborn/archives.git
+[submodule "dependencies/symbol-processor/src"]
+	path = dependencies/symbol-processor/src
+	url = https://gitea.thebrokenrail.com/minecraft-pi-reborn/symbol-processor.git

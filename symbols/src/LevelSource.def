@@ -1,0 +1,3 @@
+virtual-method int getTile(int x, int y, int z) = 0x8;
+virtual-method Material *getMaterial(int x, int y, int z) = 0x18;
+virtual-method Biome *getBiome(int x, int z) = 0x24;

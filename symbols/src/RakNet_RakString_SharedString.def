@@ -1,0 +1,1 @@
+property char *c_str = 0x10;

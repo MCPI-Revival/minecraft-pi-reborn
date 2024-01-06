@@ -19,7 +19,7 @@ void input_run_on_tick(input_tick_function_t function) {
 }
 
 // Handle Input Fixes
-static void Minecraft_tickInput_injection(unsigned char *minecraft) {
+static void Minecraft_tickInput_injection(Minecraft *minecraft) {
     // Call Original Method
     (*Minecraft_tickInput)(minecraft);
 

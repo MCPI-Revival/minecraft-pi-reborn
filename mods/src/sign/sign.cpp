@@ -15,18 +15,18 @@ static int32_t sdl_key_to_minecraft_key_injection(int32_t sdl_key) {
         return 8;
     } else {
         // Call Original Method
-        return (*sdl_key_to_minecraft_key)(sdl_key);
+        return (*Common_sdl_key_to_minecraft_key)(sdl_key);
     }
 }
 
 // Open Sign Screen
-static void LocalPlayer_openTextEdit_injection(unsigned char *local_player, unsigned char *sign) {
-    if (*(int32_t *) (sign + TileEntity_id_property_offset) == 4) {
-        unsigned char *minecraft = *(unsigned char **) (local_player + LocalPlayer_minecraft_property_offset);
-        unsigned char *screen = (unsigned char *) ::operator new(TEXT_EDIT_SCREEN_SIZE);
+static void LocalPlayer_openTextEdit_injection(LocalPlayer *local_player, TileEntity *sign) {
+    if (sign->id == 4) {
+        Minecraft *minecraft = local_player->minecraft;
+        TextEditScreen *screen = alloc_TextEditScreen();
         ALLOC_CHECK(screen);
-        screen = (*TextEditScreen)(screen, sign);
-        (*Minecraft_setScreen)(minecraft, screen);
+        screen = (*TextEditScreen_constructor)(screen, (SignTileEntity *) sign);
+        (*Minecraft_setScreen)(minecraft, (Screen *) screen);
     }
 }
 
@@ -35,20 +35,19 @@ std::vector<char> input;
 void sign_key_press(char key) {
     input.push_back(key);
 }
-static void clear_input(__attribute__((unused)) unsigned char *minecraft) {
+static void clear_input(__attribute__((unused)) Minecraft *minecraft) {
     input.clear();
 }
 
 // Handle Text Input
-static void TextEditScreen_updateEvents_injection(unsigned char *screen) {
+static void TextEditScreen_updateEvents_injection(TextEditScreen *screen) {
     // Call Original Method
-    (*Screen_updateEvents)(screen);
+    (*TextEditScreen_updateEvents_non_virtual)(screen);
 
-    if (!*(bool *)(screen + Screen_passthrough_input_property_offset)) {
-        unsigned char *vtable = *(unsigned char **) screen;
+    if (!screen->passthrough_input) {
         for (char key : input) {
             // Handle Normal Key
-            (*(Screen_keyboardNewChar_t *) (vtable + Screen_keyboardNewChar_vtable_offset))(screen, key);
+            screen->vtable->keyboardNewChar(screen, key);
         }
     }
     clear_input(NULL);
@@ -58,7 +57,7 @@ static void TextEditScreen_updateEvents_injection(unsigned char *screen) {
 void init_sign() {
     if (feature_has("Fix Sign Placement", server_disabled)) {
         // Handle Backspace
-        overwrite_calls((void *) sdl_key_to_minecraft_key, (void *) sdl_key_to_minecraft_key_injection);
+        overwrite_calls((void *) Common_sdl_key_to_minecraft_key, (void *) sdl_key_to_minecraft_key_injection);
         // Fix Signs
         patch_address(LocalPlayer_openTextEdit_vtable_addr, (void *) LocalPlayer_openTextEdit_injection);
         patch_address(TextEditScreen_updateEvents_vtable_addr, (void *) TextEditScreen_updateEvents_injection);

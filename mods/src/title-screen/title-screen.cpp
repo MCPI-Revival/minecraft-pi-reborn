@@ -6,39 +6,40 @@
 #include <mods/compat/compat.h>
 
 // Improved Title Screen Background
-static void StartMenuScreen_render_Screen_renderBackground_injection(unsigned char *screen) {
+static void StartMenuScreen_render_Screen_renderBackground_injection(StartMenuScreen *screen) {
     // Draw
-    unsigned char *minecraft = *(unsigned char **) (screen + Screen_minecraft_property_offset);
-    unsigned char *textures = *(unsigned char **) (minecraft + Minecraft_textures_property_offset);
-    (*Textures_loadAndBindTexture)(textures, "gui/titleBG.png");
-    (*GuiComponent_blit)(screen, 0, 0, 0, 0, *(int32_t *) (screen + Screen_width_property_offset), *(int32_t *) (screen + Screen_height_property_offset), 0x100, 0x100);
+    Minecraft *minecraft = screen->minecraft;
+    Textures *textures = minecraft->textures;
+    std::string texture = "gui/titleBG.png";
+    (*Textures_loadAndBindTexture)(textures, &texture);
+    (*StartMenuScreen_blit)(screen, 0, 0, 0, 0, screen->width, screen->height, 0x100, 0x100);
 }
 
 // Add Buttons Back To Classic Start Screen
-static void StartMenuScreen_init_injection(unsigned char *screen) {
+static void StartMenuScreen_init_injection(StartMenuScreen *screen) {
     // Call Original Method
-    (*StartMenuScreen_init)(screen);
+    (*StartMenuScreen_init_non_virtual)(screen);
 
     // Add Button
-    std::vector<unsigned char *> *rendered_buttons = (std::vector<unsigned char *> *) (screen + Screen_rendered_buttons_property_offset);
-    std::vector<unsigned char *> *selectable_buttons = (std::vector<unsigned char *> *) (screen + Screen_selectable_buttons_property_offset);
-    unsigned char *options_button = screen + StartMenuScreen_options_button_property_offset;
+    std::vector<Button *> *rendered_buttons = &screen->rendered_buttons;
+    std::vector<Button *> *selectable_buttons = &screen->selectable_buttons;
+    Button *options_button = &screen->options_button;
     rendered_buttons->push_back(options_button);
     selectable_buttons->push_back(options_button);
-    unsigned char *create_button = screen + StartMenuScreen_create_button_property_offset; // Repurpose Unused "Create" Button As Quit Button
+    Button *create_button = &screen->create_button; // Repurpose Unused "Create" Button As Quit Button
     rendered_buttons->push_back(create_button);
     selectable_buttons->push_back(create_button);
 }
 
 // Add Functionality To Quit Button
-static void StartMenuScreen_buttonClicked_injection(unsigned char *screen, unsigned char *button) {
-    unsigned char *quit_button = screen + StartMenuScreen_create_button_property_offset;
+static void StartMenuScreen_buttonClicked_injection(StartMenuScreen *screen, Button *button) {
+    Button *quit_button = &screen->create_button;
     if (button == quit_button) {
         // Quit
         compat_request_exit();
     } else {
         // Call Original Method
-        (*StartMenuScreen_buttonClicked)(screen, button);
+        (*StartMenuScreen_buttonClicked_non_virtual)(screen, button);
     }
 }
 
@@ -78,7 +79,7 @@ void init_title_screen() {
         }
 
         // Rename "Create" Button To "Quit"
-        patch_address((void *) classic_create_button_text, (void *) "Quit");
+        patch_address((void *) Strings_classic_create_button_text, (void *) "Quit");
 
         // Add Functionality To Quit Button
         patch_address(StartMenuScreen_buttonClicked_vtable_addr, (void *) StartMenuScreen_buttonClicked_injection);

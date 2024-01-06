@@ -1,0 +1,3 @@
+extends Tile;
+
+vtable 0x1128c8;

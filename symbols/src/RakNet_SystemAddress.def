@@ -1,0 +1,3 @@
+size 0x14;
+
+method char *ToString(bool print_delimiter, char delimiter) = 0xd6198;

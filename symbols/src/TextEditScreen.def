@@ -1,0 +1,7 @@
+extends Screen;
+
+size 0xac;
+
+vtable 0x105308;
+
+constructor (SignTileEntity *sign) = 0x3a840;

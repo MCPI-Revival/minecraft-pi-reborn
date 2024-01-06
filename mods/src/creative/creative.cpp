@@ -8,20 +8,26 @@
 
 #ifndef MCPI_SERVER_MODE
 // Add Item To Inventory
-static void inventory_add_item(unsigned char *inventory, unsigned char *item, bool is_tile) {
+static void inventory_add_item(FillingContainer *inventory, Item *item) {
     ItemInstance *item_instance = new ItemInstance;
     ALLOC_CHECK(item_instance);
-    item_instance = (*(is_tile ? ItemInstance_constructor_tile : ItemInstance_constructor_item))(item_instance, item);
+    item_instance = (*ItemInstance_constructor_item)(item_instance, item);
+    (*FillingContainer_addItem)(inventory, item_instance);
+}
+static void inventory_add_item(FillingContainer *inventory, Tile *item) {
+    ItemInstance *item_instance = new ItemInstance;
+    ALLOC_CHECK(item_instance);
+    item_instance = (*ItemInstance_constructor_tile)(item_instance, item);
     (*FillingContainer_addItem)(inventory, item_instance);
 }
 
 // Expand Creative Inventory
-static void Inventory_setupDefault_FillingContainer_addItem_call_injection(unsigned char *filling_container) {
+static void Inventory_setupDefault_FillingContainer_addItem_call_injection(FillingContainer *filling_container) {
     // Add Items
-    inventory_add_item(filling_container, *Item_flintAndSteel, false);
-    inventory_add_item(filling_container, *Item_snowball, false);
-    inventory_add_item(filling_container, *Item_egg, false);
-    inventory_add_item(filling_container, *Item_shears, false);
+    inventory_add_item(filling_container, *Item_flintAndSteel);
+    inventory_add_item(filling_container, *Item_snowball);
+    inventory_add_item(filling_container, *Item_egg);
+    inventory_add_item(filling_container, *Item_shears);
     // Dyes
     for (int i = 0; i < 16; i++) {
         if (i == 15) {
@@ -33,20 +39,20 @@ static void Inventory_setupDefault_FillingContainer_addItem_call_injection(unsig
         new_item_instance = (*ItemInstance_constructor_item_extra)(new_item_instance, *Item_dye_powder, 1, i);
         (*FillingContainer_addItem)(filling_container, new_item_instance);
     }
-    inventory_add_item(filling_container, *Item_camera, false);
+    inventory_add_item(filling_container, *Item_camera);
     // Add Tiles
-    inventory_add_item(filling_container, *Tile_water, true);
-    inventory_add_item(filling_container, *Tile_lava, true);
-    inventory_add_item(filling_container, *Tile_calmWater, true);
-    inventory_add_item(filling_container, *Tile_calmLava, true);
-    inventory_add_item(filling_container, *Tile_glowingObsidian, true);
-    inventory_add_item(filling_container, *Tile_web, true);
-    inventory_add_item(filling_container, *Tile_topSnow, true);
-    inventory_add_item(filling_container, *Tile_ice, true);
-    inventory_add_item(filling_container, *Tile_invisible_bedrock, true);
-    inventory_add_item(filling_container, *Tile_bedrock, true);
-    inventory_add_item(filling_container, *Tile_info_updateGame1, true);
-    inventory_add_item(filling_container, *Tile_info_updateGame2, true);
+    inventory_add_item(filling_container, *Tile_water);
+    inventory_add_item(filling_container, *Tile_lava);
+    inventory_add_item(filling_container, *Tile_calmWater);
+    inventory_add_item(filling_container, *Tile_calmLava);
+    inventory_add_item(filling_container, *Tile_glowingObsidian);
+    inventory_add_item(filling_container, *Tile_web);
+    inventory_add_item(filling_container, *Tile_topSnow);
+    inventory_add_item(filling_container, *Tile_ice);
+    inventory_add_item(filling_container, *Tile_invisible_bedrock);
+    inventory_add_item(filling_container, *Tile_bedrock);
+    inventory_add_item(filling_container, *Tile_info_updateGame1);
+    inventory_add_item(filling_container, *Tile_info_updateGame2);
     // Nether Reactor
     for (int i = 0; i < 3; i++) {
         if (i == 0) {
@@ -80,19 +86,19 @@ static void Inventory_setupDefault_FillingContainer_addItem_call_injection(unsig
 #endif
 
 // Hook Specific TileItem Constructor
-static unsigned char *Tile_initTiles_TileItem_injection(unsigned char *tile_item, int32_t id) {
+static TileItem *Tile_initTiles_TileItem_injection(TileItem *tile_item, int32_t id) {
     // Call Original Method
-    unsigned char *ret = (*TileItem)(tile_item, id);
+    (*TileItem_constructor)(tile_item, id);
 
     // Switch VTable
-    *(unsigned char **) tile_item = AuxDataTileItem_vtable;
+    tile_item->vtable = (TileItem_vtable *) AuxDataTileItem_vtable_base;
     // Configure Item
-    *(bool *) (tile_item + Item_is_stacked_by_data_property_offset) = true;
-    *(int32_t *) (tile_item + Item_max_damage_property_offset) = 0;
-    *(unsigned char **) (tile_item + AuxDataTileItem_icon_tile_property_offset) = Tile_tiles[id + 0x100];
+    tile_item->is_stacked_by_data = true;
+    tile_item->max_damage = 0;
+    ((AuxDataTileItem *) tile_item)->icon_tile = Tile_tiles[id + 0x100];
 
     // Return
-    return ret;
+    return tile_item;
 }
 
 // Check Restriction Status

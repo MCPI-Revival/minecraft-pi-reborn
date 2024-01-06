@@ -10,16 +10,16 @@ static int should_open_crafting = 0;
 void input_open_crafting() {
     should_open_crafting = 1;
 }
-static void _handle_open_crafting(unsigned char *minecraft) {
+static void _handle_open_crafting(Minecraft *minecraft) {
     if (should_open_crafting) {
         should_open_crafting = 0;
 
         // Set Screen
         if (!creative_is_restricted() || !(*Minecraft_isCreativeMode)(minecraft)) {
-            unsigned char *screen = (unsigned char *) ::operator new(WORKBENCH_SCREEN_SIZE);
+            WorkbenchScreen *screen = alloc_WorkbenchScreen();
             ALLOC_CHECK(screen);
-            screen = (*WorkbenchScreen)(screen, 0);
-            (*Minecraft_setScreen)(minecraft, screen);
+            screen = (*WorkbenchScreen_constructor)(screen, 0);
+            (*Minecraft_setScreen)(minecraft, (Screen *) screen);
         }
     }
 }

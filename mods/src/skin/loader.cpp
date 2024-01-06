@@ -27,7 +27,7 @@ static std::vector<pending_skin> &get_pending_skins() {
     return pending_skins;
 }
 static pthread_mutex_t pending_skins_lock = PTHREAD_MUTEX_INITIALIZER;
-static void load_pending_skins(__attribute__((unused)) unsigned char *minecraft) {
+static void load_pending_skins(__attribute__((unused)) Minecraft *minecraft) {
     // Lock
     pthread_mutex_lock(&pending_skins_lock);
 
@@ -114,14 +114,14 @@ static void *loader_thread(void *user_data) {
 }
 
 // Intercept Texture Creation
-static int32_t Textures_assignTexture_injection(unsigned char *textures, std::string const& name, unsigned char *data) {
+static int32_t Textures_assignTexture_injection(Textures *textures, std::string *name, unsigned char *data) {
     // Call Original Method
     int32_t id = (*Textures_assignTexture)(textures, name, data);
 
     // Load Skin
-    if (starts_with(name.c_str(), "$")) {
+    if (starts_with(name->c_str(), "$")) {
         loader_data *user_data = new loader_data;
-        user_data->name = name.substr(1);
+        user_data->name = name->substr(1);
         DEBUG("Loading Skin: %s", user_data->name.c_str());
         user_data->texture_id = id;
         // Start Thread

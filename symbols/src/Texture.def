@@ -1,0 +1,10 @@
+size 0x1c;
+
+property int width = 0x0;
+property int height = 0x4;
+property uchar *data = 0x8;
+property int field3_0xc = 0xc;
+property bool field4_0x10 = 0x10;
+property bool field5_0x11 = 0x11;
+property int field6_0x14 = 0x14;
+property int field7_0x18 = 0x18;

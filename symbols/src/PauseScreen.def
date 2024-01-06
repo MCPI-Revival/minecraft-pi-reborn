@@ -1,0 +1,7 @@
+extends Screen;
+
+vtable 0x104b20;
+
+method void updateServerVisibilityText() = 0x366b8;
+
+property Button *server_visibility_button = 0x60;
