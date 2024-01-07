@@ -11,14 +11,14 @@
 static void inventory_add_item(FillingContainer *inventory, Item *item) {
     ItemInstance *item_instance = new ItemInstance;
     ALLOC_CHECK(item_instance);
-    item_instance = (*ItemInstance_constructor_item)(item_instance, item);
-    (*FillingContainer_addItem)(inventory, item_instance);
+    item_instance = ItemInstance_constructor_item(item_instance, item);
+    FillingContainer_addItem(inventory, item_instance);
 }
 static void inventory_add_item(FillingContainer *inventory, Tile *item) {
     ItemInstance *item_instance = new ItemInstance;
     ALLOC_CHECK(item_instance);
-    item_instance = (*ItemInstance_constructor_tile)(item_instance, item);
-    (*FillingContainer_addItem)(inventory, item_instance);
+    item_instance = ItemInstance_constructor_tile(item_instance, item);
+    FillingContainer_addItem(inventory, item_instance);
 }
 
 // Expand Creative Inventory
@@ -36,8 +36,8 @@ static void Inventory_setupDefault_FillingContainer_addItem_call_injection(Filli
         }
         ItemInstance *new_item_instance = new ItemInstance;
         ALLOC_CHECK(new_item_instance);
-        new_item_instance = (*ItemInstance_constructor_item_extra)(new_item_instance, Item_dye_powder, 1, i);
-        (*FillingContainer_addItem)(filling_container, new_item_instance);
+        new_item_instance = ItemInstance_constructor_item_extra(new_item_instance, Item_dye_powder, 1, i);
+        FillingContainer_addItem(filling_container, new_item_instance);
     }
     inventory_add_item(filling_container, Item_camera);
     // Add Tiles
@@ -61,8 +61,8 @@ static void Inventory_setupDefault_FillingContainer_addItem_call_injection(Filli
         }
         ItemInstance *new_item_instance = new ItemInstance;
         ALLOC_CHECK(new_item_instance);
-        new_item_instance = (*ItemInstance_constructor_tile_extra)(new_item_instance, Tile_netherReactor, 1, i);
-        (*FillingContainer_addItem)(filling_container, new_item_instance);
+        new_item_instance = ItemInstance_constructor_tile_extra(new_item_instance, Tile_netherReactor, 1, i);
+        FillingContainer_addItem(filling_container, new_item_instance);
     }
     // Tall Grass
     for (int i = 0; i < 4; i++) {
@@ -72,15 +72,15 @@ static void Inventory_setupDefault_FillingContainer_addItem_call_injection(Filli
         }
         ItemInstance *new_item_instance = new ItemInstance;
         ALLOC_CHECK(new_item_instance);
-        new_item_instance = (*ItemInstance_constructor_tile_extra)(new_item_instance, Tile_tallgrass, 1, i);
-        (*FillingContainer_addItem)(filling_container, new_item_instance);
+        new_item_instance = ItemInstance_constructor_tile_extra(new_item_instance, Tile_tallgrass, 1, i);
+        FillingContainer_addItem(filling_container, new_item_instance);
     }
     // Smooth Stone Slab
     {
         ItemInstance *new_item_instance = new ItemInstance;
         ALLOC_CHECK(new_item_instance);
-        new_item_instance = (*ItemInstance_constructor_tile_extra)(new_item_instance, Tile_stoneSlab, 1, 6);
-        (*FillingContainer_addItem)(filling_container, new_item_instance);
+        new_item_instance = ItemInstance_constructor_tile_extra(new_item_instance, Tile_stoneSlab, 1, 6);
+        FillingContainer_addItem(filling_container, new_item_instance);
     }
 }
 #endif
@@ -88,7 +88,7 @@ static void Inventory_setupDefault_FillingContainer_addItem_call_injection(Filli
 // Hook Specific TileItem Constructor
 static TileItem *Tile_initTiles_TileItem_injection(TileItem *tile_item, int32_t id) {
     // Call Original Method
-    (*TileItem_constructor)(tile_item, id);
+    TileItem_constructor(tile_item, id);
 
     // Switch VTable
     tile_item->vtable = (TileItem_vtable *) AuxDataTileItem_vtable_base;

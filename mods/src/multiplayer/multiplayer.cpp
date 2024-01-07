@@ -115,7 +115,7 @@ static void iterate_servers(std::function<void(const char *address, int port)> c
 // Ping External Servers
 static void RakNetInstance_pingForHosts_injection(RakNetInstance *rak_net_instance, int32_t base_port) {
     // Call Original Method
-    (*RakNetInstance_pingForHosts_non_virtual)(rak_net_instance, base_port);
+    RakNetInstance_pingForHosts_non_virtual(rak_net_instance, base_port);
 
     // Get RakNet::RakPeer
     RakNet_RakPeer *rak_peer = rak_net_instance->peer;

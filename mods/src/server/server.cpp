@@ -99,14 +99,14 @@ static void start_world(Minecraft *minecraft) {
         // Open Port
         int port = get_server_properties().get_int("port", DEFAULT_PORT);
         INFO("Listening On: %i", port);
-        (*Minecraft_hostMultiplayer)(minecraft, port);
+        Minecraft_hostMultiplayer(minecraft, port);
     }
 
     // Open ProgressScreen
     ProgressScreen *screen = alloc_ProgressScreen();
     ALLOC_CHECK(screen);
-    screen = (*ProgressScreen_constructor)(screen);
-    (*Minecraft_setScreen)(minecraft, (Screen *) screen);
+    screen = ProgressScreen_constructor(screen);
+    Minecraft_setScreen(minecraft, (Screen *) screen);
 }
 
 // Check If Running In Whitelist Mode
@@ -149,7 +149,7 @@ static void find_players(Minecraft *minecraft, std::string target_username, play
         std::string username = get_player_username(player);
         if (all_players || username == target_username) {
             // Run Callback
-            (*callback)(minecraft, username, player);
+            callback(minecraft, username, player);
             found_player = true;
         }
     }
@@ -172,7 +172,7 @@ static RakNet_RakPeer *get_rak_peer(Minecraft *minecraft) {
 static char *get_rak_net_guid_ip(RakNet_RakPeer *rak_peer, RakNet_RakNetGUID guid) {
     RakNet_SystemAddress address = get_system_address(rak_peer, guid);
     // Get IP
-    return (*RakNet_SystemAddress_ToString)(&address, false, '|');
+    return RakNet_SystemAddress_ToString(&address, false, '|');
 }
 
 // Get IP From Player
@@ -225,7 +225,7 @@ static void handle_server_stop(Minecraft *minecraft) {
         if (level != NULL) {
             Level_saveLevelData_injection(level);
         }
-        (*Minecraft_leaveGame)(minecraft, false);
+        Minecraft_leaveGame(minecraft, false);
         // Stop Game
         SDL_Event event;
         event.type = SDL_QUIT;
@@ -301,7 +301,7 @@ __attribute__((destructor)) static void _free_stdin_buffer() {
 // Handle Commands
 static void handle_commands(Minecraft *minecraft) {
     // Check If Level Is Generated
-    if ((*Minecraft_isLevelGenerated)(minecraft) && stdin_buffer_complete) {
+    if (Minecraft_isLevelGenerated(minecraft) && stdin_buffer_complete) {
         // Command Ready; Run It
         if (stdin_buffer != NULL) {
             ServerSideNetworkHandler *server_side_network_handler = get_server_side_network_handler(minecraft);
@@ -333,7 +333,7 @@ static void handle_commands(Minecraft *minecraft) {
                     char *safe_message = to_cp437(message.c_str());
                     std::string cpp_string = safe_message;
                     // Post Message To Chat
-                    (*ServerSideNetworkHandler_displayGameMessage)(server_side_network_handler, &cpp_string);
+                    ServerSideNetworkHandler_displayGameMessage(server_side_network_handler, &cpp_string);
                     // Free
                     free(safe_message);
                 } else if (data == list_command) {
@@ -381,7 +381,7 @@ static void Minecraft_update_injection(Minecraft *minecraft) {
     }
 
     // Handle --only-generate
-    if (only_generate && (*Minecraft_isLevelGenerated)(minecraft)) {
+    if (only_generate && Minecraft_isLevelGenerated(minecraft)) {
         // Request Exit
         compat_request_exit();
         // Disable Special Behavior After Requesting Exit
@@ -446,7 +446,7 @@ static bool RakNet_RakPeer_IsBanned_injection(__attribute__((unused)) unsigned c
 // Log IPs
 static Player *ServerSideNetworkHandler_onReady_ClientGeneration_ServerSideNetworkHandler_popPendingPlayer_injection(ServerSideNetworkHandler *server_side_network_handler, RakNet_RakNetGUID *guid) {
     // Call Original Method
-    Player *player = (*ServerSideNetworkHandler_popPendingPlayer)(server_side_network_handler, guid);
+    Player *player = ServerSideNetworkHandler_popPendingPlayer(server_side_network_handler, guid);
 
     // Check If Player Is Null
     if (player != NULL) {

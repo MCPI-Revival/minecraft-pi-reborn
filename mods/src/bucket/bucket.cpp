@@ -60,7 +60,7 @@ static int32_t BucketItem_useOn(__attribute__((unused)) Item *item, ItemInstance
                 }
             }
             if (success) {
-                (*Level_setTileAndData)(level, x, y, z, 0, 0);
+                Level_setTileAndData(level, x, y, z, 0, 0);
                 return 1;
             } else {
                 return 0;
@@ -107,7 +107,7 @@ static int32_t BucketItem_useOn(__attribute__((unused)) Item *item, ItemInstance
             valid = false;
         }
         if (valid) {
-            (*Level_setTileAndData)(level, x, y, z, item_instance->auxiliary, 0);
+            Level_setTileAndData(level, x, y, z, item_instance->auxiliary, 0);
             item_instance->auxiliary = 0;
             return 1;
         } else {
@@ -137,7 +137,7 @@ static Item *create_bucket(int32_t id, int32_t texture_x, int32_t texture_y, std
     // Construct
     Item *item = alloc_Item();
     ALLOC_CHECK(item);
-    (*Item_constructor)(item, id);
+    Item_constructor(item, id);
 
     // Set VTable
     item->vtable = get_bucket_vtable();
@@ -164,7 +164,7 @@ static int32_t ItemInstance_getMaxStackSize_injection(ItemInstance *item_instanc
         return 16;
     } else {
         // Call Original Method
-        return (*ItemInstance_getMaxStackSize)(item_instance);
+        return ItemInstance_getMaxStackSize(item_instance);
     }
 }
 
@@ -172,8 +172,8 @@ static int32_t ItemInstance_getMaxStackSize_injection(ItemInstance *item_instanc
 static void inventory_add_item(FillingContainer *inventory, Item *item, int32_t auxiliary) {
     ItemInstance *item_instance = new ItemInstance;
     ALLOC_CHECK(item_instance);
-    item_instance = (*ItemInstance_constructor_item_extra)(item_instance, item, 1, auxiliary);
-    (*FillingContainer_addItem)(inventory, item_instance);
+    item_instance = ItemInstance_constructor_item_extra(item_instance, item, 1, auxiliary);
+    FillingContainer_addItem(inventory, item_instance);
 }
 static void Inventory_setupDefault_FillingContainer_addItem_call_injection(FillingContainer *filling_container) {
     inventory_add_item(filling_container, bucket, 0);
@@ -185,7 +185,7 @@ static void Inventory_setupDefault_FillingContainer_addItem_call_injection(Filli
 static bool is_holding_bucket = false;
 static HitResult Mob_pick_Level_clip_injection(Level *level, unsigned char *param_1, unsigned char *param_2, __attribute__((unused)) bool clip_liquids, bool param_3) {
     // Call Original Method
-    return (*Level_clip)(level, param_1, param_2, is_holding_bucket, param_3);
+    return Level_clip(level, param_1, param_2, is_holding_bucket, param_3);
 }
 static void handle_tick(Minecraft *minecraft) {
     LocalPlayer *player = minecraft->player;
@@ -225,7 +225,7 @@ static void Minecraft_handleMouseDown_injection(Minecraft *minecraft, int param_
     }
 
     // Call Original Method
-    (*Minecraft_handleMouseDown)(minecraft, param_1, can_destroy);
+    Minecraft_handleMouseDown(minecraft, param_1, can_destroy);
 }
 
 // Custom Crafting Recipes
@@ -249,7 +249,7 @@ static void Recipes_injection(Recipes *recipes) {
     std::string line1 = "# #";
     std::string line2 = " # ";
     std::vector<Recipes_Type> types = {type1};
-    (*Recipes_addShapedRecipe_2)(recipes, &result, &line1, &line2, &types);
+    Recipes_addShapedRecipe_2(recipes, &result, &line1, &line2, &types);
 }
 
 // Custom Furnace Fuel
@@ -258,7 +258,7 @@ static int32_t FurnaceTileEntity_getBurnDuration_injection(ItemInstance *item_in
         return 20000;
     } else {
         // Call Original Method
-        return (*FurnaceTileEntity_getBurnDuration)(item_instance);
+        return FurnaceTileEntity_getBurnDuration(item_instance);
     }
 }
 static void FurnaceTileEntity_tick_ItemInstance_setNull_injection(ItemInstance *item_instance) {

@@ -15,10 +15,10 @@ static void ItemRenderer_renderGuiItemCorrect_injection(Font *font, Textures *te
     bool use_carried = false;
     if (item_instance != NULL) {
         if (item_instance->id == leaves_id) {
-            (*ItemInstance_constructor_tile_extra)(&carried_item_instance, Tile_leaves_carried, item_instance->count, item_instance->auxiliary);
+            ItemInstance_constructor_tile_extra(&carried_item_instance, Tile_leaves_carried, item_instance->count, item_instance->auxiliary);
             use_carried = true;
         } else if (item_instance->id == grass_id) {
-            (*ItemInstance_constructor_tile_extra)(&carried_item_instance, Tile_grass_carried, item_instance->count, item_instance->auxiliary);
+            ItemInstance_constructor_tile_extra(&carried_item_instance, Tile_grass_carried, item_instance->count, item_instance->auxiliary);
             use_carried = true;
         }
     }
@@ -28,7 +28,7 @@ static void ItemRenderer_renderGuiItemCorrect_injection(Font *font, Textures *te
     glDisable(GL_DEPTH_TEST);
 
     // Call Original Method
-    (*ItemRenderer_renderGuiItemCorrect)(font, textures, use_carried ? &carried_item_instance : item_instance, param_1, param_2);
+    ItemRenderer_renderGuiItemCorrect(font, textures, use_carried ? &carried_item_instance : item_instance, param_1, param_2);
 
     // Revert GL State Changes
     if (depth_test_was_enabled) {
@@ -55,28 +55,28 @@ static void Tesselator_color_injection(Tesselator *tesselator, int32_t r, int32_
     }
 
     // Call Original Method
-    (*Tesselator_color)(tesselator, r, g, b, a);
+    Tesselator_color(tesselator, r, g, b, a);
 }
 static void Tesselator_begin_injection(Tesselator *tesselator, int32_t mode) {
     // Call Original Method
-    (*Tesselator_begin)(tesselator, mode);
+    Tesselator_begin(tesselator, mode);
 
     // Fix Furnace UI
     if (item_color_fix_mode != 0) {
         // Implict Translucent
-        (*Tesselator_color_injection)(tesselator, 0xff, 0xff, 0xff, 0xff);
+        Tesselator_color_injection(tesselator, 0xff, 0xff, 0xff, 0xff);
     }
 }
 static void InventoryPane_renderBatch_Tesselator_color_injection(Tesselator *tesselator, int32_t r, int32_t g, int32_t b) {
     // Call Original Method
-    (*Tesselator_color)(tesselator, r, g, b, 0xff);
+    Tesselator_color(tesselator, r, g, b, 0xff);
 
     // Enable Item Color Fix
     item_color_fix_mode = 2;
 }
 static void ItemRenderer_renderGuiItem_two_injection(Font *font, Textures *textures, ItemInstance *item_instance, float param_1, float param_2, float param_3, float param_4, bool param_5) {
     // Call Original Method
-    (*ItemRenderer_renderGuiItem_two)(font, textures, item_instance, param_1, param_2, param_3, param_4, param_5);
+    ItemRenderer_renderGuiItem_two(font, textures, item_instance, param_1, param_2, param_3, param_4, param_5);
 
     // Disable Item Color Fix
     item_color_fix_mode = 0;
@@ -86,7 +86,7 @@ static void FurnaceScreen_render_ItemRenderer_renderGuiItem_one_injection(Font *
     item_color_fix_mode = 1;
 
     // Call Original Method
-    (*ItemRenderer_renderGuiItem_one)(font, textures, item_instance, param_1, param_2, param_3);
+    ItemRenderer_renderGuiItem_one(font, textures, item_instance, param_1, param_2, param_3);
 }
 
 // Init

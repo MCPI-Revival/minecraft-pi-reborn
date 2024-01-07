@@ -26,13 +26,13 @@ static void Gui_addMessage_injection(Gui *gui, std::string *text) {
         free(safe_message);
 
         // Call Original Method
-        (*Gui_addMessage)(gui, &cpp_str);
+        Gui_addMessage(gui, &cpp_str);
 
         // End Recursing
         Gui_addMessage_recursing = false;
     } else {
         // Call Original Method
-        (*Gui_addMessage)(gui, &cpp_str);
+        Gui_addMessage(gui, &cpp_str);
     }
 
     // Free
@@ -47,9 +47,9 @@ void misc_add_message(Gui *gui, const char *text) {
 static int last_progress = -1;
 static const char *last_message = NULL;
 static void print_progress(Minecraft *minecraft) {
-    const char *message = (*Minecraft_getProgressMessage)(minecraft);
+    const char *message = Minecraft_getProgressMessage(minecraft);
     int32_t progress = minecraft->progress;
-    if ((*Minecraft_isLevelGenerated)(minecraft)) {
+    if (Minecraft_isLevelGenerated(minecraft)) {
         message = "Ready";
         progress = -1;
     }
@@ -84,7 +84,7 @@ void Level_saveLevelData_injection(Level *level) {
     DEBUG("Saving Game");
 
     // Call Original Method
-    (*Level_saveLevelData)(level);
+    Level_saveLevelData(level);
 }
 
 // Init

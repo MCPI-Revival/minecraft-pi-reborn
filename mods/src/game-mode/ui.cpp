@@ -230,13 +230,13 @@ static void create_world(Screen *host_screen, std::string folder_name) {
     minecraft->vtable->selectLevel(minecraft, &folder_name, &world_name, &settings);
 
     // Multiplayer
-    (*Minecraft_hostMultiplayer)(minecraft, 19132);
+    Minecraft_hostMultiplayer(minecraft, 19132);
 
     // Open ProgressScreen
     ProgressScreen *screen = alloc_ProgressScreen();
     ALLOC_CHECK(screen);
-    screen = (*ProgressScreen_constructor)(screen);
-    (*Minecraft_setScreen)(minecraft, (Screen *) screen);
+    screen = ProgressScreen_constructor(screen);
+    Minecraft_setScreen(minecraft, (Screen *) screen);
 
     // Reset
     reset_create_world_state();
@@ -260,7 +260,7 @@ static void create_world(Screen *host_screen, std::string folder_name) {
             *should_create_world = false; \
         } else { \
             /* Call Original Method */ \
-            (*prefix##SelectWorldScreen_tick_non_virtual)(screen); \
+            prefix##SelectWorldScreen_tick_non_virtual(screen); \
         } \
         \
         /* Create World If Dialog Succeeded */ \
@@ -269,7 +269,7 @@ static void create_world(Screen *host_screen, std::string folder_name) {
             \
             /* Get New World Name */ \
             std::string name = (char *) create_world_state.name; \
-            std::string new_name = (*prefix##SelectWorldScreen_getUniqueLevelName)(screen, &name); \
+            std::string new_name = prefix##SelectWorldScreen_getUniqueLevelName(screen, &name); \
             \
             /* Create World */ \
             create_world((Screen *) screen, new_name); \

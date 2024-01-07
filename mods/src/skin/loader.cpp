@@ -116,7 +116,7 @@ static void *loader_thread(void *user_data) {
 // Intercept Texture Creation
 static int32_t Textures_assignTexture_injection(Textures *textures, std::string *name, unsigned char *data) {
     // Call Original Method
-    int32_t id = (*Textures_assignTexture)(textures, name, data);
+    int32_t id = Textures_assignTexture(textures, name, data);
 
     // Load Skin
     if (starts_with(name->c_str(), "$")) {

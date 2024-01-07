@@ -32,7 +32,7 @@ static void Minecraft_setIsCreativeMode_injection(Minecraft *this, int32_t new_g
     set_is_survival(!new_game_mode);
 
     // Call Original Method
-    (*Minecraft_setIsCreativeMode)(this, new_game_mode);
+    Minecraft_setIsCreativeMode(this, new_game_mode);
 }
 
 // Disable CreatorMode-Specific API Features (Polling Block Hits) In SurvivalMode, This Is Preferable To Crashing
@@ -42,7 +42,7 @@ static unsigned char *Minecraft_getCreator_injection(Minecraft *minecraft) {
         return NULL;
     } else {
         // CreatorMode, Call Original Method
-        return (*Minecraft_getCreator)(minecraft);
+        return Minecraft_getCreator(minecraft);
     }
 }
 

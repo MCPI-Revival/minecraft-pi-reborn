@@ -15,10 +15,10 @@
 // The calling function doesn't exist in MCPE v0.6.1, so its name is unknown.
 static OptionButton *OptionsPane_unknown_toggle_creating_function_OptionButton_injection(OptionButton *option_button, Options_Option *option) {
     // Call Original Method
-    OptionButton *ret = (*OptionButton_constructor)(option_button, option);
+    OptionButton *ret = OptionButton_constructor(option_button, option);
 
     // Setup Image
-    (*OptionButton_updateImage)(option_button, stored_options);
+    OptionButton_updateImage(option_button, stored_options);
 
     // Return
     return ret;
@@ -28,17 +28,17 @@ static OptionButton *OptionsPane_unknown_toggle_creating_function_OptionButton_i
 // Hook Last Options::addOptionToSaveOutput Call
 static void Options_save_Options_addOptionToSaveOutput_injection(Options *options, std::vector<std::string> *data, std::string option, int32_t value) {
     // Call Original Method
-    (*Options_addOptionToSaveOutput)(options, data, option, value);
+    Options_addOptionToSaveOutput(options, data, option, value);
 
     // Save Fancy Graphics
-    (*Options_addOptionToSaveOutput)(options, data, "gfx_fancygraphics", options->fancy_graphics);
+    Options_addOptionToSaveOutput(options, data, "gfx_fancygraphics", options->fancy_graphics);
 
     // Save 3D Anaglyph
-    (*Options_addOptionToSaveOutput)(options, data, "gfx_anaglyph", options->anaglyph_3d);
+    Options_addOptionToSaveOutput(options, data, "gfx_anaglyph", options->anaglyph_3d);
 
     // Save File
     OptionsFile *options_file = &options->options_file;
-    (*OptionsFile_save)(options_file, data);
+    OptionsFile_save(options_file, data);
 }
 
 // MCPI's OptionsFile::getOptionStrings is broken, this is the version in v0.7.0
@@ -120,12 +120,12 @@ static void OptionsPane_unknown_toggle_creating_function_injection(OptionsPane *
     }
 
     // Call Original Method
-    (*OptionsPane_unknown_toggle_creating_function)(options_pane, group_id, &new_name, option);
+    OptionsPane_unknown_toggle_creating_function(options_pane, group_id, &new_name, option);
 
     // Add 3D Anaglyph
     if (option == &Options_Option_GRAPHICS) {
         std::string cpp_string = "3D Anaglyph";
-        (*OptionsPane_unknown_toggle_creating_function)(options_pane, group_id, &cpp_string, &Options_Option_ANAGLYPH);
+        OptionsPane_unknown_toggle_creating_function(options_pane, group_id, &cpp_string, &Options_Option_ANAGLYPH);
     }
 }
 
@@ -136,7 +136,7 @@ static bool Options_getBooleanValue_injection(Options *options, Options_Option *
         return options->fancy_graphics;
     } else {
         // Call Original Method
-        return (*Options_getBooleanValue)(options, option);
+        return Options_getBooleanValue(options, option);
     }
 }
 

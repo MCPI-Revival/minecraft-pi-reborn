@@ -106,7 +106,7 @@ static void SoundEngine_update_injection(SoundEngine *sound_engine, Mob *listene
 // SoundEngine::init Is Called After The Audio Engine Has Been Loaded
 static void SoundEngine_init_injection(SoundEngine *sound_engine, Minecraft *minecraft, Options *options) {
     // Call Original Method
-    (*SoundEngine_init)(sound_engine, minecraft, options);
+    SoundEngine_init(sound_engine, minecraft, options);
 
     // Resolve Sounds
     _sound_resolve_all();

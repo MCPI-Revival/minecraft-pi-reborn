@@ -38,7 +38,7 @@ static void _handle_back(Minecraft *minecraft) {
 static int32_t OptionsScreen_handleBackEvent_injection(OptionsScreen *screen, bool do_nothing) {
     if (!do_nothing) {
         Minecraft *minecraft = screen->minecraft;
-        (*Minecraft_setScreen)(minecraft, NULL);
+        Minecraft_setScreen(minecraft, NULL);
     }
     return 1;
 }
@@ -48,7 +48,7 @@ static int32_t InBedScreen_handleBackEvent_injection(InBedScreen *screen, bool d
     if (!do_nothing) {
         // Close Screen
         Minecraft *minecraft = screen->minecraft;
-        (*Minecraft_setScreen)(minecraft, NULL);
+        Minecraft_setScreen(minecraft, NULL);
         // Stop Sleeping
         LocalPlayer *player = minecraft->player;
         if (player != NULL) {
@@ -68,10 +68,10 @@ void input_set_mouse_grab_state(int state) {
 static void _handle_mouse_grab(Minecraft *minecraft) {
     if (mouse_grab_state == -1) {
         // Grab
-        (*Minecraft_grabMouse)(minecraft);
+        Minecraft_grabMouse(minecraft);
     } else if (mouse_grab_state == 1) {
         // Un-Grab
-        (*Minecraft_releaseMouse)(minecraft);
+        Minecraft_releaseMouse(minecraft);
     }
     mouse_grab_state = 0;
 }
@@ -82,7 +82,7 @@ static void _handle_mouse_grab(Minecraft *minecraft) {
 static bool Gui_tickItemDrop_Minecraft_isCreativeMode_call_injection(Minecraft *minecraft) {
     if (!enable_misc || SDL_WM_GrabInput(SDL_GRAB_QUERY) == SDL_GRAB_OFF) {
         // Call Original Method
-        return creative_is_restricted() && (*Minecraft_isCreativeMode)(minecraft);
+        return creative_is_restricted() && Minecraft_isCreativeMode(minecraft);
     } else {
         // Disable Item Drop Ticking
         return 1;
@@ -93,7 +93,7 @@ static bool Gui_tickItemDrop_Minecraft_isCreativeMode_call_injection(Minecraft *
 static void Gui_handleClick_injection(Gui *gui, int32_t param_2, int32_t param_3, int32_t param_4) {
     if (SDL_WM_GrabInput(SDL_GRAB_QUERY) == SDL_GRAB_OFF) {
         // Call Original Method
-        (*Gui_handleClick)(gui, param_2, param_3, param_4);
+        Gui_handleClick(gui, param_2, param_3, param_4);
     }
 }
 

@@ -46,7 +46,7 @@ static void start_world(Minecraft *minecraft) {
     settings.seed = BENCHMARK_SEED;
 
     // Delete World If It Already Exists
-    LevelStorageSource *level_source = (*Minecraft_getLevelSource)(minecraft);
+    LevelStorageSource *level_source = Minecraft_getLevelSource(minecraft);
     std::string name = BENCHMARK_WORLD_NAME;
     level_source->vtable->deleteLevel(level_source, &name);
 
@@ -56,8 +56,8 @@ static void start_world(Minecraft *minecraft) {
     // Open ProgressScreen
     ProgressScreen *screen = alloc_ProgressScreen();
     ALLOC_CHECK(screen);
-    screen = (*ProgressScreen_constructor)(screen);
-    (*Minecraft_setScreen)(minecraft, (Screen *) screen);
+    screen = ProgressScreen_constructor(screen);
+    Minecraft_setScreen(minecraft, (Screen *) screen);
 }
 
 // Track Frames
@@ -65,7 +65,7 @@ static void start_world(Minecraft *minecraft) {
 static unsigned long long int frames = 0;
 HOOK(media_swap_buffers, void, ()) {
     ensure_media_swap_buffers();
-    (*real_media_swap_buffers)();
+    real_media_swap_buffers();
     frames++;
 }
 #endif
@@ -107,7 +107,7 @@ static void Minecraft_update_injection(Minecraft *minecraft) {
     }
 
     // Detect World Loaded
-    if (!world_loaded && (*Minecraft_isLevelGenerated)(minecraft)) {
+    if (!world_loaded && Minecraft_isLevelGenerated(minecraft)) {
         world_loaded = 1;
         world_loaded_time = get_time();
 #ifndef MCPI_HEADLESS_MODE

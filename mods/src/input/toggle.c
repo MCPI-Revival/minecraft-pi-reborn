@@ -75,7 +75,7 @@ static void GameRenderer_setupCamera_injection(GameRenderer *game_renderer, floa
     }
 
     // Call Original Method
-    (*GameRenderer_setupCamera)(game_renderer, param_1, param_2);
+    GameRenderer_setupCamera(game_renderer, param_1, param_2);
 
     // Revert
     if (is_front_facing) {
@@ -89,7 +89,7 @@ static void ParticleEngine_render_injection(ParticleEngine *particle_engine, Ent
     }
 
     // Call Original Method
-    (*ParticleEngine_render)(particle_engine, entity, param_2);
+    ParticleEngine_render(particle_engine, entity, param_2);
 
     // Revert
     if (is_front_facing && (Entity *) stored_player == entity) {

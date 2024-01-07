@@ -25,7 +25,7 @@ void input_drop(int drop_slot) {
 
 // Handle Drop Item Presses
 static void _handle_drop(Minecraft *minecraft) {
-    if ((minecraft->screen == NULL) && (!creative_is_restricted() || !(*Minecraft_isCreativeMode)(minecraft)) && (drop_item_presses > 0 || drop_slot_pressed)) {
+    if ((minecraft->screen == NULL) && (!creative_is_restricted() || !Minecraft_isCreativeMode(minecraft)) && (drop_item_presses > 0 || drop_slot_pressed)) {
         // Get Player
         LocalPlayer *player = minecraft->player;
         if (player != NULL) {
@@ -59,8 +59,8 @@ static void _handle_drop(Minecraft *minecraft) {
 
                 // Empty Slot If Needed
                 if (inventory_item->count < 1) {
-                    (*Inventory_release)(inventory, selected_slot);
-                    (*Inventory_compressLinkedSlotList)(inventory, selected_slot);
+                    Inventory_release(inventory, selected_slot);
+                    Inventory_compressLinkedSlotList(inventory, selected_slot);
                 }
 
                 // Drop

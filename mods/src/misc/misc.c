@@ -38,7 +38,7 @@ static void Gui_renderHearts_GuiComponent_blit_hearts_injection(Gui *component, 
     y_dest -= DEFAULT_HUD_PADDING;
     y_dest += height - HUD_ELEMENT_HEIGHT - TOOLBAR_HEIGHT - NEW_HUD_PADDING;
     // Call Original Method
-    (*Gui_blit)(component, x_dest, y_dest, x_src, y_src, width_dest, height_dest, width_src, height_src);
+    Gui_blit(component, x_dest, y_dest, x_src, y_src, width_dest, height_dest, width_src, height_src);
 }
 static void Gui_renderHearts_GuiComponent_blit_armor_injection(Gui *component, int32_t x_dest, int32_t y_dest, int32_t x_src, int32_t y_src, int32_t width_dest, int32_t height_dest, int32_t width_src, int32_t height_src) {
     Minecraft *minecraft = component->minecraft;
@@ -49,7 +49,7 @@ static void Gui_renderHearts_GuiComponent_blit_armor_injection(Gui *component, i
     y_dest -= DEFAULT_HUD_PADDING;
     y_dest += height - HUD_ELEMENT_HEIGHT - TOOLBAR_HEIGHT - NEW_HUD_PADDING;
     // Call Original Method
-    (*Gui_blit)(component, x_dest, y_dest, x_src, y_src, width_dest, height_dest, width_src, height_src);
+    Gui_blit(component, x_dest, y_dest, x_src, y_src, width_dest, height_dest, width_src, height_src);
 }
 static void Gui_renderBubbles_GuiComponent_blit_injection(Gui *component, int32_t x_dest, int32_t y_dest, int32_t x_src, int32_t y_src, int32_t width_dest, int32_t height_dest, int32_t width_src, int32_t height_src) {
     Minecraft *minecraft = component->minecraft;
@@ -60,7 +60,7 @@ static void Gui_renderBubbles_GuiComponent_blit_injection(Gui *component, int32_
     y_dest -= DEFAULT_HUD_PADDING + DEFAULT_BUBBLES_PADDING + HUD_ELEMENT_HEIGHT;
     y_dest += height - HUD_ELEMENT_HEIGHT - TOOLBAR_HEIGHT - HUD_ELEMENT_HEIGHT - NEW_HUD_PADDING;
     // Call Original Method
-    (*Gui_blit)(component, x_dest, y_dest, x_src, y_src, width_dest, height_dest, width_src, height_src);
+    Gui_blit(component, x_dest, y_dest, x_src, y_src, width_dest, height_dest, width_src, height_src);
 }
 
 // Additional GUI Rendering
@@ -70,14 +70,14 @@ static void Gui_renderChatMessages_injection(Gui *gui, int32_t y_offset, uint32_
     // Handle Classic HUD
     if (use_classic_hud) {
         Minecraft *minecraft = gui->minecraft;
-        if (!(*Minecraft_isCreativeMode)(minecraft)) {
+        if (!Minecraft_isCreativeMode(minecraft)) {
             y_offset -= (HUD_ELEMENT_HEIGHT * 2) + NEW_HUD_PADDING;
         }
     }
 
     // Call Original Method
     if (!hide_chat_messages) {
-        (*Gui_renderChatMessages)(gui, y_offset, max_messages, disable_fading, font);
+        Gui_renderChatMessages(gui, y_offset, max_messages, disable_fading, font);
     }
 
     // Render Selected Item Text
@@ -89,14 +89,14 @@ static void Gui_renderChatMessages_injection(Gui *gui, int32_t y_offset, uint32_
         int32_t screen_width = minecraft->screen_width;
         float scale = ((float) screen_width) * Gui_InvGuiScale;
         // Render Selected Item Text
-        (*Gui_renderOnSelectItemNameText)(gui, (int32_t) scale, font, y_offset - 0x13);
+        Gui_renderOnSelectItemNameText(gui, (int32_t) scale, font, y_offset - 0x13);
     }
 }
 // Reset Selected Item Text Timer On Slot Select
 static uint32_t reset_selected_item_text_timer = 0;
 static void Gui_tick_injection(Gui *gui) {
     // Call Original Method
-    (*Gui_tick)(gui);
+    Gui_tick(gui);
 
     // Handle Reset
     if (render_selected_item_text) {
@@ -111,7 +111,7 @@ static void Gui_tick_injection(Gui *gui) {
 // Trigger Reset Selected Item Text Timer On Slot Select
 static void Inventory_selectSlot_injection(Inventory *inventory, int32_t slot) {
     // Call Original Method
-    (*Inventory_selectSlot)(inventory, slot);
+    Inventory_selectSlot(inventory, slot);
 
     // Trigger Reset Selected Item Text Timer
     if (render_selected_item_text) {
@@ -127,7 +127,7 @@ static void Gui_renderToolBar_injection(Gui *gui, float param_1, int32_t param_2
         glEnable(GL_BLEND);
     }
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    (*Gui_renderToolBar)(gui, param_1, param_2, param_3);
+    Gui_renderToolBar(gui, param_1, param_2, param_3);
     if (!was_blend_enabled) {
         glDisable(GL_BLEND);
     }
@@ -142,14 +142,14 @@ static void Screen_render_injection(Screen *screen, int32_t param_1, int32_t par
     // Fix
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     // Call Original Method
-    (*Screen_render_non_virtual)(screen, param_1, param_2, param_3);
+    Screen_render_non_virtual(screen, param_1, param_2, param_3);
 }
 
 // Sanitize Username
 #define MAX_USERNAME_LENGTH 16
 static void LoginPacket_read_injection(LoginPacket *packet, unsigned char *bit_stream) {
     // Call Original Method
-    (*LoginPacket_read_non_virtual)(packet, bit_stream);
+    LoginPacket_read_non_virtual(packet, bit_stream);
 
     // Prepare
     RakNet_RakString *rak_string = &packet->username;
@@ -161,7 +161,7 @@ static void LoginPacket_read_injection(LoginPacket *packet, unsigned char *bit_s
     ALLOC_CHECK(new_username);
     sanitize_string(&new_username, MAX_USERNAME_LENGTH, 0);
     // Set New Username
-    (*RakNet_RakString_Assign)(rak_string, new_username);
+    RakNet_RakString_Assign(rak_string, new_username);
     // Free
     free(new_username);
 }
@@ -173,7 +173,7 @@ static void LoginPacket_read_injection(LoginPacket *packet, unsigned char *bit_s
 // formatting functionality.
 static RakNet_RakString *RakNet_RakString_injection(RakNet_RakString *rak_string, const char *format, ...) {
     // Call Original Method
-    return (*RakNet_RakString_constructor)(rak_string, "%s", format);
+    return RakNet_RakString_constructor(rak_string, "%s", format);
 }
 
 // Print Error Message If RakNet Startup Fails
@@ -212,7 +212,7 @@ static RakNet_StartupResult RakNetInstance_host_RakNet_RakPeer_Startup_injection
 // Fix Bug Where RakNetInstance Starts Pinging Potential Servers Before The "Join Game" Screen Is Opened
 static RakNetInstance *RakNetInstance_injection(RakNetInstance *rak_net_instance) {
     // Call Original Method
-    RakNetInstance *result = (*RakNetInstance_constructor)(rak_net_instance);
+    RakNetInstance *result = RakNetInstance_constructor(rak_net_instance);
     // Fix
     rak_net_instance->pinging_for_hosts = 0;
     // Return
@@ -223,10 +223,10 @@ static RakNetInstance *RakNetInstance_injection(RakNetInstance *rak_net_instance
 static void LocalPlayer_die_injection(LocalPlayer *entity, Entity *cause) {
     // Close Screen
     Minecraft *minecraft = entity->minecraft;
-    (*Minecraft_setScreen)(minecraft, NULL);
+    Minecraft_setScreen(minecraft, NULL);
 
     // Call Original Method
-    (*LocalPlayer_die_non_virtual)(entity, cause);
+    LocalPlayer_die_non_virtual(entity, cause);
 }
 
 // Fix Furnace Not Checking Item Auxiliary When Inserting New Item
@@ -254,7 +254,7 @@ static int32_t FurnaceScreen_handleAddItem_injection(FurnaceScreen *furnace_scre
     // Call Original Method
     if (valid) {
         // Valid
-        return (*FurnaceScreen_handleAddItem)(furnace_screen, slot, item);
+        return FurnaceScreen_handleAddItem(furnace_screen, slot, item);
     } else {
         // Invalid
         return 0;
@@ -268,18 +268,18 @@ static int32_t FurnaceScreen_handleAddItem_injection(FurnaceScreen *furnace_scre
 #ifndef MCPI_HEADLESS_MODE
 static void GameRenderer_render_injection(GameRenderer *game_renderer, float param_1) {
     // Call Original Method
-    (*GameRenderer_render)(game_renderer, param_1);
+    GameRenderer_render(game_renderer, param_1);
 
     // Check If Cursor Should Render
     if (SDL_WM_GrabInput(SDL_GRAB_QUERY) == SDL_GRAB_OFF) {
         // Fix GL Mode
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
         // Get X And Y
-        float x = (*Mouse_getX)() * Gui_InvGuiScale;
-        float y = (*Mouse_getY)() * Gui_InvGuiScale;
+        float x = Mouse_getX() * Gui_InvGuiScale;
+        float y = Mouse_getY() * Gui_InvGuiScale;
         // Render Cursor
         Minecraft *minecraft = game_renderer->minecraft;
-        (*Common_renderCursor)(x, y, minecraft);
+        Common_renderCursor(x, y, minecraft);
     }
 }
 #endif
@@ -310,7 +310,7 @@ static void anGenBuffers_injection(int32_t count, uint32_t *buffers) {
 
 // Fix Graphics Bug When Switching To First-Person While Sneaking
 static void HumanoidMobRenderer_render_injection(HumanoidMobRenderer *model_renderer, Entity *entity, float param_2, float param_3, float param_4, float param_5, float param_6) {
-    (*HumanoidMobRenderer_render_non_virtual)(model_renderer, entity, param_2, param_3, param_4, param_5, param_6);
+    HumanoidMobRenderer_render_non_virtual(model_renderer, entity, param_2, param_3, param_4, param_5, param_6);
     HumanoidModel *model = model_renderer->model;
     model->is_sneaking = 0;
 }
@@ -331,7 +331,7 @@ HOOK(bind, int, (int sockfd, const struct sockaddr *addr, socklen_t addrlen)) {
         new_addr = (const struct sockaddr *) &in_addr;
     }
     ensure_bind();
-    return (*real_bind)(sockfd, new_addr, addrlen);
+    return real_bind(sockfd, new_addr, addrlen);
 }
 
 // Change Grass Color
@@ -365,7 +365,7 @@ static int32_t GrassTile_getColor_injection(__attribute__((unused)) Tile *tile, 
     return (r_avg << 16) | (g_avg << 8) | b_avg;
 }
 static int32_t TallGrass_getColor_injection(TallGrass *tile, LevelSource *level_source, int32_t x, int32_t y, int32_t z) {
-    int32_t original_color = (*TallGrass_getColor_non_virtual)(tile, level_source, x, y, z);
+    int32_t original_color = TallGrass_getColor_non_virtual(tile, level_source, x, y, z);
     if (original_color == 0x339933) {
         return GrassTile_getColor_injection((Tile *) tile, level_source, x, y, z);
     } else {
@@ -376,7 +376,7 @@ static int32_t TallGrass_getColor_injection(TallGrass *tile, LevelSource *level_
 // Generate Caves
 static void RandomLevelSource_buildSurface_injection(RandomLevelSource *random_level_source, int32_t chunk_x, int32_t chunk_y, unsigned char *chunk_data, Biome **biomes) {
     // Call Original Method
-    (*RandomLevelSource_buildSurface)(random_level_source, chunk_x, chunk_y, chunk_data, biomes);
+    RandomLevelSource_buildSurface(random_level_source, chunk_x, chunk_y, chunk_data, biomes);
 
     // Get Level
     Level *level = random_level_source->level;
@@ -428,7 +428,7 @@ static int32_t Tile_getRenderShape_injection(Tile *tile) {
 }
 static ChestTileEntity *ChestTileEntity_injection(ChestTileEntity *tile_entity) {
     // Call Original Method
-    (*ChestTileEntity_constructor)(tile_entity);
+    ChestTileEntity_constructor(tile_entity);
 
     // Enable Renderer
     tile_entity->renderer_id = 1;
@@ -442,7 +442,7 @@ static void ModelPart_render_injection(ModelPart *model_part, float scale) {
     is_rendering_chest = 1;
 
     // Call Original Method
-    (*ModelPart_render)(model_part, scale);
+    ModelPart_render(model_part, scale);
 
     // Stop
     is_rendering_chest = 0;
@@ -454,7 +454,7 @@ static void Tesselator_vertexUV_injection(Tesselator *tesselator, float x, float
     }
 
     // Call Original Method
-    (*Tesselator_vertexUV)(tesselator, x, y, z, u, v);
+    Tesselator_vertexUV(tesselator, x, y, z, u, v);
 }
 static bool ChestTileEntity_shouldSave_injection(__attribute__((unused)) unsigned char *tile_entity) {
     return 1;
@@ -463,7 +463,7 @@ static bool ChestTileEntity_shouldSave_injection(__attribute__((unused)) unsigne
 // Animated 3D Chest
 static ContainerMenu *ContainerMenu_injection(ContainerMenu *container_menu, Container *container, int32_t param_1) {
     // Call Original Method
-    (*ContainerMenu_constructor)(container_menu, container, param_1);
+    ContainerMenu_constructor(container_menu, container, param_1);
 
     // Play Animation
     ChestTileEntity *tile_entity = (ChestTileEntity *) (((unsigned char *) container) - offsetof(ChestTileEntity, container));
@@ -485,7 +485,7 @@ static unsigned char *ContainerMenu_destructor_injection(ContainerMenu *containe
     }
 
     // Call Original Method
-    return (*ContainerMenu_destructor_non_virtual)(container_menu);
+    return ContainerMenu_destructor_non_virtual(container_menu);
 }
 
 #ifndef MCPI_HEADLESS_MODE

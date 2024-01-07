@@ -16,7 +16,7 @@ void input_set_is_left_click(int val) {
 // Add Attacking To MouseBuildInput
 static int32_t MouseBuildInput_tickBuild_injection(MouseBuildInput *mouse_build_input, Player *local_player, uint32_t *build_action_intention_return) {
     // Call Original Method
-    int32_t ret = (*MouseBuildInput_tickBuild_non_virtual)(mouse_build_input, local_player, build_action_intention_return);
+    int32_t ret = MouseBuildInput_tickBuild_non_virtual(mouse_build_input, local_player, build_action_intention_return);
 
     // Use Attack/Place BuildActionIntention If No Other Valid BuildActionIntention Was Selected And This Was Not A Repeated Left Click
     if (ret != 0 && is_left_click == 1 && *build_action_intention_return == 0xa) {
@@ -49,7 +49,7 @@ static ItemInstance *Player_attack_Inventory_getSelected_injection(Inventory *in
     }
 
     // Call Original Method
-    return (*Inventory_getSelected)(inventory);
+    return Inventory_getSelected(inventory);
 }
 
 // Init

@@ -36,7 +36,7 @@ std::string chat_send_api_command(Minecraft *minecraft, std::string str) {
     client.time = 0;
     CommandServer *command_server = minecraft->command_server;
     if (command_server != NULL) {
-        return (*CommandServer_parse)(command_server, &client, &str);
+        return CommandServer_parse(command_server, &client, &str);
     } else {
         return "";
     }
@@ -59,7 +59,7 @@ void chat_send_message(ServerSideNetworkHandler *server_side_network_handler, ch
     sanitize_string(&full_message, MAX_CHAT_MESSAGE_LENGTH, 0);
     std::string cpp_string = full_message;
     free(full_message);
-    (*ServerSideNetworkHandler_displayGameMessage)(server_side_network_handler, &cpp_string);
+    ServerSideNetworkHandler_displayGameMessage(server_side_network_handler, &cpp_string);
 }
 // Handle Chat packet Send
 void chat_handle_packet_send(Minecraft *minecraft, ChatPacket *packet) {
@@ -85,7 +85,7 @@ static void CommandServer_parse_CommandServer_dispatchPacket_injection(CommandSe
 
 // Handle ChatPacket Server-Side
 static void ServerSideNetworkHandler_handle_ChatPacket_injection(ServerSideNetworkHandler *server_side_network_handler, RakNet_RakNetGUID *rak_net_guid, ChatPacket *chat_packet) {
-    Player *player = (*ServerSideNetworkHandler_getPlayer)(server_side_network_handler, rak_net_guid);
+    Player *player = ServerSideNetworkHandler_getPlayer(server_side_network_handler, rak_net_guid);
     if (player != NULL) {
         const char *username = player->username.c_str();
         char *message = chat_packet->message;

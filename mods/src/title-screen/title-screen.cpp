@@ -11,14 +11,14 @@ static void StartMenuScreen_render_Screen_renderBackground_injection(StartMenuSc
     Minecraft *minecraft = screen->minecraft;
     Textures *textures = minecraft->textures;
     std::string texture = "gui/titleBG.png";
-    (*Textures_loadAndBindTexture)(textures, &texture);
-    (*StartMenuScreen_blit)(screen, 0, 0, 0, 0, screen->width, screen->height, 0x100, 0x100);
+    Textures_loadAndBindTexture(textures, &texture);
+    StartMenuScreen_blit(screen, 0, 0, 0, 0, screen->width, screen->height, 0x100, 0x100);
 }
 
 // Add Buttons Back To Classic Start Screen
 static void StartMenuScreen_init_injection(StartMenuScreen *screen) {
     // Call Original Method
-    (*StartMenuScreen_init_non_virtual)(screen);
+    StartMenuScreen_init_non_virtual(screen);
 
     // Add Button
     std::vector<Button *> *rendered_buttons = &screen->rendered_buttons;
@@ -39,7 +39,7 @@ static void StartMenuScreen_buttonClicked_injection(StartMenuScreen *screen, But
         compat_request_exit();
     } else {
         // Call Original Method
-        (*StartMenuScreen_buttonClicked_non_virtual)(screen, button);
+        StartMenuScreen_buttonClicked_non_virtual(screen, button);
     }
 }
 

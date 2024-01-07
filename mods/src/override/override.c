@@ -16,7 +16,7 @@ HOOK(access, int, (const char *pathname, int mode)) {
     char *new_path = override_get_path(pathname);
     // Open File
     ensure_access();
-    int ret = (*real_access)(new_path != NULL ? new_path : pathname, mode);
+    int ret = real_access(new_path != NULL ? new_path : pathname, mode);
     // Free Data
     if (new_path != NULL) {
         free(new_path);
@@ -58,7 +58,7 @@ char *override_get_path(const char *filename) {
         for (int i = 0; asset_folders[i] != NULL; i++) {
             safe_asprintf(&new_path, "%s/%s", asset_folders[i], &filename[data_prefix_length]);
             ensure_access();
-            if ((*real_access)(new_path, F_OK) == -1) {
+            if (real_access(new_path, F_OK) == -1) {
                 // Not Found In Asset Folder
                 free(new_path);
                 new_path = NULL;
@@ -82,7 +82,7 @@ HOOK(fopen, FILE *, (const char *filename, const char *mode)) {
     char *new_path = override_get_path(filename);
     // Open File
     ensure_fopen();
-    FILE *file = (*real_fopen)(new_path != NULL ? new_path : filename, mode);
+    FILE *file = real_fopen(new_path != NULL ? new_path : filename, mode);
     // Free Data
     if (new_path != NULL) {
         free(new_path);
@@ -96,7 +96,7 @@ HOOK(fopen64, FILE *, (const char *filename, const char *mode)) {
     char *new_path = override_get_path(filename);
     // Open File
     ensure_fopen64();
-    FILE *file = (*real_fopen64)(new_path != NULL ? new_path : filename, mode);
+    FILE *file = real_fopen64(new_path != NULL ? new_path : filename, mode);
     // Free Data
     if (new_path != NULL) {
         free(new_path);

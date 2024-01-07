@@ -49,7 +49,7 @@ static int render_distance;
 Options *stored_options = NULL;
 static void Options_initDefaultValue_injection(Options *options) {
     // Call Original Method
-    (*Options_initDefaultValue)(options);
+    Options_initDefaultValue(options);
 
     // Default Graphics Settings
 #ifndef MCPI_SERVER_MODE
@@ -62,7 +62,7 @@ static void Options_initDefaultValue_injection(Options *options) {
 }
 static void Minecraft_init_injection(Minecraft *minecraft) {
     // Call Original Method
-    (*Minecraft_init_non_virtual)(minecraft);
+    Minecraft_init_non_virtual(minecraft);
 
     Options *options = &minecraft->options;
     // Enable Crosshair In Touch GUI
@@ -77,7 +77,7 @@ static void TileRenderer_tesselateBlockInWorld_injection(TileRenderer *tile_rend
     Minecraft_useAmbientOcclusion = stored_options->ambient_occlusion;
 
     // Call Original Method
-    (*TileRenderer_tesselateBlockInWorld)(tile_renderer, tile, x, y, z);
+    TileRenderer_tesselateBlockInWorld(tile_renderer, tile, x, y, z);
 }
 
 // Init

@@ -21,11 +21,11 @@ void input_run_on_tick(input_tick_function_t function) {
 // Handle Input Fixes
 static void Minecraft_tickInput_injection(Minecraft *minecraft) {
     // Call Original Method
-    (*Minecraft_tickInput)(minecraft);
+    Minecraft_tickInput(minecraft);
 
     // Run Input Tick Functions
     for (input_tick_function_t function : get_input_tick_functions()) {
-        (*function)(minecraft);
+        function(minecraft);
     }
 }
 

@@ -27,7 +27,7 @@ static std::string get_death_message(Player *player) {
         int32_t old_health = player->health; \
         \
         /* Call Original Method */ \
-        (*type##Player_actuallyHurt_non_virtual)(player, damage); \
+        type##Player_actuallyHurt_non_virtual(player, damage); \
         \
         /* Store New Health */ \
         int32_t new_health = player->health; \
@@ -44,7 +44,7 @@ static std::string get_death_message(Player *player) {
                 \
                 /* Post Death Message */ \
                 ServerSideNetworkHandler *server_side_network_handler = (ServerSideNetworkHandler *) minecraft->network_handler; \
-                (*ServerSideNetworkHandler_displayGameMessage)(server_side_network_handler, &message); \
+                ServerSideNetworkHandler_displayGameMessage(server_side_network_handler, &message); \
             } \
         } \
     }

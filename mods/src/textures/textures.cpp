@@ -19,7 +19,7 @@ static void Minecraft_tick_injection(Minecraft *minecraft) {
     // Tick Dynamic Textures
     Textures *textures = minecraft->textures;
     if (textures != NULL) {
-        (*Textures_tick)(textures, true);
+        Textures_tick(textures, true);
     }
 }
 
@@ -43,7 +43,7 @@ HOOK(glTexImage2D, void, (GLenum target, GLint level, GLint internalformat, GLsi
 
     // Call Original Method
     ensure_glTexImage2D();
-    (*real_glTexImage2D)(target, level, internalformat, width, height, border, format, type, pixels);
+    real_glTexImage2D(target, level, internalformat, width, height, border, format, type, pixels);
 }
 HOOK(glDeleteTextures, void, (GLsizei n, const GLuint *textures)) {
     // Remove Old Data
@@ -62,7 +62,7 @@ HOOK(glDeleteTextures, void, (GLsizei n, const GLuint *textures)) {
 
     // Call Original Method
     ensure_glDeleteTextures();
-    (*real_glDeleteTextures)(n, textures);
+    real_glDeleteTextures(n, textures);
 }
 static void get_texture_size(GLint id, GLsizei *width, GLsizei *height) {
     // Iterate

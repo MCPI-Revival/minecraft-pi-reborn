@@ -15,7 +15,7 @@ static int32_t sdl_key_to_minecraft_key_injection(int32_t sdl_key) {
         return 8;
     } else {
         // Call Original Method
-        return (*Common_sdl_key_to_minecraft_key)(sdl_key);
+        return Common_sdl_key_to_minecraft_key(sdl_key);
     }
 }
 
@@ -25,8 +25,8 @@ static void LocalPlayer_openTextEdit_injection(LocalPlayer *local_player, TileEn
         Minecraft *minecraft = local_player->minecraft;
         TextEditScreen *screen = alloc_TextEditScreen();
         ALLOC_CHECK(screen);
-        screen = (*TextEditScreen_constructor)(screen, (SignTileEntity *) sign);
-        (*Minecraft_setScreen)(minecraft, (Screen *) screen);
+        screen = TextEditScreen_constructor(screen, (SignTileEntity *) sign);
+        Minecraft_setScreen(minecraft, (Screen *) screen);
     }
 }
 
@@ -42,7 +42,7 @@ static void clear_input(__attribute__((unused)) Minecraft *minecraft) {
 // Handle Text Input
 static void TextEditScreen_updateEvents_injection(TextEditScreen *screen) {
     // Call Original Method
-    (*TextEditScreen_updateEvents_non_virtual)(screen);
+    TextEditScreen_updateEvents_non_virtual(screen);
 
     if (!screen->passthrough_input) {
         for (char key : input) {

@@ -38,7 +38,7 @@ static AppPlatform_readAssetFile_return_value AppPlatform_readAssetFile_injectio
 // Add Missing Buttons To Pause Menu
 static void PauseScreen_init_injection(PauseScreen *screen) {
     // Call Original Method
-    (*PauseScreen_init_non_virtual)(screen);
+    PauseScreen_init_non_virtual(screen);
 
     // Check If Server
     Minecraft *minecraft = screen->minecraft;
@@ -53,7 +53,7 @@ static void PauseScreen_init_injection(PauseScreen *screen) {
             selectable_buttons->push_back(button);
 
             // Update Button Text
-            (*PauseScreen_updateServerVisibilityText)(screen);
+            PauseScreen_updateServerVisibilityText(screen);
         }
     }
 }

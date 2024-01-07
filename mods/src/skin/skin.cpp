@@ -74,7 +74,7 @@ static int32_t Textures_loadAndBindTexture_injection(Textures *textures, __attri
     }
 
     // Call Original Method
-    return (*Textures_loadAndBindTexture)(textures, &new_texture);
+    return Textures_loadAndBindTexture(textures, &new_texture);
 }
 
 // Init

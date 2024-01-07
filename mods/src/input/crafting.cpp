@@ -15,11 +15,11 @@ static void _handle_open_crafting(Minecraft *minecraft) {
         should_open_crafting = 0;
 
         // Set Screen
-        if (!creative_is_restricted() || !(*Minecraft_isCreativeMode)(minecraft)) {
+        if (!creative_is_restricted() || !Minecraft_isCreativeMode(minecraft)) {
             WorkbenchScreen *screen = alloc_WorkbenchScreen();
             ALLOC_CHECK(screen);
-            screen = (*WorkbenchScreen_constructor)(screen, 0);
-            (*Minecraft_setScreen)(minecraft, (Screen *) screen);
+            screen = WorkbenchScreen_constructor(screen, 0);
+            Minecraft_setScreen(minecraft, (Screen *) screen);
         }
     }
 }
