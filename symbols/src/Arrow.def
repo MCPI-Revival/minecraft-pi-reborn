@@ -1,0 +1,3 @@
+extends Entity;
+
+property bool is_critical = 0xd8;

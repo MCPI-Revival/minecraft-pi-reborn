@@ -19,6 +19,7 @@ method uchar *getCreator() = 0x17538;
 method LevelStorageSource *getLevelSource() = 0x16e84;
 method void handleMouseDown(int param_1, bool can_destroy) = 0x1584c;
 virtual-method void selectLevel(std::string *level_dir, std::string *level_name, LevelSettings *settings) = 0x40;
+method void joinMultiplayer(PingedCompatibleServer *server) = 0x165f4;
 
 property int screen_width = 0x20;
 property int screen_height = 0x24;

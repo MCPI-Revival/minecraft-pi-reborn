@@ -68,7 +68,7 @@ void chat_handle_packet_send(Minecraft *minecraft, ChatPacket *packet) {
         // Hosting Multiplayer
         char *message = packet->message;
         ServerSideNetworkHandler *server_side_network_handler = (ServerSideNetworkHandler *) minecraft->network_handler;
-        chat_send_message(server_side_network_handler, *Strings_default_username, message);
+        chat_send_message(server_side_network_handler, Strings_default_username, message);
     } else {
         // Client
         rak_net_instance->vtable->send(rak_net_instance, (Packet *) packet);

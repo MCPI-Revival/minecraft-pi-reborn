@@ -1,4 +1,6 @@
 virtual-method bool hurt(Entity *attacker, int damage) = 0xa4;
+virtual-method int getEntityTypeId() = 0xdc;
+method void moveTo(float x, float y, float z, float pitch, float yaw) = 0x7a834;
 
 property float x = 0x4;
 property float y = 0x8;
@@ -10,3 +12,4 @@ property float old_y = 0x2c;
 property float old_z = 0x30;
 property float old_yaw = 0x48;
 property float old_pitch = 0x4c;
+property int id = 0x1c;

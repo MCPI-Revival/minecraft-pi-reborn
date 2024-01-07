@@ -1,0 +1,3 @@
+extends Item;
+
+property ItemInstance item = 0xd0;

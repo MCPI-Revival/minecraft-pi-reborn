@@ -1,0 +1,1 @@
+method void from(int *x, int *y, int *z) = 0x27c98;

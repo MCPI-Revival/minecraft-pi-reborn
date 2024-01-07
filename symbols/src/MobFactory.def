@@ -1,0 +1,2 @@
+static-method Mob *getStaticTestMob(int id, Level *level) = 0x18844;
+static-method Mob *CreateMob(int id, Level *level) = 0x18184;

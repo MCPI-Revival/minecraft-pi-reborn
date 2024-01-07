@@ -74,7 +74,7 @@ static void Minecraft_init_injection(Minecraft *minecraft) {
 // Smooth Lighting
 static void TileRenderer_tesselateBlockInWorld_injection(TileRenderer *tile_renderer, Tile *tile, int32_t x, int32_t y, int32_t z) {
     // Set Variable
-    *Minecraft_useAmbientOcclusion = stored_options->ambient_occlusion;
+    Minecraft_useAmbientOcclusion = stored_options->ambient_occlusion;
 
     // Call Original Method
     (*TileRenderer_tesselateBlockInWorld)(tile_renderer, tile, x, y, z);
@@ -98,11 +98,11 @@ void init_options() {
     // Change Username
     const char *username = get_username();
     DEBUG("Setting Username: %s", username);
-    if (strcmp(*Strings_default_username, "StevePi") != 0) {
+    if (strcmp(Strings_default_username, "StevePi") != 0) {
         ERR("Default Username Is Invalid");
     }
     safe_username = to_cp437(username);
-    patch_address((void *) Strings_default_username, (void *) safe_username);
+    patch_address((void *) Strings_default_username_pointer, (void *) safe_username);
 
     // Disable Autojump By Default
     if (feature_has("Disable Autojump By Default", server_disabled)) {

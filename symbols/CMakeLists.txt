@@ -118,6 +118,16 @@ set(SRC
     src/Options_Option.def
     src/LevelStorageSource.def
     src/SignTileEntity.def
+    src/AgableMob.def
+    src/PrimedTnt.def
+    src/ItemEntity.def
+    src/Arrow.def
+    src/OffsetPosTranslator.def
+    src/EntityFactory.def
+    src/MobFactory.def
+    src/Animal.def
+    src/Sheep.def
+    src/PingedCompatibleServer.def
 )
 # Resolve Definition Files
 set(RESOLVED_SRC "")

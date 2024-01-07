@@ -9,7 +9,7 @@ char *version_get() {
     static char *version = NULL;
     // Load
     if (version == NULL) {
-        safe_asprintf(&version, "%s / Reborn v%s", *Strings_minecraft_pi_version, reborn_get_version());
+        safe_asprintf(&version, "%s / Reborn v%s", Strings_minecraft_pi_version, reborn_get_version());
     }
     // Return
     return version;
@@ -30,7 +30,7 @@ void init_version() {
     // Touch GUI
     overwrite((void *) Common_getGameVersionString, (void *) Common_getGameVersionString_injection);
     // Normal GUI
-    patch_address((void *) Strings_minecraft_pi_version, version_get());
+    patch_address((void *) Strings_minecraft_pi_version_pointer, version_get());
 
     // Log
     INFO("Starting Minecraft: Pi Edition (%s)", version_get());

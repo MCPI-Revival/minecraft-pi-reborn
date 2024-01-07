@@ -18,6 +18,9 @@ property int category = 0x10;
 property int max_damage = 0x8;
 property int max_stack_size = 0x14;
 
+// Globals
+static-property-array Item *items = 0x17b250;
+
 // Items
 static-property Item *flintAndSteel = 0x17ba70;
 static-property Item *snowball = 0x17bbb0;

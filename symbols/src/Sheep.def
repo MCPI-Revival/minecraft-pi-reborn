@@ -1,0 +1,3 @@
+extends Animal;
+
+method void setColor(int color) = 0x86274;

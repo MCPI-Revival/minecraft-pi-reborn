@@ -1,0 +1,5 @@
+extends PathfinderMob;
+
+method void setAge(int age) = 0x7a058;
+
+property int age = 0xbfc;

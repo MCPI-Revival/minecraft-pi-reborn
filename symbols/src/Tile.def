@@ -19,7 +19,7 @@ property int id = 0x8;
 property int category = 0x3c;
 
 // Globals
-static-property Tile *tiles = 0x180e08;
+static-property-array Tile *tiles = 0x180e08;
 
 // Tiles
 static-property Tile *chest = 0x181d60;

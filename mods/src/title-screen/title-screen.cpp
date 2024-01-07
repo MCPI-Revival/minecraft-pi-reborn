@@ -79,7 +79,7 @@ void init_title_screen() {
         }
 
         // Rename "Create" Button To "Quit"
-        patch_address((void *) Strings_classic_create_button_text, (void *) "Quit");
+        patch_address((void *) Strings_classic_create_button_text_pointer, (void *) "Quit");
 
         // Add Functionality To Quit Button
         patch_address(StartMenuScreen_buttonClicked_vtable_addr, (void *) StartMenuScreen_buttonClicked_injection);

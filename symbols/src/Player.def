@@ -6,6 +6,7 @@ method int isUsingItem() = 0x8f15c;
 virtual-method void drop(ItemInstance *item_instance, bool is_death) = 0x208;
 virtual-method void stopSleepInBed(bool param_1, bool param_2, bool param_3) = 0x228;
 virtual-method void openTextEdit(TileEntity *sign) = 0x230;
+method ItemInstance *getArmor(int slot) = 0x8fda4;
 
 property std::string username = 0xbf4;
 property Inventory *inventory = 0xbe0;

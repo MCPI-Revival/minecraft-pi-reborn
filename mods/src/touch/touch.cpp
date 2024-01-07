@@ -18,8 +18,8 @@ static unsigned char *operator_new_IngameBlockSelectionScreen_injection(__attrib
 // Improved Button Hover Behavior
 static int32_t Button_hovered_injection(__attribute__((unused)) Button *button, __attribute__((unused)) Minecraft *minecraft, __attribute__((unused)) int32_t click_x, __attribute__((unused)) int32_t click_y) {
     // Get Mouse Position
-    int32_t x = (*Mouse_getX)() * (*Gui_InvGuiScale);
-    int32_t y = (*Mouse_getY)() * (*Gui_InvGuiScale);
+    int32_t x = (*Mouse_getX)() * Gui_InvGuiScale;
+    int32_t y = (*Mouse_getY)() * Gui_InvGuiScale;
 
     // Get Button Position
     int32_t button_x1 = button->x;

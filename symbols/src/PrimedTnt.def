@@ -1,0 +1,3 @@
+extends Entity;
+
+property int fuse = 0xd0;

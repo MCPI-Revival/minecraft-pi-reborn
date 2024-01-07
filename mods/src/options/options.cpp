@@ -99,9 +99,9 @@ static void OptionsPane_unknown_toggle_creating_function_injection(OptionsPane *
     std::string name = *name_ptr;
     std::string new_name = name;
     if (name == "Fancy Graphics") {
-        option = Options_Option_GRAPHICS;
+        option = &Options_Option_GRAPHICS;
     } else if (name == "Soft shadows") {
-        option = Options_Option_AMBIENT_OCCLUSION;
+        option = &Options_Option_AMBIENT_OCCLUSION;
     } else if (name == "Fancy Skies" || name == "Animated water") {
         // These have no corresponding option, so disable the toggle.
         return;
@@ -123,16 +123,16 @@ static void OptionsPane_unknown_toggle_creating_function_injection(OptionsPane *
     (*OptionsPane_unknown_toggle_creating_function)(options_pane, group_id, &new_name, option);
 
     // Add 3D Anaglyph
-    if (option == Options_Option_GRAPHICS) {
+    if (option == &Options_Option_GRAPHICS) {
         std::string cpp_string = "3D Anaglyph";
-        (*OptionsPane_unknown_toggle_creating_function)(options_pane, group_id, &cpp_string, Options_Option_ANAGLYPH);
+        (*OptionsPane_unknown_toggle_creating_function)(options_pane, group_id, &cpp_string, &Options_Option_ANAGLYPH);
     }
 }
 
 // Add Missing Options To Options::getBooleanValue
 static bool Options_getBooleanValue_injection(Options *options, Options_Option *option) {
     // Check
-    if (option == Options_Option_GRAPHICS) {
+    if (option == &Options_Option_GRAPHICS) {
         return options->fancy_graphics;
     } else {
         // Call Original Method
@@ -169,9 +169,9 @@ void _init_options_cpp() {
     // Actually Save options.txt
     overwrite_call((void *) 0x197fc, (void *) Options_save_Options_addOptionToSaveOutput_injection);
     // Fix options.txt Path
-    patch_address((void *) Strings_options_txt_path, (void *) get_new_options_txt_path());
+    patch_address((void *) Strings_options_txt_path_pointer, (void *) get_new_options_txt_path());
     // When Loading, options.txt Should Be Opened In Read Mode
-    patch_address((void *) Strings_options_txt_fopen_mode_when_loading, (void *) "r");
+    patch_address((void *) Strings_options_txt_fopen_mode_when_loading_pointer, (void *) "r");
     // Fix OptionsFile::getOptionStrings
     overwrite_calls((void *) OptionsFile_getOptionStrings, (void *) OptionsFile_getOptionStrings_injection);
 
@@ -191,8 +191,8 @@ void _init_options_cpp() {
     {
         // Replace String
         static const char *new_feedback_vibration_options_txt_name = "gfx_ao";
-        patch_address((void *) Strings_feedback_vibration_options_txt_name_1, (void *) &new_feedback_vibration_options_txt_name);
-        patch_address((void *) Strings_feedback_vibration_options_txt_name_2, (void *) &new_feedback_vibration_options_txt_name);
+        patch_address((void *) Strings_feedback_vibration_options_txt_name_1_pointer, (void *) &new_feedback_vibration_options_txt_name);
+        patch_address((void *) Strings_feedback_vibration_options_txt_name_2_pointer, (void *) &new_feedback_vibration_options_txt_name);
         // Loading
         unsigned char offset = (unsigned char) offsetof(Options, ambient_occlusion);
         unsigned char gfx_ao_loading_patch[4] = {offset, 0x10, 0x84, 0xe2}; // "add r1, r4, #OFFSET"
@@ -206,7 +206,7 @@ void _init_options_cpp() {
     {
         // Replace String
         static const char *new_gfx_lowquality_options_txt_name = "gfx_anaglyph";
-        patch_address((void *) Strings_gfx_lowquality_options_txt_name, (void *) &new_gfx_lowquality_options_txt_name);
+        patch_address((void *) Strings_gfx_lowquality_options_txt_name_pointer, (void *) &new_gfx_lowquality_options_txt_name);
         // Loading
         unsigned char offset = (unsigned char) offsetof(Options, anaglyph_3d);
         unsigned char gfx_anaglyph_loading_patch[4] = {offset, 0x10, 0x84, 0xe2}; // "add r1, r4, #OFFSET"
