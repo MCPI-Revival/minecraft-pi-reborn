@@ -1,11 +1,10 @@
 // Headers
-
 #include <libreborn/libreborn.h>
 #include <symbols/minecraft.h>
 #include <mods/misc/misc.h>
 
 // Custom Crafting Recipes
-static void Recipes_injection(unsigned char *recipes) {
+static void Recipes_injection(Recipes *recipes) {
     // Add
     Recipes_Type type1 = {
         .item = 0,
@@ -32,13 +31,19 @@ static void Recipes_injection(unsigned char *recipes) {
         .id = 344,
         .auxiliary = 0
     };
-    (*Recipes_addShapelessRecipe)(recipes, result, {type1, type2});
+    std::vector<Recipes_Type> types = {type1, type2};
+    (*Recipes_addShapelessRecipe)(recipes, &result, &types);
 }
 
 // Custom Furnace Recipes
-static void FurnaceRecipes_injection(unsigned char *recipes) {
+static void FurnaceRecipes_injection(FurnaceRecipes *recipes) {
     // Add
-    (*FurnaceRecipes_addFurnaceRecipe)(recipes, 49, {.count = 1, .id = 246, .auxiliary = 0});
+    ItemInstance result = {
+        .count = 1,
+        .id = 246,
+        .auxiliary = 0
+    };
+    (*FurnaceRecipes_addFurnaceRecipe)(recipes, 49, &result);
 }
 
 // Init

@@ -1,12 +1,10 @@
 // Headers
-
 #include <libreborn/libreborn.h>
 #include <symbols/minecraft.h>
 #include <mods/misc/misc.h>
 
 // The Actual Mod
-
-static void Inventory_setupDefault_FillingContainer_addItem_call_injection(unsigned char *filling_container) {
+static void Inventory_setupDefault_FillingContainer_addItem_call_injection(FillingContainer *filling_container) {
     ItemInstance *fire_instance = new ItemInstance;
     ALLOC_CHECK(fire_instance);
     fire_instance->count = 255;
