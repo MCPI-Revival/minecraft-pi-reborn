@@ -517,6 +517,20 @@ static void glColor4f_injection(__attribute__((unused)) GLfloat red, __attribute
 }
 #endif
 
+// Fix Furnace Visual Bug
+static int FurnaceTileEntity_getLitProgress_injection(FurnaceTileEntity *furnace, int max) {
+    // Call Original Method
+    int ret = FurnaceTileEntity_getLitProgress(furnace, max);
+
+    // Fix Bug
+    if (ret > max) {
+        ret = max;
+    }
+
+    // Return
+    return ret;
+}
+
 // Init
 static void nop() {
 }
@@ -693,6 +707,9 @@ void init_misc() {
         overwrite_call((void *) 0x4d764, (void *) glColor4f_injection);
     }
 #endif
+
+    // Fix Furnace Visual Bug
+    overwrite_calls((void *) FurnaceTileEntity_getLitProgress, (void *) FurnaceTileEntity_getLitProgress_injection);
 
     // Init C++ And Logging
     _init_misc_cpp();
