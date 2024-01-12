@@ -1,0 +1,4 @@
+virtual-method void startOpen() = 0x24;
+virtual-method void stopOpen() = 0x28;
+virtual-method ItemInstance *getItem(int slot) = 0x8;
+virtual-method void setItem(int slot, ItemInstance *item_instance) = 0xc;

@@ -1,4 +1,3 @@
-// RakNet
 typedef enum {
     RAKNET_STARTED = 0,
     RAKNET_ALREADY_STARTED,

@@ -1,0 +1,5 @@
+size 0x178;
+
+extends EntityRenderer;
+
+constructor () = 0x6583c;

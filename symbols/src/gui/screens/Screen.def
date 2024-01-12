@@ -12,8 +12,8 @@ virtual-method void buttonClicked(Button *button) = 0x60;
 virtual-method void init() = 0xc;
 
 property Minecraft *minecraft = 0x14;
-property std::vector<Button*> rendered_buttons = 0x18;
-property std::vector<Button*> selectable_buttons = 0x30;
+property std::vector<Button *> rendered_buttons = 0x18;
+property std::vector<Button *> selectable_buttons = 0x30;
 property int width = 0x8;
 property int height = 0xc;
 property bool passthrough_input = 0x10;

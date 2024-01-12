@@ -1,2 +1,0 @@
-virtual-method void startOpen() = 0x24;
-virtual-method void stopOpen() = 0x28;
