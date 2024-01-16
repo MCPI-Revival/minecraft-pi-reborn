@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.16.0)
+cmake_minimum_required(VERSION 3.17.0)
 
 # Avoid Warning About DOWNLOAD_EXTRACT_TIMESTAMP
 if(CMAKE_VERSION VERSION_GREATER_EQUAL 3.24.0)
@@ -43,8 +43,8 @@ if(BUILD_NATIVE_COMPONENTS)
     # Arguments
     set(ARM_OPTIONS "${MCPI_OPTIONS}")
     list(APPEND ARM_OPTIONS "-DMCPI_BUILD_MODE:STRING=arm")
-    macro(add_arm_option option)
-    endmacro()
+    list(APPEND ARM_OPTIONS "-DCMAKE_INSTALL_MESSAGE:STRING=NEVER")
+    list(APPEND ARM_OPTIONS "-DCMAKE_INSTALL_PREFIX:PATH=<INSTALL_DIR>/install")
     if(NOT MCPI_USE_PREBUILT_ARMHF_TOOLCHAIN)
         if(DEFINED CMAKE_TOOLCHAIN_FILE)
             list(APPEND ARM_OPTIONS "-DCMAKE_TOOLCHAIN_FILE:FILEPATH=${CMAKE_TOOLCHAIN_FILE}")
@@ -57,11 +57,19 @@ if(BUILD_NATIVE_COMPONENTS)
         DOWNLOAD_COMMAND ""
         SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}"
         CMAKE_CACHE_ARGS ${ARM_OPTIONS}
+        INSTALL_COMMAND "${CMAKE_COMMAND}" "-E" "rm" "-rf" "<INSTALL_DIR>/install"
+        COMMAND
+            "${CMAKE_COMMAND}" "-E" "env"
+            "DESTDIR="
+            "${CMAKE_COMMAND}" "--install" "<BINARY_DIR>"
         USES_TERMINAL_CONFIGURE TRUE
         USES_TERMINAL_BUILD TRUE
         USES_TERMINAL_INSTALL TRUE
         BUILD_ALWAYS TRUE
     )
+    # Install
+    ExternalProject_Get_Property(arm-components INSTALL_DIR)
+    install(DIRECTORY "${INSTALL_DIR}/install/${MCPI_INSTALL_DIR}/" DESTINATION "${MCPI_INSTALL_DIR}")
 endif()
 
 # Required Compile Flags

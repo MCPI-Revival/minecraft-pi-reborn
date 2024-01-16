@@ -36,13 +36,11 @@ endif()
 
 # Fake LibPNG To Satisy Symbol Versioning Requirement
 if(BUILD_ARM_COMPONENTS)
-    file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/fake-libpng.c" "")
-    file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/fake-libpng.vers" "PNG12_0 { global: *; };")
-    add_library(fake-libpng SHARED "${CMAKE_CURRENT_BINARY_DIR}/fake-libpng.c")
+    add_library(fake-libpng SHARED src/fake-libpng/empty.c)
     set_target_properties(fake-libpng PROPERTIES
         OUTPUT_NAME "png12"
         SOVERSION 0
-        LINK_OPTIONS "LINKER:--version-script=${CMAKE_CURRENT_BINARY_DIR}/fake-libpng.vers"
+        LINK_OPTIONS "LINKER:--version-script=${CMAKE_CURRENT_SOURCE_DIR}/src/fake-libpng/empty.vers"
     )
     # Install
     install(TARGETS fake-libpng DESTINATION "${MCPI_LIB_DIR}")

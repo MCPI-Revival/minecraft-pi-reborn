@@ -13,11 +13,15 @@ endif()
 
 # Build
 include(ExternalProject)
+set(pkgconfig_env "")
+if(DEFINED ENV{PKG_CONFIG_LIBDIR})
+    set(pkgconfig_env "PKG_CONFIG_LIBDIR=$ENV{PKG_CONFIG_LIBDIR}")
+endif()
 ExternalProject_Add(qemu
     URL "${CMAKE_CURRENT_SOURCE_DIR}/../../archives/qemu-${QEMU_VERSION}.tar.xz"
     CONFIGURE_COMMAND
         "${CMAKE_COMMAND}" "-E" "env"
-        "PKG_CONFIG_LIBDIR=$ENV{PKG_CONFIG_LIBDIR}"
+        ${pkgconfig_env}
         "CFLAGS=-s"
         "CXXFLAGS=-s"
         "<SOURCE_DIR>/configure"
