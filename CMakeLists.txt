@@ -5,106 +5,12 @@ if(CMAKE_VERSION VERSION_GREATER_EQUAL 3.24.0)
     cmake_policy(SET CMP0135 NEW)
 endif()
 
-# Build Mode
-set(MCPI_BUILD_MODE "native" CACHE STRING "\"arm\" = Build Only Code That Must Be ARM; \"native\" = Build Architecture-Independent Code")
-set_property(CACHE MCPI_BUILD_MODE PROPERTY STRINGS "arm" "native")
-if(MCPI_BUILD_MODE STREQUAL "arm")
-    set(BUILD_ARM_COMPONENTS TRUE)
-    set(BUILD_NATIVE_COMPONENTS FALSE)
-elseif(MCPI_BUILD_MODE STREQUAL "native")
-    set(BUILD_ARM_COMPONENTS FALSE)
-    set(BUILD_NATIVE_COMPONENTS TRUE)
-else()
-    message(FATAL_ERROR "Invalid Mode")
-endif()
-
-# Specify Options
-option(MCPI_IS_MIXED_BUILD "Whether The Architecture-Independent And ARM Code Are Different Architecture" FALSE)
-option(MCPI_OPEN_SOURCE_ONLY "Only Install Open-Source Code (Will Result In Broken Install)" FALSE)
-option(MCPI_IS_APPIMAGE_BUILD "AppImage Build" FALSE)
-option(MCPI_IS_FLATPAK_BUILD "Flatpak Build" FALSE)
-
-# Server/Headless Builds
-option(MCPI_SERVER_MODE "Server Mode" FALSE)
-option(MCPI_HEADLESS_MODE "Headless Mode" ${MCPI_SERVER_MODE})
-
-# Media Layer
-if(MCPI_HEADLESS_MODE)
-    set(DEFAULT_USE_MEDIA_LAYER_PROXY FALSE)
-else()
-    set(DEFAULT_USE_MEDIA_LAYER_PROXY ${MCPI_IS_MIXED_BUILD})
-endif()
-option(MCPI_USE_MEDIA_LAYER_PROXY "Whether To Enable The Media Layer Proxy" ${DEFAULT_USE_MEDIA_LAYER_PROXY})
-if(NOT MCPI_HEADLESS_MODE)
-    option(MCPI_USE_GLES1_COMPATIBILITY_LAYER "Whether To Enable The GLESv1_CM Compatibility Layer" TRUE)
-endif()
-if(MCPI_USE_MEDIA_LAYER_PROXY)
-    set(BUILD_MEDIA_LAYER_CORE "${BUILD_NATIVE_COMPONENTS}")
-else()
-    set(BUILD_MEDIA_LAYER_CORE "${BUILD_ARM_COMPONENTS}")
-endif()
-
-# App ID
-set(DEFAULT_APP_ID "com.thebrokenrail.MCPIReborn")
-if(MCPI_SERVER_MODE)
-    string(APPEND DEFAULT_APP_ID "Server")
-else()
-    string(APPEND DEFAULT_APP_ID "Client")
-endif()
-set(MCPI_APP_ID "${DEFAULT_APP_ID}" CACHE STRING "App ID")
-
-# App Title
-set(MCPI_APP_BASE_TITLE "Minecraft: Pi Edition: Reborn" CACHE STRING "Base App Title")
-set(DEFAULT_APP_TITLE "${MCPI_APP_BASE_TITLE}")
-if(MCPI_SERVER_MODE)
-    string(APPEND DEFAULT_APP_TITLE " (Server)")
-else()
-    string(APPEND DEFAULT_APP_TITLE " (Client)")
-endif()
-set(MCPI_APP_TITLE "${DEFAULT_APP_TITLE}" CACHE STRING "App Title")
-
-# Specify Variant Name
-set(MCPI_VARIANT_NAME "minecraft-pi-reborn")
-if(MCPI_SERVER_MODE)
-    string(APPEND MCPI_VARIANT_NAME "-server")
-else()
-    string(APPEND MCPI_VARIANT_NAME "-client")
-endif()
-
-# Skin Server
-set(MCPI_SKIN_SERVER "https://raw.githubusercontent.com/MCPI-Revival/Skins/data" CACHE STRING "Skin Server")
-
-# Specify Installation Paths
-set(MCPI_INSTALL_DIR "lib/${MCPI_VARIANT_NAME}")
-set(MCPI_BIN_DIR "${MCPI_INSTALL_DIR}/bin")
-set(MCPI_LEGAL_DIR "${MCPI_INSTALL_DIR}/legal") # For Software Licenses
-set(MCPI_SDK_DIR "${MCPI_INSTALL_DIR}/sdk")
-set(MCPI_SDK_LIB_DIR "${MCPI_SDK_DIR}/lib")
-set(MCPI_SDK_INCLUDE_DIR "${MCPI_SDK_DIR}/include")
-
-# Library Directory
-set(MCPI_LIB_DIR "${MCPI_INSTALL_DIR}/lib")
-if(BUILD_ARM_COMPONENTS)
-    string(APPEND MCPI_LIB_DIR "/arm")
-elseif(BUILD_NATIVE_COMPONENTS)
-    string(APPEND MCPI_LIB_DIR "/native")
-endif()
-
-# Share Directory
-set(MCPI_SHARE_DIR "share")
-if(MCPI_IS_APPIMAGE_BUILD)
-    string(PREPEND MCPI_SHARE_DIR "usr/")
-endif()
+# Core Options
+include(cmake/core-options.cmake)
 
 # Build Mode
 if(NOT CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE "Release")
-endif()
-
-# Prebuilt ARMHF Toolchain
-option(MCPI_USE_PREBUILT_ARMHF_TOOLCHAIN "Whether To Use A Prebuilt ARMHF Toolchain For Building ARM Components" ${MCPI_IS_MIXED_BUILD})
-if(BUILD_ARM_COMPONENTS AND MCPI_USE_PREBUILT_ARMHF_TOOLCHAIN)
-    include(cmake/prebuilt-armhf-toolchain.cmake)
 endif()
 
 # Start Project
@@ -115,10 +21,8 @@ include(cmake/util.cmake)
 
 # Sanity Checks
 string(CONCAT ARM_SANITY_CHECK
-    "set(IS_ARM_TARGETING FALSE)\n"
-    "if(CMAKE_SYSTEM_PROCESSOR STREQUAL \"arm\" OR CMAKE_SYSTEM_PROCESSOR STREQUAL \"armv7l\")\n"
-    "    set(IS_ARM_TARGETING TRUE)\n"
-    "endif()"
+    "include(CheckSymbolExists)\n"
+    "check_symbol_exists(\"__arm__\" \"\" IS_ARM_TARGETING)\n"
 )
 if(BUILD_ARM_COMPONENTS)
     string(CONCAT ARM_SANITY_CHECK
@@ -129,20 +33,35 @@ if(BUILD_ARM_COMPONENTS)
     )
 endif()
 cmake_language(EVAL CODE "${ARM_SANITY_CHECK}")
-if(BUILD_NATIVE_COMPONENTS AND NOT IS_ARM_TARGETING AND NOT MCPI_IS_MIXED_BUILD)
-    message(FATAL_ERROR "Project is configured as a mixed-buld, but MCPI_IS_MIXED_BUILD is disabled.")
-endif()
 
-# Specify Default Installation Prefix
-if(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
-    set(DEFAULT_PREFIX "/usr")
-    if(MCPI_IS_APPIMAGE_BUILD)
-        set(DEFAULT_PREFIX "/")
-    elseif(MCPI_IS_FLATPAK_BUILD)
-        set(DEFAULT_PREFIX "/app")
+# Extra Options
+include(cmake/extra-options.cmake)
+
+# Superbuild
+if(BUILD_NATIVE_COMPONENTS)
+    include(ExternalProject)
+    # Arguments
+    set(ARM_OPTIONS "${MCPI_OPTIONS}")
+    list(APPEND ARM_OPTIONS "-DMCPI_BUILD_MODE:STRING=arm")
+    macro(add_arm_option option)
+    endmacro()
+    if(NOT MCPI_USE_PREBUILT_ARMHF_TOOLCHAIN)
+        if(DEFINED CMAKE_TOOLCHAIN_FILE)
+            list(APPEND ARM_OPTIONS "-DCMAKE_TOOLCHAIN_FILE:FILEPATH=${CMAKE_TOOLCHAIN_FILE}")
+        endif()
+    else()
+        list(APPEND ARM_OPTIONS "-DMCPI_USE_PREBUILT_ARMHF_TOOLCHAIN:BOOL=TRUE")
     endif()
-    set(CMAKE_INSTALL_PREFIX "${DEFAULT_PREFIX}" CACHE PATH "" FORCE)
-    set(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT FALSE)
+    # Build
+    ExternalProject_Add(arm-components
+        DOWNLOAD_COMMAND ""
+        SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}"
+        CMAKE_CACHE_ARGS ${ARM_OPTIONS}
+        USES_TERMINAL_CONFIGURE TRUE
+        USES_TERMINAL_BUILD TRUE
+        USES_TERMINAL_INSTALL TRUE
+        BUILD_ALWAYS TRUE
+    )
 endif()
 
 # Required Compile Flags
@@ -221,6 +140,11 @@ endif()
 # Include Images
 if(BUILD_NATIVE_COMPONENTS)
     add_subdirectory(images)
+endif()
+
+# Install Prebuilt ARMHF Toolchain Sysroot
+if(BUILD_ARM_COMPONENTS AND MCPI_USE_PREBUILT_ARMHF_TOOLCHAIN)
+    install_arm_sysroot()
 endif()
 
 # Install SDK

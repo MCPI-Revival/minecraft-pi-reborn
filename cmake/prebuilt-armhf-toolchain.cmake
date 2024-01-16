@@ -13,7 +13,7 @@ endif()
 include(FetchContent)
 FetchContent_Declare(
     prebuilt-armhf-toolchain
-    URL "file://${CMAKE_CURRENT_LIST_DIR}/../archives/${toolchain_file}"
+    URL "${CMAKE_CURRENT_LIST_DIR}/../archives/${toolchain_file}"
 )
 FetchContent_MakeAvailable(prebuilt-armhf-toolchain)
 set(toolchain_dir "${prebuilt-armhf-toolchain_SOURCE_DIR}")
@@ -26,7 +26,7 @@ file(WRITE "${toolchain_dir}/toolchain.cmake"
     "set(CMAKE_SYSTEM_PROCESSOR \"arm\")\n"
     "set(CMAKE_FIND_ROOT_PATH_MODE_PROGRAM NEVER)\n"
 )
-set(CMAKE_TOOLCHAIN_FILE "${toolchain_dir}/toolchain.cmake" CACHE STRING "" FORCE)
+set(CMAKE_TOOLCHAIN_FILE "${toolchain_dir}/toolchain.cmake" CACHE FILEPATH "" FORCE)
 
 # Build Sysroot
 set(sysroot_dir "${CMAKE_CURRENT_BINARY_DIR}/bundled-armhf-sysroot")
@@ -61,8 +61,10 @@ if("${toolchain_dir}/bin/arm-none-linux-gnueabihf-gcc" IS_NEWER_THAN "${sysroot_
 endif()
 
 # Install Sysroot (Skipping Empty Directories)
-file(GLOB_RECURSE files LIST_DIRECTORIES FALSE RELATIVE "${sysroot_dir}" "${sysroot_dir}/*")
-foreach(file IN LISTS files)
-    get_filename_component(parent "${file}" DIRECTORY)
-    install(PROGRAMS "${sysroot_dir}/${file}" DESTINATION "${MCPI_INSTALL_DIR}/sysroot/${parent}")
-endforeach()
+function(install_arm_sysroot)
+    file(GLOB_RECURSE files LIST_DIRECTORIES FALSE RELATIVE "${sysroot_dir}" "${sysroot_dir}/*")
+    foreach(file IN LISTS files)
+        get_filename_component(parent "${file}" DIRECTORY)
+        install(PROGRAMS "${sysroot_dir}/${file}" DESTINATION "${MCPI_INSTALL_DIR}/sysroot/${parent}")
+    endforeach()
+endfunction()

@@ -1,7 +1,10 @@
 project(media-layer-proxy)
 
 # Configuration
-set(MEDIA_LAYER_PROXY_SRC src/common/common.c src/media-layer-core.c src/GLESv1_CM.c) # Media Layer Proxy Source
+set(MEDIA_LAYER_PROXY_SRC src/common/common.c src/media-layer-core.c) # Media Layer Proxy Source
+if(NOT MCPI_HEADLESS_MODE)
+    list(APPEND MEDIA_LAYER_PROXY_SRC src/GLESv1_CM.c)
+endif()
 
 # Build
 if(BUILD_NATIVE_COMPONENTS)

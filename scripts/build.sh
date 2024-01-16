@@ -7,7 +7,7 @@ MODE="$(echo "$1" | tr '[:upper:]' '[:lower:]')"
 ARCH="$(echo "$2" | tr '[:upper:]' '[:lower:]')"
 
 # Run CMake If Needed
-if [ ! -f "build/${MODE}-${ARCH}/arm/build.ninja" ] || [ ! -f "build/${MODE}-${ARCH}/native/build.ninja" ]; then
+if [ ! -f "build/${MODE}-${ARCH}/build.ninja" ]; then
     ./scripts/setup.sh "${MODE}" "${ARCH}"
 fi
 # Use Build Dir
@@ -20,17 +20,9 @@ if [ -z "${DESTDIR+x}" ]; then
     mkdir -p "${DESTDIR}"
 fi
 
-# Build ARM Components
-cd arm
+# Build
 cmake --build .
 cmake --install .
-cd ../
-
-# Build Native Components
-cd native
-cmake --build .
-cmake --install .
-cd ../
 
 # Exit
 cd ../../

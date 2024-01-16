@@ -17,7 +17,7 @@ set(SRC
     src/network/raknet/RakNet_RakString_SharedString.def
     src/network/raknet/RakNet_RakString.def
     src/network/raknet/RakNet_SystemAddress.def
-    src/network/raknet/extra.h
+    src/network/raknet/RakNet_StartupResult.h
     src/network/raknet/RakNet_RakNetGUID.def
     src/network/raknet/RakNet_RakPeer.def
     src/network/ServerSideNetworkHandler.def
@@ -111,7 +111,7 @@ set(SRC
     src/tile/GrassTile.def
     src/tile/HeavyTile.def
     src/misc/Strings.def
-    src/misc/ModelPart.def
+    src/entity/ModelPart.def
     src/misc/Tesselator.def
     src/misc/AABB.def
     src/misc/Vec3.def

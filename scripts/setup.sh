@@ -2,9 +2,6 @@
 
 set -e
 
-# ARM Toolchain File
-ARM_TOOLCHAIN_FILE="$(pwd)/cmake/toolchain/armhf-toolchain.cmake"
-
 # Variables
 MODE="$(echo "$1" | tr '[:upper:]' '[:lower:]')"
 ARCH="$(echo "$2" | tr '[:upper:]' '[:lower:]')"
@@ -33,25 +30,9 @@ server_mode='OFF'
 if [ "${MODE}" = "server" ]; then
     server_mode='ON'
 fi
-# Mixed Build
-mixed_build='ON'
-if [ "${ARCH}" = "armhf" ]; then
-    mixed_build='OFF'
-fi
-# Extra Flags
-extra_flags="-DMCPI_IS_MIXED_BUILD=${mixed_build} -DMCPI_SERVER_MODE=${server_mode}"
 
-# Build ARM Components
-mkdir arm
-cd arm
-cmake -GNinja -DCMAKE_TOOLCHAIN_FILE="${ARM_TOOLCHAIN_FILE}" -DMCPI_BUILD_MODE=arm ${extra_flags} "$@" ../../..
-cd ../
-
-# Build Native Components
-mkdir native
-cd native
-cmake -GNinja -DCMAKE_TOOLCHAIN_FILE="${toolchain_file}" -DMCPI_BUILD_MODE=native ${extra_flags} "$@" ../../..
-cd ../
+# Build Components
+cmake -GNinja -DCMAKE_TOOLCHAIN_FILE="${toolchain_file}" -DMCPI_SERVER_MODE="${server_mode}" "$@" ../../
 
 # Exit
 cd ../../

@@ -12,11 +12,9 @@ if(MCPI_IS_FLATPAK_BUILD)
 endif()
 
 # Build
-include(ProcessorCount)
-ProcessorCount(NPROC)
 include(ExternalProject)
 ExternalProject_Add(qemu
-    URL "file://${CMAKE_CURRENT_SOURCE_DIR}/../../archives/qemu-${QEMU_VERSION}.tar.xz"
+    URL "${CMAKE_CURRENT_SOURCE_DIR}/../../archives/qemu-${QEMU_VERSION}.tar.xz"
     CONFIGURE_COMMAND
         "${CMAKE_COMMAND}" "-E" "env"
         "PKG_CONFIG_LIBDIR=$ENV{PKG_CONFIG_LIBDIR}"
@@ -31,7 +29,7 @@ ExternalProject_Add(qemu
         "--target-list=arm-linux-user"
         "--without-default-features"
     USES_TERMINAL_CONFIGURE TRUE
-    BUILD_COMMAND "make" "-j${NPROC}" "qemu-arm"
+    BUILD_COMMAND "make" "qemu-arm"
     USES_TERMINAL_BUILD TRUE
     INSTALL_COMMAND ""
     TEST_COMMAND ""

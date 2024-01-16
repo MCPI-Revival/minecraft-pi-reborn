@@ -83,7 +83,9 @@ static void Gui_renderChatMessages_injection(Gui *gui, int32_t y_offset, uint32_
     // Render Selected Item Text
     if (render_selected_item_text) {
         // Fix GL Mode
+#ifndef MCPI_HEADLESS_MODE
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+#endif
         // Calculate Selected Item Text Scale
         Minecraft *minecraft = gui->minecraft;
         int32_t screen_width = minecraft->screen_width;
@@ -122,25 +124,37 @@ static void Inventory_selectSlot_injection(Inventory *inventory, int32_t slot) {
 // Translucent Toolbar
 static void Gui_renderToolBar_injection(Gui *gui, float param_1, int32_t param_2, int32_t param_3) {
     // Call Original Method
+#ifndef MCPI_HEADLESS_MODE
     int was_blend_enabled = glIsEnabled(GL_BLEND);
     if (!was_blend_enabled) {
         glEnable(GL_BLEND);
     }
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+#endif
     Gui_renderToolBar(gui, param_1, param_2, param_3);
+#ifndef MCPI_HEADLESS_MODE
     if (!was_blend_enabled) {
         glDisable(GL_BLEND);
     }
+#endif
 }
 static void Gui_renderToolBar_glColor4f_injection(GLfloat red, GLfloat green, GLfloat blue, __attribute__((unused)) GLfloat alpha) {
     // Fix Alpha
+#ifndef MCPI_HEADLESS_MODE
     glColor4f(red, green, blue, 1.0f);
+#else
+    (void) red;
+    (void) green;
+    (void) blue;
+#endif
 }
 
 // Fix Screen Rendering When GUI is Hidden
 static void Screen_render_injection(Screen *screen, int32_t param_1, int32_t param_2, float param_3) {
     // Fix
+#ifndef MCPI_HEADLESS_MODE
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+#endif
     // Call Original Method
     Screen_render_non_virtual(screen, param_1, param_2, param_3);
 }
