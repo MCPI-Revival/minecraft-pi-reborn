@@ -67,6 +67,7 @@ set(SRC
     src/level/LevelSettings.def
     src/level/ServerLevel.def
     src/item/ItemRenderer.def
+    src/item/ItemInHandRenderer.def
     src/item/AuxDataTileItem.def
     src/item/ItemInstance.def
     src/item/Item.def
