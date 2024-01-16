@@ -5,6 +5,8 @@ virtual-method bool add(ItemInstance *item_instance) = 0x30;
 method void clearSlot(int slot) = 0x922f8;
 method void release(int slot) = 0x92058;
 method void compressLinkedSlotList(int slot) = 0x92280;
+method ItemInstance *getLinked(int slot) = 0x92230;
+virtual-method ItemInstance *getItem(int pos) = 0x8;
 
 property int *linked_slots = 0xc;
 property int linked_slots_length = 0x14;

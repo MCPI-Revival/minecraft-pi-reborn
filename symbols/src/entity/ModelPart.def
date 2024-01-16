@@ -1,1 +1,8 @@
 method void render(float scale) = 0x416dc;
+
+property float x = 0x0;
+property float y = 0x4;
+property float z = 0x8;
+property float xRot = 0xc;
+property float yRot = 0x10;
+property float zRot = 0x14;

@@ -1,1 +1,7 @@
+property ModelPart head = 0x24;
+property ModelPart torso = 0x7c;
+property ModelPart rightArm = 0xd4;
+property ModelPart leftArm = 0x12c;
+property bool angleLeftArm = 0x234;
+property bool angleRightArm = 0x235;
 property bool is_sneaking = 0x236;

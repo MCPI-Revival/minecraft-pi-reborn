@@ -3,3 +3,5 @@ extends MobRenderer;
 vtable 0x107908;
 
 property HumanoidModel *model = 0x14;
+
+virtual-method void additionalRendering(Mob *mob) = 0x38;

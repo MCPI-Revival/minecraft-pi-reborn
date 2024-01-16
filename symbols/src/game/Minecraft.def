@@ -18,6 +18,7 @@ virtual-method int handleBack(bool do_nothing) = 0x34;
 method uchar *getCreator() = 0x17538;
 method LevelStorageSource *getLevelSource() = 0x16e84;
 method void handleMouseDown(int param_1, bool can_destroy) = 0x1584c;
+method void handleBuildAction(uint *build_action_intention) = 0x15920;
 virtual-method void selectLevel(std::string *level_dir, std::string *level_name, LevelSettings *settings) = 0x40;
 method void joinMultiplayer(PingedCompatibleServer *server) = 0x165f4;
 
