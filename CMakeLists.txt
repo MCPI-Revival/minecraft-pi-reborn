@@ -6,7 +6,7 @@ if(CMAKE_VERSION VERSION_GREATER_EQUAL 3.24.0)
 endif()
 
 # Core Options
-include(cmake/core-options.cmake)
+include(cmake/options/core-options.cmake)
 
 # Build Mode
 if(NOT CMAKE_BUILD_TYPE)
@@ -17,12 +17,12 @@ endif()
 project(minecraft-pi-reborn)
 
 # Utility Functions
-include(cmake/util.cmake)
+include(cmake/util/util.cmake)
 
 # Sanity Checks
 string(CONCAT ARM_SANITY_CHECK
     "include(CheckSymbolExists)\n"
-    "check_symbol_exists(\"__arm__\" \"\" IS_ARM_TARGETING)\n"
+    "check_symbol_exists(\"__arm__\" \"\" IS_ARM_TARGETING)"
 )
 if(BUILD_ARM_COMPONENTS)
     string(CONCAT ARM_SANITY_CHECK
@@ -35,42 +35,10 @@ endif()
 cmake_language(EVAL CODE "${ARM_SANITY_CHECK}")
 
 # Extra Options
-include(cmake/extra-options.cmake)
+include(cmake/options/extra-options.cmake)
 
-# Superbuild
-if(BUILD_NATIVE_COMPONENTS)
-    include(ExternalProject)
-    # Arguments
-    set(ARM_OPTIONS "${MCPI_OPTIONS}")
-    list(APPEND ARM_OPTIONS "-DMCPI_BUILD_MODE:STRING=arm")
-    list(APPEND ARM_OPTIONS "-DCMAKE_INSTALL_MESSAGE:STRING=NEVER")
-    list(APPEND ARM_OPTIONS "-DCMAKE_INSTALL_PREFIX:PATH=<INSTALL_DIR>/install")
-    if(NOT MCPI_USE_PREBUILT_ARMHF_TOOLCHAIN)
-        if(DEFINED CMAKE_TOOLCHAIN_FILE)
-            list(APPEND ARM_OPTIONS "-DCMAKE_TOOLCHAIN_FILE:FILEPATH=${CMAKE_TOOLCHAIN_FILE}")
-        endif()
-    else()
-        list(APPEND ARM_OPTIONS "-DMCPI_USE_PREBUILT_ARMHF_TOOLCHAIN:BOOL=TRUE")
-    endif()
-    # Build
-    ExternalProject_Add(arm-components
-        DOWNLOAD_COMMAND ""
-        SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}"
-        CMAKE_CACHE_ARGS ${ARM_OPTIONS}
-        INSTALL_COMMAND "${CMAKE_COMMAND}" "-E" "rm" "-rf" "<INSTALL_DIR>/install"
-        COMMAND
-            "${CMAKE_COMMAND}" "-E" "env"
-            "DESTDIR="
-            "${CMAKE_COMMAND}" "--install" "<BINARY_DIR>"
-        USES_TERMINAL_CONFIGURE TRUE
-        USES_TERMINAL_BUILD TRUE
-        USES_TERMINAL_INSTALL TRUE
-        BUILD_ALWAYS TRUE
-    )
-    # Install
-    ExternalProject_Get_Property(arm-components INSTALL_DIR)
-    install(DIRECTORY "${INSTALL_DIR}/install/${MCPI_INSTALL_DIR}/" DESTINATION "${MCPI_INSTALL_DIR}")
-endif()
+# Paths
+include(cmake/options/paths.cmake)
 
 # Required Compile Flags
 string(CONCAT COMPILE_FLAGS_SETUP
@@ -169,4 +137,44 @@ if(BUILD_ARM_COMPONENTS)
         "include(\"\${CMAKE_CURRENT_LIST_DIR}/sdk-targets.cmake\")\n"
     )
     install(FILES "${CMAKE_CURRENT_BINARY_DIR}/sdk.cmake" DESTINATION "${MCPI_SDK_DIR}")
+endif()
+
+# Packaging
+if(BUILD_NATIVE_COMPONENTS)
+    include(cmake/cpack/packaging.cmake)
+endif()
+
+# Superbuild
+if(BUILD_NATIVE_COMPONENTS)
+    include(ExternalProject)
+    # Arguments
+    set(ARM_OPTIONS "${MCPI_OPTIONS}")
+    list(APPEND ARM_OPTIONS "-DMCPI_BUILD_MODE:STRING=arm")
+    list(APPEND ARM_OPTIONS "-DCMAKE_INSTALL_MESSAGE:STRING=NEVER")
+    list(APPEND ARM_OPTIONS "-DCMAKE_INSTALL_PREFIX:PATH=<INSTALL_DIR>/install")
+    if(NOT MCPI_USE_PREBUILT_ARMHF_TOOLCHAIN)
+        if(DEFINED CMAKE_TOOLCHAIN_FILE)
+            list(APPEND ARM_OPTIONS "-DCMAKE_TOOLCHAIN_FILE:FILEPATH=${CMAKE_TOOLCHAIN_FILE}")
+        endif()
+    else()
+        list(APPEND ARM_OPTIONS "-DMCPI_USE_PREBUILT_ARMHF_TOOLCHAIN:BOOL=TRUE")
+    endif()
+    # Build
+    ExternalProject_Add(arm-components
+        DOWNLOAD_COMMAND ""
+        SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}"
+        CMAKE_CACHE_ARGS ${ARM_OPTIONS}
+        INSTALL_COMMAND "${CMAKE_COMMAND}" "-E" "rm" "-rf" "<INSTALL_DIR>/install"
+        COMMAND
+            "${CMAKE_COMMAND}" "-E" "env"
+            "DESTDIR="
+            "${CMAKE_COMMAND}" "--install" "<BINARY_DIR>"
+        USES_TERMINAL_CONFIGURE TRUE
+        USES_TERMINAL_BUILD TRUE
+        USES_TERMINAL_INSTALL TRUE
+        BUILD_ALWAYS TRUE
+    )
+    # Install
+    ExternalProject_Get_Property(arm-components INSTALL_DIR)
+    install(DIRECTORY "${INSTALL_DIR}/install/${MCPI_INSTALL_DIR}/" DESTINATION "${MCPI_INSTALL_DIR}")
 endif()

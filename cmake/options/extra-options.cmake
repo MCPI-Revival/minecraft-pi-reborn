@@ -61,6 +61,3 @@ mcpi_option(APP_TITLE "App Title" STRING "${DEFAULT_APP_TITLE}")
 
 # Skin Server
 mcpi_option(SKIN_SERVER "Skin Server" STRING "https://raw.githubusercontent.com/MCPI-Revival/Skins/data")
-
-# Paths
-include("${CMAKE_CURRENT_LIST_DIR}/paths.cmake")

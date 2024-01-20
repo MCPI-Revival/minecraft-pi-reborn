@@ -24,3 +24,10 @@ function(embed_resource target file)
     # Add To Target
     target_sources("${target}" PRIVATE "${CMAKE_CURRENT_BINARY_DIR}/${name}.c")
 endfunction()
+
+# Nicer Output
+function(message log_level)
+    if((NOT MESSAGE_QUIET) OR (NOT (log_level STREQUAL "STATUS" OR log_level MATCHES "^CHECK_")))
+        _message("${log_level}" ${ARGN})
+    endif()
+endfunction()

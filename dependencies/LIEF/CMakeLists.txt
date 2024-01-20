@@ -24,7 +24,9 @@ set(LIEF_OAT FALSE CACHE BOOL "" FORCE)
 set(LIEF_VDEX FALSE CACHE BOOL "" FORCE)
 
 # Download
+set(MESSAGE_QUIET TRUE)
 add_subdirectory(src EXCLUDE_FROM_ALL)
+unset(MESSAGE_QUIET)
 
 # Ensure Build
 add_custom_target(LIEF-build ALL DEPENDS LIB_LIEF)

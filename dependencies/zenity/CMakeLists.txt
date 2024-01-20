@@ -6,7 +6,9 @@ add_compile_options(-w)
 ## Zenity
 
 # Download
+set(MESSAGE_QUIET TRUE)
 add_subdirectory(src EXCLUDE_FROM_ALL)
+unset(MESSAGE_QUIET)
 
 # Ensure Build
 add_custom_target(zenity-build ALL DEPENDS zenity)

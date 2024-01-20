@@ -13,7 +13,7 @@ endif()
 include(FetchContent)
 FetchContent_Declare(
     prebuilt-armhf-toolchain
-    URL "${CMAKE_CURRENT_LIST_DIR}/../archives/${toolchain_file}"
+    URL "${CMAKE_CURRENT_LIST_DIR}/../../archives/${toolchain_file}"
 )
 FetchContent_MakeAvailable(prebuilt-armhf-toolchain)
 set(toolchain_dir "${prebuilt-armhf-toolchain_SOURCE_DIR}")
