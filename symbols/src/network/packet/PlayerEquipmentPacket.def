@@ -1,0 +1,7 @@
+extends Packet;
+
+vtable 0x105e70;
+
+property int entity_id = 0xc;
+property ushort item_id = 0x10;
+property ushort item_aux = 0x12;

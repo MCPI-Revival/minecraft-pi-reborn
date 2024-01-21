@@ -1,1 +1,2 @@
+constructor () = 0x6fc18;
 virtual-method void read(uchar *bit_stream) = 0xc;

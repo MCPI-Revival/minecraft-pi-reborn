@@ -22,6 +22,7 @@ set(SRC
     src/network/raknet/RakNet_RakPeer.def
     src/network/ServerSideNetworkHandler.def
     src/network/packet/LoginPacket.def
+    src/network/packet/PlayerEquipmentPacket.def
     src/network/packet/Packet.def
     src/network/packet/StartGamePacket.def
     src/network/packet/ChatPacket.def
