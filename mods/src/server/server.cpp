@@ -572,11 +572,6 @@ static void server_init() {
     patch((void *) 0x1685c, player_patch);
     // Start World On Launch
     misc_run_on_update(Minecraft_update_injection);
-    // Send the full level, not only changed chunks
-    unsigned char nop[4] = {0x00, 0xf0, 0x20, 0xe3}; // "nop"
-    patch((void *) 0x717c4, nop);
-    unsigned char mov_r3_ff[4] = {0xff, 0x30, 0xa0, 0xe3}; // "mov r3, #0xff"
-    patch((void *) 0x7178c, mov_r3_ff)
     // Set Max Players
     unsigned char max_players_patch[4] = {get_max_players(), 0x30, 0xa0, 0xe3}; // "mov r3, #MAX_PLAYERS"
     patch((void *) 0x166d0, max_players_patch);
