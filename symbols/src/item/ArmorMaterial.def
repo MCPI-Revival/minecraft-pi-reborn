@@ -1,0 +1,13 @@
+size 0x14;
+
+property int health_for_slot_multiplier = 0x0;
+property int feet_protection = 0x4;
+property int leg_protection = 0x8;
+property int body_protection = 0xc;
+property int head_protection = 0x10;
+
+static-property ArmorMaterial cloth = 0x17a780;
+static-property ArmorMaterial chain = 0x17a794;
+static-property ArmorMaterial iron = 0x17a7a8;
+static-property ArmorMaterial gold = 0x17a7bc;
+static-property ArmorMaterial diamond = 0x17a7d0;

@@ -1,2 +1,3 @@
 virtual-method void onDisconnect(RakNet_RakNetGUID *guid) = 0x18;
+virtual-method void handle_SignUpdatePacket(RakNet_RakNetGUID *guid, SignUpdatePacket *packet) = 0xcc;
 virtual-method void handle_ChatPacket(RakNet_RakNetGUID *rak_net_guid, uchar *packet) = 0xc8;

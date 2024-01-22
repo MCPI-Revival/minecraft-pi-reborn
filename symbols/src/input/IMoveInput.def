@@ -1,0 +1,1 @@
+property bool is_sneaking = 0xe;

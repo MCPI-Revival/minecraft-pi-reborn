@@ -1,0 +1,7 @@
+extends Packet;
+
+property int x = 0xc;
+property int y = 0x10;
+property int z = 0x14;
+// std::string lines[4]
+property std::string *lines = 0x18;

@@ -1,0 +1,3 @@
+extends ChunkSource;
+
+vtable 0x10fbc0;

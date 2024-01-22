@@ -1,0 +1,6 @@
+size 0x10;
+
+property int x = 0x0;
+property int y = 0x4;
+property int x_offset = 0x8;
+property int y_offset = 0xc;

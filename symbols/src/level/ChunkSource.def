@@ -1,1 +1,3 @@
+vtable 0x10fb88;
+
 virtual-method void postProcess(ChunkSource *chunk_source, int chunk_x, int chunk_y) = 0x14;

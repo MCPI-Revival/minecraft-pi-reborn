@@ -23,6 +23,7 @@ set(SRC
     src/network/ServerSideNetworkHandler.def
     src/network/packet/LoginPacket.def
     src/network/packet/PlayerEquipmentPacket.def
+    src/network/packet/SignUpdatePacket.def
     src/network/packet/Packet.def
     src/network/packet/StartGamePacket.def
     src/network/packet/ChatPacket.def
@@ -59,6 +60,7 @@ set(SRC
     src/level/ExternalFileLevelStorageSource.def
     src/level/Biome.def
     src/level/ChunkSource.def
+    src/level/ChunkCache.def
     src/level/Level.def
     src/level/LevelRenderer.def
     src/level/LevelStorageSource.def
@@ -72,6 +74,8 @@ set(SRC
     src/item/AuxDataTileItem.def
     src/item/ItemInstance.def
     src/item/Item.def
+    src/item/ArmorMaterial.def
+    src/item/ArmorItem.def
     src/item/TileItem.def
     src/api/OffsetPosTranslator.def
     src/api/CommandServer.def
@@ -96,6 +100,9 @@ set(SRC
     src/gui/components/GuiComponent.def
     src/gui/components/Button.def
     src/gui/components/Gui.def
+    src/gui/components/IntRectangle.def
+    src/gui/components/RectangleArea.def
+    src/gui/components/ScrollingPane.def
     src/app-platform/AppPlatform.def
     src/app-platform/AppPlatform_linux.def
     src/app-platform/AppPlatform_readAssetFile_return_value.def
@@ -124,6 +131,7 @@ set(SRC
     src/misc/SoundEngine.def
     src/misc/Common.def
     src/misc/Config.def
+    src/input/IMoveInput.def
     src/input/IBuildInput.def
     src/input/MouseBuildInput.def
     src/input/Mouse.def

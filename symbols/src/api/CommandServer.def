@@ -1,3 +1,4 @@
 method std::string parse(ConnectedClient *client, std::string *command) = 0x6aa8c;
 
 property Minecraft *minecraft = 0x18;
+property OffsetPosTranslator pos_translator = 0x1c;

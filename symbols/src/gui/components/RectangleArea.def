@@ -1,0 +1,8 @@
+size 0x18;
+
+property float x1 = 0x8;
+property float x2 = 0xc;
+property float y1 = 0x10;
+property float y2 = 0x14;
+
+method bool isInside(float x, float y) = 0x21aa4;

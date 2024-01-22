@@ -1,0 +1,16 @@
+extends GuiComponent;
+
+constructor (int param_2, IntRectangle *bb, IntRectangle *itembb, int columns, int item_count, float scale, IntRectangle *itembb2) = 0x22b44;
+
+method void setContentOffset(float x, float y) = 0x220a0;
+method void render(float param_1, float param_2, float alpha) = 0x22ee4;
+method void adjustContentSize() = 0x21aa4;
+method bool queryHoldTime(int *item_id, int *pressed_time) = 0x22ab4;
+
+property float scale = 0x2c;
+property RectangleArea area = 0x60;
+property Vec3 content_offset = 0xe4;
+property float max_y = 0x130;
+property float size_y = 0x170;
+property float adjust_content_size_y = 0x1ec;
+

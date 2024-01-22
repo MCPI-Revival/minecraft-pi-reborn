@@ -9,5 +9,9 @@ method void addParticle(std::string *particle, float x, float y, float z, float 
 method Entity *getEntity(int id) = 0xa45a4;
 method bool addEntity(Entity *entity) = 0xa7cbc;
 
-property std::vector<Player *> players = 0x60;
+virtual-method void tick() = 0x28;
+virtual-method void updateSleepingPlayerList() = 0x2c;
+virtual-method ChunkCache *createChunkSource() = 0x30;
+
 property std::vector<Entity *> entities = 0x20;
+property std::vector<Player *> players = 0x60;
