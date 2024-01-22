@@ -29,6 +29,7 @@ set(SRC
     src/network/packet/ChatPacket.def
     src/entity/EntityFactory.def
     src/entity/PrimedTnt.def
+    src/entity/CameraEntity.def
     src/entity/EntityRenderer.def
     src/entity/Sheep.def
     src/entity/PathfinderMob.def
@@ -61,6 +62,7 @@ set(SRC
     src/level/Biome.def
     src/level/ChunkSource.def
     src/level/ChunkCache.def
+    src/level/LightLayer.def
     src/level/Level.def
     src/level/LevelRenderer.def
     src/level/LevelStorageSource.def

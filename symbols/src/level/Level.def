@@ -4,10 +4,12 @@ vtable 0x108de0;
 
 method void saveLevelData() = 0xa2e94;
 method void setTileAndData(int x, int y, int z, int id, int data) = 0xa38b4;
+method void setTileAndDataNoUpdate(int x, int y, int z, int id, int data) = 0xa33d0;
 method HitResult clip(uchar *param_1, uchar *param_2, bool clip_liquids, bool param_3) = 0xa3db0;
 method void addParticle(std::string *particle, float x, float y, float z, float deltaX, float deltaY, float deltaZ, int count) = 0xa449c;
 method Entity *getEntity(int id) = 0xa45a4;
 method bool addEntity(Entity *entity) = 0xa7cbc;
+method int getBrightness2(LightLayer *layer, int x, int y, int z) = 0xa3c70;
 
 virtual-method void tick() = 0x28;
 virtual-method void updateSleepingPlayerList() = 0x2c;

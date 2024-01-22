@@ -18,5 +18,7 @@ property float pitch = 0x44;
 property float old_yaw = 0x48;
 property float old_pitch = 0x4c;
 property float head_height = 0x68;
+property float hitbox_width = 0x6c;
+property float hitbox_height = 0x70;
 property bool on_ground = 0xb2;
 property bool freeze_physics = 0xb9;

@@ -1,1 +1,2 @@
+// https://mcpirevival.miraheze.org/wiki/Minecraft:_Pi_Edition_Complete_Entity_List shows what id should be
 static-method Entity *CreateEntity(int id, Level *level) = 0x7d794;

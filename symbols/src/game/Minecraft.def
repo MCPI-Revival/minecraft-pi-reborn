@@ -1,12 +1,10 @@
 vtable 0x102700;
 
-virtual-method void init() = 0x38;
 method void tickInput() = 0x15ffc;
 method void setIsCreativeMode(int is_creative) = 0x16ec4;
 method int isTouchscreen() = 0x1639c;
 method void setScreen(Screen *screen) = 0x15d6c;
 method void tick(int param_1, int param_2) = 0x16934;
-virtual-method void update() = 0x24;
 method void hostMultiplayer(int port) = 0x16664;
 method char *getProgressMessage() = 0x16e58;
 method uint isLevelGenerated() = 0x16e6c;
@@ -14,30 +12,34 @@ method bool isCreativeMode() = 0x17270;
 method void releaseMouse() = 0x15d30;
 method void grabMouse() = 0x15d10;
 method void leaveGame(bool save_remote_level) = 0x15ea0;
-virtual-method int handleBack(bool do_nothing) = 0x34;
 method uchar *getCreator() = 0x17538;
 method LevelStorageSource *getLevelSource() = 0x16e84;
 method void handleMouseDown(int param_1, bool can_destroy) = 0x1584c;
 method void handleBuildAction(uint *build_action_intention) = 0x15920;
-virtual-method void selectLevel(std::string *level_dir, std::string *level_name, LevelSettings *settings) = 0x40;
 method void joinMultiplayer(PingedCompatibleServer *server) = 0x165f4;
+
+virtual-method void update() = 0x24;
+virtual-method int handleBack(bool do_nothing) = 0x34;
+virtual-method void init() = 0x38;
+virtual-method void selectLevel(std::string *level_dir, std::string *level_name, LevelSettings *settings) = 0x40;
 
 property int screen_width = 0x20;
 property int screen_height = 0x24;
-property NetEventCallback *network_handler = 0x174;
-property RakNetInstance *rak_net_instance = 0x170;
-property Level *level = 0x188;
-property Textures *textures = 0x164;
-property GameMode *game_mode = 0x160;
-property LocalPlayer *player = 0x18c;
 property Options options = 0x3c;
+property LevelRenderer *levelrenderer = 0x150;
+property GameMode *game_mode = 0x160;
+property Textures *textures = 0x164;
+property RakNetInstance *rak_net_instance = 0x170;
+property NetEventCallback *network_handler = 0x174;
+property Level *level = 0x188;
+property Mob *camera = 0x194;
+property Gui gui = 0x198;
+property LocalPlayer *player = 0x18c;
+property Screen *screen = 0xc10;
 property HitResult hit_result = 0xc38;
 property int progress = 0xc60;
-property CommandServer *command_server = 0xcc0;
-property Screen *screen = 0xc10;
-property Gui gui = 0x198;
-property Mob *pov = 0x150;
 property PerfRenderer *perf_renderer = 0xcbc;
+property CommandServer *command_server = 0xcc0;
 
 // Smooth Lighting
 static-property bool useAmbientOcclusion = 0x136b90;

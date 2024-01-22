@@ -1,0 +1,7 @@
+extends Entity;
+
+size 0xbe4;
+vtable 0x108898;
+
+// -1 or an entity id
+property int tracking_id = 0xbe0;
