@@ -4,7 +4,7 @@
 Download packages [here](https://gitea.thebrokenrail.com/minecraft-pi-reborn/minecraft-pi-reborn/releases).
 
 ### System Requirements
-* Debian Buster/Ubuntu 18.04 Or Higher
+* Debian Bullseye/Ubuntu 20.04 Or Higher
 * FUSE 2
   * Debian/Ubuntu: ``sudo apt install libfuse2``
   * Arch: ``sudo pacman -S fuse2``

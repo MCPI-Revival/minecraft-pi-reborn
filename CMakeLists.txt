@@ -70,7 +70,7 @@ add_compile_options(-ffast-math)
 
 # Warnings
 add_compile_options(-Wall -Wextra -Werror -Wpointer-arith -Wshadow -Wnull-dereference)
-if(CMAKE_C_COMPILER_ID STREQUAL \"GNU\")
+if(CMAKE_C_COMPILER_ID STREQUAL "GNU")
     # Prevents False Positives
     if(CMAKE_C_COMPILER_VERSION VERSION_GREATER 10.0)
         add_compile_options(-Wno-stringop-overflow)

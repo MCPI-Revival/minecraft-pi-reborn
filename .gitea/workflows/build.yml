@@ -23,18 +23,13 @@ jobs:
                   - ARMHF
         name: Build
         runs-on: ubuntu-latest
-        container: node:16-buster
+        container: node:lts-bullseye
         steps:
           - name: Checkout Repository
             uses: actions/checkout@v4
             with:
                 submodules: true
           # Dependencies
-          - name: Install CMake
-            run: |
-                echo 'deb http://deb.debian.org/debian buster-backports main' > /etc/apt/sources.list.d/backports.list
-                apt-get update
-                apt-get install --no-install-recommends -y -t buster-backports cmake
           - name: Install Dependencies
             run: ./scripts/install-dependencies.sh ${{ matrix.arch }}
           # Build
@@ -62,11 +57,6 @@ jobs:
             with:
                 submodules: true
           # Dependencies
-          - name: Install CMake
-            run: |
-                echo 'deb http://deb.debian.org/debian buster-backports main' > /etc/apt/sources.list.d/backports.list
-                apt-get update
-                apt-get install --no-install-recommends -y -t buster-backports cmake
           - name: Install Dependencies
             run: ./scripts/install-dependencies.sh
           - name: Install ARM Toolchain
