@@ -1,12 +1,15 @@
+virtual-method void remove() = 0x10;
 virtual-method void tick() = 0x34;
 virtual-method bool hurt(Entity *attacker, int damage) = 0xa4;
 virtual-method int getEntityTypeId() = 0xdc;
-method void moveTo(float x, float y, float z, float pitch, float yaw) = 0x7a834;
+
+method void moveTo(float x, float y, float z, float yaw, float pitch) = 0x7a834;
 
 property float x = 0x4;
 property float y = 0x8;
 property float z = 0xc;
 property int id = 0x1c;
+property Level *level = 0x24;
 property float old_x = 0x28;
 property float old_y = 0x2c;
 property float old_z = 0x30;
@@ -20,5 +23,6 @@ property float old_pitch = 0x4c;
 property float head_height = 0x68;
 property float hitbox_width = 0x6c;
 property float hitbox_height = 0x70;
+property int renderer_id = 0xa8;
 property bool on_ground = 0xb2;
 property bool freeze_physics = 0xb9;

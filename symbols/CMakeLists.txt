@@ -31,6 +31,7 @@ set(SRC
     src/entity/PrimedTnt.def
     src/entity/CameraEntity.def
     src/entity/EntityRenderer.def
+    src/entity/ItemSpriteRenderer.def
     src/entity/Sheep.def
     src/entity/PathfinderMob.def
     src/entity/HumanoidModel.def
@@ -50,6 +51,7 @@ set(SRC
     src/entity/Entity.def
     src/entity/ItemEntity.def
     src/entity/Arrow.def
+    src/entity/Throwable.def
     src/level/container/FillingContainer.def
     src/level/container/Container.def
     src/level/container/ContainerMenu.def
@@ -133,6 +135,7 @@ set(SRC
     src/misc/SoundEngine.def
     src/misc/Common.def
     src/misc/Config.def
+    src/misc/Random.def
     src/input/IMoveInput.def
     src/input/IBuildInput.def
     src/input/MouseBuildInput.def

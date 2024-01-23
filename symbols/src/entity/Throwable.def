@@ -1,0 +1,11 @@
+extends Entity;
+
+size 0xf4;
+vtable 0x10dcb8;
+vtable-size 0x13c;
+
+constructor (Level *level, Entity *thrower) = 0x8ccf0;
+
+virtual-method void onHit(HitResult *res) = 0x138;
+
+property int thrower_id = 0xd8;

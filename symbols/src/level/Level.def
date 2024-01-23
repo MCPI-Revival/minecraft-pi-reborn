@@ -10,6 +10,7 @@ method void addParticle(std::string *particle, float x, float y, float z, float 
 method Entity *getEntity(int id) = 0xa45a4;
 method bool addEntity(Entity *entity) = 0xa7cbc;
 method int getBrightness2(LightLayer *layer, int x, int y, int z) = 0xa3c70;
+method void playSound(Entity *entity, std::string *name, float volume, float pitch) = 0xa42a8;
 
 virtual-method void tick() = 0x28;
 virtual-method void updateSleepingPlayerList() = 0x2c;

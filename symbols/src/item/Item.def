@@ -14,10 +14,13 @@ virtual-method void setDescriptionId(std::string *name) = 0x6c;
 virtual-method std::string getDescriptionId(ItemInstance *item_instance) = 0x7c;
 
 property int id = 0x4;
-property bool is_stacked_by_data = 0x19;
-property int category = 0x10;
 property int max_damage = 0x8;
+property int texture = 0xc;
+property int category = 0x10;
 property int max_stack_size = 0x14;
+property bool equipped = 0x18;
+property bool is_stacked_by_data = 0x19;
+property std::string description_id = 0x20;
 
 // Globals
 static-property-array Item *items = 0x17b250;

@@ -1,0 +1,3 @@
+method int genrand_int32() = 0x42cf8;
+
+static-property Random random = 0x17a87c;

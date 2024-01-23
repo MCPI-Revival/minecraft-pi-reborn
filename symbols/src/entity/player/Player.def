@@ -10,3 +10,4 @@ method ItemInstance *getArmor(int slot) = 0x8fda4;
 
 property std::string username = 0xbf4;
 property Inventory *inventory = 0xbe0;
+property bool infinite_items = 0xbff;
