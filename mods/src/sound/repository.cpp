@@ -1,5 +1,3 @@
-#include <unordered_map>
-#include <vector>
 #include <string>
 #include <cstdlib>
 #include <ctime>
@@ -8,9 +6,10 @@
 #include <media-layer/audio.h>
 
 #include "sound-internal.h"
+#include <mods/sound/sound.h>
 
 // Sound Repository Extracted From MCPE 0.6.1 APK
-static std::unordered_map<std::string, std::vector<std::string>> repository = {
+std::unordered_map<std::string, std::vector<std::string>> sound_repository = {
     {
         {
             "step.cloth",
@@ -355,9 +354,9 @@ __attribute__((constructor)) static void init_rand_seed() {
 }
 // Pick Sound
 std::string _sound_pick(std::string sound) {
-    if (repository.count(sound) > 0) {
+    if (sound_repository.count(sound) > 0) {
         // Sound Exists
-        std::vector<std::string> &options = repository[sound];
+        std::vector<std::string> &options = sound_repository[sound];
         return options[rand() % options.size()];
     } else {
         // Invalid Sound
@@ -370,7 +369,7 @@ std::string _sound_pick(std::string sound) {
 void _sound_resolve_all() {
     std::string source = _sound_get_source_file();
     if (source.size() > 0) {
-        for (auto &it : repository) {
+        for (auto &it : sound_repository) {
             for (std::string &name : it.second) {
                 // Zero Volume Prevents An OpenAL Source From Being Allocated While Still Resolving The Sound
                 media_audio_play(source.c_str(), name.c_str(), 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f);

@@ -21,7 +21,7 @@
 
 #include <symbols/minecraft.h>
 
-#include <mods/server/server_properties.h>
+#include <mods/server/server.h>
 
 #include <mods/feature/feature.h>
 #include <mods/init/init.h>
@@ -44,7 +44,7 @@ __attribute__((constructor)) static void _init_only_generate(int argc, char *arg
 }
 
 // Server Properties
-static ServerProperties &get_server_properties() {
+ServerProperties &get_server_properties() {
     static ServerProperties properties;
     return properties;
 }
