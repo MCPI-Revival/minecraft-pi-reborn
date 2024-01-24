@@ -13,7 +13,7 @@ void init_compat();
 void init_server();
 #else
 void init_multiplayer();
-void init_benchmark();
+void init_benchmark(int argc, char *argv[]);
 #endif
 #ifndef MCPI_HEADLESS_MODE
 void init_sound();

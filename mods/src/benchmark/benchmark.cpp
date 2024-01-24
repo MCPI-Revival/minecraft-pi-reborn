@@ -10,20 +10,6 @@
 #include <mods/compat/compat.h>
 #include <mods/misc/misc.h>
 
-// --benchmark: Activate Benchmark
-static bool active = false;
-__attribute__((constructor)) static void _init_active(int argc, char *argv[]) {
-    // Iterate Arguments
-    for (int i = 1; i < argc; i++) {
-        // Check Argument
-        if (strcmp(argv[i], "--benchmark") == 0) {
-            // Enabled
-            active = true;
-            break;
-        }
-    }
-}
-
 // Constants
 #define NANOSECONDS_IN_SECOND 1000000000ll
 
@@ -172,7 +158,17 @@ static void Minecraft_update_injection(Minecraft *minecraft) {
 }
 
 // Init Benchmark
-void init_benchmark() {
+void init_benchmark(int argc, char *argv[]) {
+    // --benchmark: Activate Benchmark
+    bool active = false;
+    for (int i = 1; i < argc; i++) {
+        // Check Argument
+        if (strcmp(argv[i], "--benchmark") == 0) {
+            // Enabled
+            active = true;
+            break;
+        }
+    }
     if (active) {
         misc_run_on_update(Minecraft_update_injection);
         // Track Ticks
