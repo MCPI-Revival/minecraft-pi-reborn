@@ -3,4 +3,4 @@ method void colorABGR(int color) = 0x52b54;
 method void color(int r, int g, int b, int a) = 0x52a48;
 method void vertexUV(float x, float y, float z, float u, float v) = 0x52d40;
 
-static-property Tesselator *instance = 0x137538;
+static-property Tesselator instance = 0x137538;
