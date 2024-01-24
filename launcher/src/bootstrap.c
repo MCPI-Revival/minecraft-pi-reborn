@@ -1,90 +1,11 @@
 #define _FILE_OFFSET_BITS 64
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <unistd.h>
-#include <string.h>
-#include <dirent.h>
-#include <errno.h>
-#include <sys/stat.h>
-
 #include <libreborn/libreborn.h>
 
 #include "util.h"
 #include "bootstrap.h"
 #include "patchelf.h"
 #include "crash-report.h"
-
-// Get All Mods In Folder
-static void load(char **ld_preload, char *folder) {
-    int folder_name_length = strlen(folder);
-    // Retry Until Successful
-    while (1) {
-        // Open Folder
-        DIR *dp = opendir(folder);
-        if (dp != NULL) {
-            // Loop Through Folder
-            struct dirent *entry = NULL;
-            errno = 0;
-            while (1) {
-                errno = 0;
-                entry = readdir(dp);
-                if (entry != NULL) {
-                    // Check If File Is Regular
-                    if (entry->d_type == DT_REG) {
-                        // Get Full Name
-                        int name_length = strlen(entry->d_name);
-                        int total_length = folder_name_length + name_length;
-                        char name[total_length + 1];
-
-                        // Concatenate Folder Name And File Name
-                        for (int i = 0; i < folder_name_length; i++) {
-                            name[i] = folder[i];
-                        }
-                        for (int i = 0; i < name_length; i++) {
-                            name[folder_name_length + i] = entry->d_name[i];
-                        }
-                        // Add Terminator
-                        name[total_length] = '\0';
-
-                        // Check If File Is Accessible
-                        int result = access(name, R_OK);
-                        if (result == 0) {
-                            // Add To LD_PRELOAD
-                            string_append(ld_preload, "%s%s", *ld_preload == NULL ? "" : ":", name);
-                        } else if (result == -1 && errno != 0) {
-                            // Fail
-                            WARN("Unable To Access: %s: %s", name, strerror(errno));
-                            errno = 0;
-                        }
-                    }
-                } else if (errno != 0) {
-                    // Error Reading Contents Of Folder
-                    ERR("Error Reading Directory: %s: %s", folder, strerror(errno));
-                } else {
-                    // Done!
-                    break;
-                }
-            }
-            // Close Folder
-            closedir(dp);
-
-            // Exit Function
-            return;
-        } else if (errno == ENOENT) {
-            // Folder Doesn't Exists, Attempt Creation
-            int ret = mkdir(folder, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
-            if (ret != 0) {
-                // Unable To Create Folder
-                ERR("Error Creating Directory: %s: %s", folder, strerror(errno));
-            }
-            // Continue Retrying
-        } else {
-            // Unable To Open Folder
-            ERR("Error Opening Directory: %s: %s", folder, strerror(errno));
-        }
-    }
-}
 
 #define MCPI_BINARY "minecraft-pi"
 #define QEMU_BINARY "qemu-arm"
@@ -182,11 +103,11 @@ void pre_bootstrap(int argc, char *argv[]) {
     set_and_print_env("GTK_THEME", "Adwaita:dark");
 #endif
 
-    // Get Binary Directory
-    char *binary_directory = get_binary_directory();
-
     // Configure PATH
     {
+        // Get Binary Directory
+        char *binary_directory = get_binary_directory();
+
         // Add Library Directory
         char *new_path = NULL;
         safe_asprintf(&new_path, "%s/bin", binary_directory);
@@ -200,10 +121,21 @@ void pre_bootstrap(int argc, char *argv[]) {
         // Set And Free
         set_and_print_env("PATH", new_path);
         free(new_path);
+
+        // Free Binary Directory
+        free(binary_directory);
     }
 
-    // Free Binary Directory
-    free(binary_directory);
+    // --copy-sdk
+    for (int i = 1; i < argc; i++) {
+        if (strcmp(argv[i], "--copy-sdk") == 0) {
+            char *binary_directory = get_binary_directory();
+            copy_sdk(binary_directory, 0);
+            free(binary_directory);
+            fflush(stdout);
+            exit(EXIT_SUCCESS);
+        }
+    }
 
     // Setup Crash Reports
     setup_crash_report();
@@ -242,56 +174,6 @@ void pre_bootstrap(int argc, char *argv[]) {
     print_debug_information();
 }
 
-// Copy SDK Into ~/.minecraft-pi
-#define HOME_SUBDIRECTORY_FOR_SDK HOME_SUBDIRECTORY_FOR_GAME_DATA "/sdk"
-static void copy_sdk(char *binary_directory) {
-    // Ensure SDK Directory
-    {
-        char *sdk_path = NULL;
-        safe_asprintf(&sdk_path, "%s" HOME_SUBDIRECTORY_FOR_SDK, getenv("HOME"));
-        const char *const command[] = {"mkdir", "-p", sdk_path, NULL};
-        run_simple_command(command, "Unable To Create SDK Directory");
-    }
-
-    // Lock File
-    char *lock_file_path = NULL;
-    safe_asprintf(&lock_file_path, "%s" HOME_SUBDIRECTORY_FOR_SDK "/.lock", getenv("HOME"));
-    int lock_file_fd = lock_file(lock_file_path);
-
-    // Output Directory
-    char *output = NULL;
-    safe_asprintf(&output, "%s" HOME_SUBDIRECTORY_FOR_SDK "/" MCPI_SDK_DIR, getenv("HOME"));
-    // Source Directory
-    char *source = NULL;
-    safe_asprintf(&source, "%s/sdk/.", binary_directory);
-
-    // Clean
-    {
-        const char *const command[] = {"rm", "-rf", output, NULL};
-        run_simple_command(command, "Unable To Clean SDK Output Directory");
-    }
-
-    // Make Directory
-    {
-        const char *const command[] = {"mkdir", "-p", output, NULL};
-        run_simple_command(command, "Unable To Create SDK Output Directory");
-    }
-
-    // Copy
-    {
-        const char *const command[] = {"cp", "-ar", source, output, NULL};
-        run_simple_command(command, "Unable To Copy SDK");
-    }
-
-    // Free
-    free(output);
-    free(source);
-
-    // Unlock File
-    unlock_file(lock_file_path, lock_file_fd);
-    free(lock_file_path);
-}
-
 // Bootstrap
 void bootstrap(int argc, char *argv[]) {
     INFO("Configuring Game...");
@@ -301,7 +183,7 @@ void bootstrap(int argc, char *argv[]) {
     DEBUG("Binary Directory: %s", binary_directory);
 
     // Copy SDK
-    copy_sdk(binary_directory);
+    copy_sdk(binary_directory, 1);
 
     // Set MCPI_REBORN_ASSETS_PATH
     {
@@ -432,44 +314,7 @@ void bootstrap(int argc, char *argv[]) {
         set_and_print_env("MCPI_NATIVE_LD_PRELOAD", host_ld_preload);
 
         // ARM Components
-        {
-            // Prepare
-            char *preload = NULL;
-
-            // ~/.minecraft-pi/mods
-            {
-                // Get Mods Folder
-                char *mods_folder = NULL;
-                safe_asprintf(&mods_folder, "%s" HOME_SUBDIRECTORY_FOR_GAME_DATA "/mods/", getenv("HOME"));
-                // Load Mods From ./mods
-                load(&preload, mods_folder);
-                // Free Mods Folder
-                free(mods_folder);
-            }
-
-            // Built-In Mods
-            {
-                // Get Mods Folder
-                char *mods_folder = NULL;
-                safe_asprintf(&mods_folder, "%s/mods/", binary_directory);
-                // Load Mods From ./mods
-                load(&preload, mods_folder);
-                // Free Mods Folder
-                free(mods_folder);
-            }
-
-            // Add LD_PRELOAD
-            {
-                char *value = getenv("LD_PRELOAD");
-                if (value != NULL && strlen(value) > 0) {
-                    string_append(&preload, ":%s", value);
-                }
-            }
-
-            // Set
-            set_and_print_env("MCPI_ARM_LD_PRELOAD", preload);
-            free(preload);
-        }
+        bootstrap_mods(binary_directory);
     }
 
     // Free Binary Directory

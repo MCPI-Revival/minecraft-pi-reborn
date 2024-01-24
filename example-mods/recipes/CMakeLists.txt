@@ -14,4 +14,4 @@ include("$ENV{HOME}/.minecraft-pi/sdk/lib/minecraft-pi-reborn-client/sdk/sdk.cma
 
 # Build
 add_library(recipes SHARED recipes.cpp)
-target_link_libraries(recipes mods-headers reborn-util symbols misc)
+target_link_libraries(recipes mods reborn-util symbols)

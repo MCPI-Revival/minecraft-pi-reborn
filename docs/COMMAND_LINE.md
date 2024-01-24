@@ -8,6 +8,9 @@ If you run MCPI-Reborn with ``--version`` it will print its version to ``stdout`
 ### ``--debug``
 This sets ``MCPI_DEBUG``.
 
+### ``--copy-sdk``
+This extracts the modding SDK and immediately exits. (This allows the SDK to be extracted without starting the game.)
+
 ### Client Mode Only
 
 #### ``--print-available-feature-flags``

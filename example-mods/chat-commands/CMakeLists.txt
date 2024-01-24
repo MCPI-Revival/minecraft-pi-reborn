@@ -14,4 +14,4 @@ include("$ENV{HOME}/.minecraft-pi/sdk/lib/minecraft-pi-reborn-client/sdk/sdk.cma
 
 # Build
 add_library(chat-commands SHARED chat-commands.cpp)
-target_link_libraries(chat-commands mods-headers reborn-patch symbols chat misc)
+target_link_libraries(chat-commands mods reborn-patch symbols)

@@ -50,7 +50,7 @@ jobs:
                   - Server
         name: Test
         runs-on: ubuntu-latest
-        container: node:16-buster
+        container: node:lts-bullseye
         steps:
           - name: Checkout Repository
             uses: actions/checkout@v4
@@ -71,7 +71,7 @@ jobs:
         needs: build
         name: Release
         runs-on: ubuntu-latest
-        container: node:16-buster
+        container: node:lts-bullseye
         steps:
           # Dependencies
           - name: Install Go
@@ -87,7 +87,7 @@ jobs:
           - name: Create Release
             uses: https://gitea.com/actions/release-action@main
             with:
-                files: ./out     
+                files: ./out
                 api_key: ${{ secrets.RELEASE_TOKEN }}
                 title: v${{ github.ref_name }}
                 body: "[View Changelog](https://gitea.thebrokenrail.com/minecraft-pi-reborn/minecraft-pi-reborn/src/branch/master/docs/CHANGELOG.md)"
