@@ -161,7 +161,7 @@ static void Screen_render_injection(Screen *screen, int32_t param_1, int32_t par
 
 // Sanitize Username
 #define MAX_USERNAME_LENGTH 16
-static void LoginPacket_read_injection(LoginPacket *packet, unsigned char *bit_stream) {
+static void LoginPacket_read_injection(LoginPacket *packet, RakNet_BitStream *bit_stream) {
     // Call Original Method
     LoginPacket_read_non_virtual(packet, bit_stream);
 

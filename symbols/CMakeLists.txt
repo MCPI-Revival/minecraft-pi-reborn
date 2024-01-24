@@ -20,6 +20,7 @@ set(SRC
     src/network/raknet/RakNet_StartupResult.h
     src/network/raknet/RakNet_RakNetGUID.def
     src/network/raknet/RakNet_RakPeer.def
+    src/network/raknet/RakNet_BitStream.def
     src/network/ServerSideNetworkHandler.def
     src/network/packet/LoginPacket.def
     src/network/packet/PlayerEquipmentPacket.def
