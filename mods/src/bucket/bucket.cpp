@@ -6,7 +6,7 @@
 #include <mods/misc/misc.h>
 
 // Items
-Item *bucket = NULL;
+static Item *bucket = NULL;
 
 // Description And Texture
 static std::string BucketItem_getDescriptionId(__attribute__((unused)) Item *item, ItemInstance *item_instance) {
