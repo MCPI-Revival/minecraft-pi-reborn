@@ -14,7 +14,7 @@ void sanitize_string(char **str, int max_length, unsigned int allow_newlines) {
     // Loop Through Message
     if (!allow_newlines) {
         for (int i = 0; i < length; i++) {
-            if ((*str)[i] == '\n' || (*str)[i] == '\r') {
+            if ((*str)[i] == '\n') {
                 // Replace Newline
                 (*str)[i] = ' ';
             }
