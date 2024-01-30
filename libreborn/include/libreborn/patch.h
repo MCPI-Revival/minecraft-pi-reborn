@@ -15,7 +15,7 @@ void _overwrite_calls(const char *file, int line, void *start, void *target);
 #define overwrite_calls(start, target) _overwrite_calls(__FILE__, __LINE__, start, target);
 
 void _overwrite_calls_within(const char *file, int line, void *from, void *to, void *start, void *target);
-#define overwrite_calls_within(from, to, start, target) _overwrite_calls(__FILE__, __LINE__, from, to, start, target);
+#define overwrite_calls_within(from, to, start, target) _overwrite_calls_within(__FILE__, __LINE__, from, to, start, target);
 
 void *extract_from_bl_instruction(unsigned char *from);
 
