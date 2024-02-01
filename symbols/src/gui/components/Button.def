@@ -1,5 +1,6 @@
 extends GuiComponent;
 
+size 0x28;
 constructor (int param_1, std::string *text) = 0x1bc54;
 
 method int hovered(Minecraft *minecraft, int click_x, int click_y) = 0x1be2c;

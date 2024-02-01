@@ -110,6 +110,7 @@ set(SRC
     src/gui/components/IntRectangle.def
     src/gui/components/RectangleArea.def
     src/gui/components/ScrollingPane.def
+    src/gui/components/Touch_TButton.def
     src/app-platform/AppPlatform.def
     src/app-platform/AppPlatform_linux.def
     src/app-platform/AppPlatform_readAssetFile_return_value.def

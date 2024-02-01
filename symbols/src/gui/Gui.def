@@ -1,6 +1,6 @@
-size 0xa74;
-
 extends GuiComponent;
+
+size 0xa74;
 
 method void tick() = 0x27778;
 method void handleClick(int param_2, int param_3, int param_4) = 0x2599c;

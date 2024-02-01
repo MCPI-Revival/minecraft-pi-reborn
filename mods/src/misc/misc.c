@@ -490,7 +490,7 @@ static ContainerMenu *ContainerMenu_injection(ContainerMenu *container_menu, Con
     // Return
     return container_menu;
 }
-static unsigned char *ContainerMenu_destructor_injection(ContainerMenu *container_menu) {
+static ContainerMenu *ContainerMenu_destructor_injection(ContainerMenu *container_menu) {
     // Play Animation
     Container *container = container_menu->container;
     ChestTileEntity *tile_entity = (ChestTileEntity *) (((unsigned char *) container) - offsetof(ChestTileEntity, container));
@@ -500,7 +500,7 @@ static unsigned char *ContainerMenu_destructor_injection(ContainerMenu *containe
     }
 
     // Call Original Method
-    return ContainerMenu_destructor_non_virtual(container_menu);
+    return ContainerMenu_destructor_complete_non_virtual(container_menu);
 }
 
 #ifndef MCPI_HEADLESS_MODE
@@ -720,8 +720,8 @@ void init_misc() {
 
         // Animation
         overwrite_calls((void *) ContainerMenu_constructor, (void *) ContainerMenu_injection);
-        overwrite_calls((void *) ContainerMenu_destructor_non_virtual, (void *) ContainerMenu_destructor_injection);
-        patch_address(ContainerMenu_destructor_vtable_addr, (void *) ContainerMenu_destructor_injection);
+        overwrite_calls((void *) ContainerMenu_destructor_complete_non_virtual, (void *) ContainerMenu_destructor_injection);
+        patch_address(ContainerMenu_destructor_complete_vtable_addr, (void *) ContainerMenu_destructor_injection);
     }
     patch_address((void *) 0x115b48, (void *) ChestTileEntity_shouldSave_injection);
 

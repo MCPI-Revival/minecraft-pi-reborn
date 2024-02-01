@@ -3,3 +3,5 @@ extends ImageButton;
 constructor (Options_Option *option) = 0x1c968;
 
 method void updateImage(Options *options) = 0x1ca58;
+
+property Options_Option *option = 0x54;

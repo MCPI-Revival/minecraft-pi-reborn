@@ -2,26 +2,26 @@
 
 #include <mods/text-input-box/TextInputBox.h>
 
-TextInputBox TextInputBox::create(int id, const std::string &placeholder, const std::string &text) {
+TextInputBox *TextInputBox::create(int id, const std::string &placeholder, const std::string &text) {
     // Construct
-    TextInputBox self;
-    GuiComponent_constructor(&self.super);
+    TextInputBox *self = new TextInputBox;
+    GuiComponent_constructor(&self->super);
 
     // Setup
-    self.m_ID = id;
-    self.m_xPos = 0;
-    self.m_yPos = 0;
-    self.m_width = 0;
-    self.m_height = 0;
-    self.m_placeholder = placeholder;
-    self.m_text = text;
-    self.m_bFocused = false;
-    self.m_bEnabled = true;
-    self.m_bCursorOn = true;
-    self.m_insertHead = 0;
-    self.m_lastFlashed = 0;
-    self.m_pFont = nullptr;
-    self.m_maxLength = -1;
+    self->m_ID = id;
+    self->m_xPos = 0;
+    self->m_yPos = 0;
+    self->m_width = 0;
+    self->m_height = 0;
+    self->m_placeholder = placeholder;
+    self->m_text = text;
+    self->m_bFocused = false;
+    self->m_bEnabled = true;
+    self->m_bCursorOn = true;
+    self->m_insertHead = 0;
+    self->m_lastFlashed = 0;
+    self->m_pFont = nullptr;
+    self->m_maxLength = -1;
 
     // Return
     return self;

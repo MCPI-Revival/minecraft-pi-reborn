@@ -31,5 +31,5 @@ struct TextInputBox {
     void onClick(int x, int y);
     bool clicked(int x, int y);
 
-    static TextInputBox create(int id, const std::string &placeholder = "", const std::string &text = "");
+    static TextInputBox *create(int id, const std::string &placeholder = "", const std::string &text = "");
 };

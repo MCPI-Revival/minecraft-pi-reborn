@@ -6,7 +6,7 @@
 
 struct TextInputScreen {
     Screen super;
-    std::vector<TextInputBox *> m_textInputs;
+    std::vector<TextInputBox *> *m_textInputs;
 
     static void setup(Screen_vtable *vtable);
 };

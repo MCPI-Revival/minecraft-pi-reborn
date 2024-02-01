@@ -12,23 +12,48 @@
 // Structure
 struct ChatScreen {
     TextInputScreen super;
-    TextInputBox chat;
+    TextInputBox *chat;
+    Button *send;
 };
 CUSTOM_VTABLE(chat_screen, Screen) {
     TextInputScreen::setup(vtable);
     // Init
+    static Screen_init_t original_init = vtable->init;
     vtable->init = [](Screen *super) {
-        Screen_init_non_virtual(super);
+        original_init(super);
         ChatScreen *self = (ChatScreen *) super;
-        self->super.m_textInputs.push_back(&self->chat);
-        self->chat.init(super->font);
-        self->chat.setFocused(true);
+        // Text Input
+        self->chat = TextInputBox::create(1);
+        self->super.m_textInputs->push_back(self->chat);
+        self->chat->init(super->font);
+        self->chat->setFocused(true);
+        // Send Button
+        if (Minecraft_isTouchscreen(super->minecraft)) {
+            self->send = (Button *) new Touch_TButton;
+        } else {
+            self->send = new Button;
+        }
+        ALLOC_CHECK(self->send);
+        int send_id = 2;
+        std::string send_text = "Send";
+        if (Minecraft_isTouchscreen(super->minecraft)) {
+            Touch_TButton_constructor((Touch_TButton *) self->send, send_id, &send_text);
+        } else {
+            Button_constructor(self->send, send_id, &send_text);
+        }
+        super->rendered_buttons.push_back(self->send);
+        super->selectable_buttons.push_back(self->send);
+        // Hide Chat Messages
         is_in_chat = true;
     };
     // Removal
+    static Screen_removed_t original_removed = vtable->removed;
     vtable->removed = [](Screen *super) {
-        Screen_removed_non_virtual(super);
+        original_removed(super);
         is_in_chat = false;
+        ChatScreen *self = (ChatScreen *) super;
+        delete self->chat;
+        self->send->vtable->destructor_deleting(self->send);
     };
     // Rendering
     static Screen_render_t original_render = vtable->render;
@@ -44,23 +69,40 @@ CUSTOM_VTABLE(chat_screen, Screen) {
     vtable->setupPositions = [](Screen *super) {
         Screen_setupPositions_non_virtual(super);
         ChatScreen *self = (ChatScreen *) super;
-        int height = 20;
+        self->send->height = 20;
+        self->send->width = 40;
         int x = 0;
-        int y = super->height - height;
-        int width = super->width;
-        self->chat.setSize(x, y, width, height);
+        int y = super->height - self->send->height;
+        int width = super->width - self->send->width;
+        self->chat->setSize(x, y, width, self->send->height);
+        self->send->y = super->height - self->send->height;
+        self->send->x = x + width;
     };
     // Key Presses
     static Screen_keyPressed_t original_keyPressed = vtable->keyPressed;
     vtable->keyPressed = [](Screen *super, int key) {
         // Handle Enter
         ChatScreen *self = (ChatScreen *) super;
-        if (key == 0x0d) {
-            _chat_queue_message(self->chat.m_text.c_str());
+        if (key == 0x0d && self->chat->m_bFocused) {
+            if (self->chat->m_text.length() > 0) {
+                _chat_queue_message(self->chat->m_text.c_str());
+            }
             Minecraft_setScreen(super->minecraft, NULL);
         }
         // Call Original Method
         original_keyPressed(super, key);
+    };
+    // Button Click
+    vtable->buttonClicked = [](Screen *super, Button *button) {
+        ChatScreen *self = (ChatScreen *) super;
+        if (button == self->send) {
+            // Send
+            self->chat->setFocused(true);
+            super->vtable->keyPressed(super, 0x0d);
+        } else {
+            // Call Original Method
+            Screen_buttonClicked_non_virtual(super, button);
+        }
     };
 }
 static Screen *create_chat_screen() {
@@ -71,9 +113,6 @@ static Screen *create_chat_screen() {
 
     // Set VTable
     screen->super.super.vtable = get_chat_screen_vtable();
-
-    // Setup
-    screen->chat = TextInputBox::create(0);
 
     // Return
     return (Screen *) screen;

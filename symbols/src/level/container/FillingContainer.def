@@ -10,8 +10,6 @@ method int getFreeSlot() = 0x91ffc;
 method int getSlot(int id) = 0x91ce0;
 method int linkSlot(int linked_slot, int unlinked_slot, bool push_aside) = 0x92188;
 
-virtual-method ItemInstance *getItem(int pos) = 0x8;
-virtual-method void setItem(int pos, ItemInstance *item) = 0xc;
 virtual-method bool add(ItemInstance *item_instance) = 0x30;
 
 property int *linked_slots = 0xc;
