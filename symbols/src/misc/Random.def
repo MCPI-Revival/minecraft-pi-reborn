@@ -1,3 +1,10 @@
-method int genrand_int32() = 0x42cf8;
+size 0x9d0;
 
-static-property Random random = 0x17a87c;
+method float nextFloat() = 0x42cf8;
+method uint genrand_int32() = 0x50e14;
+method void init_genrand(uint seed) = 0x27d38;
+
+property uint seed = 0x0;
+property int param_1 = 0x9c4; // Set To 0x271
+property bool param_2 = 0x9c8; // Set To False
+property float param_3 = 0x9cc; // Set To 0

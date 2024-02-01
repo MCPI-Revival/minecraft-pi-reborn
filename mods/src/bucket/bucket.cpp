@@ -117,19 +117,10 @@ static int32_t BucketItem_useOn(__attribute__((unused)) Item *item, ItemInstance
 }
 
 // Bucket VTable
-static Item_vtable *get_bucket_vtable() {
-    static Item_vtable *vtable = NULL;
-    if (vtable == NULL) {
-        // Init
-        vtable = dup_Item_vtable(Item_vtable_base);
-        ALLOC_CHECK(vtable);
-
-        // Modify
-        vtable->getDescriptionId = BucketItem_getDescriptionId;
-        vtable->getIcon = BucketItem_getIcon;
-        vtable->useOn = BucketItem_useOn;
-    }
-    return vtable;
+CUSTOM_VTABLE(bucket, Item) {
+    vtable->getDescriptionId = BucketItem_getDescriptionId;
+    vtable->getIcon = BucketItem_getIcon;
+    vtable->useOn = BucketItem_useOn;
 }
 
 // Create Items

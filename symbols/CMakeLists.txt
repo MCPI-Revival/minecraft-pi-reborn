@@ -131,12 +131,14 @@ set(SRC
     src/misc/Vec3.def
     src/misc/HitResult.def
     src/misc/PerfRenderer.def
-    src/misc/Texture.def
-    src/misc/Textures.def
+    src/textures/Texture.def
+    src/textures/Textures.def
+    src/textures/DynamicTexture.def
     src/misc/SoundEngine.def
     src/misc/Common.def
     src/misc/Config.def
     src/misc/Random.def
+    src/misc/Mth.def
     src/input/IMoveInput.def
     src/input/IBuildInput.def
     src/input/MouseBuildInput.def

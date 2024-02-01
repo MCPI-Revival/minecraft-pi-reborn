@@ -95,6 +95,7 @@ else()
         src/screenshot/screenshot.c
         # textures
         src/textures/textures.cpp
+        src/textures/lava.cpp
     )
 endif()
 

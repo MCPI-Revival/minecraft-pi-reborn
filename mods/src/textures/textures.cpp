@@ -11,6 +11,7 @@
 #include <mods/feature/feature.h>
 #include <mods/textures/textures.h>
 #include <mods/init/init.h>
+#include "textures-internal.h"
 
 #include "stb_image.h"
 
@@ -213,8 +214,10 @@ static Texture AppPlatform_linux_loadTexture_injection(__attribute__((unused)) A
 // Init
 void init_textures() {
     // Tick Dynamic Textures (Animated Water)
-    if (feature_has("Animated Water", server_disabled)) {
+    if (feature_has("Animated Water & Lava", server_disabled)) {
         misc_run_on_tick(Minecraft_tick_injection);
+        // Animated Lava
+        _init_textures_lava();
     }
 
     // Scale Animated Textures

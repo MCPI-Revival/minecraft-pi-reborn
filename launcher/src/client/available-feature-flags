@@ -8,7 +8,7 @@ TRUE Fix Sign Placement
 TRUE Show Block Outlines
 FALSE Expand Creative Mode Inventory
 FALSE Remove Creative Mode Restrictions
-TRUE Animated Water
+TRUE Animated Water & Lava
 TRUE Remove Invalid Item Background
 TRUE Disable "gui_blocks" Atlas
 TRUE Fix Camera Rendering

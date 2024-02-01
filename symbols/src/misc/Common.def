@@ -5,3 +5,4 @@ static-method void renderCursor(float x, float y, Minecraft *minecraft) = 0x480c
 static-method void sleepMs(int x) = 0x13cf4;
 static-method int sdl_key_to_minecraft_key(int sdl_key) = 0x1243c;
 static-method void anGenBuffers(int count, uint *buffers) = 0x5f28c;
+static-method int getTimeMs() = 0x13cd4;

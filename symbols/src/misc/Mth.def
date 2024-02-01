@@ -1,0 +1,5 @@
+static-property Random _random = 0x17a87c;
+static-method float random() = 0x777a4;
+
+static-method float sin(float x) = 0x7775c;
+static-method float cos(float x) = 0x77728;

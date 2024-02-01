@@ -1,0 +1,12 @@
+vtable 0x108120;
+vtable-size 0x10;
+
+size 0x40c;
+constructor (int texture) = 0x66154;
+
+virtual-method void tick() = 0x8;
+virtual-method void bindTexture(Textures *textures) = 0xc;
+
+property int texture_index = 0x4;
+property int texture_size = 0x8;
+property uchar pixels[1024] = 0xc;

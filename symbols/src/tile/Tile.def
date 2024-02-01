@@ -15,6 +15,7 @@ virtual-method int getColor(LevelSource *level_source, int x, int y, int z) = 0x
 virtual-method int getRenderShape() = 0xc;
 virtual-method Tile *setDescriptionId(std::string *description_id) = 0xe0;
 
+property int texture = 0x4;
 property int id = 0x8;
 property int category = 0x3c;
 
@@ -38,6 +39,7 @@ static-property Tile *info_updateGame2 = 0x181c6c;
 static-property Tile *bedrock = 0x181cc4;
 static-property Tile *tallgrass = 0x181d0c;
 static-property Tile *stoneSlab = 0x181b44;
+static-property Tile *fire = 0x181de0;
 
 // "Carried" Tiles
 static-property Tile *leaves = 0x18120c;

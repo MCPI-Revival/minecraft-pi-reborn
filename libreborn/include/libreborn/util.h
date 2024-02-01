@@ -50,6 +50,25 @@ const char *reborn_get_version();
 int reborn_is_headless();
 int reborn_is_server();
 
+// Customize VTable
+#define CUSTOM_VTABLE(name, parent) \
+    static void _setup_##name##_vtable(parent##_vtable *vtable); \
+    static parent##_vtable *get_##name##_vtable() { \
+        static parent##_vtable *vtable = NULL; \
+        /* Allocate VTable */ \
+        if (vtable == NULL) { \
+            /* Init */ \
+            vtable = dup_##parent##_vtable(parent##_vtable_base); \
+            ALLOC_CHECK(vtable); \
+            /* Setup */ \
+            _setup_##name##_vtable(vtable); \
+        } \
+        /* Return */ \
+        return vtable; \
+    } \
+    /* User-Defined Setup Code */ \
+    static void _setup_##name##_vtable(parent##_vtable *vtable)
+
 #ifdef __cplusplus
 }
 #endif
