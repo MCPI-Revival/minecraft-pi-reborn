@@ -1,0 +1,1 @@
+method int width(std::string *string) = 0x24d4c;

@@ -80,7 +80,8 @@ static void _handle_mouse_grab(Minecraft *minecraft) {
 
 // Block UI Interaction When Mouse Is Locked
 static bool Gui_tickItemDrop_Minecraft_isCreativeMode_call_injection(Minecraft *minecraft) {
-    if (!enable_misc || SDL_WM_GrabInput(SDL_GRAB_QUERY) == SDL_GRAB_OFF) {
+    bool is_in_game = minecraft->screen == NULL || minecraft->screen->vtable == (Screen_vtable *) Touch_IngameBlockSelectionScreen_vtable_base;
+    if (!enable_misc || (SDL_WM_GrabInput(SDL_GRAB_QUERY) == SDL_GRAB_OFF && is_in_game)) {
         // Call Original Method
         return creative_is_restricted() && Minecraft_isCreativeMode(minecraft);
     } else {

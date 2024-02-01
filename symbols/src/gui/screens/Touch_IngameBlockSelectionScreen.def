@@ -1,5 +1,6 @@
 extends Screen;
 
 size 0x16c;
-
 constructor () = 0x3afbc;
+
+vtable 0x1053c0;

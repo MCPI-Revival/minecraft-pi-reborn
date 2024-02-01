@@ -106,7 +106,7 @@ set(SRC
     src/gui/components/OptionsPane.def
     src/gui/components/GuiComponent.def
     src/gui/components/Button.def
-    src/gui/components/Gui.def
+    src/gui/Gui.def
     src/gui/components/IntRectangle.def
     src/gui/components/RectangleArea.def
     src/gui/components/ScrollingPane.def
@@ -145,6 +145,7 @@ set(SRC
     src/input/IBuildInput.def
     src/input/MouseBuildInput.def
     src/input/Mouse.def
+    src/input/Keyboard.def
     src/recipes/FurnaceRecipes.def
     src/recipes/Recipes.def
     src/recipes/Recipes_Type.def

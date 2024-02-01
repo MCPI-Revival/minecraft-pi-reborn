@@ -28,6 +28,8 @@ void Level_saveLevelData_injection(Level *level);
 // Use this instead of directly calling Gui::addMessage(), it has proper logging!
 void misc_add_message(Gui *gui, const char *text);
 
+extern bool is_in_chat;
+
 #ifdef __cplusplus
 }
 #endif

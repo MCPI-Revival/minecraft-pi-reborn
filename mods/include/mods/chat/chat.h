@@ -15,7 +15,6 @@ extern "C" {
 
 #ifndef MCPI_SERVER_MODE
 void chat_open();
-unsigned int chat_get_counter();
 #endif
 
 // Override using the HOOK() macro to provide customized chat behavior.

@@ -70,12 +70,7 @@ HOOK(SDL_PollEvent, int, (SDL_Event *event)) {
                     input_third_person();
                     handled = 1;
                 } else if (event->key.keysym.sym == SDLK_t) {
-                    // Only When In-Game With No Other Chat Windows Open
-                    if (SDL_WM_GrabInput(SDL_GRAB_QUERY) == SDL_GRAB_ON && chat_get_counter() == 0) {
-                        // Open Chat
-                        chat_open();
-                    }
-                    // Mark Handled
+                    chat_open();
                     handled = 1;
                 } else if (event->key.keysym.sym == SDLK_ESCAPE) {
                     // Treat Escape As Back Button Press (This Fixes Issues With Signs)

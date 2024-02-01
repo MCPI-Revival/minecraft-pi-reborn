@@ -5,9 +5,6 @@
 #include <cstring>
 #include <cstdio>
 #include <vector>
-#ifndef MCPI_HEADLESS_MODE
-#include <pthread.h>
-#endif
 
 #include <symbols/minecraft.h>
 #ifndef MCPI_HEADLESS_MODE
@@ -21,9 +18,6 @@
 #endif
 #include "chat-internal.h"
 #include <mods/chat/chat.h>
-
-// Store If Chat is Enabled
-int _chat_enabled = 0;
 
 // Message Limitations
 #define MAX_CHAT_MESSAGE_LENGTH 512
@@ -95,45 +89,27 @@ static void ServerSideNetworkHandler_handle_ChatPacket_injection(ServerSideNetwo
 
 #ifndef MCPI_HEADLESS_MODE
 // Message Queue
-static pthread_mutex_t queue_mutex = PTHREAD_MUTEX_INITIALIZER;
 static std::vector<std::string> queue;
 // Add To Queue
-void _chat_queue_message(char *message) {
-    // Lock
-    pthread_mutex_lock(&queue_mutex);
+void _chat_queue_message(const char *message) {
     // Add
-    std::string str;
-    str.append(message);
+    std::string str = message;
     queue.push_back(str);
-    // Unlock
-    pthread_mutex_unlock(&queue_mutex);
 }
 // Empty Queue
 unsigned int old_chat_counter = 0;
 static void send_queued_messages(Minecraft *minecraft) {
-    // Lock
-    pthread_mutex_lock(&queue_mutex);
-    // If Message Was Submitted, No Other Chat Windows Are Open, And The Game Is Not Paused, Then Re-Lock Cursor
-    unsigned int new_chat_counter = chat_get_counter();
-    if (old_chat_counter > new_chat_counter && new_chat_counter == 0) {
-        // Unlock UI
-        media_set_interactable(1);
-    }
-    old_chat_counter = new_chat_counter;
     // Loop
     for (unsigned int i = 0; i < queue.size(); i++) {
         send_api_chat_command(minecraft, (char *) queue[i].c_str());
     }
     queue.clear();
-    // Unlock
-    pthread_mutex_unlock(&queue_mutex);
 }
 #endif
 
 // Init
 void init_chat() {
-    _chat_enabled = feature_has("Implement Chat", server_enabled);
-    if (_chat_enabled) {
+    if (feature_has("Implement Chat", server_enabled)) {
         // Disable Original ChatPacket Loopback
         unsigned char disable_chat_packet_loopback_patch[4] = {0x00, 0xf0, 0x20, 0xe3}; // "nop"
         patch((void *) 0x6b490, disable_chat_packet_loopback_patch);
@@ -141,9 +117,11 @@ void init_chat() {
         overwrite_call((void *) 0x6b518, (void *) CommandServer_parse_CommandServer_dispatchPacket_injection);
         // Re-Broadcast ChatPacket
         patch_address(ServerSideNetworkHandler_handle_ChatPacket_vtable_addr, (void *) ServerSideNetworkHandler_handle_ChatPacket_injection);
-        // Send Messages On Input Tick
 #ifndef MCPI_HEADLESS_MODE
+        // Send Messages On Input Tick
         input_run_on_tick(send_queued_messages);
+        // Init UI
+        _init_chat_ui();
 #endif
     }
 }

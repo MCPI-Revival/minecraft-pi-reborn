@@ -65,6 +65,7 @@ static void Gui_renderBubbles_GuiComponent_blit_injection(Gui *component, int32_
 
 // Additional GUI Rendering
 static int hide_chat_messages = 0;
+bool is_in_chat = 0;
 static int render_selected_item_text = 0;
 static void Gui_renderChatMessages_injection(Gui *gui, int32_t y_offset, uint32_t max_messages, bool disable_fading, Font *font) {
     // Handle Classic HUD
@@ -76,7 +77,7 @@ static void Gui_renderChatMessages_injection(Gui *gui, int32_t y_offset, uint32_
     }
 
     // Call Original Method
-    if (!hide_chat_messages) {
+    if (!hide_chat_messages && !is_in_chat) {
         Gui_renderChatMessages(gui, y_offset, max_messages, disable_fading, font);
     }
 

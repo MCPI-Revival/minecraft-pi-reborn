@@ -40,6 +40,7 @@ property HitResult hit_result = 0xc38;
 property int progress = 0xc60;
 property PerfRenderer *perf_renderer = 0xcbc;
 property CommandServer *command_server = 0xcc0;
+property Font *font = 0x16c;
 
 // Smooth Lighting
 static-property bool useAmbientOcclusion = 0x136b90;

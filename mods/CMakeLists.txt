@@ -15,7 +15,7 @@ set(SRC
     src/version/version.cpp
     # chat
     src/chat/chat.cpp
-    src/chat/ui.c
+    src/chat/ui.cpp
     # creative
     src/creative/creative.cpp
     # game-mode
@@ -96,6 +96,9 @@ else()
         # textures
         src/textures/textures.cpp
         src/textures/lava.cpp
+        # text-input-box
+        src/text-input-box/TextInputBox.cpp
+        src/text-input-box/TextInputScreen.cpp
     )
 endif()
 

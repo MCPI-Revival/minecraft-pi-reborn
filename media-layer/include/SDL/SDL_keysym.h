@@ -28,6 +28,7 @@ typedef enum {
     SDLK_s = 115,
     SDLK_t = 116,
     SDLK_w = 119,
+    SDLK_DELETE = 127,
     SDLK_UP = 273,
     SDLK_DOWN = 274,
     SDLK_RIGHT = 275,
