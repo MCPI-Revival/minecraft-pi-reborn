@@ -1,0 +1,5 @@
+vtable 0x110370;
+
+virtual-method void updateLightRamp() = 0x28;
+
+property float light_ramp[16] = 0x10;

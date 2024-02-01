@@ -74,6 +74,8 @@ set(SRC
     src/level/LevelData.def
     src/level/LevelSettings.def
     src/level/ServerLevel.def
+    src/level/Dimension.def
+    src/level/MultiPlayerLevel.def
     src/item/ItemRenderer.def
     src/item/ItemInHandRenderer.def
     src/item/AuxDataTileItem.def

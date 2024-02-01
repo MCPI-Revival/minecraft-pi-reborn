@@ -545,6 +545,18 @@ static int FurnaceTileEntity_getLitProgress_injection(FurnaceTileEntity *furnace
     return ret;
 }
 
+// Java Light Ramp
+static void Dimension_updateLightRamp_injection(Dimension *self) {
+    // https://github.com/ReMinecraftPE/mcpe/blob/d7a8b6baecf8b3b050538abdbc976f690312aa2d/source/world/level/Dimension.cpp#L92-L105
+    for (int i = 0; i <= 15; i++) {
+        float f1 = 1.0f - (((float) i) / 15.0f);
+        self->light_ramp[i] = ((1.0f - f1) / (f1 * 3.0f + 1.0f)) * (1.0f - 0.1f) + 0.1f;
+        // Default Light Ramp:
+        // float fVar4 = 1.0 - ((float) i * 0.0625);
+        // self->light_ramp[i] = ((1.0 - fVar4) / (fVar4 * 3.0 + 1.0)) * 0.95 + 0.15;
+    }
+}
+
 // Init
 static void nop() {
 }
@@ -730,6 +742,11 @@ void init_misc() {
     patch((void *) 0x717c4, nop_patch);
     unsigned char mov_r3_ff[4] = {0xff, 0x30, 0xa0, 0xe3}; // "mov r3, #0xff"
     patch((void *) 0x7178c, mov_r3_ff);
+
+    // Java Light Ramp
+    if (feature_has("Use Java Beta 1.3 Light Ramp", server_disabled)) {
+        overwrite((void *) Dimension_updateLightRamp_non_virtual, (void *) Dimension_updateLightRamp_injection);
+    }
 
     // Init C++ And Logging
     _init_misc_cpp();

@@ -1,6 +1,6 @@
 extends LevelSource;
 
-vtable 0x108de0;
+vtable 0x10fcf0;
 
 method void saveLevelData() = 0xa2e94;
 method void setTileAndData(int x, int y, int z, int id, int data) = 0xa38b4;

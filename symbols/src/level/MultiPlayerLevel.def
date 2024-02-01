@@ -1,0 +1,3 @@
+extends Level;
+
+vtable 0x108de0;
