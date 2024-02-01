@@ -1,4 +1,4 @@
-# ``misc`` Mod
+# `misc` Mod
 This mod has several miscellaneous mods that are too small to be their own mod, including:
 * Rendering text above the hotbar when an item is selected.
 * Sanitizing player usernames for invalid characters.

@@ -1,2 +1,2 @@
-# ``textures`` Mod
+# `textures` Mod
 This mod enables the animated water texture.

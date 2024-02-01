@@ -1,2 +1,2 @@
-# ``sign`` Mod
+# `sign` Mod
 This mod fixes sign placement.

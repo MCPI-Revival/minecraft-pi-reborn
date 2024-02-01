@@ -3,4 +3,4 @@ MCPI-Reborn supports downloading custom skins from [a central skin server](https
 
 This *does not* cache skins and *will not* work without internet access.
 
-Custom skins can be disabled using the ``Load Custom Skins`` feature flag.
+Custom skins can be disabled using the `Load Custom Skins` feature flag.

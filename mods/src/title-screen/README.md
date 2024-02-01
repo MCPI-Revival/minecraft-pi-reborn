@@ -1,2 +1,2 @@
-# ``title-screen`` Mod
+# `title-screen` Mod
 This mod improves the title screen.
