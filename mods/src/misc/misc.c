@@ -738,10 +738,12 @@ void init_misc() {
     overwrite_calls((void *) FurnaceTileEntity_getLitProgress, (void *) FurnaceTileEntity_getLitProgress_injection);
 
     // Send the full level, not only changed chunks
-    unsigned char nop_patch[4] = {0x00, 0xf0, 0x20, 0xe3}; // "nop"
-    patch((void *) 0x717c4, nop_patch);
-    unsigned char mov_r3_ff[4] = {0xff, 0x30, 0xa0, 0xe3}; // "mov r3, #0xff"
-    patch((void *) 0x7178c, mov_r3_ff);
+    if (feature_has("Send Full Level When Hosting Game", server_enabled)) {
+        unsigned char nop_patch[4] = {0x00, 0xf0, 0x20, 0xe3}; // "nop"
+        patch((void *) 0x717c4, nop_patch);
+        unsigned char mov_r3_ff[4] = {0xff, 0x30, 0xa0, 0xe3}; // "mov r3, #0xff"
+        patch((void *) 0x7178c, mov_r3_ff);
+    }
 
     // Java Light Ramp
     if (feature_has("Use Java Beta 1.3 Light Ramp", server_disabled)) {
