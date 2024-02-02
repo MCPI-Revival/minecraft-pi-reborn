@@ -3,6 +3,7 @@ size 0x110;
 method void initDefaultValue() = 0x18a54;
 method bool getBooleanValue(Options_Option *option) = 0x1cd74;
 method void addOptionToSaveOutput(std::vector<std::string> *data, std::string option, int value) = 0x195e4;
+method void save() = 0x1966c;
 
 property OptionsFile options_file = 0x10c;
 property bool fancy_graphics = 0x17;

@@ -127,6 +127,12 @@ static void OptionsPane_unknown_toggle_creating_function_injection(OptionsPane *
         std::string cpp_string = "3D Anaglyph";
         OptionsPane_unknown_toggle_creating_function(options_pane, group_id, &cpp_string, &Options_Option_ANAGLYPH);
     }
+
+    // Add Peaceful Mode
+    if (option == &Options_Option_SERVER_VISIBLE) {
+        std::string cpp_string = "Peaceful mode";
+        OptionsPane_unknown_toggle_creating_function(options_pane, group_id, &cpp_string, &Options_Option_DIFFICULTY);
+    }
 }
 
 // Add Missing Options To Options::getBooleanValue
@@ -134,10 +140,26 @@ static bool Options_getBooleanValue_injection(Options *options, Options_Option *
     // Check
     if (option == &Options_Option_GRAPHICS) {
         return options->fancy_graphics;
+    } else if (option == &Options_Option_DIFFICULTY) {
+        return options->game_difficulty == 0;
     } else {
         // Call Original Method
         return Options_getBooleanValue(options, option);
     }
+}
+
+// Fix Difficulty When Toggling
+static void OptionButton_toggle_Options_save_injection(Options *self) {
+    // Fix Value
+    if (self->game_difficulty == 1) {
+        // Disable Peaceful
+        self->game_difficulty = 2;
+    } else if (self->game_difficulty == 3) {
+        // Switch To Peaceful
+        self->game_difficulty = 0;
+    }
+    // Call Original Method
+    Options_save(self);
 }
 
 // Init C++
@@ -164,6 +186,9 @@ void _init_options_cpp() {
 
         // Add Missing Options To Options::getBooleanValue
         overwrite_calls((void *) Options_getBooleanValue, (void *) Options_getBooleanValue_injection);
+
+        // Fix Difficulty When Toggling
+        overwrite_call((void *) 0x1cd00, (void *) OptionButton_toggle_Options_save_injection);
     }
 
     // Actually Save options.txt
