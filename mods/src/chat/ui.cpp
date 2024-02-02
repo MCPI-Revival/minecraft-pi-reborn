@@ -8,6 +8,7 @@
 #include <mods/chat/chat.h>
 #include <mods/text-input-box/TextInputScreen.h>
 #include <mods/misc/misc.h>
+#include <mods/touch/touch.h>
 
 // Structure
 struct ChatScreen {
@@ -23,24 +24,16 @@ CUSTOM_VTABLE(chat_screen, Screen) {
         original_init(super);
         ChatScreen *self = (ChatScreen *) super;
         // Text Input
-        self->chat = TextInputBox::create(1);
+        self->chat = TextInputBox::create();
         self->super.m_textInputs->push_back(self->chat);
         self->chat->init(super->font);
         self->chat->setFocused(true);
+        // Determien Max Length
+        std::string prefix = _chat_get_prefix(Strings_default_username);
+        int max_length = MAX_CHAT_MESSAGE_LENGTH - prefix.length();
+        self->chat->setMaxLength(max_length);
         // Send Button
-        if (Minecraft_isTouchscreen(super->minecraft)) {
-            self->send = (Button *) new Touch_TButton;
-        } else {
-            self->send = new Button;
-        }
-        ALLOC_CHECK(self->send);
-        int send_id = 2;
-        std::string send_text = "Send";
-        if (Minecraft_isTouchscreen(super->minecraft)) {
-            Touch_TButton_constructor((Touch_TButton *) self->send, send_id, &send_text);
-        } else {
-            Button_constructor(self->send, send_id, &send_text);
-        }
+        self->send = touch_create_button(1, "Send");
         super->rendered_buttons.push_back(self->send);
         super->selectable_buttons.push_back(self->send);
         // Hide Chat Messages
@@ -69,7 +62,7 @@ CUSTOM_VTABLE(chat_screen, Screen) {
     vtable->setupPositions = [](Screen *super) {
         Screen_setupPositions_non_virtual(super);
         ChatScreen *self = (ChatScreen *) super;
-        self->send->height = 20;
+        self->send->height = 24;
         self->send->width = 40;
         int x = 0;
         int y = super->height - self->send->height;
@@ -83,9 +76,9 @@ CUSTOM_VTABLE(chat_screen, Screen) {
     vtable->keyPressed = [](Screen *super, int key) {
         // Handle Enter
         ChatScreen *self = (ChatScreen *) super;
-        if (key == 0x0d && self->chat->m_bFocused) {
-            if (self->chat->m_text.length() > 0) {
-                _chat_queue_message(self->chat->m_text.c_str());
+        if (key == 0x0d && self->chat->isFocused()) {
+            if (self->chat->getText().length() > 0) {
+                _chat_queue_message(self->chat->getText().c_str());
             }
             Minecraft_setScreen(super->minecraft, NULL);
         }

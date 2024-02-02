@@ -9,3 +9,4 @@ property int width = 0x14;
 property int height = 0x18;
 property int x = 0xc;
 property int y = 0x10;
+property std::string text = 0x1c;

@@ -1,0 +1,3 @@
+static-method std::string stringTrim(std::string *str) = 0x77c40;
+static-method int hashCode(std::string *str) = 0x77a50;
+static-method std::string *stringReplace(std::string *str, std::string *what, std::string *with, int param_1) = 0x779f0;

@@ -19,9 +19,6 @@
 #include "chat-internal.h"
 #include <mods/chat/chat.h>
 
-// Message Limitations
-#define MAX_CHAT_MESSAGE_LENGTH 512
-
 // Send API Command
 std::string chat_send_api_command(Minecraft *minecraft, std::string str) {
     struct ConnectedClient client;
@@ -47,9 +44,12 @@ static void send_api_chat_command(Minecraft *minecraft, char *str) {
 #endif
 
 // Send Message To Players
+std::string _chat_get_prefix(char *username) {
+    return std::string("<") + username + "> ";
+}
 void chat_send_message(ServerSideNetworkHandler *server_side_network_handler, char *username, char *message) {
     char *full_message = NULL;
-    safe_asprintf(&full_message, "<%s> %s", username, message);
+    safe_asprintf(&full_message, "%s%s", _chat_get_prefix(username).c_str(), message);
     sanitize_string(&full_message, MAX_CHAT_MESSAGE_LENGTH, 0);
     std::string cpp_string = full_message;
     free(full_message);
@@ -123,5 +123,8 @@ void init_chat() {
         // Init UI
         _init_chat_ui();
 #endif
+        // Disable Built-In Chat Message Limiting
+        unsigned char message_limit_patch[4] = {0x03, 0x00, 0x53, 0xe1}; // "cmp r4, r4"
+        patch((void *) 0x6b4c0, message_limit_patch);
     }
 }

@@ -76,6 +76,7 @@ set(SRC
     src/level/ServerLevel.def
     src/level/Dimension.def
     src/level/MultiPlayerLevel.def
+    src/level/LevelSummary.def
     src/item/ItemRenderer.def
     src/item/ItemInHandRenderer.def
     src/item/AuxDataTileItem.def
@@ -100,6 +101,7 @@ set(SRC
     src/gui/screens/StartMenuScreen.def
     src/gui/screens/ProgressScreen.def
     src/gui/screens/Touch_SelectWorldScreen.def
+    src/gui/screens/ScreenChooser.def
     src/gui/Font.def
     src/gui/components/ImageButton.def
     src/gui/components/OptionButton.def
@@ -142,6 +144,7 @@ set(SRC
     src/misc/Config.def
     src/misc/Random.def
     src/misc/Mth.def
+    src/misc/Util.def
     src/input/IMoveInput.def
     src/input/IBuildInput.def
     src/input/MouseBuildInput.def

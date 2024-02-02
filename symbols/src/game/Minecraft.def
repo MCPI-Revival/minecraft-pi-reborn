@@ -41,6 +41,7 @@ property int progress = 0xc60;
 property PerfRenderer *perf_renderer = 0xcbc;
 property CommandServer *command_server = 0xcc0;
 property Font *font = 0x16c;
+property ScreenChooser screen_chooser = 0x168;
 
 // Smooth Lighting
 static-property bool useAmbientOcclusion = 0x136b90;

@@ -2,6 +2,7 @@
 
 #include <mods/feature/feature.h>
 #include <mods/init/init.h>
+#include <mods/touch/touch.h>
 
 #include <symbols/minecraft.h>
 
@@ -40,9 +41,27 @@ static void LargeImageButton_render_GuiComponent_drawCenteredString_injection(Gu
     GuiComponent_drawCenteredString(component, font, text, x, y, color);
 }
 
+// Create Button
+static int touch_gui = 0;
+Button *touch_create_button(int id, std::string text) {
+    Button *button = nullptr;
+    if (touch_gui) {
+        button = (Button *) new Touch_TButton;
+    } else {
+        button = new Button;
+    }
+    ALLOC_CHECK(button);
+    if (touch_gui) {
+        Touch_TButton_constructor((Touch_TButton *) button, id, &text);
+    } else {
+        Button_constructor(button, id, &text);
+    }
+    return button;
+}
+
 // Init
 void init_touch() {
-    int touch_gui = feature_has("Full Touch GUI", server_disabled);
+    touch_gui = feature_has("Full Touch GUI", server_disabled);
     int touch_buttons = touch_gui;
     if (touch_gui) {
         // Main UI

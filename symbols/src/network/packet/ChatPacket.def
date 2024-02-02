@@ -1,3 +1,5 @@
 extends Packet;
 
+vtable 0x108a98;
+
 property char *message = 0xc;

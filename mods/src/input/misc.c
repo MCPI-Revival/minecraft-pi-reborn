@@ -35,7 +35,7 @@ static void _handle_back(Minecraft *minecraft) {
 }
 
 // Fix OptionsScreen Ignoring The Back Button
-static int32_t OptionsScreen_handleBackEvent_injection(OptionsScreen *screen, bool do_nothing) {
+static bool OptionsScreen_handleBackEvent_injection(OptionsScreen *screen, bool do_nothing) {
     if (!do_nothing) {
         Minecraft *minecraft = screen->minecraft;
         Minecraft_setScreen(minecraft, NULL);

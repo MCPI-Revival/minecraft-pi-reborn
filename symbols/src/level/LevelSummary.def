@@ -1,0 +1,7 @@
+size 0x14;
+
+property std::string folder = 0x0;
+property std::string name = 0x4;
+property int seed = 0x8;
+property int game_mode = 0xc;
+property int param_5 = 0x10;

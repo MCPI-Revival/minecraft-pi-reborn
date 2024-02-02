@@ -4,230 +4,223 @@
 // Game Mode UI Code Is Useless In Headless Mode
 #ifndef MCPI_SERVER_MODE
 
-#include <pthread.h>
-#include <cstring>
-#include <ctime>
 #include <string>
-#include <stdexcept>
+#include <set>
 
 #include <symbols/minecraft.h>
-#include <media-layer/core.h>
 
+#include <mods/text-input-box/TextInputScreen.h>
+#include <mods/touch/touch.h>
 #include "game-mode-internal.h"
 
-// Run Command
-static char *run_command_proper(const char *command[], bool allow_empty) {
-    // Run
-    int return_code;
-    char *output = run_command(command, &return_code, NULL);
+// Strings
+#define GAME_MODE_STR(mode) ("Game Mode: " mode)
+#define SURVIVAL_STR GAME_MODE_STR("Survival")
+#define CREATIVE_STR GAME_MODE_STR("Creative")
 
-    // Handle Message
-    if (output != NULL) {
-        // Check Return Code
-        if (is_exit_status_success(return_code)) {
-            // Remove Ending Newline
-            int length = strlen(output);
-            if (output[length - 1] == '\n') {
-                output[length - 1] = '\0';
-            }
-            length = strlen(output);
-            // Don't Allow Empty Strings
-            if (allow_empty || length > 0) {
-                // Return
-                return output;
-            }
-        }
-        // Free Output
-        free(output);
-    }
-    // Return
-    return !is_exit_status_success(return_code) ? NULL : run_command_proper(command, allow_empty);
-}
-
-// Track Create World State
-static pthread_mutex_t create_world_state_lock = PTHREAD_MUTEX_INITIALIZER;
-typedef enum {
-    DIALOG_CLOSED,
-    DIALOG_OPEN,
-    DIALOG_SUCCESS
-} create_world_state_dialog_t;
-struct create_world_state_t {
-    volatile create_world_state_dialog_t dialog_state = DIALOG_CLOSED;
-    volatile char *name = NULL;
-    volatile int32_t game_mode = 0;
-    volatile int32_t seed = 0;
+// Structure
+struct CreateWorldScreen {
+    TextInputScreen super;
+    TextInputBox *name;
+    TextInputBox *seed;
+    Button *game_mode;
+    Button *create;
+    Button *back;
 };
-static create_world_state_t create_world_state;
-// Destructor
-__attribute__((destructor)) static void _free_create_world_state_name() {
-    free((void *) create_world_state.name);
-}
-
-// Reset State (Assume Lock)
-static void reset_create_world_state() {
-    create_world_state.dialog_state = DIALOG_CLOSED;
-    if (create_world_state.name != NULL) {
-        free((void *) create_world_state.name);
-    }
-    create_world_state.name = NULL;
-    create_world_state.game_mode = 0;
-    create_world_state.seed = 0;
-}
-
-// Chat Thread
-#define DEFAULT_WORLD_NAME "Unnamed world"
-#define DIALOG_TITLE "Create World"
-#define GAME_MODE_DIALOG_SIZE "200"
-static void *create_world_thread(__attribute__((unused)) void *nop) {
-    // Run Dialogs
-    char *world_name = NULL;
-    {
-        // World Name
-        {
-            // Open
-            const char *command[] = {
-                "zenity",
-                "--title", DIALOG_TITLE,
-                "--name", MCPI_APP_ID,
-                "--entry",
-                "--text", "Enter World Name:",
-                "--entry-text", DEFAULT_WORLD_NAME,
-                NULL
-            };
-            char *output = run_command_proper(command, false);
-            // Handle Message
-            if (output != NULL) {
-                // Store
-                world_name = strdup(output);
-                ALLOC_CHECK(world_name);
-                // Free
-                free(output);
-            } else {
-                // Fail
-                goto fail;
-            }
-        }
-
-        // Game Mode
-        int game_mode = 0;
-        {
-            // Open
-            const char *command[] = {
-                "zenity",
-                "--title", DIALOG_TITLE,
-                "--name", MCPI_APP_ID,
-                "--list",
-                "--radiolist",
-                "--width", GAME_MODE_DIALOG_SIZE,
-                "--height", GAME_MODE_DIALOG_SIZE,
-                "--text", "Select Game Mode:",
-                "--column","Selected",
-                "--column", "Name",
-                "TRUE", "Creative",
-                "FALSE", "Survival",
-                NULL
-            };
-            char *output = run_command_proper(command, false);
-            // Handle Message
-            if (output != NULL) {
-                // Store
-                game_mode = strcmp(output, "Creative") == 0;
-                // Free
-                free(output);
-            } else {
-                // Fail
-                goto fail;
-            }
-        }
-
+static void create_world(Minecraft *minecraft, std::string name, bool is_creative, std::string seed);
+CUSTOM_VTABLE(create_world_screen, Screen) {
+    TextInputScreen::setup(vtable);
+    // Constants
+    static int line_height = 8;
+    static int bottom_padding = 4;
+    static int inner_padding = 4;
+    static int description_padding = 4;
+    static int title_padding = 8;
+    // Init
+    static Screen_init_t original_init = vtable->init;
+    vtable->init = [](Screen *super) {
+        original_init(super);
+        CreateWorldScreen *self = (CreateWorldScreen *) super;
+        // Name
+        self->name = TextInputBox::create("World Name", "Unnamed world");
+        self->super.m_textInputs->push_back(self->name);
+        self->name->init(super->font);
+        self->name->setFocused(true);
         // Seed
-        int32_t seed = 0;
- get_seed:
-        {
-            // Open
-            const char *command[] = {
-                "zenity",
-                "--title", DIALOG_TITLE,
-                "--name", MCPI_APP_ID,
-                "--entry",
-                "--only-numerical",
-                "--text", "Enter Seed (Leave Blank For Random):",
-                NULL
-            };
-            char *output = run_command_proper(command, true);
-            // Handle Message
-            if (output != NULL) {
-                // Store
-                bool valid = true;
-                try {
-                    seed = strlen(output) == 0 ? time(NULL) : std::stoi(output);
-                } catch (std::invalid_argument &e) {
-                    // Invalid Seed
-                    WARN("Invalid Seed: %s", output);
-                    valid = false;
-                } catch (std::out_of_range &e) {
-                    // Out-Of-Range Seed
-                    WARN("Seed Out-Of-Range: %s", output);
-                    valid = false;
-                }
-                // Free
-                free(output);
-                // Retry If Invalid
-                if (!valid) {
-                    goto get_seed;
-                }
-            } else {
-                // Fail
-                goto fail;
-            }
+        self->seed = TextInputBox::create("Seed");
+        self->super.m_textInputs->push_back(self->seed);
+        self->seed->init(super->font);
+        self->seed->setFocused(false);
+        // Game Mode
+        self->game_mode = touch_create_button(1, CREATIVE_STR);
+        super->rendered_buttons.push_back(self->game_mode);
+        super->selectable_buttons.push_back(self->game_mode);
+        // Create
+        self->create = touch_create_button(2, "Create");
+        super->rendered_buttons.push_back(self->create);
+        super->selectable_buttons.push_back(self->create);
+        // Back
+        self->back = touch_create_button(3, "Back");
+        super->rendered_buttons.push_back(self->back);
+        super->selectable_buttons.push_back(self->back);
+    };
+    // Removal
+    static Screen_removed_t original_removed = vtable->removed;
+    vtable->removed = [](Screen *super) {
+        original_removed(super);
+        CreateWorldScreen *self = (CreateWorldScreen *) super;
+        delete self->name;
+        delete self->seed;
+        self->game_mode->vtable->destructor_deleting(self->game_mode);
+        self->back->vtable->destructor_deleting(self->back);
+        self->create->vtable->destructor_deleting(self->create);
+    };
+    // Rendering
+    static Screen_render_t original_render = vtable->render;
+    vtable->render = [](Screen *super, int x, int y, float param_1) {
+        // Background
+        super->vtable->renderBackground(super);
+        // Call Original Method
+        original_render(super, x, y, param_1);
+        // Title
+        std::string title = "Create world";
+        Screen_drawCenteredString(super, super->font, &title, super->width / 2, title_padding, 0xffffffff);
+        // Game Mode Description
+        CreateWorldScreen *self = (CreateWorldScreen *) super;
+        bool is_creative = self->game_mode->text == CREATIVE_STR;
+        std::string description = is_creative ? Strings_creative_mode_description : Strings_survival_mode_description;
+        Screen_drawString(super, super->font, &description, self->game_mode->x, self->game_mode->y + self->game_mode->height + description_padding, 0xa0a0a0);
+    };
+    // Positioning
+    vtable->setupPositions = [](Screen *super) {
+        Screen_setupPositions_non_virtual(super);
+        CreateWorldScreen *self = (CreateWorldScreen *) super;
+        // Height/Width
+        int width = 120;
+        int height = 24;
+        self->create->width = self->back->width = self->game_mode->width = width;
+        int seed_width = self->game_mode->width;
+        int name_width = width * 1.5f;
+        self->create->height = self->back->height = self->game_mode->height = height;
+        int text_box_height = self->game_mode->height;
+        // Find Center Y
+        int top = (title_padding * 2) + line_height;
+        int bottom = super->height - self->create->height - (bottom_padding * 2);
+        int center_y = ((bottom - top) / 2) + top;
+        center_y -= (description_padding + line_height) / 2;
+        // X/Y
+        self->create->y = self->back->y = super->height - bottom_padding - height;
+        self->create->x = self->game_mode->x = (super->width / 2) - inner_padding - width;
+        self->back->x = (super->width / 2) + inner_padding;
+        int seed_x = self->back->x;
+        int name_x = (super->width / 2) - (name_width / 2);
+        int name_y = center_y - inner_padding - height;
+        self->game_mode->y = center_y + inner_padding;
+        int seed_y = self->game_mode->y;
+        // Update Text Boxes
+        self->name->setSize(name_x, name_y, name_width, text_box_height);
+        self->seed->setSize(seed_x, seed_y, seed_width, text_box_height);
+    };
+    // ESC
+    vtable->handleBackEvent = [](Screen *super, bool do_nothing) {
+        if (!do_nothing) {
+            ScreenChooser_setScreen(&super->minecraft->screen_chooser, 5);
         }
+        return true;
+    };
+    // Button Click
+    vtable->buttonClicked = [](Screen *super, Button *button) {
+        CreateWorldScreen *self = (CreateWorldScreen *) super;
+        bool is_creative = self->game_mode->text == CREATIVE_STR;
+        if (button == self->game_mode) {
+            // Toggle Game Mode
+            self->game_mode->text = is_creative ? SURVIVAL_STR : CREATIVE_STR;
+        } else if (button == self->back) {
+            // Back
+            super->vtable->handleBackEvent(super, false);
+        } else if (button == self->create) {
+            // Create
+            create_world(super->minecraft, self->name->getText(), is_creative, self->seed->getText());
+        }
+    };
+}
+static Screen *create_create_world_screen() {
+    // Construct
+    CreateWorldScreen *screen = new CreateWorldScreen;
+    ALLOC_CHECK(screen);
+    Screen_constructor(&screen->super.super);
 
-        // Update State
-        pthread_mutex_lock(&create_world_state_lock);
-        reset_create_world_state();
-        create_world_state.dialog_state = DIALOG_SUCCESS;
-        char *safe_name = to_cp437(world_name);
-        create_world_state.name = safe_name;
-        free(world_name);
-        create_world_state.game_mode = game_mode;
-        create_world_state.seed = seed;
-        pthread_mutex_unlock(&create_world_state_lock);
-        // Return
-        return NULL;
-    }
+    // Set VTable
+    screen->super.super.vtable = get_create_world_screen_vtable();
 
- fail:
-    // Update State
-    pthread_mutex_lock(&create_world_state_lock);
-    reset_create_world_state();
-    pthread_mutex_unlock(&create_world_state_lock);
-    free(world_name);
     // Return
-    return NULL;
+    return (Screen *) screen;
 }
 
-// Create Chat Thead
-static void open_create_world() {
-    // Update State (Assume Lock)
-    create_world_state.dialog_state = DIALOG_OPEN;
-    // Start Thread
-    pthread_t thread;
-    pthread_create(&thread, NULL, create_world_thread, NULL);
+// Unique Level Name (https://github.com/ReMinecraftPE/mcpe/blob/d7a8b6baecf8b3b050538abdbc976f690312aa2d/source/client/gui/screens/CreateWorldScreen.cpp#L65-L83)
+static std::string getUniqueLevelName(LevelStorageSource *source, const std::string &in) {
+    std::set<std::string> maps;
+    std::vector<LevelSummary> vls;
+    source->vtable->getLevelList(source, &vls);
+    for (int i = 0; i < int(vls.size()); i++) {
+        const LevelSummary &ls = vls[i];
+        maps.insert(ls.folder);
+    }
+    std::string out = in;
+    while (maps.find(out) != maps.end()) {
+        out += "-";
+    }
+    return out;
 }
 
 // Create World
-static void create_world(Screen *host_screen, std::string folder_name) {
-    // Get Minecraft
-    Minecraft *minecraft = host_screen->minecraft;
+static void create_world(Minecraft *minecraft, std::string name, bool is_creative, std::string seed_str) {
+    // Get Seed
+    int seed;
+    seed_str = Util_stringTrim(&seed_str);
+    if (!seed_str.empty()) {
+        int num;
+        if (sscanf(seed_str.c_str(), "%d", &num) > 0) {
+            seed = num;
+        } else {
+            seed = Util_hashCode(&seed_str);
+        }
+    } else {
+        seed = Common_getEpochTimeS();
+    }
+
+    // Get Folder Name
+    name = Util_stringTrim(&name);
+    std::string folder = "";
+    for (char c : name) {
+        if (
+            c >= ' ' && c <= '~' &&
+            c != '/' &&
+            c != '\\' &&
+            c != '`' &&
+            c != '?' &&
+            c != '*' &&
+            c != '<' &&
+            c != '>' &&
+            c != '|' &&
+            c != '"' &&
+            c != ':'
+        ) {
+            folder += c;
+        }
+    }
+    if (folder.empty()) {
+        folder = "World";
+    }
+    folder = getUniqueLevelName(Minecraft_getLevelSource(minecraft), folder);
 
     // Settings
     LevelSettings settings;
-    settings.game_type = create_world_state.game_mode;
-    settings.seed = create_world_state.seed;
+    settings.game_type = is_creative;
+    settings.seed = seed;
 
     // Create World
-    std::string world_name = (char *) create_world_state.name;
-    minecraft->vtable->selectLevel(minecraft, &folder_name, &world_name, &settings);
+    minecraft->vtable->selectLevel(minecraft, &folder, &name, &settings);
 
     // Multiplayer
     Minecraft_hostMultiplayer(minecraft, 19132);
@@ -237,55 +230,20 @@ static void create_world(Screen *host_screen, std::string folder_name) {
     ALLOC_CHECK(screen);
     screen = ProgressScreen_constructor(screen);
     Minecraft_setScreen(minecraft, (Screen *) screen);
-
-    // Reset
-    reset_create_world_state();
 }
 
 // Redirect Create World Button
 #define create_SelectWorldScreen_tick_injection(prefix) \
     static void prefix##SelectWorldScreen_tick_injection(prefix##SelectWorldScreen *screen) { \
-        /* Lock */ \
-        pthread_mutex_lock(&create_world_state_lock); \
-        \
-        bool *should_create_world = &screen->should_create_world; \
-        if (*should_create_world) { \
-            /* Check State */ \
-            if (create_world_state.dialog_state == DIALOG_CLOSED) { \
-                /* Open Dialog */ \
-                open_create_world(); \
-            } \
-            \
+        if (screen->should_create_world) { \
+            /* Open Screen */ \
+            Minecraft_setScreen(screen->minecraft, create_create_world_screen()); \
             /* Finish */ \
-            *should_create_world = false; \
+            screen->should_create_world = false; \
         } else { \
             /* Call Original Method */ \
             prefix##SelectWorldScreen_tick_non_virtual(screen); \
         } \
-        \
-        /* Create World If Dialog Succeeded */ \
-        if (create_world_state.dialog_state == DIALOG_SUCCESS) { \
-            /* Create World Dialog Finished */ \
-            \
-            /* Get New World Name */ \
-            std::string name = (char *) create_world_state.name; \
-            std::string new_name = prefix##SelectWorldScreen_getUniqueLevelName(screen, &name); \
-            \
-            /* Create World */ \
-            create_world((Screen *) screen, new_name); \
-        } \
-        \
-        /* Lock/Unlock UI */ \
-        if (create_world_state.dialog_state != DIALOG_OPEN) { \
-            /* Dialog Closed, Unlock UI */ \
-            media_set_interactable(1); \
-        } else { \
-            /* Dialog Open, Lock UI */ \
-            media_set_interactable(0); \
-        } \
-        \
-        /* Unlock */ \
-        pthread_mutex_unlock(&create_world_state_lock); \
     }
 create_SelectWorldScreen_tick_injection()
 create_SelectWorldScreen_tick_injection(Touch_)

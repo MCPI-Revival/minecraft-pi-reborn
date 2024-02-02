@@ -219,7 +219,7 @@ static void glfw_char(__attribute__((unused)) GLFWwindow *window, unsigned int c
         memset(str, 0, str_size);
         codepoint_to_utf8((unsigned char *) str, codepoint);
         char *cp437_str = to_cp437(str);
-        // Send Event·
+        // Send Event
         for (int i = 0; cp437_str[i] != '\0'; i++) {
             character_event(cp437_str[i]);
         }
