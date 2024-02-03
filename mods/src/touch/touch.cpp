@@ -29,7 +29,7 @@ static int32_t Button_hovered_injection(__attribute__((unused)) Button *button, 
     int32_t button_y2 = button_y1 + button->height;
 
     // Check
-    return x >= button_x1 && x <= button_x2 && y >= button_y1 && y <= button_y2;
+    return x >= button_x1 && x < button_x2 && y >= button_y1 && y < button_y2;
 }
 static void LargeImageButton_render_GuiComponent_drawCenteredString_injection(GuiComponent *component, Font *font, std::string *text, int32_t x, int32_t y, int32_t color) {
     // Change Color On Hover
