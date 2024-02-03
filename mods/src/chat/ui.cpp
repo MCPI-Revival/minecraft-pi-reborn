@@ -111,19 +111,17 @@ static Screen *create_chat_screen() {
     return (Screen *) screen;
 }
 
-// Open Screen
-static bool open_chat_screen = false;
-void chat_open() {
-    open_chat_screen = true;
-}
-
 // Init
 void _init_chat_ui() {
-    misc_run_on_tick([](Minecraft *minecraft) {
-        if (open_chat_screen && Minecraft_isLevelGenerated(minecraft) && minecraft->screen == NULL) {
-            Minecraft_setScreen(minecraft, create_chat_screen());
+    misc_run_on_game_key_press([](Minecraft *minecraft, int key) {
+        if (key == 0x54) {
+            if (Minecraft_isLevelGenerated(minecraft) && minecraft->screen == NULL) {
+                Minecraft_setScreen(minecraft, create_chat_screen());
+            }
+            return true;
+        } else {
+            return false;
         }
-        open_chat_screen = false;
     });
 }
 

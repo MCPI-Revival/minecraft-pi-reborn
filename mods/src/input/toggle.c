@@ -4,40 +4,29 @@
 #include "input-internal.h"
 #include <mods/input/input.h>
 #include <mods/feature/feature.h>
-
-// Enable Toggles
-static int enable_toggles = 0;
-
-// Store Function Input
-static int hide_gui_toggle = 0;
-void input_hide_gui() {
-    hide_gui_toggle++;
-}
-static int third_person_toggle = 0;
-void input_third_person() {
-    third_person_toggle++;
-}
+#include <mods/misc/misc.h>
 
 // Handle Toggle Options
-static void _handle_toggle_options(Minecraft *minecraft) {
-    if (enable_toggles) {
-        // Handle Functions
-        Options *options = &minecraft->options;
-        if (hide_gui_toggle % 2 != 0) {
-            // Toggle Hide GUI
-            options->hide_gui = options->hide_gui ^ 1;
-        }
-        hide_gui_toggle = 0;
-        if (third_person_toggle % 2 != 0) {
-            // Toggle Third Person
-            options->third_person = (options->third_person + 1) % 3;
-        }
-        third_person_toggle = 0;
-        // Fix Broken Value From Third-Person OptionsButton Toggle
-        // (Because Front-Facing Code Repurposes A Boolean As A Ternary)
-        if (options->third_person == 3) {
-            options->third_person = 0;
-        }
+static bool _handle_toggle_options(Minecraft *minecraft, int key) {
+    Options *options = &minecraft->options;
+    if (key == 0x70) {
+        // Toggle Hide GUI
+        options->hide_gui = options->hide_gui ^ 1;
+        return 1;
+    } else if (key == 0x74) {
+        // Toggle Third Person
+        options->third_person = (options->third_person + 1) % 3;
+        return 1;
+    } else {
+        return 0;
+    }
+}
+static void _fix_third_person(Minecraft *minecraft) {
+    // Fix Broken Value From Third-Person OptionsButton Toggle
+    // (Because Front-Facing Code Repurposes A Boolean As A Ternary)
+    Options *options = &minecraft->options;
+    if (options->third_person == 3) {
+        options->third_person = 0;
     }
 }
 
@@ -99,11 +88,11 @@ static void ParticleEngine_render_injection(ParticleEngine *particle_engine, Ent
 
 // Init
 void _init_toggle() {
-    enable_toggles = feature_has("Bind Common Toggleable Options To Function Keys", server_disabled);
-    input_run_on_tick(_handle_toggle_options);
+    if (feature_has("Bind Common Toggleable Options To Function Keys", server_disabled)) {
+        misc_run_on_game_key_press(_handle_toggle_options);
+        misc_run_on_update(_fix_third_person);
 
-    // Font-Facing View
-    if (enable_toggles) {
+        // Font-Facing View
         overwrite_calls((void *) GameRenderer_setupCamera, (void *) GameRenderer_setupCamera_injection);
         overwrite_calls((void *) ParticleEngine_render, (void *) ParticleEngine_render_injection);
     }

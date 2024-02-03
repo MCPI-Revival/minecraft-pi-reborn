@@ -7,18 +7,20 @@
 #include "misc-internal.h"
 
 // Callbacks
-#define SETUP_CALLBACK(name, type) \
-static std::vector<misc_update_function_##type##_t> &get_misc_##name##_functions() { \
+#define STORE_CALLBACK(name, type) \
+    static std::vector<misc_update_function_##type##_t> &get_misc_##name##_functions() { \
         static std::vector<misc_update_function_##type##_t> functions; \
         return functions; \
     } \
+    void misc_run_on_##name(misc_update_function_##type##_t function) { \
+        get_misc_##name##_functions().push_back(function); \
+    }
+#define SETUP_CALLBACK(name, type) \
+    STORE_CALLBACK(name, type) \
     static void handle_misc_##name(type *obj) { \
         for (misc_update_function_##type##_t function : get_misc_##name##_functions()) { \
             function(obj); \
         } \
-    } \
-    void misc_run_on_##name(misc_update_function_##type##_t function) { \
-        get_misc_##name##_functions().push_back(function); \
     }
 
 // Run Functions On Update
@@ -103,6 +105,27 @@ static void Item_initItems_injection() {
     Item_initItems();
 }
 
+// Run Functions On GUI Key Press
+STORE_CALLBACK(game_key_press, key_press)
+static bool handle_misc_game_key_press(Minecraft *minecraft, int key) {
+    for (misc_update_function_key_press_t function : get_misc_game_key_press_functions()) {
+        if (function(minecraft, key)) {
+            return true;
+        }
+    }
+    return false;
+}
+// Handle Key Presses
+static void Gui_handleKeyPressed_injection(Gui *self, int key) {
+    // Run Functions
+    if (handle_misc_game_key_press(self->minecraft, key)) {
+        return;
+    }
+
+    // Call Original Method
+    Gui_handleKeyPressed(self, key);
+}
+
 // Init
 void _init_misc_api() {
     // Handle Custom Update Behavior
@@ -117,4 +140,6 @@ void _init_misc_api() {
     // Handle Custom Item/Tile Init Behavior
     overwrite_calls((void *) Tile_initTiles, (void *) Tile_initTiles_injection);
     overwrite_calls((void *) Item_initItems, (void *) Item_initItems_injection);
+    // Handle Key Presses
+    overwrite_calls((void *) Gui_handleKeyPressed, (void *) Gui_handleKeyPressed_injection);
 }

@@ -19,6 +19,10 @@ static int32_t sdl_key_to_minecraft_key_injection(int32_t sdl_key) {
         return 0x25;
     } else if (sdl_key == SDLK_RIGHT) {
         return 0x27;
+    } else if (sdl_key == SDLK_F1) {
+        return 0x70;
+    } else if (sdl_key == SDLK_F5) {
+        return 0x74;
     } else {
         // Call Original Method
         return Common_sdl_key_to_minecraft_key(sdl_key);

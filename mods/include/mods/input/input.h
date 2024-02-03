@@ -10,8 +10,6 @@ typedef void (*input_tick_function_t)(Minecraft *minecraft);
 void input_run_on_tick(input_tick_function_t function);
 
 void input_set_is_right_click(int val);
-void input_hide_gui();
-void input_third_person();
 int input_back();
 void input_drop(int drop_slot);
 void input_open_crafting();

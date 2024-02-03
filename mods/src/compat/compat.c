@@ -63,15 +63,6 @@ HOOK(SDL_PollEvent, int, (SDL_Event *event)) {
                 } else if (event->key.keysym.sym == SDLK_F2) {
                     screenshot_take(home_get());
                     handled = 1;
-                } else if (event->key.keysym.sym == SDLK_F1) {
-                    input_hide_gui();
-                    handled = 1;
-                } else if (event->key.keysym.sym == SDLK_F5) {
-                    input_third_person();
-                    handled = 1;
-                } else if (event->key.keysym.sym == SDLK_t) {
-                    chat_open();
-                    handled = 1;
                 } else if (event->key.keysym.sym == SDLK_ESCAPE) {
                     // Treat Escape As Back Button Press (This Fixes Issues With Signs)
                     handled = input_back();
