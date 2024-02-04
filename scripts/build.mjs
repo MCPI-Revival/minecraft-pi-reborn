@@ -89,7 +89,7 @@ const variant = readArg(Variants, 'Variant');
 // Build Architecture
 const architecture = readArg(Architectures, 'Architecture');
 // Flatpak Builds Work Best Without Custom Toolchains
-if (packageType === PackageTypes.Flatpak && architecture !== Architecture.Host) {
+if (packageType === PackageTypes.Flatpak && architecture !== Architectures.Host) {
     err('Flatpak Builds Do Not Support Custom Toolchains');
 }
 
