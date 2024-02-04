@@ -136,7 +136,11 @@ function updateDir(dir) {
     return path.join(dir, variant.name, architecture.name);
 }
 build = updateDir(build);
-out = updateDir(out);
+let cleanOut = false;
+if (packageType === PackageTypes.None) {
+    cleanOut = true;
+    out = updateDir(out);
+}
 
 // Configure Build Options
 function toCmakeBool(val) {
@@ -150,9 +154,6 @@ if (architecture !== Architectures.Host) {
 } else {
     delete options['CMAKE_TOOLCHAIN_FILE'];
 }
-if (packageType === PackageTypes.AppImage) {
-    options['CPACK_PACKAGE_DIRECTORY'] = out;
-}
 
 // Make Build Directory
 function createDir(dir, clean) {
@@ -163,7 +164,7 @@ function createDir(dir, clean) {
 }
 createDir(build, clean);
 if (!install) {
-    createDir(out, true);
+    createDir(out, cleanOut);
 }
 
 // Run CMake
@@ -193,4 +194,14 @@ if (packageType !== PackageTypes.AppImage) {
     run(['cmake', '--install', '.']);
 } else {
     run(['cmake', '--build', '.', '--target', 'package']);
+    // Copy Generated Files
+    const files = fs.readdirSync(build);
+    for (const file of files) {
+        if (file.includes('.AppImage')) {
+            info('Copying: ' + file);
+            const src = path.join(build, file);
+            const dst = path.join(out, file);
+            fs.copyFileSync(src, dst);
+        }
+    }
 }

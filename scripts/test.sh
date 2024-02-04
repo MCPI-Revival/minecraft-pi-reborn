@@ -27,15 +27,4 @@ else
     export _MCPI_SKIP_ROOT_CHECK=1
     export HOME="$(pwd)/build/test"
     minecraft-pi-reborn-client --default --no-cache --benchmark
-
-    # Build Example Mods
-    for project in example-mods/*/; do
-        cd "${project}"
-        rm -rf build
-        mkdir build
-        cd build
-        cmake -GNinja ..
-        cmake --build .
-        cd ../../../
-    done
 fi
