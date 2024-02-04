@@ -82,6 +82,7 @@ jobs:
           - name: Build SDK
             run: |
                 ./scripts/build.mjs none client host
+                export _MCPI_SKIP_ROOT_CHECK=1
                 ./out/client/host/usr/bin/minecraft-pi-reborn-client --copy-sdk
           # Build Example Mods
           - name: Build Example Mods

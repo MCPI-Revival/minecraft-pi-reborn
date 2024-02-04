@@ -94,7 +94,7 @@ if (packageType === PackageTypes.Flatpak && architecture !== Architecture.Host) 
 }
 
 // CMake Build Options
-const options = {};
+const options = new Map();
 
 // Other Arguments
 let clean = false;
@@ -113,7 +113,7 @@ for (; argIndex < process.argv.length; argIndex++) {
         if (!/^[a-zA-Z_]+$/.test(name) || name.length === 0) {
             err('Invalid Build Option Name: ' + name);
         }
-        options[name] = value;
+        options.set(name, value);
     } else if (arg === '--clean') {
         // Remove Existing Build Directory
         clean = true;
@@ -137,7 +137,8 @@ function updateDir(dir) {
 }
 build = updateDir(build);
 let cleanOut = false;
-if (packageType === PackageTypes.None) {
+// AppImages Are Placed Directly In ./out
+if (packageType !== PackageTypes.AppImage) {
     cleanOut = true;
     out = updateDir(out);
 }
@@ -146,13 +147,13 @@ if (packageType === PackageTypes.None) {
 function toCmakeBool(val) {
     return val ? 'ON' : 'OFF';
 }
-options['MCPI_SERVER_MODE'] = toCmakeBool(variant === Variants.Server);
-options['MCPI_IS_APPIMAGE_BUILD'] = toCmakeBool(packageType === PackageTypes.AppImage);
-options['MCPI_IS_FLATPAK_BUILD'] = toCmakeBool(packageType === PackageTypes.Flatpak);
+options.set('MCPI_SERVER_MODE', toCmakeBool(variant === Variants.Server));
+options.set('MCPI_IS_APPIMAGE_BUILD', toCmakeBool(packageType === PackageTypes.AppImage));
+options.set('MCPI_IS_FLATPAK_BUILD', toCmakeBool(packageType === PackageTypes.Flatpak));
 if (architecture !== Architectures.Host) {
-    options['CMAKE_TOOLCHAIN_FILE'] = path.join(root, 'cmake', 'toolchain', architecture.name + '-toolchain.cmake');
+    options.set('CMAKE_TOOLCHAIN_FILE', path.join(root, 'cmake', 'toolchain', architecture.name + '-toolchain.cmake'));
 } else {
-    delete options['CMAKE_TOOLCHAIN_FILE'];
+    options.delete('CMAKE_TOOLCHAIN_FILE');
 }
 
 // Make Build Directory
@@ -177,9 +178,9 @@ function run(command) {
     }
 }
 const cmake = ['cmake', '-GNinja'];
-for (const option in options) {
-    cmake.push(`-D${option}=${options[option]}`);
-}
+options.forEach((value, key, map) => {
+    cmake.push(`-D${key}=${value}`);
+});
 cmake.push(root);
 run(cmake);
 
