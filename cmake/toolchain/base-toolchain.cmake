@@ -9,6 +9,7 @@ macro(setup_toolchain target)
     add_target_variant(unknown)
     add_target_variant(none)
     add_target_variant(pc)
+
     # Find Compiler
     macro(find_compiler output name)
         set(possible_names "")
@@ -26,13 +27,11 @@ macro(setup_toolchain target)
     endmacro()
     find_compiler(CMAKE_C_COMPILER "gcc")
     find_compiler(CMAKE_CXX_COMPILER "g++")
+
     # Extra
     set(CMAKE_FIND_ROOT_PATH_MODE_PROGRAM NEVER)
     # Custom Search Paths
-    if(NOT DEFINED ENV{MCPI_TOOLCHAIN_USE_DEFAULT_SEARCH_PATHS})
-        # Find Root
-        set(CMAKE_FIND_ROOT_PATH "/usr/${target}" "/usr/lib/${target}" "/usr")
-        # pkg-config
-        set(ENV{PKG_CONFIG_LIBDIR} "/usr/lib/${target}/pkgconfig:/usr/${target}/lib/pkgconfig:/usr/lib/pkgconfig:/usr/share/pkgconfig")
-    endif()
+    set(CMAKE_FIND_ROOT_PATH "/usr/${target}" "/usr/lib/${target}" "/usr")
+    # pkg-config
+    set(ENV{PKG_CONFIG_LIBDIR} "/usr/lib/${target}/pkgconfig:/usr/${target}/lib/pkgconfig:/usr/lib/pkgconfig:/usr/share/pkgconfig")
 endmacro()

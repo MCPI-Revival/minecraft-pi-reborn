@@ -34,12 +34,12 @@ jobs:
             run: ./scripts/install-dependencies.sh ${{ matrix.arch }}
           # Build
           - name: Build
-            run: ./scripts/package.sh ${{ matrix.mode }} ${{ matrix.arch }}
+            run: ./scripts/build.mjs appimage ${{ matrix.mode }} ${{ matrix.arch }}
           - name: Upload Artifacts
             uses: actions/upload-artifact@v3
             with:
                 name: ${{ matrix.mode }}-${{ matrix.arch }}
-                path: ./out/*.AppImage*
+                path: ./out/**/*.AppImage*
     # Test Project
     test:
         strategy:

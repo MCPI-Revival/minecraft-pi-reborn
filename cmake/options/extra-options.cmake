@@ -2,6 +2,9 @@
 mcpi_option(OPEN_SOURCE_ONLY "Only Install Open-Source Code (Will Result In Broken Install)" BOOL FALSE)
 mcpi_option(IS_APPIMAGE_BUILD "AppImage Build" BOOL FALSE)
 mcpi_option(IS_FLATPAK_BUILD "Flatpak Build" BOOL FALSE)
+if(MCPI_IS_APPIMAGE_BUILD AND MCPI_IS_FLATPAK_BUILD)
+    message(FATAL_ERROR "Invalid Build Configuration")
+endif()
 
 # Server/Headless Builds
 mcpi_option(SERVER_MODE "Server Mode" BOOL FALSE)
@@ -61,3 +64,13 @@ mcpi_option(APP_TITLE "App Title" STRING "${DEFAULT_APP_TITLE}")
 
 # Skin Server
 mcpi_option(SKIN_SERVER "Skin Server" STRING "https://raw.githubusercontent.com/MCPI-Revival/Skins/data")
+
+# QEMU
+if(BUILD_NATIVE_COMPONENTS)
+    include(CheckSymbolExists)
+    check_symbol_exists("__ARM_ARCH" "" MCPI_IS_ARM32_OR_ARM64_TARGETING)
+    set(MCPI_USE_QEMU TRUE)
+    if(MCPI_IS_ARM32_OR_ARM64_TARGETING)
+        set(MCPI_USE_QEMU FALSE)
+    endif()
+endif()

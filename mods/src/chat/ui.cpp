@@ -28,7 +28,7 @@ CUSTOM_VTABLE(chat_screen, Screen) {
         self->super.m_textInputs->push_back(self->chat);
         self->chat->init(super->font);
         self->chat->setFocused(true);
-        // Determien Max Length
+        // Determine Max Length
         std::string prefix = _chat_get_prefix(Strings_default_username);
         int max_length = MAX_CHAT_MESSAGE_LENGTH - prefix.length();
         self->chat->setMaxLength(max_length);

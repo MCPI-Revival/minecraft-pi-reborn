@@ -10,10 +10,6 @@
 #define MCPI_BINARY "minecraft-pi"
 #define QEMU_BINARY "qemu-arm"
 
-#ifndef __ARM_ARCH
-#define USE_QEMU
-#endif
-
 #define REQUIRED_PAGE_SIZE 4096
 #define _STR(x) #x
 #define STR(x) _STR(x)
@@ -163,7 +159,7 @@ void pre_bootstrap(int argc, char *argv[]) {
     sigaction(SIGTERM, &act_sigterm, NULL);
 
     // Check Page Size (Not Needed When Using QEMU)
-#ifndef USE_QEMU
+#ifndef MCPI_USE_QEMU
     long page_size = sysconf(_SC_PAGESIZE);
     if (page_size != REQUIRED_PAGE_SIZE) {
         ERR("Invalid page size! A page size of %ld bytes is required, but the system size is %ld bytes.", (long) REQUIRED_PAGE_SIZE, page_size);
@@ -338,7 +334,7 @@ void bootstrap(int argc, char *argv[]) {
     new_args[argv_start] = new_mcpi_exe_path;
 
     // Non-ARM Systems Need QEMU
-#ifdef USE_QEMU
+#ifdef MCPI_USE_QEMU
     argv_start--;
     new_args[argv_start] = QEMU_BINARY;
     // Use 4k Page Size
@@ -349,7 +345,7 @@ void bootstrap(int argc, char *argv[]) {
     setup_exec_environment(1);
 
     // Pass LD_* Variables Through QEMU
-#ifdef USE_QEMU
+#ifdef MCPI_USE_QEMU
     char *qemu_set_env = NULL;
 #define pass_variable_through_qemu(name) string_append(&qemu_set_env, "%s%s=%s", qemu_set_env == NULL ? "" : ",", name, getenv(name));
     for_each_special_environmental_variable(pass_variable_through_qemu);

@@ -4,14 +4,13 @@ set -e
 
 # Variables
 MODE="$(echo "$1" | tr '[:upper:]' '[:lower:]')"
-ARCH="$(dpkg-architecture -qDEB_BUILD_ARCH)"
+ARCH='host'
 
 # Build
-./scripts/setup.sh "${MODE}" "${ARCH}" -DMCPI_HEADLESS_MODE=ON
-./scripts/build.sh "${MODE}" "${ARCH}"
+./scripts/build.mjs none "${MODE}" "${ARCH}" -DMCPI_HEADLESS_MODE=ON
 
 # Add To PATH
-export PATH="$(pwd)/out/${MODE}-${ARCH}/usr/bin:${PATH}"
+export PATH="$(pwd)/out/${MODE}/${ARCH}/usr/bin:${PATH}"
 
 # Make Test Directory
 rm -rf build/test

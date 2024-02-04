@@ -1,8 +1,9 @@
 // Config Needs To Load First
 #include <libreborn/libreborn.h>
+#include "game-mode-internal.h"
 
 // Game Mode UI Code Is Useless In Headless Mode
-#ifndef MCPI_SERVER_MODE
+#ifndef MCPI_HEADLESS_MODE
 
 #include <string>
 #include <set>
@@ -11,7 +12,6 @@
 
 #include <mods/text-input-box/TextInputScreen.h>
 #include <mods/touch/touch.h>
-#include "game-mode-internal.h"
 
 // Strings
 #define GAME_MODE_STR(mode) ("Game Mode: " mode)
