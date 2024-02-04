@@ -13,18 +13,21 @@ ARCH='host'
 export PATH="$(pwd)/out/${MODE}/${ARCH}/usr/bin:${PATH}"
 
 # Make Test Directory
-rm -rf build/test
-mkdir -p build/test
+TEST_WORKING_DIR="$(pwd)/.testing-tmp"
+rm -rf "${TEST_WORKING_DIR}"
+mkdir -p "${TEST_WORKING_DIR}"
 
 # Run
 if [ "${MODE}" = "server" ]; then
     # Server Test
-    cd build/test
+    cd "${TEST_WORKING_DIR}"
     minecraft-pi-reborn-server --only-generate
-    cd ../../
 else
     # Client Test
     export _MCPI_SKIP_ROOT_CHECK=1
-    export HOME="$(pwd)/build/test"
+    export HOME="${TEST_WORKING_DIR}"
     minecraft-pi-reborn-client --default --no-cache --benchmark
 fi
+
+# Clean Up
+rm -rf "${TEST_WORKING_DIR}"

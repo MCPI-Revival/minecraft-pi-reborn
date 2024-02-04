@@ -4,13 +4,13 @@ set -e
 
 # Create Output Directory
 ROOT="$(pwd)"
-OUT="${ROOT}/out/example-mods"
+OUT="${ROOT}/out"
 rm -rf "${OUT}"
 mkdir -p "${OUT}"
 
 # Build
-for MOD in example-mods/*/; do
-    cd "${ROOT}/${MOD}"
+build() {
+    cd "${ROOT}/$1"
     # Build
     rm -rf build
     mkdir build
@@ -19,4 +19,7 @@ for MOD in example-mods/*/; do
     cmake --build .
     # Copy Result
     cp lib*.so "${OUT}"
-done
+}
+build chat-commands
+build expanded-creative
+build recipes
