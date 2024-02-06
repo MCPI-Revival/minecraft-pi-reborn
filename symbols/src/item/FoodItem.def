@@ -1,0 +1,7 @@
+extends Item;
+
+size 0x30;
+vtable 0x10e7b0;
+vtable-size 0x98;
+
+property int nutrition = 0x24;

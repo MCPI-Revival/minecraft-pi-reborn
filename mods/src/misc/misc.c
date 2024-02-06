@@ -3,6 +3,7 @@
 #include <unistd.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
+#include <math.h>
 
 #ifndef MCPI_HEADLESS_MODE
 #include <GLES/gl.h>
@@ -18,6 +19,58 @@
 #include <mods/feature/feature.h>
 #include "misc-internal.h"
 #include <mods/misc/misc.h>
+
+// Heart food overlay
+static int heal_amount = 0, heal_amount_drawing = 0;
+void Gui_renderHearts_injection(Gui *gui) {
+    // Get heal_amount
+    heal_amount = heal_amount_drawing = 0;
+
+    Inventory *inventory = gui->minecraft->player->inventory;
+    ItemInstance *held_ii = Inventory_getSelected(inventory);
+    if (held_ii) {
+        Item *held = Item_items[held_ii->id];
+        if (held->vtable->isFood(held) && held_ii->id) {
+            int nutrition = ((FoodItem *) held)->nutrition;
+            int cur_health = gui->minecraft->player->health;
+            int heal_num = fmin(cur_health + nutrition, 20) - cur_health;
+            heal_amount = heal_amount_drawing = heal_num;
+        }
+    }
+
+    // Call original
+    Gui_renderHearts(gui);
+}
+
+Gui_blit_t Gui_blit_renderHearts_injection = NULL;
+void Gui_renderHearts_GuiComponent_blit_overlay_empty_injection(Gui *gui, int32_t x1, int32_t y1, int32_t x2, int32_t y2, int32_t w1, int32_t h1, int32_t w2, int32_t h2) {
+    // Call original
+    Gui_blit_renderHearts_injection(gui, x1, y1, x2, y2, w1, h1, w2, h2);
+    // Render the overlay
+    if (heal_amount_drawing == 1) {
+        // Half heart
+        Gui_blit_renderHearts_injection(gui, x1, y1, 79, 0, w1, h1, w2, h2);
+        heal_amount_drawing = 0;
+    } else if (heal_amount_drawing > 0) {
+        // Full heart
+        Gui_blit_renderHearts_injection(gui, x1, y1, 70, 0, w1, h1, w2, h2);
+        heal_amount_drawing -= 2;
+    }
+}
+
+void Gui_renderHearts_GuiComponent_blit_overlay_hearts_injection(Gui *gui, int32_t x1, int32_t y1, int32_t x2, int32_t y2, int32_t w1, int32_t h1, int32_t w2, int32_t h2) {
+    // Offset the overlay
+    if (x2 == 52) {
+        heal_amount_drawing += 2;
+    } else if (x2 == 61 && heal_amount) {
+        // Half heart, flipped
+        Gui_blit_renderHearts_injection(gui, x1, y1, 70, 0, w1, h1, w2, h2);
+        heal_amount_drawing += 1;
+    };
+    // Call original
+    Gui_blit_renderHearts_injection(gui, x1, y1, x2, y2, w1, h1, w2, h2);
+    heal_amount_drawing = fmin(heal_amount_drawing, heal_amount);
+}
 
 // Classic HUD
 #define DEFAULT_HUD_PADDING 2
@@ -568,14 +621,27 @@ void init_misc() {
         patch((void *) 0x63c98, invalid_item_background_patch);
     }
 
+    // Food overlay
+    char food_overlay = 0;
+    Gui_blit_renderHearts_injection = Gui_blit;
+    if (feature_has("Food Overlay", server_disabled)) {
+        food_overlay = 1;
+        overwrite_calls((void *) Gui_renderHearts, Gui_renderHearts_injection);
+        overwrite_call((void *) 0x266f8, (void *) Gui_renderHearts_GuiComponent_blit_overlay_empty_injection);
+        overwrite_call((void *) 0x267c8, (void *) Gui_renderHearts_GuiComponent_blit_overlay_hearts_injection);
+    }
+
     // Classic HUD
     if (feature_has("Classic HUD", server_disabled)) {
         use_classic_hud = 1;
-        overwrite_call((void *) 0x266f8, (void *) Gui_renderHearts_GuiComponent_blit_hearts_injection);
         overwrite_call((void *) 0x26758, (void *) Gui_renderHearts_GuiComponent_blit_hearts_injection);
-        overwrite_call((void *) 0x267c8, (void *) Gui_renderHearts_GuiComponent_blit_hearts_injection);
         overwrite_call((void *) 0x2656c, (void *) Gui_renderHearts_GuiComponent_blit_armor_injection);
         overwrite_call((void *) 0x268c4, (void *) Gui_renderBubbles_GuiComponent_blit_injection);
+        if (!food_overlay) {
+            overwrite_call((void *) 0x266f8, (void *) Gui_renderHearts_GuiComponent_blit_hearts_injection);
+            overwrite_call((void *) 0x267c8, (void *) Gui_renderHearts_GuiComponent_blit_hearts_injection);
+        }
+        Gui_blit_renderHearts_injection = Gui_renderHearts_GuiComponent_blit_hearts_injection;
     }
 
     // Render Selected Item Text + Hide Chat Messages

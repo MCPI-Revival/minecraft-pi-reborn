@@ -10,6 +10,7 @@ virtual-method void setIcon(int texture_x, int texture_y) = 0x18;
 virtual-method int getIcon(int auxiliary) = 0x14;
 virtual-method int useOn(ItemInstance *item_instance, Player *player, Level *level, int x, int y, int z, int hit_side, float hit_x, float hit_y, float hit_z) = 0x20;
 virtual-method ItemInstance *use(ItemInstance *item_instance, Level *level, Player *player) = 0x30;
+virtual-method bool isFood() = 0x64;
 virtual-method void setDescriptionId(std::string *name) = 0x6c;
 virtual-method std::string getDescriptionId(ItemInstance *item_instance) = 0x7c;
 

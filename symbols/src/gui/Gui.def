@@ -13,6 +13,7 @@ method void getSlotPos(int slot, int *x, int *y) = 0x25548;
 method void renderSlot(int slot, int x, int y, float alpha) = 0x25cc0;
 method void renderSlotText(ItemInstance *item, float x, float y, bool finite, bool shadow) = 0x25df8;
 method void handleKeyPressed(int key) = 0x25a08;
+method void renderHearts() = 0x2641c;
 
 property Minecraft *minecraft = 0x9f4;
 property float selected_item_text_timer = 0x9fc;

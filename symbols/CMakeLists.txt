@@ -82,6 +82,7 @@ set(SRC
     src/item/AuxDataTileItem.def
     src/item/ItemInstance.def
     src/item/Item.def
+    src/item/FoodItem.def
     src/item/ArmorMaterial.def
     src/item/ArmorItem.def
     src/item/TileItem.def
