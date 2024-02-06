@@ -42,18 +42,20 @@ void Gui_renderHearts_injection(Gui *gui) {
     Gui_renderHearts(gui);
 }
 
-Gui_blit_t Gui_blit_renderHearts_injection = NULL;
+#define PINK_HEART_FULL 70
+#define PINK_HEART_HALF 79
+Gui_blit_t Gui_blit_renderHearts_original = NULL;
 void Gui_renderHearts_GuiComponent_blit_overlay_empty_injection(Gui *gui, int32_t x1, int32_t y1, int32_t x2, int32_t y2, int32_t w1, int32_t h1, int32_t w2, int32_t h2) {
     // Call original
-    Gui_blit_renderHearts_injection(gui, x1, y1, x2, y2, w1, h1, w2, h2);
+    Gui_blit_renderHearts_original(gui, x1, y1, x2, y2, w1, h1, w2, h2);
     // Render the overlay
     if (heal_amount_drawing == 1) {
         // Half heart
-        Gui_blit_renderHearts_injection(gui, x1, y1, 79, 0, w1, h1, w2, h2);
+        Gui_blit_renderHearts_original(gui, x1, y1, PINK_HEART_HALF, 0, w1, h1, w2, h2);
         heal_amount_drawing = 0;
     } else if (heal_amount_drawing > 0) {
         // Full heart
-        Gui_blit_renderHearts_injection(gui, x1, y1, 70, 0, w1, h1, w2, h2);
+        Gui_blit_renderHearts_original(gui, x1, y1, PINK_HEART_FULL, 0, w1, h1, w2, h2);
         heal_amount_drawing -= 2;
     }
 }
@@ -64,11 +66,11 @@ void Gui_renderHearts_GuiComponent_blit_overlay_hearts_injection(Gui *gui, int32
         heal_amount_drawing += 2;
     } else if (x2 == 61 && heal_amount) {
         // Half heart, flipped
-        Gui_blit_renderHearts_injection(gui, x1, y1, 70, 0, w1, h1, w2, h2);
+        Gui_blit_renderHearts_original(gui, x1, y1, PINK_HEART_FULL, 0, w1, h1, w2, h2);
         heal_amount_drawing += 1;
     };
     // Call original
-    Gui_blit_renderHearts_injection(gui, x1, y1, x2, y2, w1, h1, w2, h2);
+    Gui_blit_renderHearts_original(gui, x1, y1, x2, y2, w1, h1, w2, h2);
     heal_amount_drawing = fmin(heal_amount_drawing, heal_amount);
 }
 
@@ -621,27 +623,24 @@ void init_misc() {
         patch((void *) 0x63c98, invalid_item_background_patch);
     }
 
-    // Food overlay
-    char food_overlay = 0;
-    Gui_blit_renderHearts_injection = Gui_blit;
-    if (feature_has("Food Overlay", server_disabled)) {
-        food_overlay = 1;
-        overwrite_calls((void *) Gui_renderHearts, Gui_renderHearts_injection);
-        overwrite_call((void *) 0x266f8, (void *) Gui_renderHearts_GuiComponent_blit_overlay_empty_injection);
-        overwrite_call((void *) 0x267c8, (void *) Gui_renderHearts_GuiComponent_blit_overlay_hearts_injection);
-    }
 
     // Classic HUD
+    Gui_blit_renderHearts_original = Gui_blit;
     if (feature_has("Classic HUD", server_disabled)) {
         use_classic_hud = 1;
         overwrite_call((void *) 0x26758, (void *) Gui_renderHearts_GuiComponent_blit_hearts_injection);
         overwrite_call((void *) 0x2656c, (void *) Gui_renderHearts_GuiComponent_blit_armor_injection);
         overwrite_call((void *) 0x268c4, (void *) Gui_renderBubbles_GuiComponent_blit_injection);
-        if (!food_overlay) {
-            overwrite_call((void *) 0x266f8, (void *) Gui_renderHearts_GuiComponent_blit_hearts_injection);
-            overwrite_call((void *) 0x267c8, (void *) Gui_renderHearts_GuiComponent_blit_hearts_injection);
-        }
-        Gui_blit_renderHearts_injection = Gui_renderHearts_GuiComponent_blit_hearts_injection;
+        overwrite_call((void *) 0x266f8, (void *) Gui_renderHearts_GuiComponent_blit_hearts_injection);
+        overwrite_call((void *) 0x267c8, (void *) Gui_renderHearts_GuiComponent_blit_hearts_injection);
+        Gui_blit_renderHearts_original = Gui_renderHearts_GuiComponent_blit_hearts_injection;
+    }
+
+    // Food overlay
+    if (feature_has("Food Overlay", server_disabled)) {
+        overwrite_calls((void *) Gui_renderHearts, Gui_renderHearts_injection);
+        overwrite_call((void *) 0x266f8, (void *) Gui_renderHearts_GuiComponent_blit_overlay_empty_injection);
+        overwrite_call((void *) 0x267c8, (void *) Gui_renderHearts_GuiComponent_blit_overlay_hearts_injection);
     }
 
     // Render Selected Item Text + Hide Chat Messages
