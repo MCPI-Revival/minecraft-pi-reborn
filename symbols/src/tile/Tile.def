@@ -3,21 +3,43 @@ static-method void initTiles() = 0xc358c;
 vtable 0x115670;
 vtable-size 0x104;
 
-constructor (int id, int texture, void *material) = 0xc33a0;
+constructor (int id, int texture, Material *material) = 0xc33a0;
 size 0x5c;
 
 method Tile *init() = 0xc34dc;
-virtual-method Tile *setDestroyTime(float destroy_time) = 0xf8;
-virtual-method Tile *setExplodeable(float explodeable) = 0xf4;
-virtual-method Tile *setSoundType(Tile_SoundType *sound_type) = 0xe8;
-virtual-method int use(Level *level, int x, int y, int z, Player *player) = 0x98;
-virtual-method int getColor(LevelSource *level_source, int x, int y, int z) = 0xb8;
+
+
+virtual-method bool isCubeShaped() = 0x8;
 virtual-method int getRenderShape() = 0xc;
+virtual-method void setShape(float x1, float y1, float z1, float x2, float y2, float z2) = 0x10;
+virtual-method void updateShape(LevelSource *level, int x, int y, int z) = 0x14;
+virtual-method void updateDefaultShape() = 0x18;
+virtual-method float getBrightness(LevelSource *level, int x, int y, int z) = 0x20;
+virtual-method int getTexture1() = 0x28;
+virtual-method int getTexture2(int face, int data) = 0x2c;
+virtual-method int getTexture3(LevelSource *level, int x, int y, int z, int face) = 0x30;
+virtual-method AABB *getAABB(Level *level, int x, int y, int z) = 0x34;
+virtual-method bool isSolidRender() = 0x40;
+virtual-method void tick(Level *level, int x, int y, int z) = 0x58;
+virtual-method void neighborChanged(Level *level, int x, int y, int z, int neighborId) = 0x64;
+virtual-method void onPlace(Level *level, int x, int y, int z) = 0x68;
+virtual-method void onRemove(Level *level, int x, int y, int z) = 0x6c;
+virtual-method int getRenderLayer() = 0x94;
+virtual-method int use(Level *level, int x, int y, int z, Player *player) = 0x98;
+virtual-method void setPlacedBy(Level *level, int x, int y, int z, Mob *placer) = 0xa8;
+virtual-method int getColor(LevelSource *level_source, int x, int y, int z) = 0xb8;
+virtual-method void entityInside(Level *level, int x, int y, int z, Entity *entity) = 0xcc;
+virtual-method std::string getDescriptionId() = 0xdc;
 virtual-method Tile *setDescriptionId(std::string *description_id) = 0xe0;
+virtual-method Tile *setSoundType(Tile_SoundType *sound_type) = 0xe8;
+virtual-method Tile *setLightEmission(float light) = 0xf0;
+virtual-method Tile *setExplodeable(float explodeable) = 0xf4;
+virtual-method Tile *setDestroyTime(float destroy_time) = 0xf8;
 
 property int texture = 0x4;
 property int id = 0x8;
 property int category = 0x3c;
+property AABB aabb = 0x40;
 
 // Globals
 static-property-array Tile *tiles = 0x180e08;
@@ -49,3 +71,6 @@ static-property Tile *grass_carried = 0x181dd4;
 
 // Sounds
 static-property Tile_SoundType SOUND_STONE = 0x181c80;
+
+// Light
+static-property float *lightEmission = 0x181214;

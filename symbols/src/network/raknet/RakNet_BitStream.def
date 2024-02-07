@@ -1,4 +1,15 @@
 method void Write_uchar(uchar *i) = 0x18448;
 method void Write_int(int *i) = 0x18454;
+method void Write_ushort(ushort *i) = 0x45a68;
+method void Write_short(short *i) = 0x71918;
+// right_aligned should be true
+method void WriteBits(uchar *buff, uint bits, bool right_aligned) = 0xd41b4;
 
+method void Read_uchar(uchar *i) = 0x45ab0;
 method void Read_int(int *i) = 0x184ec;
+method void Read_ushort(ushort *i) = 0x45acc;
+method void Read_short(short *i) = 0x72070;
+// right_aligned should be true
+method void ReadBits(uchar *buff, uint bits, bool right_aligned) = 0xd3e18;
+
+property uint readOffset = 0x8;

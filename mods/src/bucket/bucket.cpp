@@ -6,31 +6,57 @@
 #include <mods/misc/misc.h>
 
 // Items
-static Item *bucket = NULL;
+static FoodItem *bucket = NULL;
 
 // Description And Texture
-static std::string BucketItem_getDescriptionId(__attribute__((unused)) Item *item, ItemInstance *item_instance) {
+static std::string BucketItem_getDescriptionId(__attribute__((unused)) FoodItem *item, ItemInstance *item_instance) {
     if (item_instance->auxiliary == Tile_water->id) {
         return "item.bucketWater";
     } else if (item_instance->auxiliary == Tile_lava->id) {
         return "item.bucketLava";
+    } else if (item_instance->auxiliary == 1) {
+        return "item.bucketMilk";
     } else {
         return "item.bucket";
     }
 }
-static int32_t BucketItem_getIcon(__attribute__((unused)) Item *item, int32_t auxiliary) {
+static int32_t BucketItem_getIcon(__attribute__((unused)) FoodItem *item, int32_t auxiliary) {
     if (auxiliary == Tile_water->id) {
         return 75;
     } else if (auxiliary == Tile_lava->id) {
         return 76;
+    } else if (auxiliary == 1) {
+        return 77;
     } else {
         return 74;
     }
 }
 
+// Filling
+static bool fill_bucket(ItemInstance *item_instance, Player *player, int new_auxiliary) {
+    bool success = false;
+    if (item_instance->count == 1) {
+        item_instance->auxiliary = new_auxiliary;
+        success = true;
+    } else {
+        ItemInstance new_item;
+        new_item.id = bucket->id;
+        new_item.count = 1;
+        new_item.auxiliary = new_auxiliary;
+        Inventory *inventory = player->inventory;
+        if (inventory->vtable->add(inventory, &new_item)) {
+            // Added To Inventory
+            success = true;
+            item_instance->count -= 1;
+        }
+    }
+    return success;
+}
+
+
 // Use Bucket
-static int32_t BucketItem_useOn(__attribute__((unused)) Item *item, ItemInstance *item_instance, Player *player, Level *level, int32_t x, int32_t y, int32_t z, int32_t hit_side, __attribute__((unused)) float hit_x, __attribute__((unused)) float hit_y, __attribute__((unused)) float hit_z) {
-    if (item_instance->count < 1) {
+static int32_t BucketItem_useOn(__attribute__((unused)) FoodItem *item, ItemInstance *item_instance, Player *player, Level *level, int32_t x, int32_t y, int32_t z, int32_t hit_side, __attribute__((unused)) float hit_x, __attribute__((unused)) float hit_y, __attribute__((unused)) float hit_z) {
+    if (item_instance->count < 1 || item_instance->auxiliary == 1) {
         return 0;
     } else if (item_instance->auxiliary == 0) {
         // Empty Bucket
@@ -43,23 +69,7 @@ static int32_t BucketItem_useOn(__attribute__((unused)) Item *item, ItemInstance
         }
         if (new_auxiliary != 0) {
             // Valid
-            bool success = false;
-            if (item_instance->count == 1) {
-                item_instance->auxiliary = new_auxiliary;
-                success = true;
-            } else {
-                ItemInstance new_item;
-                new_item.id = bucket->id;
-                new_item.count = 1;
-                new_item.auxiliary = new_auxiliary;
-                Inventory *inventory = player->inventory;
-                if (inventory->vtable->add(inventory, &new_item)) {
-                    // Added To Inventory
-                    success = true;
-                    item_instance->count -= 1;
-                }
-            }
-            if (success) {
+            if (fill_bucket(item_instance, player, new_auxiliary)) {
                 Level_setTileAndData(level, x, y, z, 0, 0);
                 return 1;
             } else {
@@ -116,19 +126,68 @@ static int32_t BucketItem_useOn(__attribute__((unused)) Item *item, ItemInstance
     }
 }
 
+static int BucketItem_getUseDuration(__attribute__((unused)) FoodItem *item, ItemInstance *item_instance) {
+    if (item_instance->auxiliary == 1) {
+        return 0x20;
+    }
+    return 0;
+}
+
+static ItemInstance BucketItem_useTimeDepleted(FoodItem *item, ItemInstance *item_instance, Level *level, Player *player) {
+    if (item_instance->auxiliary == 1) {
+        *item_instance = FoodItem_useTimeDepleted_non_virtual(item, item_instance, level, player);
+        // Set it to a empty bucket
+        item_instance->auxiliary = 0;
+        item_instance->count = 1;
+    }
+    return *item_instance;
+}
+
+static int BucketItem_getUseAnimation(__attribute__((unused)) FoodItem *item) {
+    return 2;
+}
+
+static bool BucketItem_isFood(__attribute__((unused)) FoodItem *item) {
+    return true;
+}
+
+static ItemInstance *BucketItem_use(FoodItem *item, ItemInstance *item_instance, __attribute__((unused)) Level *level, Player *player) {
+    if (item_instance->auxiliary == 1) {
+        return (*FoodItem_use_vtable_addr)(item, item_instance, level, player);
+    }
+    return item_instance;
+}
+
+static ItemInstance *BucketItem_getCraftingRemainingItem(FoodItem *item, ItemInstance *item_instance) {
+    if (item_instance->auxiliary == 0) {
+        return NULL;
+    }
+    ItemInstance *ret = alloc_ItemInstance();
+    ret->id = item->id;
+    ret->count = item_instance->count;
+    ret->auxiliary = 0;
+    return ret;
+}
+
 // Bucket VTable
-CUSTOM_VTABLE(bucket, Item) {
+CUSTOM_VTABLE(bucket, FoodItem) {
     vtable->getDescriptionId = BucketItem_getDescriptionId;
     vtable->getIcon = BucketItem_getIcon;
     vtable->useOn = BucketItem_useOn;
+    vtable->getUseDuration = BucketItem_getUseDuration;
+    vtable->useTimeDepleted = BucketItem_useTimeDepleted;
+    vtable->getUseAnimation = BucketItem_getUseAnimation;
+    vtable->isFood = BucketItem_isFood;
+    vtable->use = BucketItem_use;
+    vtable->getCraftingRemainingItem = BucketItem_getCraftingRemainingItem;
 }
 
 // Create Items
-static Item *create_bucket(int32_t id, int32_t texture_x, int32_t texture_y, std::string name) {
+static FoodItem *create_bucket(int32_t id, int32_t texture_x, int32_t texture_y, std::string name) {
     // Construct
-    Item *item = alloc_Item();
+    FoodItem *item = alloc_FoodItem();
     ALLOC_CHECK(item);
-    Item_constructor(item, id);
+    Item_constructor((Item *) item, id);
 
     // Set VTable
     item->vtable = get_bucket_vtable();
@@ -140,6 +199,9 @@ static Item *create_bucket(int32_t id, int32_t texture_x, int32_t texture_y, std
     item->category = 2;
     item->max_damage = 0;
     item->max_stack_size = 1;
+    item->nutrition = 0;
+    item->unknown_param_1 = 0.6;
+    item->meat = false;
 
     // Return
     return item;
@@ -159,17 +221,29 @@ static int32_t ItemInstance_getMaxStackSize_injection(ItemInstance *item_instanc
     }
 }
 
+// Milking
+bool Cow_interact_injection(Cow *self, Player *player) {
+    ItemInstance *item = Inventory_getSelected(player->inventory);
+    if (item && item->id == bucket->id && item->auxiliary == 0) {
+        // Fill with milk
+        fill_bucket(item, player, 1);
+        return true;
+    }
+    return Cow_interact_non_virtual(self, player);
+}
+
 // Creative Inventory
-static void inventory_add_item(FillingContainer *inventory, Item *item, int32_t auxiliary) {
+static void inventory_add_item(FillingContainer *inventory, FoodItem *item, int32_t auxiliary) {
     ItemInstance *item_instance = new ItemInstance;
     ALLOC_CHECK(item_instance);
-    item_instance = ItemInstance_constructor_item_extra(item_instance, item, 1, auxiliary);
+    item_instance = ItemInstance_constructor_item_extra(item_instance, (Item *) item, 1, auxiliary);
     FillingContainer_addItem(inventory, item_instance);
 }
 static void Inventory_setupDefault_FillingContainer_addItem_call_injection(FillingContainer *filling_container) {
     inventory_add_item(filling_container, bucket, 0);
     inventory_add_item(filling_container, bucket, Tile_water->id);
     inventory_add_item(filling_container, bucket, Tile_lava->id);
+    inventory_add_item(filling_container, bucket, 1);
 }
 
 // Make Liquids Selectable
@@ -264,14 +338,23 @@ static void FurnaceTileEntity_tick_ItemInstance_setNull_injection(ItemInstance *
     }
 }
 
+// Add the bucket name to the language file
+static void Language_injection(__attribute__((unused)) void *null) {
+    I18n__strings.insert(std::make_pair("item.bucketMilk.name", "Milk Bucket"));
+}
+
 // Init
+bool buckets_enabled = false;
 void init_bucket() {
     // Add Buckets
-    if (feature_has("Add Buckets", server_enabled)) {
+    buckets_enabled = feature_has("Add Buckets", server_enabled);
+    if (buckets_enabled) {
         // Add Items
         misc_run_on_items_setup(Item_initItems_injection);
         // Change Max Stack Size Based On Auxiliary
         overwrite_calls((void *) ItemInstance_getMaxStackSize, (void *) ItemInstance_getMaxStackSize_injection);
+        // Enable milking
+        patch_address((void *) Cow_interact_vtable_addr, (void *) Cow_interact_injection);
         // Creative Inventory
         misc_run_on_creative_inventory_setup(Inventory_setupDefault_FillingContainer_addItem_call_injection);
         // Make Liquids Selectable
@@ -284,5 +367,7 @@ void init_bucket() {
         // Custom Furnace Fuel
         overwrite_calls((void *) FurnaceTileEntity_getBurnDuration, (void *) FurnaceTileEntity_getBurnDuration_injection);
         overwrite_call((void *) 0xd351c, (void *) FurnaceTileEntity_tick_ItemInstance_setNull_injection);
+        // Language for milk
+        misc_run_on_language_setup(Language_injection);
     }
 }

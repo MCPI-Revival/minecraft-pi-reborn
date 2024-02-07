@@ -6,13 +6,23 @@ vtable 0x10f128;
 size 0x24;
 constructor (int id) = 0x99488;
 
-virtual-method void setIcon(int texture_x, int texture_y) = 0x18;
 virtual-method int getIcon(int auxiliary) = 0x14;
+virtual-method void setIcon(int texture_x, int texture_y) = 0x18;
 virtual-method int useOn(ItemInstance *item_instance, Player *player, Level *level, int x, int y, int z, int hit_side, float hit_x, float hit_y, float hit_z) = 0x20;
+// Normally returns 0
+virtual-method int getUseDuration(ItemInstance *item_instance) = 0x24;
+virtual-method ItemInstance useTimeDepleted(ItemInstance *item_instance, Level *level, Player *player) = 0x28;
+virtual-method int getDestorySpeed(ItemInstance *item_instance, Tile *tile) = 0x2c;
 virtual-method ItemInstance *use(ItemInstance *item_instance, Level *level, Player *player) = 0x30;
+virtual-method bool mineBlock(ItemInstance *instance, int tile_id, int x, int y, int z) = 0x48;
 virtual-method bool isFood() = 0x64;
+virtual-method bool isArmor() = 0x68;
 virtual-method void setDescriptionId(std::string *name) = 0x6c;
 virtual-method std::string getDescriptionId(ItemInstance *item_instance) = 0x7c;
+// This returns an Item*, but it's never called normally so it doesn't matter if we invent a better system over top of it
+virtual-method ItemInstance *getCraftingRemainingItem(ItemInstance *item_instance) = 0x84;
+// Swing = 0, eating = 1, drinking = 2, bow = 4, anything else is nothing
+virtual-method int getUseAnimation() = 0x94;
 
 property int id = 0x4;
 property int max_damage = 0x8;
@@ -21,6 +31,7 @@ property int category = 0x10;
 property int max_stack_size = 0x14;
 property bool equipped = 0x18;
 property bool is_stacked_by_data = 0x19;
+property Item *craftingRemainingItem = 0x1c;
 property std::string description_id = 0x20;
 
 // Globals

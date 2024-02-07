@@ -5,3 +5,6 @@ vtable 0x10e7b0;
 vtable-size 0x98;
 
 property int nutrition = 0x24;
+// Always 0.6
+property float unknown_param_1 = 0x28;
+property bool meat = 0x2c;

@@ -1,0 +1,5 @@
+size 0x4;
+
+method void eat(int amount) = 0x91470;
+
+property int health = 0x0;

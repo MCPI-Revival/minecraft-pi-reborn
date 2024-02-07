@@ -35,6 +35,8 @@ set(SRC
     src/options/options.cpp
     # bucket
     src/bucket/bucket.cpp
+    # cake
+    src/cake/cake.cpp
     # home
     src/home/home.c
     # test

@@ -1,7 +1,17 @@
 virtual-method void remove() = 0x10;
 virtual-method void tick() = 0x34;
+virtual-method bool interact(Player *with) = 0x6c;
+virtual-method bool isPlayer() = 0x94;
 virtual-method bool hurt(Entity *attacker, int damage) = 0xa4;
+// See https://mcpirevival.miraheze.org/wiki/Minecraft:_Pi_Edition_Complete_Entity_List for these two
 virtual-method int getEntityTypeId() = 0xdc;
+virtual-method int getCreatureBaseType() = 0xe0;
+virtual-method bool isMob() = 0xe8;
+virtual-method bool isItemEntity() = 0xec;
+// HangingEntity is a painting
+virtual-method bool isHangingEntity() = 0xf0;
+// The owner entity id for arrows/throwables, else 0
+virtual-method int getAuxData() = 0xf4;
 
 method void moveTo(float x, float y, float z, float yaw, float pitch) = 0x7a834;
 

@@ -22,6 +22,7 @@ void misc_run_on_creative_inventory_setup(misc_update_function_FillingContainer_
 typedef void (*misc_update_function_void_t)(void *obj);
 void misc_run_on_tiles_setup(misc_update_function_void_t function); // obj == NULL
 void misc_run_on_items_setup(misc_update_function_void_t function); // obj == NULL
+void misc_run_on_language_setup(misc_update_function_void_t function); // obj == NULL
 typedef bool (*misc_update_function_key_press_t)(Minecraft *minecrtaft, int key);
 void misc_run_on_game_key_press(misc_update_function_key_press_t function); // In-Game Key Presses Only
 

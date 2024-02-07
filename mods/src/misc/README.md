@@ -5,3 +5,4 @@ This mod has several miscellaneous mods that are too small to be their own mod, 
 * Removing the red background from unobtainable items in the inventory.
 * Loading the bundled language file.
 * Printing chat messages to the log.
+* Implementing crafting remainders.

@@ -79,6 +79,7 @@ SETUP_CALLBACK(creative_inventory_setup, FillingContainer);
 static void Inventory_setupDefault_FillingContainer_addItem_call_injection(FillingContainer *filling_container, ItemInstance *item_instance) {
     // Call Original Method
     FillingContainer_addItem(filling_container, item_instance);
+
     // Run Functions
     handle_misc_creative_inventory_setup(filling_container);
 }
@@ -98,11 +99,22 @@ static void Tile_initTiles_injection() {
 SETUP_CALLBACK(items_setup, void);
 // Handle Custom Items Setup Behavior
 static void Item_initItems_injection() {
-    // Run Functions
-    handle_misc_items_setup(NULL);
-
     // Call Original Method
     Item_initItems();
+
+    // Run Functions
+    handle_misc_items_setup(NULL);
+}
+
+// Run Functions On Language Setup
+SETUP_CALLBACK(language_setup, void);
+// Handle Custom Items Setup Behavior
+static void I18n_loadLanguage_injection(AppPlatform *app, std::string language_name) {
+    // Call Original Method
+    I18n_loadLanguage(app, language_name);
+
+    // Run Functions
+    handle_misc_language_setup(NULL);
 }
 
 // Run Functions On GUI Key Press
@@ -140,6 +152,8 @@ void _init_misc_api() {
     // Handle Custom Item/Tile Init Behavior
     overwrite_calls((void *) Tile_initTiles, (void *) Tile_initTiles_injection);
     overwrite_calls((void *) Item_initItems, (void *) Item_initItems_injection);
+    // Handle Custom Language Entries
+    overwrite_calls((void *) I18n_loadLanguage, (void *) I18n_loadLanguage_injection);
     // Handle Key Presses
     overwrite_calls((void *) Gui_handleKeyPressed, (void *) Gui_handleKeyPressed_injection);
 }

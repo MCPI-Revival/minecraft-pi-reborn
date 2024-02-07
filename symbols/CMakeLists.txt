@@ -40,8 +40,9 @@ set(SRC
     src/entity/MobFactory.def
     src/entity/EntityRenderDispatcher.def
     src/entity/MobRenderer.def
-    src/entity/AgableMob.def
-    src/entity/Animal.def
+    src/entity/animal/AgableMob.def
+    src/entity/animal/Animal.def
+    src/entity/animal/Cow.def
     src/entity/Mob.def
     src/entity/player/ServerPlayer.def
     src/entity/player/Player.def
@@ -82,10 +83,10 @@ set(SRC
     src/item/AuxDataTileItem.def
     src/item/ItemInstance.def
     src/item/Item.def
-    src/item/FoodItem.def
     src/item/ArmorMaterial.def
     src/item/ArmorItem.def
     src/item/TileItem.def
+    src/item/FoodItem.def
     src/api/OffsetPosTranslator.def
     src/api/CommandServer.def
     src/api/ConnectedClient.def
@@ -102,6 +103,7 @@ set(SRC
     src/gui/screens/StartMenuScreen.def
     src/gui/screens/ProgressScreen.def
     src/gui/screens/Touch_SelectWorldScreen.def
+    src/gui/screens/PaneCraftingScreen.def
     src/gui/screens/ScreenChooser.def
     src/gui/Font.def
     src/gui/components/ImageButton.def
@@ -131,6 +133,8 @@ set(SRC
     src/tile/GrassTile.def
     src/tile/HeavyTile.def
     src/misc/Strings.def
+    src/misc/I18n.def
+    src/misc/SimpleFoodData.def
     src/entity/ModelPart.def
     src/misc/Tesselator.def
     src/misc/AABB.def
@@ -154,6 +158,8 @@ set(SRC
     src/recipes/FurnaceRecipes.def
     src/recipes/Recipes.def
     src/recipes/Recipes_Type.def
+    src/recipes/ReqItem.def
+    src/recipes/CItem.def
 )
 # Resolve Definition Files
 set(RESOLVED_SRC "")

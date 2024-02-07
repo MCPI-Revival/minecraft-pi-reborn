@@ -1,10 +1,16 @@
 # Changelog
 
+**3.0.0**
+* Add ``Add Cake`` Feature Flag (Enabled By Default)
+* Add Milk Buckets
+* Implement Crafting Remainders
+* Add Death Messages
+
 **2.5.3**
 * Add `Replace Block Highlight With Outline` Feature Flag (Enabled By Default)
-  * By Default, The Outline Width Is Set Using The GUI Scale
-  * This Can Be Overridden Using The `MCPI_BLOCK_OUTLINE_WIDTH` Environmental Variable
-* Added `overwrite_calls_within` Function
+* By Default, The Outline Width Is Set Using The GUI Scale
+* This Can Be Overridden Using The ``MCPI_BLOCK_OUTLINE_WIDTH`` Environmental Variable
+* Added ``overwrite_calls_within`` Function
 
 **2.5.2**
 * Add `3D Chest Model` Feature Flag (Enabled By Default)

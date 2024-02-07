@@ -1,0 +1,6 @@
+extends Screen;
+
+method void craftSelectedItem() = 0x2e0e4;
+method void recheckRecipes() = 0x2dc98;
+
+property CItem *item = 0x74;

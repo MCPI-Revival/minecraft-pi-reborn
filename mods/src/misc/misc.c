@@ -601,6 +601,19 @@ static int FurnaceTileEntity_getLitProgress_injection(FurnaceTileEntity *furnace
     return ret;
 }
 
+// Fix used items transferring durability
+static int selected_slot = -1;
+static void Player_startUsingItem_injection(Player *self, ItemInstance *item_instance, int time) {
+    selected_slot = self->inventory->selectedSlot;
+    Player_startUsingItem(self, item_instance, time);
+}
+static void Player_stopUsingItem_injection(Player *self) {
+    if (selected_slot != self->inventory->selectedSlot) {
+        self->itemBeingUsed.id = 0;
+    }
+    Player_stopUsingItem(self);
+}
+
 // Java Light Ramp
 static void Dimension_updateLightRamp_injection(Dimension *self) {
     // https://github.com/ReMinecraftPE/mcpe/blob/d7a8b6baecf8b3b050538abdbc976f690312aa2d/source/world/level/Dimension.cpp#L92-L105
@@ -815,6 +828,10 @@ void init_misc() {
     if (feature_has("Use Java Beta 1.3 Light Ramp", server_disabled)) {
         overwrite((void *) Dimension_updateLightRamp_non_virtual, (void *) Dimension_updateLightRamp_injection);
     }
+
+    // Fix used items transferring durability
+    overwrite_calls((void *) Player_startUsingItem, (void *) Player_startUsingItem_injection);
+    overwrite_calls((void *) Player_stopUsingItem, (void *) Player_stopUsingItem_injection);
 
     // Init C++ And Logging
     _init_misc_cpp();

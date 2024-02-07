@@ -58,6 +58,38 @@ static void PauseScreen_init_injection(PauseScreen *screen) {
     }
 }
 
+// Implement crafting remainders
+void PaneCraftingScreen_craftSelectedItem_PaneCraftingScreen_recheckRecipes_injection(PaneCraftingScreen *self) {
+    // Check for crafting remainders
+    CItem *item = self->item;
+    for (size_t i = 0; i < item->ingredients.size(); i++) {
+        ItemInstance requested_item_instance = item->ingredients[i].requested_item;
+        Item *requested_item = Item_items[requested_item_instance.id];
+        ItemInstance *craftingRemainingItem = requested_item->vtable->getCraftingRemainingItem(requested_item, &requested_item_instance);
+        if (craftingRemainingItem != NULL) {
+            // Add or drop remainder
+            LocalPlayer *player = self->minecraft->player;
+            if (!player->inventory->vtable->add(player->inventory, craftingRemainingItem)) {
+                // Drop
+                player->vtable->drop(player, craftingRemainingItem, false);
+            }
+        }
+    }
+    // Call Original Method
+    PaneCraftingScreen_recheckRecipes(self);
+}
+
+ItemInstance *Item_getCraftingRemainingItem_injection(Item *self, ItemInstance *item_instance) {
+    if (self->craftingRemainingItem != NULL) {
+        ItemInstance *ret = alloc_ItemInstance();
+        ret->id = self->craftingRemainingItem->id;
+        ret->count = item_instance->count;
+        ret->auxiliary = 0;
+        return ret;
+    }
+    return NULL;
+}
+
 // Init
 void _init_misc_cpp() {
     // Implement AppPlatform::readAssetFile So Translations Work
@@ -70,4 +102,8 @@ void _init_misc_cpp() {
         // Add Missing Buttons To Pause Menu
         patch_address(PauseScreen_init_vtable_addr, (void *) PauseScreen_init_injection);
     }
+
+    // Implement crafting remainders
+    overwrite_call((void *) 0x2e230, (void *) PaneCraftingScreen_craftSelectedItem_PaneCraftingScreen_recheckRecipes_injection);
+    overwrite((void *) Item_getCraftingRemainingItem_non_virtual, (void *) Item_getCraftingRemainingItem_injection);
 }
