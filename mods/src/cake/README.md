@@ -1,3 +1,2 @@
-# ``cake`` Mod
-
+# `cake` Mod
 This mod adds cake.

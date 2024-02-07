@@ -8,7 +8,6 @@ size 0x5c;
 
 method Tile *init() = 0xc34dc;
 
-
 virtual-method bool isCubeShaped() = 0x8;
 virtual-method int getRenderShape() = 0xc;
 virtual-method void setShape(float x1, float y1, float z1, float x2, float y2, float z2) = 0x10;

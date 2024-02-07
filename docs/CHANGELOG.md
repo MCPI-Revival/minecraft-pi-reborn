@@ -1,16 +1,27 @@
 # Changelog
 
 **3.0.0**
-* Add ``Add Cake`` Feature Flag (Enabled By Default)
+* Modding API Revamped
+  * `*(unsigend char **)` Is Dead!
+* Add Peaceful Mode To Options Screen
+* Proper Create New World Screen
+* Proper Chat Screen
+* The `Animated Water` Feature Flag Is Now `Animated Water & Lava`
+* Add `Use Java Beta 1.3 Light Ramp` Feature Flag (Enabled By Default)
+* Add `Send Full Level When Hosting Game` Feature Flag (Enabled By Default)
+* Add `Food Overlay` Feature Flag (Disabled By Default)
 * Add Milk Buckets
 * Implement Crafting Remainders
-* Add Death Messages
+* Improve Death Messages
+* Massive Build System Improvements
+* Fix Item Dropping When Killing Players From The Server Console
+* Fix Furnace Visual Bug When Using Lava Bucket As Fuel
 
 **2.5.3**
 * Add `Replace Block Highlight With Outline` Feature Flag (Enabled By Default)
-* By Default, The Outline Width Is Set Using The GUI Scale
-* This Can Be Overridden Using The ``MCPI_BLOCK_OUTLINE_WIDTH`` Environmental Variable
-* Added ``overwrite_calls_within`` Function
+  * By Default, The Outline Width Is Set Using The GUI Scale
+  * This Can Be Overridden Using The `MCPI_BLOCK_OUTLINE_WIDTH` Environmental Variable
+* Added `overwrite_calls_within` Function
 
 **2.5.2**
 * Add `3D Chest Model` Feature Flag (Enabled By Default)
