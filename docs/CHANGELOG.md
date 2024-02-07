@@ -2,7 +2,7 @@
 
 **3.0.0**
 * Modding API Revamped
-  * `*(unsigend char **)` Is Dead!
+  * `*(unsigned char **)` Is Dead!
 * Add Peaceful Mode To Options Screen
 * Proper Create New World Screen
 * Proper Chat Screen
