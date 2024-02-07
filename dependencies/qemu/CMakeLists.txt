@@ -11,14 +11,6 @@ if(MCPI_IS_FLATPAK_BUILD)
     set(QEMU_PATCH "sed" "-i" "s/libdrm/libdrm-dis/g" "<SOURCE_DIR>/meson.build")
 endif()
 
-# Inherit Make Jobserver ()If Present)
-include(ProcessorCount)
-ProcessorCount(NPROC)
-set(MAKE "make" "-j${NPROC}")
-if(CMAKE_GENERATOR STREQUAL "Unix Makefiles")
-    set(MAKE "$(MAKE)")
-endif()
-
 # Build
 include(ExternalProject)
 set(PKGCONFIG_ENV "")
@@ -41,7 +33,7 @@ ExternalProject_Add(qemu
         "--target-list=arm-linux-user"
         "--without-default-features"
     USES_TERMINAL_CONFIGURE TRUE
-    BUILD_COMMAND ${MAKE} "qemu-arm"
+    BUILD_COMMAND ninja "qemu-arm"
     USES_TERMINAL_BUILD TRUE
     INSTALL_COMMAND ""
     TEST_COMMAND ""
