@@ -14,11 +14,11 @@
 // Load Symbol From ELF File
 static void load_symbol(const char *source, const char *name, std::function<void(const unsigned char *, uint32_t)> callback) {
     static std::unordered_map<std::string, std::unique_ptr<LIEF::ELF::Binary>> sources = {};
-    auto pos = sources.find(std::string(source));
-    if (pos == sources.end()) {
-        sources[std::string(source)] = LIEF::ELF::Parser::parse(source);
+    std::string cpp_source = source;
+    if (sources.count(cpp_source) == 0) {
+        sources[cpp_source] = LIEF::ELF::Parser::parse(source);
     }
-    std::unique_ptr<LIEF::ELF::Binary> &binary = sources[std::string(source)];
+    std::unique_ptr<LIEF::ELF::Binary> &binary = sources[cpp_source];
     const LIEF::ELF::Symbol *symbol = binary->get_dynamic_symbol(name);
     if (symbol != NULL) {
         LIEF::span<const uint8_t> data = binary->get_content_from_virtual_address(symbol->value(), symbol->size(), LIEF::Binary::VA_TYPES::VA);
