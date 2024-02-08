@@ -33,7 +33,6 @@ set(SRC
     src/entity/CameraEntity.def
     src/entity/EntityRenderer.def
     src/entity/ItemSpriteRenderer.def
-    src/entity/Sheep.def
     src/entity/PathfinderMob.def
     src/entity/HumanoidModel.def
     src/entity/TripodCameraRenderer.def
@@ -43,6 +42,15 @@ set(SRC
     src/entity/animal/AgableMob.def
     src/entity/animal/Animal.def
     src/entity/animal/Cow.def
+    src/entity/animal/Chicken.def
+    src/entity/animal/Pig.def
+    src/entity/animal/Sheep.def
+    src/entity/monster/Creeper.def
+    src/entity/monster/Monster.def
+    src/entity/monster/PigZombie.def
+    src/entity/monster/Skeleton.def
+    src/entity/monster/Spider.def
+    src/entity/monster/Zombie.def
     src/entity/Mob.def
     src/entity/player/ServerPlayer.def
     src/entity/player/Player.def

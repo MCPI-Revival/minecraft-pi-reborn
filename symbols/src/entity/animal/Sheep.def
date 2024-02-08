@@ -1,3 +1,6 @@
 extends Animal;
 
+vtable 0x10bef0;
+constructor (Level *level) = 0x85da0;
+
 method void setColor(int color) = 0x86274;

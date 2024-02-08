@@ -1,3 +1,8 @@
 extends Mob;
 
+vtable 0x10b218;
+
 virtual-method Entity *findAttackTarget() = 0x204;
+
+property int target_id = 0xbe0;
+property int running_away_timer = 0xbe8;

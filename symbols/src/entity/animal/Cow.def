@@ -1,3 +1,4 @@
 extends Animal;
 
 vtable 0x10ba38;
+constructor (Level *level) = 0x857f4;

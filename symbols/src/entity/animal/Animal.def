@@ -1,1 +1,3 @@
 extends AgableMob;
+
+vtable 0x10b588;

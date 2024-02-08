@@ -1,0 +1,4 @@
+extends PathfinderMob;
+
+vtable 0x10cd10;
+constructor (Level *level) = 0x885c0;

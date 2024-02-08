@@ -1,0 +1,4 @@
+extends Monster;
+
+vtable 0x10d490;
+constructor (Level *level) = 0x89618;

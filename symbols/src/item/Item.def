@@ -15,6 +15,8 @@ virtual-method ItemInstance useTimeDepleted(ItemInstance *item_instance, Level *
 virtual-method int getDestorySpeed(ItemInstance *item_instance, Tile *tile) = 0x2c;
 virtual-method ItemInstance *use(ItemInstance *item_instance, Level *level, Player *player) = 0x30;
 virtual-method bool mineBlock(ItemInstance *instance, int tile_id, int x, int y, int z) = 0x48;
+// Not just enemy, but any entity
+virtual-method void interactEnemy(ItemInstance *item_instance, Mob *mob) = 0x54;
 virtual-method bool isFood() = 0x64;
 virtual-method bool isArmor() = 0x68;
 virtual-method void setDescriptionId(std::string *name) = 0x6c;

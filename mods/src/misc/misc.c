@@ -464,21 +464,22 @@ static int32_t Tile_getColor_injection() {
 }
 
 // Disable Hostile AI In Creative Mode
-#define has_vtable(obj, type) (((void *) obj->vtable) == type##_vtable_base)
 static Entity *PathfinderMob_findAttackTarget_injection(PathfinderMob *mob) {
     // Call Original Method
     Entity *target = mob->vtable->findAttackTarget(mob);
 
+    // Check if hostile
+    if (mob->vtable->getCreatureBaseType(mob) != 1) {
+        return target;
+    }
+
     // Check If Creative Mode
-    if (target != NULL) {
-        bool is_player = has_vtable(target, Player) || has_vtable(target, LocalPlayer) || has_vtable(target, ServerPlayer) || has_vtable(target, RemotePlayer);
-        if (is_player) {
-            Player *player = (Player *) target;
-            Inventory *inventory = player->inventory;
-            bool is_creative = inventory->is_creative;
-            if (is_creative) {
-                target = NULL;
-            }
+    if (target != NULL && target->vtable->isPlayer(target)) {
+        Player *player = (Player *) target;
+        Inventory *inventory = player->inventory;
+        bool is_creative = inventory->is_creative;
+        if (is_creative) {
+            target = NULL;
         }
     }
 

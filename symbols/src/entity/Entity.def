@@ -1,6 +1,7 @@
 virtual-method void remove() = 0x10;
 virtual-method void tick() = 0x34;
 virtual-method bool interact(Player *with) = 0x6c;
+virtual-method void playerTouch(Player *player) = 0x70;
 virtual-method bool isPlayer() = 0x94;
 virtual-method bool hurt(Entity *attacker, int damage) = 0xa4;
 // See https://mcpirevival.miraheze.org/wiki/Minecraft:_Pi_Edition_Complete_Entity_List for these two
@@ -30,9 +31,7 @@ property float yaw = 0x40;
 property float pitch = 0x44;
 property float old_yaw = 0x48;
 property float old_pitch = 0x4c;
-property float head_height = 0x68;
-property float hitbox_width = 0x6c;
-property float hitbox_height = 0x70;
+property AABB aabb = 0x50;
 property int renderer_id = 0xa8;
 property bool on_ground = 0xb2;
 property bool freeze_physics = 0xb9;
