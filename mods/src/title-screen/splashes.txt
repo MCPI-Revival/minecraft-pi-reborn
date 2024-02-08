@@ -22,8 +22,8 @@ Join the Discord!
 Keyboard compatible!
 Minecraft!
 Not Minecraft Java!
-Now With Multiplayer!
-Now In 3D!
+Now with Multiplayer!
+Now in 3D!
 Now without Docker!
 Obfuscated!
 Oh yeah, that version...
@@ -59,3 +59,6 @@ Where's my sound?
 Animated Lava!
 Made with Ghidra!
 Python API!
+Raspberry Pi!
+It's alive!
+Now with cake!
