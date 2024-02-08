@@ -9,6 +9,7 @@
 #include <mods/init/init.h>
 #include <mods/compat/compat.h>
 #include <mods/touch/touch.h>
+#include <mods/title-screen/title-screen.h>
 
 // Improved Title Screen Background
 static void StartMenuScreen_render_Screen_renderBackground_injection(Screen *screen) {
@@ -49,6 +50,20 @@ static void StartMenuScreen_buttonClicked_injection(StartMenuScreen *screen, But
 }
 
 // Add Splashes
+void title_screen_load_splashes(std::vector<std::string> &splashes) {
+    std::ifstream stream("data/splashes.txt");
+    if (stream.good()) {
+        std::string line;
+        while (std::getline(stream, line)) {
+            if (line.length() > 0) {
+                splashes.push_back(line);
+            }
+        }
+        stream.close();
+    } else {
+        WARN("Unable To Load Splashes");
+    }
+}
 static Screen *last_screen = nullptr;
 static std::string current_splash;
 static void StartMenuScreen_render_Screen_render_injection(Screen *screen, int x, int y, float param_1) {
@@ -62,18 +77,7 @@ static void StartMenuScreen_render_Screen_render_injection(Screen *screen, int x
         // Mark As Loaded
         splashes_loaded = true;
         // Load
-        std::ifstream stream("data/splashes.txt");
-        if (stream.good()) {
-            std::string line;
-            while (std::getline(stream, line)) {
-                if (line.length() > 0) {
-                    splashes.push_back(line);
-                }
-            }
-            stream.close();
-        } else {
-            WARN("Unable To Load Splashes");
-        }
+        title_screen_load_splashes(splashes);
     }
 
     // Display Splash
