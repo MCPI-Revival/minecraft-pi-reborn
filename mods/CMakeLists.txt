@@ -90,6 +90,7 @@ else()
         src/atlas/atlas.cpp
         # title-screen
         src/title-screen/title-screen.cpp
+        src/title-screen/splashes.txt # Show In IDE
         # skin
         src/skin/skin.cpp
         src/skin/loader.cpp
@@ -101,6 +102,11 @@ else()
         # text-input-box
         src/text-input-box/TextInputBox.cpp
         src/text-input-box/TextInputScreen.cpp
+    )
+    # Install Splashes
+    install(
+        FILES "src/title-screen/splashes.txt"
+        DESTINATION "${MCPI_INSTALL_DIR}/data"
     )
 endif()
 

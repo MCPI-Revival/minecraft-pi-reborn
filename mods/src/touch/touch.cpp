@@ -42,7 +42,7 @@ static void LargeImageButton_render_GuiComponent_drawCenteredString_injection(Gu
 }
 
 // Create Button
-static int touch_gui = 0;
+int touch_gui = 0;
 Button *touch_create_button(int id, std::string text) {
     Button *button = nullptr;
     if (touch_gui) {

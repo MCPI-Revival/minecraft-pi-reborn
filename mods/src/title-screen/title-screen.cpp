@@ -1,18 +1,23 @@
+#include <fstream>
+#include <cmath>
+
 #include <libreborn/libreborn.h>
 #include <symbols/minecraft.h>
+#include <GLES/gl.h>
 
 #include <mods/feature/feature.h>
 #include <mods/init/init.h>
 #include <mods/compat/compat.h>
+#include <mods/touch/touch.h>
 
 // Improved Title Screen Background
-static void StartMenuScreen_render_Screen_renderBackground_injection(StartMenuScreen *screen) {
+static void StartMenuScreen_render_Screen_renderBackground_injection(Screen *screen) {
     // Draw
     Minecraft *minecraft = screen->minecraft;
     Textures *textures = minecraft->textures;
     std::string texture = "gui/titleBG.png";
     Textures_loadAndBindTexture(textures, &texture);
-    StartMenuScreen_blit(screen, 0, 0, 0, 0, screen->width, screen->height, 0x100, 0x100);
+    Screen_blit(screen, 0, 0, 0, 0, screen->width, screen->height, 0x100, 0x100);
 }
 
 // Add Buttons Back To Classic Start Screen
@@ -40,6 +45,69 @@ static void StartMenuScreen_buttonClicked_injection(StartMenuScreen *screen, But
     } else {
         // Call Original Method
         StartMenuScreen_buttonClicked_non_virtual(screen, button);
+    }
+}
+
+// Add Splashes
+static Screen *last_screen = nullptr;
+static std::string current_splash;
+static void StartMenuScreen_render_Screen_render_injection(Screen *screen, int x, int y, float param_1) {
+    // Call Original Method
+    Screen_render_non_virtual(screen, x, y, param_1);
+
+    // Load Splashes
+    static std::vector<std::string> splashes;
+    static bool splashes_loaded = false;
+    if (!splashes_loaded) {
+        // Mark As Loaded
+        splashes_loaded = true;
+        // Load
+        std::ifstream stream("data/splashes.txt");
+        if (stream.good()) {
+            std::string line;
+            while (std::getline(stream, line)) {
+                if (line.length() > 0) {
+                    splashes.push_back(line);
+                }
+            }
+            stream.close();
+        } else {
+            WARN("Unable To Load Splashes");
+        }
+    }
+
+    // Display Splash
+    if (splashes.size() > 0) {
+        // Pick Splash
+        if (last_screen != screen) {
+            last_screen = screen;
+            current_splash = splashes[rand() % splashes.size()];
+        }
+        // Choose Position
+        float multiplier = touch_gui ? 0.5f: 1.0f;
+        float splash_x = (float(screen->width) / 2.0f) + (94.0f * multiplier);
+        float splash_y = 4.0f + (36.0f * multiplier);
+        float max_width = 86;
+        // Draw (From https://github.com/ReMinecraftPE/mcpe/blob/d7a8b6baecf8b3b050538abdbc976f690312aa2d/source/client/gui/screens/StartMenuScreen.cpp#L699-L718)
+        glPushMatrix();
+        // Position
+        glTranslatef(splash_x, splash_y, 0.0f);
+        glRotatef(-20.0f, 0.0f, 0.0f, 1.0f);
+        // Scale
+        int textWidth = Font_width(screen->font, &current_splash);
+        float timeMS = float(Common_getTimeMs() % 1000) / 1000.0f;
+        float scale = 2.0f - Mth_abs(0.1f * Mth_sin(2.0f * float(M_PI) * timeMS));
+        float real_text_width = textWidth * scale;
+        if (real_text_width > max_width) {
+            scale *= max_width / real_text_width;
+        }
+        scale *= multiplier;
+        glScalef(scale, scale, scale);
+        // Render
+        static int line_height = 8;
+        Screen_drawCenteredString(screen, screen->font, &current_splash, 0, -(float(line_height) / 2), 0xffff00);
+        // Finish
+        glPopMatrix();
     }
 }
 
@@ -83,5 +151,13 @@ void init_title_screen() {
 
         // Add Functionality To Quit Button
         patch_address(StartMenuScreen_buttonClicked_vtable_addr, (void *) StartMenuScreen_buttonClicked_injection);
+    }
+
+    // Add Splashes
+    if (feature_has("Add Splashes", server_disabled)) {
+        overwrite_call((void *) 0x39764, (void *) StartMenuScreen_render_Screen_render_injection);
+        overwrite_call((void *) 0x3e0c4, (void *) StartMenuScreen_render_Screen_render_injection);
+        // Init Random
+        srand(time(NULL));
     }
 }
