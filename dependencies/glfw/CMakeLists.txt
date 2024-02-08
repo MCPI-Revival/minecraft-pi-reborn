@@ -20,9 +20,6 @@ set(MESSAGE_QUIET TRUE)
 add_subdirectory(src EXCLUDE_FROM_ALL)
 unset(MESSAGE_QUIET)
 
-# Ensure Build
-add_custom_target(glfw-build ALL DEPENDS glfw)
-
 # Install
 install(TARGETS glfw DESTINATION "${MCPI_LIB_DIR}")
 

@@ -28,9 +28,6 @@ set(MESSAGE_QUIET TRUE)
 add_subdirectory(src EXCLUDE_FROM_ALL)
 unset(MESSAGE_QUIET)
 
-# Ensure Build
-add_custom_target(LIEF-build ALL DEPENDS LIB_LIEF)
-
 # Install
 install(TARGETS LIB_LIEF DESTINATION "${MCPI_LIB_DIR}")
 if(BUILD_ARM_COMPONENTS)
