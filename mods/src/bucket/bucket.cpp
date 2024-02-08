@@ -4,6 +4,7 @@
 #include <mods/feature/feature.h>
 #include <mods/init/init.h>
 #include <mods/misc/misc.h>
+#include <mods/bucket/bucket.h>
 
 // Items
 static FoodItem *bucket = NULL;

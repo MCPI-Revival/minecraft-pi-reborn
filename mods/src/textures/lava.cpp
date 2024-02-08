@@ -223,23 +223,39 @@ static DynamicTexture *create_fire_texture(int a2) {
     texture->m_random.param_1 = 0x271;
     texture->m_random.param_2 = false;
     texture->m_random.param_3 = 0;
+    for (int i = 0; i < 320; i++) {
+        texture->m_data1[i] = 0.0f;
+        texture->m_data2[i] = 0.0f;
+    }
     // Return
     return (DynamicTexture *) texture;
 }
 
 // Add Textures
+static bool animated_water = false;
+static bool animated_lava = false;
+static bool animated_fire = false;
 static void Textures_addDynamicTexture_injection(Textures *textures, DynamicTexture *dynamic_texture) {
     // Call Original Method
-    Textures_addDynamicTexture(textures, dynamic_texture);
+    if (animated_water) {
+        Textures_addDynamicTexture(textures, dynamic_texture);
+    }
 
     // Add Lava
-    Textures_addDynamicTexture(textures, create_lava_texture());
-    Textures_addDynamicTexture(textures, create_lava_side_texture());
-    Textures_addDynamicTexture(textures, create_fire_texture(0));
-    Textures_addDynamicTexture(textures, create_fire_texture(1));
+    if (animated_lava) {
+        Textures_addDynamicTexture(textures, create_lava_texture());
+        Textures_addDynamicTexture(textures, create_lava_side_texture());
+    }
+    if (animated_fire) {
+        Textures_addDynamicTexture(textures, create_fire_texture(0));
+        Textures_addDynamicTexture(textures, create_fire_texture(1));
+    }
 }
 
 // Init
-void _init_textures_lava() {
+void _init_textures_lava(bool animated_water_param, bool animated_lava_param, bool animated_fire_param) {
+    animated_water = animated_water_param;
+    animated_lava = animated_lava_param;
+    animated_fire = animated_fire_param;
     overwrite_call((void *) 0x170b4, (void *) Textures_addDynamicTexture_injection);
 }

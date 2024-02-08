@@ -214,10 +214,20 @@ static Texture AppPlatform_linux_loadTexture_injection(__attribute__((unused)) A
 // Init
 void init_textures() {
     // Tick Dynamic Textures (Animated Water)
-    if (feature_has("Animated Water & Lava", server_disabled)) {
+    bool animated_water = feature_has("Animated Water", server_disabled);
+    bool animated_lava = feature_has("Animated Lava", server_disabled);
+    bool animated_fire = feature_has("Animated Fire", server_disabled);
+    if (animated_water || animated_lava || animated_fire) {
+        // Tick Dynamic Textures
         misc_run_on_tick(Minecraft_tick_injection);
+        // Disable Animated Water If Set
+        if (!animated_water) {
+            unsigned char disable_water_patch[4] = {0x00, 0xf0, 0x20, 0xe3}; // "nop"
+            patch((void *) 0x17094, disable_water_patch);
+            patch((void *) 0x170b4, disable_water_patch);
+        }
         // Animated Lava
-        _init_textures_lava();
+        _init_textures_lava(animated_water, animated_lava, animated_fire);
     }
 
     // Scale Animated Textures

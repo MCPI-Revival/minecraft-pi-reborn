@@ -6,7 +6,8 @@
 * Add Peaceful Mode To Options Screen
 * Proper Create New World Screen
 * Proper Chat Screen
-* The `Animated Water` Feature Flag Is Now `Animated Water & Lava`
+* Add `Animated Lava` Feature Flag (Enabled By Default)
+* Add `Animated Fire` Feature Flag (Enabled By Default)
 * Add `Use Java Beta 1.3 Light Ramp` Feature Flag (Enabled By Default)
 * Add `Send Full Level When Hosting Game` Feature Flag (Enabled By Default)
 * Add `Food Overlay` Feature Flag (Disabled By Default)
