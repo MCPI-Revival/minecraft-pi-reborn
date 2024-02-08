@@ -1,6 +1,7 @@
 #include <string>
 #include <fstream>
 #include <streambuf>
+#include <algorithm>
 
 #include <cstring>
 
@@ -90,6 +91,38 @@ ItemInstance *Item_getCraftingRemainingItem_injection(Item *self, ItemInstance *
     return NULL;
 }
 
+// Sort Chunks
+struct chunk_data {
+    Chunk *chunk;
+    float distance;
+};
+#define MAX_CHUNKS_SIZE 24336
+chunk_data data[MAX_CHUNKS_SIZE];
+static void sort_chunks(Chunk **chunks_begin, Chunk **chunks_end, DistanceChunkSorter sorter) {
+    // Calculate Distances
+    int chunks_size = chunks_end - chunks_begin;
+    if (chunks_size > MAX_CHUNKS_SIZE) {
+        IMPOSSIBLE();
+    }
+    for (int i = 0; i < chunks_size; i++) {
+        Chunk *chunk = chunks_begin[i];
+        float distance = Chunk_distanceToSqr(chunk, (Entity *) sorter.mob);
+        if ((1024.0 <= distance) && chunk->y < 0x40) {
+            distance = distance * 10.0;
+        }
+        data[i].chunk = chunk;
+        data[i].distance = distance;
+    }
+
+    // Sort
+    std::sort(data, data + chunks_size, [](chunk_data &a, chunk_data &b) {
+        return a.distance < b.distance;
+    });
+    for (int i = 0; i < chunks_size; i++) {
+        chunks_begin[i] = data[i].chunk;
+    }
+}
+
 // Init
 void _init_misc_cpp() {
     // Implement AppPlatform::readAssetFile So Translations Work
@@ -106,4 +139,7 @@ void _init_misc_cpp() {
     // Implement crafting remainders
     overwrite_call((void *) 0x2e230, (void *) PaneCraftingScreen_craftSelectedItem_PaneCraftingScreen_recheckRecipes_injection);
     overwrite((void *) Item_getCraftingRemainingItem_non_virtual, (void *) Item_getCraftingRemainingItem_injection);
+
+    // Replace 2011 std::sort With Optimized(TM) Code
+    overwrite((void *) 0x51fac, (void *) sort_chunks);
 }

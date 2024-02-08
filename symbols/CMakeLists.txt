@@ -78,6 +78,8 @@ set(SRC
     src/level/Dimension.def
     src/level/MultiPlayerLevel.def
     src/level/LevelSummary.def
+    src/level/DistanceChunkSorter.def
+    src/level/Chunk.def
     src/item/ItemRenderer.def
     src/item/ItemInHandRenderer.def
     src/item/AuxDataTileItem.def

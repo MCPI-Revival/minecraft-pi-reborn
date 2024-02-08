@@ -23,6 +23,7 @@ __attribute__((constructor)) static void init(int argc, char *argv[]) {
     init_atlas();
     init_title_screen();
     init_skin();
+    init_fps();
 #endif
     init_textures();
     init_creative();

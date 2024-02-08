@@ -102,6 +102,8 @@ else()
         # text-input-box
         src/text-input-box/TextInputBox.cpp
         src/text-input-box/TextInputScreen.cpp
+        # fps
+        src/fps/fps.cpp
     )
     # Install Splashes
     install(
