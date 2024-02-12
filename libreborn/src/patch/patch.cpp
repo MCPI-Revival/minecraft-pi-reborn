@@ -132,7 +132,7 @@ static void safe_mprotect(void *addr, size_t len, int prot) {
 }
 void _patch(const char *file, int line, void *start, unsigned char patch[4]) {
     if (((uint32_t) start) % 4 != 0) {
-        ERR("Invalid Address");
+        ERR("Invalid Address: %p", start);
     }
 
     // Get Current Permissions
