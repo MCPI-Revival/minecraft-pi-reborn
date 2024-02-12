@@ -44,7 +44,8 @@ include(cmake/options/paths.cmake)
 string(CONCAT COMPILE_FLAGS_SETUP
     # Optimizations
     "if(CMAKE_BUILD_TYPE STREQUAL \"Release\")\n"
-    "    add_compile_options(-O3 -s)\n"
+    "    add_compile_options(-O3)\n"
+    "    add_link_options(-s)\n"
     "else()\n"
     "    add_compile_options(-g)\n"
     "endif()\n"
@@ -159,6 +160,7 @@ if(BUILD_NATIVE_COMPONENTS)
     else()
         list(APPEND ARM_OPTIONS "-DMCPI_USE_PREBUILT_ARMHF_TOOLCHAIN:BOOL=TRUE")
     endif()
+    list(APPEND ARM_OPTIONS "-DCMAKE_BUILD_TYPE:STRING=${CMAKE_BUILD_TYPE}")
     # Build
     ExternalProject_Add(arm-components
         DOWNLOAD_COMMAND ""

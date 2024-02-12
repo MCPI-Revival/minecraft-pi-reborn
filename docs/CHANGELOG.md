@@ -11,12 +11,16 @@
 * Add `Use Java Beta 1.3 Light Ramp` Feature Flag (Enabled By Default)
 * Add `Send Full Level When Hosting Game` Feature Flag (Enabled By Default)
 * Add `Food Overlay` Feature Flag (Disabled By Default)
+* Add `Display Date In Select World Screen` Feature Flag (Enabled By Default)
+* Add `Optimized Chunk Sorting` Feature Flag (Enabled By Default)
+* Add `Add Cake` Feature Flag (Enabled By Default)
 * Add Milk Buckets
 * Implement Crafting Remainders
 * Improve Death Messages
 * Massive Build System Improvements
 * Fix Item Dropping When Killing Players From The Server Console
 * Fix Furnace Visual Bug When Using Lava Bucket As Fuel
+* Add Splash Text To Start Screen
 
 **2.5.3**
 * Add `Replace Block Highlight With Outline` Feature Flag (Enabled By Default)

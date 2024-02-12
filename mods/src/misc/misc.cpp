@@ -123,6 +123,17 @@ static void sort_chunks(Chunk **chunks_begin, Chunk **chunks_end, DistanceChunkS
     }
 }
 
+// Display Date In Select World Screen
+static std::string AppPlatform_linux_getDateString_injection(__attribute__((unused)) AppPlatform_linux *app_platform, int time) {
+    // From https://github.com/ReMinecraftPE/mcpe/blob/56e51027b1c2e67fe5a0e8a091cefe51d4d11926/platforms/sdl/base/AppPlatform_sdl_base.cpp#L68-L84
+    time_t tt = time;
+    struct tm t;
+    gmtime_r(&tt, &t);
+    char buf[2048];
+    strftime(buf, sizeof buf, "%b %d %Y %H:%M:%S", &t);
+    return std::string(buf);
+}
+
 // Init
 void _init_misc_cpp() {
     // Implement AppPlatform::readAssetFile So Translations Work
@@ -136,10 +147,17 @@ void _init_misc_cpp() {
         patch_address(PauseScreen_init_vtable_addr, (void *) PauseScreen_init_injection);
     }
 
-    // Implement crafting remainders
+    // Implement Crafting Remainders
     overwrite_call((void *) 0x2e230, (void *) PaneCraftingScreen_craftSelectedItem_PaneCraftingScreen_recheckRecipes_injection);
     overwrite((void *) Item_getCraftingRemainingItem_non_virtual, (void *) Item_getCraftingRemainingItem_injection);
 
     // Replace 2011 std::sort With Optimized(TM) Code
-    overwrite((void *) 0x51fac, (void *) sort_chunks);
+    if (feature_has("Optimized Chunk Sorting", server_enabled)) {
+        overwrite((void *) 0x51fac, (void *) sort_chunks);
+    }
+
+    // Display Date In Select World Screen
+    if (feature_has("Display Date In Select World Screen", server_disabled)) {
+        patch_address(AppPlatform_linux_getDateString_vtable_addr, (void *) AppPlatform_linux_getDateString_injection);
+    }
 }
