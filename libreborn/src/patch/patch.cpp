@@ -29,19 +29,26 @@ void _overwrite_call(const char *file, int line, void *start, void *target) {
 // .rodata Information
 #define RODATA_START 0x1020c8
 #define RODATA_END 0x11665c
+// .data.rel.ro Information
+#define DATA_REL_RO_START 0x1352b8
+#define DATA_REL_RO_END 0x135638
 // Search And Patch VTables Containing Function
+#define scan_vtables(section) \
+    for (uintptr_t i = section##_START; i < section##_END; i = i + 4) { \
+        uint32_t *addr = (uint32_t *) i; \
+        if (*addr == (uintptr_t) target) { \
+            /* Found VTable Entry */ \
+            _patch_address(file, line, addr, replacement); \
+            found++; \
+        } \
+    }
 static int _patch_vtables(const char *file, int line, void *target, void *replacement) {
     int found = 0;
-    for (uintptr_t i = RODATA_START; i < RODATA_END; i = i + 4) {
-        uint32_t *addr = (uint32_t *) i;
-        if (*addr == (uintptr_t) target) {
-            // Found VTable Entry
-            _patch_address(file, line, addr, replacement);
-            found++;
-        }
-    }
+    scan_vtables(RODATA);
+    scan_vtables(DATA_REL_RO);
     return found;
 }
+#undef scan_vtables
 
 // Patch Calls Within Range
 static int _overwrite_calls_within_internal(const char *file, int line, void *from, void *to, void *target, void *replacement) {
