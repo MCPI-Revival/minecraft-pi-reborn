@@ -2,6 +2,7 @@
 
 #include <libreborn/libreborn.h>
 #include <media-layer/core.h>
+#include "compat-internal.h"
 
 // Functions That Have Their Return Values Used
 static int XTranslateCoordinates_injection(__attribute__((unused)) void *display, __attribute__((unused)) XID src_w, __attribute__((unused)) XID dest_w, int src_x, int src_y, int *dest_x_return, int *dest_y_return, __attribute__((unused)) XID *child_return) {
@@ -21,7 +22,7 @@ static int XGetWindowAttributes_injection(__attribute__((unused)) void *display,
 }
 
 // Patch X11 Calls
-__attribute__((constructor)) static void patch_x11_calls() {
+void _patch_x11_calls() {
     // Disable X11 Calls
     overwrite_call((void *) 0x132a4, (void *) XGetWindowAttributes_injection); // XGetWindowAttributes
     overwrite_call((void *) 0x132d4, (void *) XTranslateCoordinates_injection); // XTranslateCoordinates

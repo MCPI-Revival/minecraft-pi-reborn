@@ -215,9 +215,7 @@ void _init_options_cpp() {
     // Replace "feedback_vibration" Loading/Saving With "gfx_ao"
     {
         // Replace String
-        static const char *new_feedback_vibration_options_txt_name = "gfx_ao";
-        patch_address((void *) Strings_feedback_vibration_options_txt_name_1_pointer, (void *) &new_feedback_vibration_options_txt_name);
-        patch_address((void *) Strings_feedback_vibration_options_txt_name_2_pointer, (void *) &new_feedback_vibration_options_txt_name);
+        patch_address((void *) Strings_feedback_vibration_options_txt_name_pointer, (void *) "gfx_ao");
         // Loading
         unsigned char offset = (unsigned char) offsetof(Options, ambient_occlusion);
         unsigned char gfx_ao_loading_patch[4] = {offset, 0x10, 0x84, 0xe2}; // "add r1, r4, #OFFSET"
@@ -230,8 +228,7 @@ void _init_options_cpp() {
     // Replace "gfx_lowquality" Loading With "gfx_anaglyph"
     {
         // Replace String
-        static const char *new_gfx_lowquality_options_txt_name = "gfx_anaglyph";
-        patch_address((void *) Strings_gfx_lowquality_options_txt_name_pointer, (void *) &new_gfx_lowquality_options_txt_name);
+        patch_address((void *) Strings_gfx_lowquality_options_txt_name_pointer, (void *) "gfx_anaglyph");
         // Loading
         unsigned char offset = (unsigned char) offsetof(Options, anaglyph_3d);
         unsigned char gfx_anaglyph_loading_patch[4] = {offset, 0x10, 0x84, 0xe2}; // "add r1, r4, #OFFSET"

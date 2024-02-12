@@ -799,7 +799,6 @@ void init_misc() {
         // Animation
         overwrite_calls((void *) ContainerMenu_constructor, (void *) ContainerMenu_injection);
         overwrite_calls((void *) ContainerMenu_destructor_complete_non_virtual, (void *) ContainerMenu_destructor_injection);
-        patch_address(ContainerMenu_destructor_complete_vtable_addr, (void *) ContainerMenu_destructor_injection);
     }
     patch_address((void *) 0x115b48, (void *) ChestTileEntity_shouldSave_injection);
 

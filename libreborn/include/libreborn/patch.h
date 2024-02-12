@@ -8,6 +8,8 @@ extern "C" {
 
 #ifdef REBORN_HAS_PATCH_CODE
 
+void reborn_init_patch();
+
 void _overwrite_call(const char *file, int line, void *start, void *target);
 #define overwrite_call(start, target) _overwrite_call(__FILE__, __LINE__, start, target);
 

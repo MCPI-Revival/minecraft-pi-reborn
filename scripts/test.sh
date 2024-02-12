@@ -2,6 +2,9 @@
 
 set -e
 
+# Change Directory
+cd "$(dirname "$0")/../"
+
 # Variables
 MODE="$(echo "$1" | tr '[:upper:]' '[:lower:]')"
 ARCH='host'

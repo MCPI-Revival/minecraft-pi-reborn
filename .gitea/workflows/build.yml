@@ -87,9 +87,7 @@ jobs:
                 ./out/client/host/usr/bin/minecraft-pi-reborn-client --copy-sdk
           # Build Example Mods
           - name: Build Example Mods
-            run: |
-                cd example-mods
-                ./build.sh
+            run: ./example-mods/build.sh
           - name: Upload Artifacts
             uses: actions/upload-artifact@v3
             with:

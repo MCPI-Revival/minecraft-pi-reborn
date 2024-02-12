@@ -3,6 +3,7 @@
 set -e
 
 # Create Output Directory
+cd "$(dirname "$0")"
 ROOT="$(pwd)"
 OUT="${ROOT}/out"
 rm -rf "${OUT}"

@@ -21,6 +21,7 @@
 * Fix Item Dropping When Killing Players From The Server Console
 * Fix Furnace Visual Bug When Using Lava Bucket As Fuel
 * Add Splash Text To Start Screen
+* `overwrite_calls` Now Scans VTables
 
 **2.5.3**
 * Add `Replace Block Highlight With Outline` Feature Flag (Enabled By Default)

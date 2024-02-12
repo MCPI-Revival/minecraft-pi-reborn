@@ -130,13 +130,13 @@ void init_death() {
         patch_address(LocalPlayer_die_vtable_addr, (void *) LocalPlayer_die_injection);
         patch_address(ServerPlayer_actuallyHurt_vtable_addr, (void *) ServerPlayer_actuallyHurt_injection);
         patch_address(LocalPlayer_actuallyHurt_vtable_addr, (void *) LocalPlayer_actuallyHurt_injection);
-        patch_address(Mob_hurt_vtable_addr, (void *) Mob_hurt_injection);
         overwrite_calls((void *) Mob_hurt_non_virtual, (void *) Mob_hurt_injection);
     }
+
     // Fix TNT
-    // This changes PrimedTnt_explode from Level_explode(NULL, x, y, z, 3.1f) to Level_explode(this, x, y, z, 3.1f)
-    unsigned char cpy_r1_r0_patch[4] = {0x00, 0x10, 0xa0, 0xe1}; // "cpy r1,r0"
+    // This changes PrimedTnt_explode from Level::explode(NULL, x, y, z, 3.1f) to Level::explode(this, x, y, z, 3.1f)
+    unsigned char cpy_r1_r0_patch[4] = {0x00, 0x10, 0xa0, 0xe1}; // "cpy r1, r0"
     patch((void *) 0x87998, cpy_r1_r0_patch);
-    unsigned char ldr_r0_24_patch[4] = {0x24, 0x00, 0x90, 0xe5}; // "ldr r0,[r0,#0x24]"
+    unsigned char ldr_r0_24_patch[4] = {0x24, 0x00, 0x90, 0xe5}; // "ldr r0, [r0, #0x24]"
     patch((void *) 0x8799c, ldr_r0_24_patch);
 }

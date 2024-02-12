@@ -5,6 +5,7 @@
 
 __attribute__((constructor)) static void init(int argc, char *argv[]) {
     media_ensure_loaded();
+    reborn_init_patch();
     run_tests();
     init_symbols();
     init_version();

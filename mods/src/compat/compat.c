@@ -5,6 +5,7 @@
 #include <mods/compat/compat.h>
 #include <mods/screenshot/screenshot.h>
 #include <mods/init/init.h>
+#include "compat-internal.h"
 
 #include <libreborn/libreborn.h>
 
@@ -120,6 +121,10 @@ void init_compat() {
     act_sigterm.sa_flags = SA_RESTART;
     act_sigterm.sa_handler = &exit_handler;
     sigaction(SIGTERM, &act_sigterm, NULL);
+    // Patches
+    _patch_egl_calls();
+    _patch_x11_calls();
+    _patch_bcm_host_calls();
 }
 
 // Store Exit Requests

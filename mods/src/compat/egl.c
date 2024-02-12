@@ -2,6 +2,7 @@
 
 #include <libreborn/libreborn.h>
 #include <media-layer/core.h>
+#include "compat-internal.h"
 
 // Functions That Have Their Return Values Used
 static EGLSurface eglCreateWindowSurface_injection(__attribute__((unused)) EGLDisplay display, __attribute__((unused)) EGLConfig config, __attribute__((unused)) NativeWindowType native_window, __attribute__((unused)) EGLint const *attrib_list) {
@@ -20,7 +21,7 @@ static EGLBoolean eglSwapBuffers_injection(__attribute__((unused)) EGLDisplay di
 }
 
 // Patch EGL Calls
-__attribute__((constructor)) static void patch_egl_calls() {
+void _patch_egl_calls() {
     // Disable EGL Calls
     unsigned char nop_patch[4] = {0x00, 0xf0, 0x20, 0xe3}; // "nop"
     patch((void *) 0x1250c, nop_patch); // eglTerminate

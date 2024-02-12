@@ -1,4 +1,5 @@
 #include <libreborn/libreborn.h>
+#include "compat-internal.h"
 
 // Do Nothing Function
 static void do_nothing() {
@@ -6,7 +7,7 @@ static void do_nothing() {
 }
 
 // Patch bcm_host Calls
-__attribute__((constructor)) static void patch_bcm_host_calls() {
+void _patch_bcm_host_calls() {
     // Disable bcm_host Calls
     overwrite_call((void *) 0xdfec, (void *) do_nothing); // bcm_host_init
     overwrite_call((void *) 0x12418, (void *) do_nothing); // bcm_host_deinit
