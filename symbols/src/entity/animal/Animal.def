@@ -1,3 +1,7 @@
 extends AgableMob;
 
 vtable 0x10b588;
+
+// This int seems to be unused, and changing it doesn't effect anything
+// I've called it love_timer because it matches where the love timer is on older java
+property int love_timer = 0xc00;

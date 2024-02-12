@@ -31,7 +31,7 @@ static int32_t sdl_key_to_minecraft_key_injection(int32_t sdl_key) {
 
 // Open Sign Screen
 static void LocalPlayer_openTextEdit_injection(LocalPlayer *local_player, TileEntity *sign) {
-    if (sign->id == 4) {
+    if (sign->type == 4) {
         Minecraft *minecraft = local_player->minecraft;
         TextEditScreen *screen = alloc_TextEditScreen();
         ALLOC_CHECK(screen);

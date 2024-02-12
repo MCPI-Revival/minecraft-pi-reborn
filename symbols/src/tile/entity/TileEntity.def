@@ -1,5 +1,26 @@
-property int id = 0x18;
-property int renderer_id = 0x24;
+size 0x30;
+vtable-size 0x28;
+vtable 0x115d78;
+constructor (int type) = 0xd2308;
+
+static-method void setId(int id, std::string *name) = 0xd26fc;
+static-method void initTileEntities() = 0xd2834;
+
+virtual-method bool shouldSave() = 0x8;
+virtual-method void load(CompoundTag *tag) = 0xc;
+virtual-method bool save(CompoundTag *tag) = 0x10;
+virtual-method void tick() = 0x14;
+
+property Level *level = 0x4;
+property int x = 0x8;
+property int y = 0xc;
+property int z = 0x10;
+property int tile_data = 0x14;
+property int type = 0x18;
+property int id = 0x1c;
 property bool is_client = 0x20;
-property int tile = 0xd0;
-property int lifetime = 0xd8;
+property int renderer_id = 0x24;
+property Tile *tile = 0x28;
+property bool pending_removal = 0x2c;
+//property int tile = 0xd0;
+//property int lifetime = 0xd8;

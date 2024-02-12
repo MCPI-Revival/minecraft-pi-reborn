@@ -133,15 +133,19 @@ set(SRC
     src/tile/Tile.def
     src/tile/LiquidTile.def
     src/tile/TallGrass.def
-    src/tile/entity/ChestTileEntity.def
     src/tile/entity/TileEntity.def
+    src/tile/entity/ChestTileEntity.def
     src/tile/entity/FurnaceTileEntity.def
     src/tile/entity/SignTileEntity.def
+    src/tile/entity/TileEntityFactory.def
+    src/tile/entity/TileEntityRenderer.def
+    src/tile/entity/TileEntityRenderDispatcher.def
     src/tile/StemTile.def
     src/tile/Tile_SoundType.def
     src/tile/TileRenderer.def
     src/tile/GrassTile.def
     src/tile/HeavyTile.def
+    src/tile/EntityTile.def
     src/misc/Strings.def
     src/misc/I18n.def
     src/misc/SimpleFoodData.def
@@ -160,6 +164,8 @@ set(SRC
     src/misc/Random.def
     src/misc/Mth.def
     src/misc/Util.def
+    src/misc/Tag.def
+    src/misc/CompoundTag.def
     src/input/IMoveInput.def
     src/input/IBuildInput.def
     src/input/MouseBuildInput.def
@@ -225,3 +231,5 @@ install(TARGETS symbols DESTINATION "${MCPI_LIB_DIR}")
 # SDK
 install(TARGETS symbols EXPORT sdk DESTINATION "${MCPI_SDK_LIB_DIR}")
 install(DIRECTORY "${INCLUDE_OUTPUT_DIR}/" DESTINATION "${MCPI_SDK_INCLUDE_DIR}/symbols")
+
+target_compile_options(symbols PUBLIC $<$<COMPILE_LANGUAGE:CXX>:-Wno-invalid-offsetof>)

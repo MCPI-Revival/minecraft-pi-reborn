@@ -26,6 +26,7 @@ virtual-method void onRemove(Level *level, int x, int y, int z) = 0x6c;
 virtual-method int getRenderLayer() = 0x94;
 virtual-method int use(Level *level, int x, int y, int z, Player *player) = 0x98;
 virtual-method void setPlacedBy(Level *level, int x, int y, int z, Mob *placer) = 0xa8;
+virtual-method void handleEntityInside(Level *level, int x, int y, int z, Entity *entity, Vec3 *speed) = 0xb4;
 virtual-method int getColor(LevelSource *level_source, int x, int y, int z) = 0xb8;
 virtual-method void entityInside(Level *level, int x, int y, int z, Entity *entity) = 0xcc;
 virtual-method std::string getDescriptionId() = 0xdc;
@@ -40,8 +41,10 @@ property int id = 0x8;
 property int category = 0x3c;
 property AABB aabb = 0x40;
 
-// Globals
+// Globals, all of theses are 256 elements long
 static-property-array Tile *tiles = 0x180e08;
+static-property-array float lightEmission = 0x181214;
+static-property-array bool isEntityTile = 0x181f20;
 
 // Tiles
 static-property Tile *chest = 0x181d60;
@@ -70,6 +73,3 @@ static-property Tile *grass_carried = 0x181dd4;
 
 // Sounds
 static-property Tile_SoundType SOUND_STONE = 0x181c80;
-
-// Light
-static-property float *lightEmission = 0x181214;

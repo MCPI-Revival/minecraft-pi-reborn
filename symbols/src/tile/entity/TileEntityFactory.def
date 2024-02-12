@@ -1,0 +1,1 @@
+static-method TileEntity *createTileEntity(int type) = 0xd226c;

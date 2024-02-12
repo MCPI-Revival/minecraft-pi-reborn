@@ -468,7 +468,7 @@ static Entity *PathfinderMob_findAttackTarget_injection(PathfinderMob *mob) {
     // Call Original Method
     Entity *target = mob->vtable->findAttackTarget(mob);
 
-    // Check if hostile
+    // Only modify the AI of monsters
     if (mob->vtable->getCreatureBaseType(mob) != 1) {
         return target;
     }

@@ -5,3 +5,5 @@ property Minecraft *mc = 0x18;
 
 method void renderItem(Mob *mob, ItemInstance *item) = 0x4b824;
 method void render(float param_1) = 0x4bfcc;
+
+static-property ItemInHandRenderer **instance = 0x137bc0;
