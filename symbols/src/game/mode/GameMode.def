@@ -1,1 +1,5 @@
+vtable 0x102e58;
+vtable-size 0x60;
+
+virtual-method void attack(Player *player, Entity *target) = 0x44;
 virtual-method void releaseUsingItem(Player *player) = 0x5c;

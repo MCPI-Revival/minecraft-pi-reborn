@@ -130,6 +130,7 @@ set(SRC
     src/app-platform/AppPlatform_linux.def
     src/app-platform/AppPlatform_readAssetFile_return_value.def
     src/tile/LeafTile.def
+    src/tile/DoorTile.def
     src/tile/Tile.def
     src/tile/LiquidTile.def
     src/tile/TallGrass.def

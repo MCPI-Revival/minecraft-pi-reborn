@@ -1,0 +1,5 @@
+extends Tile;
+
+vtable 0x111220;
+
+static-method uint getCompositeData(LevelSource *level, int x, int y, int z) = 0xbde40;

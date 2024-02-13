@@ -833,6 +833,12 @@ void init_misc() {
     overwrite_calls((void *) Player_startUsingItem, (void *) Player_startUsingItem_injection);
     overwrite_calls((void *) Player_stopUsingItem, (void *) Player_stopUsingItem_injection);
 
+    // Fix invalid ItemInHandRenderer texture cache
+    uchar cmp_r7_patch[] = {0x07, 0x00, 0x57, 0xe1}; // "cmp r7,r7"
+    patch((void *) 0x4b938, cmp_r7_patch);
+    uchar moveq_r3_true_patch[] = {0x01, 0x30, 0xa0, 0x03}; // "moveq r3,#0x1"
+    patch((void *) 0x4b93c, moveq_r3_true_patch);
+
     // Init C++ And Logging
     _init_misc_cpp();
     _init_misc_logging();

@@ -1,3 +1,5 @@
 extends Entity;
 
+vtable 0x10c718;
+
 property int fuse = 0xd0;
