@@ -22,5 +22,3 @@ property bool is_client = 0x20;
 property int renderer_id = 0x24;
 property Tile *tile = 0x28;
 property bool pending_removal = 0x2c;
-//property int tile = 0xd0;
-//property int lifetime = 0xd8;

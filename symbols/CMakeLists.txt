@@ -232,5 +232,3 @@ install(TARGETS symbols DESTINATION "${MCPI_LIB_DIR}")
 # SDK
 install(TARGETS symbols EXPORT sdk DESTINATION "${MCPI_SDK_LIB_DIR}")
 install(DIRECTORY "${INCLUDE_OUTPUT_DIR}/" DESTINATION "${MCPI_SDK_INCLUDE_DIR}/symbols")
-
-target_compile_options(symbols PUBLIC $<$<COMPILE_LANGUAGE:CXX>:-Wno-invalid-offsetof>)

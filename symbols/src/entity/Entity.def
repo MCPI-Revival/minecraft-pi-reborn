@@ -32,6 +32,7 @@ property float pitch = 0x44;
 property float old_yaw = 0x48;
 property float old_pitch = 0x4c;
 property AABB hitbox = 0x50;
+property float height_offset = 0x68;
 property int fire_timer = 0xa0;
 property int renderer_id = 0xa8;
 property bool on_ground = 0xb2;

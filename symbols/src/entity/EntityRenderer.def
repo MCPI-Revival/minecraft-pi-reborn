@@ -2,3 +2,6 @@ virtual-method void render(Entity *entity, float param_2, float param_3, float p
 
 // Can be called without an EntityRenderer, just do EntityRenderer_bindTexture(NULL, &file);
 method void bindTexture(std::string *file) = 0x62540;
+
+// Globals
+static-property EntityRenderDispatcher *entityRenderDispatcher = 0x137bc0;

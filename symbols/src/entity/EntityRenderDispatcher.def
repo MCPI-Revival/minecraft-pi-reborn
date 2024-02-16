@@ -1,3 +1,5 @@
 constructor () = 0x6096c;
 
 method void assign(uchar entity_id, EntityRenderer *renderer) = 0x6094c;
+method void render(Entity *entity, float x, float y, float z, float rot, float unknown) = 0x60674;
+static-method EntityRenderDispatcher *getInstance() = 0x60e90;

@@ -2,3 +2,5 @@ virtual-method void startOpen() = 0x24;
 virtual-method void stopOpen() = 0x28;
 virtual-method ItemInstance *getItem(int slot) = 0x8;
 virtual-method void setItem(int slot, ItemInstance *item_instance) = 0xc;
+virtual-method int getContainerSize() = 0x18;
+virtual-method std::vector<ItemInstance> getSlotCopies() = 0x2c;

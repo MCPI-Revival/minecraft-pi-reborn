@@ -5,5 +5,6 @@ method void selectSlot(int slot) = 0x8d13c;
 method ItemInstance *getSelected() = 0x8d134;
 // It's just FillingContainer_linkSlot with selectedSlot as linked_slot
 method bool moveToSelectedSlot(int unlinked_slot, bool push_aside) = 0x8d148;
+method void setupDefault() = 0x8d164;
 
 property int selectedSlot = 0x28;
