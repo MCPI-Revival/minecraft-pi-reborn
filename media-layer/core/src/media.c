@@ -234,8 +234,27 @@ static double last_mouse_y = 0;
 // Ignore Relative Cursor Motion
 static int ignore_relative_motion = 0;
 
+// Convert Screen Coordinates To Pixels
+static void convert_to_pixels(GLFWwindow *window, double *xpos, double *ypos) {
+    // Get Window Size
+    int window_width;
+    int window_height;
+    glfwGetWindowSize(window, &window_width, &window_height);
+    // Get Framebuffer Size
+    int framebuffer_width;
+    int framebuffer_height;
+    glfwGetFramebufferSize(window, &framebuffer_width, &framebuffer_height);
+    // Calculate Ratios
+    double width_ratio = ((double) framebuffer_width) / ((double) window_width);
+    double height_ratio = ((double) framebuffer_height) / ((double) window_height);
+    // Multiply
+    *xpos *= width_ratio;
+    *ypos *= height_ratio;
+}
+
 // Pass Mouse Movement To SDL
 static void glfw_motion(__attribute__((unused)) GLFWwindow *window, double xpos, double ypos) {
+    convert_to_pixels(window, &xpos, &ypos);
     if (is_interactable) {
         SDL_Event event;
         event.type = SDL_MOUSEMOTION;
