@@ -36,7 +36,7 @@ std::string _sound_get_source_file() {
         // Check If Sound Exists
         if (access(path, F_OK) == -1) {
             // Fail
-            WARN("Audio Source File Doesn't Exist: " SOURCE_FILE_BASE);
+            WARN("Audio Source File Doesn't Exist: " SOURCE_FILE_BASE " (See: https://gitea.thebrokenrail.com/minecraft-pi-reborn/minecraft-pi-reborn/src/branch/master/docs/SOUND.md)");
             source.assign("");
         } else {
             // Set
