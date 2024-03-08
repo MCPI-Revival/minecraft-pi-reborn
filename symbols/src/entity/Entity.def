@@ -1,5 +1,6 @@
 virtual-method void remove() = 0x10;
 virtual-method void tick() = 0x34;
+virtual-method float getBrightness(float param_1) = 0x64;
 virtual-method bool interact(Player *with) = 0x6c;
 virtual-method void playerTouch(Player *player) = 0x70;
 virtual-method bool isPlayer() = 0x94;
@@ -37,3 +38,4 @@ property int fire_timer = 0xa0;
 property int renderer_id = 0xa8;
 property bool on_ground = 0xb2;
 property bool freeze_physics = 0xb9;
+property float fall_distance = 0xac;

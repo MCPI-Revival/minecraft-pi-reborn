@@ -3,7 +3,7 @@
 #include <symbols/minecraft.h>
 
 struct TextInputBox {
-    static TextInputBox *create(const std::string &placeholder = "", const std::string &text = "");
+    static TextInputBox *create(const std::string &placeholder = "", const std::string &text = "", const std::vector<std::string> *history = NULL);
 
     GuiComponent super;
 
@@ -20,6 +20,8 @@ struct TextInputBox {
     std::string getText();
     bool isFocused();
     void setMaxLength(int max_length);
+
+    int history_pos;
 
 private:
     void recalculateScroll();
@@ -38,4 +40,5 @@ private:
     Font *m_pFont;
     int m_maxLength;
     int m_scrollPos;
+    const std::vector<std::string> *history;
 };

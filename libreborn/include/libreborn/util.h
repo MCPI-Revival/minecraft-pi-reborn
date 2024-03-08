@@ -52,7 +52,7 @@ int reborn_is_server();
 
 // Customize VTable
 #define CUSTOM_VTABLE(name, parent) \
-    static void _setup_##name##_vtable(parent##_vtable *vtable); \
+    void _setup_##name##_vtable(parent##_vtable *vtable); \
     static parent##_vtable *get_##name##_vtable() { \
         static parent##_vtable *vtable = NULL; \
         /* Allocate VTable */ \
@@ -67,7 +67,7 @@ int reborn_is_server();
         return vtable; \
     } \
     /* User-Defined Setup Code */ \
-    static void _setup_##name##_vtable(parent##_vtable *vtable)
+    void _setup_##name##_vtable(parent##_vtable *vtable)
 
 #ifdef __cplusplus
 }

@@ -1,2 +1,20 @@
+vtable 0x110180;
+vtable-size 0x24;
+
+static-method void initBiomes() = 0xae320;
+static-method void recalc() = 0xae010;
+static-method Biome *_getBiome(float temp, float humidity) = 0xadf04;
+
+virtual-method Feature *getTreeFeature(Random *random) = 0x8;
+virtual-method Feature *getGrassFeature(Random *random) = 0xc;
+virtual-method float adjustScale(float scale) = 0x10;
+virtual-method float adjustDepth(float depth) = 0x14;
+virtual-method uint getSkyColor(float temp) = 0x18;
+//virtual-method ??? *getMobs(MobCategory *category) = 0x1c;
+virtual-method float getCreatureProbability() = 0x20;
+
 property int color = 0x2c;
 property int leaf_color = 0x34;
+
+// 64x64, Temp x humidity
+static-property-array Biome *map = 0x17c970;

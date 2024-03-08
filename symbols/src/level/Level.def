@@ -11,17 +11,21 @@ method Entity *getEntity(int id) = 0xa45a4;
 method bool addEntity(Entity *entity) = 0xa7cbc;
 method int getBrightness2(LightLayer *layer, int x, int y, int z) = 0xa3c70;
 method void playSound(Entity *entity, std::string *name, float volume, float pitch) = 0xa42a8;
+// Searches aabb for entities, ignores the entity "ignore", overwrites the same vector each time
+method std::vector<Entity*> *getEntities(Entity *ignore, AABB *aabb) = 0xa5a4c;
 // Searches aabb for entities of type type_id, adds then to buff, returns the number of entities added
 method int getEntitiesOfType(int type_id, AABB *aabb, std::vector<Entity*> *buff) = 0xa612c;
 // Searches aabb for entities of base type base_type, adds then to buff, returns the number of entities added
 method int getEntitiesOfClass(int base_type, AABB *aabb, std::vector<Entity*> *buff) = 0xa6240;
 // This will implicitly make the tile entity if the tile at x, y, z doesn't have one and is an EntityTile
 method TileEntity *getTileEntity(int x, int y, int z) = 0xa55d4;
+method void animateTick(int x, int y, int z) = 0xa5920;
 
 virtual-method void tick() = 0x28;
 virtual-method void updateSleepingPlayerList() = 0x2c;
 virtual-method ChunkCache *createChunkSource() = 0x30;
 
+property bool done_generating = 0x12;
 property std::vector<Entity *> entities = 0x20;
 property std::vector<TileEntity *> tileentities = 0x50;
 property std::vector<Player *> players = 0x60;

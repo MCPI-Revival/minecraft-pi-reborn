@@ -1,0 +1,3 @@
+extends Item;
+
+property float speed = 0x24;

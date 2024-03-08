@@ -1,0 +1,7 @@
+vtable 0x10e530;
+vtable-size 0x10;
+
+// Pure virtual
+virtual-method bool place(Level *level, Random *random, int x, int y, int z) = 0x8;
+// Not sure about args, it doesn't seem to be used at all
+virtual-method void init(float x, float y, float z) = 0xc;

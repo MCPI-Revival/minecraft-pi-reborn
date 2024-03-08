@@ -5,3 +5,4 @@ static-method float sin(float x) = 0x7775c;
 static-method float cos(float x) = 0x77728;
 static-method float abs(float x) = 0x7781c;
 static-method float min(float a, float b) = 0x7782c;
+static-method float invSqrt(float a) = 0x776d4;

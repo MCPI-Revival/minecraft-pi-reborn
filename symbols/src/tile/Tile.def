@@ -73,3 +73,4 @@ static-property Tile *grass_carried = 0x181dd4;
 
 // Sounds
 static-property Tile_SoundType SOUND_STONE = 0x181c80;
+static-property Tile_SoundType SOUND_WOOD  = 0x181cb4;

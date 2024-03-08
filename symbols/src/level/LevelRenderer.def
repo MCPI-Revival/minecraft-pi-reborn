@@ -1,3 +1,4 @@
+method void tick() = 0x4da1c;
 method void render(Mob *mob, int param_1, float delta) = 0x4f710;
 method void renderDebug(AABB *aabb, float delta) = 0x4d310;
 method void generateSky() = 0x4d0d4;

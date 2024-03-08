@@ -1,4 +1,8 @@
+size 0xb8;
+
+constructor (Minecraft *minecraft, LevelSource *level) = 0x53e58;
+
 method bool tesselateBlockInWorld(Tile *tile, int x, int y, int z) = 0x59e30;
 method bool tesselateInWorld(Tile *tile, int x, int y, int z) = 0x5e80c;
 
-property Level *level = 0x0;
+property LevelSource *level = 0x0;

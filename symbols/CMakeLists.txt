@@ -66,6 +66,7 @@ set(SRC
     src/level/container/Container.def
     src/level/container/ContainerMenu.def
     src/level/container/Inventory.def
+    src/level/feature/Feature.def
     src/level/feature/LargeFeature.def
     src/level/feature/LargeCaveFeature.def
     src/level/Material.def
@@ -97,6 +98,7 @@ set(SRC
     src/item/ArmorItem.def
     src/item/TileItem.def
     src/item/FoodItem.def
+    src/item/DiggerItem.def
     src/api/OffsetPosTranslator.def
     src/api/CommandServer.def
     src/api/ConnectedClient.def

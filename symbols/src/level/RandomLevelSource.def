@@ -5,4 +5,5 @@ vtable 0x110598;
 method void buildSurface(int chunk_x, int chunk_y, uchar *chunk_data, Biome **biomes) = 0xb32ec;
 
 property LargeCaveFeature cave_feature = 0x8;
+property Random random = 0x19f8;
 property Level *level = 0x72c8;
