@@ -10,7 +10,10 @@
 #include <mods/misc/misc.h>
 #include <mods/touch/touch.h>
 
-std::vector<std::string> history;
+static std::vector<std::string> &get_history() {
+    static std::vector<std::string> history = {};
+    return history;
+}
 
 // Structure
 struct ChatScreen {
@@ -26,7 +29,7 @@ CUSTOM_VTABLE(chat_screen, Screen) {
         original_init(super);
         ChatScreen *self = (ChatScreen *) super;
         // Text Input
-        self->chat = TextInputBox::create("", "", &history);
+        self->chat = TextInputBox::create("", "", &get_history());
         self->super.m_textInputs->push_back(self->chat);
         self->chat->init(super->font);
         self->chat->setFocused(true);
@@ -81,7 +84,8 @@ CUSTOM_VTABLE(chat_screen, Screen) {
         if (key == 0x0d && self->chat->isFocused()) {
             if (self->chat->getText().length() > 0) {
                 std::string text = self->chat->getText();
-                if (self->chat->history_pos != int(history.size() - 1)) {
+                std::vector<std::string> &history = get_history();
+                if (history.size() == 0 || text != history.back()) {
                     history.push_back(text);
                 }
                 _chat_queue_message(text.c_str());
@@ -119,7 +123,6 @@ static Screen *create_chat_screen() {
 
 // Init
 void _init_chat_ui() {
-    history = {};
     misc_run_on_game_key_press([](Minecraft *minecraft, int key) {
         if (key == 0x54) {
             if (Minecraft_isLevelGenerated(minecraft) && minecraft->screen == NULL) {
