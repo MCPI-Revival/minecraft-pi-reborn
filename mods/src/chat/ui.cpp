@@ -15,11 +15,16 @@ static std::vector<std::string> &get_history() {
     return history;
 }
 
+static std::string index_vec(const std::vector<std::string> &vec, int pos) {
+    return pos == int(vec.size()) ? "" : vec.at(pos);
+}
+
 // Structure
 struct ChatScreen {
     TextInputScreen super;
     TextInputBox *chat;
     Button *send;
+    int history_pos;
 };
 CUSTOM_VTABLE(chat_screen, Screen) {
     TextInputScreen::setup(vtable);
@@ -29,10 +34,11 @@ CUSTOM_VTABLE(chat_screen, Screen) {
         original_init(super);
         ChatScreen *self = (ChatScreen *) super;
         // Text Input
-        self->chat = TextInputBox::create("", "", &get_history());
+        self->chat = TextInputBox::create();
         self->super.m_textInputs->push_back(self->chat);
         self->chat->init(super->font);
         self->chat->setFocused(true);
+        self->history_pos = get_history().size();
         // Determine Max Length
         std::string prefix = _chat_get_prefix(Strings_default_username);
         int max_length = MAX_CHAT_MESSAGE_LENGTH - prefix.length();
@@ -91,6 +97,24 @@ CUSTOM_VTABLE(chat_screen, Screen) {
                 _chat_queue_message(text.c_str());
             }
             Minecraft_setScreen(super->minecraft, NULL);
+        } else if (key == 0x26 && self->chat->isFocused()) {
+            // Up
+            int old_pos = self->history_pos;
+            self->history_pos -= 1;
+            if (self->history_pos < 0) self->history_pos = get_history().size();
+            if (old_pos != self->history_pos) {
+                self->chat->setText(index_vec(get_history(), self->history_pos));
+            }
+            return;
+        } else if (key == 0x28 && self->chat->isFocused()) {
+            // Down
+            int old_pos = self->history_pos;
+            self->history_pos += 1;
+            if (self->history_pos > int(get_history().size())) self->history_pos = 0;
+            if (old_pos != self->history_pos) {
+                self->chat->setText(index_vec(get_history(), self->history_pos));
+            }
+            return;
         }
         // Call Original Method
         original_keyPressed(super, key);

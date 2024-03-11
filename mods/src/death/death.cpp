@@ -8,7 +8,7 @@
 
 // Death Messages
 static const char *monster_names[] = {"Zombie", "Creeper", "Skeleton", "Spider", "Zombie Pigman"};
-static std::string get_death_message(Player *player, Entity *cause, bool was_shot = false) {
+std::string get_death_message(Player *player, Entity *cause, bool was_shot = false) {
     // Prepare Death Message
     std::string message = player->username;
     if (cause) {

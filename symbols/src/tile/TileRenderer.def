@@ -2,7 +2,11 @@ size 0xb8;
 
 constructor (Minecraft *minecraft, LevelSource *level) = 0x53e58;
 
+static-method bool canRender(int shape) = 0x5accc;
+
 method bool tesselateBlockInWorld(Tile *tile, int x, int y, int z) = 0x59e30;
 method bool tesselateInWorld(Tile *tile, int x, int y, int z) = 0x5e80c;
+method void renderGuiTile(Tile *tile, int aux) = 0x5ad0c;
+method void renderTile(Tile *tile, int data) = 0x5dcb0;
 
 property LevelSource *level = 0x0;

@@ -2,16 +2,7 @@
 
 #include <mods/text-input-box/TextInputBox.h>
 
-static int get_vec_size(const std::vector<std::string> *vec) {
-    return vec ? vec->size() : 0;
-}
-
-static std::string index_vec(const std::vector<std::string> *vec, int pos) {
-    if (vec == NULL || pos == get_vec_size(vec)) return "";
-    return vec->at(pos);
-}
-
-TextInputBox *TextInputBox::create(const std::string &placeholder, const std::string &text, const std::vector<std::string> *history) {
+TextInputBox *TextInputBox::create(const std::string &placeholder, const std::string &text) {
     // Construct
     TextInputBox *self = new TextInputBox;
     GuiComponent_constructor(&self->super);
@@ -31,8 +22,6 @@ TextInputBox *TextInputBox::create(const std::string &placeholder, const std::st
     self->m_pFont = nullptr;
     self->m_maxLength = -1;
     self->m_scrollPos = 0;
-    self->history = history;
-    self->history_pos = get_vec_size(history);
 
     // Return
     return self;
@@ -99,16 +88,6 @@ void TextInputBox::keyPressed(int key) {
             recalculateScroll();
             break;
         }
-        case 0x26: {
-            // Up
-            int old_pos = history_pos;
-            history_pos -= 1;
-            if (history_pos < 0) history_pos = get_vec_size(history);
-            if (old_pos == history_pos) break;
-            m_text = index_vec(history, history_pos);
-            m_insertHead = int(m_text.size());
-            break;
-        }
         case 0x27: {
             // Right
             m_insertHead++;
@@ -120,16 +99,6 @@ void TextInputBox::keyPressed(int key) {
                 m_insertHead = 0;
             }
             recalculateScroll();
-            break;
-        }
-        case 0x28: {
-            // Down
-            int old_pos = history_pos;
-            history_pos += 1;
-            if (history_pos > get_vec_size(history)) history_pos = 0;
-            if (old_pos == history_pos) break;
-            m_text = index_vec(history, history_pos);
-            m_insertHead = int(m_text.size());
             break;
         }
         case 0x0d: {
@@ -314,6 +283,11 @@ void TextInputBox::recalculateScroll() {
 
 std::string TextInputBox::getText() {
     return m_text;
+}
+
+void TextInputBox::setText(std::string str) {
+    m_text = str;
+    m_insertHead = int(m_text.size());
 }
 
 bool TextInputBox::isFocused() {

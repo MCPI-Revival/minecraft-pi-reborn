@@ -23,6 +23,8 @@ virtual-method void tick(Level *level, int x, int y, int z) = 0x58;
 virtual-method void neighborChanged(Level *level, int x, int y, int z, int neighborId) = 0x64;
 virtual-method void onPlace(Level *level, int x, int y, int z) = 0x68;
 virtual-method void onRemove(Level *level, int x, int y, int z) = 0x6c;
+virtual-method int getResource(int data, Random *random) = 0x70;
+virtual-method int getResourceCount(Random *random) = 0x74;
 virtual-method int getRenderLayer() = 0x94;
 virtual-method int use(Level *level, int x, int y, int z, Player *player) = 0x98;
 virtual-method void setPlacedBy(Level *level, int x, int y, int z, Mob *placer) = 0xa8;
@@ -38,6 +40,12 @@ virtual-method Tile *setDestroyTime(float destroy_time) = 0xf8;
 
 property int texture = 0x4;
 property int id = 0x8;
+property float x1 = 0xc;
+property float y1 = 0x10;
+property float z1 = 0x14;
+property float x2 = 0x18;
+property float y2 = 0x1c;
+property float z2 = 0x20;
 property int category = 0x3c;
 property AABB aabb = 0x40;
 
