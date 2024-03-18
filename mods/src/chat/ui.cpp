@@ -100,23 +100,17 @@ CUSTOM_VTABLE(chat_screen, Screen) {
                 // Up
                 local_history.at(self->history_pos) = self->chat->getText();
                 // Change
-                int old_pos = self->history_pos;
                 self->history_pos -= 1;
                 if (self->history_pos < 0) self->history_pos = local_history.size() - 1;
-                if (old_pos != self->history_pos) {
-                    self->chat->setText(local_history.at(self->history_pos));
-                }
+                self->chat->setText(local_history.at(self->history_pos));
                 return;
             } else if (key == 0x28) {
                 // Down
                 local_history.at(self->history_pos) = self->chat->getText();
                 // Change
-                int old_pos = self->history_pos;
                 self->history_pos += 1;
                 if (self->history_pos > int(local_history.size()) - 1) self->history_pos = 0;
-                if (old_pos != self->history_pos) {
-                    self->chat->setText(local_history.at(self->history_pos));
-                }
+                self->chat->setText(local_history.at(self->history_pos));
                 return;
             }
         }
