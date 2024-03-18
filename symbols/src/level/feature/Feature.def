@@ -1,3 +1,5 @@
+
+constructor () = 0xb64a0;
 vtable 0x10e530;
 vtable-size 0x10;
 

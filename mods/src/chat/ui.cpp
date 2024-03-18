@@ -15,10 +15,6 @@ static std::vector<std::string> &get_history() {
     return history;
 }
 
-static std::string index_vec(const std::vector<std::string> &vec, int pos) {
-    return pos == int(vec.size()) ? "" : vec.at(pos);
-}
-
 // Structure
 struct ChatScreen {
     TextInputScreen super;
@@ -29,6 +25,7 @@ struct ChatScreen {
 CUSTOM_VTABLE(chat_screen, Screen) {
     TextInputScreen::setup(vtable);
     // Init
+    static std::vector<std::string> local_history = {};
     static Screen_init_t original_init = vtable->init;
     vtable->init = [](Screen *super) {
         original_init(super);
@@ -39,6 +36,8 @@ CUSTOM_VTABLE(chat_screen, Screen) {
         self->chat->init(super->font);
         self->chat->setFocused(true);
         self->history_pos = get_history().size();
+        local_history = get_history();
+        local_history.push_back("");
         // Determine Max Length
         std::string prefix = _chat_get_prefix(Strings_default_username);
         int max_length = MAX_CHAT_MESSAGE_LENGTH - prefix.length();
@@ -87,34 +86,39 @@ CUSTOM_VTABLE(chat_screen, Screen) {
     vtable->keyPressed = [](Screen *super, int key) {
         // Handle Enter
         ChatScreen *self = (ChatScreen *) super;
-        if (key == 0x0d && self->chat->isFocused()) {
-            if (self->chat->getText().length() > 0) {
-                std::string text = self->chat->getText();
-                std::vector<std::string> &history = get_history();
-                if (history.size() == 0 || text != history.back()) {
-                    history.push_back(text);
+        if (self->chat->isFocused()) {
+            if (key == 0x0d) {
+                if (self->chat->getText().length() > 0) {
+                    std::string text = self->chat->getText();
+                    if (get_history().size() == 0 || text != get_history().back()) {
+                        get_history().push_back(text);
+                    }
+                    _chat_queue_message(text.c_str());
                 }
-                _chat_queue_message(text.c_str());
+                Minecraft_setScreen(super->minecraft, NULL);
+            } else if (key == 0x26) {
+                // Up
+                local_history.at(self->history_pos) = self->chat->getText();
+                // Change
+                int old_pos = self->history_pos;
+                self->history_pos -= 1;
+                if (self->history_pos < 0) self->history_pos = local_history.size() - 1;
+                if (old_pos != self->history_pos) {
+                    self->chat->setText(local_history.at(self->history_pos));
+                }
+                return;
+            } else if (key == 0x28) {
+                // Down
+                local_history.at(self->history_pos) = self->chat->getText();
+                // Change
+                int old_pos = self->history_pos;
+                self->history_pos += 1;
+                if (self->history_pos > int(local_history.size()) - 1) self->history_pos = 0;
+                if (old_pos != self->history_pos) {
+                    self->chat->setText(local_history.at(self->history_pos));
+                }
+                return;
             }
-            Minecraft_setScreen(super->minecraft, NULL);
-        } else if (key == 0x26 && self->chat->isFocused()) {
-            // Up
-            int old_pos = self->history_pos;
-            self->history_pos -= 1;
-            if (self->history_pos < 0) self->history_pos = get_history().size();
-            if (old_pos != self->history_pos) {
-                self->chat->setText(index_vec(get_history(), self->history_pos));
-            }
-            return;
-        } else if (key == 0x28 && self->chat->isFocused()) {
-            // Down
-            int old_pos = self->history_pos;
-            self->history_pos += 1;
-            if (self->history_pos > int(get_history().size())) self->history_pos = 0;
-            if (old_pos != self->history_pos) {
-                self->chat->setText(index_vec(get_history(), self->history_pos));
-            }
-            return;
         }
         // Call Original Method
         original_keyPressed(super, key);

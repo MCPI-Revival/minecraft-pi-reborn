@@ -60,9 +60,9 @@ void chat_handle_packet_send(Minecraft *minecraft, ChatPacket *packet) {
     RakNetInstance *rak_net_instance = minecraft->rak_net_instance;
     if (rak_net_instance->vtable->isServer(rak_net_instance)) {
         // Hosting Multiplayer
-        char *message = packet->message;
+        const char *message = packet->message.c_str();
         ServerSideNetworkHandler *server_side_network_handler = (ServerSideNetworkHandler *) minecraft->network_handler;
-        chat_send_message(server_side_network_handler, Strings_default_username, message);
+        chat_send_message(server_side_network_handler, Strings_default_username, (char *) message);
     } else {
         // Client
         rak_net_instance->vtable->send(rak_net_instance, (Packet *) packet);
@@ -82,8 +82,8 @@ static void ServerSideNetworkHandler_handle_ChatPacket_injection(ServerSideNetwo
     Player *player = ServerSideNetworkHandler_getPlayer(server_side_network_handler, rak_net_guid);
     if (player != NULL) {
         const char *username = player->username.c_str();
-        char *message = chat_packet->message;
-        chat_send_message(server_side_network_handler, (char *) username, message);
+        const char *message = chat_packet->message.c_str();
+        chat_send_message(server_side_network_handler, (char *) username, (char *) message);
     }
 }
 

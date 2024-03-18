@@ -4,4 +4,5 @@ vtable 0x111348;
 vtable-size 0x108;
 size 0x5c;
 
+// Pure virtual
 virtual-method TileEntity *newTileEntity() = 0x104;

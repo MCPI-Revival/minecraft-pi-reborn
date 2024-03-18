@@ -1,5 +1,6 @@
 constructor () = 0x6fc18;
-size 0x10;
+
+size 0x8;
 vtable 0x1024d8;
 vtable-size 0x14;
 

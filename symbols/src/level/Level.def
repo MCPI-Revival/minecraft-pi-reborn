@@ -3,13 +3,20 @@ extends LevelSource;
 vtable 0x10fcf0;
 
 method void saveLevelData() = 0xa2e94;
+method void setTile(int x, int y, int z, int id) = 0xa3904;
 method void setTileAndData(int x, int y, int z, int id, int data) = 0xa38b4;
 method void setTileAndDataNoUpdate(int x, int y, int z, int id, int data) = 0xa33d0;
-method HitResult clip(uchar *param_1, uchar *param_2, bool clip_liquids, bool param_3) = 0xa3db0;
+// clip_liquids and clip_hitboxes default to true
+// If clip_hitboxes is true it will ignore blocks that have their getAABB return NULL
+method HitResult clip(uchar *param_1, uchar *param_2, bool clip_liquids, bool clip_hitboxes) = 0xa3db0;
+// Valid particles are crit, flame, lava, smoke, largesmoke, reddust, snowballpoof, and explode
+// There is also bubble which only works under water and ironcrack which will crash the game
 method void addParticle(std::string *particle, float x, float y, float z, float deltaX, float deltaY, float deltaZ, int count) = 0xa449c;
 method Entity *getEntity(int id) = 0xa45a4;
 method bool addEntity(Entity *entity) = 0xa7cbc;
 method int getBrightness2(LightLayer *layer, int x, int y, int z) = 0xa3c70;
+method int getRawBrightness(int x, int y, int z) = 0xa3b70;
+// See mods/src/sound/repository.cpp for a list of sounds
 method void playSound(Entity *entity, std::string *name, float volume, float pitch) = 0xa42a8;
 // Searches aabb for entities, ignores the entity "ignore", overwrites the same vector each time
 method std::vector<Entity*> *getEntities(Entity *ignore, AABB *aabb) = 0xa5a4c;
@@ -19,7 +26,16 @@ method int getEntitiesOfType(int type_id, AABB *aabb, std::vector<Entity*> *buff
 method int getEntitiesOfClass(int base_type, AABB *aabb, std::vector<Entity*> *buff) = 0xa6240;
 // This will implicitly make the tile entity if the tile at x, y, z doesn't have one and is an EntityTile
 method TileEntity *getTileEntity(int x, int y, int z) = 0xa55d4;
+method void removeTileEntity(int x, int y, int z) = 0xa7aac;
 method void animateTick(int x, int y, int z) = 0xa5920;
+// Called by trapdoors, doors, and tnt
+method bool hasNeighborSignal(int x, int y, int z) = 0xa5f08;
+// Called by hasNeighborSignal
+method bool getSignal(int x, int y, int z, int direction) = 0xa5e6c;
+// Called by getSignal
+method bool hasDirectSignal(int x, int y, int z) = 0xa5d88;
+// Called by hasDirectSignal
+method bool getDirectSignal(int x, int y, int z, int direction) = 0xa5d2c;
 
 virtual-method void tick() = 0x28;
 virtual-method void updateSleepingPlayerList() = 0x2c;

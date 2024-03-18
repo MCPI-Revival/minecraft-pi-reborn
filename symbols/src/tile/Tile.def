@@ -19,17 +19,32 @@ virtual-method int getTexture2(int face, int data) = 0x2c;
 virtual-method int getTexture3(LevelSource *level, int x, int y, int z, int face) = 0x30;
 virtual-method AABB *getAABB(Level *level, int x, int y, int z) = 0x34;
 virtual-method bool isSolidRender() = 0x40;
+virtual-method bool mayPlace(Level *level, int x, int y, int z, uchar face) = 0x4c;
+virtual-method bool mayPlace2(Level *level, int x, int y, int z) = 0x50;
 virtual-method void tick(Level *level, int x, int y, int z) = 0x58;
 virtual-method void neighborChanged(Level *level, int x, int y, int z, int neighborId) = 0x64;
 virtual-method void onPlace(Level *level, int x, int y, int z) = 0x68;
 virtual-method void onRemove(Level *level, int x, int y, int z) = 0x6c;
+// Resource is the dropped item
 virtual-method int getResource(int data, Random *random) = 0x70;
 virtual-method int getResourceCount(Random *random) = 0x74;
+// Returns 1 (default, not transparent), 2 (transparent when the texture is, like bushes), or 3 (semi-transparent, like water)
 virtual-method int getRenderLayer() = 0x94;
 virtual-method int use(Level *level, int x, int y, int z, Player *player) = 0x98;
 virtual-method void setPlacedBy(Level *level, int x, int y, int z, Mob *placer) = 0xa8;
 virtual-method void handleEntityInside(Level *level, int x, int y, int z, Entity *entity, Vec3 *speed) = 0xb4;
+// Note that this may be ignored depending on the value of getRenderShape
 virtual-method int getColor(LevelSource *level_source, int x, int y, int z) = 0xb8;
+// This doesn't mean that it *is* producing a signal, rather that it might be
+// Called by trapdoors, doors, and tnt. Never overridden (always returns false)
+virtual-method bool isSignalSource() = 0xbc;
+// Doesn't seem to be used, but it's hard to tell with virtual methods
+// Yes, this IS a bool and not a char.
+virtual-method bool getSignal(LevelSource *level, int x, int y, int z) = 0xc0;
+// Called at the end of Level_getSignal
+virtual-method bool getSignal2(LevelSource *level, int x, int y, int z, int direction) = 0xc4;
+// Called by Level_hasDirectSignal
+virtual-method bool getDirectSignal(Level *level, int x, int y, int z, int direction) = 0xc8;
 virtual-method void entityInside(Level *level, int x, int y, int z, Entity *entity) = 0xcc;
 virtual-method std::string getDescriptionId() = 0xdc;
 virtual-method Tile *setDescriptionId(std::string *description_id) = 0xe0;
@@ -46,6 +61,8 @@ property float z1 = 0x14;
 property float x2 = 0x18;
 property float y2 = 0x1c;
 property float z2 = 0x20;
+property float destroyTime = 0x34;
+property float explodeable = 0x38;
 property int category = 0x3c;
 property AABB aabb = 0x40;
 
@@ -55,6 +72,8 @@ static-property-array float lightEmission = 0x181214;
 static-property-array bool isEntityTile = 0x181f20;
 
 // Tiles
+static-property Tile *grass = 0x181b14;
+static-property Tile *leaves = 0x18120c;
 static-property Tile *chest = 0x181d60;
 static-property Tile *water = 0x181b3c;
 static-property Tile *lava = 0x181cc8;
@@ -74,11 +93,10 @@ static-property Tile *stoneSlab = 0x181b44;
 static-property Tile *fire = 0x181de0;
 
 // "Carried" Tiles
-static-property Tile *leaves = 0x18120c;
 static-property Tile *leaves_carried = 0x181dd8;
-static-property Tile *grass = 0x181b14;
 static-property Tile *grass_carried = 0x181dd4;
 
 // Sounds
 static-property Tile_SoundType SOUND_STONE = 0x181c80;
 static-property Tile_SoundType SOUND_WOOD  = 0x181cb4;
+static-property Tile_SoundType SOUND_GRASS  = 0x181c94;

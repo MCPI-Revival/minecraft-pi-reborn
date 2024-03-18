@@ -5,6 +5,9 @@ size 0x24;
 constructor (std::string name) = 0x69740;
 
 method bool getBoolean(std::string *name) = 0xd1b28;
+method char getByte(std::string *name) = 0x7f00c;
+method void putByte(std::string *name, char i) = 0x7d6d0;
 method short getShort(std::string *name) = 0x459c0;
+method void putShort(std::string *name, short i) = 0x7d60c;
 method bool contains(std::string *name, int type) = 0x7d130;
 method void put(std::string *name, Tag *tag) = 0x6a040;

@@ -37,5 +37,6 @@ property float height_offset = 0x68;
 property int fire_timer = 0xa0;
 property int renderer_id = 0xa8;
 property bool on_ground = 0xb2;
+property bool pending_removal = 0xb8;
 property bool freeze_physics = 0xb9;
 property float fall_distance = 0xac;
