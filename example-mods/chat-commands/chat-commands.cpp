@@ -7,11 +7,11 @@
 // The Actual Mod
 HOOK(chat_handle_packet_send, void, (Minecraft *minecraft, ChatPacket *packet)) {
     // Get Message
-    char *message = packet->message;
+    const char *message = packet->message.c_str();
     if (message[0] == '/') {
         // API Command
         Gui *gui = &minecraft->gui;
-        std::string out = chat_send_api_command(minecraft, &message[1]);
+        std::string out = chat_send_api_command(minecraft, (char *) &message[1]);
         if (out.length() > 0 && out[out.length() - 1] == '\n') {
             out[out.length() - 1] = '\0';
         }

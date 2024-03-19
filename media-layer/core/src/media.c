@@ -40,6 +40,9 @@ static volatile int is_running = 0;
 static int cursor_grabbed = 0;
 static int cursor_visible = 1;
 
+// Track If Raw Mouse Motion Is Enabled
+static int raw_mouse_motion_enabled = 1;
+
 // GLFW Code Not Needed In Headless Mode
 #ifndef MCPI_HEADLESS_MODE
 
@@ -236,6 +239,10 @@ static int ignore_relative_motion = 0;
 
 // Convert Screen Coordinates To Pixels
 static void convert_to_pixels(GLFWwindow *window, double *xpos, double *ypos) {
+    // Skip If Cursor Is Grabbed
+    if (cursor_grabbed && raw_mouse_motion_enabled) {
+        return;
+    }
     // Get Window Size
     int window_width;
     int window_height;
@@ -548,8 +555,7 @@ static void emit_events_after_is_interactable_change() {
 
 #endif
 
-// Track If Raw Mouse Motion Is Enabled
-static int raw_mouse_motion_enabled = 1;
+// Enable/Disable Raw Mouse Motion
 void media_set_raw_mouse_motion_enabled(int enabled) {
     raw_mouse_motion_enabled = enabled;
 #ifndef MCPI_HEADLESS_MODE
