@@ -97,7 +97,7 @@ struct chunk_data {
     float distance;
 };
 #define MAX_CHUNKS_SIZE 24336
-chunk_data data[MAX_CHUNKS_SIZE];
+static chunk_data data[MAX_CHUNKS_SIZE];
 static void sort_chunks(Chunk **chunks_begin, Chunk **chunks_end, DistanceChunkSorter sorter) {
     // Calculate Distances
     int chunks_size = chunks_end - chunks_begin;
