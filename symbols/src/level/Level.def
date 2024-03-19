@@ -26,6 +26,7 @@ method int getEntitiesOfType(int type_id, AABB *aabb, std::vector<Entity*> *buff
 method int getEntitiesOfClass(int base_type, AABB *aabb, std::vector<Entity*> *buff) = 0xa6240;
 // This will implicitly make the tile entity if the tile at x, y, z doesn't have one and is an EntityTile
 method TileEntity *getTileEntity(int x, int y, int z) = 0xa55d4;
+method void setTileEntity(int x, int y, int z, TileEntity *tileEntity) = 0xa7b58;
 method void removeTileEntity(int x, int y, int z) = 0xa7aac;
 method void animateTick(int x, int y, int z) = 0xa5920;
 // Called by trapdoors, doors, and tnt
