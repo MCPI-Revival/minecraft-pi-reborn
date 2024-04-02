@@ -8,4 +8,6 @@ virtual-method void render(TileEntity *tileentity, float x, float y, float z, fl
 virtual-method void onGraphicsReset() = 0xc;
 virtual-method void onNewLevel(Level *level) = 0x10;
 
+method void bindTexture(std::string *file) = 0x67638;
+
 property TileEntityRenderDispatcher *tileEntityRenderDispatcher = 0x4;

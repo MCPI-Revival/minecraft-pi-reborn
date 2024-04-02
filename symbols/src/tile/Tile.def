@@ -18,6 +18,8 @@ virtual-method int getTexture1() = 0x28;
 virtual-method int getTexture2(int face, int data) = 0x2c;
 virtual-method int getTexture3(LevelSource *level, int x, int y, int z, int face) = 0x30;
 virtual-method AABB *getAABB(Level *level, int x, int y, int z) = 0x34;
+// Chain Tile_setShape_non_virtual and Tile_addAABBs_non_virtual, look at how stairs and fences do it
+virtual-method void addAABBs(Level *level, int x, int y, int z, AABB *intersecting, std::vector<AABB> *aabbs) = 0x38;
 virtual-method bool isSolidRender() = 0x40;
 virtual-method bool mayPlace(Level *level, int x, int y, int z, uchar face) = 0x4c;
 virtual-method bool mayPlace2(Level *level, int x, int y, int z) = 0x50;

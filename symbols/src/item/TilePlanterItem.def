@@ -1,0 +1,6 @@
+extends Item;
+
+size 0x28;
+vtable 0x10ecb0;
+
+property int tile_id = 0x24;

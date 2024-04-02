@@ -1,3 +1,7 @@
 extends Item;
 
+vtable 0x114cd8;
+vtable-size 0x98;
+size 0x2c;
+
 constructor (int id) = 0xce3a4;

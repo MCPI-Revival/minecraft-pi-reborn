@@ -4,8 +4,15 @@ vtable 0x10fcf0;
 
 method void saveLevelData() = 0xa2e94;
 method void setTile(int x, int y, int z, int id) = 0xa3904;
+method void setData(int x, int y, int z, int data) = 0xa394c;
 method void setTileAndData(int x, int y, int z, int id, int data) = 0xa38b4;
 method void setTileAndDataNoUpdate(int x, int y, int z, int id, int data) = 0xa33d0;
+// Calls setTileDirty and updateNearbyTiles
+method void tileUpdated(int x, int y, int z, int id) = 0xa387c;
+method void setTileDirty(int x, int y, int z) = 0xa3508;
+// Calls neighborChanged for all adjacent tiles
+method void updateNearbyTiles(int x, int y, int z, int id) = 0xa36cc;
+method void neighborChanged(int x, int y, int z, int id) = 0xa3658;
 // clip_liquids and clip_hitboxes default to true
 // If clip_hitboxes is true it will ignore blocks that have their getAABB return NULL
 method HitResult clip(uchar *param_1, uchar *param_2, bool clip_liquids, bool clip_hitboxes) = 0xa3db0;
@@ -29,6 +36,7 @@ method TileEntity *getTileEntity(int x, int y, int z) = 0xa55d4;
 method void setTileEntity(int x, int y, int z, TileEntity *tileEntity) = 0xa7b58;
 method void removeTileEntity(int x, int y, int z) = 0xa7aac;
 method void animateTick(int x, int y, int z) = 0xa5920;
+method void addToTickNextTick(int x, int y, int z, int id, int delay) = 0xa7428;
 // Called by trapdoors, doors, and tnt
 method bool hasNeighborSignal(int x, int y, int z) = 0xa5f08;
 // Called by hasNeighborSignal
@@ -42,8 +50,11 @@ virtual-method void tick() = 0x28;
 virtual-method void updateSleepingPlayerList() = 0x2c;
 virtual-method ChunkCache *createChunkSource() = 0x30;
 
+property bool is_client_side = 0x11;
 property bool done_generating = 0x12;
 property std::vector<Entity *> entities = 0x20;
 property std::vector<TileEntity *> tileentities = 0x50;
 property std::vector<Player *> players = 0x60;
 property Dimension *dimension = 0x74;
+property ChunkSource *chunk_source = 0xa5c;
+property bool no_update = 0x70;

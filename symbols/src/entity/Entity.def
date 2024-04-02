@@ -1,6 +1,9 @@
 vtable 0x10a548;
 
 virtual-method void remove() = 0x10;
+// The difference between move and moveTo is that move is relative and moveTo is absolute
+virtual-method void move(float xo, float yo, float zo) = 0x18;
+virtual-method void moveTo(float x, float y, float z, float yaw, float pitch) = 0x1c;
 virtual-method void tick() = 0x34;
 virtual-method float getBrightness(float param_1) = 0x64;
 virtual-method bool interact(Player *with) = 0x6c;
@@ -16,8 +19,6 @@ virtual-method bool isItemEntity() = 0xec;
 virtual-method bool isHangingEntity() = 0xf0;
 // The owner entity id for arrows/throwables, else 0
 virtual-method int getAuxData() = 0xf4;
-
-method void moveTo(float x, float y, float z, float yaw, float pitch) = 0x7a834;
 
 property float x = 0x4;
 property float y = 0x8;

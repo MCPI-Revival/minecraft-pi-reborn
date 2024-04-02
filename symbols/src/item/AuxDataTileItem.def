@@ -1,7 +1,7 @@
-extends Item;
+extends TileItem;
 
 vtable 0x114a58;
-
+vtable-size 0x98;
 size 0x2c;
 
 property Tile *icon_tile = 0x28;

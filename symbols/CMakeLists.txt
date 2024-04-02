@@ -73,6 +73,7 @@ set(SRC
     src/level/LevelSource.def
     src/level/ExternalFileLevelStorageSource.def
     src/level/Biome.def
+    src/level/LevelChunk.def
     src/level/ChunkSource.def
     src/level/ChunkCache.def
     src/level/LightLayer.def
@@ -97,6 +98,7 @@ set(SRC
     src/item/ArmorMaterial.def
     src/item/ArmorItem.def
     src/item/TileItem.def
+    src/item/TilePlanterItem.def
     src/item/FoodItem.def
     src/item/DiggerItem.def
     src/api/OffsetPosTranslator.def
