@@ -45,7 +45,7 @@ static bool Player_attack_Entity_hurt_injection(Entity *entity, Entity *attacker
 static ItemInstance *Player_attack_Inventory_getSelected_injection(Inventory *inventory) {
     // Check If Attack Was Successful
     if (!last_player_attack_successful) {
-        return NULL;
+        return nullptr;
     }
 
     // Call Original Method

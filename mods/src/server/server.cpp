@@ -88,7 +88,7 @@ static void start_world(Minecraft *minecraft) {
     LevelSettings settings;
     settings.game_type = get_server_properties().get_int("game-mode", DEFAULT_GAME_MODE);
     std::string seed_str = get_server_properties().get_string("seed", DEFAULT_SEED);
-    int32_t seed = seed_str.length() > 0 ? std::stoi(seed_str) : time(NULL);
+    int32_t seed = seed_str.length() > 0 ? std::stoi(seed_str) : time(nullptr);
     settings.seed = seed;
 
     // Select Level
@@ -202,12 +202,12 @@ static void ban_callback(Minecraft *minecraft, std::string username, Player *pla
         }
     }
     // Reload
-    is_ip_in_blacklist(NULL);
+    is_ip_in_blacklist(nullptr);
 }
 
 // Kill Player
 static void kill_callback(__attribute__((unused)) Minecraft *minecraft, __attribute__((unused)) std::string username, Player *player) {
-    player->vtable->hurt(player, NULL, INT32_MAX);
+    player->vtable->hurt(player, nullptr, INT32_MAX);
     INFO("Killed: %s", username.c_str());
 }
 
@@ -222,7 +222,7 @@ static void handle_server_stop(Minecraft *minecraft) {
         INFO("Stopping Server");
         // Save And Exit
         Level *level = get_level(minecraft);
-        if (level != NULL) {
+        if (level != nullptr) {
             Level_saveLevelData_injection(level);
         }
         Minecraft_leaveGame(minecraft, false);
@@ -263,7 +263,7 @@ static ServerSideNetworkHandler *get_server_side_network_handler(Minecraft *mine
 
 // Read STDIN Thread
 static volatile bool stdin_buffer_complete = false;
-static volatile char *stdin_buffer = NULL;
+static volatile char *stdin_buffer = nullptr;
 static void *read_stdin_thread(__attribute__((unused)) void *data) {
     // Loop
     while (1) {
@@ -278,7 +278,7 @@ static void *read_stdin_thread(__attribute__((unused)) void *data) {
                 // Read Data
                 char x = buffer[i];
                 if (x == '\n') {
-                    if (stdin_buffer == NULL) {
+                    if (stdin_buffer == nullptr) {
                         stdin_buffer = (volatile char *) malloc(1);
                         stdin_buffer[0] = '\0';
                     }
@@ -289,12 +289,12 @@ static void *read_stdin_thread(__attribute__((unused)) void *data) {
             }
         }
     }
-    return NULL;
+    return nullptr;
 }
 __attribute__((destructor)) static void _free_stdin_buffer() {
-    if (stdin_buffer != NULL) {
+    if (stdin_buffer != nullptr) {
         free((void *) stdin_buffer);
-        stdin_buffer = NULL;
+        stdin_buffer = nullptr;
     }
 }
 
@@ -303,9 +303,9 @@ static void handle_commands(Minecraft *minecraft) {
     // Check If Level Is Generated
     if (Minecraft_isLevelGenerated(minecraft) && stdin_buffer_complete) {
         // Command Ready; Run It
-        if (stdin_buffer != NULL) {
+        if (stdin_buffer != nullptr) {
             ServerSideNetworkHandler *server_side_network_handler = get_server_side_network_handler(minecraft);
-            if (server_side_network_handler != NULL) {
+            if (server_side_network_handler != nullptr) {
                 std::string data((char *) stdin_buffer);
 
                 static std::string ban_command("ban ");
@@ -322,7 +322,7 @@ static void handle_commands(Minecraft *minecraft) {
                     find_players(minecraft, ban_username, ban_callback, false);
                 } else if (data == reload_command) {
                     INFO("Reloading %s", is_whitelist() ? "Whitelist" : "Blacklist");
-                    is_ip_in_blacklist(NULL);
+                    is_ip_in_blacklist(nullptr);
                 } else if (data.rfind(kill_command, 0) == 0) {
                     // Kill Target Username
                     std::string kill_username = data.substr(kill_command.length());
@@ -365,7 +365,7 @@ static void handle_commands(Minecraft *minecraft) {
 
             // Free
             free((void *) stdin_buffer);
-            stdin_buffer = NULL;
+            stdin_buffer = nullptr;
         }
         stdin_buffer_complete = false;
     }
@@ -398,7 +398,7 @@ static void Minecraft_update_injection(Minecraft *minecraft) {
 // Check Blacklist/Whitelist
 static bool is_ip_in_blacklist(const char *ip) {
     static std::vector<std::string> ips;
-    if (ip == NULL) {
+    if (ip == nullptr) {
         // Reload
         ips.clear();
         // Check banned-ips.txt
@@ -449,7 +449,7 @@ static Player *ServerSideNetworkHandler_onReady_ClientGeneration_ServerSideNetwo
     Player *player = ServerSideNetworkHandler_popPendingPlayer(server_side_network_handler, guid);
 
     // Check If Player Is Null
-    if (player != NULL) {
+    if (player != nullptr) {
         // Get Data
         std::string *username = &player->username;
         Minecraft *minecraft = server_side_network_handler->minecraft;
@@ -565,7 +565,7 @@ static void server_init() {
         blacklist_file.close();
     }
     // Load Blacklist/Whitelist
-    is_ip_in_blacklist(NULL);
+    is_ip_in_blacklist(nullptr);
 
     // Prevent Main Player From Loading
     unsigned char player_patch[4] = {0x00, 0x20, 0xa0, 0xe3}; // "mov r2, #0x0"
@@ -592,7 +592,7 @@ static void server_init() {
 
     // Start Reading STDIN
     pthread_t read_stdin_thread_obj;
-    pthread_create(&read_stdin_thread_obj, NULL, read_stdin_thread, NULL);
+    pthread_create(&read_stdin_thread_obj, nullptr, read_stdin_thread, nullptr);
 }
 
 // Init Server

@@ -19,7 +19,7 @@
 static void Minecraft_tick_injection(Minecraft *minecraft) {
     // Tick Dynamic Textures
     Textures *textures = minecraft->textures;
-    if (textures != NULL) {
+    if (textures != nullptr) {
         Textures_tick(textures, true);
     }
 }
@@ -180,7 +180,7 @@ static Texture AppPlatform_linux_loadTexture_injection(__attribute__((unused)) A
     // Empty Texture
     out.width = 0;
     out.height = 0;
-    out.data = NULL;
+    out.data = nullptr;
     out.field3_0xc = 0;
     out.field4_0x10 = true;
     out.field5_0x11 = false;

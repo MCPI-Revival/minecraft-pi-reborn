@@ -26,7 +26,7 @@ std::string chat_send_api_command(Minecraft *minecraft, std::string str) {
     client.str = "";
     client.time = 0;
     CommandServer *command_server = minecraft->command_server;
-    if (command_server != NULL) {
+    if (command_server != nullptr) {
         return CommandServer_parse(command_server, &client, &str);
     } else {
         return "";
@@ -36,7 +36,7 @@ std::string chat_send_api_command(Minecraft *minecraft, std::string str) {
 #ifndef MCPI_HEADLESS_MODE
 // Send API Chat Command
 static void send_api_chat_command(Minecraft *minecraft, char *str) {
-    char *command = NULL;
+    char *command = nullptr;
     safe_asprintf(&command, "chat.post(%s)\n", str);
     chat_send_api_command(minecraft, command);
     free(command);
@@ -48,7 +48,7 @@ std::string _chat_get_prefix(char *username) {
     return std::string("<") + username + "> ";
 }
 void chat_send_message(ServerSideNetworkHandler *server_side_network_handler, char *username, char *message) {
-    char *full_message = NULL;
+    char *full_message = nullptr;
     safe_asprintf(&full_message, "%s%s", _chat_get_prefix(username).c_str(), message);
     sanitize_string(&full_message, MAX_CHAT_MESSAGE_LENGTH, 0);
     std::string cpp_string = full_message;
@@ -72,7 +72,7 @@ void chat_handle_packet_send(Minecraft *minecraft, ChatPacket *packet) {
 // Manually Send (And Loopback) ChatPacket
 static void CommandServer_parse_CommandServer_dispatchPacket_injection(CommandServer *command_server, Packet *packet) {
     Minecraft *minecraft = command_server->minecraft;
-    if (minecraft != NULL) {
+    if (minecraft != nullptr) {
         chat_handle_packet_send(minecraft, (ChatPacket *) packet);
     }
 }
@@ -80,7 +80,7 @@ static void CommandServer_parse_CommandServer_dispatchPacket_injection(CommandSe
 // Handle ChatPacket Server-Side
 static void ServerSideNetworkHandler_handle_ChatPacket_injection(ServerSideNetworkHandler *server_side_network_handler, RakNet_RakNetGUID *rak_net_guid, ChatPacket *chat_packet) {
     Player *player = ServerSideNetworkHandler_getPlayer(server_side_network_handler, rak_net_guid);
-    if (player != NULL) {
+    if (player != nullptr) {
         const char *username = player->username.c_str();
         const char *message = chat_packet->message.c_str();
         chat_send_message(server_side_network_handler, (char *) username, (char *) message);

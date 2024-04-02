@@ -28,7 +28,7 @@ std::string _sound_get_source_file() {
 
         // Handle Overrides
         char *overridden_full_path = override_get_path(path);
-        if (overridden_full_path != NULL) {
+        if (overridden_full_path != nullptr) {
             free(path);
             path = overridden_full_path;
         }
@@ -90,7 +90,7 @@ static void SoundEngine_update_injection(SoundEngine *sound_engine, Mob *listene
     volume = sound_enabled ? 1 : 0;
 
     // Position And Rotation
-    if (listener_mob != NULL) {
+    if (listener_mob != nullptr) {
         // Values
         x = listener_mob->x;
         y = listener_mob->y;

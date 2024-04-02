@@ -6,7 +6,7 @@
 #include <mods/misc/misc.h>
 #include <mods/bucket/bucket.h>
 
-static Tile *cake = NULL;
+static Tile *cake = nullptr;
 
 #define CAKE_LEN 0.0625F
 

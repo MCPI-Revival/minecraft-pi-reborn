@@ -162,6 +162,6 @@ void init_title_screen() {
         overwrite_call((void *) 0x39764, (void *) StartMenuScreen_render_Screen_render_injection);
         overwrite_call((void *) 0x3e0c4, (void *) StartMenuScreen_render_Screen_render_injection);
         // Init Random
-        srand(time(NULL));
+        srand(time(nullptr));
     }
 }

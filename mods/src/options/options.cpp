@@ -1,15 +1,87 @@
+#include <cstring>
 #include <string>
 #include <vector>
 #include <sstream>
-#include <string.h>
 
 #include <libreborn/libreborn.h>
+#include <symbols/minecraft.h>
 
 #include <mods/feature/feature.h>
+#include <mods/init/init.h>
 #include <mods/home/home.h>
-#include "options-internal.h"
 
-#include <symbols/minecraft.h>
+// Force Mob Spawning
+static bool LevelData_getSpawnMobs_injection(__attribute__((unused)) unsigned char *level_data) {
+    return true;
+}
+
+// Get Custom Render Distance
+static int get_render_distance() {
+    const char *distance_str = getenv("MCPI_RENDER_DISTANCE");
+    if (distance_str == nullptr) {
+        distance_str = "Short";
+    }
+    if (strcmp("Far", distance_str) == 0) {
+        return 0;
+    } else if (strcmp("Normal", distance_str) == 0) {
+        return 1;
+    } else if (strcmp("Short", distance_str) == 0) {
+        return 2;
+    } else if (strcmp("Tiny", distance_str) == 0) {
+        return 3;
+    } else {
+        ERR("Invalid Render Distance: %s", distance_str);
+    }
+}
+
+// Get Custom Username
+static const char *get_username() {
+    const char *username = getenv("MCPI_USERNAME");
+    if (username == nullptr) {
+        username = "StevePi";
+    }
+    return username;
+}
+static char *safe_username = nullptr;
+__attribute__((destructor)) static void _free_safe_username() {
+    free(safe_username);
+}
+
+static int render_distance;
+// Configure Options
+Options *stored_options = nullptr;
+static void Options_initDefaultValue_injection(Options *options) {
+    // Call Original Method
+    Options_initDefaultValue(options);
+
+    // Default Graphics Settings
+#ifndef MCPI_SERVER_MODE
+    options->fancy_graphics = true;
+    options->ambient_occlusion = true;
+#endif
+
+    // Store
+    stored_options = options;
+}
+static void Minecraft_init_injection(Minecraft *minecraft) {
+    // Call Original Method
+    Minecraft_init_non_virtual(minecraft);
+
+    Options *options = &minecraft->options;
+    // Enable Crosshair In Touch GUI
+    options->split_controls = true;
+    // Render Distance
+    options->render_distance = render_distance;
+}
+
+// Smooth Lighting
+static void TileRenderer_tesselateBlockInWorld_injection(TileRenderer *tile_renderer, Tile *tile, int32_t x, int32_t y, int32_t z) {
+    // Set Variable
+    Minecraft_useAmbientOcclusion = stored_options->ambient_occlusion;
+
+    // Call Original Method
+    TileRenderer_tesselateBlockInWorld(tile_renderer, tile, x, y, z);
+}
 
 // Fix Initial Option Button Rendering
 // The calling function doesn't exist in MCPE v0.6.1, so its name is unknown.
@@ -49,8 +121,8 @@ static std::vector<std::string> OptionsFile_getOptionStrings_injection(OptionsFi
     std::vector<std::string> ret;
     FILE *stream = fopen(path.c_str(), "r");
     char line[128];
-    if (stream != NULL) {
-        while (fgets(line, 0x80, stream) != NULL) {
+    if (stream != nullptr) {
+        while (fgets(line, 0x80, stream) != nullptr) {
             size_t sVar1 = strlen(line);
             if (2 < sVar1) {
                 std::stringstream string_stream(line);
@@ -74,9 +146,9 @@ static std::vector<std::string> OptionsFile_getOptionStrings_injection(OptionsFi
 // Get New options.txt Path
 #ifndef MCPI_SERVER_MODE
 static char *get_new_options_txt_path() {
-    static char *path = NULL;
+    static char *path = nullptr;
     // Path
-    if (path == NULL) {
+    if (path == nullptr) {
         safe_asprintf(&path, "%s/options.txt", home_get());
     }
     // Return
@@ -162,8 +234,46 @@ static void OptionButton_toggle_Options_save_injection(Options *self) {
     Options_save(self);
 }
 
-// Init C++
-void _init_options_cpp() {
+// Init
+void init_options() {
+    // Force Mob Spawning
+    if (feature_has("Force Mob Spawning", server_auto)) {
+        overwrite((void *) LevelData_getSpawnMobs, (void *) LevelData_getSpawnMobs_injection);
+    }
+
+    // Render Distance
+    render_distance = get_render_distance();
+    DEBUG("Setting Render Distance: %i", render_distance);
+
+    // Set Options
+    overwrite_calls((void *) Options_initDefaultValue, (void *) Options_initDefaultValue_injection);
+    overwrite_calls((void *) Minecraft_init_non_virtual, (void *) Minecraft_init_injection);
+
+    // Change Username
+    const char *username = get_username();
+    DEBUG("Setting Username: %s", username);
+    if (strcmp(Strings_default_username, "StevePi") != 0) {
+        ERR("Default Username Is Invalid");
+    }
+    safe_username = to_cp437(username);
+    patch_address((void *) Strings_default_username_pointer, (void *) safe_username);
+
+    // Disable Autojump By Default
+    if (feature_has("Disable Autojump By Default", server_disabled)) {
+        unsigned char autojump_patch[4] = {0x00, 0x30, 0xa0, 0xe3}; // "mov r3, #0x0"
+        patch((void *) 0x44b90, autojump_patch);
+    }
+    // Display Nametags By Default
+    if (feature_has("Display Nametags By Default", server_disabled)) {
+        // r6 = 0x1
+        // r5 = 0x0
+        unsigned char display_nametags_patch[4] = {0x1d, 0x60, 0xc0, 0xe5}; // "strb r6, [r0, #0x1d]"
+        patch((void *) 0xa6628, display_nametags_patch);
+    }
+
+    // Smooth Lighting
+    overwrite_calls((void *) TileRenderer_tesselateBlockInWorld, (void *) TileRenderer_tesselateBlockInWorld_injection);
+
     // NOP
     unsigned char nop_patch[4] = {0x00, 0xf0, 0x20, 0xe3}; // "nop"
 

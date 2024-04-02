@@ -1,6 +1,6 @@
 #include <unistd.h>
-#include <signal.h>
-#include <errno.h>
+#include <csignal>
+#include <cerrno>
 
 #include <mods/compat/compat.h>
 #include <mods/screenshot/screenshot.h>
@@ -51,7 +51,7 @@ HOOK(SDL_PollEvent, int, (SDL_Event *event)) {
     int ret = real_SDL_PollEvent(event);
 
     // Handle Events
-    if (ret == 1 && event != NULL) {
+    if (ret == 1 && event != nullptr) {
         int handled = 0;
 
 #ifndef MCPI_HEADLESS_MODE
@@ -116,11 +116,10 @@ static void exit_handler(__attribute__((unused)) int data) {
 void init_compat() {
     // Install Signal Handlers
     signal(SIGINT, SIG_IGN);
-    struct sigaction act_sigterm;
-    memset((void *) &act_sigterm, 0, sizeof (struct sigaction));
+    struct sigaction act_sigterm = {};
     act_sigterm.sa_flags = SA_RESTART;
     act_sigterm.sa_handler = &exit_handler;
-    sigaction(SIGTERM, &act_sigterm, NULL);
+    sigaction(SIGTERM, &act_sigterm, nullptr);
     // Patches
     _patch_egl_calls();
     _patch_x11_calls();

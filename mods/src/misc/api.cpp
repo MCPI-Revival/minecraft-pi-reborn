@@ -89,7 +89,7 @@ SETUP_CALLBACK(tiles_setup, void);
 // Handle Custom Tiles Setup Behavior
 static void Tile_initTiles_injection() {
     // Run Functions
-    handle_misc_tiles_setup(NULL);
+    handle_misc_tiles_setup(nullptr);
 
     // Call Original Method
     Tile_initTiles();
@@ -103,7 +103,7 @@ static void Item_initItems_injection() {
     Item_initItems();
 
     // Run Functions
-    handle_misc_items_setup(NULL);
+    handle_misc_items_setup(nullptr);
 }
 
 // Run Functions On Language Setup
@@ -114,7 +114,7 @@ static void I18n_loadLanguage_injection(AppPlatform *app, std::string language_n
     I18n_loadLanguage(app, language_name);
 
     // Run Functions
-    handle_misc_language_setup(NULL);
+    handle_misc_language_setup(nullptr);
 }
 
 // Run Functions On GUI Key Press

@@ -25,10 +25,10 @@ void input_drop(int drop_slot) {
 
 // Handle Drop Item Presses
 static void _handle_drop(Minecraft *minecraft) {
-    if ((minecraft->screen == NULL) && (!creative_is_restricted() || !Minecraft_isCreativeMode(minecraft)) && (drop_item_presses > 0 || drop_slot_pressed)) {
+    if ((minecraft->screen == nullptr) && (!creative_is_restricted() || !Minecraft_isCreativeMode(minecraft)) && (drop_item_presses > 0 || drop_slot_pressed)) {
         // Get Player
         LocalPlayer *player = minecraft->player;
-        if (player != NULL) {
+        if (player != nullptr) {
             // Get Selected Slot
             int32_t selected_slot = misc_get_real_selected_slot((Player *) player);
             Inventory *inventory = player->inventory;
@@ -36,7 +36,7 @@ static void _handle_drop(Minecraft *minecraft) {
             // Get Item
             ItemInstance *inventory_item = inventory->vtable->getItem(inventory, selected_slot);
             // Check
-            if (inventory_item != NULL && inventory_item->count > 0) {
+            if (inventory_item != nullptr && inventory_item->count > 0) {
                 // Copy
                 ItemInstance *dropped_item = new ItemInstance;
                 ALLOC_CHECK(dropped_item);

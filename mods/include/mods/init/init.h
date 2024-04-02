@@ -2,10 +2,6 @@
 
 #include <libreborn/libreborn.h>
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 void run_tests();
 void init_version();
 void init_compat();
@@ -36,7 +32,3 @@ void init_chat();
 void init_bucket();
 void init_cake();
 void init_home();
-
-#ifdef __cplusplus
-}
-#endif

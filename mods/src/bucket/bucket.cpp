@@ -7,7 +7,7 @@
 #include <mods/bucket/bucket.h>
 
 // Items
-static FoodItem *bucket = NULL;
+static FoodItem *bucket = nullptr;
 
 // Description And Texture
 static std::string BucketItem_getDescriptionId(__attribute__((unused)) FoodItem *item, ItemInstance *item_instance) {
@@ -111,7 +111,7 @@ static int32_t BucketItem_useOn(__attribute__((unused)) FoodItem *item, ItemInst
         // Get Current Tile
         bool valid = false;
         Material *material = level->vtable->getMaterial(level, x, y, z);
-        if (material != NULL) {
+        if (material != nullptr) {
             valid = !material->vtable->isSolid(material);
         }
         if (item_instance->auxiliary != Tile_water->id && item_instance->auxiliary != Tile_lava->id) {
@@ -161,7 +161,7 @@ static ItemInstance *BucketItem_use(FoodItem *item, ItemInstance *item_instance,
 
 static ItemInstance *BucketItem_getCraftingRemainingItem(FoodItem *item, ItemInstance *item_instance) {
     if (item_instance->auxiliary == 0) {
-        return NULL;
+        return nullptr;
     }
     ItemInstance *ret = alloc_ItemInstance();
     ret->id = item->id;
@@ -255,7 +255,7 @@ static HitResult Mob_pick_Level_clip_injection(Level *level, unsigned char *para
 }
 static void handle_tick(Minecraft *minecraft) {
     LocalPlayer *player = minecraft->player;
-    if (player != NULL) {
+    if (player != nullptr) {
         // Get Selected Slot
         int32_t selected_slot = misc_get_real_selected_slot((Player *) player);
         Inventory *inventory = player->inventory;
@@ -263,7 +263,7 @@ static void handle_tick(Minecraft *minecraft) {
         // Get Item
         ItemInstance *inventory_item = inventory->vtable->getItem(inventory, selected_slot);
         // Check
-        is_holding_bucket = inventory_item != NULL && inventory_item->id == bucket->id && inventory_item->auxiliary == 0;
+        is_holding_bucket = inventory_item != nullptr && inventory_item->id == bucket->id && inventory_item->auxiliary == 0;
     }
 }
 
@@ -280,7 +280,7 @@ static bool is_calm_liquid(int32_t id) {
 static void Minecraft_handleMouseDown_injection(Minecraft *minecraft, int param_1, bool can_destroy) {
     // Check
     Level *level = minecraft->level;
-    if (level != NULL) {
+    if (level != nullptr) {
         int32_t x = minecraft->hit_result.x;
         int32_t y = minecraft->hit_result.y;
         int32_t z = minecraft->hit_result.z;

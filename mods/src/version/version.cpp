@@ -6,9 +6,9 @@
 
 // Get New Version
 char *version_get() {
-    static char *version = NULL;
+    static char *version = nullptr;
     // Load
-    if (version == NULL) {
+    if (version == nullptr) {
         safe_asprintf(&version, "%s / Reborn v%s", Strings_minecraft_pi_version, reborn_get_version());
     }
     // Return

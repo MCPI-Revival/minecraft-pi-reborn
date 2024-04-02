@@ -6,13 +6,13 @@
 
 // Functions That Have Their Return Values Used
 static EGLSurface eglCreateWindowSurface_injection(__attribute__((unused)) EGLDisplay display, __attribute__((unused)) EGLConfig config, __attribute__((unused)) NativeWindowType native_window, __attribute__((unused)) EGLint const *attrib_list) {
-    return 0;
+    return nullptr;
 }
 static EGLDisplay eglGetDisplay_injection(__attribute__((unused)) NativeDisplayType native_display) {
-    return 0;
+    return nullptr;
 }
 static EGLContext eglCreateContext_injection(__attribute__((unused)) EGLDisplay display, __attribute__((unused)) EGLConfig config, __attribute__((unused)) EGLContext share_context, __attribute__((unused)) EGLint const *attrib_list) {
-    return 0;
+    return nullptr;
 }
 // Call media_swap_buffers()
 static EGLBoolean eglSwapBuffers_injection(__attribute__((unused)) EGLDisplay display, __attribute__((unused)) EGLSurface surface) {

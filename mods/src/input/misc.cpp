@@ -22,8 +22,8 @@ int input_back() {
 
 // Handle Back Button Presses
 static void _handle_back(Minecraft *minecraft) {
-    // If Minecraft's Level property is initialized, but Minecraft's Player property is NULL, then Minecraft::handleBack may crash.
-    if (minecraft->level != NULL && minecraft->player == NULL) {
+    // If Minecraft's Level property is initialized, but Minecraft's Player property is nullptr, then Minecraft::handleBack may crash.
+    if (minecraft->level != nullptr && minecraft->player == nullptr) {
         // Unable to safely run Minecraft::handleBack, deferring until safe.
         return;
     }
@@ -38,7 +38,7 @@ static void _handle_back(Minecraft *minecraft) {
 static bool OptionsScreen_handleBackEvent_injection(OptionsScreen *screen, bool do_nothing) {
     if (!do_nothing) {
         Minecraft *minecraft = screen->minecraft;
-        Minecraft_setScreen(minecraft, NULL);
+        Minecraft_setScreen(minecraft, nullptr);
     }
     return 1;
 }
@@ -48,10 +48,10 @@ static int32_t InBedScreen_handleBackEvent_injection(InBedScreen *screen, bool d
     if (!do_nothing) {
         // Close Screen
         Minecraft *minecraft = screen->minecraft;
-        Minecraft_setScreen(minecraft, NULL);
+        Minecraft_setScreen(minecraft, nullptr);
         // Stop Sleeping
         LocalPlayer *player = minecraft->player;
-        if (player != NULL) {
+        if (player != nullptr) {
             player->vtable->stopSleepInBed(player, 1, 1, 1);
         }
     }
@@ -80,7 +80,7 @@ static void _handle_mouse_grab(Minecraft *minecraft) {
 
 // Block UI Interaction When Mouse Is Locked
 static bool Gui_tickItemDrop_Minecraft_isCreativeMode_call_injection(Minecraft *minecraft) {
-    bool is_in_game = minecraft->screen == NULL || minecraft->screen->vtable == (Screen_vtable *) Touch_IngameBlockSelectionScreen_vtable_base;
+    bool is_in_game = minecraft->screen == nullptr || minecraft->screen->vtable == (Screen_vtable *) Touch_IngameBlockSelectionScreen_vtable_base;
     if (!enable_misc || (SDL_WM_GrabInput(SDL_GRAB_QUERY) == SDL_GRAB_OFF && is_in_game)) {
         // Call Original Method
         return creative_is_restricted() && Minecraft_isCreativeMode(minecraft);

@@ -8,16 +8,16 @@
 static int is_survival = -1;
 
 // Patch Game Mode
-static void set_is_survival(int new_is_survival) {
+static void set_is_survival(bool new_is_survival) {
     if (is_survival != new_is_survival) {
         DEBUG("Setting Game Mode: %s", new_is_survival ? "Survival" : "Creative");
 
         // Correct Inventpry UI
-        unsigned char inventory_patch[4] = {new_is_survival ? 0x00 : 0x01, 0x30, 0xa0, 0xe3}; // "mov r3, #0x0" or "mov r3, #0x1"
+        unsigned char inventory_patch[4] = {(unsigned char) (new_is_survival ? 0x00 : 0x01), 0x30, 0xa0, 0xe3}; // "mov r3, #0x0" or "mov r3, #0x1"
         patch((void *) 0x16efc, inventory_patch);
 
         // Use Correct Size For GameMode Object
-        unsigned char size_patch[4] = {new_is_survival ? SURVIVAL_MODE_SIZE : CREATOR_MODE_SIZE, 0x00, 0xa0, 0xe3}; // "mov r0, #SURVIVAL_MODE_SIZE" or "mov r0, #CREATOR_MODE_SIZE"
+        unsigned char size_patch[4] = {(unsigned char) (new_is_survival ? SURVIVAL_MODE_SIZE : CREATOR_MODE_SIZE), 0x00, 0xa0, 0xe3}; // "mov r0, #SURVIVAL_MODE_SIZE" or "mov r0, #CREATOR_MODE_SIZE"
         patch((void *) 0x16ee4, size_patch);
 
         // Replace Default CreatorMode Constructor With CreatorMode Or SurvivalMode Constructor
@@ -28,18 +28,18 @@ static void set_is_survival(int new_is_survival) {
 }
 
 // Handle Gamemode Switching
-static void Minecraft_setIsCreativeMode_injection(Minecraft *this, int32_t new_game_mode) {
+static void Minecraft_setIsCreativeMode_injection(Minecraft *self, int32_t new_game_mode) {
     set_is_survival(!new_game_mode);
 
     // Call Original Method
-    Minecraft_setIsCreativeMode(this, new_game_mode);
+    Minecraft_setIsCreativeMode(self, new_game_mode);
 }
 
 // Disable CreatorMode-Specific API Features (Polling Block Hits) In SurvivalMode, This Is Preferable To Crashing
 static unsigned char *Minecraft_getCreator_injection(Minecraft *minecraft) {
     if (is_survival) {
-        // SurvivalMode, Return NULL
-        return NULL;
+        // SurvivalMode, Return nullptr
+        return nullptr;
     } else {
         // CreatorMode, Call Original Method
         return Minecraft_getCreator(minecraft);
@@ -50,7 +50,7 @@ static unsigned char *Minecraft_getCreator_injection(Minecraft *minecraft) {
 void init_game_mode() {
     // Dynamic Game Mode Switching
     if (feature_has("Implement Game-Mode Switching", server_enabled)) {
-        set_is_survival(1);
+        set_is_survival(true);
         overwrite_calls((void *) Minecraft_setIsCreativeMode, (void *) Minecraft_setIsCreativeMode_injection);
 
         // Replace CreatorLevel With ServerLevel (This Fixes Beds And Mob Spawning)

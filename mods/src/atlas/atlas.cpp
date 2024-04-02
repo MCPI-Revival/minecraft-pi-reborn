@@ -13,7 +13,7 @@ static void ItemRenderer_renderGuiItemCorrect_injection(Font *font, Textures *te
     // Replace Rendered Item With Carried Variant
     ItemInstance carried_item_instance;
     bool use_carried = false;
-    if (item_instance != NULL) {
+    if (item_instance != nullptr) {
         if (item_instance->id == leaves_id) {
             ItemInstance_constructor_tile_extra(&carried_item_instance, Tile_leaves_carried, item_instance->count, item_instance->auxiliary);
             use_carried = true;
@@ -91,7 +91,7 @@ static void FurnaceScreen_render_ItemRenderer_renderGuiItem_one_injection(Font *
 
 // Init
 void init_atlas() {
-    // Add Better NULL-Check (And More UI Fixes When The gui_blocks Atlas Is Disabled)
+    // Add Better nullptr-Check (And More UI Fixes When The gui_blocks Atlas Is Disabled)
     overwrite_calls((void *) ItemRenderer_renderGuiItem_two, (void *) ItemRenderer_renderGuiItem_two_injection);
 
     // Disable The gui_blocks Atlas Which Contains Pre-Rendered Textures For Blocks In The Inventory

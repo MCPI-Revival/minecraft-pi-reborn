@@ -32,7 +32,7 @@ static void _fix_third_person(Minecraft *minecraft) {
 
 // Font-Facing View
 static void invert_rotation(Entity *entity) {
-    if (entity != NULL) {
+    if (entity != nullptr) {
         entity->yaw = 180.f + entity->yaw;
         entity->old_yaw = 180.f + entity->old_yaw;
         entity->pitch = -entity->pitch;
@@ -40,7 +40,7 @@ static void invert_rotation(Entity *entity) {
     }
 }
 static void revert_rotation(Entity *entity) {
-    if (entity != NULL) {
+    if (entity != nullptr) {
         entity->yaw = -180.f + entity->yaw;
         entity->old_yaw = -180.f + entity->old_yaw;
         entity->pitch = -entity->pitch;
@@ -48,7 +48,7 @@ static void revert_rotation(Entity *entity) {
     }
 }
 static int is_front_facing = 0;
-static LocalPlayer *stored_player = NULL;
+static LocalPlayer *stored_player = nullptr;
 static void GameRenderer_setupCamera_injection(GameRenderer *game_renderer, float param_1, int param_2) {
     // Get Objects
     Minecraft *minecraft = game_renderer->minecraft;

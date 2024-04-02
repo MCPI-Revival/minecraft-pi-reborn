@@ -1,12 +1,8 @@
 #pragma once
 
-#include <stdint.h>
+#include <cstdint>
 
 #include <symbols/minecraft.h>
-
-#ifdef __cplusplus
-extern "C" {
-#endif
 
 int32_t misc_get_real_selected_slot(Player *player);
 
@@ -32,7 +28,3 @@ void Level_saveLevelData_injection(Level *level);
 void misc_add_message(Gui *gui, const char *text);
 
 extern bool is_in_chat;
-
-#ifdef __cplusplus
-}
-#endif

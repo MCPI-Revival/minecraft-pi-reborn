@@ -3,14 +3,14 @@ project(mods)
 # Common Sources
 set(SRC
     # compat
-    src/compat/compat.c
-    src/compat/egl.c
-    src/compat/x11.c
-    src/compat/bcm_host.c
+    src/compat/compat.cpp
+    src/compat/egl.cpp
+    src/compat/x11.cpp
+    src/compat/bcm_host.cpp
     # readdir
-    src/readdir/readdir.c
+    src/readdir/readdir.cpp
     # feature
-    src/feature/feature.c
+    src/feature/feature.cpp
     # version
     src/version/version.cpp
     # chat
@@ -19,30 +19,28 @@ set(SRC
     # creative
     src/creative/creative.cpp
     # game-mode
-    src/game-mode/game-mode.c
+    src/game-mode/game-mode.cpp
     src/game-mode/ui.cpp
     # override
-    src/override/override.c
+    src/override/override.cpp
     # death
     src/death/death.cpp
     # misc
-    src/misc/misc.c
     src/misc/misc.cpp
     src/misc/logging.cpp
     src/misc/api.cpp
     # options
-    src/options/options.c
     src/options/options.cpp
     # bucket
     src/bucket/bucket.cpp
     # cake
     src/cake/cake.cpp
     # home
-    src/home/home.c
+    src/home/home.cpp
     # test
-    src/test/test.c
+    src/test/test.cpp
     # init
-    src/init/init.c
+    src/init/init.cpp
 )
 
 # Server-Only Sources
@@ -76,10 +74,10 @@ else()
         src/camera/camera.cpp
         # input
         src/input/input.cpp
-        src/input/bow.c
-        src/input/attack.c
-        src/input/toggle.c
-        src/input/misc.c
+        src/input/bow.cpp
+        src/input/attack.cpp
+        src/input/toggle.cpp
+        src/input/misc.cpp
         src/input/drop.cpp
         src/input/crafting.cpp
         # sign
@@ -95,7 +93,7 @@ else()
         src/skin/skin.cpp
         src/skin/loader.cpp
         # screenshot
-        src/screenshot/screenshot.c
+        src/screenshot/screenshot.cpp
         # textures
         src/textures/textures.cpp
         src/textures/lava.cpp

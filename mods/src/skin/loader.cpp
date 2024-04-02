@@ -66,7 +66,7 @@ static void load_pending_skins(__attribute__((unused)) Minecraft *minecraft) {
 // Skin Server
 static std::string get_skin_server() {
     const char *custom_server = getenv("MCPI_SKIN_SERVER");
-    if (custom_server != NULL) {
+    if (custom_server != nullptr) {
         return custom_server;
     } else {
         return MCPI_SKIN_SERVER;
@@ -85,12 +85,12 @@ static void *loader_thread(void *user_data) {
     // Download
     std::string url = get_skin_server() + '/' + data->name + ".png";
     int return_code;
-    const char *command[] = {"wget", "-O", "-", url.c_str(), NULL};
+    const char *command[] = {"wget", "-O", "-", url.c_str(), nullptr};
     size_t output_size = 0;
     char *output = run_command(command, &return_code, &output_size);
 
     // Check Success
-    if (output != NULL && is_exit_status_success(return_code)) {
+    if (output != nullptr && is_exit_status_success(return_code)) {
         // Success
         DEBUG("Downloaded Skin: %s", data->name.c_str());
 
@@ -110,7 +110,7 @@ static void *loader_thread(void *user_data) {
 
     // Free
     delete data;
-    return NULL;
+    return nullptr;
 }
 
 // Intercept Texture Creation
@@ -126,7 +126,7 @@ static int32_t Textures_assignTexture_injection(Textures *textures, std::string 
         user_data->texture_id = id;
         // Start Thread
         pthread_t thread;
-        pthread_create(&thread, NULL, loader_thread, (void *) user_data);
+        pthread_create(&thread, nullptr, loader_thread, (void *) user_data);
     }
 
     // Return

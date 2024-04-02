@@ -1,4 +1,4 @@
-#include <errno.h>
+#include <cerrno>
 
 #include <libreborn/libreborn.h>
 #include <symbols/minecraft.h>
@@ -8,9 +8,9 @@
 
 // Get MCPI Home Directory
 char *home_get() {
-    static char *dir = NULL;
+    static char *dir = nullptr;
     // Load
-    if (dir == NULL) {
+    if (dir == nullptr) {
         safe_asprintf(&dir, "%s" HOME_SUBDIRECTORY_FOR_GAME_DATA, getenv("HOME"));
     }
     // Return

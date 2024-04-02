@@ -6,18 +6,18 @@
 #include <mods/feature/feature.h>
 
 // Check For Feature
-int _feature_has(const char *name) {
+bool _feature_has(const char *name) {
     // Get Value
     char *env = getenv("MCPI_FEATURE_FLAGS");
-    char *features = strdup(env != NULL ? env : "");
+    char *features = strdup(env != nullptr ? env : "");
     char *tok = strtok(features, "|");
-    int ret = 0;
-    while (tok != NULL) {
+    bool ret = false;
+    while (tok != nullptr) {
         if (strcmp(tok, name) == 0) {
-            ret = 1;
+            ret = true;
             break;
         }
-        tok = strtok(NULL, "|");
+        tok = strtok(nullptr, "|");
     }
     free(features);
 

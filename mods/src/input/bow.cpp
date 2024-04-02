@@ -19,7 +19,7 @@ static void _handle_bow(Minecraft *minecraft) {
     if (fix_bow && !is_right_click) {
         GameMode *game_mode = minecraft->game_mode;
         LocalPlayer *player = minecraft->player;
-        if (player != NULL && game_mode != NULL && LocalPlayer_isUsingItem(player)) {
+        if (player != nullptr && game_mode != nullptr && LocalPlayer_isUsingItem(player)) {
             game_mode->vtable->releaseUsingItem(game_mode, (Player *) player);
         }
     }

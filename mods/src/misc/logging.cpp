@@ -45,7 +45,7 @@ void misc_add_message(Gui *gui, const char *text) {
 
 // Print Progress Reports
 static int last_progress = -1;
-static const char *last_message = NULL;
+static const char *last_message = nullptr;
 static void print_progress(Minecraft *minecraft) {
     const char *message = Minecraft_getProgressMessage(minecraft);
     int32_t progress = minecraft->progress;
@@ -53,7 +53,7 @@ static void print_progress(Minecraft *minecraft) {
         message = "Ready";
         progress = -1;
     }
-    if (message != NULL) {
+    if (message != nullptr) {
         bool message_different = message != last_message;
         bool progress_significant = is_progress_difference_significant(progress, last_progress);
         if (message_different || progress_significant) {
@@ -99,5 +99,5 @@ void _init_misc_logging() {
     overwrite_calls((void *) Level_saveLevelData, (void *) Level_saveLevelData_injection);
 
     // Disable stdout Buffering
-    setvbuf(stdout, NULL, _IONBF, 0);
+    setvbuf(stdout, nullptr, _IONBF, 0);
 }

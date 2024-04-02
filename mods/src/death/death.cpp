@@ -110,7 +110,7 @@ static bool Mob_hurt_injection(Mob *mob, Entity *source, int dmg) {
             /* Check Health */ \
             if (new_health < 1 && old_health >= 1) { \
                 /* Get Death Message */ \
-                std::string message = get_death_message((Player *) player, NULL); \
+                std::string message = get_death_message((Player *) player, nullptr); \
                 \
                 /* Post Death Message */ \
                 ServerSideNetworkHandler *server_side_network_handler = (ServerSideNetworkHandler *) player->minecraft->network_handler; \
@@ -134,7 +134,7 @@ void init_death() {
     }
 
     // Fix TNT
-    // This changes PrimedTnt_explode from Level::explode(NULL, x, y, z, 3.1f) to Level::explode(this, x, y, z, 3.1f)
+    // This changes PrimedTnt_explode from Level::explode(nullptr, x, y, z, 3.1f) to Level::explode(this, x, y, z, 3.1f)
     unsigned char cpy_r1_r0_patch[4] = {0x00, 0x10, 0xa0, 0xe1}; // "cpy r1, r0"
     patch((void *) 0x87998, cpy_r1_r0_patch);
     unsigned char ldr_r0_24_patch[4] = {0x24, 0x00, 0x90, 0xe5}; // "ldr r0, [r0, #0x24]"

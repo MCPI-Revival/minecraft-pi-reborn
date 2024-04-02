@@ -1,9 +1,9 @@
-#include <stdlib.h>
-#include <stdio.h>
+#include <cstdlib>
+#include <cstdio>
 #include <unistd.h>
-#include <time.h>
-#include <string.h>
-#include <errno.h>
+#include <ctime>
+#include <cstring>
+#include <cerrno>
 #include <sys/stat.h>
 
 #include "stb_image.h"
@@ -16,7 +16,7 @@
 // Ensure Screenshots Folder Exists
 static void ensure_screenshots_folder(char *screenshots) {
     // Check Screenshots Folder
-    struct stat obj;
+    struct stat obj = {};
     if (stat(screenshots, &obj) != 0 || !S_ISDIR(obj.st_mode)) {
         // Create Screenshots Folder
         int ret = mkdir(screenshots, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
@@ -40,12 +40,12 @@ static int save_png(const char *filename, unsigned char *pixels, int line_size, 
 }
 void screenshot_take(char *home) {
     // Get Directory
-    char *screenshots = NULL;
+    char *screenshots = nullptr;
     safe_asprintf(&screenshots, "%s/screenshots", home);
 
     // Get Timestamp
     time_t rawtime;
-    struct tm *timeinfo;
+    tm *timeinfo = {};
     time(&rawtime);
     timeinfo = localtime(&rawtime);
     char time[TIME_SIZE];
@@ -56,11 +56,11 @@ void screenshot_take(char *home) {
 
     // Prevent Overwriting Screenshots
     int num = 1;
-    char *file = NULL;
+    char *file = nullptr;
     safe_asprintf(&file, "%s/%s.png", screenshots, time);
     while (access(file, F_OK) != -1) {
         free(file);
-        file = NULL;
+        file = nullptr;
         safe_asprintf(&file, "%s/%s-%i.png", screenshots, time, num);
         num++;
     }

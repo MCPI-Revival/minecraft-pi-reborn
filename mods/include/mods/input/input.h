@@ -2,10 +2,6 @@
 
 #include <symbols/minecraft.h>
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 typedef void (*input_tick_function_t)(Minecraft *minecraft);
 void input_run_on_tick(input_tick_function_t function);
 
@@ -17,7 +13,3 @@ void input_open_crafting();
 void input_set_is_left_click(int val);
 
 void input_set_mouse_grab_state(int state);
-
-#ifdef __cplusplus
-}
-#endif

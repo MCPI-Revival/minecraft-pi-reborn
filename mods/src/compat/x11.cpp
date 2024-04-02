@@ -13,7 +13,7 @@ static int XTranslateCoordinates_injection(__attribute__((unused)) void *display
 }
 static int XGetWindowAttributes_injection(__attribute__((unused)) void *display, __attribute__((unused)) XID w, XWindowAttributes *window_attributes_return) {
     // Use MCPI Replacemnt Function
-    XWindowAttributes attributes;
+    XWindowAttributes attributes = {};
     attributes.x = 0;
     attributes.y = 0;
     media_get_framebuffer_size(&attributes.width, &attributes.height);

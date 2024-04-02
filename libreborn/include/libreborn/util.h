@@ -16,6 +16,11 @@
     }
 
 // Hook Library Function
+#ifdef __cplusplus
+#define hooked_function_setup extern "C"
+#else
+#define hooked_function_setup
+#endif
 #define HOOK(name, return_type, args) \
     typedef return_type (*name##_t)args; \
     static name##_t real_##name = NULL; \
@@ -30,7 +35,7 @@
         } \
     } \
     \
-    __attribute__((__used__)) return_type name args
+    hooked_function_setup __attribute__((__used__)) return_type name args
 
 #ifdef __cplusplus
 extern "C" {

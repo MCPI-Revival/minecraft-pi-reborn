@@ -350,7 +350,7 @@ std::unordered_map<std::string, std::vector<std::string>> sound_repository = {
 
 // Set rand() Seed
 __attribute__((constructor)) static void init_rand_seed() {
-    srand(time(NULL));
+    srand(time(nullptr));
 }
 // Pick Sound
 std::string _sound_pick(std::string sound) {

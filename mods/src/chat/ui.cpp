@@ -95,7 +95,7 @@ CUSTOM_VTABLE(chat_screen, Screen) {
                     }
                     _chat_queue_message(text.c_str());
                 }
-                Minecraft_setScreen(super->minecraft, NULL);
+                Minecraft_setScreen(super->minecraft, nullptr);
             } else if (key == 0x26) {
                 // Up
                 local_history.at(self->history_pos) = self->chat->getText();
@@ -147,7 +147,7 @@ static Screen *create_chat_screen() {
 void _init_chat_ui() {
     misc_run_on_game_key_press([](Minecraft *minecraft, int key) {
         if (key == 0x54) {
-            if (Minecraft_isLevelGenerated(minecraft) && minecraft->screen == NULL) {
+            if (Minecraft_isLevelGenerated(minecraft) && minecraft->screen == nullptr) {
                 Minecraft_setScreen(minecraft, create_chat_screen());
             }
             return true;
