@@ -10,7 +10,7 @@
 #include <mods/sign/sign.h>
 
 // Handle Backspace
-static int32_t sdl_key_to_minecraft_key_injection(int32_t sdl_key) {
+static int32_t sdl_key_to_minecraft_key_injection(Common_sdl_key_to_minecraft_key_t original, int32_t sdl_key) {
     if (sdl_key == SDLK_BACKSPACE) {
         return 0x8;
     } else if (sdl_key == SDLK_DELETE) {
@@ -25,7 +25,7 @@ static int32_t sdl_key_to_minecraft_key_injection(int32_t sdl_key) {
         return 0x74;
     } else {
         // Call Original Method
-        return Common_sdl_key_to_minecraft_key(sdl_key);
+        return original(sdl_key);
     }
 }
 
@@ -53,5 +53,5 @@ void init_sign() {
     }
 
     // Handle Backspace
-    overwrite_calls((void *) Common_sdl_key_to_minecraft_key, (void *) sdl_key_to_minecraft_key_injection);
+    overwrite_calls(Common_sdl_key_to_minecraft_key, sdl_key_to_minecraft_key_injection);
 }

@@ -12,13 +12,13 @@ static bool _handle_toggle_options(Minecraft *minecraft, int key) {
     if (key == 0x70) {
         // Toggle Hide GUI
         options->hide_gui = options->hide_gui ^ 1;
-        return 1;
+        return true;
     } else if (key == 0x74) {
         // Toggle Third Person
         options->third_person = (options->third_person + 1) % 3;
-        return 1;
+        return true;
     } else {
-        return 0;
+        return false;
     }
 }
 static void _fix_third_person(Minecraft *minecraft) {
@@ -49,7 +49,7 @@ static void revert_rotation(Entity *entity) {
 }
 static int is_front_facing = 0;
 static LocalPlayer *stored_player = nullptr;
-static void GameRenderer_setupCamera_injection(GameRenderer *game_renderer, float param_1, int param_2) {
+static void GameRenderer_setupCamera_injection(GameRenderer_setupCamera_t original, GameRenderer *game_renderer, float param_1, int param_2) {
     // Get Objects
     Minecraft *minecraft = game_renderer->minecraft;
     stored_player = minecraft->player;
@@ -64,21 +64,21 @@ static void GameRenderer_setupCamera_injection(GameRenderer *game_renderer, floa
     }
 
     // Call Original Method
-    GameRenderer_setupCamera(game_renderer, param_1, param_2);
+    original(game_renderer, param_1, param_2);
 
     // Revert
     if (is_front_facing) {
         revert_rotation((Entity *) stored_player);
     }
 }
-static void ParticleEngine_render_injection(ParticleEngine *particle_engine, Entity *entity, float param_2) {
+static void ParticleEngine_render_injection(ParticleEngine_render_t original, ParticleEngine *particle_engine, Entity *entity, float param_2) {
     // Invert Rotation
     if (is_front_facing && (Entity *) stored_player == entity) {
         invert_rotation((Entity *) stored_player);
     }
 
     // Call Original Method
-    ParticleEngine_render(particle_engine, entity, param_2);
+    original(particle_engine, entity, param_2);
 
     // Revert
     if (is_front_facing && (Entity *) stored_player == entity) {
@@ -93,7 +93,7 @@ void _init_toggle() {
         misc_run_on_update(_fix_third_person);
 
         // Font-Facing View
-        overwrite_calls((void *) GameRenderer_setupCamera, (void *) GameRenderer_setupCamera_injection);
-        overwrite_calls((void *) ParticleEngine_render, (void *) ParticleEngine_render_injection);
+        overwrite_calls(GameRenderer_setupCamera, GameRenderer_setupCamera_injection);
+        overwrite_calls(ParticleEngine_render, ParticleEngine_render_injection);
     }
 }

@@ -21,7 +21,7 @@
 
 // Send API Command
 std::string chat_send_api_command(Minecraft *minecraft, std::string str) {
-    struct ConnectedClient client;
+    ConnectedClient client;
     client.sock = -1;
     client.str = "";
     client.time = 0;
@@ -116,7 +116,7 @@ void init_chat() {
         // Manually Send (And Loopback) ChatPacket
         overwrite_call((void *) 0x6b518, (void *) CommandServer_parse_CommandServer_dispatchPacket_injection);
         // Re-Broadcast ChatPacket
-        patch_address(ServerSideNetworkHandler_handle_ChatPacket_vtable_addr, (void *) ServerSideNetworkHandler_handle_ChatPacket_injection);
+        patch_address(ServerSideNetworkHandler_handle_ChatPacket_vtable_addr, ServerSideNetworkHandler_handle_ChatPacket_injection);
 #ifndef MCPI_HEADLESS_MODE
         // Send Messages On Input Tick
         input_run_on_tick(send_queued_messages);

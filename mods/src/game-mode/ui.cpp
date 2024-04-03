@@ -92,8 +92,9 @@ CUSTOM_VTABLE(create_world_screen, Screen) {
         Screen_drawString(super, super->font, &description, self->game_mode->x, self->game_mode->y + self->game_mode->height + description_padding, 0xa0a0a0);
     };
     // Positioning
+    static Screen_setupPositions_t original_setupPositions = vtable->setupPositions;
     vtable->setupPositions = [](Screen *super) {
-        Screen_setupPositions_non_virtual(super);
+        original_setupPositions(super);
         CreateWorldScreen *self = (CreateWorldScreen *) super;
         // Height/Width
         int width = 120;
@@ -234,7 +235,7 @@ static void create_world(Minecraft *minecraft, std::string name, bool is_creativ
 
 // Redirect Create World Button
 #define create_SelectWorldScreen_tick_injection(prefix) \
-    static void prefix##SelectWorldScreen_tick_injection(prefix##SelectWorldScreen *screen) { \
+    static void prefix##SelectWorldScreen_tick_injection(prefix##SelectWorldScreen_tick_t original, prefix##SelectWorldScreen *screen) { \
         if (screen->should_create_world) { \
             /* Open Screen */ \
             Minecraft_setScreen(screen->minecraft, create_create_world_screen()); \
@@ -242,7 +243,7 @@ static void create_world(Minecraft *minecraft, std::string name, bool is_creativ
             screen->should_create_world = false; \
         } else { \
             /* Call Original Method */ \
-            prefix##SelectWorldScreen_tick_non_virtual(screen); \
+            original(screen); \
         } \
     }
 create_SelectWorldScreen_tick_injection()
@@ -251,8 +252,8 @@ create_SelectWorldScreen_tick_injection(Touch_)
 // Init
 void _init_game_mode_ui() {
     // Hijack Create World Button
-    patch_address(SelectWorldScreen_tick_vtable_addr, (void *) SelectWorldScreen_tick_injection);
-    patch_address(Touch_SelectWorldScreen_tick_vtable_addr, (void *) Touch_SelectWorldScreen_tick_injection);
+    overwrite_virtual_calls(SelectWorldScreen_tick, SelectWorldScreen_tick_injection);
+    overwrite_virtual_calls(Touch_SelectWorldScreen_tick, Touch_SelectWorldScreen_tick_injection);
 }
 
 #else

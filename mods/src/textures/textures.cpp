@@ -234,5 +234,5 @@ void init_textures() {
     overwrite_call((void *) 0x53274, (void *) Textures_tick_glTexSubImage2D_injection);
 
     // Load Textures
-    overwrite((void *) AppPlatform_linux_loadTexture_non_virtual, (void *) AppPlatform_linux_loadTexture_injection);
+    overwrite(*AppPlatform_linux_loadTexture_vtable_addr, AppPlatform_linux_loadTexture_injection);
 }

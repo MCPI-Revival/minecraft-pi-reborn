@@ -113,9 +113,9 @@ static void iterate_servers(std::function<void(const char *address, int port)> c
 }
 
 // Ping External Servers
-static void RakNetInstance_pingForHosts_injection(RakNetInstance *rak_net_instance, int32_t base_port) {
+static void RakNetInstance_pingForHosts_injection(RakNetInstance_pingForHosts_t original, RakNetInstance *rak_net_instance, int32_t base_port) {
     // Call Original Method
-    RakNetInstance_pingForHosts_non_virtual(rak_net_instance, base_port);
+    original(rak_net_instance, base_port);
 
     // Get RakNet::RakPeer
     RakNet_RakPeer *rak_peer = rak_net_instance->peer;
@@ -130,6 +130,6 @@ static void RakNetInstance_pingForHosts_injection(RakNetInstance *rak_net_instan
 void init_multiplayer() {
     // Inject Code
     if (feature_has("External Server Support", server_disabled)) {
-        patch_address(RakNetInstance_pingForHosts_vtable_addr, (void *) RakNetInstance_pingForHosts_injection);
+        overwrite_virtual_calls(RakNetInstance_pingForHosts, RakNetInstance_pingForHosts_injection);
     }
 }

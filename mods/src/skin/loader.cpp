@@ -114,9 +114,9 @@ static void *loader_thread(void *user_data) {
 }
 
 // Intercept Texture Creation
-static int32_t Textures_assignTexture_injection(Textures *textures, std::string *name, unsigned char *data) {
+static int32_t Textures_assignTexture_injection(Textures_assignTexture_t original, Textures *textures, std::string *name, unsigned char *data) {
     // Call Original Method
-    int32_t id = Textures_assignTexture(textures, name, data);
+    int32_t id = original(textures, name, data);
 
     // Load Skin
     if (starts_with(name->c_str(), "$")) {
@@ -136,7 +136,7 @@ static int32_t Textures_assignTexture_injection(Textures *textures, std::string 
 // Init
 void _init_skin_loader() {
     // Intercept Texture Creation
-    overwrite_calls((void *) Textures_assignTexture, (void *) Textures_assignTexture_injection);
+    overwrite_calls(Textures_assignTexture, Textures_assignTexture_injection);
     // Pending Skins
     misc_run_on_tick(load_pending_skins);
     // Log

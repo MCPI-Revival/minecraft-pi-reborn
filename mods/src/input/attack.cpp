@@ -14,9 +14,9 @@ void input_set_is_left_click(int val) {
 }
 
 // Add Attacking To MouseBuildInput
-static int32_t MouseBuildInput_tickBuild_injection(MouseBuildInput *mouse_build_input, Player *local_player, uint32_t *build_action_intention_return) {
+static int32_t MouseBuildInput_tickBuild_injection(MouseBuildInput_tickBuild_t original, MouseBuildInput *mouse_build_input, Player *local_player, uint32_t *build_action_intention_return) {
     // Call Original Method
-    int32_t ret = MouseBuildInput_tickBuild_non_virtual(mouse_build_input, local_player, build_action_intention_return);
+    int32_t ret = original(mouse_build_input, local_player, build_action_intention_return);
 
     // Use Attack/Place BuildActionIntention If No Other Valid BuildActionIntention Was Selected And This Was Not A Repeated Left Click
     if (ret != 0 && is_left_click == 1 && *build_action_intention_return == 0xa) {
@@ -36,7 +36,7 @@ static int32_t MouseBuildInput_tickBuild_injection(MouseBuildInput *mouse_build_
 }
 
 // Fix Holding Attack
-static bool last_player_attack_successful = 0;
+static bool last_player_attack_successful = false;
 static bool Player_attack_Entity_hurt_injection(Entity *entity, Entity *attacker, int32_t damage) {
     // Call Original Method
     last_player_attack_successful = entity->vtable->hurt(entity, attacker, damage);
@@ -56,7 +56,7 @@ static ItemInstance *Player_attack_Inventory_getSelected_injection(Inventory *in
 void _init_attack() {
     // Allow Attacking Mobs
     if (feature_has("Fix Attacking", server_disabled)) {
-        patch_address(MouseBuildInput_tickBuild_vtable_addr, (void *) MouseBuildInput_tickBuild_injection);
+        overwrite_virtual_calls(MouseBuildInput_tickBuild, MouseBuildInput_tickBuild_injection);
 
         // Fix Holding Attack
         overwrite_call((void *) 0x8fc1c, (void *) Player_attack_Entity_hurt_injection);

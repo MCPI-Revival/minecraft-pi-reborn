@@ -26,7 +26,7 @@
 
 // Heart food overlay
 static int heal_amount = 0, heal_amount_drawing = 0;
-void Gui_renderHearts_injection(Gui *gui) {
+static void Gui_renderHearts_injection(Gui_renderHearts_t original, Gui *gui) {
     // Get heal_amount
     heal_amount = heal_amount_drawing = 0;
 
@@ -43,13 +43,13 @@ void Gui_renderHearts_injection(Gui *gui) {
     }
 
     // Call original
-    Gui_renderHearts(gui);
+    original(gui);
 }
 
 #define PINK_HEART_FULL 70
 #define PINK_HEART_HALF 79
-Gui_blit_t Gui_blit_renderHearts_original = nullptr;
-void Gui_renderHearts_GuiComponent_blit_overlay_empty_injection(Gui *gui, int32_t x1, int32_t y1, int32_t x2, int32_t y2, int32_t w1, int32_t h1, int32_t w2, int32_t h2) {
+static Gui_blit_t Gui_blit_renderHearts_original = nullptr;
+static void Gui_renderHearts_GuiComponent_blit_overlay_empty_injection(Gui *gui, int32_t x1, int32_t y1, int32_t x2, int32_t y2, int32_t w1, int32_t h1, int32_t w2, int32_t h2) {
     // Call original
     Gui_blit_renderHearts_original(gui, x1, y1, x2, y2, w1, h1, w2, h2);
     // Render the overlay
@@ -64,7 +64,7 @@ void Gui_renderHearts_GuiComponent_blit_overlay_empty_injection(Gui *gui, int32_
     }
 }
 
-void Gui_renderHearts_GuiComponent_blit_overlay_hearts_injection(Gui *gui, int32_t x1, int32_t y1, int32_t x2, int32_t y2, int32_t w1, int32_t h1, int32_t w2, int32_t h2) {
+static void Gui_renderHearts_GuiComponent_blit_overlay_hearts_injection(Gui *gui, int32_t x1, int32_t y1, int32_t x2, int32_t y2, int32_t w1, int32_t h1, int32_t w2, int32_t h2) {
     // Offset the overlay
     if (x2 == 52) {
         heal_amount_drawing += 2;
@@ -126,7 +126,7 @@ static void Gui_renderBubbles_GuiComponent_blit_injection(Gui *component, int32_
 static int hide_chat_messages = 0;
 bool is_in_chat = 0;
 static int render_selected_item_text = 0;
-static void Gui_renderChatMessages_injection(Gui *gui, int32_t y_offset, uint32_t max_messages, bool disable_fading, Font *font) {
+static void Gui_renderChatMessages_injection(Gui_renderChatMessages_t original, Gui *gui, int32_t y_offset, uint32_t max_messages, bool disable_fading, Font *font) {
     // Handle Classic HUD
     if (use_classic_hud) {
         Minecraft *minecraft = gui->minecraft;
@@ -137,7 +137,7 @@ static void Gui_renderChatMessages_injection(Gui *gui, int32_t y_offset, uint32_
 
     // Call Original Method
     if (!hide_chat_messages && !is_in_chat) {
-        Gui_renderChatMessages(gui, y_offset, max_messages, disable_fading, font);
+        original(gui, y_offset, max_messages, disable_fading, font);
     }
 
     // Render Selected Item Text
@@ -156,9 +156,9 @@ static void Gui_renderChatMessages_injection(Gui *gui, int32_t y_offset, uint32_
 }
 // Reset Selected Item Text Timer On Slot Select
 static uint32_t reset_selected_item_text_timer = 0;
-static void Gui_tick_injection(Gui *gui) {
+static void Gui_tick_injection(Gui_tick_t original, Gui *gui) {
     // Call Original Method
-    Gui_tick(gui);
+    original(gui);
 
     // Handle Reset
     if (render_selected_item_text) {
@@ -171,9 +171,9 @@ static void Gui_tick_injection(Gui *gui) {
     }
 }
 // Trigger Reset Selected Item Text Timer On Slot Select
-static void Inventory_selectSlot_injection(Inventory *inventory, int32_t slot) {
+static void Inventory_selectSlot_injection(Inventory_selectSlot_t original, Inventory *inventory, int32_t slot) {
     // Call Original Method
-    Inventory_selectSlot(inventory, slot);
+    original(inventory, slot);
 
     // Trigger Reset Selected Item Text Timer
     if (render_selected_item_text) {
@@ -182,7 +182,7 @@ static void Inventory_selectSlot_injection(Inventory *inventory, int32_t slot) {
 }
 
 // Translucent Toolbar
-static void Gui_renderToolBar_injection(Gui *gui, float param_1, int32_t param_2, int32_t param_3) {
+static void Gui_renderToolBar_injection(Gui_renderToolBar_t original, Gui *gui, float param_1, int32_t param_2, int32_t param_3) {
     // Call Original Method
 #ifndef MCPI_HEADLESS_MODE
     int was_blend_enabled = glIsEnabled(GL_BLEND);
@@ -191,7 +191,7 @@ static void Gui_renderToolBar_injection(Gui *gui, float param_1, int32_t param_2
     }
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 #endif
-    Gui_renderToolBar(gui, param_1, param_2, param_3);
+    original(gui, param_1, param_2, param_3);
 #ifndef MCPI_HEADLESS_MODE
     if (!was_blend_enabled) {
         glDisable(GL_BLEND);
@@ -210,20 +210,20 @@ static void Gui_renderToolBar_glColor4f_injection(GLfloat red, GLfloat green, GL
 }
 
 // Fix Screen Rendering When GUI is Hidden
-static void Screen_render_injection(Screen *screen, int32_t param_1, int32_t param_2, float param_3) {
+static void Screen_render_injection(Screen_render_t original, Screen *screen, int32_t param_1, int32_t param_2, float param_3) {
     // Fix
 #ifndef MCPI_HEADLESS_MODE
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 #endif
     // Call Original Method
-    Screen_render_non_virtual(screen, param_1, param_2, param_3);
+    original(screen, param_1, param_2, param_3);
 }
 
 // Sanitize Username
 #define MAX_USERNAME_LENGTH 16
-static void LoginPacket_read_injection(LoginPacket *packet, RakNet_BitStream *bit_stream) {
+static void LoginPacket_read_injection(LoginPacket_read_t original, LoginPacket *packet, RakNet_BitStream *bit_stream) {
     // Call Original Method
-    LoginPacket_read_non_virtual(packet, bit_stream);
+    original(packet, bit_stream);
 
     // Prepare
     RakNet_RakString *rak_string = &packet->username;
@@ -284,9 +284,9 @@ static RakNet_StartupResult RakNetInstance_host_RakNet_RakPeer_Startup_injection
 }
 
 // Fix Bug Where RakNetInstance Starts Pinging Potential Servers Before The "Join Game" Screen Is Opened
-static RakNetInstance *RakNetInstance_injection(RakNetInstance *rak_net_instance) {
+static RakNetInstance *RakNetInstance_injection(RakNetInstance_constructor_t original, RakNetInstance *rak_net_instance) {
     // Call Original Method
-    RakNetInstance *result = RakNetInstance_constructor(rak_net_instance);
+    RakNetInstance *result = original(rak_net_instance);
     // Fix
     rak_net_instance->pinging_for_hosts = 0;
     // Return
@@ -294,17 +294,17 @@ static RakNetInstance *RakNetInstance_injection(RakNetInstance *rak_net_instance
 }
 
 // Close Current Screen On Death To Prevent Bugs
-static void LocalPlayer_die_injection(LocalPlayer *entity, Entity *cause) {
+static void LocalPlayer_die_injection(LocalPlayer_die_t original, LocalPlayer *entity, Entity *cause) {
     // Close Screen
     Minecraft *minecraft = entity->minecraft;
     Minecraft_setScreen(minecraft, nullptr);
 
     // Call Original Method
-    LocalPlayer_die_non_virtual(entity, cause);
+    original(entity, cause);
 }
 
 // Fix Furnace Not Checking Item Auxiliary When Inserting New Item
-static int32_t FurnaceScreen_handleAddItem_injection(FurnaceScreen *furnace_screen, int32_t slot, ItemInstance *item) {
+static int32_t FurnaceScreen_handleAddItem_injection(FurnaceScreen_handleAddItem_t original, FurnaceScreen *furnace_screen, int32_t slot, ItemInstance *item) {
     // Get Existing Item
     FurnaceTileEntity *tile_entity = furnace_screen->tile_entity;
     ItemInstance *existing_item = tile_entity->vtable->getItem(tile_entity, slot);
@@ -328,7 +328,7 @@ static int32_t FurnaceScreen_handleAddItem_injection(FurnaceScreen *furnace_scre
     // Call Original Method
     if (valid) {
         // Valid
-        return FurnaceScreen_handleAddItem(furnace_screen, slot, item);
+        return original(furnace_screen, slot, item);
     } else {
         // Invalid
         return 0;
@@ -340,9 +340,9 @@ static int32_t FurnaceScreen_handleAddItem_injection(FurnaceScreen *furnace_scre
 // The default behavior for Touch GUI is to only render the cursor when the mouse is clicking, this fixes that.
 // This also makes the cursor always render if the mouse is unlocked, instead of just when there is a Screen showing.
 #ifndef MCPI_HEADLESS_MODE
-static void GameRenderer_render_injection(GameRenderer *game_renderer, float param_1) {
+static void GameRenderer_render_injection(GameRenderer_render_t original, GameRenderer *game_renderer, float param_1) {
     // Call Original Method
-    GameRenderer_render(game_renderer, param_1);
+    original(game_renderer, param_1);
 
     // Check If Cursor Should Render
     if (SDL_WM_GrabInput(SDL_GRAB_QUERY) == SDL_GRAB_OFF) {
@@ -383,8 +383,8 @@ static void anGenBuffers_injection(int32_t count, uint32_t *buffers) {
 #endif
 
 // Fix Graphics Bug When Switching To First-Person While Sneaking
-static void HumanoidMobRenderer_render_injection(HumanoidMobRenderer *model_renderer, Entity *entity, float param_2, float param_3, float param_4, float param_5, float param_6) {
-    HumanoidMobRenderer_render_non_virtual(model_renderer, entity, param_2, param_3, param_4, param_5, param_6);
+static void PlayerRenderer_render_injection(PlayerRenderer *model_renderer, Entity *entity, float param_2, float param_3, float param_4, float param_5, float param_6) {
+    (*HumanoidMobRenderer_render_vtable_addr)((HumanoidMobRenderer *) model_renderer, entity, param_2, param_3, param_4, param_5, param_6);
     HumanoidModel *model = model_renderer->model;
     model->is_sneaking = false;
 }
@@ -438,8 +438,8 @@ static int32_t GrassTile_getColor_injection(__attribute__((unused)) Tile *tile, 
     int b_avg = b_sum / color_sum;
     return (r_avg << 16) | (g_avg << 8) | b_avg;
 }
-static int32_t TallGrass_getColor_injection(TallGrass *tile, LevelSource *level_source, int32_t x, int32_t y, int32_t z) {
-    int32_t original_color = TallGrass_getColor_non_virtual(tile, level_source, x, y, z);
+static int32_t TallGrass_getColor_injection(TallGrass_getColor_t original, TallGrass *tile, LevelSource *level_source, int32_t x, int32_t y, int32_t z) {
+    int32_t original_color = original(tile, level_source, x, y, z);
     if (original_color == 0x339933) {
         return GrassTile_getColor_injection((Tile *) tile, level_source, x, y, z);
     } else {
@@ -448,9 +448,9 @@ static int32_t TallGrass_getColor_injection(TallGrass *tile, LevelSource *level_
 }
 
 // Generate Caves
-static void RandomLevelSource_buildSurface_injection(RandomLevelSource *random_level_source, int32_t chunk_x, int32_t chunk_y, unsigned char *chunk_data, Biome **biomes) {
+static void RandomLevelSource_buildSurface_injection(RandomLevelSource_buildSurface_t original, RandomLevelSource *random_level_source, int32_t chunk_x, int32_t chunk_y, unsigned char *chunk_data, Biome **biomes) {
     // Call Original Method
-    RandomLevelSource_buildSurface(random_level_source, chunk_x, chunk_y, chunk_data, biomes);
+    original(random_level_source, chunk_x, chunk_y, chunk_data, biomes);
 
     // Get Level
     Level *level = random_level_source->level;
@@ -501,9 +501,9 @@ static int32_t Tile_getRenderShape_injection(Tile *tile) {
         return tile->vtable->getRenderShape(tile);
     }
 }
-static ChestTileEntity *ChestTileEntity_injection(ChestTileEntity *tile_entity) {
+static ChestTileEntity *ChestTileEntity_injection(ChestTileEntity_constructor_t original, ChestTileEntity *tile_entity) {
     // Call Original Method
-    ChestTileEntity_constructor(tile_entity);
+    original(tile_entity);
 
     // Enable Renderer
     tile_entity->renderer_id = 1;
@@ -522,23 +522,23 @@ static void ModelPart_render_injection(ModelPart *model_part, float scale) {
     // Stop
     is_rendering_chest = false;
 }
-static void Tesselator_vertexUV_injection(Tesselator *tesselator, float x, float y, float z, float u, float v) {
+static void Tesselator_vertexUV_injection(Tesselator_vertexUV_t original, Tesselator *tesselator, float x, float y, float z, float u, float v) {
     // Fix Chest Texture
     if (is_rendering_chest) {
         v /= 2;
     }
 
     // Call Original Method
-    Tesselator_vertexUV(tesselator, x, y, z, u, v);
+    original(tesselator, x, y, z, u, v);
 }
 static bool ChestTileEntity_shouldSave_injection(__attribute__((unused)) unsigned char *tile_entity) {
     return true;
 }
 
 // Animated 3D Chest
-static ContainerMenu *ContainerMenu_injection(ContainerMenu *container_menu, Container *container, int32_t param_1) {
+static ContainerMenu *ContainerMenu_injection(ContainerMenu_constructor_t original, ContainerMenu *container_menu, Container *container, int32_t param_1) {
     // Call Original Method
-    ContainerMenu_constructor(container_menu, container, param_1);
+    original(container_menu, container, param_1);
 
     // Play Animation
     ChestTileEntity *tile_entity = (ChestTileEntity *) (((unsigned char *) container) - offsetof(ChestTileEntity, container));
@@ -550,7 +550,7 @@ static ContainerMenu *ContainerMenu_injection(ContainerMenu *container_menu, Con
     // Return
     return container_menu;
 }
-static ContainerMenu *ContainerMenu_destructor_injection(ContainerMenu *container_menu) {
+static ContainerMenu *ContainerMenu_destructor_injection(ContainerMenu_destructor_complete_t original, ContainerMenu *container_menu) {
     // Play Animation
     Container *container = container_menu->container;
     ChestTileEntity *tile_entity = (ChestTileEntity *) (((unsigned char *) container) - offsetof(ChestTileEntity, container));
@@ -560,7 +560,7 @@ static ContainerMenu *ContainerMenu_destructor_injection(ContainerMenu *containe
     }
 
     // Call Original Method
-    return ContainerMenu_destructor_complete_non_virtual(container_menu);
+    return original(container_menu);
 }
 
 #ifndef MCPI_HEADLESS_MODE
@@ -593,9 +593,9 @@ static void glColor4f_injection(__attribute__((unused)) GLfloat red, __attribute
 #endif
 
 // Fix Furnace Visual Bug
-static int FurnaceTileEntity_getLitProgress_injection(FurnaceTileEntity *furnace, int max) {
+static int FurnaceTileEntity_getLitProgress_injection(FurnaceTileEntity_getLitProgress_t original, FurnaceTileEntity *furnace, int max) {
     // Call Original Method
-    int ret = FurnaceTileEntity_getLitProgress(furnace, max);
+    int ret = original(furnace, max);
 
     // Fix Bug
     if (ret > max) {
@@ -608,15 +608,15 @@ static int FurnaceTileEntity_getLitProgress_injection(FurnaceTileEntity *furnace
 
 // Fix used items transferring durability
 static int selected_slot = -1;
-static void Player_startUsingItem_injection(Player *self, ItemInstance *item_instance, int time) {
+static void Player_startUsingItem_injection(Player_startUsingItem_t original, Player *self, ItemInstance *item_instance, int time) {
     selected_slot = self->inventory->selectedSlot;
-    Player_startUsingItem(self, item_instance, time);
+    original(self, item_instance, time);
 }
-static void Player_stopUsingItem_injection(Player *self) {
+static void Player_stopUsingItem_injection(Player_stopUsingItem_t original, Player *self) {
     if (selected_slot != self->inventory->selectedSlot) {
         self->itemBeingUsed.id = 0;
     }
-    Player_stopUsingItem(self);
+    original(self);
 }
 
 // Java Light Ramp
@@ -657,9 +657,9 @@ static AppPlatform_readAssetFile_return_value AppPlatform_readAssetFile_injectio
 }
 
 // Add Missing Buttons To Pause Menu
-static void PauseScreen_init_injection(PauseScreen *screen) {
+static void PauseScreen_init_injection(PauseScreen_init_t original, PauseScreen *screen) {
     // Call Original Method
-    PauseScreen_init_non_virtual(screen);
+    original(screen);
 
     // Check If Server
     Minecraft *minecraft = screen->minecraft;
@@ -778,7 +778,7 @@ void init_misc() {
 
     // Food overlay
     if (feature_has("Food Overlay", server_disabled)) {
-        overwrite_calls((void *) Gui_renderHearts, (void *) Gui_renderHearts_injection);
+        overwrite_calls(Gui_renderHearts, Gui_renderHearts_injection);
         overwrite_call((void *) 0x266f8, (void *) Gui_renderHearts_GuiComponent_blit_overlay_empty_injection);
         overwrite_call((void *) 0x267c8, (void *) Gui_renderHearts_GuiComponent_blit_overlay_hearts_injection);
     }
@@ -786,47 +786,47 @@ void init_misc() {
     // Render Selected Item Text + Hide Chat Messages
     hide_chat_messages = feature_has("Hide Chat Messages", server_disabled);
     render_selected_item_text = feature_has("Render Selected Item Text", server_disabled);
-    overwrite_calls((void *) Gui_renderChatMessages, (void *) Gui_renderChatMessages_injection);
-    overwrite_calls((void *) Gui_tick, (void *) Gui_tick_injection);
-    overwrite_calls((void *) Inventory_selectSlot, (void *) Inventory_selectSlot_injection);
+    overwrite_calls(Gui_renderChatMessages, Gui_renderChatMessages_injection);
+    overwrite_calls(Gui_tick, Gui_tick_injection);
+    overwrite_calls(Inventory_selectSlot, Inventory_selectSlot_injection);
 
     // Translucent Toolbar
     if (feature_has("Translucent Toolbar", server_disabled)) {
-        overwrite_calls((void *) Gui_renderToolBar, (void *) Gui_renderToolBar_injection);
+        overwrite_calls(Gui_renderToolBar, Gui_renderToolBar_injection);
         overwrite_call((void *) 0x26c5c, (void *) Gui_renderToolBar_glColor4f_injection);
     }
 
     // Fix Screen Rendering When GUI is Hidden
-    overwrite_calls((void *) Screen_render_non_virtual, (void *) Screen_render_injection);
+    overwrite_virtual_calls(Screen_render, Screen_render_injection);
 
     // Sanitize Username
-    patch_address(LoginPacket_read_vtable_addr, (void *) LoginPacket_read_injection);
+    overwrite_virtual_calls(LoginPacket_read, LoginPacket_read_injection);
 
     // Fix RakNet::RakString Security Bug
-    overwrite_calls((void *) RakNet_RakString_constructor, (void *) RakNet_RakString_injection);
+    overwrite_calls_manual((void *) RakNet_RakString_constructor, (void *) RakNet_RakString_injection);
 
     // Print Error Message If RakNet Startup Fails
     overwrite_call((void *) 0x73778, (void *) RakNetInstance_host_RakNet_RakPeer_Startup_injection);
 
     // Fix Bug Where RakNetInstance Starts Pinging Potential Servers Before The "Join Game" Screen Is Opened
-    overwrite_calls((void *) RakNetInstance_constructor, (void *) RakNetInstance_injection);
+    overwrite_calls(RakNetInstance_constructor, RakNetInstance_injection);
 
     // Close Current Screen On Death To Prevent Bugs
     if (feature_has("Close Current Screen On Death", server_disabled)) {
-        patch_address(LocalPlayer_die_vtable_addr, (void *) LocalPlayer_die_injection);
+        overwrite_virtual_calls(LocalPlayer_die, LocalPlayer_die_injection);
     }
 
     // Fix Furnace Not Checking Item Auxiliary When Inserting New Item
     if (feature_has("Fix Furnace Not Checking Item Auxiliary", server_disabled)) {
-        overwrite_calls((void *) FurnaceScreen_handleAddItem, (void *) FurnaceScreen_handleAddItem_injection);
+        overwrite_calls(FurnaceScreen_handleAddItem, FurnaceScreen_handleAddItem_injection);
     }
 
 #ifdef MCPI_HEADLESS_MODE
     // Don't Render Game In Headless Mode
-    overwrite_calls((void *) GameRenderer_render, (void *) nop);
-    overwrite_calls((void *) NinecraftApp_initGLStates, (void *) nop);
-    overwrite_calls((void *) Gui_onConfigChanged, (void *) nop);
-    overwrite_calls((void *) LevelRenderer_generateSky, (void *) nop);
+    overwrite(GameRenderer_render, nop);
+    overwrite(NinecraftApp_initGLStates, nop);
+    overwrite(Gui_onConfigChanged, nop);
+    overwrite(LevelRenderer_generateSky, nop);
 #else
     // Improved Cursor Rendering
     if (feature_has("Improved Cursor Rendering", server_disabled)) {
@@ -834,7 +834,7 @@ void init_misc() {
         unsigned char disable_cursor_patch[4] = {0x00, 0xf0, 0x20, 0xe3}; // "nop"
         patch((void *) 0x4a6c0, disable_cursor_patch);
         // Add Custom Cursor Rendering
-        overwrite_calls((void *) GameRenderer_render, (void *) GameRenderer_render_injection);
+        overwrite_calls(GameRenderer_render, GameRenderer_render_injection);
     }
 #endif
 
@@ -850,16 +850,16 @@ void init_misc() {
 
     // Remove Forced GUI Lag
     if (feature_has("Remove Forced GUI Lag (Can Break Joining Servers)", server_enabled)) {
-        overwrite_calls((void *) Common_sleepMs, (void *) nop);
+        overwrite(Common_sleepMs, nop);
     }
 
 #ifndef MCPI_HEADLESS_MODE
     // Properly Generate Buffers
-    overwrite((void *) Common_anGenBuffers, (void *) anGenBuffers_injection);
+    overwrite(Common_anGenBuffers, anGenBuffers_injection);
 #endif
 
     // Fix Graphics Bug When Switching To First-Person While Sneaking
-    patch_address(PlayerRenderer_render_vtable_addr, (void *) HumanoidMobRenderer_render_injection);
+    patch_address(PlayerRenderer_render_vtable_addr, PlayerRenderer_render_injection);
 
     // Disable Speed Bridging
     if (feature_has("Disable Speed Bridging", server_disabled)) {
@@ -875,22 +875,22 @@ void init_misc() {
 
     // Change Grass Color
     if (feature_has("Add Biome Colors To Grass", server_disabled)) {
-        patch_address((void *) GrassTile_getColor_vtable_addr, (void *) GrassTile_getColor_injection);
-        patch_address((void *) TallGrass_getColor_vtable_addr, (void *) TallGrass_getColor_injection);
+        patch_address(GrassTile_getColor_vtable_addr, GrassTile_getColor_injection);
+        overwrite_virtual_calls(TallGrass_getColor, TallGrass_getColor_injection);
     }
 
     // Generate Caves
     if (feature_has("Generate Caves", server_auto)) {
-        overwrite_calls((void *) RandomLevelSource_buildSurface, (void *) RandomLevelSource_buildSurface_injection);
+        overwrite_calls(RandomLevelSource_buildSurface, RandomLevelSource_buildSurface_injection);
     }
 
     // Disable Block Tinting
     if (feature_has("Disable Block Tinting", server_disabled)) {
-        patch_address((void *) GrassTile_getColor_vtable_addr, (void *) Tile_getColor_injection);
-        patch_address((void *) TallGrass_getColor_vtable_addr, (void *) Tile_getColor_injection);
-        patch_address((void *) StemTile_getColor_vtable_addr, (void *) Tile_getColor_injection);
-        patch_address((void *) LeafTile_getColor_vtable_addr, (void *) Tile_getColor_injection);
-        overwrite((void *) LiquidTile_getColor_non_virtual, (void *) Tile_getColor_injection);
+        patch_address(GrassTile_getColor_vtable_addr, Tile_getColor_injection);
+        patch_address(TallGrass_getColor_vtable_addr, Tile_getColor_injection);
+        patch_address(StemTile_getColor_vtable_addr, Tile_getColor_injection);
+        patch_address(LeafTile_getColor_vtable_addr, Tile_getColor_injection);
+        overwrite(*LiquidTile_getColor_vtable_addr, Tile_getColor_injection);
     }
 
     // Custom GUI Scale
@@ -913,19 +913,19 @@ void init_misc() {
     // 3D Chests
     if (feature_has("3D Chest Model", server_disabled)) {
         overwrite_call((void *) 0x5e830, (void *) Tile_getRenderShape_injection);
-        overwrite_calls((void *) ChestTileEntity_constructor, (void *) ChestTileEntity_injection);
+        overwrite_calls(ChestTileEntity_constructor, ChestTileEntity_injection);
         overwrite_call((void *) 0x6655c, (void *) ModelPart_render_injection);
         overwrite_call((void *) 0x66568, (void *) ModelPart_render_injection);
         overwrite_call((void *) 0x66574, (void *) ModelPart_render_injection);
-        overwrite_calls((void *) Tesselator_vertexUV, (void *) Tesselator_vertexUV_injection);
+        overwrite_calls(Tesselator_vertexUV, Tesselator_vertexUV_injection);
         unsigned char chest_model_patch[4] = {0x13, 0x20, 0xa0, 0xe3}; // "mov r2, #0x13"
         patch((void *) 0x66fc8, chest_model_patch);
         unsigned char chest_color_patch[4] = {0x00, 0xf0, 0x20, 0xe3}; // "nop"
         patch((void *) 0x66404, chest_color_patch);
 
         // Animation
-        overwrite_calls((void *) ContainerMenu_constructor, (void *) ContainerMenu_injection);
-        overwrite_calls((void *) ContainerMenu_destructor_complete_non_virtual, (void *) ContainerMenu_destructor_injection);
+        overwrite_calls(ContainerMenu_constructor, ContainerMenu_injection);
+        overwrite_virtual_calls(ContainerMenu_destructor_complete, ContainerMenu_destructor_injection);
     }
     patch_address((void *) 0x115b48, (void *) ChestTileEntity_shouldSave_injection);
 
@@ -940,7 +940,7 @@ void init_misc() {
 #endif
 
     // Fix Furnace Visual Bug
-    overwrite_calls((void *) FurnaceTileEntity_getLitProgress, (void *) FurnaceTileEntity_getLitProgress_injection);
+    overwrite_calls(FurnaceTileEntity_getLitProgress, FurnaceTileEntity_getLitProgress_injection);
 
     // Send the full level, not only changed chunks
     if (feature_has("Send Full Level When Hosting Game", server_enabled)) {
@@ -952,12 +952,12 @@ void init_misc() {
 
     // Java Light Ramp
     if (feature_has("Use Java Beta 1.3 Light Ramp", server_disabled)) {
-        overwrite((void *) Dimension_updateLightRamp_non_virtual, (void *) Dimension_updateLightRamp_injection);
+        overwrite(*Dimension_updateLightRamp_vtable_addr, Dimension_updateLightRamp_injection);
     }
 
     // Fix used items transferring durability
-    overwrite_calls((void *) Player_startUsingItem, (void *) Player_startUsingItem_injection);
-    overwrite_calls((void *) Player_stopUsingItem, (void *) Player_stopUsingItem_injection);
+    overwrite_calls(Player_startUsingItem, Player_startUsingItem_injection);
+    overwrite_calls(Player_stopUsingItem, Player_stopUsingItem_injection);
 
     // Fix invalid ItemInHandRenderer texture cache
     if (feature_has("Disable Buggy Held Item Caching", server_disabled)) {
@@ -971,18 +971,18 @@ void init_misc() {
 
     // Implement AppPlatform::readAssetFile So Translations Work
     if (feature_has("Load Language Files", server_enabled)) {
-        overwrite((void *) *AppPlatform_readAssetFile_vtable_addr, (void *) AppPlatform_readAssetFile_injection);
+        overwrite(*AppPlatform_readAssetFile_vtable_addr, AppPlatform_readAssetFile_injection);
     }
 
     // Fix Pause Menu
     if (feature_has("Fix Pause Menu", server_disabled)) {
         // Add Missing Buttons To Pause Menu
-        patch_address(PauseScreen_init_vtable_addr, (void *) PauseScreen_init_injection);
+        overwrite_virtual_calls(PauseScreen_init, PauseScreen_init_injection);
     }
 
     // Implement Crafting Remainders
     overwrite_call((void *) 0x2e230, (void *) PaneCraftingScreen_craftSelectedItem_PaneCraftingScreen_recheckRecipes_injection);
-    overwrite((void *) Item_getCraftingRemainingItem_non_virtual, (void *) Item_getCraftingRemainingItem_injection);
+    overwrite(*Item_getCraftingRemainingItem_vtable_addr, Item_getCraftingRemainingItem_injection);
 
     // Replace 2011 std::sort With Optimized(TM) Code
     if (feature_has("Optimized Chunk Sorting", server_enabled)) {
@@ -991,7 +991,7 @@ void init_misc() {
 
     // Display Date In Select World Screen
     if (feature_has("Display Date In Select World Screen", server_disabled)) {
-        patch_address(AppPlatform_linux_getDateString_vtable_addr, (void *) AppPlatform_linux_getDateString_injection);
+        patch_address(AppPlatform_linux_getDateString_vtable_addr, AppPlatform_linux_getDateString_injection);
     }
 
     // Init Logging

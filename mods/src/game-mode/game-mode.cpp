@@ -28,21 +28,21 @@ static void set_is_survival(bool new_is_survival) {
 }
 
 // Handle Gamemode Switching
-static void Minecraft_setIsCreativeMode_injection(Minecraft *self, int32_t new_game_mode) {
+static void Minecraft_setIsCreativeMode_injection(Minecraft_setIsCreativeMode_t original, Minecraft *self, int32_t new_game_mode) {
     set_is_survival(!new_game_mode);
 
     // Call Original Method
-    Minecraft_setIsCreativeMode(self, new_game_mode);
+    original(self, new_game_mode);
 }
 
 // Disable CreatorMode-Specific API Features (Polling Block Hits) In SurvivalMode, This Is Preferable To Crashing
-static unsigned char *Minecraft_getCreator_injection(Minecraft *minecraft) {
+static unsigned char *Minecraft_getCreator_injection(Minecraft_getCreator_t original, Minecraft *minecraft) {
     if (is_survival) {
         // SurvivalMode, Return nullptr
         return nullptr;
     } else {
         // CreatorMode, Call Original Method
-        return Minecraft_getCreator(minecraft);
+        return original(minecraft);
     }
 }
 
@@ -51,7 +51,7 @@ void init_game_mode() {
     // Dynamic Game Mode Switching
     if (feature_has("Implement Game-Mode Switching", server_enabled)) {
         set_is_survival(true);
-        overwrite_calls((void *) Minecraft_setIsCreativeMode, (void *) Minecraft_setIsCreativeMode_injection);
+        overwrite_calls(Minecraft_setIsCreativeMode, Minecraft_setIsCreativeMode_injection);
 
         // Replace CreatorLevel With ServerLevel (This Fixes Beds And Mob Spawning)
         overwrite_call((void *) 0x16f84, (void *) ServerLevel_constructor);
@@ -61,7 +61,7 @@ void init_game_mode() {
         patch_address((void *) 0x17004, (void *) level_size);
 
         // Disable CreatorMode-Specific API Features (Polling Block Hits) In SurvivalMode, This Is Preferable To Crashing
-        overwrite_calls((void *) Minecraft_getCreator, (void *) Minecraft_getCreator_injection);
+        overwrite_calls(Minecraft_getCreator, Minecraft_getCreator_injection);
     }
 
     // Create World Dialog

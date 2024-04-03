@@ -69,8 +69,9 @@ CUSTOM_VTABLE(chat_screen, Screen) {
         original_render(super, x, y, param_1);
     };
     // Positioning
+    static Screen_setupPositions_t original_setupPositions = vtable->setupPositions;
     vtable->setupPositions = [](Screen *super) {
-        Screen_setupPositions_non_virtual(super);
+        original_setupPositions(super);
         ChatScreen *self = (ChatScreen *) super;
         self->send->height = 24;
         self->send->width = 40;
@@ -118,6 +119,7 @@ CUSTOM_VTABLE(chat_screen, Screen) {
         original_keyPressed(super, key);
     };
     // Button Click
+    static Screen_buttonClicked_t original_buttonClicked = vtable->buttonClicked;
     vtable->buttonClicked = [](Screen *super, Button *button) {
         ChatScreen *self = (ChatScreen *) super;
         if (button == self->send) {
@@ -126,7 +128,7 @@ CUSTOM_VTABLE(chat_screen, Screen) {
             super->vtable->keyPressed(super, 0x0d);
         } else {
             // Call Original Method
-            Screen_buttonClicked_non_virtual(super, button);
+            original_buttonClicked(super, button);
         }
     };
 }

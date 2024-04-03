@@ -65,19 +65,19 @@ std::string get_death_message(Player *player, Entity *cause, bool was_shot = fal
 }
 
 static bool is_hurt = false;
-static bool Mob_hurt_injection(Mob *mob, Entity *source, int dmg) {
-    // Call Original Method
+static bool Mob_hurt_injection(Mob_hurt_t original, Mob *mob, Entity *source, int dmg) {
     is_hurt = true;
-    bool ret = Mob_hurt_non_virtual(mob, source, dmg);
+    bool ret = original(mob, source, dmg);
     is_hurt = false;
     return ret;
 }
 
 // Death Message Logic
-#define Player_death_injections(type) \
-    static void type##Player_die_injection(type##Player *player, Entity *cause) { \
+#define Player_die_injections(type) \
+    static type##_die_t original_##type##_die; \
+    static void type##_die_injection(type *player, Entity *cause) { \
         /* Call Original Method */ \
-        type##Player_die_non_virtual(player, cause); \
+        original_##type##_die(player, cause); \
         \
         /* Get Variable */ \
         RakNetInstance *rak_net_instance = player->minecraft->rak_net_instance; \
@@ -90,14 +90,14 @@ static bool Mob_hurt_injection(Mob *mob, Entity *source, int dmg) {
             ServerSideNetworkHandler *server_side_network_handler = (ServerSideNetworkHandler *) player->minecraft->network_handler; \
             ServerSideNetworkHandler_displayGameMessage(server_side_network_handler, &message); \
         } \
-    } \
-    \
-    static void type##Player_actuallyHurt_injection(type##Player *player, int32_t damage) { \
+    }
+#define Player_actuallyHurt_injections(type) \
+    static void type##_actuallyHurt_injection(type *player, int32_t damage) { \
         /* Store Old Health */ \
         int32_t old_health = player->health; \
         \
         /* Call Original Method */ \
-        type##Player_actuallyHurt_non_virtual(player, damage); \
+        (*Mob_actuallyHurt_vtable_addr)((Mob *) player, damage); \
         if (is_hurt == true) return; \
         \
         /* Store New Health */ \
@@ -119,18 +119,21 @@ static bool Mob_hurt_injection(Mob *mob, Entity *source, int dmg) {
         } \
     }
 
-Player_death_injections(Local);
-Player_death_injections(Server);
+Player_die_injections(LocalPlayer)
+Player_die_injections(ServerPlayer)
+
+Player_actuallyHurt_injections(LocalPlayer)
+Player_actuallyHurt_injections(ServerPlayer)
 
 // Init
 void init_death() {
     // Death Messages
     if (feature_has("Implement Death Messages", server_auto)) {
-        patch_address(ServerPlayer_die_vtable_addr, (void *) ServerPlayer_die_injection);
-        patch_address(LocalPlayer_die_vtable_addr, (void *) LocalPlayer_die_injection);
-        patch_address(ServerPlayer_actuallyHurt_vtable_addr, (void *) ServerPlayer_actuallyHurt_injection);
-        patch_address(LocalPlayer_actuallyHurt_vtable_addr, (void *) LocalPlayer_actuallyHurt_injection);
-        overwrite_calls((void *) Mob_hurt_non_virtual, (void *) Mob_hurt_injection);
+        patch_address(ServerPlayer_die_vtable_addr, ServerPlayer_die_injection);
+        patch_address(LocalPlayer_die_vtable_addr, LocalPlayer_die_injection);
+        patch_address(LocalPlayer_actuallyHurt_vtable_addr, LocalPlayer_actuallyHurt_injection);
+        patch_address(ServerPlayer_actuallyHurt_vtable_addr, ServerPlayer_actuallyHurt_injection);
+        overwrite_virtual_calls(Mob_hurt, Mob_hurt_injection);
     }
 
     // Fix TNT

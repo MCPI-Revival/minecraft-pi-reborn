@@ -49,10 +49,10 @@ __attribute__((destructor)) static void _free_safe_username() {
 
 static int render_distance;
 // Configure Options
-Options *stored_options = nullptr;
-static void Options_initDefaultValue_injection(Options *options) {
+static Options *stored_options = nullptr;
+static void Options_initDefaultValue_injection(Options_initDefaultValue_t original, Options *options) {
     // Call Original Method
-    Options_initDefaultValue(options);
+    original(options);
 
     // Default Graphics Settings
 #ifndef MCPI_SERVER_MODE
@@ -63,9 +63,9 @@ static void Options_initDefaultValue_injection(Options *options) {
     // Store
     stored_options = options;
 }
-static void Minecraft_init_injection(Minecraft *minecraft) {
+static void Minecraft_init_injection(Minecraft_init_t original, Minecraft *minecraft) {
     // Call Original Method
-    Minecraft_init_non_virtual(minecraft);
+    original(minecraft);
 
     Options *options = &minecraft->options;
     // Enable Crosshair In Touch GUI
@@ -75,12 +75,12 @@ static void Minecraft_init_injection(Minecraft *minecraft) {
 }
 
 // Smooth Lighting
-static void TileRenderer_tesselateBlockInWorld_injection(TileRenderer *tile_renderer, Tile *tile, int32_t x, int32_t y, int32_t z) {
+static bool TileRenderer_tesselateBlockInWorld_injection(TileRenderer_tesselateBlockInWorld_t original, TileRenderer *tile_renderer, Tile *tile, int32_t x, int32_t y, int32_t z) {
     // Set Variable
     Minecraft_useAmbientOcclusion = stored_options->ambient_occlusion;
 
     // Call Original Method
-    TileRenderer_tesselateBlockInWorld(tile_renderer, tile, x, y, z);
+    return original(tile_renderer, tile, x, y, z);
 }
 
 // Fix Initial Option Button Rendering
@@ -166,7 +166,7 @@ static char *get_new_options_txt_path() {
 #endif
 
 // Modify Option Toggles
-static void OptionsPane_unknown_toggle_creating_function_injection(OptionsPane *options_pane, uint32_t group_id, std::string *name_ptr, Options_Option *option) {
+static void OptionsPane_unknown_toggle_creating_function_injection(OptionsPane_unknown_toggle_creating_function_t original, OptionsPane *options_pane, uint32_t group_id, std::string *name_ptr, Options_Option *option) {
     // Modify
     std::string name = *name_ptr;
     std::string new_name = name;
@@ -192,23 +192,23 @@ static void OptionsPane_unknown_toggle_creating_function_injection(OptionsPane *
     }
 
     // Call Original Method
-    OptionsPane_unknown_toggle_creating_function(options_pane, group_id, &new_name, option);
+    original(options_pane, group_id, &new_name, option);
 
     // Add 3D Anaglyph
     if (option == &Options_Option_GRAPHICS) {
         std::string cpp_string = "3D Anaglyph";
-        OptionsPane_unknown_toggle_creating_function(options_pane, group_id, &cpp_string, &Options_Option_ANAGLYPH);
+        original(options_pane, group_id, &cpp_string, &Options_Option_ANAGLYPH);
     }
 
     // Add Peaceful Mode
     if (option == &Options_Option_SERVER_VISIBLE) {
         std::string cpp_string = "Peaceful mode";
-        OptionsPane_unknown_toggle_creating_function(options_pane, group_id, &cpp_string, &Options_Option_DIFFICULTY);
+        original(options_pane, group_id, &cpp_string, &Options_Option_DIFFICULTY);
     }
 }
 
 // Add Missing Options To Options::getBooleanValue
-static bool Options_getBooleanValue_injection(Options *options, Options_Option *option) {
+static bool Options_getBooleanValue_injection(Options_getBooleanValue_t original, Options *options, Options_Option *option) {
     // Check
     if (option == &Options_Option_GRAPHICS) {
         return options->fancy_graphics;
@@ -216,7 +216,7 @@ static bool Options_getBooleanValue_injection(Options *options, Options_Option *
         return options->game_difficulty == 0;
     } else {
         // Call Original Method
-        return Options_getBooleanValue(options, option);
+        return original(options, option);
     }
 }
 
@@ -246,8 +246,8 @@ void init_options() {
     DEBUG("Setting Render Distance: %i", render_distance);
 
     // Set Options
-    overwrite_calls((void *) Options_initDefaultValue, (void *) Options_initDefaultValue_injection);
-    overwrite_calls((void *) Minecraft_init_non_virtual, (void *) Minecraft_init_injection);
+    overwrite_calls(Options_initDefaultValue, Options_initDefaultValue_injection);
+    overwrite_virtual_calls(Minecraft_init, Minecraft_init_injection);
 
     // Change Username
     const char *username = get_username();
@@ -272,7 +272,7 @@ void init_options() {
     }
 
     // Smooth Lighting
-    overwrite_calls((void *) TileRenderer_tesselateBlockInWorld, (void *) TileRenderer_tesselateBlockInWorld_injection);
+    overwrite_calls(TileRenderer_tesselateBlockInWorld, TileRenderer_tesselateBlockInWorld_injection);
 
     // NOP
     unsigned char nop_patch[4] = {0x00, 0xf0, 0x20, 0xe3}; // "nop"
@@ -292,10 +292,10 @@ void init_options() {
         patch((void *) 0x3577c, this_works_slider_patch);
 
         // Modify Option Toggles
-        overwrite_calls((void *) OptionsPane_unknown_toggle_creating_function, (void *) OptionsPane_unknown_toggle_creating_function_injection);
+        overwrite_calls(OptionsPane_unknown_toggle_creating_function, OptionsPane_unknown_toggle_creating_function_injection);
 
         // Add Missing Options To Options::getBooleanValue
-        overwrite_calls((void *) Options_getBooleanValue, (void *) Options_getBooleanValue_injection);
+        overwrite_calls(Options_getBooleanValue, Options_getBooleanValue_injection);
 
         // Fix Difficulty When Toggling
         overwrite_call((void *) 0x1cd00, (void *) OptionButton_toggle_Options_save_injection);
@@ -308,7 +308,7 @@ void init_options() {
     // When Loading, options.txt Should Be Opened In Read Mode
     patch_address((void *) Strings_options_txt_fopen_mode_when_loading_pointer, (void *) "r");
     // Fix OptionsFile::getOptionStrings
-    overwrite_calls((void *) OptionsFile_getOptionStrings, (void *) OptionsFile_getOptionStrings_injection);
+    overwrite(OptionsFile_getOptionStrings, OptionsFile_getOptionStrings_injection);
 
     // Sensitivity Loading/Saving Is Broken, Disable It
     patch((void *) 0x1931c, nop_patch);

@@ -136,7 +136,7 @@ static int BucketItem_getUseDuration(__attribute__((unused)) FoodItem *item, Ite
 
 static ItemInstance BucketItem_useTimeDepleted(FoodItem *item, ItemInstance *item_instance, Level *level, Player *player) {
     if (item_instance->auxiliary == 1) {
-        *item_instance = FoodItem_useTimeDepleted_non_virtual(item, item_instance, level, player);
+        *item_instance = (*FoodItem_useTimeDepleted_vtable_addr)(item, item_instance, level, player);
         // Set it to a empty bucket
         item_instance->auxiliary = 0;
         item_instance->count = 1;
@@ -212,25 +212,25 @@ static void Item_initItems_injection(__attribute__((unused)) void *null) {
 }
 
 // Change Max Stack Size Based On Auxiliary
-static int32_t ItemInstance_getMaxStackSize_injection(ItemInstance *item_instance) {
+static int32_t ItemInstance_getMaxStackSize_injection(ItemInstance_getMaxStackSize_t original, ItemInstance *item_instance) {
     if (item_instance->id == bucket->id && item_instance->auxiliary == 0) {
         // Custom Value
         return 16;
     } else {
         // Call Original Method
-        return ItemInstance_getMaxStackSize(item_instance);
+        return original(item_instance);
     }
 }
 
 // Milking
-bool Cow_interact_injection(Cow *self, Player *player) {
+bool Cow_interact_injection(Cow_interact_t original, Cow *self, Player *player) {
     ItemInstance *item = Inventory_getSelected(player->inventory);
     if (item && item->id == bucket->id && item->auxiliary == 0) {
         // Fill with milk
         fill_bucket(item, player, 1);
         return true;
     }
-    return Cow_interact_non_virtual(self, player);
+    return original(self, player);
 }
 
 // Creative Inventory
@@ -277,7 +277,7 @@ static bool is_calm_liquid(int32_t id) {
         return false;
     }
 }
-static void Minecraft_handleMouseDown_injection(Minecraft *minecraft, int param_1, bool can_destroy) {
+static void Minecraft_handleMouseDown_injection(Minecraft_handleMouseDown_t original, Minecraft *minecraft, int param_1, bool can_destroy) {
     // Check
     Level *level = minecraft->level;
     if (level != nullptr) {
@@ -291,7 +291,7 @@ static void Minecraft_handleMouseDown_injection(Minecraft *minecraft, int param_
     }
 
     // Call Original Method
-    Minecraft_handleMouseDown(minecraft, param_1, can_destroy);
+    original(minecraft, param_1, can_destroy);
 }
 
 // Custom Crafting Recipes
@@ -319,12 +319,12 @@ static void Recipes_injection(Recipes *recipes) {
 }
 
 // Custom Furnace Fuel
-static int32_t FurnaceTileEntity_getBurnDuration_injection(ItemInstance *item_instance) {
+static int32_t FurnaceTileEntity_getBurnDuration_injection(FurnaceTileEntity_getBurnDuration_t original, ItemInstance *item_instance) {
     if (item_instance->count > 0 && item_instance->id == bucket->id && item_instance->auxiliary == Tile_lava->id) {
         return 20000;
     } else {
         // Call Original Method
-        return FurnaceTileEntity_getBurnDuration(item_instance);
+        return original(item_instance);
     }
 }
 static void FurnaceTileEntity_tick_ItemInstance_setNull_injection(ItemInstance *item_instance) {
@@ -353,20 +353,20 @@ void init_bucket() {
         // Add Items
         misc_run_on_items_setup(Item_initItems_injection);
         // Change Max Stack Size Based On Auxiliary
-        overwrite_calls((void *) ItemInstance_getMaxStackSize, (void *) ItemInstance_getMaxStackSize_injection);
+        overwrite_calls(ItemInstance_getMaxStackSize, ItemInstance_getMaxStackSize_injection);
         // Enable milking
-        patch_address((void *) Cow_interact_vtable_addr, (void *) Cow_interact_injection);
+        overwrite_virtual_calls(Cow_interact, Cow_interact_injection);
         // Creative Inventory
         misc_run_on_creative_inventory_setup(Inventory_setupDefault_FillingContainer_addItem_call_injection);
         // Make Liquids Selectable
         overwrite_call((void *) 0x7f5b0, (void *) Mob_pick_Level_clip_injection);
         misc_run_on_tick(handle_tick);
         // Prevent Breaking Liquid
-        overwrite_calls((void *) Minecraft_handleMouseDown, (void *) Minecraft_handleMouseDown_injection);
+        overwrite_calls(Minecraft_handleMouseDown, Minecraft_handleMouseDown_injection);
         // Custom Crafting Recipes
         misc_run_on_recipes_setup(Recipes_injection);
         // Custom Furnace Fuel
-        overwrite_calls((void *) FurnaceTileEntity_getBurnDuration, (void *) FurnaceTileEntity_getBurnDuration_injection);
+        overwrite_calls(FurnaceTileEntity_getBurnDuration, FurnaceTileEntity_getBurnDuration_injection);
         overwrite_call((void *) 0xd351c, (void *) FurnaceTileEntity_tick_ItemInstance_setNull_injection);
         // Language for milk
         misc_run_on_language_setup(Language_injection);

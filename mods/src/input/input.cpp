@@ -19,9 +19,9 @@ void input_run_on_tick(input_tick_function_t function) {
 }
 
 // Handle Input Fixes
-static void Minecraft_tickInput_injection(Minecraft *minecraft) {
+static void Minecraft_tickInput_injection(Minecraft_tickInput_t original, Minecraft *minecraft) {
     // Call Original Method
-    Minecraft_tickInput(minecraft);
+    original(minecraft);
 
     // Run Input Tick Functions
     for (input_tick_function_t function : get_input_tick_functions()) {
@@ -44,7 +44,7 @@ void init_input() {
     _init_bow();
 
     // Loop
-    overwrite_calls((void *) Minecraft_tickInput, (void *) Minecraft_tickInput_injection);
+    overwrite_calls(Minecraft_tickInput, Minecraft_tickInput_injection);
 
     // Allow Attacking Mobs
     _init_attack();

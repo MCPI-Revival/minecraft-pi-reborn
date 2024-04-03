@@ -64,7 +64,7 @@ static void Minecraft_tick_injection(__attribute__((unused)) Minecraft *minecraf
 
 // Get Time
 static long long int get_time() {
-    struct timespec ts;
+    timespec ts = {};
     clock_gettime(CLOCK_MONOTONIC_RAW, &ts);
     long long int a = (long long int) ts.tv_nsec;
     long long int b = ((long long int) ts.tv_sec) * NANOSECONDS_IN_SECOND;

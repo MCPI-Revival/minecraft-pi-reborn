@@ -22,9 +22,4 @@ void misc_run_on_language_setup(misc_update_function_void_t function); // obj ==
 typedef bool (*misc_update_function_key_press_t)(Minecraft *minecrtaft, int key);
 void misc_run_on_game_key_press(misc_update_function_key_press_t function); // In-Game Key Presses Only
 
-void Level_saveLevelData_injection(Level *level);
-
-// Use this instead of directly calling Gui::addMessage(), it has proper logging!
-void misc_add_message(Gui *gui, const char *text);
-
 extern bool is_in_chat;

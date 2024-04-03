@@ -104,9 +104,9 @@ static void SoundEngine_update_injection(SoundEngine *sound_engine, Mob *listene
 
 // Resolve All Sounds On Init
 // SoundEngine::init Is Called After The Audio Engine Has Been Loaded
-static void SoundEngine_init_injection(SoundEngine *sound_engine, Minecraft *minecraft, Options *options) {
+static void SoundEngine_init_injection(SoundEngine_init_t original, SoundEngine *sound_engine, Minecraft *minecraft, Options *options) {
     // Call Original Method
-    SoundEngine_init(sound_engine, minecraft, options);
+    original(sound_engine, minecraft, options);
 
     // Resolve Sounds
     _sound_resolve_all();
@@ -116,9 +116,9 @@ static void SoundEngine_init_injection(SoundEngine *sound_engine, Minecraft *min
 void init_sound() {
     // Implement Sound Engine
     if (feature_has("Implement Sound Engine", server_disabled)) {
-        overwrite((void *) SoundEngine_playUI, (void *) SoundEngine_playUI_injection);
-        overwrite((void *) SoundEngine_play, (void *) SoundEngine_play_injection);
-        overwrite((void *) SoundEngine_update, (void *) SoundEngine_update_injection);
-        overwrite_calls((void *) SoundEngine_init, (void *) SoundEngine_init_injection);
+        overwrite(SoundEngine_playUI, SoundEngine_playUI_injection);
+        overwrite(SoundEngine_play, SoundEngine_play_injection);
+        overwrite(SoundEngine_update, SoundEngine_update_injection);
+        overwrite_calls(SoundEngine_init, SoundEngine_init_injection);
     }
 }

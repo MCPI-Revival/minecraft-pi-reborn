@@ -40,11 +40,11 @@ static bool OptionsScreen_handleBackEvent_injection(OptionsScreen *screen, bool 
         Minecraft *minecraft = screen->minecraft;
         Minecraft_setScreen(minecraft, nullptr);
     }
-    return 1;
+    return true;
 }
 
 // Fix "Sleeping Beauty" Bug
-static int32_t InBedScreen_handleBackEvent_injection(InBedScreen *screen, bool do_nothing) {
+static bool InBedScreen_handleBackEvent_injection(InBedScreen *screen, bool do_nothing) {
     if (!do_nothing) {
         // Close Screen
         Minecraft *minecraft = screen->minecraft;
@@ -55,7 +55,7 @@ static int32_t InBedScreen_handleBackEvent_injection(InBedScreen *screen, bool d
             player->vtable->stopSleepInBed(player, 1, 1, 1);
         }
     }
-    return 1;
+    return true;
 }
 
 // Set Mouse Grab State
@@ -91,10 +91,10 @@ static bool Gui_tickItemDrop_Minecraft_isCreativeMode_call_injection(Minecraft *
 }
 
 // Block UI Interaction When Mouse Is Locked
-static void Gui_handleClick_injection(Gui *gui, int32_t param_2, int32_t param_3, int32_t param_4) {
+static void Gui_handleClick_injection(Gui_handleClick_t original, Gui *gui, int32_t param_2, int32_t param_3, int32_t param_4) {
     if (SDL_WM_GrabInput(SDL_GRAB_QUERY) == SDL_GRAB_OFF) {
         // Call Original Method
-        Gui_handleClick(gui, param_2, param_3, param_4);
+        original(gui, param_2, param_3, param_4);
     }
 }
 
@@ -103,11 +103,11 @@ void _init_misc() {
     enable_misc = feature_has("Miscellaneous Input Fixes", server_disabled);
     if (enable_misc) {
         // Fix OptionsScreen Ignoring The Back Button
-        patch_address(OptionsScreen_handleBackEvent_vtable_addr, (void *) OptionsScreen_handleBackEvent_injection);
+        patch_address(OptionsScreen_handleBackEvent_vtable_addr, OptionsScreen_handleBackEvent_injection);
         // Fix "Sleeping Beauty" Bug
-        patch_address(InBedScreen_handleBackEvent_vtable_addr, (void *) InBedScreen_handleBackEvent_injection);
+        patch_address(InBedScreen_handleBackEvent_vtable_addr, InBedScreen_handleBackEvent_injection);
         // Disable Opening Inventory Using The Cursor When Cursor Is Hidden
-        overwrite_calls((void *) Gui_handleClick, (void *) Gui_handleClick_injection);
+        overwrite_calls(Gui_handleClick, Gui_handleClick_injection);
     }
     // Disable Item Dropping Using The Cursor When Cursor Is Hidden
     overwrite_call((void *) 0x27800, (void *) Gui_tickItemDrop_Minecraft_isCreativeMode_call_injection);

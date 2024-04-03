@@ -22,9 +22,9 @@ static void StartMenuScreen_render_Screen_renderBackground_injection(Screen *scr
 }
 
 // Add Buttons Back To Classic Start Screen
-static void StartMenuScreen_init_injection(StartMenuScreen *screen) {
+static void StartMenuScreen_init_injection(StartMenuScreen_init_t original, StartMenuScreen *screen) {
     // Call Original Method
-    StartMenuScreen_init_non_virtual(screen);
+    original(screen);
 
     // Add Button
     std::vector<Button *> *rendered_buttons = &screen->rendered_buttons;
@@ -38,14 +38,14 @@ static void StartMenuScreen_init_injection(StartMenuScreen *screen) {
 }
 
 // Add Functionality To Quit Button
-static void StartMenuScreen_buttonClicked_injection(StartMenuScreen *screen, Button *button) {
+static void StartMenuScreen_buttonClicked_injection(StartMenuScreen_buttonClicked_t original, StartMenuScreen *screen, Button *button) {
     Button *quit_button = &screen->create_button;
     if (button == quit_button) {
         // Quit
         compat_request_exit();
     } else {
         // Call Original Method
-        StartMenuScreen_buttonClicked_non_virtual(screen, button);
+        original(screen, button);
     }
 }
 
@@ -68,7 +68,7 @@ static Screen *last_screen = nullptr;
 static std::string current_splash;
 static void StartMenuScreen_render_Screen_render_injection(Screen *screen, int x, int y, float param_1) {
     // Call Original Method
-    Screen_render_non_virtual(screen, x, y, param_1);
+    (*Screen_render_vtable_addr)(screen, x, y, param_1);
 
     // Load Splashes
     static std::vector<std::string> splashes;
@@ -130,7 +130,7 @@ void init_title_screen() {
     // Improved Classic Title Screen
     if (feature_has("Improved Classic Title Screen", server_disabled)) {
         // Add Options Button Back To Classic Start Screen
-        patch_address(StartMenuScreen_init_vtable_addr, (void *) StartMenuScreen_init_injection);
+        overwrite_virtual_calls(StartMenuScreen_init, StartMenuScreen_init_injection);
 
         // Fix Classic UI Button Size
         unsigned char classic_button_height_patch[4] = {0x18, 0x30, 0xa0, 0xe3}; // "mov r3, #0x18"
@@ -154,7 +154,7 @@ void init_title_screen() {
         patch_address((void *) Strings_classic_create_button_text_pointer, (void *) "Quit");
 
         // Add Functionality To Quit Button
-        patch_address(StartMenuScreen_buttonClicked_vtable_addr, (void *) StartMenuScreen_buttonClicked_injection);
+        overwrite_virtual_calls(StartMenuScreen_buttonClicked, StartMenuScreen_buttonClicked_injection);
     }
 
     // Add Splashes

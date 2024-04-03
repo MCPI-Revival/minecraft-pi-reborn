@@ -8,7 +8,7 @@
 
 // Print Chat To Log
 static bool Gui_addMessage_recursing = false;
-static void Gui_addMessage_injection(Gui *gui, std::string *text) {
+static void Gui_addMessage_injection(Gui_addMessage_t original, Gui *gui, std::string *text) {
     // Sanitize Message
     char *new_message = strdup(text->c_str());
     ALLOC_CHECK(new_message);
@@ -26,21 +26,17 @@ static void Gui_addMessage_injection(Gui *gui, std::string *text) {
         free(safe_message);
 
         // Call Original Method
-        Gui_addMessage(gui, &cpp_str);
+        original(gui, &cpp_str);
 
         // End Recursing
         Gui_addMessage_recursing = false;
     } else {
         // Call Original Method
-        Gui_addMessage(gui, &cpp_str);
+        original(gui, &cpp_str);
     }
 
     // Free
     free(new_message);
-}
-void misc_add_message(Gui *gui, const char *text) {
-    std::string str = text;
-    Gui_addMessage_injection(gui, &str);
 }
 
 // Print Progress Reports
@@ -79,24 +75,24 @@ static void Minecraft_update_injection(Minecraft *minecraft) {
 }
 
 // Log When Game Is Saved
-void Level_saveLevelData_injection(Level *level) {
+static void Level_saveLevelData_injection(Level_saveLevelData_t original, Level *level) {
     // Print Log Message
     DEBUG("Saving Game");
 
     // Call Original Method
-    Level_saveLevelData(level);
+    original(level);
 }
 
 // Init
 void _init_misc_logging() {
     // Print Chat To Log
-    overwrite_calls((void *) Gui_addMessage, (void *) Gui_addMessage_injection);
+    overwrite_calls(Gui_addMessage, Gui_addMessage_injection);
 
     // Print Progress Reports
     misc_run_on_update(Minecraft_update_injection);
 
     // Print Log On Game Save
-    overwrite_calls((void *) Level_saveLevelData, (void *) Level_saveLevelData_injection);
+    overwrite_calls(Level_saveLevelData, Level_saveLevelData_injection);
 
     // Disable stdout Buffering
     setvbuf(stdout, nullptr, _IONBF, 0);

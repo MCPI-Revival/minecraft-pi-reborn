@@ -7,16 +7,16 @@
 #include <mods/init/init.h>
 
 // Take Screenshot Using TripodCamera
-static void AppPlatform_linux_saveScreenshot_injection(__attribute__((unused)) AppPlatform *app_platform, __attribute__((unused)) std::string const& path, __attribute__((unused)) int32_t width, __attribute__((unused)) int32_t height) {
+static void AppPlatform_saveScreenshot_injection(__attribute__((unused)) AppPlatform_saveScreenshot_t original, __attribute__((unused)) AppPlatform *app_platform, __attribute__((unused)) std::string *path, __attribute__((unused)) int32_t width, __attribute__((unused)) int32_t height) {
 #ifndef MCPI_HEADLESS_MODE
     screenshot_take(home_get());
 #endif
 }
 
 // Enable TripodCameraRenderer
-static EntityRenderDispatcher *EntityRenderDispatcher_injection(EntityRenderDispatcher *dispatcher) {
+static EntityRenderDispatcher *EntityRenderDispatcher_injection(EntityRenderDispatcher_constructor_t original, EntityRenderDispatcher *dispatcher) {
     // Call Original Method
-    EntityRenderDispatcher_constructor(dispatcher);
+    original(dispatcher);
 
     // Register TripodCameraRenderer
     TripodCameraRenderer *renderer = alloc_TripodCameraRenderer();
@@ -36,12 +36,12 @@ static void TripodCamera_tick_Level_addParticle_call_injection(Level *level, std
 // Init
 void init_camera() {
     // Implement AppPlatform_linux::saveScreenshot So Cameras Work
-    patch_address(AppPlatform_linux_saveScreenshot_vtable_addr, (void *) AppPlatform_linux_saveScreenshot_injection);
+    overwrite_virtual_calls(AppPlatform_saveScreenshot, AppPlatform_saveScreenshot_injection);
 
     // Fix Camera Rendering
     if (feature_has("Fix Camera Rendering", server_disabled)) {
         // Enable TripodCameraRenderer
-        overwrite_calls((void *) EntityRenderDispatcher_constructor, (void *) EntityRenderDispatcher_injection);
+        overwrite_calls(EntityRenderDispatcher_constructor, EntityRenderDispatcher_injection);
         // Display Smoke From TripodCamera Higher
         overwrite_call((void *) 0x87dc4, (void *) TripodCamera_tick_Level_addParticle_call_injection);
     }

@@ -1,3 +1,7 @@
+vtable-destructor-offset 0x4; // Why
+vtable 0x1090f0;
+
+virtual-method void levelGenerated(Level *level) = 0x0;
 virtual-method void onDisconnect(RakNet_RakNetGUID *guid) = 0x18;
 virtual-method void handle_SignUpdatePacket(RakNet_RakNetGUID *guid, SignUpdatePacket *packet) = 0xcc;
-virtual-method void handle_ChatPacket(RakNet_RakNetGUID *rak_net_guid, uchar *packet) = 0xc8;
+virtual-method void handle_ChatPacket(RakNet_RakNetGUID *rak_net_guid, ChatPacket *packet) = 0xc8;

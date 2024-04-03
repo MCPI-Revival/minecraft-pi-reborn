@@ -1,1 +1,3 @@
+vtable 0x102540;
+
 virtual-method int tickBuild(Player *player, uint *build_action_intention_return) = 0xc;
