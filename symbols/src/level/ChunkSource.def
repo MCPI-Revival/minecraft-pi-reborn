@@ -1,4 +1,12 @@
 vtable 0x10fb88;
 
-virtual-method LevelChunk *getChunk(int chunk_x, int chunk_y) = 0xc;
+virtual-method bool hasChunk(int chunk_x, int chunk_z) = 0x8;
+virtual-method LevelChunk *getChunk(int chunk_x, int chunk_z) = 0xc;
+virtual-method LevelChunk *create(int chunk_x, int chunk_z) = 0x10;
 virtual-method void postProcess(ChunkSource *chunk_source, int chunk_x, int chunk_y) = 0x14;
+virtual-method bool tick() = 0x18;
+virtual-method bool shouldSave() = 0x1c;
+// If unforced is false, chunk->shouldSave will be ignored
+virtual-method void saveAll(bool unforced) = 0x20;
+//virtual-method std::vector<???> getMobsAt(?? *?, int x, int y, int z) = 0x24;
+virtual-method std::string gatherStats() = 0x28;
