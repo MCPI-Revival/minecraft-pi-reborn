@@ -4,7 +4,9 @@ vtable 0x10fcf0;
 
 method void saveLevelData() = 0xa2e94;
 method void setTile(int x, int y, int z, int id) = 0xa3904;
+method void setTileNoUpdate(int x, int y, int z, int id) = 0xa342c;
 method void setData(int x, int y, int z, int data) = 0xa394c;
+method void setDataNoUpdate(int x, int y, int z, int data) = 0xa3480;
 method void setTileAndData(int x, int y, int z, int id, int data) = 0xa38b4;
 method void setTileAndDataNoUpdate(int x, int y, int z, int id, int data) = 0xa33d0;
 // Calls setTileDirty and updateNearbyTiles
@@ -56,5 +58,6 @@ property std::vector<Entity *> entities = 0x20;
 property std::vector<TileEntity *> tileentities = 0x50;
 property std::vector<Player *> players = 0x60;
 property Dimension *dimension = 0x74;
-property ChunkSource *chunk_source = 0xa5c;
 property bool no_update = 0x70;
+property ChunkSource *chunk_source = 0xa5c;
+property LevelData data = 0xa64;

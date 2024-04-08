@@ -2,7 +2,9 @@
 
 #include <libreborn/libreborn.h>
 
+extern "C" {
 bool _feature_has(const char *name);
+}
 
 #ifdef MCPI_SERVER_MODE
 #define _feature_has__server_defaul_is_server_disabled(name) 0

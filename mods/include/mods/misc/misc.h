@@ -4,6 +4,7 @@
 
 #include <symbols/minecraft.h>
 
+extern "C" {
 int32_t misc_get_real_selected_slot(Player *player);
 
 typedef void (*misc_update_function_Minecraft_t)(Minecraft *obj);
@@ -23,3 +24,4 @@ typedef bool (*misc_update_function_key_press_t)(Minecraft *minecrtaft, int key)
 void misc_run_on_game_key_press(misc_update_function_key_press_t function); // In-Game Key Presses Only
 
 extern bool is_in_chat;
+}
