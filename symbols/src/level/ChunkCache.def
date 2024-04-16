@@ -1,3 +1,12 @@
 extends ChunkSource;
 
 vtable 0x10fbc0;
+
+property int cachedX = 0x8;
+property int cachedZ = 0xc;
+property LevelChunk *emptyChunk = 0x10;
+property ChunkSource *chunkSource = 0x14;
+property ChunkStorage *chunkStorage = 0x18;
+property LevelChunk *levelChunks[256] = 0x1c;
+property Level *level = 0x41c;
+property LevelChunk *cachedLevelChunk = 0x420;

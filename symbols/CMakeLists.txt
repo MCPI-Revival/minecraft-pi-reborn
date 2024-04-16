@@ -76,6 +76,7 @@ set(SRC
     src/level/LevelChunk.def
     src/level/ChunkSource.def
     src/level/ChunkCache.def
+    src/level/ChunkStorage.def
     src/level/LightLayer.def
     src/level/Level.def
     src/level/LevelRenderer.def
