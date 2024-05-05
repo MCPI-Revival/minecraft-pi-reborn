@@ -67,9 +67,9 @@ property int category = 0x3c;
 property AABB aabb = 0x40;
 
 // Globals, all of theses are 256 elements long
-static-property-array Tile *tiles = 0x180e08;
-static-property-array float lightEmission = 0x181214;
-static-property-array bool isEntityTile = 0x181f20;
+static-property Tile *tiles[256] = 0x180e08;
+static-property float lightEmission[256] = 0x181214;
+static-property bool isEntityTile[256] = 0x181f20;
 
 // Tiles
 static-property Tile *grass = 0x181b14;

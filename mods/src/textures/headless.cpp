@@ -3,7 +3,7 @@
 #include <mods/init/init.h>
 
 // Disable Texture Loading
-static Texture AppPlatform_linux_loadTexture_injection(__attribute__((unused)) AppPlatform_linux *app_platform, __attribute__((unused)) std::string *path, __attribute__((unused)) bool b) {
+static Texture AppPlatform_linux_loadTexture_injection(__attribute__((unused)) AppPlatform_linux_loadTexture_t original, __attribute__((unused)) AppPlatform_linux *app_platform, __attribute__((unused)) std::string *path, __attribute__((unused)) bool b) {
     Texture out;
     out.width = 0;
     out.height = 0;
@@ -19,5 +19,5 @@ static Texture AppPlatform_linux_loadTexture_injection(__attribute__((unused)) A
 // Init
 void init_textures() {
     // Disable Texture Loading
-    overwrite((void *) AppPlatform_linux_loadTexture_non_virtual, (void *) AppPlatform_linux_loadTexture_injection);
+    overwrite_virtual_calls(AppPlatform_linux_loadTexture, AppPlatform_linux_loadTexture_injection);
 }

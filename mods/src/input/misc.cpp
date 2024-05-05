@@ -103,9 +103,9 @@ void _init_misc() {
     enable_misc = feature_has("Miscellaneous Input Fixes", server_disabled);
     if (enable_misc) {
         // Fix OptionsScreen Ignoring The Back Button
-        patch_address(OptionsScreen_handleBackEvent_vtable_addr, OptionsScreen_handleBackEvent_injection);
+        patch_vtable(OptionsScreen_handleBackEvent, OptionsScreen_handleBackEvent_injection);
         // Fix "Sleeping Beauty" Bug
-        patch_address(InBedScreen_handleBackEvent_vtable_addr, InBedScreen_handleBackEvent_injection);
+        patch_vtable(InBedScreen_handleBackEvent, InBedScreen_handleBackEvent_injection);
         // Disable Opening Inventory Using The Cursor When Cursor Is Hidden
         overwrite_calls(Gui_handleClick, Gui_handleClick_injection);
     }

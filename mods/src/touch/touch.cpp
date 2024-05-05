@@ -65,7 +65,7 @@ void init_touch() {
     int touch_buttons = touch_gui;
     if (touch_gui) {
         // Main UI
-        overwrite((void *) Minecraft_isTouchscreen, (void *) Minecraft_isTouchscreen_injection);
+        overwrite(Minecraft_isTouchscreen, Minecraft_isTouchscreen_injection);
 
         // Force Correct Toolbar Size
         unsigned char toolbar_patch[4] = {0x01, 0x00, 0x50, 0xe3}; // "cmp r0, #0x1"
@@ -98,7 +98,7 @@ void init_touch() {
 
     // Improved Button Hover Behavior
     if (touch_buttons && feature_has("Improved Button Hover Behavior", server_disabled)) {
-        overwrite((void *) Button_hovered, (void *) Button_hovered_injection);
+        overwrite(Button_hovered, Button_hovered_injection);
         overwrite_call((void *) 0x1ebd4, (void *) LargeImageButton_render_GuiComponent_drawCenteredString_injection);
     }
 

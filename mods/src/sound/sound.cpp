@@ -66,11 +66,11 @@ static void play(std::string name, float x, float y, float z, float volume, floa
         media_audio_play(source.c_str(), resolved_name.c_str(), x, y, z, pitch, volume, is_ui);
     }
 }
-static void SoundEngine_playUI_injection(__attribute__((unused)) unsigned char *sound_engine, std::string const& name, float volume, float pitch) {
-    play(name, 0, 0, 0, volume, pitch, true);
+static void SoundEngine_playUI_injection(__attribute__((unused)) SoundEngine *sound_engine, std::string *name, float volume, float pitch) {
+    play(*name, 0, 0, 0, volume, pitch, true);
 }
-static void SoundEngine_play_injection(__attribute__((unused)) unsigned char *sound_engine, std::string const& name, float x, float y, float z, float volume, float pitch) {
-    play(name, x, y, z, volume, pitch, false);
+static void SoundEngine_play_injection(__attribute__((unused)) SoundEngine *sound_engine, std::string *name, float x, float y, float z, float volume, float pitch) {
+    play(*name, x, y, z, volume, pitch, false);
 }
 
 // Refresh Data

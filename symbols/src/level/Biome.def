@@ -17,4 +17,4 @@ property int color = 0x2c;
 property int leaf_color = 0x34;
 
 // This is a Biome*[64x64], temp x humidity
-static-property-array Biome *map = 0x17c970;
+static-property Biome *map[4096] = 0x17c970;

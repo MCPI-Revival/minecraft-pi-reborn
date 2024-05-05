@@ -11,7 +11,7 @@
 #include <mods/home/home.h>
 
 // Force Mob Spawning
-static bool LevelData_getSpawnMobs_injection(__attribute__((unused)) unsigned char *level_data) {
+static bool LevelData_getSpawnMobs_injection(__attribute__((unused)) LevelData *level_data) {
     return true;
 }
 
@@ -238,7 +238,7 @@ static void OptionButton_toggle_Options_save_injection(Options *self) {
 void init_options() {
     // Force Mob Spawning
     if (feature_has("Force Mob Spawning", server_auto)) {
-        overwrite((void *) LevelData_getSpawnMobs, (void *) LevelData_getSpawnMobs_injection);
+        overwrite(LevelData_getSpawnMobs, LevelData_getSpawnMobs_injection);
     }
 
     // Render Distance

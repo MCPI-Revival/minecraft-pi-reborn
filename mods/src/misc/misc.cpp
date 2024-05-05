@@ -24,7 +24,51 @@
 #include "misc-internal.h"
 #include <mods/misc/misc.h>
 
-// Heart food overlay
+// Classic HUD
+#define DEFAULT_HUD_PADDING 2
+#define NEW_HUD_PADDING 1
+#define HUD_ELEMENT_WIDTH 82
+#define HUD_ELEMENT_HEIGHT 9
+#define TOOLBAR_HEIGHT 22
+#define SLOT_WIDTH 20
+#define DEFAULT_BUBBLES_PADDING 1
+#define NUMBER_OF_SLOTS 9
+static int use_classic_hud = 0;
+static void Gui_renderHearts_GuiComponent_blit_hearts_injection(GuiComponent *component, int32_t x_dest, int32_t y_dest, int32_t x_src, int32_t y_src, int32_t width_dest, int32_t height_dest, int32_t width_src, int32_t height_src) {
+    Minecraft *minecraft = ((Gui *) component)->minecraft;
+    x_dest -= DEFAULT_HUD_PADDING;
+    float width = ((float) minecraft->screen_width) * Gui_InvGuiScale;
+    float height = ((float) minecraft->screen_height) * Gui_InvGuiScale;
+    x_dest += (width - (NUMBER_OF_SLOTS * SLOT_WIDTH)) / 2;
+    y_dest -= DEFAULT_HUD_PADDING;
+    y_dest += height - HUD_ELEMENT_HEIGHT - TOOLBAR_HEIGHT - NEW_HUD_PADDING;
+    // Call Original Method
+    component->blit(x_dest, y_dest, x_src, y_src, width_dest, height_dest, width_src, height_src);
+}
+static void Gui_renderHearts_GuiComponent_blit_armor_injection(Gui *component, int32_t x_dest, int32_t y_dest, int32_t x_src, int32_t y_src, int32_t width_dest, int32_t height_dest, int32_t width_src, int32_t height_src) {
+    Minecraft *minecraft = component->minecraft;
+    x_dest -= DEFAULT_HUD_PADDING + HUD_ELEMENT_WIDTH;
+    float width = ((float) minecraft->screen_width) * Gui_InvGuiScale;
+    float height = ((float) minecraft->screen_height) * Gui_InvGuiScale;
+    x_dest += width - ((width - (NUMBER_OF_SLOTS * SLOT_WIDTH)) / 2) - HUD_ELEMENT_WIDTH;
+    y_dest -= DEFAULT_HUD_PADDING;
+    y_dest += height - HUD_ELEMENT_HEIGHT - TOOLBAR_HEIGHT - NEW_HUD_PADDING;
+    // Call Original Method
+    component->blit(x_dest, y_dest, x_src, y_src, width_dest, height_dest, width_src, height_src);
+}
+static void Gui_renderBubbles_GuiComponent_blit_injection(Gui *component, int32_t x_dest, int32_t y_dest, int32_t x_src, int32_t y_src, int32_t width_dest, int32_t height_dest, int32_t width_src, int32_t height_src) {
+    Minecraft *minecraft = component->minecraft;
+    x_dest -= DEFAULT_HUD_PADDING;
+    float width = ((float) minecraft->screen_width) * Gui_InvGuiScale;
+    float height = ((float) minecraft->screen_height) * Gui_InvGuiScale;
+    x_dest += (width - (NUMBER_OF_SLOTS * SLOT_WIDTH)) / 2;
+    y_dest -= DEFAULT_HUD_PADDING + DEFAULT_BUBBLES_PADDING + HUD_ELEMENT_HEIGHT;
+    y_dest += height - HUD_ELEMENT_HEIGHT - TOOLBAR_HEIGHT - HUD_ELEMENT_HEIGHT - NEW_HUD_PADDING;
+    // Call Original Method
+    component->blit(x_dest, y_dest, x_src, y_src, width_dest, height_dest, width_src, height_src);
+}
+
+// Heart Food Overlay
 static int heal_amount = 0, heal_amount_drawing = 0;
 static void Gui_renderHearts_injection(Gui_renderHearts_t original, Gui *gui) {
     // Get heal_amount
@@ -45,86 +89,42 @@ static void Gui_renderHearts_injection(Gui_renderHearts_t original, Gui *gui) {
     // Call original
     original(gui);
 }
-
+static GuiComponent_blit_t get_blit_with_classic_hud_offset() {
+    return use_classic_hud ? Gui_renderHearts_GuiComponent_blit_hearts_injection : GuiComponent_blit;
+}
 #define PINK_HEART_FULL 70
 #define PINK_HEART_HALF 79
-static Gui_blit_t Gui_blit_renderHearts_original = nullptr;
 static void Gui_renderHearts_GuiComponent_blit_overlay_empty_injection(Gui *gui, int32_t x1, int32_t y1, int32_t x2, int32_t y2, int32_t w1, int32_t h1, int32_t w2, int32_t h2) {
-    // Call original
-    Gui_blit_renderHearts_original(gui, x1, y1, x2, y2, w1, h1, w2, h2);
-    // Render the overlay
+    // Call Original Method
+    get_blit_with_classic_hud_offset()((GuiComponent *) gui, x1, y1, x2, y2, w1, h1, w2, h2);
+    // Render The Overlay
     if (heal_amount_drawing == 1) {
-        // Half heart
-        Gui_blit_renderHearts_original(gui, x1, y1, PINK_HEART_HALF, 0, w1, h1, w2, h2);
+        // Half Heart
+        get_blit_with_classic_hud_offset()((GuiComponent *) gui, x1, y1, PINK_HEART_HALF, 0, w1, h1, w2, h2);
         heal_amount_drawing = 0;
     } else if (heal_amount_drawing > 0) {
-        // Full heart
-        Gui_blit_renderHearts_original(gui, x1, y1, PINK_HEART_FULL, 0, w1, h1, w2, h2);
+        // Full Heart
+        get_blit_with_classic_hud_offset()((GuiComponent *) gui, x1, y1, PINK_HEART_FULL, 0, w1, h1, w2, h2);
         heal_amount_drawing -= 2;
     }
 }
-
 static void Gui_renderHearts_GuiComponent_blit_overlay_hearts_injection(Gui *gui, int32_t x1, int32_t y1, int32_t x2, int32_t y2, int32_t w1, int32_t h1, int32_t w2, int32_t h2) {
     // Offset the overlay
     if (x2 == 52) {
         heal_amount_drawing += 2;
     } else if (x2 == 61 && heal_amount) {
         // Half heart, flipped
-        Gui_blit_renderHearts_original(gui, x1, y1, PINK_HEART_FULL, 0, w1, h1, w2, h2);
+        get_blit_with_classic_hud_offset()((GuiComponent *) gui, x1, y1, PINK_HEART_FULL, 0, w1, h1, w2, h2);
         heal_amount_drawing += 1;
-    };
-    // Call original
-    Gui_blit_renderHearts_original(gui, x1, y1, x2, y2, w1, h1, w2, h2);
+    }
+    // Call Original Method
+    get_blit_with_classic_hud_offset()((GuiComponent *) gui, x1, y1, x2, y2, w1, h1, w2, h2);
     heal_amount_drawing = fmin(heal_amount_drawing, heal_amount);
-}
-
-// Classic HUD
-#define DEFAULT_HUD_PADDING 2
-#define NEW_HUD_PADDING 1
-#define HUD_ELEMENT_WIDTH 82
-#define HUD_ELEMENT_HEIGHT 9
-#define TOOLBAR_HEIGHT 22
-#define SLOT_WIDTH 20
-#define DEFAULT_BUBBLES_PADDING 1
-#define NUMBER_OF_SLOTS 9
-static int use_classic_hud = 0;
-static void Gui_renderHearts_GuiComponent_blit_hearts_injection(Gui *component, int32_t x_dest, int32_t y_dest, int32_t x_src, int32_t y_src, int32_t width_dest, int32_t height_dest, int32_t width_src, int32_t height_src) {
-    Minecraft *minecraft = component->minecraft;
-    x_dest -= DEFAULT_HUD_PADDING;
-    float width = ((float) minecraft->screen_width) * Gui_InvGuiScale;
-    float height = ((float) minecraft->screen_height) * Gui_InvGuiScale;
-    x_dest += (width - (NUMBER_OF_SLOTS * SLOT_WIDTH)) / 2;
-    y_dest -= DEFAULT_HUD_PADDING;
-    y_dest += height - HUD_ELEMENT_HEIGHT - TOOLBAR_HEIGHT - NEW_HUD_PADDING;
-    // Call Original Method
-    Gui_blit(component, x_dest, y_dest, x_src, y_src, width_dest, height_dest, width_src, height_src);
-}
-static void Gui_renderHearts_GuiComponent_blit_armor_injection(Gui *component, int32_t x_dest, int32_t y_dest, int32_t x_src, int32_t y_src, int32_t width_dest, int32_t height_dest, int32_t width_src, int32_t height_src) {
-    Minecraft *minecraft = component->minecraft;
-    x_dest -= DEFAULT_HUD_PADDING + HUD_ELEMENT_WIDTH;
-    float width = ((float) minecraft->screen_width) * Gui_InvGuiScale;
-    float height = ((float) minecraft->screen_height) * Gui_InvGuiScale;
-    x_dest += width - ((width - (NUMBER_OF_SLOTS * SLOT_WIDTH)) / 2) - HUD_ELEMENT_WIDTH;
-    y_dest -= DEFAULT_HUD_PADDING;
-    y_dest += height - HUD_ELEMENT_HEIGHT - TOOLBAR_HEIGHT - NEW_HUD_PADDING;
-    // Call Original Method
-    Gui_blit(component, x_dest, y_dest, x_src, y_src, width_dest, height_dest, width_src, height_src);
-}
-static void Gui_renderBubbles_GuiComponent_blit_injection(Gui *component, int32_t x_dest, int32_t y_dest, int32_t x_src, int32_t y_src, int32_t width_dest, int32_t height_dest, int32_t width_src, int32_t height_src) {
-    Minecraft *minecraft = component->minecraft;
-    x_dest -= DEFAULT_HUD_PADDING;
-    float width = ((float) minecraft->screen_width) * Gui_InvGuiScale;
-    float height = ((float) minecraft->screen_height) * Gui_InvGuiScale;
-    x_dest += (width - (NUMBER_OF_SLOTS * SLOT_WIDTH)) / 2;
-    y_dest -= DEFAULT_HUD_PADDING + DEFAULT_BUBBLES_PADDING + HUD_ELEMENT_HEIGHT;
-    y_dest += height - HUD_ELEMENT_HEIGHT - TOOLBAR_HEIGHT - HUD_ELEMENT_HEIGHT - NEW_HUD_PADDING;
-    // Call Original Method
-    Gui_blit(component, x_dest, y_dest, x_src, y_src, width_dest, height_dest, width_src, height_src);
 }
 
 // Additional GUI Rendering
 static int hide_chat_messages = 0;
-bool is_in_chat = 0;
+bool is_in_chat = false;
 static int render_selected_item_text = 0;
 static void Gui_renderChatMessages_injection(Gui_renderChatMessages_t original, Gui *gui, int32_t y_offset, uint32_t max_messages, bool disable_fading, Font *font) {
     // Handle Classic HUD
@@ -417,7 +417,7 @@ static int32_t get_color(LevelSource *level_source, int32_t x, int32_t z) {
     return biome->color;
 }
 #define BIOME_BLEND_SIZE 7
-static int32_t GrassTile_getColor_injection(__attribute__((unused)) Tile *tile, LevelSource *level_source, int32_t x, __attribute__((unused)) int32_t y, int32_t z) {
+static int32_t GrassTile_getColor_injection(__attribute__((unused)) GrassTile *tile, LevelSource *level_source, int32_t x, __attribute__((unused)) int32_t y, int32_t z) {
     int r_sum = 0;
     int g_sum = 0;
     int b_sum = 0;
@@ -441,7 +441,7 @@ static int32_t GrassTile_getColor_injection(__attribute__((unused)) Tile *tile, 
 static int32_t TallGrass_getColor_injection(TallGrass_getColor_t original, TallGrass *tile, LevelSource *level_source, int32_t x, int32_t y, int32_t z) {
     int32_t original_color = original(tile, level_source, x, y, z);
     if (original_color == 0x339933) {
-        return GrassTile_getColor_injection((Tile *) tile, level_source, x, y, z);
+        return GrassTile_getColor_injection(nullptr, level_source, x, y, z);
     } else {
         return original_color;
     }
@@ -463,7 +463,8 @@ static void RandomLevelSource_buildSurface_injection(RandomLevelSource_buildSurf
 }
 
 // No Block Tinting
-static int32_t Tile_getColor_injection() {
+template <typename T, typename S>
+static int32_t Tile_getColor_injection(__attribute__((unused)) T original, __attribute__((unused)) S *self, __attribute__((unused)) LevelSource *level_source, __attribute__((unused)) int x, __attribute__((unused)) int y, __attribute__((unused)) int z) {
     return 0xffffff;
 }
 
@@ -620,7 +621,7 @@ static void Player_stopUsingItem_injection(Player_stopUsingItem_t original, Play
 }
 
 // Java Light Ramp
-static void Dimension_updateLightRamp_injection(Dimension *self) {
+static void Dimension_updateLightRamp_injection(__attribute__((unused)) Dimension_updateLightRamp_t original, Dimension *self) {
     // https://github.com/ReMinecraftPE/mcpe/blob/d7a8b6baecf8b3b050538abdbc976f690312aa2d/source/world/level/Dimension.cpp#L92-L105
     for (int i = 0; i <= 15; i++) {
         float f1 = 1.0f - (((float) i) / 15.0f);
@@ -632,9 +633,9 @@ static void Dimension_updateLightRamp_injection(Dimension *self) {
 }
 
 // Read Asset File
-static AppPlatform_readAssetFile_return_value AppPlatform_readAssetFile_injection(__attribute__((unused)) AppPlatform *app_platform, std::string const& path) {
+static AppPlatform_readAssetFile_return_value AppPlatform_readAssetFile_injection(__attribute__((unused)) AppPlatform_readAssetFile_t original, __attribute__((unused)) AppPlatform *app_platform, std::string *path) {
     // Open File
-    std::ifstream stream("data/" + path, std::ios_base::binary | std::ios_base::ate);
+    std::ifstream stream("data/" + *path, std::ios_base::binary | std::ios_base::ate);
     if (!stream) {
         // Does Not Exist
         AppPlatform_readAssetFile_return_value ret;
@@ -700,7 +701,7 @@ void PaneCraftingScreen_craftSelectedItem_PaneCraftingScreen_recheckRecipes_inje
     PaneCraftingScreen_recheckRecipes(self);
 }
 
-ItemInstance *Item_getCraftingRemainingItem_injection(Item *self, ItemInstance *item_instance) {
+ItemInstance *Item_getCraftingRemainingItem_injection(__attribute__((unused)) Item_getCraftingRemainingItem_t original, Item *self, ItemInstance *item_instance) {
     if (self->craftingRemainingItem != nullptr) {
         ItemInstance *ret = alloc_ItemInstance();
         ret->id = self->craftingRemainingItem->id;
@@ -765,7 +766,6 @@ void init_misc() {
     }
 
     // Classic HUD
-    Gui_blit_renderHearts_original = Gui_blit;
     if (feature_has("Classic HUD", server_disabled)) {
         use_classic_hud = 1;
         overwrite_call((void *) 0x26758, (void *) Gui_renderHearts_GuiComponent_blit_hearts_injection);
@@ -773,7 +773,6 @@ void init_misc() {
         overwrite_call((void *) 0x268c4, (void *) Gui_renderBubbles_GuiComponent_blit_injection);
         overwrite_call((void *) 0x266f8, (void *) Gui_renderHearts_GuiComponent_blit_hearts_injection);
         overwrite_call((void *) 0x267c8, (void *) Gui_renderHearts_GuiComponent_blit_hearts_injection);
-        Gui_blit_renderHearts_original = Gui_renderHearts_GuiComponent_blit_hearts_injection;
     }
 
     // Food overlay
@@ -823,10 +822,10 @@ void init_misc() {
 
 #ifdef MCPI_HEADLESS_MODE
     // Don't Render Game In Headless Mode
-    overwrite(GameRenderer_render, nop);
-    overwrite(NinecraftApp_initGLStates, nop);
-    overwrite(Gui_onConfigChanged, nop);
-    overwrite(LevelRenderer_generateSky, nop);
+    overwrite_manual(GameRenderer_render, nop);
+    overwrite_manual(NinecraftApp_initGLStates, nop);
+    overwrite_manual(Gui_onConfigChanged, nop);
+    overwrite_manual(LevelRenderer_generateSky, nop);
 #else
     // Improved Cursor Rendering
     if (feature_has("Improved Cursor Rendering", server_disabled)) {
@@ -850,7 +849,7 @@ void init_misc() {
 
     // Remove Forced GUI Lag
     if (feature_has("Remove Forced GUI Lag (Can Break Joining Servers)", server_enabled)) {
-        overwrite(Common_sleepMs, nop);
+        overwrite_manual(Common_sleepMs, nop);
     }
 
 #ifndef MCPI_HEADLESS_MODE
@@ -859,7 +858,7 @@ void init_misc() {
 #endif
 
     // Fix Graphics Bug When Switching To First-Person While Sneaking
-    patch_address(PlayerRenderer_render_vtable_addr, PlayerRenderer_render_injection);
+    patch_vtable(PlayerRenderer_render, PlayerRenderer_render_injection);
 
     // Disable Speed Bridging
     if (feature_has("Disable Speed Bridging", server_disabled)) {
@@ -875,7 +874,7 @@ void init_misc() {
 
     // Change Grass Color
     if (feature_has("Add Biome Colors To Grass", server_disabled)) {
-        patch_address(GrassTile_getColor_vtable_addr, GrassTile_getColor_injection);
+        patch_vtable(GrassTile_getColor, GrassTile_getColor_injection);
         overwrite_virtual_calls(TallGrass_getColor, TallGrass_getColor_injection);
     }
 
@@ -886,11 +885,11 @@ void init_misc() {
 
     // Disable Block Tinting
     if (feature_has("Disable Block Tinting", server_disabled)) {
-        patch_address(GrassTile_getColor_vtable_addr, Tile_getColor_injection);
-        patch_address(TallGrass_getColor_vtable_addr, Tile_getColor_injection);
-        patch_address(StemTile_getColor_vtable_addr, Tile_getColor_injection);
-        patch_address(LeafTile_getColor_vtable_addr, Tile_getColor_injection);
-        overwrite(*LiquidTile_getColor_vtable_addr, Tile_getColor_injection);
+        overwrite_virtual_calls(GrassTile_getColor, Tile_getColor_injection);
+        overwrite_virtual_calls(TallGrass_getColor, Tile_getColor_injection);
+        overwrite_virtual_calls(StemTile_getColor, Tile_getColor_injection);
+        overwrite_virtual_calls(LeafTile_getColor, Tile_getColor_injection);
+        overwrite_virtual_calls(LiquidTile_getColor, Tile_getColor_injection);
     }
 
     // Custom GUI Scale
@@ -932,7 +931,7 @@ void init_misc() {
 #ifndef MCPI_HEADLESS_MODE
     // Replace Block Highlight With Outline
     if (feature_has("Replace Block Highlight With Outline", server_disabled)) {
-        overwrite((void *) LevelRenderer_renderHitSelect, (void *) LevelRenderer_renderHitOutline);
+        overwrite(LevelRenderer_renderHitSelect, LevelRenderer_renderHitOutline);
         unsigned char fix_outline_patch[4] = {0x00, 0xf0, 0x20, 0xe3}; // "nop"
         patch((void *) 0x4d830, fix_outline_patch);
         overwrite_call((void *) 0x4d764, (void *) glColor4f_injection);
@@ -952,7 +951,7 @@ void init_misc() {
 
     // Java Light Ramp
     if (feature_has("Use Java Beta 1.3 Light Ramp", server_disabled)) {
-        overwrite(*Dimension_updateLightRamp_vtable_addr, Dimension_updateLightRamp_injection);
+        overwrite_virtual_calls(Dimension_updateLightRamp, Dimension_updateLightRamp_injection);
     }
 
     // Fix used items transferring durability
@@ -971,7 +970,7 @@ void init_misc() {
 
     // Implement AppPlatform::readAssetFile So Translations Work
     if (feature_has("Load Language Files", server_enabled)) {
-        overwrite(*AppPlatform_readAssetFile_vtable_addr, AppPlatform_readAssetFile_injection);
+        overwrite_virtual_calls(AppPlatform_readAssetFile, AppPlatform_readAssetFile_injection);
     }
 
     // Fix Pause Menu
@@ -982,16 +981,16 @@ void init_misc() {
 
     // Implement Crafting Remainders
     overwrite_call((void *) 0x2e230, (void *) PaneCraftingScreen_craftSelectedItem_PaneCraftingScreen_recheckRecipes_injection);
-    overwrite(*Item_getCraftingRemainingItem_vtable_addr, Item_getCraftingRemainingItem_injection);
+    overwrite_virtual_calls(Item_getCraftingRemainingItem, Item_getCraftingRemainingItem_injection);
 
     // Replace 2011 std::sort With Optimized(TM) Code
     if (feature_has("Optimized Chunk Sorting", server_enabled)) {
-        overwrite((void *) 0x51fac, (void *) sort_chunks);
+        overwrite_manual((void *) 0x51fac, (void *) sort_chunks);
     }
 
     // Display Date In Select World Screen
     if (feature_has("Display Date In Select World Screen", server_disabled)) {
-        patch_address(AppPlatform_linux_getDateString_vtable_addr, AppPlatform_linux_getDateString_injection);
+        patch_vtable(AppPlatform_linux_getDateString, AppPlatform_linux_getDateString_injection);
     }
 
     // Init Logging

@@ -14,7 +14,7 @@
 // Get Cache Path
 static std::string get_cache_path() {
     const char *home = getenv("HOME");
-    if (home == NULL) {
+    if (home == nullptr) {
         IMPOSSIBLE();
     }
     return std::string(home) + HOME_SUBDIRECTORY_FOR_GAME_DATA "/.launcher-cache";

@@ -228,6 +228,8 @@ target_include_directories(
 
 # Disable C++11 String ABI
 target_compile_definitions(symbols PUBLIC -D_GLIBCXX_USE_CXX11_ABI=0)
+# Fix Warning
+target_compile_options(symbols PUBLIC -Wno-missing-field-initializers)
 
 # Install
 install(TARGETS symbols DESTINATION "${MCPI_LIB_DIR}")

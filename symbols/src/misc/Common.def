@@ -1,4 +1,4 @@
-static-method std::string *getGameVersionString(std::string *version_suffix) = 0x15068;
+static-method std::string getGameVersionString(std::string *version_suffix) = 0x15068;
 
 // These are not actually part of "Common", but they have to go somewhere.
 static-method void renderCursor(float x, float y, Minecraft *minecraft) = 0x480c4;

@@ -223,7 +223,7 @@ static void handle_server_stop(Minecraft *minecraft) {
         // Save And Exit
         Level *level = get_level(minecraft);
         if (level != nullptr) {
-            Level_saveLevelData_injection(level);
+            Level_saveLevelData(level);
         }
         Minecraft_leaveGame(minecraft, false);
         // Stop Game
@@ -236,7 +236,7 @@ static void handle_server_stop(Minecraft *minecraft) {
 // Track TPS
 #define NANOSECONDS_IN_SECOND 1000000000ll
 static long long int get_time() {
-    struct timespec ts;
+    timespec ts = {};
     clock_gettime(CLOCK_MONOTONIC_RAW, &ts);
     long long int a = (long long int) ts.tv_nsec;
     long long int b = ((long long int) ts.tv_sec) * NANOSECONDS_IN_SECOND;
@@ -266,7 +266,7 @@ static volatile bool stdin_buffer_complete = false;
 static volatile char *stdin_buffer = nullptr;
 static void *read_stdin_thread(__attribute__((unused)) void *data) {
     // Loop
-    while (1) {
+    while (true) {
         int bytes_available;
         if (ioctl(fileno(stdin), FIONREAD, &bytes_available) == -1) {
             bytes_available = 0;
@@ -433,7 +433,7 @@ static bool is_ip_in_blacklist(const char *ip) {
 }
 
 // Ban Players
-static bool RakNet_RakPeer_IsBanned_injection(__attribute__((unused)) RakNet_RakPeer *rakpeer, const char *ip) {
+static bool RakNet_RakPeer_IsBanned_injection(__attribute__((unused)) RakNet_RakPeer_IsBanned_t original, __attribute__((unused)) RakNet_RakPeer *rakpeer, const char *ip) {
     // Check List
     bool ret = is_ip_in_blacklist(ip);
     if (is_whitelist()) {
@@ -576,7 +576,7 @@ static void server_init() {
     unsigned char max_players_patch[4] = {get_max_players(), 0x30, 0xa0, 0xe3}; // "mov r3, #MAX_PLAYERS"
     patch((void *) 0x166d0, max_players_patch);
     // Custom Banned IP List
-    patch_address(RakNet_RakPeer_IsBanned_vtable_addr, (void *) RakNet_RakPeer_IsBanned_injection);
+    overwrite_virtual_calls(RakNet_RakPeer_IsBanned, RakNet_RakPeer_IsBanned_injection);
 
     // Show The MineCon Icon Next To MOTD In Server List
     if (get_server_properties().get_bool("show-minecon-badge", DEFAULT_SHOW_MINECON_BADGE)) {

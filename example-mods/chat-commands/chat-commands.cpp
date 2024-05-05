@@ -5,7 +5,7 @@
 #include <mods/misc/misc.h>
 
 // The Actual Mod
-HOOK(chat_handle_packet_send, void, (Minecraft *minecraft, ChatPacket *packet)) {
+HOOK(_Z23chat_handle_packet_sendP9MinecraftP10ChatPacket, void, (Minecraft *minecraft, ChatPacket *packet)) {
     // Get Message
     const char *message = packet->message.c_str();
     if (message[0] == '/') {
@@ -15,10 +15,10 @@ HOOK(chat_handle_packet_send, void, (Minecraft *minecraft, ChatPacket *packet)) 
         if (out.length() > 0 && out[out.length() - 1] == '\n') {
             out[out.length() - 1] = '\0';
         }
-        misc_add_message(gui, out.c_str());
+        gui->addMessage(&out);
     } else {
         // Call Original Method
-        ensure_chat_handle_packet_send();
-        real_chat_handle_packet_send(minecraft, packet);
+        ensure__Z23chat_handle_packet_sendP9MinecraftP10ChatPacket();
+        real__Z23chat_handle_packet_sendP9MinecraftP10ChatPacket(minecraft, packet);
     }
 }

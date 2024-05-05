@@ -18,7 +18,7 @@ static void StartMenuScreen_render_Screen_renderBackground_injection(Screen *scr
     Textures *textures = minecraft->textures;
     std::string texture = "gui/titleBG.png";
     Textures_loadAndBindTexture(textures, &texture);
-    Screen_blit(screen, 0, 0, 0, 0, screen->width, screen->height, 0x100, 0x100);
+    screen->blit(0, 0, 0, 0, screen->width, screen->height, 0x100, 0x100);
 }
 
 // Add Buttons Back To Classic Start Screen
@@ -109,7 +109,7 @@ static void StartMenuScreen_render_Screen_render_injection(Screen *screen, int x
         glScalef(scale, scale, scale);
         // Render
         static int line_height = 8;
-        Screen_drawCenteredString(screen, screen->font, &current_splash, 0, -(float(line_height) / 2), 0xffff00);
+        screen->drawCenteredString(screen->font, &current_splash, 0, -(float(line_height) / 2), 0xffff00);
         // Finish
         glPopMatrix();
     }

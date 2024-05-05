@@ -49,7 +49,7 @@ void sign_key_press(char key) {
 void init_sign() {
     if (feature_has("Fix Sign Placement", server_disabled)) {
         // Fix Signs
-        patch_address(LocalPlayer_openTextEdit_vtable_addr, (void *) LocalPlayer_openTextEdit_injection);
+        patch_vtable(LocalPlayer_openTextEdit, LocalPlayer_openTextEdit_injection);
     }
 
     // Handle Backspace

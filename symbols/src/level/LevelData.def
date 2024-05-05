@@ -1,1 +1,1 @@
-method uint getSpawnMobs() = 0xbabec;
+method bool getSpawnMobs() = 0xbabec;

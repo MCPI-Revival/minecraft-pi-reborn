@@ -59,8 +59,8 @@ static void _handle_drop(Minecraft *minecraft) {
 
                 // Empty Slot If Needed
                 if (inventory_item->count < 1) {
-                    Inventory_release(inventory, selected_slot);
-                    Inventory_compressLinkedSlotList(inventory, selected_slot);
+                    inventory->release(selected_slot);
+                    inventory->compressLinkedSlotList(selected_slot);
                 }
 
                 // Drop

@@ -20,7 +20,7 @@ __attribute__((destructor)) static void _free_version() {
 }
 
 // Injection For Touch GUI Version
-static std::string Common_getGameVersionString_injection(__attribute__((unused)) std::string const& version_suffix) {
+static std::string Common_getGameVersionString_injection(__attribute__((unused)) std::string *version_suffix) {
     // Set Version
     return version_get();
 }
@@ -28,7 +28,7 @@ static std::string Common_getGameVersionString_injection(__attribute__((unused))
 // Init
 void init_version() {
     // Touch GUI
-    overwrite((void *) Common_getGameVersionString, (void *) Common_getGameVersionString_injection);
+    overwrite(Common_getGameVersionString, Common_getGameVersionString_injection);
     // Normal GUI
     patch_address((void *) Strings_minecraft_pi_version_pointer, version_get());
 

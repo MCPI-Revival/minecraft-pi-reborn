@@ -73,11 +73,10 @@ static bool Mob_hurt_injection(Mob_hurt_t original, Mob *mob, Entity *source, in
 }
 
 // Death Message Logic
-#define Player_die_injections(type) \
-    static type##_die_t original_##type##_die; \
-    static void type##_die_injection(type *player, Entity *cause) { \
+#define Player_die_injections(type, original_method_self) \
+    static void type##_die_injection(original_method_self##_die_t original, type *player, Entity *cause) { \
         /* Call Original Method */ \
-        original_##type##_die(player, cause); \
+        original((original_method_self *) player, cause); \
         \
         /* Get Variable */ \
         RakNetInstance *rak_net_instance = player->minecraft->rak_net_instance; \
@@ -119,8 +118,8 @@ static bool Mob_hurt_injection(Mob_hurt_t original, Mob *mob, Entity *source, in
         } \
     }
 
-Player_die_injections(LocalPlayer)
-Player_die_injections(ServerPlayer)
+Player_die_injections(LocalPlayer, LocalPlayer)
+Player_die_injections(ServerPlayer, Player)
 
 Player_actuallyHurt_injections(LocalPlayer)
 Player_actuallyHurt_injections(ServerPlayer)
@@ -129,10 +128,12 @@ Player_actuallyHurt_injections(ServerPlayer)
 void init_death() {
     // Death Messages
     if (feature_has("Implement Death Messages", server_auto)) {
-        patch_address(ServerPlayer_die_vtable_addr, ServerPlayer_die_injection);
-        patch_address(LocalPlayer_die_vtable_addr, LocalPlayer_die_injection);
-        patch_address(LocalPlayer_actuallyHurt_vtable_addr, LocalPlayer_actuallyHurt_injection);
-        patch_address(ServerPlayer_actuallyHurt_vtable_addr, ServerPlayer_actuallyHurt_injection);
+        patch_vtable(ServerPlayer_die, [](ServerPlayer *player, Entity *cause) {
+            ServerPlayer_die_injection(*Player_die_vtable_addr, player, cause);
+        });
+        overwrite_virtual_calls(LocalPlayer_die, LocalPlayer_die_injection);
+        patch_vtable(LocalPlayer_actuallyHurt, LocalPlayer_actuallyHurt_injection);
+        patch_vtable(ServerPlayer_actuallyHurt, ServerPlayer_actuallyHurt_injection);
         overwrite_virtual_calls(Mob_hurt, Mob_hurt_injection);
     }
 

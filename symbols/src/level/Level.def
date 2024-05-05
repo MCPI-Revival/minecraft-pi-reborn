@@ -46,3 +46,4 @@ property bool done_generating = 0x12;
 property std::vector<Entity *> entities = 0x20;
 property std::vector<TileEntity *> tileentities = 0x50;
 property std::vector<Player *> players = 0x60;
+property Dimension *dimension = 0x74;
