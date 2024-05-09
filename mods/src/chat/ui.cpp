@@ -1,10 +1,5 @@
-// Config Needs To Load First
-#include <libreborn/libreborn.h>
-
-// Chat UI Code Is Useless In Headless Mode
-#ifndef MCPI_HEADLESS_MODE
-
 #include "chat-internal.h"
+#include <libreborn/libreborn.h>
 #include <mods/chat/chat.h>
 #include <mods/text-input-box/TextInputScreen.h>
 #include <mods/misc/misc.h>
@@ -94,7 +89,7 @@ CUSTOM_VTABLE(chat_screen, Screen) {
                     if (get_history().size() == 0 || text != get_history().back()) {
                         get_history().push_back(text);
                     }
-                    _chat_queue_message(text.c_str());
+                    _chat_send_message(super->minecraft, text.c_str());
                 }
                 Minecraft_setScreen(super->minecraft, nullptr);
             } else if (key == 0x26) {
@@ -158,5 +153,3 @@ void _init_chat_ui() {
         }
     });
 }
-
-#endif

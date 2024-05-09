@@ -1,21 +1,13 @@
-// Config Needs To Load First
-#include <libreborn/libreborn.h>
-
 #include <string>
 #include <cstring>
 #include <cstdio>
 #include <vector>
 
+#include <libreborn/libreborn.h>
 #include <symbols/minecraft.h>
-#ifndef MCPI_HEADLESS_MODE
-#include <media-layer/core.h>
-#endif
 
 #include <mods/init/init.h>
 #include <mods/feature/feature.h>
-#ifndef MCPI_HEADLESS_MODE
-#include <mods/input/input.h>
-#endif
 #include "chat-internal.h"
 #include <mods/chat/chat.h>
 
@@ -33,7 +25,6 @@ std::string chat_send_api_command(Minecraft *minecraft, std::string str) {
     }
 }
 
-#ifndef MCPI_HEADLESS_MODE
 // Send API Chat Command
 static void send_api_chat_command(Minecraft *minecraft, char *str) {
     char *command = nullptr;
@@ -41,7 +32,6 @@ static void send_api_chat_command(Minecraft *minecraft, char *str) {
     chat_send_api_command(minecraft, command);
     free(command);
 }
-#endif
 
 // Send Message To Players
 std::string _chat_get_prefix(char *username) {
@@ -87,25 +77,10 @@ static void ServerSideNetworkHandler_handle_ChatPacket_injection(ServerSideNetwo
     }
 }
 
-#ifndef MCPI_HEADLESS_MODE
-// Message Queue
-static std::vector<std::string> queue;
-// Add To Queue
-void _chat_queue_message(const char *message) {
-    // Add
-    std::string str = message;
-    queue.push_back(str);
+// Send Message
+void _chat_send_message(Minecraft *minecraft, const char *message) {
+    send_api_chat_command(minecraft, (char *) message);
 }
-// Empty Queue
-unsigned int old_chat_counter = 0;
-static void send_queued_messages(Minecraft *minecraft) {
-    // Loop
-    for (unsigned int i = 0; i < queue.size(); i++) {
-        send_api_chat_command(minecraft, (char *) queue[i].c_str());
-    }
-    queue.clear();
-}
-#endif
 
 // Init
 void init_chat() {
@@ -117,12 +92,8 @@ void init_chat() {
         overwrite_call((void *) 0x6b518, (void *) CommandServer_parse_CommandServer_dispatchPacket_injection);
         // Re-Broadcast ChatPacket
         patch_vtable(ServerSideNetworkHandler_handle_ChatPacket, ServerSideNetworkHandler_handle_ChatPacket_injection);
-#ifndef MCPI_HEADLESS_MODE
-        // Send Messages On Input Tick
-        input_run_on_tick(send_queued_messages);
         // Init UI
         _init_chat_ui();
-#endif
         // Disable Built-In Chat Message Limiting
         unsigned char message_limit_patch[4] = {0x03, 0x00, 0x53, 0xe1}; // "cmp r4, r4"
         patch((void *) 0x6b4c0, message_limit_patch);

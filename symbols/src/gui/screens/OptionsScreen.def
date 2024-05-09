@@ -1,3 +1,6 @@
 extends Screen;
 
 vtable 0x104978;
+
+size 0x70;
+constructor () = 0x35488;

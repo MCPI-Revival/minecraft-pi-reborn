@@ -11,6 +11,7 @@
 
 // Resolve Source File Path
 #define SOURCE_FILE_BASE "data/libminecraftpe.so"
+extern std::string info_sound_data_state;
 std::string _sound_get_source_file() {
     static bool source_loaded = false;
     static std::string source;
@@ -38,9 +39,11 @@ std::string _sound_get_source_file() {
             // Fail
             WARN("Audio Source File Doesn't Exist: " SOURCE_FILE_BASE " (See: https://gitea.thebrokenrail.com/minecraft-pi-reborn/minecraft-pi-reborn/src/branch/master/docs/SOUND.md)");
             source.assign("");
+            info_sound_data_state = "Missing";
         } else {
             // Set
             source.assign(path);
+            info_sound_data_state = "Loaded";
         }
 
         // Free

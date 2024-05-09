@@ -20,12 +20,12 @@ __attribute__((constructor)) static void init(int argc, char *argv[]) {
     init_input();
     init_sign();
     init_camera();
-    init_touch();
     init_atlas();
     init_title_screen();
     init_skin();
     init_fps();
 #endif
+    init_touch();
     init_textures();
     init_creative();
     init_game_mode();

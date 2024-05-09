@@ -1,4 +1,5 @@
 #include <string>
+#include <algorithm>
 
 #include <libreborn/libreborn.h>
 #include <symbols/minecraft.h>
@@ -89,6 +90,72 @@ static void OptionButton_toggle_Options_save_injection(Options *self) {
     Options_save(self);
 }
 
+// Add "Reborn" Info Button
+#define INFO_BUTTON_ID 99
+static void OptionsScreen_init_injection(OptionsScreen_init_t original, OptionsScreen *self) {
+    // Call Original Method
+    original(self);
+
+    // Add Button
+    Touch_TButton *button = alloc_Touch_TButton();
+    ALLOC_CHECK(button);
+    std::string name = "Reborn";
+    button->constructor(INFO_BUTTON_ID, &name);
+    self->rendered_buttons.push_back((Button *) button);
+    self->selectable_buttons.push_back((Button *) button);
+}
+static void OptionsScreen_setupPositions_injection(OptionsScreen_setupPositions_t original, OptionsScreen *self) {
+    // Call Original Method
+    original(self);
+
+    // Find Button
+    Button *prevButton = nullptr;
+    Button *button = nullptr;
+    for (Button *x : self->selectable_buttons) {
+        if (x->id == INFO_BUTTON_ID) {
+            button = x;
+            break;
+        }
+        prevButton = x;
+    }
+    if (button == nullptr || prevButton == nullptr) {
+        IMPOSSIBLE();
+    }
+
+    // Setup Button
+    button->width = prevButton->width;
+    button->height = prevButton->height;
+    button->x = prevButton->x;
+    button->y = prevButton->y + prevButton->height;
+}
+static void OptionsScreen_buttonClicked_injection(OptionsScreen_buttonClicked_t original, OptionsScreen *self, Button *button) {
+    // Check ID
+    if (button->id == INFO_BUTTON_ID) {
+        // Show Screen
+        self->minecraft->setScreen(_create_options_info_screen());
+    } else {
+        // Call Original Method
+        original(self, button);
+    }
+}
+static void OptionsScreen_removed_injection(OptionsScreen_removed_t original, OptionsScreen *self) {
+    // Delete Button
+    Button *button = nullptr;
+    for (Button *x : self->selectable_buttons) {
+        if (x->id == INFO_BUTTON_ID) {
+            button = x;
+            break;
+        }
+    }
+    if (button == nullptr) {
+        IMPOSSIBLE();
+    }
+    button->destructor_deleting();
+
+    // Call Original Method
+    original(self);
+}
+
 // Init
 void _init_options_ui() {
     // Fix Options Screen
@@ -114,5 +181,17 @@ void _init_options_ui() {
 
         // Fix Difficulty When Toggling
         overwrite_call((void *) 0x1cd00, (void *) OptionButton_toggle_Options_save_injection);
+    }
+
+    // Info Button
+    if (feature_has("Add Info Button To Options", server_disabled)) {
+        // Add Button
+        overwrite_virtual_calls(OptionsScreen_init, OptionsScreen_init_injection);
+        // Position Button
+        overwrite_virtual_calls(OptionsScreen_setupPositions, OptionsScreen_setupPositions_injection);
+        // Handle Click
+        overwrite_virtual_calls(OptionsScreen_buttonClicked, OptionsScreen_buttonClicked_injection);
+        // Cleanup
+        overwrite_virtual_calls(OptionsScreen_removed, OptionsScreen_removed_injection);
     }
 }

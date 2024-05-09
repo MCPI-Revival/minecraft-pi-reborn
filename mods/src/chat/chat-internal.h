@@ -2,6 +2,8 @@
 
 #include <string>
 
+#include <symbols/minecraft.h>
+
 // Message Limitations
 #define MAX_CHAT_MESSAGE_LENGTH 256
 
@@ -9,11 +11,7 @@
 __attribute__((visibility("internal"))) std::string _chat_get_prefix(char *username);
 
 // Queue Message For Sending
-#ifndef MCPI_SERVER_MODE
-__attribute__((visibility("internal"))) void _chat_queue_message(const char *message);
-#endif
+__attribute__((visibility("internal"))) void _chat_send_message(Minecraft *minecraft, const char *message);
 
 // Init Chat UI
-#ifndef MCPI_HEADLESS_MODE
 __attribute__((visibility("internal"))) void _init_chat_ui();
-#endif

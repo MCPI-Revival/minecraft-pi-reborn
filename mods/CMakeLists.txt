@@ -32,12 +32,18 @@ set(SRC
     # options
     src/options/options.cpp
     src/options/ui.cpp
+    src/options/info.cpp
     # bucket
     src/bucket/bucket.cpp
     # cake
     src/cake/cake.cpp
     # home
     src/home/home.cpp
+    # touch
+    src/touch/touch.cpp
+    # text-input-box
+    src/text-input-box/TextInputBox.cpp
+    src/text-input-box/TextInputScreen.cpp
     # test
     src/test/test.cpp
     # init
@@ -83,8 +89,6 @@ else()
         src/input/crafting.cpp
         # sign
         src/sign/sign.cpp
-        # touch
-        src/touch/touch.cpp
         # atlas
         src/atlas/atlas.cpp
         # title-screen
@@ -98,9 +102,6 @@ else()
         # textures
         src/textures/textures.cpp
         src/textures/lava.cpp
-        # text-input-box
-        src/text-input-box/TextInputBox.cpp
-        src/text-input-box/TextInputScreen.cpp
         # fps
         src/fps/fps.cpp
     )
