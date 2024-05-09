@@ -27,13 +27,12 @@ void _overwrite_call(const char *file, int line, void *start, void *target);
     static name##_t _helper_for_##target = __overwrite_helper_for_##name(target, _original_for_##target)
 
 // Replace All Calls To Method start With target
-void _overwrite_calls(const char *file, int line, void *start, void *target);
+void *_overwrite_calls(const char *file, int line, void *start, void *target);
 #define overwrite_calls_manual(start, target) _overwrite_calls(__FILE__, __LINE__, start, target)
 #define overwrite_calls(start, target) \
     { \
         _setup_fancy_overwrite(start, start, target); \
-        overwrite_calls_manual((void *) start, (void *) _helper_for_##target); \
-        start = _helper_for_##target; \
+        start = (start##_t) overwrite_calls_manual((void *) start, (void *) _helper_for_##target); \
     }
 
 // Replace All Calls To Virtual Method start With target
@@ -45,7 +44,12 @@ void _overwrite_calls(const char *file, int line, void *start, void *target);
 
 // Replace All Calls To start With target Within [to, from)
 void _overwrite_calls_within(const char *file, int line, void *from, void *to, void *start, void *target);
-#define overwrite_calls_within(from, to, start, target) _overwrite_calls_within(__FILE__, __LINE__, from, to, start, target)
+#define overwrite_calls_within_manual(from, to, start, target) _overwrite_calls_within(__FILE__, __LINE__, from, to, start, target)
+#define overwrite_calls_within(from, to, start, target) \
+    { \
+        start##_t type_check = target; \
+        overwrite_calls_within_manual(from, to, (void *) start, (void *) type_check); \
+    }
 
 // Get Target Address From BL Instruction
 void *extract_from_bl_instruction(unsigned char *from);
@@ -55,9 +59,8 @@ void _overwrite(const char *file, int line, void *start, void *target);
 #define overwrite_manual(start, target) _overwrite(__FILE__, __LINE__, (void *) start, (void *) target)
 #define overwrite(start, target) \
     { \
-        _check_if_method_is_new(start); \
         start##_t type_check = target; \
-        overwrite_manual(start, (void *) type_check); \
+        overwrite_manual((void *) start, (void *) type_check); \
     }
 
 // Patch Instruction

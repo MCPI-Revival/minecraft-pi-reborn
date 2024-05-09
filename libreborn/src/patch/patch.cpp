@@ -77,7 +77,7 @@ static int _overwrite_calls_within_internal(const char *file, int line, void *fr
 #define TEXT_END 0x1020c0
 // Overwrite All B(L) Intrusctions That Target The Specified Address
 #define NO_CALLSITE_ERROR "(%s:%i) Unable To Find Callsites For %p"
-void _overwrite_calls(const char *file, int line, void *start, void *target) {
+void *_overwrite_calls(const char *file, int line, void *start, void *target) {
     // Add New Target To Code Block
     void *code_block = update_code_block(target);
 
@@ -93,6 +93,9 @@ void _overwrite_calls(const char *file, int line, void *start, void *target) {
     if (found < 1) {
         ERR(NO_CALLSITE_ERROR, file, line, start);
     }
+
+    // Return
+    return code_block;
 }
 void _overwrite_calls_within(const char *file, int line, void *from /* inclusive */, void *to /* exclusive */, void *target, void *replacement) {
     // Add New Target To Code Block
