@@ -22,7 +22,6 @@ void _overwrite_call(const char *file, int line, void *start, void *target);
     }
 
 #define _setup_fancy_overwrite(start, name, target) \
-    _check_if_method_is_new(name); \
     static name##_t _original_for_##target = start; \
     static name##_t _helper_for_##target = __overwrite_helper_for_##name(target, _original_for_##target)
 
@@ -38,6 +37,7 @@ void *_overwrite_calls(const char *file, int line, void *start, void *target);
 // Replace All Calls To Virtual Method start With target
 #define overwrite_virtual_calls(start, target) \
     { \
+        _check_if_method_is_new(start); \
         _setup_fancy_overwrite(*start##_vtable_addr, start, target); \
         overwrite_calls_manual((void *) *start##_vtable_addr, (void *) _helper_for_##target); \
     }

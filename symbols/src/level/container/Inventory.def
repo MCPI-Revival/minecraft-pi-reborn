@@ -1,5 +1,7 @@
 extends FillingContainer;
 
+vtable 0x10de18;
+
 method void selectSlot(int slot) = 0x8d13c;
 // It's just FillingContainer_getLinked but with selectedSlot as slot
 method ItemInstance *getSelected() = 0x8d134;

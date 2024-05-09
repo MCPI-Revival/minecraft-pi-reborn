@@ -1,5 +1,7 @@
 extends Container;
 
+vtable 0x10e250;
+
 method void addItem(ItemInstance *item_instance) = 0x92aa0;
 method void clearSlot(int slot) = 0x922f8;
 method void release(int slot) = 0x92058;

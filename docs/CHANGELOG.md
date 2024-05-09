@@ -16,6 +16,13 @@
 * Add `Optimized Chunk Sorting` Feature Flag (Enabled By Default)
 * Add `Add Cake` Feature Flag (Enabled By Default)
 * Add `Add Reborn Info To Options` Feature Flag (Enabled By Default)
+* Add `Track FPS` Feature Flag (Disabled By Default)
+* Split Up `Remove Creative Mode Restrictions` Feature Flag
+  * `Remove Creative Mode Restrictions` (Disabled By Default)
+  * `Display Slot Count In Creative Mode` (Disabled By Default)
+  * `Force Survival Mode Inventory UI` (Disabled By Default)
+  * `Force Survival Mode Inventory Behavior` (Disabled By Default)
+  * `Maximize Creative Mode Inventory Stack Size` (Disabled By Default)
 * Add Milk Buckets
 * Implement Crafting Remainders
 * Improve Death Messages
