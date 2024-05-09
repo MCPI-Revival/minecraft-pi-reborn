@@ -3,6 +3,7 @@
 #include <GLES/gl.h>
 
 #include <mods/touch/touch.h>
+#include <mods/home/home.h>
 
 #include "options-internal.h"
 
@@ -38,10 +39,9 @@ static std::string extra_version_info_full = !extra_version_info.empty() ? (" ("
 // Profile Directory
 static std::string profile_directory_suffix =
 #ifdef MCPI_IS_FLATPAK_BUILD
-    "/.var/app/" MCPI_APP_ID "/.minecraft-pi"
-#else
-    "/.minecraft-pi"
+    "/.var/app/" MCPI_APP_ID
 #endif
+    HOME_SUBDIRECTORY_FOR_GAME_DATA
     ;
 static std::string get_profile_directory_url() {
     const char *home = getenv("HOME");
