@@ -3,6 +3,7 @@
 **3.0.0**
 * Modding API Revamped
   * `*(unsigned char **)` Is Dead!
+  * Now C++ Only
 * Add Peaceful Mode To Options Screen
 * Proper Create New World Screen
 * Proper Chat Screen
@@ -14,6 +15,7 @@
 * Add `Display Date In Select World Screen` Feature Flag (Enabled By Default)
 * Add `Optimized Chunk Sorting` Feature Flag (Enabled By Default)
 * Add `Add Cake` Feature Flag (Enabled By Default)
+* Add `Add Reborn Info To Options` Feature Flag (Enabled By Default)
 * Add Milk Buckets
 * Implement Crafting Remainders
 * Improve Death Messages

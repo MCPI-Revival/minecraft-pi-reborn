@@ -184,7 +184,7 @@ void _init_options_ui() {
     }
 
     // Info Button
-    if (feature_has("Add Info Button To Options", server_disabled)) {
+    if (feature_has("Add Reborn Info To Options", server_disabled)) {
         // Add Button
         overwrite_virtual_calls(OptionsScreen_init, OptionsScreen_init_injection);
         // Position Button
