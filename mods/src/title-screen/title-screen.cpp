@@ -88,10 +88,11 @@ static void StartMenuScreen_render_Screen_render_injection(Screen *screen, int x
             current_splash = splashes[rand() % splashes.size()];
         }
         // Choose Position
-        float multiplier = touch_gui ? 0.5f: 1.0f;
+        float multiplier = touch_gui ? 0.5f : 1.0f;
         float splash_x = (float(screen->width) / 2.0f) + (94.0f * multiplier);
         float splash_y = 4.0f + (36.0f * multiplier);
         float max_width = 86;
+        float max_scale = 2.0f;
         // Draw (From https://github.com/ReMinecraftPE/mcpe/blob/d7a8b6baecf8b3b050538abdbc976f690312aa2d/source/client/gui/screens/StartMenuScreen.cpp#L699-L718)
         glPushMatrix();
         // Position
@@ -100,8 +101,8 @@ static void StartMenuScreen_render_Screen_render_injection(Screen *screen, int x
         // Scale
         int textWidth = Font_width(screen->font, &current_splash);
         float timeMS = float(Common_getTimeMs() % 1000) / 1000.0f;
-        float scale = 2.0f - Mth_abs(0.1f * Mth_sin(2.0f * float(M_PI) * timeMS));
-        float real_text_width = textWidth * scale;
+        float scale = max_scale - Mth_abs(0.1f * Mth_sin(2.0f * float(M_PI) * timeMS));
+        float real_text_width = textWidth * max_scale;
         if (real_text_width > max_width) {
             scale *= max_width / real_text_width;
         }
