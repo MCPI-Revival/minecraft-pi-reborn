@@ -19,11 +19,3 @@ function(mcpi_option name description type default)
     list(APPEND MCPI_OPTIONS "-D${full_name}:${type}=${${full_name}}")
     set(MCPI_OPTIONS "${MCPI_OPTIONS}" PARENT_SCOPE)
 endfunction()
-
-# Prebuilt ARMHF Toolchain
-if(BUILD_ARM_COMPONENTS)
-    mcpi_option(USE_PREBUILT_ARMHF_TOOLCHAIN "Whether To Use A Prebuilt ARMHF Toolchain For Building ARM Components" BOOL FALSE)
-    if(MCPI_USE_PREBUILT_ARMHF_TOOLCHAIN)
-        include("${CMAKE_CURRENT_LIST_DIR}/prebuilt-armhf-toolchain.cmake")
-    endif()
-endif()
