@@ -53,7 +53,7 @@ if(MCPI_SERVER_MODE)
 else()
     string(APPEND DEFAULT_APP_ID "Client")
 endif()
-set(MCPI_APP_ID "${DEFAULT_APP_ID}" CACHE STRING "App ID")
+mcpi_option(APP_ID "App ID" STRING "${DEFAULT_APP_ID}")
 
 # App Title
 mcpi_option(APP_BASE_TITLE "Base App Title" STRING "Minecraft: Pi Edition: Reborn")
