@@ -31,6 +31,7 @@ set(SRC
     src/misc/api.cpp
     # options
     src/options/options.cpp
+    src/options/ui.cpp
     # bucket
     src/bucket/bucket.cpp
     # cake

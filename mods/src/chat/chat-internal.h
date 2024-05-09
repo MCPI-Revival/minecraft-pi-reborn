@@ -2,8 +2,6 @@
 
 #include <string>
 
-#include <libreborn/libreborn.h>
-
 // Message Limitations
 #define MAX_CHAT_MESSAGE_LENGTH 256
 
