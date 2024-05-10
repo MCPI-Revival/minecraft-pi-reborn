@@ -6,9 +6,9 @@ project(qemu)
 set(QEMU_VERSION "8.2.1")
 
 # Flatpak Support
-set(QEMU_PATCH "")
+set(QEMU_FLATPAK_PATCH "")
 if(MCPI_IS_FLATPAK_BUILD)
-    set(QEMU_PATCH "sed" "-i" "s/libdrm/libdrm-dis/g" "<SOURCE_DIR>/meson.build")
+    set(QEMU_FLATPAK_PATCH "sed" "-i" "s/libdrm/libdrm-dis/g" "<SOURCE_DIR>/meson.build")
 endif()
 
 # Build
@@ -19,6 +19,7 @@ if(DEFINED ENV{PKG_CONFIG_LIBDIR})
 endif()
 ExternalProject_Add(qemu
     URL "${CMAKE_CURRENT_SOURCE_DIR}/../../archives/qemu-${QEMU_VERSION}.tar.xz"
+    # Configure Build
     CONFIGURE_COMMAND
         "${CMAKE_COMMAND}" "-E" "env"
         ${PKGCONFIG_ENV}
@@ -33,12 +34,16 @@ ExternalProject_Add(qemu
         "--target-list=arm-linux-user"
         "--without-default-features"
     USES_TERMINAL_CONFIGURE TRUE
-    BUILD_COMMAND ninja "qemu-arm"
+    # Build Command
+    BUILD_COMMAND "ninja" "qemu-arm"
+    BUILD_BYPRODUCTS "<BINARY_DIR>/qemu-arm"
     USES_TERMINAL_BUILD TRUE
+    # Disable Install/Test Commands
     INSTALL_COMMAND ""
     TEST_COMMAND ""
-    PATCH_COMMAND ${QEMU_PATCH}
-    BUILD_BYPRODUCTS "<BINARY_DIR>/qemu-arm"
+    # Patch Command
+    PATCH_COMMAND "patch" "-p1" "<" "${CMAKE_CURRENT_SOURCE_DIR}/trampoline.patch"
+    COMMAND ${QEMU_FLATPAK_PATCH}
 )
 
 # Install
