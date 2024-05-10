@@ -3,7 +3,7 @@
 #include <GLES/gl.h>
 
 #include <mods/touch/touch.h>
-#include <mods/home/home.h>
+#include <mods/misc/misc.h>
 
 #include "options-internal.h"
 
@@ -150,25 +150,6 @@ static void open_url(const std::string &url) {
     }
 }
 
-// Render Fancy Background
-static void render_background(Minecraft *minecraft, int x, int y, int width, int height) {
-    // https://github.com/ReMinecraftPE/mcpe/blob/f0d65eaecec1b3fe9c2f2b251e114a890c54ab77/source/client/gui/components/RolledSelectionList.cpp#L169-L179
-    std::string texture = "gui/background.png";
-    minecraft->textures->loadAndBindTexture(&texture);
-    Tesselator *t = &Tesselator_instance;
-    t->begin(7);
-    t->color(32, 32, 32, 255);
-    float x1 = x;
-    float x2 = x + width;
-    float y1 = y;
-    float y2 = y + height;
-    t->vertexUV(x1, y2, 0.0f, x1 / 32.0f, y2 / 32.0f);
-    t->vertexUV(x2, y2, 0.0f, x2 / 32.0f, y2 / 32.0f);
-    t->vertexUV(x2, y1, 0.0f, x2 / 32.0f, y1 / 32.0f);
-    t->vertexUV(x1, y1, 0.0f, x1 / 32.0f, y1 / 32.0f);
-    t->draw();
-}
-
 // Create VTable
 CUSTOM_VTABLE(info_screen, Screen) {
     // Buttons
@@ -207,9 +188,8 @@ CUSTOM_VTABLE(info_screen, Screen) {
     static Screen_render_t original_render = vtable->render;
     vtable->render = [](Screen *self, int x, int y, float param_1) {
         // Background
-        self->vtable->renderBackground(self);
-        // Gradient
-        render_background(self->minecraft, 0, content_y_offset_top, self->width, content_height);
+        misc_render_background(80, self->minecraft, 0, 0, self->width, self->height);
+        misc_render_background(32, self->minecraft, 0, content_y_offset_top, self->width, content_height);
         // Call Original Method
         original_render(self, x, y, param_1);
         // Title

@@ -6,6 +6,7 @@
 
 extern "C" {
 int32_t misc_get_real_selected_slot(Player *player);
+void misc_render_background(int color, Minecraft *minecraft, int x, int y, int width, int height);
 
 typedef void (*misc_update_function_Minecraft_t)(Minecraft *obj);
 void misc_run_on_update(misc_update_function_Minecraft_t function); // obj == Minecraft *

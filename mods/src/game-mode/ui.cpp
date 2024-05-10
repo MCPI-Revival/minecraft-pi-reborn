@@ -1,17 +1,13 @@
-// Config Needs To Load First
-#include <libreborn/libreborn.h>
-#include "game-mode-internal.h"
-
-// Game Mode UI Code Is Useless In Headless Mode
-#ifndef MCPI_HEADLESS_MODE
-
 #include <string>
 #include <set>
 
 #include <symbols/minecraft.h>
+#include <libreborn/libreborn.h>
 
 #include <mods/text-input-box/TextInputScreen.h>
 #include <mods/touch/touch.h>
+#include <mods/misc/misc.h>
+#include "game-mode-internal.h"
 
 // Strings
 #define GAME_MODE_STR(mode) ("Game Mode: " mode)
@@ -36,6 +32,9 @@ CUSTOM_VTABLE(create_world_screen, Screen) {
     static int inner_padding = 4;
     static int description_padding = 4;
     static int title_padding = 8;
+    static int button_height = 24;
+    static int content_y_offset_top = (title_padding * 2) + line_height;
+    static int content_y_offset_bottom = button_height + (bottom_padding * 2);
     // Init
     static Screen_init_t original_init = vtable->init;
     vtable->init = [](Screen *super) {
@@ -79,7 +78,8 @@ CUSTOM_VTABLE(create_world_screen, Screen) {
     static Screen_render_t original_render = vtable->render;
     vtable->render = [](Screen *super, int x, int y, float param_1) {
         // Background
-        super->vtable->renderBackground(super);
+        misc_render_background(80, super->minecraft, 0, 0, super->width, super->height);
+        misc_render_background(32, super->minecraft, 0, content_y_offset_top, super->width, super->height - content_y_offset_top - content_y_offset_bottom);
         // Call Original Method
         original_render(super, x, y, param_1);
         // Title
@@ -98,15 +98,15 @@ CUSTOM_VTABLE(create_world_screen, Screen) {
         CreateWorldScreen *self = (CreateWorldScreen *) super;
         // Height/Width
         int width = 120;
-        int height = 24;
+        int height = button_height;
         self->create->width = self->back->width = self->game_mode->width = width;
         int seed_width = self->game_mode->width;
         int name_width = width * 1.5f;
         self->create->height = self->back->height = self->game_mode->height = height;
         int text_box_height = self->game_mode->height;
         // Find Center Y
-        int top = (title_padding * 2) + line_height;
-        int bottom = super->height - self->create->height - (bottom_padding * 2);
+        int top = content_y_offset_top;
+        int bottom = super->height - content_y_offset_bottom;
         int center_y = ((bottom - top) / 2) + top;
         center_y -= (description_padding + line_height) / 2;
         // X/Y
@@ -255,8 +255,3 @@ void _init_game_mode_ui() {
     overwrite_virtual_calls(SelectWorldScreen_tick, SelectWorldScreen_tick_injection);
     overwrite_virtual_calls(Touch_SelectWorldScreen_tick, Touch_SelectWorldScreen_tick_injection);
 }
-
-#else
-void _init_game_mode_ui() {
-}
-#endif
