@@ -6,7 +6,7 @@
 #include "common/common.h"
 
 CALL(11, glFogfv, void, (GLenum pname, const GLfloat *params))
-#if defined(MEDIA_LAYER_TRAMPOLINE_GUEST)
+#ifdef MEDIA_LAYER_TRAMPOLINE_GUEST
     trampoline(pname, (uint32_t) params);
 #else
     GLenum pname = next_int();
@@ -17,7 +17,7 @@ CALL(11, glFogfv, void, (GLenum pname, const GLfloat *params))
 }
 
 // 'pointer' Is Only Supported As An Integer, Not As An Actual Pointer
-#if defined(MEDIA_LAYER_TRAMPOLINE_GUEST)
+#ifdef MEDIA_LAYER_TRAMPOLINE_GUEST
 #define CALL_GL_POINTER(unique_id, name) \
     CALL(unique_id, name, void, (GLint size, GLenum type, GLsizei stride, const void *pointer)) \
         trampoline(size, type, stride, (uint32_t) pointer); \
@@ -37,7 +37,7 @@ CALL(11, glFogfv, void, (GLenum pname, const GLfloat *params))
 CALL_GL_POINTER(12, glVertexPointer)
 
 CALL(13, glLineWidth, void, (GLfloat width))
-#if defined(MEDIA_LAYER_TRAMPOLINE_GUEST)
+#ifdef MEDIA_LAYER_TRAMPOLINE_GUEST
     trampoline(pun_to(uint32_t, width));
 #else
     GLfloat width = next_float();
@@ -47,7 +47,7 @@ CALL(13, glLineWidth, void, (GLfloat width))
 }
 
 CALL(14, glBlendFunc, void, (GLenum sfactor, GLenum dfactor))
-#if defined(MEDIA_LAYER_TRAMPOLINE_GUEST)
+#ifdef MEDIA_LAYER_TRAMPOLINE_GUEST
     trampoline(sfactor, dfactor);
 #else
     GLenum sfactor = next_int();
@@ -58,7 +58,7 @@ CALL(14, glBlendFunc, void, (GLenum sfactor, GLenum dfactor))
 }
 
 CALL(15, glDrawArrays, void, (GLenum mode, GLint first, GLsizei count))
-#if defined(MEDIA_LAYER_TRAMPOLINE_GUEST)
+#ifdef MEDIA_LAYER_TRAMPOLINE_GUEST
     trampoline(mode, first, count);
 #else
     GLenum mode = next_int();
@@ -70,7 +70,7 @@ CALL(15, glDrawArrays, void, (GLenum mode, GLint first, GLsizei count))
 }
 
 CALL(16, glColor4f, void, (GLfloat red, GLfloat green, GLfloat blue, GLfloat alpha))
-#if defined(MEDIA_LAYER_TRAMPOLINE_GUEST)
+#ifdef MEDIA_LAYER_TRAMPOLINE_GUEST
     trampoline(pun_to(uint32_t, red), pun_to(uint32_t, green), pun_to(uint32_t, blue), pun_to(uint32_t, alpha));
 #else
     GLfloat red = next_float();
@@ -83,7 +83,7 @@ CALL(16, glColor4f, void, (GLfloat red, GLfloat green, GLfloat blue, GLfloat alp
 }
 
 CALL(17, glClear, void, (GLbitfield mask))
-#if defined(MEDIA_LAYER_TRAMPOLINE_GUEST)
+#ifdef MEDIA_LAYER_TRAMPOLINE_GUEST
     trampoline(mask);
 #else
     GLbitfield mask = next_int();
@@ -93,7 +93,7 @@ CALL(17, glClear, void, (GLbitfield mask))
 }
 
 CALL(18, glBufferData, void, (GLenum target, GLsizeiptr size, const void *data, GLenum usage))
-#if defined(MEDIA_LAYER_TRAMPOLINE_GUEST)
+#ifdef MEDIA_LAYER_TRAMPOLINE_GUEST
     trampoline(target, size, (uint32_t) data, usage);
 #else
     GLenum target = next_int();
@@ -106,7 +106,7 @@ CALL(18, glBufferData, void, (GLenum target, GLsizeiptr size, const void *data, 
 }
 
 CALL(19, glFogx, void, (GLenum pname, GLfixed param))
-#if defined(MEDIA_LAYER_TRAMPOLINE_GUEST)
+#ifdef MEDIA_LAYER_TRAMPOLINE_GUEST
     trampoline(pname, param);
 #else
     GLenum pname = next_int();
@@ -117,7 +117,7 @@ CALL(19, glFogx, void, (GLenum pname, GLfixed param))
 }
 
 CALL(20, glFogf, void, (GLenum pname, GLfloat param))
-#if defined(MEDIA_LAYER_TRAMPOLINE_GUEST)
+#ifdef MEDIA_LAYER_TRAMPOLINE_GUEST
     trampoline(pname, pun_to(uint32_t, param));
 #else
     GLenum pname = next_int();
@@ -128,7 +128,7 @@ CALL(20, glFogf, void, (GLenum pname, GLfloat param))
 }
 
 CALL(21, glMatrixMode, void, (GLenum mode))
-#if defined(MEDIA_LAYER_TRAMPOLINE_GUEST)
+#ifdef MEDIA_LAYER_TRAMPOLINE_GUEST
     trampoline(mode);
 #else
     GLenum mode = next_int();
@@ -140,7 +140,7 @@ CALL(21, glMatrixMode, void, (GLenum mode))
 CALL_GL_POINTER(22, glColorPointer)
 
 CALL(23, glScissor, void, (GLint x, GLint y, GLsizei width, GLsizei height))
-#if defined(MEDIA_LAYER_TRAMPOLINE_GUEST)
+#ifdef MEDIA_LAYER_TRAMPOLINE_GUEST
     trampoline(x, y, width, height);
 #else
     GLint x = next_int();
@@ -153,7 +153,7 @@ CALL(23, glScissor, void, (GLint x, GLint y, GLsizei width, GLsizei height))
 }
 
 CALL(24, glTexParameteri, void, (GLenum target, GLenum pname, GLint param))
-#if defined(MEDIA_LAYER_TRAMPOLINE_GUEST)
+#ifdef MEDIA_LAYER_TRAMPOLINE_GUEST
     trampoline(target, pname, param);
 #else
     GLenum target = next_int();
@@ -165,7 +165,7 @@ CALL(24, glTexParameteri, void, (GLenum target, GLenum pname, GLint param))
 }
 
 CALL(25, glTexImage2D, void, (GLenum target, GLint level, GLint internalformat, GLsizei width, GLsizei height, GLint border, GLenum format, GLenum type, const void *pixels))
-#if defined(MEDIA_LAYER_TRAMPOLINE_GUEST)
+#ifdef MEDIA_LAYER_TRAMPOLINE_GUEST
     trampoline(target, level, internalformat, width, height, border, format, type, (uint32_t) pixels);
 #else
     GLenum target = next_int();
@@ -183,7 +183,7 @@ CALL(25, glTexImage2D, void, (GLenum target, GLint level, GLint internalformat, 
 }
 
 CALL(26, glEnable, void, (GLenum cap))
-#if defined(MEDIA_LAYER_TRAMPOLINE_GUEST)
+#ifdef MEDIA_LAYER_TRAMPOLINE_GUEST
     trampoline(cap);
 #else
     GLenum cap = next_int();
@@ -193,7 +193,7 @@ CALL(26, glEnable, void, (GLenum cap))
 }
 
 CALL(27, glEnableClientState, void, (GLenum array))
-#if defined(MEDIA_LAYER_TRAMPOLINE_GUEST)
+#ifdef MEDIA_LAYER_TRAMPOLINE_GUEST
     trampoline(array);
 #else
     GLenum array = next_int();
@@ -203,7 +203,7 @@ CALL(27, glEnableClientState, void, (GLenum array))
 }
 
 CALL(28, glPolygonOffset, void, (GLfloat factor, GLfloat units))
-#if defined(MEDIA_LAYER_TRAMPOLINE_GUEST)
+#ifdef MEDIA_LAYER_TRAMPOLINE_GUEST
     trampoline(pun_to(uint32_t, factor), pun_to(uint32_t, units));
 #else
     GLfloat factor = next_float();
@@ -216,7 +216,7 @@ CALL(28, glPolygonOffset, void, (GLfloat factor, GLfloat units))
 CALL_GL_POINTER(41, glTexCoordPointer)
 
 CALL(29, glDisableClientState, void, (GLenum array))
-#if defined(MEDIA_LAYER_TRAMPOLINE_GUEST)
+#ifdef MEDIA_LAYER_TRAMPOLINE_GUEST
     trampoline(array);
 #else
     GLenum array = next_int();
@@ -226,7 +226,7 @@ CALL(29, glDisableClientState, void, (GLenum array))
 }
 
 CALL(30, glDepthRangef, void, (GLclampf near, GLclampf far))
-#if defined(MEDIA_LAYER_TRAMPOLINE_GUEST)
+#ifdef MEDIA_LAYER_TRAMPOLINE_GUEST
     trampoline(pun_to(uint32_t, near), pun_to(uint32_t, far));
 #else
     GLclampf near = next_float();
@@ -237,7 +237,7 @@ CALL(30, glDepthRangef, void, (GLclampf near, GLclampf far))
 }
 
 CALL(31, glDepthFunc, void, (GLenum func))
-#if defined(MEDIA_LAYER_TRAMPOLINE_GUEST)
+#ifdef MEDIA_LAYER_TRAMPOLINE_GUEST
     trampoline(func);
 #else
     GLenum func2 = next_int();
@@ -247,7 +247,7 @@ CALL(31, glDepthFunc, void, (GLenum func))
 }
 
 CALL(32, glBindBuffer, void, (GLenum target, GLuint buffer))
-#if defined(MEDIA_LAYER_TRAMPOLINE_GUEST)
+#ifdef MEDIA_LAYER_TRAMPOLINE_GUEST
     trampoline(target, buffer);
 #else
     GLenum target = next_int();
@@ -258,7 +258,7 @@ CALL(32, glBindBuffer, void, (GLenum target, GLuint buffer))
 }
 
 CALL(33, glClearColor, void, (GLclampf red, GLclampf green, GLclampf blue, GLclampf alpha))
-#if defined(MEDIA_LAYER_TRAMPOLINE_GUEST)
+#ifdef MEDIA_LAYER_TRAMPOLINE_GUEST
     trampoline(pun_to(uint32_t, red), pun_to(uint32_t, green), pun_to(uint32_t, blue), pun_to(uint32_t, alpha));
 #else
     GLclampf red = next_float();
@@ -271,7 +271,7 @@ CALL(33, glClearColor, void, (GLclampf red, GLclampf green, GLclampf blue, GLcla
 }
 
 CALL(34, glPopMatrix, void, ())
-#if defined(MEDIA_LAYER_TRAMPOLINE_GUEST)
+#ifdef MEDIA_LAYER_TRAMPOLINE_GUEST
     trampoline();
 #else
     // Run
@@ -280,7 +280,7 @@ CALL(34, glPopMatrix, void, ())
 }
 
 CALL(35, glLoadIdentity, void, ())
-#if defined(MEDIA_LAYER_TRAMPOLINE_GUEST)
+#ifdef MEDIA_LAYER_TRAMPOLINE_GUEST
     trampoline();
 #else
     // Run
@@ -289,7 +289,7 @@ CALL(35, glLoadIdentity, void, ())
 }
 
 CALL(36, glScalef, void, (GLfloat x, GLfloat y, GLfloat z))
-#if defined(MEDIA_LAYER_TRAMPOLINE_GUEST)
+#ifdef MEDIA_LAYER_TRAMPOLINE_GUEST
     trampoline(pun_to(uint32_t, x), pun_to(uint32_t, y), pun_to(uint32_t, z));
 #else
     GLfloat x = next_float();
@@ -301,7 +301,7 @@ CALL(36, glScalef, void, (GLfloat x, GLfloat y, GLfloat z))
 }
 
 CALL(37, glPushMatrix, void, ())
-#if defined(MEDIA_LAYER_TRAMPOLINE_GUEST)
+#ifdef MEDIA_LAYER_TRAMPOLINE_GUEST
     trampoline();
 #else
     // Run
@@ -310,7 +310,7 @@ CALL(37, glPushMatrix, void, ())
 }
 
 CALL(38, glDepthMask, void, (GLboolean flag))
-#if defined(MEDIA_LAYER_TRAMPOLINE_GUEST)
+#ifdef MEDIA_LAYER_TRAMPOLINE_GUEST
     trampoline(flag);
 #else
     GLboolean flag = next_int();
@@ -320,7 +320,7 @@ CALL(38, glDepthMask, void, (GLboolean flag))
 }
 
 CALL(39, glHint, void, (GLenum target, GLenum mode))
-#if defined(MEDIA_LAYER_TRAMPOLINE_GUEST)
+#ifdef MEDIA_LAYER_TRAMPOLINE_GUEST
     trampoline(target, mode);
 #else
     GLenum target = next_int();
@@ -331,7 +331,7 @@ CALL(39, glHint, void, (GLenum target, GLenum mode))
 }
 
 CALL(40, glMultMatrixf, void, (const GLfloat *m))
-#if defined(MEDIA_LAYER_TRAMPOLINE_GUEST)
+#ifdef MEDIA_LAYER_TRAMPOLINE_GUEST
     trampoline((uint32_t) m);
 #else
     GLfloat *m = next_ptr();
@@ -341,7 +341,7 @@ CALL(40, glMultMatrixf, void, (const GLfloat *m))
 }
 
 CALL(42, glDeleteBuffers, void, (GLsizei n, const GLuint *buffers))
-#if defined(MEDIA_LAYER_TRAMPOLINE_GUEST)
+#ifdef MEDIA_LAYER_TRAMPOLINE_GUEST
     trampoline(n, (uint32_t) buffers);
 #else
     GLsizei n = next_int();
@@ -352,7 +352,7 @@ CALL(42, glDeleteBuffers, void, (GLsizei n, const GLuint *buffers))
 }
 
 CALL(43, glColorMask, void, (GLboolean red, GLboolean green, GLboolean blue, GLboolean alpha))
-#if defined(MEDIA_LAYER_TRAMPOLINE_GUEST)
+#ifdef MEDIA_LAYER_TRAMPOLINE_GUEST
     trampoline(red, green, blue, alpha);
 #else
     GLboolean red = next_int();
@@ -365,7 +365,7 @@ CALL(43, glColorMask, void, (GLboolean red, GLboolean green, GLboolean blue, GLb
 }
 
 CALL(44, glTexSubImage2D, void, (GLenum target, GLint level, GLint xoffset, GLint yoffset, GLsizei width, GLsizei height, GLenum format, GLenum type, const void *pixels))
-#if defined(MEDIA_LAYER_TRAMPOLINE_GUEST)
+#ifdef MEDIA_LAYER_TRAMPOLINE_GUEST
     trampoline(target, level, xoffset, yoffset, width, height, format, type, (uint32_t) pixels);
 #else
     GLenum target = next_int();
@@ -383,7 +383,7 @@ CALL(44, glTexSubImage2D, void, (GLenum target, GLint level, GLint xoffset, GLin
 }
 
 CALL(45, glGenTextures, void, (GLsizei n, GLuint *textures))
-#if defined(MEDIA_LAYER_TRAMPOLINE_GUEST)
+#ifdef MEDIA_LAYER_TRAMPOLINE_GUEST
     trampoline(n, (uint32_t) textures);
 #else
     GLsizei n = next_int();
@@ -394,7 +394,7 @@ CALL(45, glGenTextures, void, (GLsizei n, GLuint *textures))
 }
 
 CALL(46, glDeleteTextures, void, (GLsizei n, const GLuint *textures))
-#if defined(MEDIA_LAYER_TRAMPOLINE_GUEST)
+#ifdef MEDIA_LAYER_TRAMPOLINE_GUEST
     trampoline(n, (uint32_t) textures);
 #else
     GLsizei n = next_int();
@@ -405,7 +405,7 @@ CALL(46, glDeleteTextures, void, (GLsizei n, const GLuint *textures))
 }
 
 CALL(47, glAlphaFunc, void, (GLenum func, GLclampf ref))
-#if defined(MEDIA_LAYER_TRAMPOLINE_GUEST)
+#ifdef MEDIA_LAYER_TRAMPOLINE_GUEST
     trampoline(func, pun_to(uint32_t, ref));
 #else
     GLenum func2 = next_int();
@@ -416,7 +416,7 @@ CALL(47, glAlphaFunc, void, (GLenum func, GLclampf ref))
 }
 
 CALL(48, glGetFloatv, void, (GLenum pname, GLfloat *params))
-#if defined(MEDIA_LAYER_TRAMPOLINE_GUEST)
+#ifdef MEDIA_LAYER_TRAMPOLINE_GUEST
     trampoline(pname, (uint32_t) params);
 #else
     GLenum pname = next_int();
@@ -427,7 +427,7 @@ CALL(48, glGetFloatv, void, (GLenum pname, GLfloat *params))
 }
 
 CALL(49, glBindTexture, void, (GLenum target, GLuint texture))
-#if defined(MEDIA_LAYER_TRAMPOLINE_GUEST)
+#ifdef MEDIA_LAYER_TRAMPOLINE_GUEST
     trampoline(target, texture);
 #else
     GLenum target = next_int();
@@ -438,7 +438,7 @@ CALL(49, glBindTexture, void, (GLenum target, GLuint texture))
 }
 
 CALL(50, glTranslatef, void, (GLfloat x, GLfloat y, GLfloat z))
-#if defined(MEDIA_LAYER_TRAMPOLINE_GUEST)
+#ifdef MEDIA_LAYER_TRAMPOLINE_GUEST
     trampoline(pun_to(uint32_t, x), pun_to(uint32_t, y), pun_to(uint32_t, z));
 #else
     GLfloat x = next_float();
@@ -450,7 +450,7 @@ CALL(50, glTranslatef, void, (GLfloat x, GLfloat y, GLfloat z))
 }
 
 CALL(51, glShadeModel, void, (GLenum mode))
-#if defined(MEDIA_LAYER_TRAMPOLINE_GUEST)
+#ifdef MEDIA_LAYER_TRAMPOLINE_GUEST
     trampoline(mode);
 #else
     GLenum mode = next_int();
@@ -460,7 +460,7 @@ CALL(51, glShadeModel, void, (GLenum mode))
 }
 
 CALL(52, glOrthof, void, (GLfloat left, GLfloat right, GLfloat bottom, GLfloat top, GLfloat near, GLfloat far))
-#if defined(MEDIA_LAYER_TRAMPOLINE_GUEST)
+#ifdef MEDIA_LAYER_TRAMPOLINE_GUEST
     trampoline(pun_to(uint32_t, left), pun_to(uint32_t, right), pun_to(uint32_t, bottom), pun_to(uint32_t, top), pun_to(uint32_t, near), pun_to(uint32_t, far));
 #else
     GLfloat left = next_float();
@@ -475,7 +475,7 @@ CALL(52, glOrthof, void, (GLfloat left, GLfloat right, GLfloat bottom, GLfloat t
 }
 
 CALL(53, glDisable, void, (GLenum cap))
-#if defined(MEDIA_LAYER_TRAMPOLINE_GUEST)
+#ifdef MEDIA_LAYER_TRAMPOLINE_GUEST
     trampoline(cap);
 #else
     GLenum cap = next_int();
@@ -485,7 +485,7 @@ CALL(53, glDisable, void, (GLenum cap))
 }
 
 CALL(54, glCullFace, void, (GLenum mode))
-#if defined(MEDIA_LAYER_TRAMPOLINE_GUEST)
+#ifdef MEDIA_LAYER_TRAMPOLINE_GUEST
     trampoline(mode);
 #else
     GLenum mode = next_int();
@@ -495,7 +495,7 @@ CALL(54, glCullFace, void, (GLenum mode))
 }
 
 CALL(55, glRotatef, void, (GLfloat angle, GLfloat x, GLfloat y, GLfloat z))
-#if defined(MEDIA_LAYER_TRAMPOLINE_GUEST)
+#ifdef MEDIA_LAYER_TRAMPOLINE_GUEST
     trampoline(pun_to(uint32_t, angle), pun_to(uint32_t, x), pun_to(uint32_t, y), pun_to(uint32_t, z));
 #else
     GLfloat angle = next_float();
@@ -508,7 +508,7 @@ CALL(55, glRotatef, void, (GLfloat angle, GLfloat x, GLfloat y, GLfloat z))
 }
 
 CALL(56, glViewport, void, (GLint x, GLint y, GLsizei width, GLsizei height))
-#if defined(MEDIA_LAYER_TRAMPOLINE_GUEST)
+#ifdef MEDIA_LAYER_TRAMPOLINE_GUEST
     trampoline(x, y, width, height);
 #else
     GLint x = next_int();
@@ -521,7 +521,7 @@ CALL(56, glViewport, void, (GLint x, GLint y, GLsizei width, GLsizei height))
 }
 
 CALL(57, glNormal3f, void, (GLfloat nx, GLfloat ny, GLfloat nz))
-#if defined(MEDIA_LAYER_TRAMPOLINE_GUEST)
+#ifdef MEDIA_LAYER_TRAMPOLINE_GUEST
     trampoline(pun_to(uint32_t, nx), pun_to(uint32_t, ny), pun_to(uint32_t, nz));
 #else
     GLfloat nx = next_float();
@@ -533,7 +533,7 @@ CALL(57, glNormal3f, void, (GLfloat nx, GLfloat ny, GLfloat nz))
 }
 
 CALL(58, glIsEnabled, GLboolean, (GLenum cap))
-#if defined(MEDIA_LAYER_TRAMPOLINE_GUEST)
+#ifdef MEDIA_LAYER_TRAMPOLINE_GUEST
     return trampoline(cap);
 #else
     GLenum cap = next_int();
@@ -543,7 +543,7 @@ CALL(58, glIsEnabled, GLboolean, (GLenum cap))
 }
 
 CALL(61, glGetIntegerv, void, (GLenum pname, GLint *params))
-#if defined(MEDIA_LAYER_TRAMPOLINE_GUEST)
+#ifdef MEDIA_LAYER_TRAMPOLINE_GUEST
     trampoline(pname, (uint32_t) params);
 #else
     GLenum pname = next_int();
@@ -554,7 +554,7 @@ CALL(61, glGetIntegerv, void, (GLenum pname, GLint *params))
 }
 
 CALL(65, glReadPixels, void, (GLint x, GLint y, GLsizei width, GLsizei height, GLenum format, GLenum type, void *data))
-#if defined(MEDIA_LAYER_TRAMPOLINE_GUEST)
+#ifdef MEDIA_LAYER_TRAMPOLINE_GUEST
     trampoline(x, y, width, height, format, type, (uint32_t) data);
 #else
     GLint x = next_int();
@@ -570,7 +570,7 @@ CALL(65, glReadPixels, void, (GLint x, GLint y, GLsizei width, GLsizei height, G
 }
 
 CALL(67, glGenBuffers, void, (GLsizei n, GLuint *buffers))
-#if defined(MEDIA_LAYER_TRAMPOLINE_GUEST)
+#ifdef MEDIA_LAYER_TRAMPOLINE_GUEST
     trampoline(n, (uint32_t) buffers);
 #else
     GLsizei n = next_int();

@@ -34,7 +34,7 @@ static void show_report(const char *log_filename) {
             "--width", CRASH_REPORT_DIALOG_WIDTH,
             "--height", CRASH_REPORT_DIALOG_HEIGHT,
             "--text-info",
-            "--text", MCPI_APP_BASE_TITLE " has crashed!\n\nNeed help? Consider asking on the <a href=\"https://discord.com/invite/aDqejQGMMy\">Discord server</a>! <i>If you believe this is a problem with " MCPI_APP_BASE_TITLE " itself, please upload this crash report to the #bugs Discord channel.</i>",
+            "--text", MCPI_APP_BASE_TITLE " has crashed!\n\nNeed help? Consider asking on the <a href=\"" MCPI_DISCORD_INVITE "\">Discord server</a>! <i>If you believe this is a problem with " MCPI_APP_BASE_TITLE " itself, please upload this crash report to the #bugs Discord channel.</i>",
             "--filename", log_filename,
             "--no-wrap",
             "--font", "Monospace",
@@ -121,13 +121,11 @@ void setup_crash_report() {
         track_child(ret);
 
         // Install Signal Handlers
-        struct sigaction act_sigint;
-        memset((void *) &act_sigint, 0, sizeof (struct sigaction));
+        struct sigaction act_sigint = {0};
         act_sigint.sa_flags = SA_RESTART;
         act_sigint.sa_handler = &exit_handler;
         sigaction(SIGINT, &act_sigint, NULL);
-        struct sigaction act_sigterm;
-        memset((void *) &act_sigterm, 0, sizeof (struct sigaction));
+        struct sigaction act_sigterm = {0};
         act_sigterm.sa_flags = SA_RESTART;
         act_sigterm.sa_handler = &exit_handler;
         sigaction(SIGTERM, &act_sigterm, NULL);

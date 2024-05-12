@@ -1,14 +1,7 @@
 #pragma once
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+#include <string>
 
-void pre_bootstrap(int argc, char *argv[]);
-void bootstrap(int argc, char *argv[]);
-void copy_sdk(char *binary_directory, int log_with_debug);
-void bootstrap_mods(char *binary_directory);
-
-#ifdef __cplusplus
-}
-#endif
+void bootstrap();
+void copy_sdk(const std::string &binary_directory, bool log_with_debug);
+void bootstrap_mods(const std::string &binary_directory);

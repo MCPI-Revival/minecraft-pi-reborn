@@ -1,7 +1,5 @@
 #pragma once
 
-#include <libreborn/libreborn.h>
-
 extern "C" {
 void run_tests();
 void init_version();
@@ -10,7 +8,7 @@ void init_compat();
 void init_server();
 #else
 void init_multiplayer();
-void init_benchmark(int argc, char *argv[]);
+void init_benchmark();
 #endif
 #ifndef MCPI_HEADLESS_MODE
 void init_sound();

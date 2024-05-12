@@ -31,16 +31,8 @@
 
 // --only-generate: Ony Generate World And Then Exit
 static bool only_generate = false;
-__attribute__((constructor)) static void _init_only_generate(int argc, char *argv[]) {
-    // Iterate Arguments
-    for (int i = 1; i < argc; i++) {
-        // Check Argument
-        if (strcmp(argv[i], "--only-generate") == 0) {
-            // Enabled
-            only_generate = true;
-            break;
-        }
-    }
+__attribute__((constructor)) static void _init_only_generate() {
+    only_generate = getenv("_MCPI_ONLY_GENERATE") != nullptr;
 }
 
 // Server Properties

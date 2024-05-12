@@ -8,7 +8,7 @@
 
 #include <libreborn/libreborn.h>
 
-#include "launcher.h"
+#include "configuration.h"
 #include "cache.h"
 
 // Get Cache Path

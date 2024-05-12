@@ -10,25 +10,24 @@
 #include <libreborn/libreborn.h>
 
 #include "../util.h"
-#include "../bootstrap.h"
-#include "launcher.h"
+#include "configuration.h"
 #include "cache.h"
 
 // Strip Feature Flag Default
-std::string strip_feature_flag_default(std::string flag, bool *default_ret) {
+std::string strip_feature_flag_default(const std::string &flag, bool *default_ret) {
     // Valid Values
     std::string true_str = "TRUE ";
     std::string false_str = "FALSE ";
     // Test
     if (flag.rfind(true_str, 0) == 0) {
         // Enabled By Default
-        if (default_ret != NULL) {
+        if (default_ret != nullptr) {
             *default_ret = true;
         }
         return flag.substr(true_str.length(), std::string::npos);
     } else if (flag.rfind(false_str, 0) == 0) {
         // Disabled By Default
-        if (default_ret != NULL) {
+        if (default_ret != nullptr) {
             *default_ret = false;
         }
         return flag.substr(false_str.length(), std::string::npos);
@@ -41,7 +40,7 @@ std::string strip_feature_flag_default(std::string flag, bool *default_ret) {
 // Load Available Feature Flags
 extern unsigned char available_feature_flags[];
 extern size_t available_feature_flags_len;
-void load_available_feature_flags(std::function<void(std::string)> callback) {
+void load_available_feature_flags(const std::function<void(std::string)> &callback) {
     // Get Path
     char *binary_directory = get_binary_directory();
     std::string path = std::string(binary_directory) + "/available-feature-flags";
@@ -55,7 +54,7 @@ void load_available_feature_flags(std::function<void(std::string)> callback) {
     {
         std::string line;
         while (std::getline(stream, line)) {
-            if (line.length() > 0) {
+            if (!line.empty()) {
                 // Verify Line
                 if (line.find('|') == std::string::npos) {
                     lines.push_back(line);
@@ -67,15 +66,15 @@ void load_available_feature_flags(std::function<void(std::string)> callback) {
         }
     }
     // Sort
-    std::sort(lines.begin(), lines.end(), [](std::string a, std::string b) {
+    std::sort(lines.begin(), lines.end(), [](const std::string &a, const std::string &b) {
         // Strip Defaults
-        std::string stripped_a = strip_feature_flag_default(a, NULL);
-        std::string stripped_b = strip_feature_flag_default(b, NULL);
+        std::string stripped_a = strip_feature_flag_default(a, nullptr);
+        std::string stripped_b = strip_feature_flag_default(b, nullptr);
         // Sort
         return stripped_a < stripped_b;
     });
     // Run Callbacks
-    for (std::string &line : lines) {
+    for (const std::string &line : lines) {
         callback(line);
     }
 }
@@ -83,11 +82,11 @@ void load_available_feature_flags(std::function<void(std::string)> callback) {
 // Run Command And Set Environmental Variable
 static void run_command_and_set_env(const char *env_name, const char *command[]) {
     // Only Run If Environmental Variable Is NULL
-    if (getenv(env_name) == NULL) {
+    if (getenv(env_name) == nullptr) {
         // Run
         int return_code;
-        char *output = run_command(command, &return_code, NULL);
-        if (output != NULL) {
+        char *output = run_command(command, &return_code, nullptr);
+        if (output != nullptr) {
             // Trim
             int length = strlen(output);
             if (output[length - 1] == '\n') {
@@ -122,14 +121,14 @@ static void run_zenity_and_set_env(const char *env_name, std::vector<std::string
     for (std::vector<std::string>::size_type i = 0; i < full_command.size(); i++) {
         full_command_array[i] = full_command[i].c_str();
     }
-    full_command_array[full_command.size()] = NULL;
+    full_command_array[full_command.size()] = nullptr;
     // Run
     run_command_and_set_env(env_name, full_command_array);
 }
 
 // Set Variable If Not Already Set
-static void set_env_if_unset(const char *env_name, std::function<std::string()> callback) {
-    if (getenv(env_name) == NULL) {
+static void set_env_if_unset(const char *env_name, const std::function<std::string()> &callback) {
+    if (getenv(env_name) == nullptr) {
         char *value = strdup(callback().c_str());
         ALLOC_CHECK(value);
         set_and_print_env(env_name, value);
@@ -137,102 +136,74 @@ static void set_env_if_unset(const char *env_name, std::function<std::string()> 
     }
 }
 
-// Launch
-#define LIST_DIALOG_SIZE "400"
-int main(int argc, char *argv[]) {
-    // Don't Run As Root
-    if (getenv("_MCPI_SKIP_ROOT_CHECK") == NULL && (getuid() == 0 || geteuid() == 0)) {
-        ERR("Don't Run As Root");
+// Handle Non-Launch Commands
+void handle_non_launch_client_only_commands(const options_t &options) {
+    // Print Available Feature Flags
+    if (options.print_available_feature_flags) {
+        load_available_feature_flags([](const std::string &line) {
+            printf("%s\n", line.c_str());
+            fflush(stdout);
+        });
+        exit(EXIT_SUCCESS);
     }
+}
 
-    // Ensure HOME
-    if (getenv("HOME") == NULL) {
-        ERR("$HOME Isn't Set");
+// Check Environment
+void check_environment_client() {
+    // Don't Run As Root
+    if (getenv("_MCPI_SKIP_ROOT_CHECK") == nullptr && (getuid() == 0 || geteuid() == 0)) {
+        ERR("Don't Run As Root");
     }
 
     // Check For Display
 #ifndef MCPI_HEADLESS_MODE
-    if (getenv("DISPLAY") == NULL && getenv("WAYLAND_DISPLAY") == NULL) {
+    if (getenv("DISPLAY") == nullptr && getenv("WAYLAND_DISPLAY") == nullptr) {
         ERR("No display attached! Make sure $DISPLAY or $WAYLAND_DISPLAY is set.");
     }
 #endif
+}
 
-    // Print Features
-    for (int i = 1; i < argc; i++) {
-        if (strcmp(argv[i], "--print-available-feature-flags") == 0) {
-            // Print Available Feature Flags
-            load_available_feature_flags([](std::string line) {
-                printf("%s\n", line.c_str());
-                fflush(stdout);
-            });
-            return 0;
-        }
+// Configure Client Options
+#define LIST_DIALOG_SIZE "400"
+void configure_client(const options_t &options) {
+    // Wipe Cache If Needed
+    if (options.wipe_cache) {
+        wipe_cache();
     }
 
-    // Pre-Bootstrap
-    pre_bootstrap(argc, argv);
-
-    // Create ~/.minecraft-pi If Needed
-    {
-        char *minecraft_folder = NULL;
-        safe_asprintf(&minecraft_folder, "%s" HOME_SUBDIRECTORY_FOR_GAME_DATA, getenv("HOME"));
-        const char *const command[] = {"mkdir", "-p", minecraft_folder, NULL};
-        run_simple_command(command, "Unable To Create Data Directory");
-        free(minecraft_folder);
-    }
-
-    // --wipe-cache
-    for (int i = 1; i < argc; i++) {
-        if (strcmp(argv[i], "--wipe-cache") == 0) {
-            wipe_cache();
-            break;
-        }
-    }
-
-    // --no-cache
-    bool no_cache = false;
-    for (int i = 1; i < argc; i++) {
-        if (strcmp(argv[i], "--no-cache") == 0) {
-            no_cache = true;
-            break;
-        }
-    }
     // Load Cache
-    launcher_cache cache = no_cache ? empty_cache : load_cache();
+    launcher_cache cache = options.no_cache ? empty_cache : load_cache();
 
     // --default
-    for (int i = 1; i < argc; i++) {
-        if (strcmp(argv[i], "--default") == 0) {
-            // Use Default Feature Flags
-            set_env_if_unset("MCPI_FEATURE_FLAGS", [&cache]() {
-                std::string feature_flags = "";
-                load_available_feature_flags([&feature_flags, &cache](std::string flag) {
-                    bool value;
-                    // Strip Default Value
-                    std::string stripped_flag = strip_feature_flag_default(flag, &value);
-                    // Use Cache
-                    if (cache.feature_flags.count(stripped_flag) > 0) {
-                        value = cache.feature_flags[stripped_flag];
-                    }
-                    // Specify Default Value
-                    if (value) {
-                        // Enabled By Default
-                        feature_flags += stripped_flag + '|';
-                    }
-                });
-                if (feature_flags.length() > 0 && feature_flags[feature_flags.length() - 1] == '|') {
-                    feature_flags.pop_back();
+    if (options.use_default) {
+        // Use Default Feature Flags
+        set_env_if_unset("MCPI_FEATURE_FLAGS", [&cache]() {
+            std::string feature_flags = "";
+            load_available_feature_flags([&feature_flags, &cache](const std::string &flag) {
+                bool value;
+                // Strip Default Value
+                std::string stripped_flag = strip_feature_flag_default(flag, &value);
+                // Use Cache
+                if (cache.feature_flags.count(stripped_flag) > 0) {
+                    value = cache.feature_flags[stripped_flag];
                 }
-                return feature_flags;
+                // Specify Default Value
+                if (value) {
+                    // Enabled By Default
+                    feature_flags += stripped_flag + '|';
+                }
             });
-            set_env_if_unset("MCPI_RENDER_DISTANCE", [&cache]() {
-                return cache.render_distance;
-            });
-            set_env_if_unset("MCPI_USERNAME", [&cache]() {
-                return cache.username;
-            });
-            break;
-        }
+            if (!feature_flags.empty() && feature_flags[feature_flags.length() - 1] == '|') {
+                feature_flags.pop_back();
+            }
+            return feature_flags;
+        });
+        set_env_if_unset("MCPI_RENDER_DISTANCE", [&cache]() {
+            return cache.render_distance;
+        });
+        set_env_if_unset("MCPI_USERNAME", [&cache]() {
+            return cache.username;
+        });
     }
 
     // Setup MCPI_FEATURE_FLAGS
@@ -248,7 +219,7 @@ int main(int argc, char *argv[]) {
         command.push_back("Enabled");
         command.push_back("--column");
         command.push_back("Feature");
-        load_available_feature_flags([&command, &cache](std::string flag) {
+        load_available_feature_flags([&command, &cache](const std::string &flag) {
             bool value;
             // Strip Default Value
             std::string stripped_flag = strip_feature_flag_default(flag, &value);
@@ -287,7 +258,7 @@ int main(int argc, char *argv[]) {
         command.push_back("Name");
         std::string render_distances[] = {"Far", "Normal", "Short", "Tiny"};
         for (std::string &render_distance : render_distances) {
-            command.push_back(render_distance.compare(cache.render_distance) == 0 ? "TRUE" : "FALSE");
+            command.push_back(render_distance == cache.render_distance ? "TRUE" : "FALSE");
             command.push_back(render_distance);
         }
         // Run
@@ -306,10 +277,7 @@ int main(int argc, char *argv[]) {
     }
 
     // Save Cache
-    if (!no_cache) {
+    if (!options.no_cache) {
         save_cache();
     }
-
-    // Bootstrap
-    bootstrap(argc, argv);
 }

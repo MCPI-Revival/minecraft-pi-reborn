@@ -3,7 +3,7 @@
 #include <media-layer/core.h>
 #include <symbols/minecraft.h>
 
-__attribute__((constructor)) static void init(int argc, char *argv[]) {
+__attribute__((constructor)) static void init() {
     media_ensure_loaded();
     reborn_init_patch();
     run_tests();
@@ -37,9 +37,6 @@ __attribute__((constructor)) static void init(int argc, char *argv[]) {
     init_cake();
     init_home();
 #ifndef MCPI_SERVER_MODE
-    init_benchmark(argc, argv);
-#else
-    (void) argc;
-    (void) argv;
+    init_benchmark();
 #endif
 }

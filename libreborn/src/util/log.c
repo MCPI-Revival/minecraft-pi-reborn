@@ -7,7 +7,7 @@ const char *reborn_debug_tag = "";
 
 // Debug FD
 int reborn_get_debug_fd() {
-    if (getenv("MCPI_DEBUG") != NULL) {
+    if (getenv(MCPI_DEBUG_ENV) != NULL) {
         return STDERR_FILENO;
     } else {
         static int debug_fd = -1;

@@ -8,6 +8,7 @@ extern "C" {
 #endif
 
 // Debug
+#define MCPI_DEBUG_ENV "MCPI_DEBUG"
 extern const char *reborn_debug_tag;
 int reborn_get_debug_fd();
 

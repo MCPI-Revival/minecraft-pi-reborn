@@ -2,19 +2,19 @@ project(launcher)
 
 # Launcher
 add_executable(launcher
-    src/bootstrap.c
+    src/bootstrap.cpp
     src/patchelf.cpp
     src/util.c
     src/crash-report.c
-    src/sdk.c
-    src/mods.c
+    src/sdk.cpp
+    src/mods.cpp
+    src/options/parser.cpp
+    src/main.cpp
 )
-if(MCPI_SERVER_MODE)
-    target_sources(launcher PRIVATE src/server/launcher.c)
-else()
+if(NOT MCPI_SERVER_MODE)
     embed_resource(launcher src/client/available-feature-flags)
     target_sources(launcher PRIVATE
-        src/client/launcher.cpp
+        src/client/configuration.cpp
         src/client/cache.cpp
         src/client/available-feature-flags # Show In IDE
     )
@@ -22,6 +22,7 @@ endif()
 target_link_libraries(launcher reborn-util LIB_LIEF)
 # RPath
 set_target_properties(launcher PROPERTIES INSTALL_RPATH "$ORIGIN/lib/native")
+target_link_options(launcher PRIVATE "LINKER:--disable-new-dtags")
 
 # Install
 install(TARGETS launcher DESTINATION "${MCPI_INSTALL_DIR}")

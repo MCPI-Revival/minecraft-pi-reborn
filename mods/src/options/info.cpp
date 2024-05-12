@@ -234,7 +234,7 @@ CUSTOM_VTABLE(info_screen, Screen) {
             self->handleBackEvent(false);
         } else if (button->id == DISCORD_ID) {
             // Open Discord Invite
-            open_url("https://discord.gg/mcpi-revival-740287937727561779");
+            open_url(MCPI_DISCORD_INVITE);
         } else if (button->id >= INFO_ID_START) {
             // Open Info URL
             int i = button->id - INFO_ID_START;

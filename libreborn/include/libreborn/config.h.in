@@ -14,3 +14,4 @@
 #cmakedefine MCPI_SDK_DIR "@MCPI_SDK_DIR@"
 #cmakedefine MCPI_SKIN_SERVER "@MCPI_SKIN_SERVER@"
 #cmakedefine MCPI_USE_QEMU
+#cmakedefine MCPI_DISCORD_INVITE "@MCPI_DISCORD_INVITE@"

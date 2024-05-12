@@ -20,9 +20,12 @@ extern "C" {
 void set_and_print_env(const char *name, const char *value);
 
 // Safe execvpe()
+#define MCPI_LD_VARIABLE_PREFIX "_MCPI_"
+#define MCPI_ORIGINAL_LD_VARIABLE_PREFIX MCPI_LD_VARIABLE_PREFIX "ORIGINAL_"
+#define MCPI_ORIGINAL_LD_VARIABLES_PRESERVED_ENV MCPI_ORIGINAL_LD_VARIABLE_PREFIX "PRESERVED"
 #define for_each_special_environmental_variable(handle) \
     handle("LD_LIBRARY_PATH"); \
-    handle("LD_PRELOAD");
+    handle("LD_PRELOAD")
 void setup_exec_environment(int is_arm_component);
 __attribute__((noreturn)) void safe_execvpe(const char *const argv[], const char *const envp[]);
 

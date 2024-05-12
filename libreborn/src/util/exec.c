@@ -21,12 +21,14 @@ void set_and_print_env(const char *name, const char *value) {
 // Safe execvpe()
 #define handle_environmental_variable(var) \
     { \
-        const char *full_var = is_arm_component ? "MCPI_ARM_" var : "MCPI_NATIVE_" var; \
+        const char *full_var = is_arm_component ? MCPI_LD_VARIABLE_PREFIX var : MCPI_ORIGINAL_LD_VARIABLE_PREFIX var; \
         const char *var_value = getenv(full_var); \
         set_and_print_env(var, var_value); \
     }
 void setup_exec_environment(int is_arm_component) {
-    for_each_special_environmental_variable(handle_environmental_variable);
+    if (is_arm_component || getenv(MCPI_ORIGINAL_LD_VARIABLES_PRESERVED_ENV) != NULL) {
+        for_each_special_environmental_variable(handle_environmental_variable);
+    }
 }
 __attribute__((noreturn)) void safe_execvpe(const char *const argv[], const char *const envp[]) {
     // Log
@@ -89,7 +91,7 @@ char *run_command(const char *const command[], int *exit_status, size_t *output_
         char buf[BUFFER_SIZE];
         size_t position = 0;
         ssize_t bytes_read = 0;
-        while ((bytes_read = read(output_pipe[0], (void *) buf, BUFFER_SIZE)) > 0) {
+        while ((bytes_read = read(output_pipe[0], buf, BUFFER_SIZE)) > 0) {
             // Grow Output If Needed
             size_t needed_size = position + bytes_read;
             if (needed_size > size) {
