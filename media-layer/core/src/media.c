@@ -435,13 +435,15 @@ static void glfw_controller_look(float x, float y) {
         verify_controller_axis_value(y, CONTROLLER_LOOK_AXIS_THRESHOLD);
 
         // Send Event
-        SDL_Event event;
-        event.type = SDL_MOUSEMOTION;
-        event.motion.x = last_mouse_x;
-        event.motion.y = last_mouse_y;
-        event.motion.xrel = x * CONTROLLER_LOOK_AXIS_SENSITIVITY;
-        event.motion.yrel = y * CONTROLLER_LOOK_AXIS_SENSITIVITY;
-        SDL_PushEvent(&event);
+        if (is_interactable) {
+            SDL_Event event;
+            event.type = SDL_MOUSEMOTION;
+            event.motion.x = last_mouse_x;
+            event.motion.y = last_mouse_y;
+            event.motion.xrel = x * CONTROLLER_LOOK_AXIS_SENSITIVITY;
+            event.motion.yrel = y * CONTROLLER_LOOK_AXIS_SENSITIVITY;
+            SDL_PushEvent(&event);
+        }
     }
 }
 

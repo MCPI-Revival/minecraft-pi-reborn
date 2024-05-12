@@ -4,10 +4,8 @@
 extern "C" {
 #endif
 
-// Internal Methods (Not Handled By Media Layer Proxy)
-
+// Internal Methods
 __attribute__((visibility("internal"))) void _media_handle_SDL_PollEvent();
-__attribute__((visibility("internal"))) void _media_handle_SDL_Quit();
 
 #ifdef __cplusplus
 }

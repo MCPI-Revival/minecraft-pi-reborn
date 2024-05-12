@@ -33,7 +33,7 @@ if(BUILD_MEDIA_LAYER_CORE)
     add_subdirectory(core)
 endif()
 
-# Add Proxy
-if(MCPI_USE_MEDIA_LAYER_PROXY OR BUILD_ARM_COMPONENTS)
-    add_subdirectory(proxy)
+# Add Trampoline
+if(MCPI_USE_MEDIA_LAYER_TRAMPOLINE OR BUILD_ARM_COMPONENTS)
+    add_subdirectory(trampoline)
 endif()

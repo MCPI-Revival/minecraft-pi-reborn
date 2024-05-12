@@ -23,19 +23,29 @@ endif()
 
 # Media Layer
 if(NOT MCPI_HEADLESS_MODE)
-    set(DEFAULT_USE_MEDIA_LAYER_PROXY FALSE)
+    set(DEFAULT_USE_MEDIA_LAYER_TRAMPOLINE FALSE)
     if(BUILD_NATIVE_COMPONENTS AND NOT IS_ARM_TARGETING)
-        set(DEFAULT_USE_MEDIA_LAYER_PROXY TRUE)
+        set(DEFAULT_USE_MEDIA_LAYER_TRAMPOLINE TRUE)
     endif()
-    mcpi_option(USE_MEDIA_LAYER_PROXY "Whether To Enable The Media Layer Proxy" BOOL "${DEFAULT_USE_MEDIA_LAYER_PROXY}")
+    mcpi_option(USE_MEDIA_LAYER_TRAMPOLINE "Whether To Enable The Media Layer Trampoline (Requires QEMU)" BOOL "${DEFAULT_USE_MEDIA_LAYER_TRAMPOLINE}")
     mcpi_option(USE_GLES1_COMPATIBILITY_LAYER "Whether To Enable The GLESv1_CM Compatibility Layer" BOOL TRUE)
 else()
-    set(MCPI_USE_MEDIA_LAYER_PROXY FALSE)
+    set(MCPI_USE_MEDIA_LAYER_TRAMPOLINE FALSE)
 endif()
-if(MCPI_USE_MEDIA_LAYER_PROXY)
+if(MCPI_USE_MEDIA_LAYER_TRAMPOLINE)
     set(BUILD_MEDIA_LAYER_CORE "${BUILD_NATIVE_COMPONENTS}")
 else()
     set(BUILD_MEDIA_LAYER_CORE "${BUILD_ARM_COMPONENTS}")
+endif()
+
+# QEMU
+if(BUILD_NATIVE_COMPONENTS)
+    include(CheckSymbolExists)
+    check_symbol_exists("__ARM_ARCH" "" MCPI_IS_ARM32_OR_ARM64_TARGETING)
+    set(MCPI_USE_QEMU TRUE)
+    if(MCPI_IS_ARM32_OR_ARM64_TARGETING AND NOT MCPI_USE_MEDIA_LAYER_TRAMPOLINE)
+        set(MCPI_USE_QEMU FALSE)
+    endif()
 endif()
 
 # Specify Variant Name
@@ -67,13 +77,3 @@ mcpi_option(APP_TITLE "App Title" STRING "${DEFAULT_APP_TITLE}")
 
 # Skin Server
 mcpi_option(SKIN_SERVER "Skin Server" STRING "https://raw.githubusercontent.com/MCPI-Revival/Skins/data")
-
-# QEMU
-if(BUILD_NATIVE_COMPONENTS)
-    include(CheckSymbolExists)
-    check_symbol_exists("__ARM_ARCH" "" MCPI_IS_ARM32_OR_ARM64_TARGETING)
-    set(MCPI_USE_QEMU TRUE)
-    if(MCPI_IS_ARM32_OR_ARM64_TARGETING)
-        set(MCPI_USE_QEMU FALSE)
-    endif()
-endif()
