@@ -30,6 +30,7 @@ ExternalProject_Add(qemu
         "--cross-prefix="
         "--cc=${CMAKE_C_COMPILER}"
         "--cxx=${CMAKE_CXX_COMPILER}"
+        "--extra-ldflags=-ldl"
         "--disable-debug-info"
         "--target-list=arm-linux-user"
         "--without-default-features"
