@@ -3,7 +3,9 @@
 
 #include <libreborn/libreborn.h>
 #include <symbols/minecraft.h>
+#ifndef MCPI_HEADLESS_MODE
 #include <GLES/gl.h>
+#endif
 
 #include <mods/misc/misc.h>
 #include "misc-internal.h"
@@ -143,7 +145,9 @@ static void Gui_handleKeyPressed_injection(Gui_handleKeyPressed_t original, Gui 
 // Render Fancy Background
 void misc_render_background(int color, Minecraft *minecraft, int x, int y, int width, int height) {
     // https://github.com/ReMinecraftPE/mcpe/blob/f0d65eaecec1b3fe9c2f2b251e114a890c54ab77/source/client/gui/components/RolledSelectionList.cpp#L169-L179
+#ifndef MCPI_HEADLESS_MODE
     glColor4f(1, 1, 1, 1);
+#endif
     std::string texture = "gui/background.png";
     minecraft->textures->loadAndBindTexture(&texture);
     Tesselator *t = &Tesselator_instance;
