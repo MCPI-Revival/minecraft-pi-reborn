@@ -58,7 +58,6 @@ static void exit_handler(__attribute__((unused)) int signal) {
 #define PIPE_WRITE 1
 #define MCPI_LOGS_DIR "/tmp/.minecraft-pi-logs"
 static char log_filename[] = MCPI_LOGS_DIR "/XXXXXX";
-static int log_file_fd = -1;
 void setup_log_file() {
     // Ensure Temporary Directory
     {
@@ -74,16 +73,12 @@ void setup_log_file() {
     }
 
     // Create Temporary File
-    log_file_fd = mkstemp(log_filename);
+    int log_file_fd = mkstemp(log_filename);
     if (log_file_fd == -1) {
         ERR("Unable To Create Log File: %s", strerror(errno));
     }
-
-    // Setup Environment
-    char *log_file_fd_env = NULL;
-    safe_asprintf(&log_file_fd_env, "%i", log_file_fd);
-    set_and_print_env("MCPI_LOG_FILE_FD", log_file_fd_env);
-    free(log_file_fd_env);
+    close(log_file_fd);
+    reborn_set_log(log_filename);
 }
 void setup_crash_report() {
     // Store Output
@@ -176,17 +171,17 @@ void setup_crash_report() {
                                 bytes_available = 0;
                             }
                             // Read
-                            ssize_t bytes_read = read(poll_fds[i].fd, (void *) buf, BUFFER_SIZE);
+                            ssize_t bytes_read = read(poll_fds[i].fd, buf, BUFFER_SIZE);
                             if (bytes_read == -1) {
-                                ERR("Unable To Read Log Data: %s", strerror(errno));
+                                ERR("Unable To Read Input: %s", strerror(errno));
                             }
                             // Write To Child
-                            if (write(input_pipe[PIPE_WRITE], (void *) buf, bytes_read) == -1) {
+                            if (write(input_pipe[PIPE_WRITE], buf, bytes_read) == -1) {
                                 ERR("Unable To Write Input To Child: %s", strerror(errno));
                             }
                         } else {
                             // Data Available From Child's stdout/stderr
-                            ssize_t bytes_read = read(poll_fds[i].fd, (void *) buf, BUFFER_SIZE - 1 /* Account For NULL-Terminator */);
+                            ssize_t bytes_read = read(poll_fds[i].fd, buf, BUFFER_SIZE - 1 /* Account For NULL-Terminator */);
                             if (bytes_read == -1) {
                                 ERR("Unable To Read Log Data: %s", strerror(errno));
                             }
@@ -196,9 +191,11 @@ void setup_crash_report() {
                             fprintf(poll_fds[i].fd == output_pipe[PIPE_READ] ? stdout : stderr, "%s", buf);
 
                             // Write To log
-                            if (write(log_file_fd, (void *) buf, bytes_read) == -1) {
+                            reborn_lock_log();
+                            if (write(reborn_get_log_fd(), buf, bytes_read) == -1) {
                                 ERR("Unable To Write Log Data: %s", strerror(errno));
                             }
+                            reborn_unlock_log();
                         }
                     } else {
                         // File Descriptor No Longer Accessible
@@ -232,18 +229,18 @@ void setup_crash_report() {
             fprintf(stderr, "%s", exit_code_line);
 
             // Write Exit Code Log Line
-            if (write(log_file_fd, (void *) exit_code_line, strlen(exit_code_line)) == -1) {
+            reborn_lock_log();
+            if (write(reborn_get_log_fd(), exit_code_line, strlen(exit_code_line)) == -1) {
                 ERR("Unable To Write Exit Code To Log: %s", strerror(errno));
             }
+            reborn_unlock_log();
 
             // Free Exit Code Log Line
             free(exit_code_line);
         }
 
-        // Close Log File FD
-        if (close(log_file_fd) == -1) {
-            ERR("Unable To Close Log File Descriptor: %s", strerror(errno));
-        }
+        // Close Log File
+        reborn_close_log();
 
         // Show Crash Log
 #ifndef MCPI_HEADLESS_MODE

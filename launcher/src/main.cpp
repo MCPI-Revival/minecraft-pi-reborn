@@ -135,6 +135,7 @@ int main(int argc, char *argv[]) {
     reborn_debug_tag = "(Launcher) ";
 
     // Debug Logging
+    unsetenv(MCPI_LOG_ENV);
     bind_to_env(MCPI_DEBUG_ENV, options.debug);
 
     // Handle Non-Launch Commands (Copy SDK, Print Feature Flags, Etc)
