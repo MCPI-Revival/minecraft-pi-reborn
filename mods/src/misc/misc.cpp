@@ -247,7 +247,7 @@ static void LoginPacket_read_injection(LoginPacket_read_t original, LoginPacket 
 // formatting functionality.
 static RakNet_RakString *RakNet_RakString_injection(RakNet_RakString *rak_string, const char *format, ...) {
     // Call Original Method
-    return rak_string->constructor("%s", format);
+    return RakNet_RakString_constructor(rak_string, "%s", format);
 }
 
 // Print Error Message If RakNet Startup Fails

@@ -213,7 +213,7 @@ static void create_world(Minecraft *minecraft, std::string name, bool is_creativ
     if (folder.empty()) {
         folder = "World";
     }
-    folder = getUniqueLevelName(Minecraft_getLevelSource(minecraft), folder);
+    folder = getUniqueLevelName(minecraft->getLevelSource(), folder);
 
     // Settings
     LevelSettings settings;

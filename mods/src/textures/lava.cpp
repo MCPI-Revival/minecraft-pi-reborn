@@ -42,8 +42,8 @@ CUSTOM_VTABLE(lava_texture, DynamicTexture) {
         for (int x = 0; x < 16; x++) {
             for (int y = 0; y < 16; y++) {
                 float f = 0.0F;
-                int ax = int(Mth_sin((float(x) * float(M_PI) * 2) / 16.0f) * 1.2f);
-                int ay = int(Mth_sin((float(y) * float(M_PI) * 2) / 16.0f) * 1.2f);
+                int ax = int(Mth::sin((float(x) * float(M_PI) * 2) / 16.0f) * 1.2f);
+                int ay = int(Mth::sin((float(y) * float(M_PI) * 2) / 16.0f) * 1.2f);
                 for (int bx = x - 1; bx <= x + 1; bx++) {
                     for (int by = y - 1; by <= y + 1; by++) {
                         int k2 = (bx + ay) & 0xf;
@@ -57,7 +57,7 @@ CUSTOM_VTABLE(lava_texture, DynamicTexture) {
                     self->m_data3[x + y * 16] = 0.0f;
                 }
                 self->m_data4[x + y * 16] -= 0.06f;
-                if (Mth_random() < 0.005f) {
+                if (Mth::random() < 0.005f) {
                     self->m_data4[x + y * 16] = 1.5f;
                 }
             }
@@ -106,8 +106,8 @@ CUSTOM_VTABLE(lava_side_texture, DynamicTexture) {
         for (int x = 0; x < 16; x++) {
             for (int y = 0; y < 16; y++) {
                 float f = 0.0F;
-                int ax = int(Mth_sin((float(x) * float(M_PI) * 2) / 16.0f) * 1.2f);
-                int ay = int(Mth_sin((float(y) * float(M_PI) * 2) / 16.0f) * 1.2f);
+                int ax = int(Mth::sin((float(x) * float(M_PI) * 2) / 16.0f) * 1.2f);
+                int ay = int(Mth::sin((float(y) * float(M_PI) * 2) / 16.0f) * 1.2f);
                 for (int bx = x - 1; bx <= x + 1; bx++) {
                     for (int by = y - 1; by <= y + 1; by++) {
                         int k2 = (bx + ay) & 0xf;
@@ -121,7 +121,7 @@ CUSTOM_VTABLE(lava_side_texture, DynamicTexture) {
                     self->m_data3[x + y * 16] = 0.0f;
                 }
                 self->m_data4[x + y * 16] -= 0.06f;
-                if (Mth_random() < 0.005f) {
+                if (Mth::random() < 0.005f) {
                     self->m_data4[x + y * 16] = 1.5f;
                 }
             }

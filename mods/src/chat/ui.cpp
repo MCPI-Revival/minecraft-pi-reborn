@@ -144,7 +144,7 @@ static Screen *create_chat_screen() {
 void _init_chat_ui() {
     misc_run_on_game_key_press([](Minecraft *minecraft, int key) {
         if (key == 0x54) {
-            if (Minecraft_isLevelGenerated(minecraft) && minecraft->screen == nullptr) {
+            if (minecraft->isLevelGenerated() && minecraft->screen == nullptr) {
                 minecraft->setScreen(create_chat_screen());
             }
             return true;

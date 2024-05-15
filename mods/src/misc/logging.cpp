@@ -45,7 +45,7 @@ static const char *last_message = nullptr;
 static void print_progress(Minecraft *minecraft) {
     const char *message = minecraft->getProgressMessage();
     int32_t progress = minecraft->progress;
-    if (Minecraft_isLevelGenerated(minecraft)) {
+    if (minecraft->isLevelGenerated()) {
         message = "Ready";
         progress = -1;
     }

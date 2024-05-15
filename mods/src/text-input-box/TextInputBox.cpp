@@ -115,7 +115,7 @@ void TextInputBox::tick() {
     }
 
     if (m_bFocused) {
-        if (Common_getTimeMs() > m_lastFlashed + 500) {
+        if (Common::getTimeMs() > m_lastFlashed + 500) {
             m_lastFlashed += 500;
             m_bCursorOn ^= 1;
         }
@@ -167,7 +167,7 @@ void TextInputBox::charPressed(int k) {
 static std::string get_rendered_text(Font *font, int width, int scroll_pos, std::string text) {
     std::string rendered_text = text.substr(scroll_pos);
     int max_width = width - (PADDING * 2);
-    while (Font_width(font, &rendered_text) > max_width) {
+    while (font->width(&rendered_text) > max_width) {
         rendered_text.pop_back();
     }
     return rendered_text;

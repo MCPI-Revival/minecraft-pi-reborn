@@ -293,7 +293,7 @@ __attribute__((destructor)) static void _free_stdin_buffer() {
 // Handle Commands
 static void handle_commands(Minecraft *minecraft) {
     // Check If Level Is Generated
-    if (Minecraft_isLevelGenerated(minecraft) && stdin_buffer_complete) {
+    if (minecraft->isLevelGenerated() && stdin_buffer_complete) {
         // Command Ready; Run It
         if (stdin_buffer != nullptr) {
             ServerSideNetworkHandler *server_side_network_handler = get_server_side_network_handler(minecraft);

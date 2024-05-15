@@ -100,7 +100,7 @@ static void StartMenuScreen_render_Screen_render_injection(Screen *screen, int x
         glRotatef(-20.0f, 0.0f, 0.0f, 1.0f);
         // Scale
         int textWidth = screen->font->width(&current_splash);
-        float timeMS = float(Common_getTimeMs() % 1000) / 1000.0f;
+        float timeMS = float(Common::getTimeMs() % 1000) / 1000.0f;
         float scale = max_scale - Mth::abs(0.1f * Mth::sin(2.0f * float(M_PI) * timeMS));
         float real_text_width = textWidth * max_scale;
         if (real_text_width > max_width) {
