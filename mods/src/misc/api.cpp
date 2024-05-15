@@ -183,4 +183,3 @@ void _init_misc_api() {
     // Handle Key Presses
     overwrite_calls(Gui_handleKeyPressed, Gui_handleKeyPressed_injection);
 }
-

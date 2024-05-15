@@ -173,4 +173,3 @@ void init_creative() {
         patch((void *) 0x8e104, maximize_stack_patch);
     }
 }
-

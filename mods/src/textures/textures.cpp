@@ -236,4 +236,3 @@ void init_textures() {
     // Load Textures
     overwrite_virtual_calls(AppPlatform_linux_loadTexture, AppPlatform_linux_loadTexture_injection);
 }
-

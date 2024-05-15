@@ -99,4 +99,3 @@ void init_chat() {
         patch((void *) 0x6b4c0, message_limit_patch);
     }
 }
-

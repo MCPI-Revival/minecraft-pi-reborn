@@ -63,4 +63,3 @@ void _init_attack() {
         overwrite_call((void *) 0x8fc24, (void *) Player_attack_Inventory_getSelected_injection);
     }
 }
-

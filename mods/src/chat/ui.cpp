@@ -153,4 +153,3 @@ void _init_chat_ui() {
         }
     });
 }
-

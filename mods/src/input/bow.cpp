@@ -31,4 +31,3 @@ void _init_bow() {
     fix_bow = feature_has("Fix Bow & Arrow", server_disabled);
     input_run_on_tick(_handle_bow);
 }
-

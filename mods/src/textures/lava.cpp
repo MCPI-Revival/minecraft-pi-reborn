@@ -259,4 +259,3 @@ void _init_textures_lava(bool animated_water_param, bool animated_lava_param, bo
     animated_fire = animated_fire_param;
     overwrite_call((void *) 0x170b4, (void *) Textures_addDynamicTexture_injection);
 }
-

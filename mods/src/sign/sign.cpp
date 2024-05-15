@@ -55,4 +55,3 @@ void init_sign() {
     // Handle Backspace
     overwrite_calls(Common_sdl_key_to_minecraft_key, sdl_key_to_minecraft_key_injection);
 }
-

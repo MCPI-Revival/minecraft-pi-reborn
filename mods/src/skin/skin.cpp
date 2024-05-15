@@ -95,4 +95,3 @@ void init_skin() {
         _init_skin_loader();
     }
 }
-

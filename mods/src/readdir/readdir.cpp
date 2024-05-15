@@ -20,4 +20,3 @@ dirent *readdir(DIR *dirp) {
     new_dirent.d_type = original->d_type;
     return &new_dirent;
 }
-

@@ -38,4 +38,3 @@ void _patch_egl_calls() {
     patch((void *) 0x12504, nop_patch); // eglDestroySurface #2
     overwrite_call((void *) 0x12594, (void *) eglCreateContext_injection); // eglCreateContext
 }
-

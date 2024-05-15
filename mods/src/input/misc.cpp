@@ -115,4 +115,3 @@ void _init_misc() {
     input_run_on_tick(_handle_back);
     input_run_on_tick(_handle_mouse_grab);
 }
-

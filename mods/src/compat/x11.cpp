@@ -27,4 +27,3 @@ void _patch_x11_calls() {
     overwrite_call((void *) 0x132a4, (void *) XGetWindowAttributes_injection); // XGetWindowAttributes
     overwrite_call((void *) 0x132d4, (void *) XTranslateCoordinates_injection); // XTranslateCoordinates
 }
-

@@ -107,4 +107,3 @@ void init_atlas() {
         overwrite_call((void *) 0x1e21c, (void *) InventoryPane_renderBatch_Tesselator_color_injection);
     }
 }
-

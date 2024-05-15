@@ -144,4 +144,3 @@ void init_death() {
     unsigned char ldr_r0_24_patch[4] = {0x24, 0x00, 0x90, 0xe5}; // "ldr r0, [r0, #0x24]"
     patch((void *) 0x8799c, ldr_r0_24_patch);
 }
-

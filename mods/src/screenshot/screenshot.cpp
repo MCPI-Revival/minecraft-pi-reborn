@@ -104,4 +104,3 @@ void screenshot_take(char *home) {
     free(screenshots);
     free(pixels);
 }
-

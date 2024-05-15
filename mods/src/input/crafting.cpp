@@ -28,4 +28,3 @@ static void _handle_open_crafting(Minecraft *minecraft) {
 void _init_crafting() {
     input_run_on_tick(_handle_open_crafting);
 }
-

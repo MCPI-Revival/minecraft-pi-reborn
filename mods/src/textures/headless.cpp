@@ -21,4 +21,3 @@ void init_textures() {
     // Disable Texture Loading
     overwrite_virtual_calls(AppPlatform_linux_loadTexture, AppPlatform_linux_loadTexture_injection);
 }
-

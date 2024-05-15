@@ -57,4 +57,3 @@ void init_input() {
         media_set_raw_mouse_motion_enabled(0);
     }
 }
-

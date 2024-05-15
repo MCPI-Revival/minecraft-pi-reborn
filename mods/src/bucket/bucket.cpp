@@ -372,4 +372,3 @@ void init_bucket() {
         misc_run_on_language_setup(Language_injection);
     }
 }
-

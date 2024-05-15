@@ -140,4 +140,3 @@ void compat_request_exit() {
     // Request
     exit_requested = 1;
 }
-

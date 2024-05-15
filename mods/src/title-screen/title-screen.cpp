@@ -166,4 +166,3 @@ void init_title_screen() {
         srand(time(nullptr));
     }
 }
-

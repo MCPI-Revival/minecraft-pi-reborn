@@ -133,4 +133,3 @@ void init_multiplayer() {
         overwrite_virtual_calls(RakNetInstance_pingForHosts, RakNetInstance_pingForHosts_injection);
     }
 }
-

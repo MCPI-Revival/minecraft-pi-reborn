@@ -52,4 +52,3 @@ void init_fps() {
         misc_run_on_tick(print_fps);
     }
 }
-

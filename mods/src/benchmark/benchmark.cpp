@@ -171,4 +171,3 @@ void init_benchmark() {
         media_disable_vsync();
     }
 }
-

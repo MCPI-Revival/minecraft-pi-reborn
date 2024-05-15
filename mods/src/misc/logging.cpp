@@ -97,4 +97,3 @@ void _init_misc_logging() {
     // Disable stdout Buffering
     setvbuf(stdout, nullptr, _IONBF, 0);
 }
-

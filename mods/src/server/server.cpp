@@ -594,4 +594,3 @@ void init_server() {
     set_and_print_env("MCPI_RENDER_DISTANCE", "Tiny");
     set_and_print_env("MCPI_USERNAME", get_motd().c_str());
 }
-

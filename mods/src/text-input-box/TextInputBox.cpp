@@ -297,4 +297,3 @@ bool TextInputBox::isFocused() {
 void TextInputBox::setMaxLength(int max_length) {
     m_maxLength = max_length;
 }
-

@@ -20,4 +20,3 @@ void run_tests() {
         }
     }
 }
-

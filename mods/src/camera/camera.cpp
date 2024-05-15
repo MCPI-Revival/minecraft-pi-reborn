@@ -46,4 +46,3 @@ void init_camera() {
         overwrite_call((void *) 0x87dc4, (void *) TripodCamera_tick_Level_addParticle_call_injection);
     }
 }
-

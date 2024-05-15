@@ -247,4 +247,3 @@ void init_options() {
     // UI
     _init_options_ui();
 }
-
