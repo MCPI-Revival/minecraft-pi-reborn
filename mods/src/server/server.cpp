@@ -84,21 +84,21 @@ static void start_world(Minecraft *minecraft) {
     settings.seed = seed;
 
     // Select Level
-    minecraft->vtable->selectLevel(minecraft, &world_name, &world_name, &settings);
+    minecraft->selectLevel(&world_name, &world_name, &settings);
 
     // Don't Open Port When Using --only-generate
     if (!only_generate) {
         // Open Port
         int port = get_server_properties().get_int("port", DEFAULT_PORT);
         INFO("Listening On: %i", port);
-        Minecraft_hostMultiplayer(minecraft, port);
+        minecraft->hostMultiplayer(port);
     }
 
     // Open ProgressScreen
     ProgressScreen *screen = alloc_ProgressScreen();
     ALLOC_CHECK(screen);
-    screen = ProgressScreen_constructor(screen);
-    Minecraft_setScreen(minecraft, (Screen *) screen);
+    screen = screen->constructor();
+    minecraft->setScreen((Screen *) screen);
 }
 
 // Check If Running In Whitelist Mode
@@ -156,7 +156,7 @@ static RakNet_RakNetGUID get_rak_net_guid(Player *player) {
 }
 static RakNet_SystemAddress get_system_address(RakNet_RakPeer *rak_peer, RakNet_RakNetGUID guid) {
     // Get SystemAddress
-    return rak_peer->vtable->GetSystemAddressFromGuid(rak_peer, guid);
+    return rak_peer->GetSystemAddressFromGuid(guid);
 }
 static RakNet_RakPeer *get_rak_peer(Minecraft *minecraft) {
     return minecraft->rak_net_instance->peer;
@@ -164,7 +164,7 @@ static RakNet_RakPeer *get_rak_peer(Minecraft *minecraft) {
 static char *get_rak_net_guid_ip(RakNet_RakPeer *rak_peer, RakNet_RakNetGUID guid) {
     RakNet_SystemAddress address = get_system_address(rak_peer, guid);
     // Get IP
-    return RakNet_SystemAddress_ToString(&address, false, '|');
+    return address.ToString(false, '|');
 }
 
 // Get IP From Player
@@ -199,7 +199,7 @@ static void ban_callback(Minecraft *minecraft, std::string username, Player *pla
 
 // Kill Player
 static void kill_callback(__attribute__((unused)) Minecraft *minecraft, __attribute__((unused)) std::string username, Player *player) {
-    player->vtable->hurt(player, nullptr, INT32_MAX);
+    player->hurt(nullptr, INT32_MAX);
     INFO("Killed: %s", username.c_str());
 }
 
@@ -215,9 +215,9 @@ static void handle_server_stop(Minecraft *minecraft) {
         // Save And Exit
         Level *level = get_level(minecraft);
         if (level != nullptr) {
-            Level_saveLevelData(level);
+            level->saveLevelData();
         }
-        Minecraft_leaveGame(minecraft, false);
+        minecraft->leaveGame(false);
         // Stop Game
         SDL_Event event;
         event.type = SDL_QUIT;
@@ -325,7 +325,7 @@ static void handle_commands(Minecraft *minecraft) {
                     char *safe_message = to_cp437(message.c_str());
                     std::string cpp_string = safe_message;
                     // Post Message To Chat
-                    ServerSideNetworkHandler_displayGameMessage(server_side_network_handler, &cpp_string);
+                    server_side_network_handler->displayGameMessage(&cpp_string);
                     // Free
                     free(safe_message);
                 } else if (data == list_command) {
@@ -373,7 +373,7 @@ static void Minecraft_update_injection(Minecraft *minecraft) {
     }
 
     // Handle --only-generate
-    if (only_generate && Minecraft_isLevelGenerated(minecraft)) {
+    if (only_generate && minecraft->isLevelGenerated()) {
         // Request Exit
         compat_request_exit();
         // Disable Special Behavior After Requesting Exit
@@ -438,7 +438,7 @@ static bool RakNet_RakPeer_IsBanned_injection(__attribute__((unused)) RakNet_Rak
 // Log IPs
 static Player *ServerSideNetworkHandler_onReady_ClientGeneration_ServerSideNetworkHandler_popPendingPlayer_injection(ServerSideNetworkHandler *server_side_network_handler, RakNet_RakNetGUID *guid) {
     // Call Original Method
-    Player *player = ServerSideNetworkHandler_popPendingPlayer(server_side_network_handler, guid);
+    Player *player = server_side_network_handler->popPendingPlayer(guid);
 
     // Check If Player Is Null
     if (player != nullptr) {
@@ -594,3 +594,4 @@ void init_server() {
     set_and_print_env("MCPI_RENDER_DISTANCE", "Tiny");
     set_and_print_env("MCPI_USERNAME", get_motd().c_str());
 }
+

@@ -35,3 +35,4 @@ void init_version() {
     // Log
     INFO("Starting Minecraft: Pi Edition (%s)", version_get());
 }
+

@@ -122,7 +122,7 @@ static void RakNetInstance_pingForHosts_injection(RakNetInstance_pingForHosts_t 
 
     // Add External Servers
     iterate_servers([rak_peer](const char *address, int port) {
-        rak_peer->vtable->Ping(rak_peer, address, port, 1, 0);
+        rak_peer->Ping(address, port, 1, 0);
     });
 }
 
@@ -133,3 +133,4 @@ void init_multiplayer() {
         overwrite_virtual_calls(RakNetInstance_pingForHosts, RakNetInstance_pingForHosts_injection);
     }
 }
+

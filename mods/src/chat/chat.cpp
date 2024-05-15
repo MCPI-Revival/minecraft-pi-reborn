@@ -19,7 +19,7 @@ std::string chat_send_api_command(Minecraft *minecraft, std::string str) {
     client.time = 0;
     CommandServer *command_server = minecraft->command_server;
     if (command_server != nullptr) {
-        return CommandServer_parse(command_server, &client, &str);
+        return command_server->parse(&client, &str);
     } else {
         return "";
     }
@@ -43,19 +43,19 @@ void chat_send_message(ServerSideNetworkHandler *server_side_network_handler, ch
     sanitize_string(&full_message, MAX_CHAT_MESSAGE_LENGTH, 0);
     std::string cpp_string = full_message;
     free(full_message);
-    ServerSideNetworkHandler_displayGameMessage(server_side_network_handler, &cpp_string);
+    server_side_network_handler->displayGameMessage(&cpp_string);
 }
 // Handle Chat packet Send
 void chat_handle_packet_send(Minecraft *minecraft, ChatPacket *packet) {
     RakNetInstance *rak_net_instance = minecraft->rak_net_instance;
-    if (rak_net_instance->vtable->isServer(rak_net_instance)) {
+    if (rak_net_instance->isServer()) {
         // Hosting Multiplayer
         const char *message = packet->message.c_str();
         ServerSideNetworkHandler *server_side_network_handler = (ServerSideNetworkHandler *) minecraft->network_handler;
         chat_send_message(server_side_network_handler, Strings_default_username, (char *) message);
     } else {
         // Client
-        rak_net_instance->vtable->send(rak_net_instance, (Packet *) packet);
+        rak_net_instance->send((Packet *) packet);
     }
 }
 
@@ -69,7 +69,7 @@ static void CommandServer_parse_CommandServer_dispatchPacket_injection(CommandSe
 
 // Handle ChatPacket Server-Side
 static void ServerSideNetworkHandler_handle_ChatPacket_injection(ServerSideNetworkHandler *server_side_network_handler, RakNet_RakNetGUID *rak_net_guid, ChatPacket *chat_packet) {
-    Player *player = ServerSideNetworkHandler_getPlayer(server_side_network_handler, rak_net_guid);
+    Player *player = server_side_network_handler->getPlayer(rak_net_guid);
     if (player != nullptr) {
         const char *username = player->username.c_str();
         const char *message = chat_packet->message.c_str();
@@ -99,3 +99,4 @@ void init_chat() {
         patch((void *) 0x6b4c0, message_limit_patch);
     }
 }
+

@@ -82,7 +82,7 @@ static DynamicTexture *create_lava_texture() {
     // Construct
     LavaTexture *texture = new LavaTexture;
     ALLOC_CHECK(texture);
-    DynamicTexture_constructor(&texture->super, Tile_lava->texture);
+    texture->super.constructor(Tile_lava->texture);
     // Set VTable
     texture->super.vtable = get_lava_texture_vtable();
     // Setup
@@ -146,7 +146,7 @@ static DynamicTexture *create_lava_side_texture() {
     // Construct
     LavaSideTexture *texture = new LavaSideTexture;
     ALLOC_CHECK(texture);
-    DynamicTexture_constructor(&texture->super, Tile_lava->texture + 1);
+    texture->super.constructor(Tile_lava->texture + 1);
     // Set VTable
     texture->super.vtable = get_lava_side_texture_vtable();
     // Setup
@@ -189,7 +189,7 @@ CUSTOM_VTABLE(fire_texture, DynamicTexture) {
                         uint32_t x;
                         uint8_t b[4];
                     } a;
-                    a.x = Random_genrand_int32(&self->m_random);
+                    a.x = self->m_random.genrand_int32();
                     self->m_data2[i + j * 16] = 0.2f + (((a.b[3] / 256.0f) * 0.1f) + ((((a.b[0] / 256.0f) * (a.b[1] / 256.0f)) * (a.b[2] / 256.0f)) * 4.0f));
                 }
             }
@@ -214,11 +214,11 @@ static DynamicTexture *create_fire_texture(int a2) {
     // Construct
     FireTexture *texture = new FireTexture;
     ALLOC_CHECK(texture);
-    DynamicTexture_constructor(&texture->super, Tile_fire->texture + (16 * a2));
+    texture->super.constructor(Tile_fire->texture + (16 * a2));
     // Set VTable
     texture->super.vtable = get_fire_texture_vtable();
     // Setup Random
-    int seed = Common_getTimeMs();
+    int seed = Common::getTimeMs();
     texture->m_random.seed = seed;
     texture->m_random.param_1 = 0x271;
     texture->m_random.param_2 = false;
@@ -238,17 +238,17 @@ static bool animated_fire = false;
 static void Textures_addDynamicTexture_injection(Textures *textures, DynamicTexture *dynamic_texture) {
     // Call Original Method
     if (animated_water) {
-        Textures_addDynamicTexture(textures, dynamic_texture);
+        textures->addDynamicTexture(dynamic_texture);
     }
 
     // Add Lava
     if (animated_lava) {
-        Textures_addDynamicTexture(textures, create_lava_texture());
-        Textures_addDynamicTexture(textures, create_lava_side_texture());
+        textures->addDynamicTexture(create_lava_texture());
+        textures->addDynamicTexture(create_lava_side_texture());
     }
     if (animated_fire) {
-        Textures_addDynamicTexture(textures, create_fire_texture(0));
-        Textures_addDynamicTexture(textures, create_fire_texture(1));
+        textures->addDynamicTexture(create_fire_texture(0));
+        textures->addDynamicTexture(create_fire_texture(1));
     }
 }
 
@@ -259,3 +259,4 @@ void _init_textures_lava(bool animated_water_param, bool animated_lava_param, bo
     animated_fire = animated_fire_param;
     overwrite_call((void *) 0x170b4, (void *) Textures_addDynamicTexture_injection);
 }
+

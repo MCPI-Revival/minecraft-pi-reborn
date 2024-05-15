@@ -31,3 +31,4 @@ void init_home() {
     unsigned char nop_patch[4] = {0x00, 0xf0, 0x20, 0xe3}; // "nop"
     patch((void *) 0xe0ac, nop_patch);
 }
+

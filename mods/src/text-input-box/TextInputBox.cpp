@@ -5,7 +5,7 @@
 TextInputBox *TextInputBox::create(const std::string &placeholder, const std::string &text) {
     // Construct
     TextInputBox *self = new TextInputBox;
-    GuiComponent_constructor(&self->super);
+    self->super.constructor();
 
     // Setup
     self->m_xPos = 0;
@@ -111,7 +111,7 @@ void TextInputBox::keyPressed(int key) {
 
 void TextInputBox::tick() {
     if (!m_lastFlashed) {
-        m_lastFlashed = Common_getTimeMs();
+        m_lastFlashed = Common::getTimeMs();
     }
 
     if (m_bFocused) {
@@ -131,7 +131,7 @@ void TextInputBox::setFocused(bool b) {
 
     m_bFocused = b;
     if (b) {
-        m_lastFlashed = Common_getTimeMs();
+        m_lastFlashed = Common::getTimeMs();
         m_bCursorOn = true;
         m_insertHead = int(m_text.size());
         recalculateScroll();
@@ -176,8 +176,8 @@ static std::string get_rendered_text(Font *font, int width, int scroll_pos, std:
 static char CURSOR_CHAR = '_';
 
 void TextInputBox::render() {
-    GuiComponent_fill(&super, m_xPos, m_yPos, m_xPos + m_width, m_yPos + m_height, 0xFFAAAAAA);
-    GuiComponent_fill(&super, m_xPos + 1, m_yPos + 1, m_xPos + m_width - 1, m_yPos + m_height - 1, 0xFF000000);
+    super.fill(m_xPos, m_yPos, m_xPos + m_width, m_yPos + m_height, 0xFFAAAAAA);
+    super.fill(m_xPos + 1, m_yPos + 1, m_xPos + m_width - 1, m_yPos + m_height - 1, 0xFF000000);
 
     int text_color;
     int scroll_pos;
@@ -194,17 +194,17 @@ void TextInputBox::render() {
     rendered_text = get_rendered_text(m_pFont, m_width, scroll_pos, rendered_text);
 
     int textYPos = (m_height - 8) / 2;
-    GuiComponent_drawString(&super, m_pFont, &rendered_text, m_xPos + PADDING, m_yPos + textYPos, text_color);
+    super.drawString(m_pFont, &rendered_text, m_xPos + PADDING, m_yPos + textYPos, text_color);
 
     if (m_bCursorOn) {
         int cursor_pos = m_insertHead - m_scrollPos;
         if (cursor_pos >= 0 && cursor_pos <= int(rendered_text.length())) {
             std::string substr = rendered_text.substr(0, cursor_pos);
-            int xPos = PADDING + Font_width(m_pFont, &substr);
+            int xPos = PADDING + m_pFont->width(&substr);
 
             std::string str;
             str += CURSOR_CHAR;
-            GuiComponent_drawString(&super, m_pFont, &str, m_xPos + xPos, m_yPos + textYPos + 2, 0xffffff);
+            super.drawString(m_pFont, &str, m_xPos + xPos, m_yPos + textYPos + 2, 0xffffff);
         }
     }
 }
@@ -297,3 +297,4 @@ bool TextInputBox::isFocused() {
 void TextInputBox::setMaxLength(int max_length) {
     m_maxLength = max_length;
 }
+

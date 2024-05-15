@@ -35,3 +35,4 @@ bool ServerProperties::get_bool(std::string const& name, std::string const& def)
     }
     return is_true(def);
 }
+

@@ -51,15 +51,15 @@ CUSTOM_VTABLE(chat_screen, Screen) {
         is_in_chat = false;
         ChatScreen *self = (ChatScreen *) super;
         delete self->chat;
-        self->send->vtable->destructor_deleting(self->send);
+        self->send->destructor_deleting();
     };
     // Rendering
     static Screen_render_t original_render = vtable->render;
     vtable->render = [](Screen *super, int x, int y, float param_1) {
         // Background
-        super->vtable->renderBackground(super);
+        super->renderBackground();
         // Render Chat
-        Gui_renderChatMessages(&super->minecraft->gui, super->height, 20, true, super->font);
+        super->minecraft->gui.renderChatMessages(super->height, 20, true, super->font);
         // Call Original Method
         original_render(super, x, y, param_1);
     };
@@ -91,7 +91,7 @@ CUSTOM_VTABLE(chat_screen, Screen) {
                     }
                     _chat_send_message(super->minecraft, text.c_str());
                 }
-                Minecraft_setScreen(super->minecraft, nullptr);
+                super->minecraft->setScreen(nullptr);
             } else if (key == 0x26) {
                 // Up
                 local_history.at(self->history_pos) = self->chat->getText();
@@ -120,7 +120,7 @@ CUSTOM_VTABLE(chat_screen, Screen) {
         if (button == self->send) {
             // Send
             self->chat->setFocused(true);
-            super->vtable->keyPressed(super, 0x0d);
+            super->keyPressed(0x0d);
         } else {
             // Call Original Method
             original_buttonClicked(super, button);
@@ -131,7 +131,7 @@ static Screen *create_chat_screen() {
     // Construct
     ChatScreen *screen = new ChatScreen;
     ALLOC_CHECK(screen);
-    Screen_constructor(&screen->super.super);
+    screen->super.super.constructor();
 
     // Set VTable
     screen->super.super.vtable = get_chat_screen_vtable();
@@ -145,7 +145,7 @@ void _init_chat_ui() {
     misc_run_on_game_key_press([](Minecraft *minecraft, int key) {
         if (key == 0x54) {
             if (Minecraft_isLevelGenerated(minecraft) && minecraft->screen == nullptr) {
-                Minecraft_setScreen(minecraft, create_chat_screen());
+                minecraft->setScreen(create_chat_screen());
             }
             return true;
         } else {
@@ -153,3 +153,4 @@ void _init_chat_ui() {
         }
     });
 }
+

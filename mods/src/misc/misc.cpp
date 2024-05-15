@@ -75,10 +75,10 @@ static void Gui_renderHearts_injection(Gui_renderHearts_t original, Gui *gui) {
     heal_amount = heal_amount_drawing = 0;
 
     Inventory *inventory = gui->minecraft->player->inventory;
-    ItemInstance *held_ii = Inventory_getSelected(inventory);
+    ItemInstance *held_ii = inventory->getSelected();
     if (held_ii) {
         Item *held = Item_items[held_ii->id];
-        if (held->vtable->isFood(held) && held_ii->id) {
+        if (held->isFood() && held_ii->id) {
             int nutrition = ((FoodItem *) held)->nutrition;
             int cur_health = gui->minecraft->player->health;
             int heal_num = fmin(cur_health + nutrition, 20) - cur_health;
@@ -151,7 +151,7 @@ static void Gui_renderChatMessages_injection(Gui_renderChatMessages_t original, 
         int32_t screen_width = minecraft->screen_width;
         float scale = ((float) screen_width) * Gui_InvGuiScale;
         // Render Selected Item Text
-        Gui_renderOnSelectItemNameText(gui, (int32_t) scale, font, y_offset - 0x13);
+        gui->renderOnSelectItemNameText((int32_t) scale, font, y_offset - 0x13);
     }
 }
 // Reset Selected Item Text Timer On Slot Select
@@ -235,7 +235,7 @@ static void LoginPacket_read_injection(LoginPacket_read_t original, LoginPacket 
     ALLOC_CHECK(new_username);
     sanitize_string(&new_username, MAX_USERNAME_LENGTH, 0);
     // Set New Username
-    RakNet_RakString_Assign(rak_string, new_username);
+    rak_string->Assign(new_username);
     // Free
     free(new_username);
 }
@@ -272,7 +272,7 @@ static const char *RAKNET_ERROR_NAMES[] = {
 #endif
 static RakNet_StartupResult RakNetInstance_host_RakNet_RakPeer_Startup_injection(RakNet_RakPeer *rak_peer, unsigned short maxConnections, unsigned char *socketDescriptors, uint32_t socketDescriptorCount, int32_t threadPriority) {
     // Call Original Method
-    RakNet_StartupResult result = rak_peer->vtable->Startup(rak_peer, maxConnections, socketDescriptors, socketDescriptorCount, threadPriority);
+    RakNet_StartupResult result = rak_peer->Startup(maxConnections, socketDescriptors, socketDescriptorCount, threadPriority);
 
     // Print Error
     if (result != RAKNET_STARTED) {
@@ -297,7 +297,7 @@ static RakNetInstance *RakNetInstance_injection(RakNetInstance_constructor_t ori
 static void LocalPlayer_die_injection(LocalPlayer_die_t original, LocalPlayer *entity, Entity *cause) {
     // Close Screen
     Minecraft *minecraft = entity->minecraft;
-    Minecraft_setScreen(minecraft, nullptr);
+    minecraft->setScreen(nullptr);
 
     // Call Original Method
     original(entity, cause);
@@ -307,7 +307,7 @@ static void LocalPlayer_die_injection(LocalPlayer_die_t original, LocalPlayer *e
 static int32_t FurnaceScreen_handleAddItem_injection(FurnaceScreen_handleAddItem_t original, FurnaceScreen *furnace_screen, int32_t slot, ItemInstance *item) {
     // Get Existing Item
     FurnaceTileEntity *tile_entity = furnace_screen->tile_entity;
-    ItemInstance *existing_item = tile_entity->vtable->getItem(tile_entity, slot);
+    ItemInstance *existing_item = tile_entity->getItem(slot);
 
     // Check Item
     int valid;
@@ -349,11 +349,11 @@ static void GameRenderer_render_injection(GameRenderer_render_t original, GameRe
         // Fix GL Mode
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
         // Get X And Y
-        float x = Mouse_getX() * Gui_InvGuiScale;
-        float y = Mouse_getY() * Gui_InvGuiScale;
+        float x = Mouse::getX() * Gui_InvGuiScale;
+        float y = Mouse::getY() * Gui_InvGuiScale;
         // Render Cursor
         Minecraft *minecraft = game_renderer->minecraft;
-        Common_renderCursor(x, y, minecraft);
+        Common::renderCursor(x, y, minecraft);
     }
 }
 #endif
@@ -410,7 +410,7 @@ HOOK(bind, int, (int sockfd, const struct sockaddr *addr, socklen_t addrlen)) {
 
 // Change Grass Color
 static int32_t get_color(LevelSource *level_source, int32_t x, int32_t z) {
-    Biome *biome = level_source->vtable->getBiome(level_source, x, z);
+    Biome *biome = level_source->getBiome(x, z);
     if (biome == nullptr) {
         return 0;
     }
@@ -459,7 +459,7 @@ static void RandomLevelSource_buildSurface_injection(RandomLevelSource_buildSurf
     LargeCaveFeature *cave_feature = &random_level_source->cave_feature;
 
     // Generate
-    cave_feature->vtable->apply(cave_feature, (ChunkSource *) random_level_source, level, chunk_x, chunk_y, chunk_data, 0);
+    cave_feature->apply((ChunkSource *) random_level_source, level, chunk_x, chunk_y, chunk_data, 0);
 }
 
 // No Block Tinting
@@ -471,15 +471,15 @@ static int32_t Tile_getColor_injection(__attribute__((unused)) T original, __att
 // Disable Hostile AI In Creative Mode
 static Entity *PathfinderMob_findAttackTarget_injection(PathfinderMob *mob) {
     // Call Original Method
-    Entity *target = mob->vtable->findAttackTarget(mob);
+    Entity *target = mob->findAttackTarget();
 
     // Only modify the AI of monsters
-    if (mob->vtable->getCreatureBaseType(mob) != 1) {
+    if (mob->getCreatureBaseType() != 1) {
         return target;
     }
 
     // Check If Creative Mode
-    if (target != nullptr && target->vtable->isPlayer(target)) {
+    if (target != nullptr && target->isPlayer()) {
         Player *player = (Player *) target;
         Inventory *inventory = player->inventory;
         bool is_creative = inventory->is_creative;
@@ -499,7 +499,7 @@ static int32_t Tile_getRenderShape_injection(Tile *tile) {
         return -1;
     } else {
         // Call Original Method
-        return tile->vtable->getRenderShape(tile);
+        return tile->getRenderShape();
     }
 }
 static ChestTileEntity *ChestTileEntity_injection(ChestTileEntity_constructor_t original, ChestTileEntity *tile_entity) {
@@ -518,7 +518,7 @@ static void ModelPart_render_injection(ModelPart *model_part, float scale) {
     is_rendering_chest = true;
 
     // Call Original Method
-    ModelPart_render(model_part, scale);
+    model_part->render(scale);
 
     // Stop
     is_rendering_chest = false;
@@ -545,7 +545,7 @@ static ContainerMenu *ContainerMenu_injection(ContainerMenu_constructor_t origin
     ChestTileEntity *tile_entity = (ChestTileEntity *) (((unsigned char *) container) - offsetof(ChestTileEntity, container));
     bool is_client = tile_entity->is_client;
     if (!is_client) {
-        container->vtable->startOpen(container);
+        container->startOpen();
     }
 
     // Return
@@ -557,7 +557,7 @@ static ContainerMenu *ContainerMenu_destructor_injection(ContainerMenu_destructo
     ChestTileEntity *tile_entity = (ChestTileEntity *) (((unsigned char *) container) - offsetof(ChestTileEntity, container));
     bool is_client = tile_entity->is_client;
     if (!is_client) {
-        container->vtable->stopOpen(container);
+        container->stopOpen();
     }
 
     // Call Original Method
@@ -666,7 +666,7 @@ static void PauseScreen_init_injection(PauseScreen_init_t original, PauseScreen 
     Minecraft *minecraft = screen->minecraft;
     RakNetInstance *rak_net_instance = minecraft->rak_net_instance;
     if (rak_net_instance != nullptr) {
-        if (rak_net_instance->vtable->isServer(rak_net_instance)) {
+        if (rak_net_instance->isServer()) {
             // Add Button
             std::vector<Button *> *rendered_buttons = &screen->rendered_buttons;
             std::vector<Button *> *selectable_buttons = &screen->selectable_buttons;
@@ -675,7 +675,7 @@ static void PauseScreen_init_injection(PauseScreen_init_t original, PauseScreen 
             selectable_buttons->push_back(button);
 
             // Update Button Text
-            PauseScreen_updateServerVisibilityText(screen);
+            screen->updateServerVisibilityText();
         }
     }
 }
@@ -687,18 +687,18 @@ void PaneCraftingScreen_craftSelectedItem_PaneCraftingScreen_recheckRecipes_inje
     for (size_t i = 0; i < item->ingredients.size(); i++) {
         ItemInstance requested_item_instance = item->ingredients[i].requested_item;
         Item *requested_item = Item_items[requested_item_instance.id];
-        ItemInstance *craftingRemainingItem = requested_item->vtable->getCraftingRemainingItem(requested_item, &requested_item_instance);
+        ItemInstance *craftingRemainingItem = requested_item->getCraftingRemainingItem(&requested_item_instance);
         if (craftingRemainingItem != nullptr) {
             // Add or drop remainder
             LocalPlayer *player = self->minecraft->player;
-            if (!player->inventory->vtable->add(player->inventory, craftingRemainingItem)) {
+            if (!player->inventory->add(craftingRemainingItem)) {
                 // Drop
-                player->vtable->drop(player, craftingRemainingItem, false);
+                player->drop(craftingRemainingItem, false);
             }
         }
     }
     // Call Original Method
-    PaneCraftingScreen_recheckRecipes(self);
+    self->recheckRecipes();
 }
 
 ItemInstance *Item_getCraftingRemainingItem_injection(__attribute__((unused)) Item_getCraftingRemainingItem_t original, Item *self, ItemInstance *item_instance) {
@@ -727,7 +727,7 @@ static void sort_chunks(Chunk **chunks_begin, Chunk **chunks_end, DistanceChunkS
     }
     for (int i = 0; i < chunks_size; i++) {
         Chunk *chunk = chunks_begin[i];
-        float distance = Chunk_distanceToSqr(chunk, (Entity *) sorter.mob);
+        float distance = chunk->distanceToSqr((Entity *) sorter.mob);
         if ((1024.0 <= distance) && chunk->y < 0x40) {
             distance *= 10.0;
         }
@@ -997,3 +997,4 @@ void init_misc() {
     _init_misc_logging();
     _init_misc_api();
 }
+

@@ -82,7 +82,7 @@ SETUP_CALLBACK(creative_inventory_setup, FillingContainer);
 // Handle Custom Creative Inventory Setup Behavior
 static void Inventory_setupDefault_FillingContainer_addItem_call_injection(FillingContainer *filling_container, ItemInstance *item_instance) {
     // Call Original Method
-    FillingContainer_addItem(filling_container, item_instance);
+    filling_container->addItem(item_instance);
 
     // Run Functions
     handle_misc_creative_inventory_setup(filling_container);
@@ -183,3 +183,4 @@ void _init_misc_api() {
     // Handle Key Presses
     overwrite_calls(Gui_handleKeyPressed, Gui_handleKeyPressed_injection);
 }
+

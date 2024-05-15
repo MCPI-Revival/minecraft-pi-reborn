@@ -45,7 +45,7 @@ static bool fill_bucket(ItemInstance *item_instance, Player *player, int new_aux
         new_item.count = 1;
         new_item.auxiliary = new_auxiliary;
         Inventory *inventory = player->inventory;
-        if (inventory->vtable->add(inventory, &new_item)) {
+        if (inventory->add(&new_item)) {
             // Added To Inventory
             success = true;
             item_instance->count -= 1;
@@ -62,7 +62,7 @@ static int32_t BucketItem_useOn(__attribute__((unused)) FoodItem *item, ItemInst
     } else if (item_instance->auxiliary == 0) {
         // Empty Bucket
         int32_t new_auxiliary = 0;
-        int32_t tile = level->vtable->getTile(level, x, y, z);
+        int32_t tile = level->getTile(x, y, z);
         if (tile == Tile_calmWater->id) {
             new_auxiliary = Tile_water->id;
         } else if (tile == Tile_calmLava->id) {
@@ -71,7 +71,7 @@ static int32_t BucketItem_useOn(__attribute__((unused)) FoodItem *item, ItemInst
         if (new_auxiliary != 0) {
             // Valid
             if (fill_bucket(item_instance, player, new_auxiliary)) {
-                Level_setTileAndData(level, x, y, z, 0, 0);
+                level->setTileAndData(x, y, z, 0, 0);
                 return 1;
             } else {
                 return 0;
@@ -110,15 +110,15 @@ static int32_t BucketItem_useOn(__attribute__((unused)) FoodItem *item, ItemInst
         }
         // Get Current Tile
         bool valid = false;
-        Material *material = level->vtable->getMaterial(level, x, y, z);
+        Material *material = level->getMaterial(x, y, z);
         if (material != nullptr) {
-            valid = !material->vtable->isSolid(material);
+            valid = !material->isSolid();
         }
         if (item_instance->auxiliary != Tile_water->id && item_instance->auxiliary != Tile_lava->id) {
             valid = false;
         }
         if (valid) {
-            Level_setTileAndData(level, x, y, z, item_instance->auxiliary, 0);
+            level->setTileAndData(x, y, z, item_instance->auxiliary, 0);
             item_instance->auxiliary = 0;
             return 1;
         } else {
@@ -188,14 +188,14 @@ static FoodItem *create_bucket(int32_t id, int32_t texture_x, int32_t texture_y,
     // Construct
     FoodItem *item = alloc_FoodItem();
     ALLOC_CHECK(item);
-    Item_constructor((Item *) item, id);
+    Item_constructor((Item *) item, id); // FoodItem's Constructor Was Inlined
 
     // Set VTable
     item->vtable = get_bucket_vtable();
 
     // Setup
-    item->vtable->setIcon(item, texture_x, texture_y);
-    item->vtable->setDescriptionId(item, &name);
+    item->setIcon(texture_x, texture_y);
+    item->setDescriptionId(&name);
     item->is_stacked_by_data = 1;
     item->category = 2;
     item->max_damage = 0;
@@ -224,7 +224,7 @@ static int32_t ItemInstance_getMaxStackSize_injection(ItemInstance_getMaxStackSi
 
 // Milking
 bool Cow_interact_injection(Cow_interact_t original, Cow *self, Player *player) {
-    ItemInstance *item = Inventory_getSelected(player->inventory);
+    ItemInstance *item = player->inventory->getSelected();
     if (item && item->id == bucket->id && item->auxiliary == 0) {
         // Fill with milk
         fill_bucket(item, player, 1);
@@ -237,8 +237,8 @@ bool Cow_interact_injection(Cow_interact_t original, Cow *self, Player *player) 
 static void inventory_add_item(FillingContainer *inventory, FoodItem *item, int32_t auxiliary) {
     ItemInstance *item_instance = new ItemInstance;
     ALLOC_CHECK(item_instance);
-    item_instance = ItemInstance_constructor_item_extra(item_instance, (Item *) item, 1, auxiliary);
-    FillingContainer_addItem(inventory, item_instance);
+    item_instance = item_instance->constructor_item_extra((Item *) item, 1, auxiliary);
+    inventory->addItem(item_instance);
 }
 static void Inventory_setupDefault_FillingContainer_addItem_call_injection(FillingContainer *filling_container) {
     inventory_add_item(filling_container, bucket, 0);
@@ -251,7 +251,7 @@ static void Inventory_setupDefault_FillingContainer_addItem_call_injection(Filli
 static bool is_holding_bucket = false;
 static HitResult Mob_pick_Level_clip_injection(Level *level, unsigned char *param_1, unsigned char *param_2, __attribute__((unused)) bool clip_liquids, bool param_3) {
     // Call Original Method
-    return Level_clip(level, param_1, param_2, is_holding_bucket, param_3);
+    return level->clip(param_1, param_2, is_holding_bucket, param_3);
 }
 static void handle_tick(Minecraft *minecraft) {
     LocalPlayer *player = minecraft->player;
@@ -261,7 +261,7 @@ static void handle_tick(Minecraft *minecraft) {
         Inventory *inventory = player->inventory;
 
         // Get Item
-        ItemInstance *inventory_item = inventory->vtable->getItem(inventory, selected_slot);
+        ItemInstance *inventory_item = inventory->getItem(selected_slot);
         // Check
         is_holding_bucket = inventory_item != nullptr && inventory_item->id == bucket->id && inventory_item->auxiliary == 0;
     }
@@ -284,7 +284,7 @@ static void Minecraft_handleMouseDown_injection(Minecraft_handleMouseDown_t orig
         int32_t x = minecraft->hit_result.x;
         int32_t y = minecraft->hit_result.y;
         int32_t z = minecraft->hit_result.z;
-        int32_t tile = level->vtable->getTile(level, x, y, z);
+        int32_t tile = level->getTile(x, y, z);
         if (is_calm_liquid(tile)) {
             can_destroy = false;
         }
@@ -315,7 +315,7 @@ static void Recipes_injection(Recipes *recipes) {
     std::string line1 = "# #";
     std::string line2 = " # ";
     std::vector<Recipes_Type> types = {type1};
-    Recipes_addShapedRecipe_2(recipes, &result, &line1, &line2, &types);
+    recipes->addShapedRecipe_2(&result, &line1, &line2, &types);
 }
 
 // Custom Furnace Fuel
@@ -372,3 +372,4 @@ void init_bucket() {
         misc_run_on_language_setup(Language_injection);
     }
 }
+

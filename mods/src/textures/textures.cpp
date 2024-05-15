@@ -20,7 +20,7 @@ static void Minecraft_tick_injection(Minecraft *minecraft) {
     // Tick Dynamic Textures
     Textures *textures = minecraft->textures;
     if (textures != nullptr) {
-        Textures_tick(textures, true);
+        textures->tick(true);
     }
 }
 
@@ -236,3 +236,4 @@ void init_textures() {
     // Load Textures
     overwrite_virtual_calls(AppPlatform_linux_loadTexture, AppPlatform_linux_loadTexture_injection);
 }
+

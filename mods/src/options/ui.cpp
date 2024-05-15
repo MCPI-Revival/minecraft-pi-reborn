@@ -12,10 +12,10 @@
 // The calling function doesn't exist in MCPE v0.6.1, so its name is unknown.
 static OptionButton *OptionsPane_unknown_toggle_creating_function_OptionButton_injection(OptionButton *option_button, Options_Option *option) {
     // Call Original Method
-    OptionButton *ret = OptionButton_constructor(option_button, option);
+    OptionButton *ret = option_button->constructor(option);
 
     // Setup Image
-    OptionButton_updateImage(option_button, stored_options);
+    option_button->updateImage(stored_options);
 
     // Return
     return ret;
@@ -87,7 +87,7 @@ static void OptionButton_toggle_Options_save_injection(Options *self) {
         self->game_difficulty = 0;
     }
     // Call Original Method
-    Options_save(self);
+    self->save();
 }
 
 // Add "Reborn" Info Button

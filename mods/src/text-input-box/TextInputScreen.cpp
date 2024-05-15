@@ -54,3 +54,4 @@ void TextInputScreen::setup(Screen_vtable *vtable) {
         delete self->m_textInputs;
     };
 }
+

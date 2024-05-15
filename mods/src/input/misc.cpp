@@ -29,7 +29,7 @@ static void _handle_back(Minecraft *minecraft) {
     }
     // Send Event
     for (int i = 0; i < back_button_presses; i++) {
-        minecraft->vtable->handleBack(minecraft, 0);
+        minecraft->handleBack(0);
     }
     back_button_presses = 0;
 }
@@ -38,7 +38,7 @@ static void _handle_back(Minecraft *minecraft) {
 static bool OptionsScreen_handleBackEvent_injection(OptionsScreen *screen, bool do_nothing) {
     if (!do_nothing) {
         Minecraft *minecraft = screen->minecraft;
-        Minecraft_setScreen(minecraft, nullptr);
+        minecraft->setScreen(nullptr);
     }
     return true;
 }
@@ -48,11 +48,11 @@ static bool InBedScreen_handleBackEvent_injection(InBedScreen *screen, bool do_n
     if (!do_nothing) {
         // Close Screen
         Minecraft *minecraft = screen->minecraft;
-        Minecraft_setScreen(minecraft, nullptr);
+        minecraft->setScreen(nullptr);
         // Stop Sleeping
         LocalPlayer *player = minecraft->player;
         if (player != nullptr) {
-            player->vtable->stopSleepInBed(player, 1, 1, 1);
+            player->stopSleepInBed(1, 1, 1);
         }
     }
     return true;
@@ -68,10 +68,10 @@ void input_set_mouse_grab_state(int state) {
 static void _handle_mouse_grab(Minecraft *minecraft) {
     if (mouse_grab_state == -1) {
         // Grab
-        Minecraft_grabMouse(minecraft);
+        minecraft->grabMouse();
     } else if (mouse_grab_state == 1) {
         // Un-Grab
-        Minecraft_releaseMouse(minecraft);
+        minecraft->releaseMouse();
     }
     mouse_grab_state = 0;
 }
@@ -83,7 +83,7 @@ static bool Gui_tickItemDrop_Minecraft_isCreativeMode_call_injection(Minecraft *
     bool is_in_game = minecraft->screen == nullptr || minecraft->screen->vtable == (Screen_vtable *) Touch_IngameBlockSelectionScreen_vtable_base;
     if (!enable_misc || (SDL_WM_GrabInput(SDL_GRAB_QUERY) == SDL_GRAB_OFF && is_in_game)) {
         // Call Original Method
-        return creative_is_restricted() && Minecraft_isCreativeMode(minecraft);
+        return creative_is_restricted() && minecraft->isCreativeMode();
     } else {
         // Disable Item Drop Ticking
         return 1;
@@ -115,3 +115,4 @@ void _init_misc() {
     input_run_on_tick(_handle_back);
     input_run_on_tick(_handle_mouse_grab);
 }
+

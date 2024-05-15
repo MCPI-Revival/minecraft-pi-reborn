@@ -35,8 +35,8 @@ static void LocalPlayer_openTextEdit_injection(LocalPlayer *local_player, TileEn
         Minecraft *minecraft = local_player->minecraft;
         TextEditScreen *screen = alloc_TextEditScreen();
         ALLOC_CHECK(screen);
-        screen = TextEditScreen_constructor(screen, (SignTileEntity *) sign);
-        Minecraft_setScreen(minecraft, (Screen *) screen);
+        screen = screen->constructor((SignTileEntity *) sign);
+        minecraft->setScreen((Screen *) screen);
     }
 }
 
@@ -55,3 +55,4 @@ void init_sign() {
     // Handle Backspace
     overwrite_calls(Common_sdl_key_to_minecraft_key, sdl_key_to_minecraft_key_injection);
 }
+

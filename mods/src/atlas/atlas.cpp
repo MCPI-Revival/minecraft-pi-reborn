@@ -15,10 +15,10 @@ static void ItemRenderer_renderGuiItemCorrect_injection(ItemRenderer_renderGuiIt
     bool use_carried = false;
     if (item_instance != nullptr) {
         if (item_instance->id == leaves_id) {
-            ItemInstance_constructor_tile_extra(&carried_item_instance, Tile_leaves_carried, item_instance->count, item_instance->auxiliary);
+            carried_item_instance.constructor_tile_extra(Tile_leaves_carried, item_instance->count, item_instance->auxiliary);
             use_carried = true;
         } else if (item_instance->id == grass_id) {
-            ItemInstance_constructor_tile_extra(&carried_item_instance, Tile_grass_carried, item_instance->count, item_instance->auxiliary);
+            carried_item_instance.constructor_tile_extra(Tile_grass_carried, item_instance->count, item_instance->auxiliary);
             use_carried = true;
         }
     }
@@ -64,12 +64,12 @@ static void Tesselator_begin_injection(Tesselator_begin_t original, Tesselator *
     // Fix Furnace UI
     if (item_color_fix_mode != 0) {
         // Implict Translucent
-        Tesselator_color(tesselator, 0xff, 0xff, 0xff, 0xff);
+        tesselator->color(0xff, 0xff, 0xff, 0xff);
     }
 }
 static void InventoryPane_renderBatch_Tesselator_color_injection(Tesselator *tesselator, int32_t r, int32_t g, int32_t b) {
     // Call Original Method
-    Tesselator_color(tesselator, r, g, b, 0xff);
+    tesselator->color(r, g, b, 0xff);
 
     // Enable Item Color Fix
     item_color_fix_mode = 2;
@@ -86,7 +86,7 @@ static void FurnaceScreen_render_ItemRenderer_renderGuiItem_one_injection(Font *
     item_color_fix_mode = 1;
 
     // Call Original Method
-    ItemRenderer_renderGuiItem_one(font, textures, item_instance, param_1, param_2, param_3);
+    ItemRenderer::renderGuiItem_one(font, textures, item_instance, param_1, param_2, param_3);
 }
 
 // Init
@@ -107,3 +107,4 @@ void init_atlas() {
         overwrite_call((void *) 0x1e21c, (void *) InventoryPane_renderBatch_Tesselator_color_injection);
     }
 }
+

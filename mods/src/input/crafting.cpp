@@ -18,8 +18,8 @@ static void _handle_open_crafting(Minecraft *minecraft) {
         if (!creative_is_restricted() || !Minecraft_isCreativeMode(minecraft)) {
             WorkbenchScreen *screen = alloc_WorkbenchScreen();
             ALLOC_CHECK(screen);
-            screen = WorkbenchScreen_constructor(screen, 0);
-            Minecraft_setScreen(minecraft, (Screen *) screen);
+            screen = screen->constructor(0);
+            minecraft->setScreen((Screen *) screen);
         }
     }
 }
@@ -28,3 +28,4 @@ static void _handle_open_crafting(Minecraft *minecraft) {
 void _init_crafting() {
     input_run_on_tick(_handle_open_crafting);
 }
+

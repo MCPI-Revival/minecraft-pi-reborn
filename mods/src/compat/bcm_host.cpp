@@ -17,3 +17,4 @@ void _patch_bcm_host_calls() {
     overwrite_call((void *) 0x12618, (void *) do_nothing); // vc_dispmanx_element_add
     overwrite_call((void *) 0x12624, (void *) do_nothing); // vc_dispmanx_update_submit_sync
 }
+

@@ -97,3 +97,4 @@ void _init_toggle() {
         overwrite_calls(ParticleEngine_render, ParticleEngine_render_injection);
     }
 }
+

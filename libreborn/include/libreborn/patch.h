@@ -14,13 +14,6 @@ void reborn_init_patch();
 void _overwrite_call(const char *file, int line, void *start, void *target);
 #define overwrite_call(start, target) _overwrite_call(__FILE__, __LINE__, start, target)
 
-#define _check_if_method_is_new(name) \
-    { \
-        if (!__is_new_method_##name()) { \
-            ERR("Method Is Not \"New\""); \
-        } \
-    }
-
 #define _setup_fancy_overwrite(start, name, target) \
     static name##_t _original_for_##target = start; \
     static name##_t _helper_for_##target = __overwrite_helper_for_##name(target, _original_for_##target)
@@ -35,6 +28,12 @@ void *_overwrite_calls(const char *file, int line, void *start, void *target);
     }
 
 // Replace All Calls To Virtual Method start With target
+#define _check_if_method_is_new(name) \
+    { \
+        if (!__is_new_method_##name()) { \
+            ERR("Method Is Not \"New\""); \
+        } \
+    }
 #define overwrite_virtual_calls(start, target) \
     { \
         _check_if_method_is_new(start); \

@@ -27,3 +27,4 @@ bool _feature_has(const char *name) {
     // Return
     return ret;
 }
+

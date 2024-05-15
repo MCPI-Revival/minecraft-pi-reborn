@@ -74,7 +74,7 @@ static int32_t Textures_loadAndBindTexture_injection(Textures *textures, __attri
     }
 
     // Call Original Method
-    return Textures_loadAndBindTexture(textures, &new_texture);
+    return textures->loadAndBindTexture(&new_texture);
 }
 
 // Init
@@ -95,3 +95,4 @@ void init_skin() {
         _init_skin_loader();
     }
 }
+

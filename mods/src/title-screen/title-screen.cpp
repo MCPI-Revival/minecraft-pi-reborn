@@ -17,7 +17,7 @@ static void StartMenuScreen_render_Screen_renderBackground_injection(Screen *scr
     Minecraft *minecraft = screen->minecraft;
     Textures *textures = minecraft->textures;
     std::string texture = "gui/titleBG.png";
-    Textures_loadAndBindTexture(textures, &texture);
+    textures->loadAndBindTexture(&texture);
     screen->blit(0, 0, 0, 0, screen->width, screen->height, 0x100, 0x100);
 }
 
@@ -99,9 +99,9 @@ static void StartMenuScreen_render_Screen_render_injection(Screen *screen, int x
         glTranslatef(splash_x, splash_y, 0.0f);
         glRotatef(-20.0f, 0.0f, 0.0f, 1.0f);
         // Scale
-        int textWidth = Font_width(screen->font, &current_splash);
+        int textWidth = screen->font->width(&current_splash);
         float timeMS = float(Common_getTimeMs() % 1000) / 1000.0f;
-        float scale = max_scale - Mth_abs(0.1f * Mth_sin(2.0f * float(M_PI) * timeMS));
+        float scale = max_scale - Mth::abs(0.1f * Mth::sin(2.0f * float(M_PI) * timeMS));
         float real_text_width = textWidth * max_scale;
         if (real_text_width > max_width) {
             scale *= max_width / real_text_width;
@@ -166,3 +166,4 @@ void init_title_screen() {
         srand(time(nullptr));
     }
 }
+

@@ -104,3 +104,4 @@ HOOK(fopen64, FILE *, (const char *filename, const char *mode)) {
     // Return File
     return file;
 }
+

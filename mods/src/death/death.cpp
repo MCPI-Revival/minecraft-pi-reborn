@@ -13,10 +13,10 @@ std::string get_death_message(Player *player, Entity *cause, bool was_shot = fal
     std::string message = player->username;
     if (cause) {
         // Entity cause
-        int type_id = cause->vtable->getEntityTypeId(cause);
-        int aux = cause->vtable->getAuxData(cause);
-        bool is_player = cause->vtable->isPlayer(cause);
-        if (cause->vtable->getCreatureBaseType(cause) != 0 || is_player) {
+        int type_id = cause->getEntityTypeId();
+        int aux = cause->getAuxData();
+        bool is_player = cause->isPlayer();
+        if (cause->getCreatureBaseType() != 0 || is_player) {
             // Killed by a creature
             if (was_shot) {
                 message += " was shot by ";
@@ -38,12 +38,12 @@ std::string get_death_message(Player *player, Entity *cause, bool was_shot = fal
         } else if (aux) {
             // Killed by a throwable with owner
             Level *level = player->level;
-            Entity *shooter = Level_getEntity(level, aux);
+            Entity *shooter = level->getEntity(aux);
             return get_death_message(player, shooter, true);
         } else if (type_id == 65) {
             // Blown up by TNT
             return message + " was blown apart";
-        } else if (cause->vtable->isHangingEntity(cause)) {
+        } else if (cause->isHangingEntity()) {
             // Painting?
             return message + " admired too much art";
         }
@@ -81,13 +81,13 @@ static bool Mob_hurt_injection(Mob_hurt_t original, Mob *mob, Entity *source, in
         /* Get Variable */ \
         RakNetInstance *rak_net_instance = player->minecraft->rak_net_instance; \
         /* Only Run On Server-Side */ \
-        if (rak_net_instance->vtable->isServer(rak_net_instance)) { \
+        if (rak_net_instance->isServer()) { \
             /* Get Death Message */ \
             std::string message = get_death_message((Player *) player, cause); \
             \
             /* Post Death Message */ \
             ServerSideNetworkHandler *server_side_network_handler = (ServerSideNetworkHandler *) player->minecraft->network_handler; \
-            ServerSideNetworkHandler_displayGameMessage(server_side_network_handler, &message); \
+            server_side_network_handler->displayGameMessage(&message); \
         } \
     }
 #define Player_actuallyHurt_injections(type) \
@@ -105,7 +105,7 @@ static bool Mob_hurt_injection(Mob_hurt_t original, Mob *mob, Entity *source, in
         /* Get Variables */ \
         RakNetInstance *rak_net_instance = player->minecraft->rak_net_instance; \
         /* Only Run On Server-Side */ \
-        if (rak_net_instance->vtable->isServer(rak_net_instance)) { \
+        if (rak_net_instance->isServer()) { \
             /* Check Health */ \
             if (new_health < 1 && old_health >= 1) { \
                 /* Get Death Message */ \
@@ -113,7 +113,7 @@ static bool Mob_hurt_injection(Mob_hurt_t original, Mob *mob, Entity *source, in
                 \
                 /* Post Death Message */ \
                 ServerSideNetworkHandler *server_side_network_handler = (ServerSideNetworkHandler *) player->minecraft->network_handler; \
-                ServerSideNetworkHandler_displayGameMessage(server_side_network_handler, &message); \
+                server_side_network_handler->displayGameMessage(&message); \
             } \
         } \
     }
@@ -144,3 +144,4 @@ void init_death() {
     unsigned char ldr_r0_24_patch[4] = {0x24, 0x00, 0x90, 0xe5}; // "ldr r0, [r0, #0x24]"
     patch((void *) 0x8799c, ldr_r0_24_patch);
 }
+

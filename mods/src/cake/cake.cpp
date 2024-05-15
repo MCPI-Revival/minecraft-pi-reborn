@@ -31,7 +31,7 @@ static int Cake_getTexture2(__attribute__((unused)) Tile *tile, int face, __attr
 static int Cake_getTexture3(__attribute__((unused)) Tile *tile, LevelSource *level, int x, int y, int z, int face) {
     // Eaten face
     if (face == 3) {
-        int data = level->vtable->getData(level, x, y, z);
+        int data = level->getData(x, y, z);
         if (data != 0 && data < 6) {
             // Sliced texture
             return 123;
@@ -59,8 +59,7 @@ static bool Cake_isCubeShaped(__attribute__((unused)) Tile *tile) {
 // Size
 static void Cake_updateDefaultShape(Tile *tile) {
     // Set the default shape
-    tile->vtable->setShape(
-        tile,
+    tile->setShape(
         CAKE_LEN,       0.0, CAKE_LEN,
         1.0 - CAKE_LEN, 0.5, 1.0 - CAKE_LEN
     );
@@ -68,7 +67,7 @@ static void Cake_updateDefaultShape(Tile *tile) {
 
 static AABB *Cake_getAABB(Tile *tile, Level *level, int x, int y, int z) {
     // Get the size of the slices
-    int data = level->vtable->getData(level, x, y, z);
+    int data = level->getData(x, y, z);
     if (data >= 6) data = 0;
     float slice_size = (1.0 / 7.0) * (float) data;
 
@@ -88,12 +87,11 @@ static AABB *Cake_getAABB(Tile *tile, Level *level, int x, int y, int z) {
 
 static void Cake_updateShape(Tile *tile, LevelSource *level, int x, int y, int z) {
     // Set cake
-    int data = level->vtable->getData(level, x, y, z);
+    int data = level->getData(x, y, z);
     if (data >= 6) data = 0;
     // Get slice amount
     float slice_size = (1.0 / 7.0) * (float) data;
-    tile->vtable->setShape(
-        tile,
+    tile->setShape(
         CAKE_LEN,       0.0, CAKE_LEN,
         1.0 - CAKE_LEN, 0.5, (1.0 - CAKE_LEN) - slice_size
     );
@@ -102,15 +100,15 @@ static void Cake_updateShape(Tile *tile, LevelSource *level, int x, int y, int z
 // Eating
 static int Cake_use(__attribute__((unused)) Tile *tile, Level *level, int x, int y, int z, Player *player) {
     // Eat
-    SimpleFoodData_eat(&player->foodData, 3);
+    player->foodData.eat(3);
     // Set the new tile
-    int data = level->vtable->getData(level, x, y, z);
+    int data = level->getData(x, y, z);
     if (data >= 5) {
         // Remove the cake, it has been completely gobbled up
-        Level_setTileAndData(level, x, y, z, 0, 0);
+        level->setTileAndData(x, y, z, 0, 0);
     } else {
         // Remove a slice
-        Level_setTileAndData(level, x, y, z, 92, data + 1);
+        level->setTileAndData(x, y, z, 92, data + 1);
     }
     return 1;
 }
@@ -121,7 +119,7 @@ static void make_cake() {
     cake = alloc_Tile();
     ALLOC_CHECK(cake);
     int texture = 122;
-    Tile_constructor(cake, 92, texture, Material_dirt);
+    cake->constructor(92, texture, Material_dirt);
     cake->texture = texture;
 
     // Set VTable
@@ -129,8 +127,7 @@ static void make_cake() {
     ALLOC_CHECK(cake->vtable);
 
     // Set shape
-    cake->vtable->setShape(
-        cake,
+    cake->setShape(
         CAKE_LEN,       0.0, CAKE_LEN,
         1.0 - CAKE_LEN, 0.5, 1.0 - CAKE_LEN
     );
@@ -148,12 +145,12 @@ static void make_cake() {
     cake->vtable->use = Cake_use;
 
     // Init
-    Tile_init(cake);
-    cake->vtable->setDestroyTime(cake, 1.0f);
-    cake->vtable->setExplodeable(cake, 20.0f);
+    cake->init();
+    cake->setDestroyTime(1.0f);
+    cake->setExplodeable(20.0f);
     cake->category = 4;
     std::string name = "Cake";
-    cake->vtable->setDescriptionId(cake, &name);
+    cake->setDescriptionId(&name);
 }
 
 static void Tile_initTiles_injection(__attribute__((unused)) void *null) {
@@ -167,7 +164,7 @@ static void Inventory_setupDefault_FillingContainer_addItem_call_injection(Filli
     cake_instance->count = 255;
     cake_instance->auxiliary = 0;
     cake_instance->id = 92;
-    FillingContainer_addItem(filling_container, cake_instance);
+    filling_container->addItem(cake_instance);
 }
 
 // Recipe (only when buckets are enabled)
@@ -227,7 +224,7 @@ static void Recipes_injection(Recipes *recipes) {
     std::string line2 = "ses";
     std::string line3 = "www";
     std::vector<Recipes_Type> ingredients = {milk, sugar, wheat, eggs};
-    Recipes_addShapedRecipe_3(recipes, &cake_item, &line1, &line2, &line3, &ingredients);
+    recipes->addShapedRecipe_3(&cake_item, &line1, &line2, &line3, &ingredients);
 }
 
 void init_cake() {
@@ -241,3 +238,4 @@ void init_cake() {
         }
     }
 }
+

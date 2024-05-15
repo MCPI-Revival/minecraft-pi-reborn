@@ -70,9 +70,9 @@ CUSTOM_VTABLE(create_world_screen, Screen) {
         CreateWorldScreen *self = (CreateWorldScreen *) super;
         delete self->name;
         delete self->seed;
-        self->game_mode->vtable->destructor_deleting(self->game_mode);
-        self->back->vtable->destructor_deleting(self->back);
-        self->create->vtable->destructor_deleting(self->create);
+        self->game_mode->destructor_deleting();
+        self->back->destructor_deleting();
+        self->create->destructor_deleting();
     };
     // Rendering
     static Screen_render_t original_render = vtable->render;
@@ -125,7 +125,7 @@ CUSTOM_VTABLE(create_world_screen, Screen) {
     // ESC
     vtable->handleBackEvent = [](Screen *super, bool do_nothing) {
         if (!do_nothing) {
-            ScreenChooser_setScreen(&super->minecraft->screen_chooser, 5);
+            super->minecraft->screen_chooser.setScreen(5);
         }
         return true;
     };
@@ -138,7 +138,7 @@ CUSTOM_VTABLE(create_world_screen, Screen) {
             self->game_mode->text = is_creative ? SURVIVAL_STR : CREATIVE_STR;
         } else if (button == self->back) {
             // Back
-            super->vtable->handleBackEvent(super, false);
+            super->handleBackEvent(false);
         } else if (button == self->create) {
             // Create
             create_world(super->minecraft, self->name->getText(), is_creative, self->seed->getText());
@@ -149,7 +149,7 @@ static Screen *create_create_world_screen() {
     // Construct
     CreateWorldScreen *screen = new CreateWorldScreen;
     ALLOC_CHECK(screen);
-    Screen_constructor(&screen->super.super);
+    screen->super.super.constructor();
 
     // Set VTable
     screen->super.super.vtable = get_create_world_screen_vtable();
@@ -162,7 +162,7 @@ static Screen *create_create_world_screen() {
 static std::string getUniqueLevelName(LevelStorageSource *source, const std::string &in) {
     std::set<std::string> maps;
     std::vector<LevelSummary> vls;
-    source->vtable->getLevelList(source, &vls);
+    source->getLevelList(&vls);
     for (int i = 0; i < int(vls.size()); i++) {
         const LevelSummary &ls = vls[i];
         maps.insert(ls.folder);
@@ -178,20 +178,20 @@ static std::string getUniqueLevelName(LevelStorageSource *source, const std::str
 static void create_world(Minecraft *minecraft, std::string name, bool is_creative, std::string seed_str) {
     // Get Seed
     int seed;
-    seed_str = Util_stringTrim(&seed_str);
+    seed_str = Util::stringTrim(&seed_str);
     if (!seed_str.empty()) {
         int num;
         if (sscanf(seed_str.c_str(), "%d", &num) > 0) {
             seed = num;
         } else {
-            seed = Util_hashCode(&seed_str);
+            seed = Util::hashCode(&seed_str);
         }
     } else {
-        seed = Common_getEpochTimeS();
+        seed = Common::getEpochTimeS();
     }
 
     // Get Folder Name
-    name = Util_stringTrim(&name);
+    name = Util::stringTrim(&name);
     std::string folder = "";
     for (char c : name) {
         if (
@@ -221,16 +221,16 @@ static void create_world(Minecraft *minecraft, std::string name, bool is_creativ
     settings.seed = seed;
 
     // Create World
-    minecraft->vtable->selectLevel(minecraft, &folder, &name, &settings);
+    minecraft->selectLevel(&folder, &name, &settings);
 
     // Multiplayer
-    Minecraft_hostMultiplayer(minecraft, 19132);
+    minecraft->hostMultiplayer(19132);
 
     // Open ProgressScreen
     ProgressScreen *screen = alloc_ProgressScreen();
     ALLOC_CHECK(screen);
-    screen = ProgressScreen_constructor(screen);
-    Minecraft_setScreen(minecraft, (Screen *) screen);
+    screen = screen->constructor();
+    minecraft->setScreen((Screen *) screen);
 }
 
 // Redirect Create World Button
@@ -238,7 +238,7 @@ static void create_world(Minecraft *minecraft, std::string name, bool is_creativ
     static void prefix##SelectWorldScreen_tick_injection(prefix##SelectWorldScreen_tick_t original, prefix##SelectWorldScreen *screen) { \
         if (screen->should_create_world) { \
             /* Open Screen */ \
-            Minecraft_setScreen(screen->minecraft, create_create_world_screen()); \
+            screen->minecraft->setScreen(create_create_world_screen()); \
             /* Finish */ \
             screen->should_create_world = false; \
         } else { \

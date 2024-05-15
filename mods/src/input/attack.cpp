@@ -39,7 +39,7 @@ static int32_t MouseBuildInput_tickBuild_injection(MouseBuildInput_tickBuild_t o
 static bool last_player_attack_successful = false;
 static bool Player_attack_Entity_hurt_injection(Entity *entity, Entity *attacker, int32_t damage) {
     // Call Original Method
-    last_player_attack_successful = entity->vtable->hurt(entity, attacker, damage);
+    last_player_attack_successful = entity->hurt(attacker, damage);
     return last_player_attack_successful;
 }
 static ItemInstance *Player_attack_Inventory_getSelected_injection(Inventory *inventory) {
@@ -49,7 +49,7 @@ static ItemInstance *Player_attack_Inventory_getSelected_injection(Inventory *in
     }
 
     // Call Original Method
-    return Inventory_getSelected(inventory);
+    return inventory->getSelected();
 }
 
 // Init
@@ -63,3 +63,4 @@ void _init_attack() {
         overwrite_call((void *) 0x8fc24, (void *) Player_attack_Inventory_getSelected_injection);
     }
 }
+

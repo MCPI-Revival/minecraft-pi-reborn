@@ -34,7 +34,7 @@ static void _handle_drop(Minecraft *minecraft) {
             Inventory *inventory = player->inventory;
 
             // Get Item
-            ItemInstance *inventory_item = inventory->vtable->getItem(inventory, selected_slot);
+            ItemInstance *inventory_item = inventory->getItem(selected_slot);
             // Check
             if (inventory_item != nullptr && inventory_item->count > 0) {
                 // Copy
@@ -64,7 +64,7 @@ static void _handle_drop(Minecraft *minecraft) {
                 }
 
                 // Drop
-                player->vtable->drop(player, dropped_item, false);
+                player->drop(dropped_item, false);
             }
         }
     }
@@ -78,3 +78,4 @@ void _init_drop() {
     enable_drop = feature_has("Bind \"Q\" Key To Item Dropping", server_disabled);
     input_run_on_tick(_handle_drop);
 }
+

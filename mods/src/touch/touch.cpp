@@ -19,8 +19,8 @@ static unsigned char *operator_new_IngameBlockSelectionScreen_injection(__attrib
 // Improved Button Hover Behavior
 static int32_t Button_hovered_injection(__attribute__((unused)) Button *button, __attribute__((unused)) Minecraft *minecraft, __attribute__((unused)) int32_t click_x, __attribute__((unused)) int32_t click_y) {
     // Get Mouse Position
-    int32_t x = Mouse_getX() * Gui_InvGuiScale;
-    int32_t y = Mouse_getY() * Gui_InvGuiScale;
+    int32_t x = Mouse::getX() * Gui_InvGuiScale;
+    int32_t y = Mouse::getY() * Gui_InvGuiScale;
 
     // Get Button Position
     int32_t button_x1 = button->x;
@@ -38,25 +38,24 @@ static void LargeImageButton_render_GuiComponent_drawCenteredString_injection(Gu
     }
 
     // Call Original Method
-    GuiComponent_drawCenteredString(component, font, text, x, y, color);
+    component->drawCenteredString(font, text, x, y, color);
 }
 
 // Create Button
 int touch_gui = 0;
-Button *touch_create_button(int id, std::string text) {
-    Button *button = nullptr;
-    if (touch_gui) {
-        button = (Button *) new Touch_TButton;
-    } else {
-        button = new Button;
-    }
+template <typename T>
+static Button *create_button(T *(*allocator)(), int id, std::string text) {
+    T *button = allocator();
     ALLOC_CHECK(button);
+    button->constructor(id, &text);
+    return (Button *) button;
+}
+Button *touch_create_button(int id, std::string text) {
     if (touch_gui) {
-        Touch_TButton_constructor((Touch_TButton *) button, id, &text);
+        return create_button(alloc_Touch_TButton, id, text);
     } else {
-        Button_constructor(button, id, &text);
+        return create_button(alloc_Button, id, text);
     }
-    return button;
 }
 
 // Init
@@ -107,3 +106,4 @@ void init_touch() {
     unsigned char outline_patch[4] = {(unsigned char) (block_outlines ? !touch_gui : touch_gui), 0x00, 0x50, 0xe3}; // "cmp r0, #0x1" or "cmp r0, #0x0"
     patch((void *) 0x4a210, outline_patch);
 }
+

@@ -43,7 +43,7 @@ static void Gui_addMessage_injection(Gui_addMessage_t original, Gui *gui, std::s
 static int last_progress = -1;
 static const char *last_message = nullptr;
 static void print_progress(Minecraft *minecraft) {
-    const char *message = Minecraft_getProgressMessage(minecraft);
+    const char *message = minecraft->getProgressMessage();
     int32_t progress = minecraft->progress;
     if (Minecraft_isLevelGenerated(minecraft)) {
         message = "Ready";
@@ -97,3 +97,4 @@ void _init_misc_logging() {
     // Disable stdout Buffering
     setvbuf(stdout, nullptr, _IONBF, 0);
 }
+

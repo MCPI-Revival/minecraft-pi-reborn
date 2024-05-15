@@ -89,17 +89,17 @@ static bool TileRenderer_tesselateBlockInWorld_injection(TileRenderer_tesselateB
 // Hook Last Options::addOptionToSaveOutput Call
 static void Options_save_Options_addOptionToSaveOutput_injection(Options *options, std::vector<std::string> *data, std::string option, int32_t value) {
     // Call Original Method
-    Options_addOptionToSaveOutput(options, data, option, value);
+    options->addOptionToSaveOutput(data, option, value);
 
     // Save Fancy Graphics
-    Options_addOptionToSaveOutput(options, data, "gfx_fancygraphics", options->fancy_graphics);
+    options->addOptionToSaveOutput(data, "gfx_fancygraphics", options->fancy_graphics);
 
     // Save 3D Anaglyph
-    Options_addOptionToSaveOutput(options, data, "gfx_anaglyph", options->anaglyph_3d);
+    options->addOptionToSaveOutput(data, "gfx_anaglyph", options->anaglyph_3d);
 
     // Save File
     OptionsFile *options_file = &options->options_file;
-    OptionsFile_save(options_file, data);
+    options_file->save(data);
 }
 
 // MCPI's OptionsFile::getOptionStrings is broken, this is the version in v0.7.0
@@ -247,3 +247,4 @@ void init_options() {
     // UI
     _init_options_ui();
 }
+

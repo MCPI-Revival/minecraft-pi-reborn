@@ -142,3 +142,4 @@ void _init_skin_loader() {
     // Log
     DEBUG("Skin Server: %s", get_skin_server().c_str());
 }
+

@@ -20,7 +20,7 @@ static void _handle_bow(Minecraft *minecraft) {
         GameMode *game_mode = minecraft->game_mode;
         LocalPlayer *player = minecraft->player;
         if (player != nullptr && game_mode != nullptr && player->isUsingItem()) {
-            game_mode->vtable->releaseUsingItem(game_mode, (Player *) player);
+            game_mode->releaseUsingItem((Player *) player);
         }
     }
 }
@@ -31,3 +31,4 @@ void _init_bow() {
     fix_bow = feature_has("Fix Bow & Arrow", server_disabled);
     input_run_on_tick(_handle_bow);
 }
+
