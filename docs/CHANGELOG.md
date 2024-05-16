@@ -23,6 +23,7 @@
   * `Force Survival Mode Inventory UI` (Disabled By Default)
   * `Force Survival Mode Inventory Behavior` (Disabled By Default)
   * `Maximize Creative Mode Inventory Stack Size` (Disabled By Default)
+* Rename `Disable Buggy Held Item Caching` Feature Flag To `Fix Held Item Caching`
 * Add Milk Buckets
 * Implement Crafting Remainders
 * Improve Death Messages

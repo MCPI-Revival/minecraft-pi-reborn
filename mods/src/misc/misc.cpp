@@ -578,7 +578,7 @@ static void glColor4f_injection(__attribute__((unused)) GLfloat red, __attribute
         line_width = strtof(custom_line_width, nullptr);
     } else {
         // Guess
-        line_width = 2 / Gui_InvGuiScale;
+        line_width = 1.5f / Gui_InvGuiScale;
     }
     // Clamp Line Width
     float range[2];
@@ -959,7 +959,7 @@ void init_misc() {
     overwrite_calls(Player_stopUsingItem, Player_stopUsingItem_injection);
 
     // Fix invalid ItemInHandRenderer texture cache
-    if (feature_has("Disable Buggy Held Item Caching", server_disabled)) {
+    if (feature_has("Fix Held Item Caching", server_disabled)) {
         // This works by forcing MCPI to always use the branch that enables using the
         // cache, but then patches that as well to do the opposite
         uchar ensure_equal_patch[] = {0x07, 0x00, 0x57, 0xe1}; // "cmp r7, r7"
