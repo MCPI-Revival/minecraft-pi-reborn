@@ -152,7 +152,7 @@ void init_title_screen() {
         }
 
         // Rename "Create" Button To "Quit"
-        patch_address((void *) Strings_classic_create_button_text_pointer, (void *) "Quit");
+        patch_address((void *) &Strings::classic_create_button_text, (void *) "Quit");
 
         // Add Functionality To Quit Button
         overwrite_virtual_calls(StartMenuScreen_buttonClicked, StartMenuScreen_buttonClicked_injection);

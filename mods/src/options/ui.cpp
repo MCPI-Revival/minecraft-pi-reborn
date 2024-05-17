@@ -27,9 +27,9 @@ static void OptionsPane_unknown_toggle_creating_function_injection(OptionsPane_u
     std::string name = *name_ptr;
     std::string new_name = name;
     if (name == "Fancy Graphics") {
-        option = &Options_Option_GRAPHICS;
+        option = &Options_Option::GRAPHICS;
     } else if (name == "Soft shadows") {
-        option = &Options_Option_AMBIENT_OCCLUSION;
+        option = &Options_Option::AMBIENT_OCCLUSION;
     } else if (name == "Fancy Skies" || name == "Animated water") {
         // These have no corresponding option, so disable the toggle.
         return;
@@ -51,24 +51,24 @@ static void OptionsPane_unknown_toggle_creating_function_injection(OptionsPane_u
     original(options_pane, group_id, &new_name, option);
 
     // Add 3D Anaglyph
-    if (option == &Options_Option_GRAPHICS) {
+    if (option == &Options_Option::GRAPHICS) {
         std::string cpp_string = "3D Anaglyph";
-        original(options_pane, group_id, &cpp_string, &Options_Option_ANAGLYPH);
+        original(options_pane, group_id, &cpp_string, &Options_Option::ANAGLYPH);
     }
 
     // Add Peaceful Mode
-    if (option == &Options_Option_SERVER_VISIBLE) {
+    if (option == &Options_Option::SERVER_VISIBLE) {
         std::string cpp_string = "Peaceful mode";
-        original(options_pane, group_id, &cpp_string, &Options_Option_DIFFICULTY);
+        original(options_pane, group_id, &cpp_string, &Options_Option::DIFFICULTY);
     }
 }
 
 // Add Missing Options To Options::getBooleanValue
 static bool Options_getBooleanValue_injection(Options_getBooleanValue_t original, Options *options, Options_Option *option) {
     // Check
-    if (option == &Options_Option_GRAPHICS) {
+    if (option == &Options_Option::GRAPHICS) {
         return options->fancy_graphics;
-    } else if (option == &Options_Option_DIFFICULTY) {
+    } else if (option == &Options_Option::DIFFICULTY) {
         return options->game_difficulty == 0;
     } else {
         // Call Original Method

@@ -24,10 +24,10 @@ static void inventory_add_item(FillingContainer *inventory, Tile *item) {
 // Expand Creative Inventory
 static void Inventory_setupDefault_FillingContainer_addItem_call_injection(FillingContainer *filling_container) {
     // Add Items
-    inventory_add_item(filling_container, Item_flintAndSteel);
-    inventory_add_item(filling_container, Item_snowball);
-    inventory_add_item(filling_container, Item_egg);
-    inventory_add_item(filling_container, Item_shears);
+    inventory_add_item(filling_container, Item::flintAndSteel);
+    inventory_add_item(filling_container, Item::snowball);
+    inventory_add_item(filling_container, Item::egg);
+    inventory_add_item(filling_container, Item::shears);
     // Dyes
     for (int i = 0; i < 16; i++) {
         if (i == 15) {
@@ -36,23 +36,23 @@ static void Inventory_setupDefault_FillingContainer_addItem_call_injection(Filli
         }
         ItemInstance *new_item_instance = new ItemInstance;
         ALLOC_CHECK(new_item_instance);
-        new_item_instance = new_item_instance->constructor_item_extra(Item_dye_powder, 1, i);
+        new_item_instance = new_item_instance->constructor_item_extra(Item::dye_powder, 1, i);
         filling_container->addItem(new_item_instance);
     }
-    inventory_add_item(filling_container, Item_camera);
+    inventory_add_item(filling_container, Item::camera);
     // Add Tiles
-    inventory_add_item(filling_container, Tile_water);
-    inventory_add_item(filling_container, Tile_lava);
-    inventory_add_item(filling_container, Tile_calmWater);
-    inventory_add_item(filling_container, Tile_calmLava);
-    inventory_add_item(filling_container, Tile_glowingObsidian);
-    inventory_add_item(filling_container, Tile_web);
-    inventory_add_item(filling_container, Tile_topSnow);
-    inventory_add_item(filling_container, Tile_ice);
-    inventory_add_item(filling_container, Tile_invisible_bedrock);
-    inventory_add_item(filling_container, Tile_bedrock);
-    inventory_add_item(filling_container, Tile_info_updateGame1);
-    inventory_add_item(filling_container, Tile_info_updateGame2);
+    inventory_add_item(filling_container, Tile::water);
+    inventory_add_item(filling_container, Tile::lava);
+    inventory_add_item(filling_container, Tile::calmWater);
+    inventory_add_item(filling_container, Tile::calmLava);
+    inventory_add_item(filling_container, Tile::glowingObsidian);
+    inventory_add_item(filling_container, Tile::web);
+    inventory_add_item(filling_container, Tile::topSnow);
+    inventory_add_item(filling_container, Tile::ice);
+    inventory_add_item(filling_container, Tile::invisible_bedrock);
+    inventory_add_item(filling_container, Tile::bedrock);
+    inventory_add_item(filling_container, Tile::info_updateGame1);
+    inventory_add_item(filling_container, Tile::info_updateGame2);
     // Nether Reactor
     for (int i = 0; i < 3; i++) {
         if (i == 0) {
@@ -61,7 +61,7 @@ static void Inventory_setupDefault_FillingContainer_addItem_call_injection(Filli
         }
         ItemInstance *new_item_instance = new ItemInstance;
         ALLOC_CHECK(new_item_instance);
-        new_item_instance = new_item_instance->constructor_tile_extra(Tile_netherReactor, 1, i);
+        new_item_instance = new_item_instance->constructor_tile_extra(Tile::netherReactor, 1, i);
         filling_container->addItem(new_item_instance);
     }
     // Tall Grass
@@ -72,14 +72,14 @@ static void Inventory_setupDefault_FillingContainer_addItem_call_injection(Filli
         }
         ItemInstance *new_item_instance = new ItemInstance;
         ALLOC_CHECK(new_item_instance);
-        new_item_instance = new_item_instance->constructor_tile_extra(Tile_tallgrass, 1, i);
+        new_item_instance = new_item_instance->constructor_tile_extra(Tile::tallgrass, 1, i);
         filling_container->addItem(new_item_instance);
     }
     // Smooth Stone Slab
     {
         ItemInstance *new_item_instance = new ItemInstance;
         ALLOC_CHECK(new_item_instance);
-        new_item_instance = new_item_instance->constructor_tile_extra(Tile_stoneSlab, 1, 6);
+        new_item_instance = new_item_instance->constructor_tile_extra(Tile::stoneSlab, 1, 6);
         filling_container->addItem(new_item_instance);
     }
 }
@@ -95,7 +95,7 @@ static TileItem *Tile_initTiles_TileItem_injection(TileItem *tile_item, int32_t 
     // Configure Item
     tile_item->is_stacked_by_data = true;
     tile_item->max_damage = 0;
-    ((AuxDataTileItem *) tile_item)->icon_tile = Tile_tiles[id + 0x100];
+    ((AuxDataTileItem *) tile_item)->icon_tile = Tile::tiles[id + 0x100];
 
     // Return
     return tile_item;
@@ -119,7 +119,7 @@ void init_creative() {
         // Inventory can have arbitrary auxiliary values.
         {
             // Fix Size
-            unsigned char size_patch[4] = {AUX_DATA_TILE_ITEM_SIZE, 0x00, 0xa0, 0xe3}; // "mov r0, #AUX_DATA_TILE_ITEM_SIZE"
+            unsigned char size_patch[4] = {sizeof(AuxDataTileItem), 0x00, 0xa0, 0xe3}; // "mov r0, #AUX_DATA_TILE_ITEM_SIZE"
             patch((void *) 0xc6f64, size_patch);
             // Hook Constructor
             overwrite_call((void *) 0xc6f74, (void *) Tile_initTiles_TileItem_injection);

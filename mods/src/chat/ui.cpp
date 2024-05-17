@@ -34,7 +34,7 @@ CUSTOM_VTABLE(chat_screen, Screen) {
         local_history = get_history();
         local_history.push_back("");
         // Determine Max Length
-        std::string prefix = _chat_get_prefix(Strings_default_username);
+        std::string prefix = _chat_get_prefix(Strings::default_username);
         int max_length = MAX_CHAT_MESSAGE_LENGTH - prefix.length();
         self->chat->setMaxLength(max_length);
         // Send Button

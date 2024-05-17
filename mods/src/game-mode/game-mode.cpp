@@ -17,7 +17,7 @@ static void set_is_survival(bool new_is_survival) {
         patch((void *) 0x16efc, inventory_patch);
 
         // Use Correct Size For GameMode Object
-        unsigned char size_patch[4] = {(unsigned char) (new_is_survival ? SURVIVAL_MODE_SIZE : CREATOR_MODE_SIZE), 0x00, 0xa0, 0xe3}; // "mov r0, #SURVIVAL_MODE_SIZE" or "mov r0, #CREATOR_MODE_SIZE"
+        unsigned char size_patch[4] = {(unsigned char) (new_is_survival ? sizeof(SurvivalMode) : sizeof(CreatorMode)), 0x00, 0xa0, 0xe3}; // "mov r0, #SURVIVAL_MODE_SIZE" or "mov r0, #CREATOR_MODE_SIZE"
         patch((void *) 0x16ee4, size_patch);
 
         // Replace Default CreatorMode Constructor With CreatorMode Or SurvivalMode Constructor
@@ -57,7 +57,7 @@ void init_game_mode() {
         overwrite_call((void *) 0x16f84, (void *) ServerLevel_constructor);
 
         // Allocate Correct Size For ServerLevel
-        uint32_t level_size = SERVER_LEVEL_SIZE;
+        uint32_t level_size = sizeof(ServerLevel);
         patch_address((void *) 0x17004, (void *) level_size);
 
         // Disable CreatorMode-Specific API Features (Polling Block Hits) In SurvivalMode, This Is Preferable To Crashing

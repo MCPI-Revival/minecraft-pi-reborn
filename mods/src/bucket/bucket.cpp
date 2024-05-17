@@ -11,9 +11,9 @@ static FoodItem *bucket = nullptr;
 
 // Description And Texture
 static std::string BucketItem_getDescriptionId(__attribute__((unused)) FoodItem *item, ItemInstance *item_instance) {
-    if (item_instance->auxiliary == Tile_water->id) {
+    if (item_instance->auxiliary == Tile::water->id) {
         return "item.bucketWater";
-    } else if (item_instance->auxiliary == Tile_lava->id) {
+    } else if (item_instance->auxiliary == Tile::lava->id) {
         return "item.bucketLava";
     } else if (item_instance->auxiliary == 1) {
         return "item.bucketMilk";
@@ -22,9 +22,9 @@ static std::string BucketItem_getDescriptionId(__attribute__((unused)) FoodItem 
     }
 }
 static int32_t BucketItem_getIcon(__attribute__((unused)) FoodItem *item, int32_t auxiliary) {
-    if (auxiliary == Tile_water->id) {
+    if (auxiliary == Tile::water->id) {
         return 75;
-    } else if (auxiliary == Tile_lava->id) {
+    } else if (auxiliary == Tile::lava->id) {
         return 76;
     } else if (auxiliary == 1) {
         return 77;
@@ -63,10 +63,10 @@ static int32_t BucketItem_useOn(__attribute__((unused)) FoodItem *item, ItemInst
         // Empty Bucket
         int32_t new_auxiliary = 0;
         int32_t tile = level->getTile(x, y, z);
-        if (tile == Tile_calmWater->id) {
-            new_auxiliary = Tile_water->id;
-        } else if (tile == Tile_calmLava->id) {
-            new_auxiliary = Tile_lava->id;
+        if (tile == Tile::calmWater->id) {
+            new_auxiliary = Tile::water->id;
+        } else if (tile == Tile::calmLava->id) {
+            new_auxiliary = Tile::lava->id;
         }
         if (new_auxiliary != 0) {
             // Valid
@@ -114,7 +114,7 @@ static int32_t BucketItem_useOn(__attribute__((unused)) FoodItem *item, ItemInst
         if (material != nullptr) {
             valid = !material->isSolid();
         }
-        if (item_instance->auxiliary != Tile_water->id && item_instance->auxiliary != Tile_lava->id) {
+        if (item_instance->auxiliary != Tile::water->id && item_instance->auxiliary != Tile::lava->id) {
             valid = false;
         }
         if (valid) {
@@ -242,8 +242,8 @@ static void inventory_add_item(FillingContainer *inventory, FoodItem *item, int3
 }
 static void Inventory_setupDefault_FillingContainer_addItem_call_injection(FillingContainer *filling_container) {
     inventory_add_item(filling_container, bucket, 0);
-    inventory_add_item(filling_container, bucket, Tile_water->id);
-    inventory_add_item(filling_container, bucket, Tile_lava->id);
+    inventory_add_item(filling_container, bucket, Tile::water->id);
+    inventory_add_item(filling_container, bucket, Tile::lava->id);
     inventory_add_item(filling_container, bucket, 1);
 }
 
@@ -269,9 +269,9 @@ static void handle_tick(Minecraft *minecraft) {
 
 // Prevent Breaking Liquid
 static bool is_calm_liquid(int32_t id) {
-    if (id == Tile_calmWater->id) {
+    if (id == Tile::calmWater->id) {
         return true;
-    } else if (id == Tile_calmLava->id) {
+    } else if (id == Tile::calmLava->id) {
         return true;
     } else {
         return false;
@@ -320,7 +320,7 @@ static void Recipes_injection(Recipes *recipes) {
 
 // Custom Furnace Fuel
 static int32_t FurnaceTileEntity_getBurnDuration_injection(FurnaceTileEntity_getBurnDuration_t original, ItemInstance *item_instance) {
-    if (item_instance->count > 0 && item_instance->id == bucket->id && item_instance->auxiliary == Tile_lava->id) {
+    if (item_instance->count > 0 && item_instance->id == bucket->id && item_instance->auxiliary == Tile::lava->id) {
         return 20000;
     } else {
         // Call Original Method
@@ -341,7 +341,7 @@ static void FurnaceTileEntity_tick_ItemInstance_setNull_injection(ItemInstance *
 
 // Add the bucket name to the language file
 static void Language_injection(__attribute__((unused)) void *null) {
-    I18n__strings.insert(std::make_pair("item.bucketMilk.name", "Milk Bucket"));
+    I18n::_strings.insert(std::make_pair("item.bucketMilk.name", "Milk Bucket"));
 }
 
 // Init

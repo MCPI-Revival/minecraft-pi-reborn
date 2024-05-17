@@ -8,17 +8,17 @@
 
 // Fix Grass And Leaves Inventory Rendering When The gui_blocks Atlas Is Disabled
 static void ItemRenderer_renderGuiItemCorrect_injection(ItemRenderer_renderGuiItemCorrect_t original, Font *font, Textures *textures, ItemInstance *item_instance, int32_t param_1, int32_t param_2) {
-    int32_t leaves_id = Tile_leaves->id;
-    int32_t grass_id = Tile_grass->id;
+    int32_t leaves_id = Tile::leaves->id;
+    int32_t grass_id = Tile::grass->id;
     // Replace Rendered Item With Carried Variant
     ItemInstance carried_item_instance;
     bool use_carried = false;
     if (item_instance != nullptr) {
         if (item_instance->id == leaves_id) {
-            carried_item_instance.constructor_tile_extra(Tile_leaves_carried, item_instance->count, item_instance->auxiliary);
+            carried_item_instance.constructor_tile_extra(Tile::leaves_carried, item_instance->count, item_instance->auxiliary);
             use_carried = true;
         } else if (item_instance->id == grass_id) {
-            carried_item_instance.constructor_tile_extra(Tile_grass_carried, item_instance->count, item_instance->auxiliary);
+            carried_item_instance.constructor_tile_extra(Tile::grass_carried, item_instance->count, item_instance->auxiliary);
             use_carried = true;
         }
     }

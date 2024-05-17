@@ -119,7 +119,7 @@ static void make_cake() {
     cake = new Tile;
     ALLOC_CHECK(cake);
     int texture = 122;
-    cake->constructor(92, texture, Material_dirt);
+    cake->constructor(92, texture, Material::dirt);
     cake->texture = texture;
 
     // Set VTable

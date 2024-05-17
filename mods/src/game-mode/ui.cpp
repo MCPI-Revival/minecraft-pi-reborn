@@ -88,7 +88,7 @@ CUSTOM_VTABLE(create_world_screen, Screen) {
         // Game Mode Description
         CreateWorldScreen *self = (CreateWorldScreen *) super;
         bool is_creative = self->game_mode->text == CREATIVE_STR;
-        std::string description = is_creative ? Strings_creative_mode_description : Strings_survival_mode_description;
+        std::string description = is_creative ? Strings::creative_mode_description : Strings::survival_mode_description;
         super->drawString(super->font, &description, self->game_mode->x, self->game_mode->y + self->game_mode->height + description_padding, 0xa0a0a0);
     };
     // Positioning

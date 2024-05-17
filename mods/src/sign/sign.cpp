@@ -42,7 +42,7 @@ static void LocalPlayer_openTextEdit_injection(LocalPlayer *local_player, TileEn
 
 // Store Text Input
 void sign_key_press(char key) {
-    Keyboard__inputText.push_back(key);
+    Keyboard::_inputText.push_back(key);
 }
 
 // Init

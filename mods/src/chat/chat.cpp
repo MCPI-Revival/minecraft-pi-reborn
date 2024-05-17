@@ -52,7 +52,7 @@ void chat_handle_packet_send(Minecraft *minecraft, ChatPacket *packet) {
         // Hosting Multiplayer
         const char *message = packet->message.c_str();
         ServerSideNetworkHandler *server_side_network_handler = (ServerSideNetworkHandler *) minecraft->network_handler;
-        chat_send_message(server_side_network_handler, Strings_default_username, (char *) message);
+        chat_send_message(server_side_network_handler, Strings::default_username, (char *) message);
     } else {
         // Client
         rak_net_instance->send((Packet *) packet);

@@ -79,7 +79,7 @@ static void Minecraft_init_injection(Minecraft_init_t original, Minecraft *minec
 // Smooth Lighting
 static bool TileRenderer_tesselateBlockInWorld_injection(TileRenderer_tesselateBlockInWorld_t original, TileRenderer *tile_renderer, Tile *tile, int32_t x, int32_t y, int32_t z) {
     // Set Variable
-    Minecraft_useAmbientOcclusion = stored_options->ambient_occlusion;
+    Minecraft::useAmbientOcclusion = stored_options->ambient_occlusion;
 
     // Call Original Method
     return original(tile_renderer, tile, x, y, z);
@@ -172,11 +172,11 @@ void init_options() {
     // Change Username
     const char *username = get_username();
     DEBUG("Setting Username: %s", username);
-    if (strcmp(Strings_default_username, "StevePi") != 0) {
+    if (strcmp(Strings::default_username, "StevePi") != 0) {
         ERR("Default Username Is Invalid");
     }
     safe_username = to_cp437(username);
-    patch_address((void *) Strings_default_username_pointer, (void *) safe_username);
+    patch_address((void *) &Strings::default_username, (void *) safe_username);
 
     // Disable Autojump By Default
     if (feature_has("Disable Autojump By Default", server_disabled)) {
@@ -200,9 +200,9 @@ void init_options() {
     // Actually Save options.txt
     overwrite_call((void *) 0x197fc, (void *) Options_save_Options_addOptionToSaveOutput_injection);
     // Fix options.txt Path
-    patch_address((void *) Strings_options_txt_path_pointer, (void *) get_new_options_txt_path());
+    patch_address((void *) &Strings::options_txt_path, (void *) get_new_options_txt_path());
     // When Loading, options.txt Should Be Opened In Read Mode
-    patch_address((void *) Strings_options_txt_fopen_mode_when_loading_pointer, (void *) "r");
+    patch_address((void *) &Strings::options_txt_fopen_mode_when_loading, (void *) "r");
     // Fix OptionsFile::getOptionStrings
     overwrite(OptionsFile_getOptionStrings, OptionsFile_getOptionStrings_injection);
 
@@ -221,7 +221,7 @@ void init_options() {
     // Replace "feedback_vibration" Loading/Saving With "gfx_ao"
     {
         // Replace String
-        patch_address((void *) Strings_feedback_vibration_options_txt_name_pointer, (void *) "gfx_ao");
+        patch_address((void *) &Strings::feedback_vibration_options_txt_name, (void *) "gfx_ao");
         // Loading
         unsigned char offset = (unsigned char) offsetof(Options, ambient_occlusion);
         unsigned char gfx_ao_loading_patch[4] = {offset, 0x10, 0x84, 0xe2}; // "add r1, r4, #OFFSET"
@@ -234,7 +234,7 @@ void init_options() {
     // Replace "gfx_lowquality" Loading With "gfx_anaglyph"
     {
         // Replace String
-        patch_address((void *) Strings_gfx_lowquality_options_txt_name_pointer, (void *) "gfx_anaglyph");
+        patch_address((void *) &Strings::gfx_lowquality_options_txt_name, (void *) "gfx_anaglyph");
         // Loading
         unsigned char offset = (unsigned char) offsetof(Options, anaglyph_3d);
         unsigned char gfx_anaglyph_loading_patch[4] = {offset, 0x10, 0x84, 0xe2}; // "add r1, r4, #OFFSET"

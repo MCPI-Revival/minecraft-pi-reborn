@@ -69,7 +69,7 @@ static int32_t Textures_loadAndBindTexture_injection(Textures *textures, __attri
     // Change Texture
     static std::string new_texture;
     if (new_texture.length() == 0) {
-        std::string username = base64_encode(Strings_default_username);
+        std::string username = base64_encode(Strings::default_username);
         new_texture = '$' + username;
     }
 

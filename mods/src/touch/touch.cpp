@@ -13,14 +13,14 @@ static int32_t Minecraft_isTouchscreen_injection(__attribute__((unused)) Minecra
 
 // IngameBlockSelectionScreen Memory Allocation Override
 static unsigned char *operator_new_IngameBlockSelectionScreen_injection(__attribute__((unused)) uint32_t size) {
-    return (unsigned char *) ::operator new(TOUCH_INGAME_BLOCK_SELECTION_SCREEN_SIZE);
+    return (unsigned char *) ::operator new(sizeof(Touch_IngameBlockSelectionScreen));
 }
 
 // Improved Button Hover Behavior
 static int32_t Button_hovered_injection(__attribute__((unused)) Button *button, __attribute__((unused)) Minecraft *minecraft, __attribute__((unused)) int32_t click_x, __attribute__((unused)) int32_t click_y) {
     // Get Mouse Position
-    int32_t x = Mouse::getX() * Gui_InvGuiScale;
-    int32_t y = Mouse::getY() * Gui_InvGuiScale;
+    int32_t x = Mouse::getX() * Gui::InvGuiScale;
+    int32_t y = Mouse::getY() * Gui::InvGuiScale;
 
     // Get Button Position
     int32_t button_x1 = button->x;

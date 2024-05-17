@@ -150,7 +150,7 @@ void misc_render_background(int color, Minecraft *minecraft, int x, int y, int w
 #endif
     std::string texture = "gui/background.png";
     minecraft->textures->loadAndBindTexture(&texture);
-    Tesselator *t = &Tesselator_instance;
+    Tesselator *t = &Tesselator::instance;
     t->begin(7);
     t->color(color, color, color, 255);
     float x1 = x;

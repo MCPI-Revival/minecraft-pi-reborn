@@ -82,7 +82,7 @@ static DynamicTexture *create_lava_texture() {
     // Construct
     LavaTexture *texture = new LavaTexture;
     ALLOC_CHECK(texture);
-    texture->super.constructor(Tile_lava->texture);
+    texture->super.constructor(Tile::lava->texture);
     // Set VTable
     texture->super.vtable = get_lava_texture_vtable();
     // Setup
@@ -146,7 +146,7 @@ static DynamicTexture *create_lava_side_texture() {
     // Construct
     LavaSideTexture *texture = new LavaSideTexture;
     ALLOC_CHECK(texture);
-    texture->super.constructor(Tile_lava->texture + 1);
+    texture->super.constructor(Tile::lava->texture + 1);
     // Set VTable
     texture->super.vtable = get_lava_side_texture_vtable();
     // Setup
@@ -214,7 +214,7 @@ static DynamicTexture *create_fire_texture(int a2) {
     // Construct
     FireTexture *texture = new FireTexture;
     ALLOC_CHECK(texture);
-    texture->super.constructor(Tile_fire->texture + (16 * a2));
+    texture->super.constructor(Tile::fire->texture + (16 * a2));
     // Set VTable
     texture->super.vtable = get_fire_texture_vtable();
     // Setup Random

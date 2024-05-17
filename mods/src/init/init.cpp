@@ -1,13 +1,11 @@
 #include <libreborn/libreborn.h>
 #include <mods/init/init.h>
 #include <media-layer/core.h>
-#include <symbols/minecraft.h>
 
 __attribute__((constructor)) static void init() {
     media_ensure_loaded();
     reborn_init_patch();
     run_tests();
-    init_symbols();
     init_version();
     init_compat();
 #ifdef MCPI_SERVER_MODE

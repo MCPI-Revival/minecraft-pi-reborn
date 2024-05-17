@@ -37,8 +37,8 @@ static int use_classic_hud = 0;
 static void Gui_renderHearts_GuiComponent_blit_hearts_injection(GuiComponent *component, int32_t x_dest, int32_t y_dest, int32_t x_src, int32_t y_src, int32_t width_dest, int32_t height_dest, int32_t width_src, int32_t height_src) {
     Minecraft *minecraft = ((Gui *) component)->minecraft;
     x_dest -= DEFAULT_HUD_PADDING;
-    float width = ((float) minecraft->screen_width) * Gui_InvGuiScale;
-    float height = ((float) minecraft->screen_height) * Gui_InvGuiScale;
+    float width = ((float) minecraft->screen_width) * Gui::InvGuiScale;
+    float height = ((float) minecraft->screen_height) * Gui::InvGuiScale;
     x_dest += (width - (NUMBER_OF_SLOTS * SLOT_WIDTH)) / 2;
     y_dest -= DEFAULT_HUD_PADDING;
     y_dest += height - HUD_ELEMENT_HEIGHT - TOOLBAR_HEIGHT - NEW_HUD_PADDING;
@@ -48,8 +48,8 @@ static void Gui_renderHearts_GuiComponent_blit_hearts_injection(GuiComponent *co
 static void Gui_renderHearts_GuiComponent_blit_armor_injection(Gui *component, int32_t x_dest, int32_t y_dest, int32_t x_src, int32_t y_src, int32_t width_dest, int32_t height_dest, int32_t width_src, int32_t height_src) {
     Minecraft *minecraft = component->minecraft;
     x_dest -= DEFAULT_HUD_PADDING + HUD_ELEMENT_WIDTH;
-    float width = ((float) minecraft->screen_width) * Gui_InvGuiScale;
-    float height = ((float) minecraft->screen_height) * Gui_InvGuiScale;
+    float width = ((float) minecraft->screen_width) * Gui::InvGuiScale;
+    float height = ((float) minecraft->screen_height) * Gui::InvGuiScale;
     x_dest += width - ((width - (NUMBER_OF_SLOTS * SLOT_WIDTH)) / 2) - HUD_ELEMENT_WIDTH;
     y_dest -= DEFAULT_HUD_PADDING;
     y_dest += height - HUD_ELEMENT_HEIGHT - TOOLBAR_HEIGHT - NEW_HUD_PADDING;
@@ -59,8 +59,8 @@ static void Gui_renderHearts_GuiComponent_blit_armor_injection(Gui *component, i
 static void Gui_renderBubbles_GuiComponent_blit_injection(Gui *component, int32_t x_dest, int32_t y_dest, int32_t x_src, int32_t y_src, int32_t width_dest, int32_t height_dest, int32_t width_src, int32_t height_src) {
     Minecraft *minecraft = component->minecraft;
     x_dest -= DEFAULT_HUD_PADDING;
-    float width = ((float) minecraft->screen_width) * Gui_InvGuiScale;
-    float height = ((float) minecraft->screen_height) * Gui_InvGuiScale;
+    float width = ((float) minecraft->screen_width) * Gui::InvGuiScale;
+    float height = ((float) minecraft->screen_height) * Gui::InvGuiScale;
     x_dest += (width - (NUMBER_OF_SLOTS * SLOT_WIDTH)) / 2;
     y_dest -= DEFAULT_HUD_PADDING + DEFAULT_BUBBLES_PADDING + HUD_ELEMENT_HEIGHT;
     y_dest += height - HUD_ELEMENT_HEIGHT - TOOLBAR_HEIGHT - HUD_ELEMENT_HEIGHT - NEW_HUD_PADDING;
@@ -77,7 +77,7 @@ static void Gui_renderHearts_injection(Gui_renderHearts_t original, Gui *gui) {
     Inventory *inventory = gui->minecraft->player->inventory;
     ItemInstance *held_ii = inventory->getSelected();
     if (held_ii) {
-        Item *held = Item_items[held_ii->id];
+        Item *held = Item::items[held_ii->id];
         if (held->isFood() && held_ii->id) {
             int nutrition = ((FoodItem *) held)->nutrition;
             int cur_health = gui->minecraft->player->health;
@@ -149,7 +149,7 @@ static void Gui_renderChatMessages_injection(Gui_renderChatMessages_t original, 
         // Calculate Selected Item Text Scale
         Minecraft *minecraft = gui->minecraft;
         int32_t screen_width = minecraft->screen_width;
-        float scale = ((float) screen_width) * Gui_InvGuiScale;
+        float scale = ((float) screen_width) * Gui::InvGuiScale;
         // Render Selected Item Text
         gui->renderOnSelectItemNameText((int32_t) scale, font, y_offset - 0x13);
     }
@@ -349,8 +349,8 @@ static void GameRenderer_render_injection(GameRenderer_render_t original, GameRe
         // Fix GL Mode
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
         // Get X And Y
-        float x = Mouse::getX() * Gui_InvGuiScale;
-        float y = Mouse::getY() * Gui_InvGuiScale;
+        float x = Mouse::getX() * Gui::InvGuiScale;
+        float y = Mouse::getY() * Gui::InvGuiScale;
         // Render Cursor
         Minecraft *minecraft = game_renderer->minecraft;
         Common::renderCursor(x, y, minecraft);
@@ -494,7 +494,7 @@ static Entity *PathfinderMob_findAttackTarget_injection(PathfinderMob *mob) {
 
 // 3D Chests
 static int32_t Tile_getRenderShape_injection(Tile *tile) {
-    if (tile == Tile_chest) {
+    if (tile == Tile::chest) {
         // Don't Render "Simple" Chest Model
         return -1;
     } else {
@@ -578,7 +578,7 @@ static void glColor4f_injection(__attribute__((unused)) GLfloat red, __attribute
         line_width = strtof(custom_line_width, nullptr);
     } else {
         // Guess
-        line_width = 1.5f / Gui_InvGuiScale;
+        line_width = 1.5f / Gui::InvGuiScale;
     }
     // Clamp Line Width
     float range[2];
@@ -686,7 +686,7 @@ void PaneCraftingScreen_craftSelectedItem_PaneCraftingScreen_recheckRecipes_inje
     CItem *item = self->item;
     for (size_t i = 0; i < item->ingredients.size(); i++) {
         ItemInstance requested_item_instance = item->ingredients[i].requested_item;
-        Item *requested_item = Item_items[requested_item_instance.id];
+        Item *requested_item = Item::items[requested_item_instance.id];
         ItemInstance *craftingRemainingItem = requested_item->getCraftingRemainingItem(&requested_item_instance);
         if (craftingRemainingItem != nullptr) {
             // Add or drop remainder
