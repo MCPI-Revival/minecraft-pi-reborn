@@ -33,7 +33,7 @@ static int32_t sdl_key_to_minecraft_key_injection(Common_sdl_key_to_minecraft_ke
 static void LocalPlayer_openTextEdit_injection(LocalPlayer *local_player, TileEntity *sign) {
     if (sign->type == 4) {
         Minecraft *minecraft = local_player->minecraft;
-        TextEditScreen *screen = alloc_TextEditScreen();
+        TextEditScreen *screen = new TextEditScreen;
         ALLOC_CHECK(screen);
         screen = screen->constructor((SignTileEntity *) sign);
         minecraft->setScreen((Screen *) screen);

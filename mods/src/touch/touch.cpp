@@ -44,17 +44,17 @@ static void LargeImageButton_render_GuiComponent_drawCenteredString_injection(Gu
 // Create Button
 int touch_gui = 0;
 template <typename T>
-static Button *create_button(T *(*allocator)(), int id, std::string text) {
-    T *button = allocator();
+static Button *create_button(int id, std::string text) {
+    T *button = new T;
     ALLOC_CHECK(button);
     button->constructor(id, &text);
     return (Button *) button;
 }
 Button *touch_create_button(int id, std::string text) {
     if (touch_gui) {
-        return create_button(alloc_Touch_TButton, id, text);
+        return create_button<Touch_TButton>(id, text);
     } else {
-        return create_button(alloc_Button, id, text);
+        return create_button<Button>(id, text);
     }
 }
 

@@ -227,7 +227,7 @@ static void create_world(Minecraft *minecraft, std::string name, bool is_creativ
     minecraft->hostMultiplayer(19132);
 
     // Open ProgressScreen
-    ProgressScreen *screen = alloc_ProgressScreen();
+    ProgressScreen *screen = new ProgressScreen;
     ALLOC_CHECK(screen);
     screen = screen->constructor();
     minecraft->setScreen((Screen *) screen);

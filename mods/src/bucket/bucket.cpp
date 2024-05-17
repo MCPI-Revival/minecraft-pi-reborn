@@ -163,7 +163,7 @@ static ItemInstance *BucketItem_getCraftingRemainingItem(FoodItem *item, ItemIns
     if (item_instance->auxiliary == 0) {
         return nullptr;
     }
-    ItemInstance *ret = alloc_ItemInstance();
+    ItemInstance *ret = new ItemInstance;
     ret->id = item->id;
     ret->count = item_instance->count;
     ret->auxiliary = 0;
@@ -186,7 +186,7 @@ CUSTOM_VTABLE(bucket, FoodItem) {
 // Create Items
 static FoodItem *create_bucket(int32_t id, int32_t texture_x, int32_t texture_y, std::string name) {
     // Construct
-    FoodItem *item = alloc_FoodItem();
+    FoodItem *item = new FoodItem;
     ALLOC_CHECK(item);
     Item_constructor((Item *) item, id); // FoodItem's Constructor Was Inlined
 

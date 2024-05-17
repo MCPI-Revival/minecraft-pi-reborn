@@ -97,7 +97,7 @@ static void OptionsScreen_init_injection(OptionsScreen_init_t original, OptionsS
     original(self);
 
     // Add Button
-    Touch_TButton *button = alloc_Touch_TButton();
+    Touch_TButton *button = new Touch_TButton;
     ALLOC_CHECK(button);
     std::string name = "Reborn";
     button->constructor(INFO_BUTTON_ID, &name);

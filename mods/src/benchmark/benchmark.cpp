@@ -40,7 +40,7 @@ static void start_world(Minecraft *minecraft) {
     minecraft->selectLevel(&name, &name, &settings);
 
     // Open ProgressScreen
-    ProgressScreen *screen = alloc_ProgressScreen();
+    ProgressScreen *screen = new ProgressScreen;
     ALLOC_CHECK(screen);
     screen = screen->constructor();
     minecraft->setScreen((Screen *) screen);

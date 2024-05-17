@@ -703,7 +703,7 @@ void PaneCraftingScreen_craftSelectedItem_PaneCraftingScreen_recheckRecipes_inje
 
 ItemInstance *Item_getCraftingRemainingItem_injection(__attribute__((unused)) Item_getCraftingRemainingItem_t original, Item *self, ItemInstance *item_instance) {
     if (self->craftingRemainingItem != nullptr) {
-        ItemInstance *ret = alloc_ItemInstance();
+        ItemInstance *ret = new ItemInstance;
         ret->id = self->craftingRemainingItem->id;
         ret->count = item_instance->count;
         ret->auxiliary = 0;

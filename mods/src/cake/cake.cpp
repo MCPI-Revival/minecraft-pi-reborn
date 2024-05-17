@@ -116,7 +116,7 @@ static int Cake_use(__attribute__((unused)) Tile *tile, Level *level, int x, int
 // Makes the cakes
 static void make_cake() {
     // Construct
-    cake = alloc_Tile();
+    cake = new Tile;
     ALLOC_CHECK(cake);
     int texture = 122;
     cake->constructor(92, texture, Material_dirt);

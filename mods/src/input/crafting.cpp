@@ -16,7 +16,7 @@ static void _handle_open_crafting(Minecraft *minecraft) {
 
         // Set Screen
         if (!creative_is_restricted() || !Minecraft_isCreativeMode(minecraft)) {
-            WorkbenchScreen *screen = alloc_WorkbenchScreen();
+            WorkbenchScreen *screen = new WorkbenchScreen;
             ALLOC_CHECK(screen);
             screen = screen->constructor(0);
             minecraft->setScreen((Screen *) screen);

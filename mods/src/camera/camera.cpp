@@ -19,7 +19,7 @@ static EntityRenderDispatcher *EntityRenderDispatcher_injection(EntityRenderDisp
     original(dispatcher);
 
     // Register TripodCameraRenderer
-    TripodCameraRenderer *renderer = alloc_TripodCameraRenderer();
+    TripodCameraRenderer *renderer = new TripodCameraRenderer;
     ALLOC_CHECK(renderer);
     renderer->constructor();
     dispatcher->assign((unsigned char) 0x5, (EntityRenderer *) renderer);

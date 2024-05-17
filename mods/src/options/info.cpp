@@ -187,7 +187,7 @@ CUSTOM_VTABLE(info_screen, Screen) {
     // Handle Back
     vtable->handleBackEvent = [](Screen *self, bool do_nothing) {
         if (!do_nothing) {
-            OptionsScreen *screen = alloc_OptionsScreen();
+            OptionsScreen *screen = new OptionsScreen;
             ALLOC_CHECK(screen);
             screen->constructor();
             self->minecraft->setScreen((Screen *) screen);
@@ -256,7 +256,7 @@ CUSTOM_VTABLE(info_screen, Screen) {
 // Create Screen
 Screen *_create_options_info_screen() {
     // Allocate
-    Screen *screen = alloc_Screen();
+    Screen *screen = new Screen;
     ALLOC_CHECK(screen);
     screen->constructor();
 
