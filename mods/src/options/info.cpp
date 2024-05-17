@@ -13,10 +13,10 @@
 #define INFO_ID_START 2
 
 // Constants
-static int line_button_width = 80;
-static int line_button_height = 24;
-static int padding = 4;
+static int line_button_padding = 8;
 static int line_height = 8;
+static int line_button_height = (line_button_padding * 2) + line_height;
+static int padding = 4;
 static int bottom_padding = padding;
 static int inner_padding = padding;
 static int title_padding = 8;
@@ -52,7 +52,6 @@ static std::string get_profile_directory_url() {
 }
 
 // Info Data
-#define MORE_INFO_TEXT "More Info"
 struct info_line {
     std::string (*get_text)();
     std::string button_url;
@@ -65,7 +64,7 @@ static info_line info[] = {
             return std::string("Version: v") + reborn_get_version() + extra_version_info_full;
         },
         .button_url = "https://gitea.thebrokenrail.com/minecraft-pi-reborn/minecraft-pi-reborn/src/branch/master/docs/CHANGELOG.md",
-        .button_text = MORE_INFO_TEXT
+        .button_text = "Changelog"
     },
     {
         .get_text = []() {
@@ -79,7 +78,7 @@ static info_line info[] = {
             return std::string("Sound Data: ") + info_sound_data_state;
         },
         .button_url = "https://gitea.thebrokenrail.com/minecraft-pi-reborn/minecraft-pi-reborn/src/branch/master/docs/SOUND.md",
-        .button_text = MORE_INFO_TEXT
+        .button_text = "More Info"
     },
 };
 #define info_size int(sizeof(info) / sizeof(info_line))
@@ -95,6 +94,7 @@ struct info_line_position {
 };
 static info_line_position positioned_info[info_size];
 static int content_height = 0;
+static int line_button_width = 0;
 static void position_info(Font *font, int width, int height) {
     // First Stage (Find Max Text Width)
     int info_text_width = 0;
@@ -123,7 +123,17 @@ static void position_info(Font *font, int width, int height) {
         y += line_button_height;
     }
 
-    // Third Stage (Centering)
+    // Third Stage (Find Line Button Width)
+    line_button_width = 0;
+    for (int i = 0; i < info_size; i++) {
+        int text_width = font->width(&info[i].button_text);
+        if (text_width > line_button_width) {
+            line_button_width = text_width;
+        }
+    }
+    line_button_width += line_button_padding * 2;
+
+    // Fourth Stage (Centering)
     int info_height = y;
     int info_width = info_text_width + padding + line_button_width;
     content_height = height - content_y_offset_top - content_y_offset_bottom;
