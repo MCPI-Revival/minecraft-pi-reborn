@@ -207,7 +207,7 @@ static FoodItem *create_bucket(int32_t id, int32_t texture_x, int32_t texture_y,
     // Return
     return item;
 }
-static void Item_initItems_injection(__attribute__((unused)) void *null) {
+static void Item_initItems_injection() {
     bucket = create_bucket(69, 10, 4, "bucket");
 }
 
@@ -340,7 +340,7 @@ static void FurnaceTileEntity_tick_ItemInstance_setNull_injection(ItemInstance *
 }
 
 // Add the bucket name to the language file
-static void Language_injection(__attribute__((unused)) void *null) {
+static void Language_injection() {
     I18n::_strings.insert(std::make_pair("item.bucketMilk.name", "Milk Bucket"));
 }
 

@@ -822,10 +822,10 @@ void init_misc() {
 
 #ifdef MCPI_HEADLESS_MODE
     // Don't Render Game In Headless Mode
-    overwrite_manual(GameRenderer_render, nop);
-    overwrite_manual(NinecraftApp_initGLStates, nop);
-    overwrite_manual(Gui_onConfigChanged, nop);
-    overwrite_manual(LevelRenderer_generateSky, nop);
+    overwrite_manual((void *) GameRenderer_render, (void *) nop);
+    overwrite_manual((void *) NinecraftApp_initGLStates, (void *) nop);
+    overwrite_manual((void *) Gui_onConfigChanged, (void *) nop);
+    overwrite_manual((void *) LevelRenderer_generateSky, (void *) nop);
 #else
     // Improved Cursor Rendering
     if (feature_has("Improved Cursor Rendering", server_disabled)) {
@@ -849,7 +849,7 @@ void init_misc() {
 
     // Remove Forced GUI Lag
     if (feature_has("Remove Forced GUI Lag (Can Break Joining Servers)", server_enabled)) {
-        overwrite_manual(Common_sleepMs, nop);
+        overwrite_manual((void *) Common_sleepMs, (void *) nop);
     }
 
 #ifndef MCPI_HEADLESS_MODE

@@ -241,6 +241,7 @@ void setup_crash_report() {
 
         // Close Log File
         reborn_close_log();
+        unsetenv(MCPI_LOG_ENV);
 
         // Show Crash Log
 #ifndef MCPI_HEADLESS_MODE

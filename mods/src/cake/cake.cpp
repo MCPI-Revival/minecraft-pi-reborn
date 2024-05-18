@@ -153,7 +153,7 @@ static void make_cake() {
     cake->setDescriptionId(&name);
 }
 
-static void Tile_initTiles_injection(__attribute__((unused)) void *null) {
+static void Tile_initTiles_injection() {
     make_cake();
 }
 
