@@ -1,11 +1,10 @@
 #pragma once
 
-#ifdef __cplusplus
-
 // Patching Functions
 
-#ifdef REBORN_HAS_PATCH_CODE
+#if defined(REBORN_HAS_PATCH_CODE) && defined(__cplusplus)
 
+// Init
 void reborn_init_patch();
 
 // Replace Call Located At start With A Call To target
@@ -18,7 +17,7 @@ template <int>
 static void _only_call_once() {
     static bool _has_run = false;
     if (_has_run) {
-        IMPOSSIBLE();
+        ERR("\"Fancy\" overwrite*() Functions Can Only Be Called Once");
     }
     _has_run = true;
 }
@@ -130,7 +129,5 @@ void _patch_vtable(const char *file, int line, start_t *start, start_t target) {
         start##_vtable_addr, \
         __VA_ARGS__ \
     )
-
-#endif
 
 #endif
