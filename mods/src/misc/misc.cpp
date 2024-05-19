@@ -993,6 +993,9 @@ void init_misc() {
         patch_vtable(AppPlatform_linux_getDateString, AppPlatform_linux_getDateString_injection);
     }
 
+    // Don't Wrap Text On '\r' Or '\t' Because THey Are Actual Characters In MCPI
+    patch_address(&Strings::text_wrapping_delimiter, (void *) " \n");
+
     // Init Logging
     _init_misc_logging();
     _init_misc_api();
