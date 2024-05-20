@@ -103,28 +103,20 @@ void bootstrap() {
 
     // Fix MCPI Dependencies
     char new_mcpi_exe_path[] = MCPI_PATCHED_DIR "/XXXXXX";
+    std::string linker;
     {
         // Log
         DEBUG("Patching ELF Dependencies...");
 
         // Find Linker
-        char *linker = nullptr;
-        // Select Linker
+        linker = "/lib/ld-linux-armhf.so.3";
 #ifdef MCPI_USE_PREBUILT_ARMHF_TOOLCHAIN
         // Use ARM Sysroot Linker
-        safe_asprintf(&linker, "%s/sysroot/lib/ld-linux-armhf.so.3", binary_directory.c_str());
-#else
-        // Use Current Linker
-        linker = patch_get_interpreter();
+        linker = binary_directory + "/sysroot" + linker;
 #endif
 
         // Patch
-        patch_mcpi_elf_dependencies(resolved_path, new_mcpi_exe_path, linker);
-
-        // Free Linker Path
-        if (linker != nullptr) {
-            free(linker);
-        }
+        patch_mcpi_elf_dependencies(resolved_path, new_mcpi_exe_path);
 
         // Verify
         if (!starts_with(new_mcpi_exe_path, MCPI_PATCHED_DIR)) {
@@ -146,12 +138,10 @@ void bootstrap() {
     free(resolved_path);
 
     // Configure Library Search Path
+    std::string mcpi_ld_path = "";
     {
         // Log
         DEBUG("Setting Linker Search Paths...");
-
-        // Prepare
-        std::string mcpi_ld_path = "";
 
         // Library Search Path For ARM Components
         {
@@ -173,19 +163,17 @@ void bootstrap() {
                     mcpi_ld_path += value;
                 }
             }
-
-            // Set
-            set_and_print_env(MCPI_LD_VARIABLE_PREFIX "LD_LIBRARY_PATH", mcpi_ld_path.c_str());
         }
     }
 
     // Configure Preloaded Objects
+    std::string mcpi_ld_preload;
     {
         // Log
         DEBUG("Locating Mods...");
 
         // ARM Components
-        bootstrap_mods(binary_directory);
+        mcpi_ld_preload = bootstrap_mods(binary_directory);
     }
 
     // Start Game
@@ -195,23 +183,18 @@ void bootstrap() {
     std::vector<std::string> args;
     // Non-ARM Systems Need QEMU
 #ifdef MCPI_USE_QEMU
-    args.insert(args.begin(), QEMU_BINARY);
+    args.push_back(QEMU_BINARY);
+    // Fix Bug
+    args.push_back("-B");
+    args.push_back("0x40000"); // Arbitary Value That Works On My System
 #endif
 
-    // Preserve Existing LD_* Variables
-#define preserve_variable(name) set_and_print_env(MCPI_ORIGINAL_LD_VARIABLE_PREFIX name, getenv(name))
-    for_each_special_environmental_variable(preserve_variable);
-    set_and_print_env(MCPI_ORIGINAL_LD_VARIABLES_PRESERVED_ENV, "1");
-    // Setup Environment
-    setup_exec_environment(1);
-
-    // Pass LD_* Variables Through QEMU
-#ifdef MCPI_USE_QEMU
-#define pass_variable_through_qemu(name) args.push_back("-E"); args.push_back(std::string(name) + "=" + getenv(name))
-    for_each_special_environmental_variable(pass_variable_through_qemu);
-    // Treat QEMU Itself As A Native Component
-    setup_exec_environment(0);
-#endif
+    // Setup Linker
+    args.push_back(linker);
+    args.push_back("--library-path");
+    args.push_back(mcpi_ld_path);
+    args.push_back("--preload");
+    args.push_back(mcpi_ld_preload);
 
     // Specify MCPI Binary
     args.push_back(new_mcpi_exe_path);

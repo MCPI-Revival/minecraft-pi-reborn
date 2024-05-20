@@ -15,7 +15,7 @@ static void duplicate_mcpi_executable(char *new_path) {
     // Ensure Temporary Directory
     {
         // Check If It Exists
-        struct stat tmp_stat;
+        struct stat tmp_stat = {};
         int exists = stat(MCPI_PATCHED_DIR, &tmp_stat) != 0 ? 0 : S_ISDIR(tmp_stat.st_mode);
         if (!exists) {
             // Doesn't Exist
@@ -44,16 +44,13 @@ static const char *libraries_to_remove[] = {
 static const char *libraries_to_add[] = {
     "libmedia-layer-core.so"
 };
-void patch_mcpi_elf_dependencies(const char *original_path, char *new_path, const char *linker) {
+void patch_mcpi_elf_dependencies(const char *original_path, char *new_path) {
     // Duplicate MCPI executable into /tmp so it can be modified.
     duplicate_mcpi_executable(new_path);
 
     // Patch File
     {
         std::unique_ptr<LIEF::ELF::Binary> binary = LIEF::ELF::Parser::parse(original_path);
-        if (linker != NULL) {
-            binary->interpreter(linker);
-        }
         for (size_t i = 0; i < (sizeof (libraries_to_remove) / sizeof (const char *)); i++) {
             binary->remove_library(libraries_to_remove[i]);
         }
@@ -69,26 +66,4 @@ void patch_mcpi_elf_dependencies(const char *original_path, char *new_path, cons
     if (chmod(new_path, S_IRUSR | S_IXUSR) != 0) {
         ERR("Unable To Set File Permissions: %s: %s", new_path, strerror(errno));
     }
-}
-
-// Get Interpreter
-static int dl_iterate_callback(struct dl_phdr_info *info, __attribute__((unused)) size_t size, void *data) {
-    // Only Search Current Program
-    if (strcmp(info->dlpi_name, "") == 0) {
-        for (int i = 0; i < info->dlpi_phnum; i++) {
-            if (info->dlpi_phdr[i].p_type == PT_INTERP) {
-                // Callback
-                *(char **) data = (char *) (info->dlpi_addr + info->dlpi_phdr[i].p_vaddr);
-            }
-        }
-    }
-    return 0;
-}
-char *patch_get_interpreter() {
-    char *interpreter = NULL;
-    dl_iterate_phdr(dl_iterate_callback, &interpreter);
-    if (interpreter != NULL) {
-        interpreter = strdup(interpreter);
-    }
-    return interpreter;
 }

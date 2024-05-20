@@ -19,17 +19,6 @@ void set_and_print_env(const char *name, const char *value) {
 }
 
 // Safe execvpe()
-#define handle_environmental_variable(var) \
-    { \
-        const char *full_var = is_arm_component ? MCPI_LD_VARIABLE_PREFIX var : MCPI_ORIGINAL_LD_VARIABLE_PREFIX var; \
-        const char *var_value = getenv(full_var); \
-        set_and_print_env(var, var_value); \
-    }
-void setup_exec_environment(int is_arm_component) {
-    if (is_arm_component || getenv(MCPI_ORIGINAL_LD_VARIABLES_PRESERVED_ENV) != NULL) {
-        for_each_special_environmental_variable(handle_environmental_variable);
-    }
-}
 __attribute__((noreturn)) void safe_execvpe(const char *const argv[], const char *const envp[]) {
     // Log
     DEBUG("Running Command:");
@@ -68,9 +57,6 @@ char *run_command(const char *const command[], int *exit_status, size_t *output_
         // Setup stderr
         reborn_lock_debug(); // Lock Released On Process Exit
         dup2(reborn_get_debug_fd(), STDERR_FILENO);
-
-        // Setup Environment
-        setup_exec_environment(0);
 
         // Run
         safe_execvpe(command, (const char *const *) environ);

@@ -53,7 +53,7 @@ static void load(std::string &ld_preload, const std::string &folder) {
 
 // Bootstrap Mods
 #define SUBDIRECTORY_FOR_MODS "/mods/"
-void bootstrap_mods(const std::string &binary_directory) {
+std::string bootstrap_mods(const std::string &binary_directory) {
     // Prepare
     std::string preload = "";
 
@@ -81,6 +81,6 @@ void bootstrap_mods(const std::string &binary_directory) {
         }
     }
 
-    // Set
-    set_and_print_env(MCPI_LD_VARIABLE_PREFIX "LD_PRELOAD", preload.c_str());
+    // Return
+    return preload;
 }
