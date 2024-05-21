@@ -78,5 +78,8 @@ mcpi_option(APP_TITLE "App Title" STRING "${DEFAULT_APP_TITLE}")
 # Skin Server
 mcpi_option(SKIN_SERVER "Skin Server" STRING "https://raw.githubusercontent.com/MCPI-Revival/Skins/data")
 
-# Discord Invite
+# Discord Invite URL
 mcpi_option(DISCORD_INVITE "Discord Invite URL" STRING "https://discord.gg/mcpi-revival-740287937727561779")
+
+# Documentation URL
+mcpi_option(DOCUMENTATION "Documentation URL" STRING "https://gitea.thebrokenrail.com/minecraft-pi-reborn/minecraft-pi-reborn/src/branch/master/docs/")

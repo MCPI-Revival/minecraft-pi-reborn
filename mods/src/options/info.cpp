@@ -4,6 +4,7 @@
 
 #include <mods/touch/touch.h>
 #include <mods/misc/misc.h>
+#include <mods/options/info.h>
 
 #include "options-internal.h"
 
@@ -63,7 +64,7 @@ static info_line info[] = {
         .get_text = []() {
             return std::string("Version: v") + reborn_get_version() + extra_version_info_full;
         },
-        .button_url = "https://gitea.thebrokenrail.com/minecraft-pi-reborn/minecraft-pi-reborn/src/branch/master/docs/CHANGELOG.md",
+        .button_url = MCPI_DOCUMENTATION CHANGELOG_FILE,
         .button_text = "Changelog"
     },
     {
@@ -77,7 +78,7 @@ static info_line info[] = {
         .get_text = []() {
             return std::string("Sound Data: ") + info_sound_data_state;
         },
-        .button_url = "https://gitea.thebrokenrail.com/minecraft-pi-reborn/minecraft-pi-reborn/src/branch/master/docs/SOUND.md",
+        .button_url = MCPI_DOCUMENTATION "SOUND.md",
         .button_text = "More Info"
     },
 };
@@ -148,7 +149,7 @@ static void position_info(Font *font, int width, int height) {
 }
 
 // Open URL
-static void open_url(const std::string &url) {
+void open_url(const std::string &url) {
     int return_code;
     const char *command[] = {"xdg-open", url.c_str(), nullptr};
     char *output = run_command(command, &return_code, nullptr);

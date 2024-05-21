@@ -94,6 +94,7 @@ else()
         # title-screen
         src/title-screen/title-screen.cpp
         src/title-screen/splashes.txt # Show In IDE
+        src/title-screen/welcome.cpp
         # skin
         src/skin/skin.cpp
         src/skin/loader.cpp

@@ -1,1 +1,3 @@
 method void setScreen(uint id) = 0x29490;
+
+property Minecraft *minecraft = 0x0;

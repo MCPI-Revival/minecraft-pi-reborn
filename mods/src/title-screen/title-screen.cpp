@@ -11,6 +11,8 @@
 #include <mods/touch/touch.h>
 #include <mods/title-screen/title-screen.h>
 
+#include "title-screen-internal.h"
+
 // Improved Title Screen Background
 static void StartMenuScreen_render_Screen_renderBackground_injection(Screen *screen) {
     // Draw
@@ -164,5 +166,10 @@ void init_title_screen() {
         overwrite_call((void *) 0x3e0c4, (void *) StartMenuScreen_render_Screen_render_injection);
         // Init Random
         srand(time(nullptr));
+    }
+
+    // Init Welcome Screen
+    if (feature_has("Add Welcome Screen", server_disabled)) {
+        _init_welcome();
     }
 }

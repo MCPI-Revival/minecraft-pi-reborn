@@ -67,3 +67,4 @@ TRUE Optimized Chunk Sorting
 TRUE Fix Held Item Caching
 TRUE Add Reborn Info To Options
 FALSE Track FPS
+TRUE Add Welcome Screen
