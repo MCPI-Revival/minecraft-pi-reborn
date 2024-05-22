@@ -78,7 +78,7 @@ static info_line info[] = {
         .get_text = []() {
             return std::string("Sound Data: ") + info_sound_data_state;
         },
-        .button_url = MCPI_DOCUMENTATION "SOUND.md",
+        .button_url = MCPI_DOCUMENTATION "GETTING_STARTED.md#sound",
         .button_text = "More Info"
     },
 };
