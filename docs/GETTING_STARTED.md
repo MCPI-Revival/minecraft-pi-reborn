@@ -7,9 +7,7 @@ include_toc: true
 Welcome to the official guide for setting up Minecraft: Pi Edition: Reborn (also known as MCPI-Reborn)! This document will help you through the installation and setup process.
 
 ## System Requirements
-Following in the footsteps of the original Minecraft: Pi Edition, MCPI-Reborn can be run on just about anything; however, there are some restrictions.
-
-Specifically, it requires support for OpenGL ES v2.0 (unlike the original game, which used OpenGL ES v1.1). It also only supports Linux-based systems.
+MCPI-Reborn requires support for OpenGL ES v2.0 (unlike the original game, which used OpenGL ES v1.1). It also only supports Linux-based systems.
 
 In addition, while the original game could only be run on the Raspberry Pi, MCPI-Reborn is much more flexible. It supports running on 32-bit ARM (known as `armhf`), 64-bit ARM (known as `arm64`), and 64-bit x86 (known as `amd64`).
 
