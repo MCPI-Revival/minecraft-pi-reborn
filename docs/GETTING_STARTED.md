@@ -63,5 +63,8 @@ For instance, to override `data/images/terrain.png`, you would copy the replacem
 
 The overrides directory is located at `<Profile Directory>/overrides`.
 
+## Discord
+If you have any questions or just want to talk about Minecraft: Pi Edition, there is an [official Discord server](https://discord.gg/mcpi-revival-740287937727561779)!
+
 [^1]: When using the Flatpak, the profile directory is located at `~/.var/app/com.thebrokenrail.MCPIReborn/.minecraft-pi`.
 [^2]: This is not a strict requirement; a Minecraft: Pocket Edition v0.8.1 APK would likely work, but it is not guaranteed.
