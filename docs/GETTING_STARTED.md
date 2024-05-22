@@ -38,7 +38,7 @@ The next method is the official [Flatpak](https://www.flatpak.org/). This method
 
 It can be installed through [Flathub](https://flathub.org/apps/details/com.thebrokenrail.MCPIReborn).
 
-### Pi-Apps (Limited Support)
+### Pi-Apps
 The final supported method is [Pi-Apps](https://github.com/Botspot/pi-apps). It is a ["well-maintained collection of app installation-scripts"](https://github.com/Botspot/pi-apps#:~:text=well-maintained%20collection%20of%20app%20installation-scripts) that includes support for MCPI-Reborn.
 
 The list of systems supported by Pi-Apps can be found [here](https://github.com/Botspot/pi-apps?tab=readme-ov-file#supported-systems).
