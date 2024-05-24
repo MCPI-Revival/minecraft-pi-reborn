@@ -186,7 +186,7 @@ void bootstrap() {
     args.push_back(QEMU_BINARY);
     // Fix Bug
     args.push_back("-B");
-    args.push_back("0x40000"); // Arbitary Value That Works On My System
+    args.push_back("0x3e800"); // Arbitary Value (Aligns To 4k And 16k Page Sizes)
 #endif
 
     // Setup Linker

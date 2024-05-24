@@ -20,7 +20,7 @@ void *_overwrite_calls_manual(const char *file, int line, void *start, void *tar
 #define overwrite_calls_manual(...) \
     _overwrite_calls_manual(__FILE__, __LINE__, __VA_ARGS__)
 template <typename overwrite_t>
-static void _overwrite_calls(const char *file, int line, std::string (*set_overwrite)(const overwrite_t &, const std::function<void *(void *, void *)> &), const overwrite_t &target) {
+void _overwrite_calls(const char *file, int line, std::string (*set_overwrite)(const overwrite_t &, const std::function<void *(void *, void *)> &), const overwrite_t &target) {
     std::string ret = set_overwrite(target, [&file, &line](void *start, void *target2) {
         return _overwrite_calls_manual(file, line, start, target2);
     });
