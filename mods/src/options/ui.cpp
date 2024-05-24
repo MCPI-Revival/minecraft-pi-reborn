@@ -186,12 +186,12 @@ void _init_options_ui() {
     // Info Button
     if (feature_has("Add Reborn Info To Options", server_disabled)) {
         // Add Button
-        overwrite_virtual_calls(OptionsScreen_init, OptionsScreen_init_injection);
+        overwrite_calls(OptionsScreen_init, OptionsScreen_init_injection);
         // Position Button
-        overwrite_virtual_calls(OptionsScreen_setupPositions, OptionsScreen_setupPositions_injection);
+        overwrite_calls(OptionsScreen_setupPositions, OptionsScreen_setupPositions_injection);
         // Handle Click
-        overwrite_virtual_calls(OptionsScreen_buttonClicked, OptionsScreen_buttonClicked_injection);
+        overwrite_calls(OptionsScreen_buttonClicked, OptionsScreen_buttonClicked_injection);
         // Cleanup
-        overwrite_virtual_calls(OptionsScreen_removed, OptionsScreen_removed_injection);
+        overwrite_calls(OptionsScreen_removed, OptionsScreen_removed_injection);
     }
 }

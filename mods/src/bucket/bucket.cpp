@@ -355,7 +355,7 @@ void init_bucket() {
         // Change Max Stack Size Based On Auxiliary
         overwrite_calls(ItemInstance_getMaxStackSize, ItemInstance_getMaxStackSize_injection);
         // Enable milking
-        overwrite_virtual_calls(Cow_interact, Cow_interact_injection);
+        overwrite_calls(Cow_interact, Cow_interact_injection);
         // Creative Inventory
         misc_run_on_creative_inventory_setup(Inventory_setupDefault_FillingContainer_addItem_call_injection);
         // Make Liquids Selectable

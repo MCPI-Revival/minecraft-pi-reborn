@@ -252,6 +252,6 @@ create_SelectWorldScreen_tick_injection(Touch_)
 // Init
 void _init_game_mode_ui() {
     // Hijack Create World Button
-    overwrite_virtual_calls(SelectWorldScreen_tick, SelectWorldScreen_tick_injection);
-    overwrite_virtual_calls(Touch_SelectWorldScreen_tick, Touch_SelectWorldScreen_tick_injection);
+    overwrite_calls(SelectWorldScreen_tick, SelectWorldScreen_tick_injection);
+    overwrite_calls(Touch_SelectWorldScreen_tick, Touch_SelectWorldScreen_tick_injection);
 }

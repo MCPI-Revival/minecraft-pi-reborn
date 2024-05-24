@@ -4,6 +4,9 @@
 
 #if defined(REBORN_HAS_PATCH_CODE) && defined(__cplusplus)
 
+#include <string>
+#include <functional>
+
 // Init
 void reborn_init_patch();
 
@@ -12,58 +15,25 @@ void _overwrite_call(const char *file, int line, void *start, void *target);
 #define overwrite_call(...) \
     _overwrite_call(__FILE__, __LINE__, __VA_ARGS__)
 
-// Make Sure Function Is Only Called Once
-template <int>
-static void _only_call_once() {
-    static bool _has_run = false;
-    if (_has_run) {
-        ERR("\"Fancy\" overwrite*() Functions Can Only Be Called Once");
-    }
-    _has_run = true;
-}
-
 // Replace All Calls To Method start With target
 void *_overwrite_calls_manual(const char *file, int line, void *start, void *target);
 #define overwrite_calls_manual(...) \
     _overwrite_calls_manual(__FILE__, __LINE__, __VA_ARGS__)
-template <int call_id, typename start_t, typename overwrite_t>
-static void _overwrite_calls(const char *file, int line, start_t (*create_helper)(overwrite_t, start_t), start_t &start, overwrite_t target) {
-    _only_call_once<call_id>();
-    start_t helper = create_helper(target, start);
-    start = (start_t) _overwrite_calls_manual(file, line, (void *) start, (void *) helper);
+template <typename overwrite_t>
+static void _overwrite_calls(const char *file, int line, std::string (*set_overwrite)(const overwrite_t &, const std::function<void *(void *, void *)> &), const overwrite_t &target) {
+    std::string ret = set_overwrite(target, [&file, &line](void *start, void *target2) {
+        return _overwrite_calls_manual(file, line, start, target2);
+    });
+    if (!ret.empty()) {
+        ERR("%s", ret.c_str());
+    }
 }
 #define overwrite_calls(start, ...) \
     _overwrite_calls< \
-        __COUNTER__, \
-        start##_t, \
         __overwrite_##start##_t \
     >( \
         __FILE__, __LINE__, \
-        __create_overwrite_helper_for_##start, \
-        start, \
-        __VA_ARGS__ \
-    )
-
-// Replace All Calls To Virtual Method start With target
-template <int call_id, typename start_t, typename overwrite_t>
-static void _overwrite_virtual_calls(const char *file, int line, start_t (*create_helper)(overwrite_t, start_t), bool (*is_overwritable)(), start_t start, overwrite_t target) {
-    _only_call_once<call_id>();
-    if (!is_overwritable()) {
-        ERR("Virtual Method Is Not Overwritable");
-    }
-    start_t helper = create_helper(target, start);
-    _overwrite_calls_manual(file, line, (void *) start, (void *) helper);
-}
-#define overwrite_virtual_calls(start, ...) \
-    _overwrite_virtual_calls< \
-        __COUNTER__, \
-        start##_t, \
-        __overwrite_##start##_t \
-    >( \
-        __FILE__, __LINE__, \
-        __create_overwrite_helper_for_##start, \
-        __is_overwritable_##start, \
-        *start##_vtable_addr, \
+        __set_overwrite_for_##start, \
         __VA_ARGS__ \
     )
 
@@ -77,7 +47,7 @@ void _overwrite_calls_within(const char *file, int line, void *from, void *to, s
 }
 #define overwrite_calls_within(from, to, start, ...) \
     _overwrite_calls_within< \
-        start##_t \
+        __raw_##start##_t \
     >( \
         __FILE__, __LINE__, \
         from, to, \
@@ -98,7 +68,7 @@ void _overwrite(const char *file, int line, start_t start, start_t target) {
 }
 #define overwrite(start, ...) \
     _overwrite< \
-        start##_t \
+        __raw_##start##_t \
     >( \
         __FILE__, __LINE__, \
         start, \
@@ -123,7 +93,7 @@ void _patch_vtable(const char *file, int line, start_t *start, start_t target) {
 }
 #define patch_vtable(start, ...) \
     _patch_vtable< \
-        start##_t \
+        __raw_##start##_t \
     >( \
         __FILE__, __LINE__, \
         start##_vtable_addr, \

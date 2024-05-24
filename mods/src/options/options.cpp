@@ -167,7 +167,7 @@ void init_options() {
 
     // Set Options
     overwrite_calls(Options_initDefaultValue, Options_initDefaultValue_injection);
-    overwrite_virtual_calls(Minecraft_init, Minecraft_init_injection);
+    overwrite_calls(Minecraft_init, Minecraft_init_injection);
 
     // Change Username
     const char *username = get_username();

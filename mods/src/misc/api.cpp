@@ -38,6 +38,60 @@ static void Inventory_setupDefault_FillingContainer_addItem_call_injection(Filli
     handle_misc_creative_inventory_setup(filling_container);
 }
 
+// API
+void misc_run_on_update(const std::function<void(Minecraft *)> &func) {
+    overwrite_calls(Minecraft_update, [func](Minecraft_update_t original, Minecraft *self) {
+        original(self);
+        func(self);
+    });
+}
+void misc_run_on_tick(const std::function<void(Minecraft *)> &func) {
+    overwrite_calls(Minecraft_tick, [func](Minecraft_tick_t original, Minecraft *self, int tick, int max_ticks) {
+        original(self, tick, max_ticks);
+        func(self);
+    });
+}
+void misc_run_on_recipes_setup(const std::function<void(Recipes *)> &func) {
+    overwrite_calls(Recipes_constructor, [func](Recipes_constructor_t original, Recipes *self) {
+        original(self);
+        func(self);
+        return self;
+    });
+}
+void misc_run_on_furnace_recipes_setup(const std::function<void(FurnaceRecipes *)> &func) {
+    overwrite_calls(FurnaceRecipes_constructor, [func](FurnaceRecipes_constructor_t original, FurnaceRecipes *self) {
+        original(self);
+        func(self);
+        return self;
+    });
+}
+void misc_run_on_tiles_setup(const std::function<void()> &func) {
+    overwrite_calls(Tile_initTiles, [func](Tile_initTiles_t original) {
+        func();
+        original();
+    });
+}
+void misc_run_on_items_setup(const std::function<void()> &func) {
+    overwrite_calls(Item_initItems, [func](Item_initItems_t original) {
+        original();
+        func();
+    });
+}
+void misc_run_on_language_setup(const std::function<void()> &func) {
+    overwrite_calls(I18n_loadLanguage, [func](I18n_loadLanguage_t original, AppPlatform *self, std::string language_name) {
+        original(self, language_name);
+        func();
+    });
+}
+void misc_run_on_game_key_press(const std::function<bool(Minecraft *, int)> &func) {
+    overwrite_calls(Gui_handleKeyPressed, [func](Gui_handleKeyPressed_t original, Gui *self, int key) {
+        if (func(self->minecraft, key)) {
+            return;
+        }
+        original(self, key);
+    });
+}
+
 // Render Fancy Background
 void misc_render_background(int color, Minecraft *minecraft, int x, int y, int width, int height) {
     // https://github.com/ReMinecraftPE/mcpe/blob/f0d65eaecec1b3fe9c2f2b251e114a890c54ab77/source/client/gui/components/RolledSelectionList.cpp#L169-L179

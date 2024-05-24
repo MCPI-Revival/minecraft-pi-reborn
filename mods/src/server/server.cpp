@@ -568,7 +568,7 @@ static void server_init() {
     unsigned char max_players_patch[4] = {get_max_players(), 0x30, 0xa0, 0xe3}; // "mov r3, #MAX_PLAYERS"
     patch((void *) 0x166d0, max_players_patch);
     // Custom Banned IP List
-    overwrite_virtual_calls(RakNet_RakPeer_IsBanned, RakNet_RakPeer_IsBanned_injection);
+    overwrite_calls(RakNet_RakPeer_IsBanned, RakNet_RakPeer_IsBanned_injection);
 
     // Show The MineCon Icon Next To MOTD In Server List
     if (get_server_properties().get_bool("show-minecon-badge", DEFAULT_SHOW_MINECON_BADGE)) {

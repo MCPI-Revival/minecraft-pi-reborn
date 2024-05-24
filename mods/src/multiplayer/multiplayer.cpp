@@ -130,6 +130,6 @@ static void RakNetInstance_pingForHosts_injection(RakNetInstance_pingForHosts_t 
 void init_multiplayer() {
     // Inject Code
     if (feature_has("External Server Support", server_disabled)) {
-        overwrite_virtual_calls(RakNetInstance_pingForHosts, RakNetInstance_pingForHosts_injection);
+        overwrite_calls(RakNetInstance_pingForHosts, RakNetInstance_pingForHosts_injection);
     }
 }

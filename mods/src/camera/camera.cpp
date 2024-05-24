@@ -36,7 +36,7 @@ static void TripodCamera_tick_Level_addParticle_call_injection(Level *level, std
 // Init
 void init_camera() {
     // Implement AppPlatform_linux::saveScreenshot So Cameras Work
-    overwrite_virtual_calls(AppPlatform_saveScreenshot, AppPlatform_saveScreenshot_injection);
+    overwrite_calls(AppPlatform_saveScreenshot, AppPlatform_saveScreenshot_injection);
 
     // Fix Camera Rendering
     if (feature_has("Fix Camera Rendering", server_disabled)) {

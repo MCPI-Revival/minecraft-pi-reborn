@@ -463,8 +463,8 @@ static void RandomLevelSource_buildSurface_injection(RandomLevelSource_buildSurf
 }
 
 // No Block Tinting
-template <typename T, typename S>
-static int32_t Tile_getColor_injection(__attribute__((unused)) T original, __attribute__((unused)) S *self, __attribute__((unused)) LevelSource *level_source, __attribute__((unused)) int x, __attribute__((unused)) int y, __attribute__((unused)) int z) {
+template <typename T>
+static int32_t Tile_getColor_injection(__attribute__((unused)) std::function<int(T *, LevelSource *, int, int, int)> original, __attribute__((unused)) T *self, __attribute__((unused)) LevelSource *level_source, __attribute__((unused)) int x, __attribute__((unused)) int y, __attribute__((unused)) int z) {
     return 0xffffff;
 }
 
@@ -796,10 +796,10 @@ void init_misc() {
     }
 
     // Fix Screen Rendering When GUI is Hidden
-    overwrite_virtual_calls(Screen_render, Screen_render_injection);
+    overwrite_calls(Screen_render, Screen_render_injection);
 
     // Sanitize Username
-    overwrite_virtual_calls(LoginPacket_read, LoginPacket_read_injection);
+    overwrite_calls(LoginPacket_read, LoginPacket_read_injection);
 
     // Fix RakNet::RakString Security Bug
     overwrite_calls_manual((void *) RakNet_RakString_constructor, (void *) RakNet_RakString_injection);
@@ -812,7 +812,7 @@ void init_misc() {
 
     // Close Current Screen On Death To Prevent Bugs
     if (feature_has("Close Current Screen On Death", server_disabled)) {
-        overwrite_virtual_calls(LocalPlayer_die, LocalPlayer_die_injection);
+        overwrite_calls(LocalPlayer_die, LocalPlayer_die_injection);
     }
 
     // Fix Furnace Not Checking Item Auxiliary When Inserting New Item
@@ -875,7 +875,7 @@ void init_misc() {
     // Change Grass Color
     if (feature_has("Add Biome Colors To Grass", server_disabled)) {
         patch_vtable(GrassTile_getColor, GrassTile_getColor_injection);
-        overwrite_virtual_calls(TallGrass_getColor, TallGrass_getColor_injection);
+        overwrite_calls(TallGrass_getColor, TallGrass_getColor_injection);
     }
 
     // Generate Caves
@@ -885,11 +885,11 @@ void init_misc() {
 
     // Disable Block Tinting
     if (feature_has("Disable Block Tinting", server_disabled)) {
-        overwrite_virtual_calls(GrassTile_getColor, Tile_getColor_injection);
-        overwrite_virtual_calls(TallGrass_getColor, Tile_getColor_injection);
-        overwrite_virtual_calls(StemTile_getColor, Tile_getColor_injection);
-        overwrite_virtual_calls(LeafTile_getColor, Tile_getColor_injection);
-        overwrite_virtual_calls(LiquidTile_getColor, Tile_getColor_injection);
+        overwrite_calls(GrassTile_getColor, Tile_getColor_injection<GrassTile>);
+        overwrite_calls(TallGrass_getColor, Tile_getColor_injection<TallGrass>);
+        overwrite_calls(StemTile_getColor, Tile_getColor_injection<StemTile>);
+        overwrite_calls(LeafTile_getColor, Tile_getColor_injection<LeafTile>);
+        overwrite_calls(LiquidTile_getColor, Tile_getColor_injection<LiquidTile>);
     }
 
     // Custom GUI Scale
@@ -924,7 +924,7 @@ void init_misc() {
 
         // Animation
         overwrite_calls(ContainerMenu_constructor, ContainerMenu_injection);
-        overwrite_virtual_calls(ContainerMenu_destructor_complete, ContainerMenu_destructor_injection);
+        overwrite_calls(ContainerMenu_destructor_complete, ContainerMenu_destructor_injection);
     }
     patch_address((void *) 0x115b48, (void *) ChestTileEntity_shouldSave_injection);
 
@@ -951,7 +951,7 @@ void init_misc() {
 
     // Java Light Ramp
     if (feature_has("Use Java Beta 1.3 Light Ramp", server_disabled)) {
-        overwrite_virtual_calls(Dimension_updateLightRamp, Dimension_updateLightRamp_injection);
+        overwrite_calls(Dimension_updateLightRamp, Dimension_updateLightRamp_injection);
     }
 
     // Fix used items transferring durability
@@ -970,18 +970,18 @@ void init_misc() {
 
     // Implement AppPlatform::readAssetFile So Translations Work
     if (feature_has("Load Language Files", server_enabled)) {
-        overwrite_virtual_calls(AppPlatform_readAssetFile, AppPlatform_readAssetFile_injection);
+        overwrite_calls(AppPlatform_readAssetFile, AppPlatform_readAssetFile_injection);
     }
 
     // Fix Pause Menu
     if (feature_has("Fix Pause Menu", server_disabled)) {
         // Add Missing Buttons To Pause Menu
-        overwrite_virtual_calls(PauseScreen_init, PauseScreen_init_injection);
+        overwrite_calls(PauseScreen_init, PauseScreen_init_injection);
     }
 
     // Implement Crafting Remainders
     overwrite_call((void *) 0x2e230, (void *) PaneCraftingScreen_craftSelectedItem_PaneCraftingScreen_recheckRecipes_injection);
-    overwrite_virtual_calls(Item_getCraftingRemainingItem, Item_getCraftingRemainingItem_injection);
+    overwrite_calls(Item_getCraftingRemainingItem, Item_getCraftingRemainingItem_injection);
 
     // Replace 2011 std::sort With Optimized(TM) Code
     if (feature_has("Optimized Chunk Sorting", server_enabled)) {

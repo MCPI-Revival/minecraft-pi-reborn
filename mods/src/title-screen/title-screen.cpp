@@ -133,7 +133,7 @@ void init_title_screen() {
     // Improved Classic Title Screen
     if (feature_has("Improved Classic Title Screen", server_disabled)) {
         // Add Options Button Back To Classic Start Screen
-        overwrite_virtual_calls(StartMenuScreen_init, StartMenuScreen_init_injection);
+        overwrite_calls(StartMenuScreen_init, StartMenuScreen_init_injection);
 
         // Fix Classic UI Button Size
         unsigned char classic_button_height_patch[4] = {0x18, 0x30, 0xa0, 0xe3}; // "mov r3, #0x18"
@@ -157,7 +157,7 @@ void init_title_screen() {
         patch_address((void *) &Strings::classic_create_button_text, (void *) "Quit");
 
         // Add Functionality To Quit Button
-        overwrite_virtual_calls(StartMenuScreen_buttonClicked, StartMenuScreen_buttonClicked_injection);
+        overwrite_calls(StartMenuScreen_buttonClicked, StartMenuScreen_buttonClicked_injection);
     }
 
     // Add Splashes

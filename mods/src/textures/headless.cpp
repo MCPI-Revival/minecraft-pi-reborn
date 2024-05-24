@@ -19,5 +19,5 @@ static Texture AppPlatform_linux_loadTexture_injection(__attribute__((unused)) A
 // Init
 void init_textures() {
     // Disable Texture Loading
-    overwrite_virtual_calls(AppPlatform_linux_loadTexture, AppPlatform_linux_loadTexture_injection);
+    overwrite_calls(AppPlatform_linux_loadTexture, AppPlatform_linux_loadTexture_injection);
 }

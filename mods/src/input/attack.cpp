@@ -56,7 +56,7 @@ static ItemInstance *Player_attack_Inventory_getSelected_injection(Inventory *in
 void _init_attack() {
     // Allow Attacking Mobs
     if (feature_has("Fix Attacking", server_disabled)) {
-        overwrite_virtual_calls(MouseBuildInput_tickBuild, MouseBuildInput_tickBuild_injection);
+        overwrite_calls(MouseBuildInput_tickBuild, MouseBuildInput_tickBuild_injection);
 
         // Fix Holding Attack
         overwrite_call((void *) 0x8fc1c, (void *) Player_attack_Entity_hurt_injection);

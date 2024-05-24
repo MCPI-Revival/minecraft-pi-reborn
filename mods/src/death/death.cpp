@@ -131,10 +131,10 @@ void init_death() {
         patch_vtable(ServerPlayer_die, [](ServerPlayer *player, Entity *cause) {
             ServerPlayer_die_injection(*Player_die_vtable_addr, player, cause);
         });
-        overwrite_virtual_calls(LocalPlayer_die, LocalPlayer_die_injection);
+        overwrite_calls(LocalPlayer_die, LocalPlayer_die_injection);
         patch_vtable(LocalPlayer_actuallyHurt, LocalPlayer_actuallyHurt_injection);
         patch_vtable(ServerPlayer_actuallyHurt, ServerPlayer_actuallyHurt_injection);
-        overwrite_virtual_calls(Mob_hurt, Mob_hurt_injection);
+        overwrite_calls(Mob_hurt, Mob_hurt_injection);
     }
 
     // Fix TNT
