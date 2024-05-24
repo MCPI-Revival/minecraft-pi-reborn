@@ -13,8 +13,6 @@
 #define QEMU_BINARY "qemu-arm"
 
 #define REQUIRED_PAGE_SIZE 4096
-#define _STR(x) #x
-#define STR(x) _STR(x)
 
 // Debug Information
 static void run_debug_command(const char *const command[], const char *prefix) {
@@ -66,8 +64,6 @@ void bootstrap() {
     if (page_size != REQUIRED_PAGE_SIZE) {
         ERR("Invalid page size! A page size of %ld bytes is required, but the system size is %ld bytes.", (long) REQUIRED_PAGE_SIZE, page_size);
     }
-#else
-    set_and_print_env("QEMU_PAGESIZE", STR(REQUIRED_PAGE_SIZE));
 #endif
 
     // Get Binary Directory
