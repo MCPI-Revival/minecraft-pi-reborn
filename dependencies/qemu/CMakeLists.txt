@@ -3,7 +3,7 @@ project(qemu)
 ## QEMU
 
 # Version
-set(QEMU_VERSION "8.2.1")
+set(QEMU_VERSION "9.0.0")
 
 # Flatpak Support
 set(QEMU_FLATPAK_PATCH "")

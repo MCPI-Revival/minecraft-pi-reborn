@@ -646,8 +646,8 @@ void SDL_WM_SetCaption(const char *title, __attribute__((unused)) const char *ic
     
     // Setup Compatibility Layer
 #ifdef MCPI_USE_GLES1_COMPATIBILITY_LAYER
-    extern void init_gles_compatibility_layer();
-    init_gles_compatibility_layer();
+    extern void init_gles_compatibility_layer(void *);
+    init_gles_compatibility_layer(glfwGetProcAddress);
 #endif
 
     // Debug
