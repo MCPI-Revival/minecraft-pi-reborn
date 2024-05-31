@@ -36,7 +36,7 @@ jobs:
           - name: Build
             run: ./scripts/build.mjs appimage ${{ matrix.mode }} ${{ matrix.arch }}
           - name: Upload Artifacts
-            uses: actions/upload-artifact@v4
+            uses: christopherhx/gitea-upload-artifact@v4
             with:
                 name: ${{ matrix.mode }} (${{ matrix.arch }})
                 path: ./out/*.AppImage*
@@ -89,7 +89,7 @@ jobs:
           - name: Build Example Mods
             run: ./example-mods/build.sh
           - name: Upload Artifacts
-            uses: actions/upload-artifact@v4
+            uses: christopherhx/gitea-upload-artifact@v4
             with:
                 name: Example Mods
                 path: ./example-mods/out/*
@@ -109,7 +109,7 @@ jobs:
                 go-version: '>=1.20.1'
           # Download Artifacts
           - name: Download Artifacts
-            uses: actions/download-artifact@v4
+            uses: christopherhx/gitea-download-artifact@v4
             with:
                 path: out
           # Create Release
