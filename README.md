@@ -8,7 +8,7 @@
     <a href="https://github.com/Botspot/pi-apps"><img height="80" alt="Get it from Pi-Apps" src="https://github.com/Botspot/pi-apps/blob/master/icons/badge.png?raw=true" /></a>
 </p>
 
-# Minecraft: Pi Edition: Reborn
+# Minecraft: Pi Edition: Reborn [![Gitea Actions](https://gitea.thebrokenrail.com/minecraft-pi-reborn/minecraft-pi-reborn/actions/workflows/build.yml/badge.svg)](https://gitea.thebrokenrail.com/minecraft-pi-reborn/minecraft-pi-reborn/actions)
 Minecraft: Pi Edition Modding Project
 
 ## Documentation
