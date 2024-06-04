@@ -177,12 +177,14 @@ void bootstrap() {
 
     // Arguments
     std::vector<std::string> args;
-    // Non-ARM Systems Need QEMU
+    // Use Trampoline Host If Needed
+#ifdef MCPI_USE_TRAMPOLINE_HOST
+    args.push_back("trampoline");
+#endif
+    // Fix QEMU Bug
 #ifdef MCPI_USE_QEMU
-    args.push_back(QEMU_BINARY);
-    // Fix Bug
     args.push_back("-B");
-    args.push_back("0x40000"); // Arbitary Value (Aligns To 4k And 16k Page Sizes)
+    args.push_back("0x40000"); // Arbitrary Value (Aligns To 4k And 16k Page Sizes)
 #endif
 
     // Setup Linker

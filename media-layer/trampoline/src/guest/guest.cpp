@@ -3,13 +3,13 @@
 
 #include "guest.h"
 
-uint32_t _trampoline(uint32_t id, uint32_t *args) {
+uint32_t _raw_trampoline(const uint32_t id, const uint32_t length, const unsigned char *args) {
     // Make Syscall
-    long ret = syscall(0x1337 /* See trampoline.patch */, id, args);
+    long ret = syscall(0x1337 /* See trampoline.patch */, id, length, args);
     if (ret == -1) {
         // Error
         ERR("Trampoline Error: %s", strerror(errno));
     }
     // Return
-    return args[0];
+    return *(uint32_t *) args;
 }

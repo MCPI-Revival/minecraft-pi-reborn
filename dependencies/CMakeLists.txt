@@ -16,10 +16,8 @@ endif()
 if(BUILD_NATIVE_COMPONENTS OR (BUILD_MEDIA_LAYER_CORE AND NOT MCPI_HEADLESS_MODE))
     add_subdirectory(LIEF)
 endif()
-# QEMU
-if(BUILD_NATIVE_COMPONENTS AND MCPI_USE_QEMU)
-    add_subdirectory(qemu)
-endif()
+# Trampoline
+add_subdirectory(trampoline)
 # GLFW
 if(BUILD_MEDIA_LAYER_CORE AND NOT MCPI_HEADLESS_MODE)
     add_subdirectory(glfw)

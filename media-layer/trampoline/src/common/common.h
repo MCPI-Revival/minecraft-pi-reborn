@@ -1,8 +1,16 @@
 #pragma once
 
+#include <cstdint>
+#include <type_traits>
+
+#include <trampoline/types.h>
+
 #if __BYTE_ORDER != __LITTLE_ENDIAN
 #error "Only Little Endian Is Supported"
 #endif
+
+static_assert(sizeof(int) == sizeof(int32_t));
+#define block_pointer(T) static_assert(!std::is_pointer<T>::value, "Do Not Use Raw Pointers Here")
 
 #if defined(MEDIA_LAYER_TRAMPOLINE_HOST)
 #include "../host/host.h"
@@ -11,11 +19,3 @@
 #else
 #error "Invalid Configuration"
 #endif
-
-//#define pun_to(type, x) (*(type *) &(x))
-#define pun_to(type, x) \
-    ({ \
-        union { typeof(x) a; type b; } _pun; \
-        _pun.a = x; \
-        _pun.b; \
-    })
