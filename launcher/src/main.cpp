@@ -2,6 +2,10 @@
 #include <libreborn/libreborn.h>
 #include <sys/stat.h>
 
+#ifdef MCPI_USE_NATIVE_TRAMPOLINE
+#include <trampoline/types.h>
+#endif
+
 #include "bootstrap.h"
 #include "options/parser.h"
 #include "crash-report.h"
@@ -23,6 +27,9 @@ static void setup_environment(const options_t &options) {
     bind_to_env("_MCPI_BENCHMARK", options.benchmark);
 #else
     bind_to_env("_MCPI_ONLY_GENERATE", options.only_generate);
+#endif
+#ifdef MCPI_USE_NATIVE_TRAMPOLINE
+    bind_to_env(TRAMPOLINE_USE_PTRACE_ENV, options.use_ptrace_trampoline);
 #endif
 
     // GTK Dark Mode
