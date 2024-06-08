@@ -13,4 +13,6 @@ endif()
 add_subdirectory(src)
 
 # Install
-install_runtime("${MCPI_BIN_DIR}" "${MCPI_LEGAL_DIR}")
+if(COMMAND install_runtime)
+    install_runtime("${MCPI_BIN_DIR}" "${MCPI_LEGAL_DIR}")
+endif()
