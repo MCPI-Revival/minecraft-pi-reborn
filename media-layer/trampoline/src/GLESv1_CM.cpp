@@ -22,77 +22,57 @@ CALL(11, glFogfv, void, (GLenum pname, const GLfloat *params))
 }
 
 // Track GL State
-struct gl_array_state_t {
-    bool enabled = false;
-    GLint size = 0;
+struct gl_array_details_t {
+    GLint size = -1;
     GLenum type = 0;
     GLsizei stride = 0;
     uint32_t pointer = 0;
-    bool operator==(const gl_array_state_t &other) const {
-        return enabled == other.enabled && size == other.size && type == other.type && stride == other.stride && pointer == other.pointer;
-    }
-    bool operator!=(const gl_array_state_t &other) const {
-        return !operator==(other);
-    }
 };
+#ifdef MEDIA_LAYER_TRAMPOLINE_GUEST
+struct {
+    gl_array_details_t glVertexPointer;
+    gl_array_details_t glColorPointer;
+    gl_array_details_t glTexCoordPointer;
+} gl_array_details;
+#endif
 struct gl_state_t {
     GLuint bound_array_buffer = 0;
     GLuint bound_texture = 0;
-    gl_array_state_t vertex_array;
-    gl_array_state_t color_array;
-    gl_array_state_t tex_coord_array;
+    bool vertex_array_enabled = false;
+    bool color_array_enabled = false;
+    bool tex_coord_array_enabled = false;
     // Update State
-    static typeof(glVertexPointer) *get_array_pointer_function(const GLenum array) {
+    bool &get_array_enabled(const GLenum array) {
         switch (array) {
             case GL_VERTEX_ARRAY: {
-                return glVertexPointer;
+                return vertex_array_enabled;
             }
             case GL_COLOR_ARRAY: {
-                return glColorPointer;
+                return color_array_enabled;
             }
             case GL_TEXTURE_COORD_ARRAY: {
-                return glTexCoordPointer;
+                return tex_coord_array_enabled;
             }
             default: {
                 ERR("Unsupported Array Type: %i", array);
             }
         }
     }
-    gl_array_state_t &get_array_state(const GLenum array) {
-        switch (array) {
-            case GL_VERTEX_ARRAY: {
-                return vertex_array;
-            }
-            case GL_COLOR_ARRAY: {
-                return color_array;
-            }
-            case GL_TEXTURE_COORD_ARRAY: {
-                return tex_coord_array;
-            }
-            default: {
-                ERR("Unsupported Array Function");
-            }
-        }
-    }
-#ifdef MEDIA_LAYER_TRAMPOLINE_GUEST
-    void enable_disable_array(const GLenum array, const bool value) {
-        get_array_state(array).enabled = value;
-    }
-#else
-    void send_array_to_driver(GLenum array) {
-        gl_array_state_t state = get_array_state(array);
-        if (state.enabled) {
+#ifndef MEDIA_LAYER_TRAMPOLINE_GUEST
+    void send_array_to_driver(const GLenum array) {
+        const bool state = get_array_enabled(array);
+        if (state) {
             glEnableClientState(array);
         } else {
             glDisableClientState(array);
         }
-        typeof(glVertexPointer) *func = get_array_pointer_function(array);
-        func(state.size, state.type, state.stride, (const void *) uintptr_t(state.pointer));
     }
-    void send_arrays_to_driver() {
+    void send_to_driver() {
         send_array_to_driver(GL_VERTEX_ARRAY);
         send_array_to_driver(GL_COLOR_ARRAY);
         send_array_to_driver(GL_TEXTURE_COORD_ARRAY);
+        glBindBuffer(GL_ARRAY_BUFFER, bound_array_buffer);
+        glBindTexture(GL_TEXTURE_2D, bound_texture);
     }
 #endif
 };
@@ -102,19 +82,27 @@ static gl_state_t gl_state;
 
 // 'pointer' Is Only Supported As An Integer, Not As An Actual Pointer
 #ifdef MEDIA_LAYER_TRAMPOLINE_GUEST
-#define CALL_GL_POINTER(name, array) \
-    void name(GLint size, GLenum type, GLsizei stride, const void *pointer) { \
-        gl_array_state_t &state = gl_state.get_array_state(array); \
-        state.size = size; \
-        state.type = type; \
-        state.stride = stride; \
-        state.pointer = uint32_t(pointer); \
+#define CALL_GL_POINTER(unique_id, name) \
+    CALL(unique_id, name, void, (GLint size, GLenum type, GLsizei stride, const void *pointer)) \
+        gl_array_details_t &state = gl_array_details.name; \
+        if (state.size != size || state.type != type || state.stride != stride || state.pointer != uint32_t(pointer)) { \
+            state.size = size; \
+            state.type = type; \
+            state.stride = stride; \
+            state.pointer = uint32_t(pointer); \
+            trampoline(state); \
+        } \
     }
 #else
-#define CALL_GL_POINTER(name, array)
+#define CALL_GL_POINTER(unique_id, name) \
+    CALL(unique_id, name, unused, ()) \
+        gl_array_details_t state = args.next<gl_array_details_t>(); \
+        func(state.size, state.type, state.stride, (const void *) uintptr_t(state.pointer)); \
+        return 0; \
+    }
 #endif
 
-CALL_GL_POINTER(glVertexPointer, GL_VERTEX_ARRAY)
+CALL_GL_POINTER(12, glVertexPointer)
 
 CALL(13, glLineWidth, void, (GLfloat width))
 #ifdef MEDIA_LAYER_TRAMPOLINE_GUEST
@@ -141,9 +129,7 @@ CALL(15, glDrawArrays, void, (GLenum mode, GLint first, GLsizei count))
     trampoline(gl_state, mode, first, count);
 #else
     gl_state_t gl_state = args.next<gl_state_t>();
-    glBindBuffer(GL_ARRAY_BUFFER, gl_state.bound_array_buffer);
-    glBindTexture(GL_TEXTURE_2D, gl_state.bound_texture);
-    gl_state.send_arrays_to_driver();
+    gl_state.send_to_driver();
     GLenum mode = args.next<GLenum>();
     GLint first = args.next<GLint>();
     GLsizei count = args.next<GLsizei>();
@@ -219,7 +205,7 @@ CALL(21, glMatrixMode, void, (GLenum mode))
 #endif
 }
 
-CALL_GL_POINTER(glColorPointer, GL_COLOR_ARRAY)
+CALL_GL_POINTER(22, glColorPointer)
 
 CALL(23, glScissor, void, (GLint x, GLint y, GLsizei width, GLsizei height))
 #ifdef MEDIA_LAYER_TRAMPOLINE_GUEST
@@ -313,7 +299,7 @@ CALL(26, glEnable, void, (GLenum cap))
 
 #ifdef MEDIA_LAYER_TRAMPOLINE_GUEST
 void glEnableClientState(const GLenum array) {
-    gl_state.enable_disable_array(array, true);
+    gl_state.get_array_enabled(array) = true;
 }
 #endif
 
@@ -328,11 +314,11 @@ CALL(28, glPolygonOffset, void, (GLfloat factor, GLfloat units))
 #endif
 }
 
-CALL_GL_POINTER(glTexCoordPointer, GL_TEXTURE_COORD_ARRAY)
+CALL_GL_POINTER(41, glTexCoordPointer)
 
 #ifdef MEDIA_LAYER_TRAMPOLINE_GUEST
 void glDisableClientState(const GLenum array) {
-    gl_state.enable_disable_array(array, false);
+    gl_state.get_array_enabled(array) = false;
 }
 #endif
 
