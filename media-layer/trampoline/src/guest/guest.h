@@ -5,8 +5,7 @@
 #include "../common/common.h"
 
 // Trampoline Function
-unsigned char *get_arguments_memory();
-uint32_t _raw_trampoline(uint32_t id, uint32_t length, const unsigned char *args);
+uint32_t _raw_trampoline(uint32_t id, bool allow_early_return, uint32_t length, const unsigned char *args);
 
 // Compile Trampoline Arguments
 template <typename T>
@@ -53,12 +52,12 @@ void _add_to_trampoline_args(unsigned char *&out, const T &first, const Args... 
 
 // Main Trampoline Function
 template <typename... Args>
-unsigned int _trampoline(unsigned int id, Args... args) {
-    static unsigned char *out = get_arguments_memory();
+unsigned int _trampoline(const unsigned int id, const bool allow_early_return, Args... args) {
+    static unsigned char out[MAX_TRAMPOLINE_ARGS_SIZE];
     unsigned char *end = out;
     _add_to_trampoline_args(end, args...);
     const uint32_t length = end - out;
-    return _raw_trampoline(id, length, out);
+    return _raw_trampoline(id, allow_early_return, length, out);
 }
 #define trampoline(...) _trampoline(_id, ##__VA_ARGS__)
 

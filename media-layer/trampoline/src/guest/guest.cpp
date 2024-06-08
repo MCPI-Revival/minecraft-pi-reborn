@@ -26,7 +26,7 @@ static int get_pipe(const char *env) {
     std::string str = value;
     return std::stoi(str);
 }
-static uint32_t trampoline_pipe(const uint32_t id) {
+static uint32_t trampoline_pipe(const uint32_t id, const bool allow_early_return, const uint32_t length, const unsigned char *args) {
     // Get Pipes
     static int arguments_pipe = -1;
     static int return_value_pipe = -1;
@@ -34,20 +34,30 @@ static uint32_t trampoline_pipe(const uint32_t id) {
         arguments_pipe = get_pipe(TRAMPOLINE_ARGUMENTS_PIPE_ENV);
         return_value_pipe = get_pipe(TRAMPOLINE_RETURN_VALUE_PIPE_ENV);
     }
-    // Write ID
-    if (write(arguments_pipe, &id, sizeof(uint32_t)) != sizeof(uint32_t)) {
+    // Write Command
+    const trampoline_pipe_arguments cmd = {
+        .id = id,
+        .allow_early_return = allow_early_return,
+        .length = length,
+        .args_addr = uint32_t(args)
+    };
+    if (write(arguments_pipe, &cmd, sizeof(trampoline_pipe_arguments)) != sizeof(trampoline_pipe_arguments)) {
         ERR("Unable To Write Trampoline Command");
     }
     // Return
-    uint32_t ret;
-    if (read(return_value_pipe, &ret, sizeof(uint32_t)) != sizeof(uint32_t)) {
-        ERR("Unable To Read Trampoline Return Value");
+    if (length > 0 || !allow_early_return) {
+        uint32_t ret;
+        if (read(return_value_pipe, &ret, sizeof(uint32_t)) != sizeof(uint32_t)) {
+            ERR("Unable To Read Trampoline Return Value");
+        }
+        return ret;
+    } else {
+        return 0;
     }
-    return ret;
 }
 
 // Main Function
-uint32_t _raw_trampoline(const uint32_t id, const uint32_t length, const unsigned char *args) {
+uint32_t _raw_trampoline(const uint32_t id, const bool allow_early_return, const uint32_t length, const unsigned char *args) {
     // Configure Method
     static int use_syscall = -1;
     if (use_syscall == -1) {
@@ -57,30 +67,6 @@ uint32_t _raw_trampoline(const uint32_t id, const uint32_t length, const unsigne
     if (use_syscall) {
         return trampoline_syscall(id, length, args);
     } else {
-        return trampoline_pipe(id);
+        return trampoline_pipe(id, allow_early_return, length, args);
     }
-}
-
-// Arguments Memory
-unsigned char *get_arguments_memory() {
-    static unsigned char fallback[MAX_TRAMPOLINE_ARGS_SIZE];
-    // Find Result
-    static unsigned char *ret = nullptr;
-    if (ret == nullptr) {
-        ret = fallback;
-        // Try Shared Memory
-        const char *shared_memory_name = getenv(TRAMPOLINE_SHARED_MEMORY_ENV);
-        if (shared_memory_name != nullptr) {
-            int fd = shm_open(shared_memory_name, O_RDWR, 0600);
-            if (fd == -1) {
-                ERR("Unable To Open Shared Memory: %s", strerror(errno));
-            }
-            ret = (unsigned char *) mmap(nullptr, MAX_TRAMPOLINE_ARGS_SIZE, PROT_WRITE, MAP_SHARED, fd, 0);
-            if (ret == MAP_FAILED) {
-                ERR("Unable To Map Shared Memory: %s", strerror(errno));
-            }
-        }
-    }
-    // Return
-    return ret;
 }
