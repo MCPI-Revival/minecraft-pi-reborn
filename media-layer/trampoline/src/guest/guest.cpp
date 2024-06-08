@@ -38,22 +38,30 @@ static uint32_t trampoline_pipe(const uint32_t id, const bool allow_early_return
     const trampoline_pipe_arguments cmd = {
         .id = id,
         .allow_early_return = allow_early_return,
-        .length = length,
-        .args_addr = uint32_t(args)
+        .length = length
     };
     if (write(arguments_pipe, &cmd, sizeof(trampoline_pipe_arguments)) != sizeof(trampoline_pipe_arguments)) {
         ERR("Unable To Write Trampoline Command");
     }
-    // Return
-    if (length > 0 || !allow_early_return) {
-        uint32_t ret;
-        if (read(return_value_pipe, &ret, sizeof(uint32_t)) != sizeof(uint32_t)) {
-            ERR("Unable To Read Trampoline Return Value");
+    // Write Arguments
+    size_t position = 0;
+    while (position < length) {
+        const ssize_t ret = write(arguments_pipe, args + position, length - position);
+        if (ret == -1) {
+            ERR("Unable To Write Trampoline Arguments");
+        } else {
+            position += ret;
         }
-        return ret;
-    } else {
+    }
+    if (allow_early_return) {
         return 0;
     }
+    // Return
+    uint32_t ret;
+    if (read(return_value_pipe, &ret, sizeof(uint32_t)) != sizeof(uint32_t)) {
+        ERR("Unable To Read Trampoline Return Value");
+    }
+    return ret;
 }
 
 // Main Function
