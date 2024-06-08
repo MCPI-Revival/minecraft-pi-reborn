@@ -29,7 +29,7 @@ static void setup_environment(const options_t &options) {
     bind_to_env("_MCPI_ONLY_GENERATE", options.only_generate);
 #endif
 #ifdef MCPI_USE_NATIVE_TRAMPOLINE
-    bind_to_env(TRAMPOLINE_USE_PTRACE_ENV, options.use_ptrace_trampoline);
+    bind_to_env(TRAMPOLINE_USE_PIPES_ENV, !options.use_ptrace_trampoline);
 #endif
 
     // GTK Dark Mode

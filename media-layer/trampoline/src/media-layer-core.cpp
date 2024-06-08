@@ -87,7 +87,7 @@ CALL(8, media_swap_buffers, void, ())
 
 CALL(9, media_cleanup, void, ())
 #ifdef MEDIA_LAYER_TRAMPOLINE_GUEST
-    trampoline();
+    trampoline(false);
 #else
     func();
     return 0;

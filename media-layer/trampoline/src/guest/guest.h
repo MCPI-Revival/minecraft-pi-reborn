@@ -5,11 +5,12 @@
 #include "../common/common.h"
 
 // Trampoline Function
+unsigned char *get_arguments_memory();
 uint32_t _raw_trampoline(uint32_t id, uint32_t length, const unsigned char *args);
 
 // Compile Trampoline Arguments
 template <typename T>
-void _handle_trampoline_arg(unsigned char *&out, const T arg) {
+void _handle_trampoline_arg(unsigned char *&out, const T &arg) {
     block_pointer(T);
     *(T *) out = arg;
     out += sizeof(T);
@@ -33,7 +34,7 @@ struct copy_array {
     const void *data;
 };
 template <>
-inline void _handle_trampoline_arg<copy_array>(unsigned char *&out, const copy_array arg) {
+inline void _handle_trampoline_arg<copy_array>(unsigned char *&out, const copy_array &arg) {
     *(uint32_t *) out = arg.size;
     out += sizeof(uint32_t);
     if (arg.size > 0) {
@@ -45,7 +46,7 @@ inline void _handle_trampoline_arg<copy_array>(unsigned char *&out, const copy_a
 __attribute__((unused)) static void _add_to_trampoline_args(__attribute__((unused)) unsigned char *&out) {
 }
 template <typename T, typename... Args>
-void _add_to_trampoline_args(unsigned char *&out, T first, Args... args) {
+void _add_to_trampoline_args(unsigned char *&out, const T &first, const Args... args) {
     _handle_trampoline_arg(out, first);
     _add_to_trampoline_args(out, args...);
 }
@@ -53,7 +54,7 @@ void _add_to_trampoline_args(unsigned char *&out, T first, Args... args) {
 // Main Trampoline Function
 template <typename... Args>
 unsigned int _trampoline(unsigned int id, Args... args) {
-    static unsigned char out[MAX_TRAMPOLINE_ARGS_SIZE];
+    static unsigned char *out = get_arguments_memory();
     unsigned char *end = out;
     _add_to_trampoline_args(end, args...);
     const uint32_t length = end - out;

@@ -21,25 +21,100 @@ CALL(11, glFogfv, void, (GLenum pname, const GLfloat *params))
 #endif
 }
 
-// 'pointer' Is Only Supported As An Integer, Not As An Actual Pointer
+// Track GL State
+struct gl_array_state_t {
+    bool enabled = false;
+    GLint size = 0;
+    GLenum type = 0;
+    GLsizei stride = 0;
+    uint32_t pointer = 0;
+    bool operator==(const gl_array_state_t &other) const {
+        return enabled == other.enabled && size == other.size && type == other.type && stride == other.stride && pointer == other.pointer;
+    }
+    bool operator!=(const gl_array_state_t &other) const {
+        return !operator==(other);
+    }
+};
+struct gl_state_t {
+    GLuint bound_array_buffer = 0;
+    GLuint bound_texture = 0;
+    gl_array_state_t vertex_array;
+    gl_array_state_t color_array;
+    gl_array_state_t tex_coord_array;
+    // Update State
+    static typeof(glVertexPointer) *get_array_pointer_function(const GLenum array) {
+        switch (array) {
+            case GL_VERTEX_ARRAY: {
+                return glVertexPointer;
+            }
+            case GL_COLOR_ARRAY: {
+                return glColorPointer;
+            }
+            case GL_TEXTURE_COORD_ARRAY: {
+                return glTexCoordPointer;
+            }
+            default: {
+                ERR("Unsupported Array Type: %i", array);
+            }
+        }
+    }
+    gl_array_state_t &get_array_state(const GLenum array) {
+        switch (array) {
+            case GL_VERTEX_ARRAY: {
+                return vertex_array;
+            }
+            case GL_COLOR_ARRAY: {
+                return color_array;
+            }
+            case GL_TEXTURE_COORD_ARRAY: {
+                return tex_coord_array;
+            }
+            default: {
+                ERR("Unsupported Array Function");
+            }
+        }
+    }
 #ifdef MEDIA_LAYER_TRAMPOLINE_GUEST
-#define CALL_GL_POINTER(unique_id, name) \
-    CALL(unique_id, name, void, (GLint size, GLenum type, GLsizei stride, const void *pointer)) \
-        trampoline(size, type, stride, uint32_t(pointer)); \
+    void enable_disable_array(const GLenum array, const bool value) {
+        get_array_state(array).enabled = value;
     }
 #else
-#define CALL_GL_POINTER(unique_id, name) \
-    CALL(unique_id, name, unused, unused) \
-        GLint size = args.next<GLint>(); \
-        GLenum type = args.next<GLenum>(); \
-        GLsizei stride = args.next<GLsizei>(); \
-        const void *pointer = (const void *) (uint64_t) args.next<uint32_t>(); \
-        func(size, type, stride, pointer); \
-        return 0; \
+    void send_array_to_driver(GLenum array) {
+        gl_array_state_t state = get_array_state(array);
+        if (state.enabled) {
+            glEnableClientState(array);
+        } else {
+            glDisableClientState(array);
+        }
+        typeof(glVertexPointer) *func = get_array_pointer_function(array);
+        func(state.size, state.type, state.stride, (const void *) uintptr_t(state.pointer));
+    }
+    void send_arrays_to_driver() {
+        send_array_to_driver(GL_VERTEX_ARRAY);
+        send_array_to_driver(GL_COLOR_ARRAY);
+        send_array_to_driver(GL_TEXTURE_COORD_ARRAY);
     }
 #endif
+};
+#ifdef MEDIA_LAYER_TRAMPOLINE_GUEST
+static gl_state_t gl_state;
+#endif
 
-CALL_GL_POINTER(12, glVertexPointer)
+// 'pointer' Is Only Supported As An Integer, Not As An Actual Pointer
+#ifdef MEDIA_LAYER_TRAMPOLINE_GUEST
+#define CALL_GL_POINTER(name, array) \
+    void name(GLint size, GLenum type, GLsizei stride, const void *pointer) { \
+        gl_array_state_t &state = gl_state.get_array_state(array); \
+        state.size = size; \
+        state.type = type; \
+        state.stride = stride; \
+        state.pointer = uint32_t(pointer); \
+    }
+#else
+#define CALL_GL_POINTER(name, array)
+#endif
+
+CALL_GL_POINTER(glVertexPointer, GL_VERTEX_ARRAY)
 
 CALL(13, glLineWidth, void, (GLfloat width))
 #ifdef MEDIA_LAYER_TRAMPOLINE_GUEST
@@ -63,8 +138,12 @@ CALL(14, glBlendFunc, void, (GLenum sfactor, GLenum dfactor))
 
 CALL(15, glDrawArrays, void, (GLenum mode, GLint first, GLsizei count))
 #ifdef MEDIA_LAYER_TRAMPOLINE_GUEST
-    trampoline(mode, first, count);
+    trampoline(gl_state, mode, first, count);
 #else
+    gl_state_t gl_state = args.next<gl_state_t>();
+    glBindBuffer(GL_ARRAY_BUFFER, gl_state.bound_array_buffer);
+    glBindTexture(GL_TEXTURE_2D, gl_state.bound_texture);
+    gl_state.send_arrays_to_driver();
     GLenum mode = args.next<GLenum>();
     GLint first = args.next<GLint>();
     GLsizei count = args.next<GLsizei>();
@@ -97,8 +176,9 @@ CALL(17, glClear, void, (GLbitfield mask))
 
 CALL(18, glBufferData, void, (GLenum target, GLsizeiptr size, const void *data, GLenum usage))
 #ifdef MEDIA_LAYER_TRAMPOLINE_GUEST
-    trampoline(target, copy_array(size, (unsigned char *) data), usage);
+    trampoline(gl_state.bound_array_buffer, target, copy_array(size, (unsigned char *) data), usage);
 #else
+    glBindBuffer(GL_ARRAY_BUFFER, args.next<GLuint>());
     GLenum target = args.next<GLenum>();
     uint32_t size;
     const unsigned char *data = args.next_arr<unsigned char>(&size);
@@ -139,7 +219,7 @@ CALL(21, glMatrixMode, void, (GLenum mode))
 #endif
 }
 
-CALL_GL_POINTER(22, glColorPointer)
+CALL_GL_POINTER(glColorPointer, GL_COLOR_ARRAY)
 
 CALL(23, glScissor, void, (GLint x, GLint y, GLsizei width, GLsizei height))
 #ifdef MEDIA_LAYER_TRAMPOLINE_GUEST
@@ -156,8 +236,9 @@ CALL(23, glScissor, void, (GLint x, GLint y, GLsizei width, GLsizei height))
 
 CALL(24, glTexParameteri, void, (GLenum target, GLenum pname, GLint param))
 #ifdef MEDIA_LAYER_TRAMPOLINE_GUEST
-    trampoline(target, pname, param);
+    trampoline(gl_state.bound_texture, target, pname, param);
 #else
+    glBindTexture(GL_TEXTURE_2D, args.next<GLuint>());
     GLenum target = args.next<GLenum>();
     GLenum pname = args.next<GLenum>();
     GLint param = args.next<GLint>();
@@ -204,8 +285,9 @@ static int get_texture_size(const GLsizei width, const GLsizei height, const GLe
 
 CALL(25, glTexImage2D, void, (GLenum target, GLint level, GLint internalformat, GLsizei width, GLsizei height, GLint border, GLenum format, GLenum type, const void *pixels))
 #ifdef MEDIA_LAYER_TRAMPOLINE_GUEST
-    trampoline(target, level, internalformat, width, height, border, format, type, copy_array(get_texture_size(width, height, format, type, true), (const unsigned char *) pixels));
+    trampoline(gl_state.bound_texture, target, level, internalformat, width, height, border, format, type, copy_array(get_texture_size(width, height, format, type, true), (const unsigned char *) pixels));
 #else
+    glBindTexture(GL_TEXTURE_2D, args.next<GLuint>());
     GLenum target = args.next<GLenum>();
     GLint level = args.next<GLint>();
     GLint internalformat = args.next<GLint>();
@@ -229,14 +311,11 @@ CALL(26, glEnable, void, (GLenum cap))
 #endif
 }
 
-CALL(27, glEnableClientState, void, (GLenum array))
 #ifdef MEDIA_LAYER_TRAMPOLINE_GUEST
-    trampoline(array);
-#else
-    func(args.next<GLenum>());
-    return 0;
-#endif
+void glEnableClientState(const GLenum array) {
+    gl_state.enable_disable_array(array, true);
 }
+#endif
 
 CALL(28, glPolygonOffset, void, (GLfloat factor, GLfloat units))
 #ifdef MEDIA_LAYER_TRAMPOLINE_GUEST
@@ -249,16 +328,13 @@ CALL(28, glPolygonOffset, void, (GLfloat factor, GLfloat units))
 #endif
 }
 
-CALL_GL_POINTER(41, glTexCoordPointer)
+CALL_GL_POINTER(glTexCoordPointer, GL_TEXTURE_COORD_ARRAY)
 
-CALL(29, glDisableClientState, void, (GLenum array))
 #ifdef MEDIA_LAYER_TRAMPOLINE_GUEST
-    trampoline(array);
-#else
-    func(args.next<GLenum>());
-    return 0;
-#endif
+void glDisableClientState(const GLenum array) {
+    gl_state.enable_disable_array(array, false);
 }
+#endif
 
 CALL(30, glDepthRangef, void, (GLclampf near, GLclampf far))
 #ifdef MEDIA_LAYER_TRAMPOLINE_GUEST
@@ -280,16 +356,15 @@ CALL(31, glDepthFunc, void, (GLenum func))
 #endif
 }
 
-CALL(32, glBindBuffer, void, (GLenum target, GLuint buffer))
 #ifdef MEDIA_LAYER_TRAMPOLINE_GUEST
-    trampoline(target, buffer);
-#else
-    GLenum target = args.next<GLenum>();
-    GLenum buffer = args.next<GLenum>();
-    func(target, buffer);
-    return 0;
-#endif
+void glBindBuffer(const GLenum target, const GLuint buffer) {
+    if (target == GL_ARRAY_BUFFER) {
+        gl_state.bound_array_buffer = buffer;
+    } else {
+        ERR("Unsupported Buffer Binding: %u", target);
+    }
 }
+#endif
 
 CALL(33, glClearColor, void, (GLclampf red, GLclampf green, GLclampf blue, GLclampf alpha))
 #ifdef MEDIA_LAYER_TRAMPOLINE_GUEST
@@ -403,8 +478,9 @@ CALL(43, glColorMask, void, (GLboolean red, GLboolean green, GLboolean blue, GLb
 
 CALL(44, glTexSubImage2D, void, (GLenum target, GLint level, GLint xoffset, GLint yoffset, GLsizei width, GLsizei height, GLenum format, GLenum type, const void *pixels))
 #ifdef MEDIA_LAYER_TRAMPOLINE_GUEST
-    trampoline(target, level, xoffset, yoffset, width, height, format, type, copy_array(get_texture_size(width, height, format, type, true), (const unsigned char *) pixels));
+    trampoline(gl_state.bound_texture, target, level, xoffset, yoffset, width, height, format, type, copy_array(get_texture_size(width, height, format, type, true), (const unsigned char *) pixels));
 #else
+    glBindTexture(GL_TEXTURE_2D, args.next<GLuint>());
     GLenum target = args.next<GLenum>();
     GLint level = args.next<GLint>();
     GLint xoffset = args.next<GLint>();
@@ -485,16 +561,15 @@ CALL(48, glGetFloatv, void, (GLenum pname, GLfloat *params))
 #endif
 }
 
-CALL(49, glBindTexture, void, (GLenum target, GLuint texture))
 #ifdef MEDIA_LAYER_TRAMPOLINE_GUEST
-    trampoline(target, texture);
-#else
-    GLenum target = args.next<GLenum>();
-    GLuint texture = args.next<GLuint>();
-    func(target, texture);
-    return 0;
-#endif
+void glBindTexture(const GLenum target, const GLuint texture) {
+    if (target == GL_TEXTURE_2D) {
+        gl_state.bound_texture = texture;
+    } else {
+        ERR("Unsupported Texture Binding: %u", target);
+    }
 }
+#endif
 
 CALL(50, glTranslatef, void, (GLfloat x, GLfloat y, GLfloat z))
 #ifdef MEDIA_LAYER_TRAMPOLINE_GUEST
