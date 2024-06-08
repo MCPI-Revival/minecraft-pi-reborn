@@ -16,8 +16,8 @@ endif()
 if(BUILD_NATIVE_COMPONENTS OR (BUILD_MEDIA_LAYER_CORE AND NOT MCPI_HEADLESS_MODE))
     add_subdirectory(LIEF)
 endif()
-# Trampoline
-add_subdirectory(trampoline)
+# Extra Runtime
+add_subdirectory(runtime)
 # GLFW
 if(BUILD_MEDIA_LAYER_CORE AND NOT MCPI_HEADLESS_MODE)
     add_subdirectory(glfw)

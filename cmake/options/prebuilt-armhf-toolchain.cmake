@@ -49,15 +49,17 @@ if("${toolchain_dir}/bin/arm-none-linux-gnueabihf-gcc" IS_NEWER_THAN "${sysroot_
     file(REMOVE_RECURSE "${sysroot_dir}/usr/lib/gconv")
 
     # Strip Files
-    file(GLOB_RECURSE files LIST_DIRECTORIES FALSE "${sysroot_dir}/*")
-    foreach(file IN LISTS files)
-        execute_process(COMMAND "${toolchain_dir}/bin/arm-none-linux-gnueabihf-strip" "${file}" RESULT_VARIABLE ret)
-        # Check Result
-        if(NOT ret EQUAL 0)
-            # Delete Invalid Files
-            file(REMOVE "${file}")
-        endif()
-    endforeach()
+    if(NOT CMAKE_BUILD_TYPE STREQUAL "Debug")
+        file(GLOB_RECURSE files LIST_DIRECTORIES FALSE "${sysroot_dir}/*")
+        foreach(file IN LISTS files)
+            execute_process(COMMAND "${toolchain_dir}/bin/arm-none-linux-gnueabihf-strip" "${file}" RESULT_VARIABLE ret)
+            # Check Result
+            if(NOT ret EQUAL 0)
+                # Delete Invalid Files
+                file(REMOVE "${file}")
+            endif()
+        endforeach()
+    endif()
 endif()
 
 # Install Sysroot (Skipping Empty Directories)

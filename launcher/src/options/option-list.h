@@ -10,6 +10,3 @@ OPTION(benchmark, "benchmark", -7, "Run Benchmark")
 #else
 OPTION(only_generate, "only-generate", -8, "Generate World And Exit")
 #endif
-#ifdef MCPI_USE_NATIVE_TRAMPOLINE
-OPTION(use_ptrace_trampoline, "use-ptrace-trampoline", -9, "Use PTrace For Calling Host Functions Instead Of Pipes")
-#endif

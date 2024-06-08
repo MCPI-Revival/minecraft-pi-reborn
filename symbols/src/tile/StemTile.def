@@ -1,3 +1,3 @@
 extends Tile;
 
-vtable 0x110fd0;
+vtable 0x111ec0;

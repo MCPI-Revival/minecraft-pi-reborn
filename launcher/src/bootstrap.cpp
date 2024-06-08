@@ -10,7 +10,6 @@
 #include "patchelf.h"
 
 #define MCPI_BINARY "minecraft-pi"
-#define QEMU_BINARY "qemu-arm"
 
 #define REQUIRED_PAGE_SIZE 4096
 
@@ -151,14 +150,6 @@ void bootstrap() {
             mcpi_ld_path += binary_directory + "/sysroot/usr/lib:";
             mcpi_ld_path += binary_directory + "/sysroot/usr/lib/arm-linux-gnueabihf:";
 #endif
-
-            // Add Host LD_LIBRARY_PATH
-            {
-                char *value = getenv("LD_LIBRARY_PATH");
-                if (value != nullptr && strlen(value) > 0) {
-                    mcpi_ld_path += value;
-                }
-            }
         }
     }
 
@@ -177,12 +168,12 @@ void bootstrap() {
 
     // Arguments
     std::vector<std::string> args;
-    // Use Trampoline Host If Needed
-#ifdef MCPI_USE_TRAMPOLINE_HOST
-    args.push_back("trampoline");
+    // Use Extra If Needed
+#ifdef MCPI_BUILD_RUNTIME
+    args.push_back("runtime");
 #endif
     // Fix QEMU Bug
-#ifdef MCPI_USE_QEMU
+#ifdef MCPI_RUNTIME_IS_QEMU
     args.push_back("-B");
     args.push_back("0x40000"); // Arbitrary Value (Aligns To 4k And 16k Page Sizes)
 #endif

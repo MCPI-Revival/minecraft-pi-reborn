@@ -73,14 +73,6 @@ std::string bootstrap_mods(const std::string &binary_directory) {
         load(preload, mods_folder);
     }
 
-    // Add LD_PRELOAD
-    {
-        const char *value = getenv("LD_PRELOAD");
-        if (value != nullptr && strlen(value) > 0) {
-            preload += value;
-        }
-    }
-
     // Return
     return preload;
 }

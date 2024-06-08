@@ -69,7 +69,7 @@ uint32_t _raw_trampoline(const uint32_t id, const bool allow_early_return, const
     // Configure Method
     static int use_syscall = -1;
     if (use_syscall == -1) {
-        use_syscall = getenv(TRAMPOLINE_USE_PIPES_ENV) == nullptr;
+        use_syscall = getenv(TRAMPOLINE_ARGUMENTS_PIPE_ENV) == nullptr;
     }
     // Use Correct Method
     if (use_syscall) {

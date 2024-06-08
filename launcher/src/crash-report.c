@@ -8,6 +8,7 @@
 #include <poll.h>
 #include <sys/ioctl.h>
 #include <sys/stat.h>
+#include <sys/prctl.h>
 
 #include <libreborn/libreborn.h>
 
@@ -109,6 +110,9 @@ void setup_crash_report() {
 
         // Create New Process Group
         setpgid(0, 0);
+
+        // Kill Child If Parent Exits First
+        prctl(PR_SET_PDEATHSIG, SIGKILL);
 
         // Continue Execution
     } else {

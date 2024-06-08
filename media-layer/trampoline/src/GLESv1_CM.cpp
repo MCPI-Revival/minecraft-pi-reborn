@@ -319,6 +319,23 @@ CALL_GL_POINTER(41, glTexCoordPointer)
 #ifdef MEDIA_LAYER_TRAMPOLINE_GUEST
 void glDisableClientState(const GLenum array) {
     gl_state.get_array_enabled(array) = false;
+    // Not needed when using compatibility layer
+#ifndef MCPI_USE_GLES1_COMPATIBILITY_LAYER
+    switch (array) {
+        case GL_VERTEX_ARRAY: {
+            gl_array_details.glVertexPointer.size = -1;
+            break;
+        }
+        case GL_COLOR_ARRAY: {
+            gl_array_details.glColorPointer.size = -1;
+            break;
+        }
+        case GL_TEXTURE_COORD_ARRAY: {
+            gl_array_details.glTexCoordPointer.size = -1;
+            break;
+        }
+    }
+#endif
 }
 #endif
 
@@ -349,6 +366,12 @@ void glBindBuffer(const GLenum target, const GLuint buffer) {
     } else {
         ERR("Unsupported Buffer Binding: %u", target);
     }
+    // Not needed when using compatibility layer
+#ifndef MCPI_USE_GLES1_COMPATIBILITY_LAYER
+    gl_array_details.glVertexPointer.size = -1;
+    gl_array_details.glColorPointer.size = -1;
+    gl_array_details.glTexCoordPointer.size = -1;
+#endif
 }
 #endif
 
@@ -676,6 +699,10 @@ static int get_glGetIntegerv_params_size(GLenum pname) {
 #endif
 CALL(61, glGetIntegerv, void, (GLenum pname, GLint *params))
 #ifdef MEDIA_LAYER_TRAMPOLINE_GUEST
+    if (pname == GL_TEXTURE_BINDING_2D) {
+        params[0] = gl_state.bound_texture;
+        return;
+    }
     trampoline(false, pname, uint32_t(params));
 #else
     GLenum pname = args.next<GLenum>();

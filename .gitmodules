@@ -22,6 +22,6 @@
 [submodule "dependencies/symbol-processor/src"]
 	path = dependencies/symbol-processor/src
 	url = https://gitea.thebrokenrail.com/minecraft-pi-reborn/symbol-processor.git
-[submodule "dependencies/trampoline/src"]
-	path = dependencies/trampoline/src
-	url = https://gitea.thebrokenrail.com/minecraft-pi-reborn/trampoline.git
+[submodule "dependencies/runtime/src"]
+	path = dependencies/runtime/src
+	url = https://gitea.thebrokenrail.com/minecraft-pi-reborn/runtime.git

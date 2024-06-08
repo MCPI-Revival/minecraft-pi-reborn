@@ -19,10 +19,7 @@ if(NOT MCPI_SERVER_MODE)
         src/client/available-feature-flags # Show In IDE
     )
 endif()
-target_link_libraries(launcher reborn-util LIB_LIEF)
-if(MCPI_USE_TRAMPOLINE_HOST)
-    target_link_libraries(launcher trampoline-headers)
-endif()
+target_link_libraries(launcher reborn-util LIB_LIEF trampoline-headers)
 # RPath
 set_target_properties(launcher PROPERTIES INSTALL_RPATH "$ORIGIN/lib/native")
 target_link_options(launcher PRIVATE "LINKER:--disable-new-dtags")
