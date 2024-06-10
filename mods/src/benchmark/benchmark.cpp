@@ -122,17 +122,19 @@ static void Minecraft_update_injection(Minecraft *minecraft) {
         }
 
         // Rotate Player
-        static long long int rotate_point = BENCHMARK_ROTATION_INTERVAL;
-        if (current_time >= rotate_point) {
+        static long long int rotation_so_far = 0;
+        long long int ideal_rotation = (BENCHMARK_ROTATION_AMOUNT * current_time) / BENCHMARK_ROTATION_INTERVAL;
+        long long int rotation_diff = ideal_rotation - rotation_so_far;
+        if (rotation_diff >= BENCHMARK_ROTATION_AMOUNT) {
             SDL_Event event;
             event.type = SDL_MOUSEMOTION;
             event.motion.x = 0;
             event.motion.y = 0;
-            event.motion.xrel = BENCHMARK_ROTATION_AMOUNT;
+            event.motion.xrel = (rotation_diff > INT16_MAX) ? INT16_MAX : int16_t(rotation_diff);
             event.motion.yrel = 0;
             SDL_PushEvent(&event);
             // Reset Rotation Timer
-            rotate_point += BENCHMARK_ROTATION_INTERVAL;
+            rotation_so_far += event.motion.xrel;
         }
 
         // Check If Benchmark Is Over

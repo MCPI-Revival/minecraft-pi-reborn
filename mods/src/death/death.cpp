@@ -32,7 +32,7 @@ std::string get_death_message(Player *player, Entity *cause, bool was_shot = fal
                 message += monster_names[type_id - 32];
             } else {
                 // Unknown creature
-                message += "a Mysterious Beast";
+                message += "a mysterious beast";
             }
             return message;
         } else if (aux) {
@@ -59,9 +59,6 @@ std::string get_death_message(Player *player, Entity *cause, bool was_shot = fal
         // Anything else
         return message + " has died";
     }
-
-    // Return
-    return message;
 }
 
 static bool is_hurt = false;
@@ -73,67 +70,63 @@ static bool Mob_hurt_injection(Mob_hurt_t original, Mob *mob, Entity *source, in
 }
 
 // Death Message Logic
-#define Player_die_injections(type, original_method_self) \
-    static void type##_die_injection(original_method_self##_die_t original, type *player, Entity *cause) { \
-        /* Call Original Method */ \
-        original((original_method_self *) player, cause); \
-        \
-        /* Get Variable */ \
-        RakNetInstance *rak_net_instance = player->minecraft->rak_net_instance; \
-        /* Only Run On Server-Side */ \
-        if (rak_net_instance->isServer()) { \
-            /* Get Death Message */ \
-            std::string message = get_death_message((Player *) player, cause); \
-            \
-            /* Post Death Message */ \
-            ServerSideNetworkHandler *server_side_network_handler = (ServerSideNetworkHandler *) player->minecraft->network_handler; \
-            server_side_network_handler->displayGameMessage(&message); \
-        } \
+template <typename Self, typename ParentSelf>
+static void Player_die_injection(std::function<void(ParentSelf *, Entity *)> original, Self *player, Entity *cause) {
+    // Call Original Method
+    original((ParentSelf *) player, cause);
+
+    // Get Variable
+    RakNetInstance *rak_net_instance = player->minecraft->rak_net_instance;
+    // Only Run On Server-Side
+    if (rak_net_instance->isServer()) {
+        // Get Death Message
+        std::string message = get_death_message((Player *) player, cause);
+
+        // Post Death Message
+        ServerSideNetworkHandler *server_side_network_handler = (ServerSideNetworkHandler *) player->minecraft->network_handler;
+        server_side_network_handler->displayGameMessage(&message);
     }
-#define Player_actuallyHurt_injections(type) \
-    static void type##_actuallyHurt_injection(type *player, int32_t damage) { \
-        /* Store Old Health */ \
-        int32_t old_health = player->health; \
-        \
-        /* Call Original Method */ \
-        (*Mob_actuallyHurt_vtable_addr)((Mob *) player, damage); \
-        if (is_hurt == true) return; \
-        \
-        /* Store New Health */ \
-        int32_t new_health = player->health; \
-        \
-        /* Get Variables */ \
-        RakNetInstance *rak_net_instance = player->minecraft->rak_net_instance; \
-        /* Only Run On Server-Side */ \
-        if (rak_net_instance->isServer()) { \
-            /* Check Health */ \
-            if (new_health < 1 && old_health >= 1) { \
-                /* Get Death Message */ \
-                std::string message = get_death_message((Player *) player, nullptr); \
-                \
-                /* Post Death Message */ \
-                ServerSideNetworkHandler *server_side_network_handler = (ServerSideNetworkHandler *) player->minecraft->network_handler; \
-                server_side_network_handler->displayGameMessage(&message); \
-            } \
-        } \
+}
+template <typename Self>
+static void Player_actuallyHurt_injection(Self *player, int32_t damage) {
+    // Store Old Health
+    int32_t old_health = player->health;
+
+    // Call Original Method
+    (*Mob_actuallyHurt_vtable_addr)((Mob *) player, damage);
+    if (is_hurt) {
+        return;
     }
 
-Player_die_injections(LocalPlayer, LocalPlayer)
-Player_die_injections(ServerPlayer, Player)
+    // Store New Health
+    int32_t new_health = player->health;
 
-Player_actuallyHurt_injections(LocalPlayer)
-Player_actuallyHurt_injections(ServerPlayer)
+    // Get Variables
+    RakNetInstance *rak_net_instance = player->minecraft->rak_net_instance;
+    // Only Run On Server-Side
+    if (rak_net_instance->isServer()) {
+        // Check Health
+        if (new_health < 1 && old_health >= 1) {
+            // Get Death Message
+            std::string message = get_death_message((Player *) player, nullptr);
+
+            // Post Death Message
+            ServerSideNetworkHandler *server_side_network_handler = (ServerSideNetworkHandler *) player->minecraft->network_handler;
+            server_side_network_handler->displayGameMessage(&message);
+        }
+    }
+}
 
 // Init
 void init_death() {
     // Death Messages
     if (feature_has("Implement Death Messages", server_auto)) {
         patch_vtable(ServerPlayer_die, [](ServerPlayer *player, Entity *cause) {
-            ServerPlayer_die_injection(*Player_die_vtable_addr, player, cause);
+            Player_die_injection<ServerPlayer, Player>(*Player_die_vtable_addr, player, cause);
         });
-        overwrite_calls(LocalPlayer_die, LocalPlayer_die_injection);
-        patch_vtable(LocalPlayer_actuallyHurt, LocalPlayer_actuallyHurt_injection);
-        patch_vtable(ServerPlayer_actuallyHurt, ServerPlayer_actuallyHurt_injection);
+        overwrite_calls(LocalPlayer_die, Player_die_injection<LocalPlayer, LocalPlayer>);
+        patch_vtable(LocalPlayer_actuallyHurt, Player_actuallyHurt_injection);
+        patch_vtable(ServerPlayer_actuallyHurt, Player_actuallyHurt_injection);
         overwrite_calls(Mob_hurt, Mob_hurt_injection);
     }
 
