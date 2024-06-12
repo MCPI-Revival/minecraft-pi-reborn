@@ -84,15 +84,6 @@ endif()
 # Buld Dependencies
 add_subdirectory(dependencies)
 
-# Version
-set_property(
-    DIRECTORY
-    APPEND
-    PROPERTY CMAKE_CONFIGURE_DEPENDS VERSION
-)
-file(STRINGS "${CMAKE_CURRENT_SOURCE_DIR}/VERSION" MCPI_VERSION)
-file(TIMESTAMP "${CMAKE_CURRENT_SOURCE_DIR}/VERSION" MCPI_VERSION_DATE "%Y-%m-%d" UTC)
-
 # Build libreborn
 add_subdirectory(libreborn)
 

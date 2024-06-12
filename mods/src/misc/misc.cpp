@@ -532,7 +532,7 @@ static void Tesselator_vertexUV_injection(Tesselator_vertexUV_t original, Tessel
     // Call Original Method
     original(tesselator, x, y, z, u, v);
 }
-static bool ChestTileEntity_shouldSave_injection(__attribute__((unused)) unsigned char *tile_entity) {
+static bool ChestTileEntity_shouldSave_injection(__attribute__((unused)) ChestTileEntity_shouldSave_t original, __attribute__((unused)) ChestTileEntity *tile_entity) {
     return true;
 }
 
@@ -926,7 +926,7 @@ void init_misc() {
         overwrite_calls(ContainerMenu_constructor, ContainerMenu_injection);
         overwrite_calls(ContainerMenu_destructor_complete, ContainerMenu_destructor_injection);
     }
-    patch_address((void *) 0x115b48, (void *) ChestTileEntity_shouldSave_injection);
+    overwrite_calls(ChestTileEntity_shouldSave, ChestTileEntity_shouldSave_injection);
 
 #ifndef MCPI_HEADLESS_MODE
     // Replace Block Highlight With Outline

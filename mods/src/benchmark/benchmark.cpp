@@ -72,7 +72,7 @@ static long long int get_time() {
 }
 
 // Store Time When World Loaded
-static int world_loaded = 0;
+static bool world_loaded = false;
 static long long int world_loaded_time;
 #ifndef MCPI_HEADLESS_MODE
 static unsigned long long int world_loaded_frames;
@@ -92,10 +92,14 @@ static void Minecraft_update_injection(Minecraft *minecraft) {
         loaded = true;
     }
 
+    // Get Current Time
+    long long int now = get_time();
+
     // Detect World Loaded
     if (!world_loaded && minecraft->isLevelGenerated()) {
-        world_loaded = 1;
-        world_loaded_time = get_time();
+        world_loaded = true;
+        INFO("Loaded");
+        world_loaded_time = now;
 #ifndef MCPI_HEADLESS_MODE
         world_loaded_frames = frames;
 #endif
@@ -105,7 +109,7 @@ static void Minecraft_update_injection(Minecraft *minecraft) {
     // Run Benchmark
     if (!exit_requested && world_loaded) {
         // Get Time
-        long long int current_time = get_time() - world_loaded_time;
+        long long int current_time = now - world_loaded_time;
 #ifndef MCPI_HEADLESS_MODE
         unsigned long long int current_frames = frames - world_loaded_frames;
 #endif

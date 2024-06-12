@@ -71,5 +71,14 @@ mcpi_option(SKIN_SERVER "Skin Server" STRING "https://raw.githubusercontent.com/
 # Discord Invite URL
 mcpi_option(DISCORD_INVITE "Discord Invite URL" STRING "https://discord.gg/mcpi-revival-740287937727561779")
 
+# Version
+set_property(
+    DIRECTORY
+    APPEND
+    PROPERTY CMAKE_CONFIGURE_DEPENDS VERSION
+)
+file(STRINGS "${CMAKE_CURRENT_LIST_DIR}/../../VERSION" MCPI_VERSION)
+file(TIMESTAMP "${CMAKE_CURRENT_LIST_DIR}/../../VERSION" MCPI_VERSION_DATE "%Y-%m-%d" UTC)
+
 # Documentation URL
-mcpi_option(DOCUMENTATION "Documentation URL" STRING "https://gitea.thebrokenrail.com/minecraft-pi-reborn/minecraft-pi-reborn/src/branch/master/docs/")
+mcpi_option(DOCUMENTATION "Documentation URL" STRING "https://gitea.thebrokenrail.com/minecraft-pi-reborn/minecraft-pi-reborn/src/tag/${MCPI_VERSION}/docs/")
