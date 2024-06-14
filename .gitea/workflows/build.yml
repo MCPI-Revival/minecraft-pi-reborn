@@ -21,7 +21,7 @@ jobs:
                   - AMD64
                   - ARM64
                   - ARMHF
-        name: Build (${{ matrix.mode }}, ${{ matrix.arch }})
+        name: Build
         runs-on: ubuntu-latest
         container: node:lts-bullseye
         steps:
@@ -49,7 +49,7 @@ jobs:
                 mode:
                   - Client
                   - Server
-        name: Test (${{ matrix.mode }})
+        name: Test
         runs-on: ubuntu-latest
         container: node:lts-bullseye
         steps:
@@ -74,7 +74,7 @@ jobs:
                 arch:
                   - ARM64
                   - ARMHF
-        name: Raspberry Pi Test (${{ matrix.mode }}, ${{ matrix.arch }})
+        name: Raspberry Pi Test
         runs-on: raspberry-pi
         container: node:lts-bullseye
         steps:
