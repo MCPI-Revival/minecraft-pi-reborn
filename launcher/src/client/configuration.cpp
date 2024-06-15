@@ -83,6 +83,8 @@ void load_available_feature_flags(const std::function<void(std::string)> &callba
 static void run_command_and_set_env(const char *env_name, const char *command[]) {
     // Only Run If Environmental Variable Is NULL
     if (getenv(env_name) == nullptr) {
+        // Check $DISPLAY
+        reborn_check_display();
         // Run
         int return_code;
         char *output = run_command(command, &return_code, nullptr);
@@ -108,7 +110,6 @@ static void run_command_and_set_env(const char *env_name, const char *command[])
 // Use Zenity To Set Environmental Variable
 #define DIALOG_TITLE "Launcher"
 static void run_zenity_and_set_env(const char *env_name, std::vector<std::string> command) {
-    reborn_check_display();
     // Create Full Command
     std::vector<std::string> full_command;
     full_command.push_back("zenity");

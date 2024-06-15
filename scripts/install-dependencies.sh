@@ -70,6 +70,7 @@ run_build() {
 run_test() {
     sudo apt-get install --no-install-recommends -y \
         "libc6:$1" \
+        "libstdc++6:$1" \
         "libopenal1:$1" \
         "libglib2.0-0:$1"
 }

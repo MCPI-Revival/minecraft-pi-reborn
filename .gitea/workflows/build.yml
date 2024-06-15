@@ -58,7 +58,7 @@ jobs:
           - name: Checkout Repository
             uses: actions/checkout@v4
             with:
-                submodules: true
+                submodules: false
           # Dependencies
           - name: Install Dependencies
             run: ./scripts/install-dependencies.sh test ${{ matrix.arch }}
@@ -81,7 +81,7 @@ jobs:
           - name: Checkout Repository
             uses: actions/checkout@v4
             with:
-                submodules: true
+                submodules: false
           # Dependencies
           - name: Install Dependencies
             run: ./scripts/install-dependencies.sh example_mods amd64
@@ -95,7 +95,7 @@ jobs:
             run: |
                 ./scripts/fix-appimage-for-docker.sh ./out/*.AppImage
                 chmod +x ./out/*.AppImage
-                ./out/*.AppImage --copy-sdk
+                ./out/*.AppImage --appimage-extract-and-run --copy-sdk
           # Build Example Mods
           - name: Build Example Mods
             run: ./example-mods/build.sh
