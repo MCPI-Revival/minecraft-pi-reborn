@@ -1,5 +1,5 @@
 #pragma once
 
 extern "C" {
-char *home_get();
+const char *home_get();
 }

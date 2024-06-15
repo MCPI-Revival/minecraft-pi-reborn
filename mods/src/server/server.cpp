@@ -1,12 +1,5 @@
-// Config Needs To Load First
-#include <libreborn/libreborn.h>
-
-#ifndef MCPI_SERVER_MODE
-#error "Server Code Requires Server Mode"
-#endif
-
 #include <string>
-#include <stdint.h>
+#include <cstdint>
 #include <ctime>
 #include <cstdio>
 #include <fstream>
@@ -19,15 +12,16 @@
 
 #include <SDL/SDL.h>
 
+#include <libreborn/libreborn.h>
 #include <symbols/minecraft.h>
 
 #include <mods/server/server.h>
-
 #include <mods/feature/feature.h>
 #include <mods/init/init.h>
 #include <mods/home/home.h>
 #include <mods/compat/compat.h>
 #include <mods/misc/misc.h>
+#include <mods/game-mode/game-mode.h>
 
 // --only-generate: Ony Generate World And Then Exit
 static bool only_generate = false;
@@ -79,8 +73,8 @@ static void start_world(Minecraft *minecraft) {
     // Specify Level Settings
     LevelSettings settings;
     settings.game_type = get_server_properties().get_int("game-mode", DEFAULT_GAME_MODE);
-    std::string seed_str = get_server_properties().get_string("seed", DEFAULT_SEED);
-    int32_t seed = seed_str.length() > 0 ? std::stoi(seed_str) : time(nullptr);
+    const std::string seed_str = get_server_properties().get_string("seed", DEFAULT_SEED);
+    const int32_t seed = get_seed_from_string(seed_str);
     settings.seed = seed;
 
     // Select Level
@@ -89,7 +83,7 @@ static void start_world(Minecraft *minecraft) {
     // Don't Open Port When Using --only-generate
     if (!only_generate) {
         // Open Port
-        int port = get_server_properties().get_int("port", DEFAULT_PORT);
+        const int port = get_server_properties().get_int("port", DEFAULT_PORT);
         INFO("Listening On: %i", port);
         minecraft->hostMultiplayer(port);
     }
@@ -130,8 +124,8 @@ static Level *get_level(Minecraft *minecraft) {
 }
 
 // Find Players With Username And Run Callback
-typedef void (*player_callback_t)(Minecraft *minecraft, std::string username, Player *player);
-static void find_players(Minecraft *minecraft, std::string target_username, player_callback_t callback, bool all_players) {
+typedef void (*player_callback_t)(Minecraft *minecraft, const std::string &username, Player *player);
+static void find_players(Minecraft *minecraft, const std::string &target_username, player_callback_t callback, bool all_players) {
     Level *level = get_level(minecraft);
     std::vector<Player *> players = get_players_in_level(level);
     bool found_player = false;
@@ -177,7 +171,7 @@ static char *get_player_ip(Minecraft *minecraft, Player *player) {
 
 // Ban Player
 static bool is_ip_in_blacklist(const char *ip);
-static void ban_callback(Minecraft *minecraft, std::string username, Player *player) {
+static void ban_callback(Minecraft *minecraft, const std::string &username, Player *player) {
     // Get IP
     char *ip = get_player_ip(minecraft, player);
 
@@ -198,13 +192,13 @@ static void ban_callback(Minecraft *minecraft, std::string username, Player *pla
 }
 
 // Kill Player
-static void kill_callback(__attribute__((unused)) Minecraft *minecraft, __attribute__((unused)) std::string username, Player *player) {
+static void kill_callback(__attribute__((unused)) Minecraft *minecraft, __attribute__((unused)) const std::string &username, Player *player) {
     player->hurt(nullptr, INT32_MAX);
     INFO("Killed: %s", username.c_str());
 }
 
 // List Player
-static void list_callback(Minecraft *minecraft, std::string username, Player *player) {
+static void list_callback(Minecraft *minecraft, const std::string &username, Player *player) {
     INFO(" - %s (%s)", username.c_str(), get_player_ip(minecraft, player));
 }
 
@@ -416,7 +410,7 @@ static bool is_ip_in_blacklist(const char *ip) {
     } else {
         // Check List
         for (std::string &x : ips) {
-            if (x.compare(ip) == 0) {
+            if (x == ip) {
                 return true;
             }
         }

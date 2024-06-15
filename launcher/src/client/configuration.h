@@ -16,8 +16,5 @@ void load_available_feature_flags(const std::function<void(std::string)> &callba
 // Handle Non-Launch Commands
 void handle_non_launch_client_only_commands(const options_t &options);
 
-// Check Environment
-void check_environment_client();
-
 // Configure Client Options
 void configure_client(const options_t &options);

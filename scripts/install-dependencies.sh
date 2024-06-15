@@ -9,75 +9,44 @@ if [ "$(id -u)" -eq 0 ]; then
     }
 fi
 
-# Main Script
-run() {
-    # Add ARM Repository
-    for arch in "$@"; do
-        sudo dpkg --add-architecture "$(echo "${arch}" | tr '[:upper:]' '[:lower:]')"
-    done
+# Run APT
+install_pkg() {
+    sudo apt-get install --no-install-recommends -y "$@"
+}
 
-    # Update APT
-    sudo apt-get update
-    sudo apt-get dist-upgrade -y
-
-    # Install Everything In One Go
-    PKG_QUEUE=''
-    queue_pkg() {
-        PKG_QUEUE="${PKG_QUEUE} $@"
-    }
-
-    # Build System
-    queue_pkg \
+# Build Dependencies
+run_build() {
+    install_pkg \
+        `# Build System` \
         git \
         cmake \
         ninja-build \
         python3 \
-        python3-venv
-
-    # Host Dependencies Needed For Compile
-    queue_pkg \
-        libwayland-bin
-
-    # Architecture-Specific Dependencies
-    architecture_specific_pkg() {
-        # Compiler
-        queue_pkg crossbuild-essential-$1
-
-        # Dependencies
-        queue_pkg \
-            libopenal-dev:$1
-
-        # GLFW Dependencies
-        queue_pkg \
-            libwayland-dev:$1 \
-            libxkbcommon-dev:$1 \
-            libx11-dev:$1 \
-            libxcursor-dev:$1 \
-            libxi-dev:$1 \
-            libxinerama-dev:$1 \
-            libxrandr-dev:$1 \
-            libxext-dev:$1
-
-        # Zenity Dependencies
-        queue_pkg \
-            libgtk-3-dev:$1 \
-            libglib2.0-dev:$1
-    }
-    for arch in "$@"; do
-        architecture_specific_pkg "$(echo "${arch}" | tr '[:upper:]' '[:lower:]')"
-    done
-
-    # AppStream Verification
-    queue_pkg \
+        python3-venv \
+        `# Host Dependencies Needed For Compile` \
+        libwayland-bin \
+        `# Compiler` \
+        "crossbuild-essential-$1" \
+        `# Main Dependencies` \
+        "libopenal-dev:$1" \
+        `# GLFW Dependencies` \
+        "libwayland-dev:$1" \
+        "libxkbcommon-dev:$1" \
+        "libx11-dev:$1" \
+        "libxcursor-dev:$1" \
+        "libxi-dev:$1" \
+        "libxinerama-dev:$1" \
+        "libxrandr-dev:$1" \
+        "libxext-dev:$1" \
+        `# Zenity Dependencies` \
+        "libgtk-3-dev:$1" \
+        "libglib2.0-dev:$1" \
+        `# AppStream Verification` \
         appstream
 
-    # Install Queue
-    sudo apt-get install --no-install-recommends -y ${PKG_QUEUE}
-
     # Install appimagetool
-    sudo rm -rf /opt/squashfs-root /opt/appimagetool.AppDir 
-    sudo rm -f /opt/appimagetool /usr/local/bin/appimagetool
-    case "$(dpkg-architecture -qDEB_BUILD_ARCH)" in
+    sudo rm -rf /opt/squashfs-root /opt/appimagetool /usr/local/bin/appimagetool
+    case "$(dpkg --print-architecture)" in
         'armhf') APPIMAGE_ARCH='armhf';;
         'arm64') APPIMAGE_ARCH='aarch64';;
         'i386') APPIMAGE_ARCH='i686';;
@@ -87,19 +56,43 @@ run() {
     sudo wget -O /opt/appimagetool "https://github.com/AppImage/AppImageKit/releases/download/continuous/appimagetool-${APPIMAGE_ARCH}.AppImage"
     sudo chmod +x /opt/appimagetool
     # Workaround AppImage Issues With Docker
-    cd /opt
-    sudo sed -i '0,/AI\x02/{s|AI\x02|\x00\x00\x00|}' ./appimagetool
+    sudo ./scripts/fix-appimage-for-docker.sh /opt/appimagetool
     # Extract
-    sudo ./appimagetool --appimage-extract
+    cd /opt
+    sudo ./appimagetool --appimage-extract > /dev/null
     sudo rm -f ./appimagetool
     # Link
-    sudo mv ./squashfs-root ./appimagetool.AppDir
-    sudo ln -s /opt/appimagetool.AppDir/AppRun /usr/local/bin/appimagetool
+    sudo mv ./squashfs-root ./appimagetool
+    sudo ln -s /opt/appimagetool/AppRun /usr/local/bin/appimagetool
 }
 
-# Run
-if [ "$#" -lt 1 ]; then
-    run "$(dpkg-architecture -qDEB_BUILD_ARCH)"
-else
-    run "$@"
-fi
+# Test Dependencies
+run_test() {
+    sudo apt-get install --no-install-recommends -y \
+        "libc6:$1" \
+        "libopenal1:$1" \
+        "libglib2.0-0:$1"
+}
+
+# Example Mods Dependencies
+run_example_mods() {
+    install_pkg \
+        cmake \
+        ninja-build \
+        g++-arm-linux-gnueabihf \
+        gcc-arm-linux-gnueabihf
+}
+
+# Variables
+MODE="$1"
+ARCH="$(echo "$2" | tr '[:upper:]' '[:lower:]')"
+
+# Add ARM Repository
+sudo dpkg --add-architecture "${ARCH}"
+
+# Update APT
+sudo apt-get update
+sudo apt-get dist-upgrade -y
+
+# Install Packages
+"run_${MODE}" "${ARCH}"

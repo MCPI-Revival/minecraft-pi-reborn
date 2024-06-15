@@ -10,7 +10,7 @@ set(CMAKE_SYSTEM_PROCESSOR "arm")
 project(expanded-creative)
 
 # Include SDK
-include("$ENV{HOME}/.minecraft-pi/sdk/lib/minecraft-pi-reborn-client/sdk/sdk.cmake")
+include("$ENV{HOME}/.minecraft-pi/sdk/lib/minecraft-pi-reborn/sdk/sdk.cmake")
 
 # Build
 add_library(expanded-creative SHARED expanded-creative.cpp)

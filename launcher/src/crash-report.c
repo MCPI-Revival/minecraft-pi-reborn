@@ -15,7 +15,6 @@
 #include "crash-report.h"
 
 // Show Crash Report Dialog
-#ifndef MCPI_HEADLESS_MODE
 #define DIALOG_TITLE "Crash Report"
 #define CRASH_REPORT_DIALOG_WIDTH "640"
 #define CRASH_REPORT_DIALOG_HEIGHT "480"
@@ -35,7 +34,7 @@ static void show_report(const char *log_filename) {
             "--width", CRASH_REPORT_DIALOG_WIDTH,
             "--height", CRASH_REPORT_DIALOG_HEIGHT,
             "--text-info",
-            "--text", MCPI_APP_BASE_TITLE " has crashed!\n\nNeed help? Consider asking on the <a href=\"" MCPI_DISCORD_INVITE "\">Discord server</a>! <i>If you believe this is a problem with " MCPI_APP_BASE_TITLE " itself, please upload this crash report to the #bugs Discord channel.</i>",
+            "--text", MCPI_APP_TITLE " has crashed!\n\nNeed help? Consider asking on the <a href=\"" MCPI_DISCORD_INVITE "\">Discord server</a>! <i>If you believe this is a problem with " MCPI_APP_TITLE " itself, please upload this crash report to the #bugs Discord channel.</i>",
             "--filename", log_filename,
             "--no-wrap",
             "--font", "Monospace",
@@ -46,7 +45,6 @@ static void show_report(const char *log_filename) {
         safe_execvpe(command, (const char *const *) environ);
     }
 }
-#endif
 
 // Exit Handler
 static void exit_handler(__attribute__((unused)) int signal) {
@@ -248,11 +246,9 @@ void setup_crash_report() {
         unsetenv(MCPI_LOG_ENV);
 
         // Show Crash Log
-#ifndef MCPI_HEADLESS_MODE
-        if (is_crash) {
+        if (is_crash && !reborn_is_headless()) {
             show_report(log_filename);
         }
-#endif
 
         // Exit
         exit(WIFEXITED(status) ? WEXITSTATUS(status) : EXIT_FAILURE);

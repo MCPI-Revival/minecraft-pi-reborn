@@ -8,12 +8,11 @@ __attribute__((constructor)) static void init() {
     run_tests();
     init_version();
     init_compat();
-#ifdef MCPI_SERVER_MODE
-    init_server();
-#else
-    init_multiplayer();
-#endif
-#ifndef MCPI_HEADLESS_MODE
+    if (reborn_is_server()) {
+        init_server();
+    } else {
+        init_multiplayer();
+    }
     init_sound();
     init_input();
     init_sign();
@@ -22,7 +21,6 @@ __attribute__((constructor)) static void init() {
     init_title_screen();
     init_skin();
     init_fps();
-#endif
     init_touch();
     init_textures();
     init_creative();
@@ -34,7 +32,7 @@ __attribute__((constructor)) static void init() {
     init_bucket();
     init_cake();
     init_home();
-#ifndef MCPI_SERVER_MODE
-    init_benchmark();
-#endif
+    if (!reborn_is_server()) {
+        init_benchmark();
+    }
 }

@@ -6,9 +6,7 @@
 #include "options/parser.h"
 #include "crash-report.h"
 #include "util.h"
-#ifndef MCPI_SERVER_MODE
 #include "client/configuration.h"
-#endif
 
 // Bind Options To Environmental Variable
 static void bind_to_env(const char *env, const bool value) {
@@ -19,16 +17,14 @@ static void bind_to_env(const char *env, const bool value) {
 }
 static void setup_environment(const options_t &options) {
     // Passthrough Options To Game
-#ifndef MCPI_SERVER_MODE
+    bind_to_env(MCPI_SERVER_MODE_ENV, options.server_mode);
     bind_to_env("_MCPI_BENCHMARK", options.benchmark);
-#else
     bind_to_env("_MCPI_ONLY_GENERATE", options.only_generate);
-#endif
+    bind_to_env(MCPI_FORCE_HEADLESS_ENV, options.force_headless);
+    bind_to_env(MCPI_FORCE_NON_HEADLESS_ENV, options.force_non_headless);
 
     // GTK Dark Mode
-#ifndef MCPI_HEADLESS_MODE
     set_and_print_env("GTK_THEME", "Adwaita:dark");
-#endif
 
     // Configure PATH
     {
@@ -72,9 +68,6 @@ static void start_game(const options_t &options) {
     // Disable stdout Buffering
     setvbuf(stdout, nullptr, _IONBF, 0);
 
-    // Environemntal Variable Options
-    setup_environment(options);
-
     // Setup Crash Reporting
     if (!options.disable_crash_report) {
         setup_log_file();
@@ -92,35 +85,35 @@ static void start_game(const options_t &options) {
     sigaction(SIGTERM, &act_sigterm, nullptr);
 
     // Setup Home
-#ifndef MCPI_SERVER_MODE
-    // Ensure $HOME
-    const char *home = getenv("HOME");
-    if (home == nullptr) {
-        ERR("$HOME Isn't Set");
-    }
-    // Create If Needed
-    {
-        std::string minecraft_folder = std::string(home) + HOME_SUBDIRECTORY_FOR_GAME_DATA;
-        struct stat tmp_stat = {};
-        bool exists = stat(minecraft_folder.c_str(), &tmp_stat) != 0 ? false : S_ISDIR(tmp_stat.st_mode);
-        if (!exists) {
-            // Doesn't Exist
-            if (mkdir(minecraft_folder.c_str(), S_IRUSR | S_IWUSR | S_IXUSR) != 0) {
-                ERR("Unable To Create Data Directory: %s", strerror(errno));
+    if (!reborn_is_server()) {
+        // Ensure $HOME
+        const char *home = getenv("HOME");
+        if (home == nullptr) {
+            ERR("$HOME Is Not Set");
+        }
+        // Create If Needed
+        {
+            std::string minecraft_folder = std::string(home) + get_home_subdirectory_for_game_data();
+            struct stat tmp_stat = {};
+            bool exists = stat(minecraft_folder.c_str(), &tmp_stat) != 0 ? false : S_ISDIR(tmp_stat.st_mode);
+            if (!exists) {
+                // Doesn't Exist
+                if (mkdir(minecraft_folder.c_str(), S_IRUSR | S_IWUSR | S_IXUSR) != 0) {
+                    ERR("Unable To Create Data Directory: %s", strerror(errno));
+                }
             }
         }
+    } else {
+        // Set Home To Current Directory, So World Data Is Stored There
+        char *launch_directory = getcwd(nullptr, 0);
+        set_and_print_env("HOME", launch_directory);
+        free(launch_directory);
     }
-#else
-    // Set Home To Current Directory, So World Data Is Stored There
-    char *launch_directory = getcwd(NULL, 0);
-    set_and_print_env("HOME", launch_directory);
-    free(launch_directory);
-#endif
 
     // Configure Client Options
-#ifndef MCPI_SERVER_MODE
-    configure_client(options);
-#endif
+    if (!reborn_is_server()) {
+        configure_client(options);
+    }
 
     // Bootstrap
     bootstrap();
@@ -138,17 +131,12 @@ int main(int argc, char *argv[]) {
     unsetenv(MCPI_LOG_ENV);
     bind_to_env(MCPI_DEBUG_ENV, options.debug);
 
+    // Setup Environment
+    setup_environment(options);
+
     // Handle Non-Launch Commands (Copy SDK, Print Feature Flags, Etc)
     handle_non_launch_commands(options);
-#ifndef MCPI_SERVER_MODE
     handle_non_launch_client_only_commands(options);
-#endif
-
-    // Check Environment
-#ifndef MCPI_SERVER_MODE
-    // Code After This Can Safely Open A Window
-    check_environment_client();
-#endif
 
     // Start The Game
     start_game(options);

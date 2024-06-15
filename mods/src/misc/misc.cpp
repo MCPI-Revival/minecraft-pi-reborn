@@ -9,9 +9,7 @@
 #include <streambuf>
 #include <algorithm>
 
-#ifndef MCPI_HEADLESS_MODE
 #include <GLES/gl.h>
-#endif
 
 #include <libreborn/libreborn.h>
 #include <symbols/minecraft.h>
@@ -143,9 +141,7 @@ static void Gui_renderChatMessages_injection(Gui_renderChatMessages_t original, 
     // Render Selected Item Text
     if (render_selected_item_text) {
         // Fix GL Mode
-#ifndef MCPI_HEADLESS_MODE
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-#endif
         // Calculate Selected Item Text Scale
         Minecraft *minecraft = gui->minecraft;
         int32_t screen_width = minecraft->screen_width;
@@ -184,37 +180,25 @@ static void Inventory_selectSlot_injection(Inventory_selectSlot_t original, Inve
 // Translucent Toolbar
 static void Gui_renderToolBar_injection(Gui_renderToolBar_t original, Gui *gui, float param_1, int32_t param_2, int32_t param_3) {
     // Call Original Method
-#ifndef MCPI_HEADLESS_MODE
-    int was_blend_enabled = glIsEnabled(GL_BLEND);
+    bool was_blend_enabled = glIsEnabled(GL_BLEND);
     if (!was_blend_enabled) {
         glEnable(GL_BLEND);
     }
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-#endif
     original(gui, param_1, param_2, param_3);
-#ifndef MCPI_HEADLESS_MODE
     if (!was_blend_enabled) {
         glDisable(GL_BLEND);
     }
-#endif
 }
 static void Gui_renderToolBar_glColor4f_injection(GLfloat red, GLfloat green, GLfloat blue, __attribute__((unused)) GLfloat alpha) {
     // Fix Alpha
-#ifndef MCPI_HEADLESS_MODE
     glColor4f(red, green, blue, 1.0f);
-#else
-    (void) red;
-    (void) green;
-    (void) blue;
-#endif
 }
 
 // Fix Screen Rendering When GUI is Hidden
 static void Screen_render_injection(Screen_render_t original, Screen *screen, int32_t param_1, int32_t param_2, float param_3) {
     // Fix
-#ifndef MCPI_HEADLESS_MODE
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-#endif
     // Call Original Method
     original(screen, param_1, param_2, param_3);
 }
@@ -265,18 +249,21 @@ static const char *RAKNET_ERROR_NAMES[] = {
     "Couldn't Generate GUID",
     "Unknown"
 };
-#ifdef MCPI_SERVER_MODE
-#define PRINT_RAKNET_STARTUP_FAILURE ERR
-#else
-#define PRINT_RAKNET_STARTUP_FAILURE WARN
-#endif
+#define CONDITIONAL_ERR(is_error, ...) \
+    { \
+        if ((is_error)) { \
+            ERR(__VA_ARGS__); \
+        } else { \
+            WARN(__VA_ARGS__); \
+        } \
+    }
 static RakNet_StartupResult RakNetInstance_host_RakNet_RakPeer_Startup_injection(RakNet_RakPeer *rak_peer, unsigned short maxConnections, unsigned char *socketDescriptors, uint32_t socketDescriptorCount, int32_t threadPriority) {
     // Call Original Method
     RakNet_StartupResult result = rak_peer->Startup(maxConnections, socketDescriptors, socketDescriptorCount, threadPriority);
 
     // Print Error
     if (result != RAKNET_STARTED) {
-        PRINT_RAKNET_STARTUP_FAILURE("Failed To Start RakNet: %s", RAKNET_ERROR_NAMES[result]);
+        CONDITIONAL_ERR(reborn_is_server(), "Failed To Start RakNet: %s", RAKNET_ERROR_NAMES[result]);
     }
 
     // Return
@@ -339,7 +326,6 @@ static int32_t FurnaceScreen_handleAddItem_injection(FurnaceScreen_handleAddItem
 //
 // The default behavior for Touch GUI is to only render the cursor when the mouse is clicking, this fixes that.
 // This also makes the cursor always render if the mouse is unlocked, instead of just when there is a Screen showing.
-#ifndef MCPI_HEADLESS_MODE
 static void GameRenderer_render_injection(GameRenderer_render_t original, GameRenderer *game_renderer, float param_1) {
     // Call Original Method
     original(game_renderer, param_1);
@@ -356,7 +342,6 @@ static void GameRenderer_render_injection(GameRenderer_render_t original, GameRe
         Common::renderCursor(x, y, minecraft);
     }
 }
-#endif
 
 // Get Real Selected Slot
 int32_t misc_get_real_selected_slot(Player *player) {
@@ -375,12 +360,12 @@ int32_t misc_get_real_selected_slot(Player *player) {
     return selected_slot;
 }
 
-#ifndef MCPI_HEADLESS_MODE
 // Properly Generate Buffers
 static void anGenBuffers_injection(int32_t count, uint32_t *buffers) {
-    glGenBuffers(count, buffers);
+    if (!reborn_is_headless()) {
+        glGenBuffers(count, buffers);
+    }
 }
-#endif
 
 // Fix Graphics Bug When Switching To First-Person While Sneaking
 static void PlayerRenderer_render_injection(PlayerRenderer *model_renderer, Entity *entity, float param_2, float param_3, float param_4, float param_5, float param_6) {
@@ -564,9 +549,8 @@ static ContainerMenu *ContainerMenu_destructor_injection(ContainerMenu_destructo
     return original(container_menu);
 }
 
-#ifndef MCPI_HEADLESS_MODE
 // Custom Outline Color
-static void glColor4f_injection(__attribute__((unused)) GLfloat red, __attribute__((unused)) GLfloat green, __attribute__((unused)) GLfloat blue, __attribute__((unused)) GLfloat alpha) {
+static void LevelRenderer_render_AABB_glColor4f_injection(__attribute__((unused)) GLfloat red, __attribute__((unused)) GLfloat green, __attribute__((unused)) GLfloat blue, __attribute__((unused)) GLfloat alpha) {
     // Set Color
     glColor4f(0, 0, 0, 0.4);
 
@@ -591,7 +575,6 @@ static void glColor4f_injection(__attribute__((unused)) GLfloat red, __attribute
     // Set Line Width
     glLineWidth(line_width);
 }
-#endif
 
 // Fix Furnace Visual Bug
 static int FurnaceTileEntity_getLitProgress_injection(FurnaceTileEntity_getLitProgress_t original, FurnaceTileEntity *furnace, int max) {
@@ -756,7 +739,8 @@ static std::string AppPlatform_linux_getDateString_injection(__attribute__((unus
 }
 
 // Init
-static void nop() {
+template <typename... Args>
+static void nop(__attribute__((unused)) Args... args) {
 }
 void init_misc() {
     // Remove Invalid Item Background (A Red Background That Appears For Items That Are Not Included In The gui_blocks Atlas)
@@ -820,13 +804,6 @@ void init_misc() {
         overwrite_calls(FurnaceScreen_handleAddItem, FurnaceScreen_handleAddItem_injection);
     }
 
-#ifdef MCPI_HEADLESS_MODE
-    // Don't Render Game In Headless Mode
-    overwrite_manual((void *) GameRenderer_render, (void *) nop);
-    overwrite_manual((void *) NinecraftApp_initGLStates, (void *) nop);
-    overwrite_manual((void *) Gui_onConfigChanged, (void *) nop);
-    overwrite_manual((void *) LevelRenderer_generateSky, (void *) nop);
-#else
     // Improved Cursor Rendering
     if (feature_has("Improved Cursor Rendering", server_disabled)) {
         // Disable Normal Cursor Rendering
@@ -835,7 +812,6 @@ void init_misc() {
         // Add Custom Cursor Rendering
         overwrite_calls(GameRenderer_render, GameRenderer_render_injection);
     }
-#endif
 
     // Disable V-Sync
     if (feature_has("Disable V-Sync", server_enabled)) {
@@ -849,13 +825,11 @@ void init_misc() {
 
     // Remove Forced GUI Lag
     if (feature_has("Remove Forced GUI Lag (Can Break Joining Servers)", server_enabled)) {
-        overwrite_manual((void *) Common_sleepMs, (void *) nop);
+        overwrite_calls(Common_sleepMs, nop<Common_sleepMs_t, int>);
     }
 
-#ifndef MCPI_HEADLESS_MODE
     // Properly Generate Buffers
     overwrite(Common_anGenBuffers, anGenBuffers_injection);
-#endif
 
     // Fix Graphics Bug When Switching To First-Person While Sneaking
     patch_vtable(PlayerRenderer_render, PlayerRenderer_render_injection);
@@ -928,15 +902,13 @@ void init_misc() {
     }
     overwrite_calls(ChestTileEntity_shouldSave, ChestTileEntity_shouldSave_injection);
 
-#ifndef MCPI_HEADLESS_MODE
     // Replace Block Highlight With Outline
     if (feature_has("Replace Block Highlight With Outline", server_disabled)) {
         overwrite(LevelRenderer_renderHitSelect, LevelRenderer_renderHitOutline);
         unsigned char fix_outline_patch[4] = {0x00, 0xf0, 0x20, 0xe3}; // "nop"
         patch((void *) 0x4d830, fix_outline_patch);
-        overwrite_call((void *) 0x4d764, (void *) glColor4f_injection);
+        overwrite_call((void *) 0x4d764, (void *) LevelRenderer_render_AABB_glColor4f_injection);
     }
-#endif
 
     // Fix Furnace Visual Bug
     overwrite_calls(FurnaceTileEntity_getLitProgress, FurnaceTileEntity_getLitProgress_injection);
@@ -999,4 +971,12 @@ void init_misc() {
     // Init Logging
     _init_misc_logging();
     _init_misc_api();
+
+    // Don't Render Game In Headless Mode
+    if (reborn_is_headless()) {
+        overwrite_calls(GameRenderer_render, nop<GameRenderer_render_t, GameRenderer *, float>);
+        overwrite_calls(NinecraftApp_initGLStates, nop<NinecraftApp_initGLStates_t, NinecraftApp *>);
+        overwrite_calls(Gui_onConfigChanged, nop<Gui_onConfigChanged_t, Gui *, Config *>);
+        overwrite_calls(LevelRenderer_generateSky, nop<LevelRenderer_generateSky_t, LevelRenderer *>);
+    }
 }

@@ -38,7 +38,12 @@ static int save_png(const char *filename, unsigned char *pixels, int line_size, 
     // Write Image
     return !stbi_write_png(filename, width, height, 4, pixels, line_size);
 }
-void screenshot_take(char *home) {
+void screenshot_take(const char *home) {
+    // Check
+    if (reborn_is_headless()) {
+        IMPOSSIBLE();
+    }
+
     // Get Directory
     char *screenshots = nullptr;
     safe_asprintf(&screenshots, "%s/screenshots", home);

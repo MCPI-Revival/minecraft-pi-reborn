@@ -1,16 +1,10 @@
 #pragma once
 
-#include <libreborn/libreborn.h>
-
 extern "C" {
-bool _feature_has(const char *name);
+bool _feature_has(const char *name, int server_default);
 }
 
-#ifdef MCPI_SERVER_MODE
-#define _feature_has__server_defaul_is_server_disabled(name) 0
-#define _feature_has__server_defaul_is_server_auto(name) _feature_has(name)
-#define _feature_has__server_defaul_is_server_enabled(name) 1
-#define feature_has(name, server_default) _feature_has__server_defaul_is_##server_default(name)
-#else
-#define feature_has(name, server_default) _feature_has(name)
-#endif
+#define _feature_has_server_disabled (0)
+#define _feature_has_server_auto (-1)
+#define _feature_has_server_enabled (1)
+#define feature_has(name, server_default) _feature_has(name, _feature_has_##server_default)

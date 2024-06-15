@@ -7,29 +7,35 @@ cd "$(dirname "$0")/../"
 
 # Variables
 MODE="$(echo "$1" | tr '[:upper:]' '[:lower:]')"
-ARCH='host'
+ARCH="$(echo "$2" | tr '[:upper:]' '[:lower:]')"
+APPIMAGE="$(pwd)/out/minecraft-pi-reborn-$(cat VERSION)-${ARCH}.AppImage"
 
-# Build
-./scripts/build.mjs none "${MODE}" "${ARCH}" -DMCPI_HEADLESS_MODE=ON
-
-# Add To PATH
-export PATH="$(pwd)/out/${MODE}/${ARCH}/usr/bin:${PATH}"
+# Check If File Exists
+if [ ! -f "${APPIMAGE}" ]; then
+    echo 'Missing AppImage!' > /dev/stderr
+    exit 1
+fi
 
 # Make Test Directory
 TEST_WORKING_DIR="$(pwd)/.testing-tmp"
 rm -rf "${TEST_WORKING_DIR}"
 mkdir -p "${TEST_WORKING_DIR}"
+ROOT="$(pwd)"
+cd "${TEST_WORKING_DIR}"
+
+# Prepare AppImage For Docker
+cp "${APPIMAGE}" tmp.AppImage
+"${ROOT}/scripts/fix-appimage-for-docker.sh" tmp.AppImage
+chmod +x tmp.AppImage
 
 # Run
 if [ "${MODE}" = "server" ]; then
     # Server Test
-    cd "${TEST_WORKING_DIR}"
-    minecraft-pi-reborn-server --only-generate
+    ./tmp.AppImage --appimage-extract-and-run --server --only-generate
 else
     # Client Test
-    export _MCPI_SKIP_ROOT_CHECK=1
     export HOME="${TEST_WORKING_DIR}"
-    minecraft-pi-reborn-client --default --no-cache --benchmark
+    ./tmp.AppImage --appimage-extract-and-run --default --no-cache --benchmark --force-headless
 fi
 
 # Clean Up

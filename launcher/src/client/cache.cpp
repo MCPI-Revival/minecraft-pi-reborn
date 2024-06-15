@@ -17,7 +17,7 @@ static std::string get_cache_path() {
     if (home == nullptr) {
         IMPOSSIBLE();
     }
-    return std::string(home) + HOME_SUBDIRECTORY_FOR_GAME_DATA "/.launcher-cache";
+    return std::string(home) + get_home_subdirectory_for_game_data() + "/.launcher-cache";
 }
 
 // Load
@@ -165,7 +165,8 @@ void wipe_cache() {
     INFO("Wiping Launcher Cache...");
 
     // Unlink File
-    if (unlink(get_cache_path().c_str()) != 0) {
+    const int ret = unlink(get_cache_path().c_str());
+    if (ret != 0 && errno != ENOENT) {
         WARN("Failure While Wiping Cache: %s", strerror(errno));
     }
 }

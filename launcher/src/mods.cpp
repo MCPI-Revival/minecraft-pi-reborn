@@ -60,7 +60,7 @@ std::string bootstrap_mods(const std::string &binary_directory) {
     // ~/.minecraft-pi/mods
     {
         // Get Mods Folder
-        std::string mods_folder = std::string(getenv("HOME")) + HOME_SUBDIRECTORY_FOR_GAME_DATA SUBDIRECTORY_FOR_MODS;
+        std::string mods_folder = std::string(getenv("HOME")) + get_home_subdirectory_for_game_data() + SUBDIRECTORY_FOR_MODS;
         // Load Mods From ./mods
         load(preload, mods_folder);
     }

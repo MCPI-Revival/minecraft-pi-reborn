@@ -1,19 +1,13 @@
 project(media-layer-trampoline)
 
-# Configuration
-set(MEDIA_LAYER_TRAMPOLINE_SRC src/media-layer-core.cpp) # Media Layer Trampoline Source
-if(NOT MCPI_HEADLESS_MODE)
-    list(APPEND MEDIA_LAYER_TRAMPOLINE_SRC src/GLESv1_CM.cpp)
-endif()
+# Common Sources
+set(MEDIA_LAYER_TRAMPOLINE_SRC src/media-layer-core.cpp src/GLESv1_CM.cpp)
 
 # Build
 if(BUILD_NATIVE_COMPONENTS)
     # Host Component
     add_library(media-layer-trampoline src/host/host.cpp ${MEDIA_LAYER_TRAMPOLINE_SRC})
-    target_link_libraries(media-layer-trampoline reborn-util media-layer-core trampoline-headers)
-    if(NOT MCPI_HEADLESS_MODE)
-        target_link_libraries(media-layer-trampoline GLESv1_CM)
-    endif()
+    target_link_libraries(media-layer-trampoline reborn-util media-layer-core GLESv1_CM trampoline-headers)
     target_compile_definitions(media-layer-trampoline PRIVATE -DMEDIA_LAYER_TRAMPOLINE_HOST)
     # Install
     install(TARGETS media-layer-trampoline DESTINATION "${MCPI_LIB_DIR}")

@@ -10,7 +10,7 @@
 #include "title-screen-internal.h"
 
 // Constants
-static std::string line1 = "Welcome to " MCPI_APP_BASE_TITLE " v" MCPI_VERSION "!";
+static std::string line1 = "Welcome to " MCPI_APP_TITLE " v" MCPI_VERSION "!";
 static int line_height = 8;
 static int button_width = 120;
 static int button_height = 24;

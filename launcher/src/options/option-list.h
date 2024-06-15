@@ -1,12 +1,12 @@
 OPTION(debug, "debug", 'd', "Enable Debug Logging (" MCPI_DEBUG_ENV ")")
 OPTION(copy_sdk, "copy-sdk", -2, "Extract Modding SDK And Exit")
 OPTION(disable_crash_report, "disable-crash-report", -1, "Disable Crash Report Dialog")
-#ifndef MCPI_SERVER_MODE
-OPTION(use_default, "default", -3, "Skip Configuration Dialogs")
-OPTION(no_cache, "no-cache", -4, "Disable Configuration Cache")
-OPTION(wipe_cache, "wipe-cache", -5, "Wipe Cached Configuration")
-OPTION(print_available_feature_flags, "print-available-feature-flags", -6, "Print Available Feature Flags")
-OPTION(benchmark, "benchmark", -7, "Run Benchmark")
-#else
-OPTION(only_generate, "only-generate", -8, "Generate World And Exit")
-#endif
+OPTION(use_default, "default", -3, "Skip Client-Mode Configuration Dialogs")
+OPTION(no_cache, "no-cache", -4, "Disable Client-Mode Configuration Cache")
+OPTION(wipe_cache, "wipe-cache", -5, "Wipe Cached Client-Mode Configuration And Exit")
+OPTION(print_available_feature_flags, "print-available-feature-flags", -6, "Print Available Client-Mode Feature Flags")
+OPTION(benchmark, "benchmark", -7, "Run Client-Mode Benchmark")
+OPTION(only_generate, "only-generate", -8, "Generate World And Exit (Server-Mode Only)")
+OPTION(force_headless, "force-headless", -9, "Force Disable Game Rendering")
+OPTION(force_non_headless, "force-non-headless", -10, "Force Enable Game Rendering")
+OPTION(server_mode, "server", -11, "Run In Server-Mode")

@@ -40,9 +40,9 @@ static std::string extra_version_info_full = !extra_version_info.empty() ? (" ("
 // Profile Directory
 static std::string profile_directory_suffix =
 #ifdef MCPI_IS_FLATPAK_BUILD
-    "/.var/app/" MCPI_APP_ID
+    "/.var/app/" MCPI_APP_ID +
 #endif
-    HOME_SUBDIRECTORY_FOR_GAME_DATA
+    std::string(get_home_subdirectory_for_game_data())
     ;
 static std::string get_profile_directory_url() {
     const char *home = getenv("HOME");

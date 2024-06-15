@@ -10,15 +10,11 @@ add_executable(launcher
     src/mods.cpp
     src/options/parser.cpp
     src/main.cpp
+    src/client/configuration.cpp
+    src/client/cache.cpp
+    src/client/available-feature-flags # Show In IDE
 )
-if(NOT MCPI_SERVER_MODE)
-    embed_resource(launcher src/client/available-feature-flags)
-    target_sources(launcher PRIVATE
-        src/client/configuration.cpp
-        src/client/cache.cpp
-        src/client/available-feature-flags # Show In IDE
-    )
-endif()
+embed_resource(launcher src/client/available-feature-flags)
 target_link_libraries(launcher reborn-util LIB_LIEF trampoline-headers)
 # RPath
 set_target_properties(launcher PROPERTIES INSTALL_RPATH "$ORIGIN/lib/native")
@@ -38,18 +34,10 @@ file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/launcher.desktop"
     "Type=Application\n"
     "Categories=Game;\n"
 )
-if(MCPI_HEADLESS_MODE)
-    file(APPEND "${CMAKE_CURRENT_BINARY_DIR}/launcher.desktop"
-        "Terminal=true\n"
-        "NoDisplay=true\n"
-    )
-else()
-    file(APPEND "${CMAKE_CURRENT_BINARY_DIR}/launcher.desktop"
-        "Terminal=false\n"
-        "StartupNotify=false\n"
-        "StartupWMClass=${MCPI_APP_ID}\n"
-    )
-endif()
+file(APPEND "${CMAKE_CURRENT_BINARY_DIR}/launcher.desktop"
+    "Terminal=true\n"
+    "NoDisplay=true\n"
+)
 install(
     FILES "${CMAKE_CURRENT_BINARY_DIR}/launcher.desktop"
     DESTINATION "${MCPI_SHARE_DIR}/applications"
@@ -100,17 +88,11 @@ file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/appstream.xml"
     "    <releases>\n"
     "        <release version=\"${MCPI_VERSION}\" date=\"${MCPI_VERSION_DATE}\"></release>\n"
     "    </releases>\n"
-)
-if(NOT MCPI_HEADLESS_MODE)
-    file(APPEND "${CMAKE_CURRENT_BINARY_DIR}/appstream.xml"
-        "    <screenshots>\n"
-        "        <screenshot type=\"default\">\n"
-        "            <image>https://gitea.thebrokenrail.com/TheBrokenRail/minecraft-pi-reborn/raw/branch/master/images/start.png</image>\n"
-        "        </screenshot>\n"
-        "    </screenshots>\n"
-    )
-endif()
-file(APPEND "${CMAKE_CURRENT_BINARY_DIR}/appstream.xml"
+    "    <screenshots>\n"
+    "        <screenshot type=\"default\">\n"
+    "            <image>https://gitea.thebrokenrail.com/TheBrokenRail/minecraft-pi-reborn/raw/branch/master/images/start.png</image>\n"
+    "        </screenshot>\n"
+    "    </screenshots>\n"
     "</component>\n"
 )
 install(

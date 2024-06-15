@@ -49,9 +49,6 @@ void init_input() {
     // Allow Attacking Mobs
     _init_attack();
 
-    // Allow Opening Crafting With Controller
-    _init_crafting();
-
     // Disable Raw Mouse Motion
     if (feature_has("Disable Raw Mouse Motion (Not Recommended)", server_disabled)) {
         media_set_raw_mouse_motion_enabled(0);

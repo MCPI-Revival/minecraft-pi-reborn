@@ -108,6 +108,7 @@ static void run_command_and_set_env(const char *env_name, const char *command[])
 // Use Zenity To Set Environmental Variable
 #define DIALOG_TITLE "Launcher"
 static void run_zenity_and_set_env(const char *env_name, std::vector<std::string> command) {
+    reborn_check_display();
     // Create Full Command
     std::vector<std::string> full_command;
     full_command.push_back("zenity");
@@ -146,31 +147,16 @@ void handle_non_launch_client_only_commands(const options_t &options) {
         });
         exit(EXIT_SUCCESS);
     }
-}
-
-// Check Environment
-void check_environment_client() {
-    // Don't Run As Root
-    if (getenv("_MCPI_SKIP_ROOT_CHECK") == nullptr && (getuid() == 0 || geteuid() == 0)) {
-        ERR("Don't Run As Root");
+    // Wipe Cache If Needed
+    if (options.wipe_cache) {
+        wipe_cache();
+        exit(EXIT_SUCCESS);
     }
-
-    // Check For Display
-#ifndef MCPI_HEADLESS_MODE
-    if (getenv("DISPLAY") == nullptr && getenv("WAYLAND_DISPLAY") == nullptr) {
-        ERR("No display attached! Make sure $DISPLAY or $WAYLAND_DISPLAY is set.");
-    }
-#endif
 }
 
 // Configure Client Options
 #define LIST_DIALOG_SIZE "400"
 void configure_client(const options_t &options) {
-    // Wipe Cache If Needed
-    if (options.wipe_cache) {
-        wipe_cache();
-    }
-
     // Load Cache
     launcher_cache cache = options.no_cache ? empty_cache : load_cache();
 

@@ -10,15 +10,12 @@
 #include <libreborn/libreborn.h>
 
 #include <SDL/SDL.h>
-
-#ifndef MCPI_HEADLESS_MODE
 #include <media-layer/core.h>
 
 #include <mods/input/input.h>
 #include <mods/sign/sign.h>
 #include <mods/chat/chat.h>
 #include <mods/home/home.h>
-#endif
 
 // Custom Title
 HOOK(SDL_WM_SetCaption, void, (__attribute__((unused)) const char *title, const char *icon)) {
@@ -37,14 +34,12 @@ HOOK(SDL_ShowCursor, int, (int toggle)) {
 HOOK(SDL_PollEvent, int, (SDL_Event *event)) {
     // In Server Mode, Exit Requests Are Handled In src/server/server.cpp
     // Check If Exit Is Requested
-#ifndef MCPI_SERVER_MODE
-    if (compat_check_exit_requested()) {
+    if (!reborn_is_server() && compat_check_exit_requested()) {
         // Send SDL_QUIT
         SDL_Event new_event;
         new_event.type = SDL_QUIT;
         SDL_PushEvent(&new_event);
     }
-#endif
 
     // Poll Events
     ensure_SDL_PollEvent();
@@ -53,8 +48,6 @@ HOOK(SDL_PollEvent, int, (SDL_Event *event)) {
     // Handle Events
     if (ret == 1 && event != nullptr) {
         int handled = 0;
-
-#ifndef MCPI_HEADLESS_MODE
         switch (event->type) {
             case SDL_KEYDOWN: {
                 // Handle Key Presses
@@ -70,10 +63,6 @@ HOOK(SDL_PollEvent, int, (SDL_Event *event)) {
                 } else if (event->key.keysym.sym == SDLK_q) {
                     // Drop Item
                     input_drop((event->key.keysym.mod & KMOD_CTRL) != 0);
-                    handled = 1;
-                } else if (event->key.keysym.sym == SDLK_WORLD_0) {
-                    // Crafting
-                    input_open_crafting();
                     handled = 1;
                 }
                 break;
@@ -97,8 +86,6 @@ HOOK(SDL_PollEvent, int, (SDL_Event *event)) {
                 break;
             }
         }
-#endif
-
         if (handled) {
             // Event Was Handled
             return SDL_PollEvent(event);

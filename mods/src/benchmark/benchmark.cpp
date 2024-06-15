@@ -47,14 +47,12 @@ static void start_world(Minecraft *minecraft) {
 }
 
 // Track Frames
-#ifndef MCPI_HEADLESS_MODE
 static unsigned long long int frames = 0;
 HOOK(media_swap_buffers, void, ()) {
     ensure_media_swap_buffers();
     real_media_swap_buffers();
     frames++;
 }
-#endif
 
 // Track Ticks
 static unsigned long long int ticks = 0;
@@ -74,9 +72,7 @@ static long long int get_time() {
 // Store Time When World Loaded
 static bool world_loaded = false;
 static long long int world_loaded_time;
-#ifndef MCPI_HEADLESS_MODE
 static unsigned long long int world_loaded_frames;
-#endif
 static unsigned long long int world_loaded_ticks;
 
 // Last Logged Status Update
@@ -98,11 +94,9 @@ static void Minecraft_update_injection(Minecraft *minecraft) {
     // Detect World Loaded
     if (!world_loaded && minecraft->isLevelGenerated()) {
         world_loaded = true;
-        INFO("Loaded");
+        INFO("Benchmark Loaded");
         world_loaded_time = now;
-#ifndef MCPI_HEADLESS_MODE
         world_loaded_frames = frames;
-#endif
         world_loaded_ticks = ticks;
     }
 
@@ -110,9 +104,7 @@ static void Minecraft_update_injection(Minecraft *minecraft) {
     if (!exit_requested && world_loaded) {
         // Get Time
         long long int current_time = now - world_loaded_time;
-#ifndef MCPI_HEADLESS_MODE
         unsigned long long int current_frames = frames - world_loaded_frames;
-#endif
         unsigned long long int current_ticks = ticks - world_loaded_ticks;
 
         // Log
@@ -151,11 +143,11 @@ static void Minecraft_update_injection(Minecraft *minecraft) {
             // Calculate FPS & TPS
             INFO("Benchmark Completed");
             INFO("    Total Time: %lld Nanoseconds", current_time);
-#ifndef MCPI_HEADLESS_MODE
-            static double frames_per_nanosecond = ((double) current_frames) / ((double) current_time);
-            static double frames_per_second = frames_per_nanosecond * NANOSECONDS_IN_SECOND;
-            INFO("    FPS: %f (%llu Total Frames)", frames_per_second, current_frames);
-#endif
+            if (!reborn_is_headless()) {
+                static double frames_per_nanosecond = ((double) current_frames) / ((double) current_time);
+                static double frames_per_second = frames_per_nanosecond * NANOSECONDS_IN_SECOND;
+                INFO("    FPS: %f (%llu Total Frames)", frames_per_second, current_frames);
+            }
             static double ticks_per_nanosecond = ((double) current_ticks) / ((double) current_time);
             static double ticks_per_second = ticks_per_nanosecond * NANOSECONDS_IN_SECOND;
             INFO("    TPS: %f (%llu Total Ticks)", ticks_per_second, current_ticks);

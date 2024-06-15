@@ -47,10 +47,6 @@ const PackageTypes = wrap(new Enum([
     'AppImage',
     'Flatpak'
 ]));
-const Variants = wrap(new Enum([
-    'Client',
-    'Server'
-]));
 const Architectures = wrap(new Enum([
     'AMD64',
     'ARM64',
@@ -67,7 +63,6 @@ let out = path.join(root, 'out');
 
 // Positional Arguments
 let argIndex = 2; // Skip First Two Arguments
-const POSITIONAL_ARGUMENT_COUNT = 3;
 function readArg(from, type) {
     // Check Argument Count
     if (argIndex >= process.argv.length) {
@@ -84,8 +79,6 @@ function readArg(from, type) {
 }
 // Type Of Packaging
 const packageType = readArg(PackageTypes, 'Package Type');
-// Build Variant
-const variant = readArg(Variants, 'Variant');
 // Build Architecture
 const architecture = readArg(Architectures, 'Architecture');
 // Flatpak Builds Work Best Without Custom Toolchains
@@ -133,7 +126,7 @@ function updateDir(dir) {
     if (packageType !== PackageTypes.None) {
         dir = path.join(dir, packageType.name);
     }
-    return path.join(dir, variant.name, architecture.name);
+    return path.join(dir, architecture.name);
 }
 build = updateDir(build);
 let cleanOut = false;
@@ -147,7 +140,6 @@ if (packageType !== PackageTypes.AppImage) {
 function toCmakeBool(val) {
     return val ? 'ON' : 'OFF';
 }
-options.set('MCPI_SERVER_MODE', toCmakeBool(variant === Variants.Server));
 options.set('MCPI_IS_APPIMAGE_BUILD', toCmakeBool(packageType === PackageTypes.AppImage));
 options.set('MCPI_IS_FLATPAK_BUILD', toCmakeBool(packageType === PackageTypes.Flatpak));
 if (architecture !== Architectures.Host) {

@@ -14,9 +14,6 @@ jobs:
         strategy:
             fail-fast: false
             matrix:
-                mode:
-                  - Client
-                  - Server
                 arch:
                   - AMD64
                   - ARM64
@@ -31,40 +28,19 @@ jobs:
                 submodules: true
           # Dependencies
           - name: Install Dependencies
-            run: ./scripts/install-dependencies.sh ${{ matrix.arch }}
+            run: ./scripts/install-dependencies.sh build ${{ matrix.arch }}
           # Build
           - name: Build
-            run: ./scripts/build.mjs appimage ${{ matrix.mode }} ${{ matrix.arch }}
+            run: ./scripts/build.mjs appimage ${{ matrix.arch }}
           - name: Upload Artifacts
             uses: christopherhx/gitea-upload-artifact@v4
             with:
-                name: ${{ matrix.mode }} (${{ matrix.arch }})
+                name: ${{ matrix.arch }}
                 path: ./out/*.AppImage*
                 if-no-files-found: error
     # Test Project
     test:
-        strategy:
-            fail-fast: false
-            matrix:
-                mode:
-                  - Client
-                  - Server
-        name: Test
-        runs-on: ubuntu-latest
-        container: node:lts-bullseye
-        steps:
-          - name: Checkout Repository
-            uses: actions/checkout@v4
-            with:
-                submodules: true
-          # Dependencies
-          - name: Install Dependencies
-            run: ./scripts/install-dependencies.sh
-          # Test
-          - name: Test
-            run: ./scripts/test.sh ${{ matrix.mode }}
-    # Test Project On ARM
-    rpi-test:
+        needs: build
         strategy:
             fail-fast: false
             matrix:
@@ -72,10 +48,11 @@ jobs:
                   - Client
                   - Server
                 arch:
+                  - AMD64
                   - ARM64
                   - ARMHF
-        name: Raspberry Pi Test
-        runs-on: raspberry-pi
+        name: Test
+        runs-on: ${{ startsWith(matrix.arch, 'ARM') && 'raspberry-pi' || 'ubuntu-latest' }}
         container: node:lts-bullseye
         steps:
           - name: Checkout Repository
@@ -84,12 +61,19 @@ jobs:
                 submodules: true
           # Dependencies
           - name: Install Dependencies
-            run: ./scripts/install-dependencies.sh ${{ matrix.arch }}
+            run: ./scripts/install-dependencies.sh test ${{ matrix.arch }}
+          # Download Artifact
+          - name: Download Artifact
+            uses: christopherhx/gitea-download-artifact@v4
+            with:
+                name: ${{ matrix.arch }}
+                path: out
           # Test
           - name: Test
-            run: ./scripts/test.sh ${{ matrix.mode }}
+            run: ./scripts/test.sh ${{ matrix.mode }} ${{ matrix.arch }}
     # Example Mods
     example-mods:
+        needs: build
         name: Build Example Mods
         runs-on: ubuntu-latest
         container: node:lts-bullseye
@@ -100,16 +84,18 @@ jobs:
                 submodules: true
           # Dependencies
           - name: Install Dependencies
-            run: ./scripts/install-dependencies.sh
-          - name: Install ARM Toolchain
-            run: apt-get install --no-install-recommends -y g++-arm-linux-gnueabihf gcc-arm-linux-gnueabihf
-          # Build SDK
-          - name: Build SDK
+            run: ./scripts/install-dependencies.sh example_mods amd64
+          # SDK
+          - name: Download SDK
+            uses: christopherhx/gitea-download-artifact@v4
+            with:
+                name: AMD64
+                path: out
+          - name: Extract SDK
             run: |
-                ./scripts/build.mjs none client host
-                export _MCPI_SKIP_ROOT_CHECK=1
-                export DISPLAY=
-                ./out/client/host/usr/bin/minecraft-pi-reborn-client --copy-sdk
+                ./scripts/fix-appimage-for-docker.sh ./out/*.AppImage
+                chmod +x ./out/*.AppImage
+                ./out/*.AppImage --copy-sdk
           # Build Example Mods
           - name: Build Example Mods
             run: ./example-mods/build.sh
@@ -122,7 +108,10 @@ jobs:
     # Create Release
     release:
         if: startsWith(github.ref, 'refs/tags/')
-        needs: build
+        needs:
+          - build
+          - test
+          - example-mods
         name: Release
         runs-on: ubuntu-latest
         container: node:lts-bullseye

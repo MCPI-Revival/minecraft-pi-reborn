@@ -7,24 +7,20 @@
 #include <mods/init/init.h>
 
 // Get MCPI Home Directory
-char *home_get() {
-    static char *dir = nullptr;
+const char *home_get() {
+    static std::string dir = "";
     // Load
-    if (dir == nullptr) {
-        safe_asprintf(&dir, "%s" HOME_SUBDIRECTORY_FOR_GAME_DATA, getenv("HOME"));
+    if (dir.empty()) {
+        dir = std::string(getenv("HOME")) + std::string(get_home_subdirectory_for_game_data());
     }
     // Return
-    return dir;
-}
-// Free
-__attribute__((destructor)) static void _free_home() {
-    free(home_get());
+    return dir.c_str();
 }
 
 // Init
 void init_home() {
     // Store Data In ~/.minecraft-pi Instead Of ~/.minecraft
-    patch_address((void *) &Strings::default_path, (void *) HOME_SUBDIRECTORY_FOR_GAME_DATA);
+    patch_address((void *) &Strings::default_path, (void *) get_home_subdirectory_for_game_data());
 
     // The override code resolves assets manually,
     // making changing directory redundant.

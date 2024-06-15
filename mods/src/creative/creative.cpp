@@ -6,7 +6,6 @@
 #include <mods/misc/misc.h>
 #include <mods/creative/creative.h>
 
-#ifndef MCPI_SERVER_MODE
 // Add Item To Inventory
 static void inventory_add_item(FillingContainer *inventory, Item *item) {
     ItemInstance *item_instance = new ItemInstance;
@@ -83,7 +82,6 @@ static void Inventory_setupDefault_FillingContainer_addItem_call_injection(Filli
         filling_container->addItem(new_item_instance);
     }
 }
-#endif
 
 // Hook Specific TileItem Constructor
 static TileItem *Tile_initTiles_TileItem_injection(TileItem *tile_item, int32_t id) {
@@ -111,9 +109,7 @@ int creative_is_restricted() {
 void init_creative() {
     // Add Extra Items To Creative Inventory (Only Replace Specific Function Call)
     if (feature_has("Expand Creative Mode Inventory", server_enabled)) {
-#ifndef MCPI_SERVER_MODE
         misc_run_on_creative_inventory_setup(Inventory_setupDefault_FillingContainer_addItem_call_injection);
-#endif
 
         // Use AuxDataTileItem by default instead of TileItem, so tiles in the Creative
         // Inventory can have arbitrary auxiliary values.

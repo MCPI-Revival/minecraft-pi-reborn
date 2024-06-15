@@ -14,7 +14,7 @@
     }
 
 // Copy SDK Into ~/.minecraft-pi
-#define HOME_SUBDIRECTORY_FOR_SDK HOME_SUBDIRECTORY_FOR_GAME_DATA "/sdk"
+#define HOME_SUBDIRECTORY_FOR_SDK (std::string(get_home_subdirectory_for_game_data()) + "/sdk")
 void copy_sdk(const std::string &binary_directory, const bool log_with_debug) {
     // Ensure SDK Directory
     std::string sdk_path;

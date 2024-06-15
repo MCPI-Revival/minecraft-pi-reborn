@@ -213,6 +213,12 @@ static Texture AppPlatform_linux_loadTexture_injection(__attribute__((unused)) A
 
 // Init
 void init_textures() {
+    // Handle Headless Mode
+    if (reborn_is_headless()) {
+        _init_textures_headless();
+        return;
+    }
+
     // Tick Dynamic Textures (Animated Water)
     bool animated_water = feature_has("Animated Water", server_disabled);
     bool animated_lava = feature_has("Animated Lava", server_disabled);

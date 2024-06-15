@@ -1,6 +1,7 @@
 #include <libreborn/libreborn.h>
 #include <symbols/minecraft.h>
-#include <mods/init/init.h>
+
+#include "textures-internal.h"
 
 // Disable Texture Loading
 static Texture AppPlatform_linux_loadTexture_injection(__attribute__((unused)) AppPlatform_linux_loadTexture_t original, __attribute__((unused)) AppPlatform_linux *app_platform, __attribute__((unused)) std::string *path, __attribute__((unused)) bool b) {
@@ -17,7 +18,7 @@ static Texture AppPlatform_linux_loadTexture_injection(__attribute__((unused)) A
 }
 
 // Init
-void init_textures() {
+void _init_textures_headless() {
     // Disable Texture Loading
     overwrite_calls(AppPlatform_linux_loadTexture, AppPlatform_linux_loadTexture_injection);
 }

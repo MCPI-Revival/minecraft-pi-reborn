@@ -1,5 +1,5 @@
 #pragma once
 
 extern "C" {
-void screenshot_take(char *home);
+void screenshot_take(const char *home);
 }

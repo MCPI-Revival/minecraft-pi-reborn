@@ -1,16 +1,10 @@
-// Config Needs To Load First
-#include <libreborn/libreborn.h>
-
-#ifdef MCPI_SERVER_MODE
-#error "External Server Code Requires Client Mode"
-#endif
-
 #include <fstream>
 #include <functional>
 #include <string>
 #include <vector>
 
 #include <symbols/minecraft.h>
+#include <libreborn/libreborn.h>
 
 #include <mods/home/home.h>
 #include <mods/init/init.h>
@@ -21,7 +15,7 @@ struct server_list_entry {
     std::string address;
     int port;
 };
-static std::vector<struct server_list_entry> server_list_entries;
+static std::vector<server_list_entry> server_list_entries;
 static bool server_list_loaded = false;
 static void load_servers() {
     // Prepare
@@ -54,40 +48,34 @@ static void load_servers() {
         std::string line;
         while (std::getline(server_list_file, line)) {
             // Check Line
-            if (line.length() > 0) {
+            if (!line.empty()) {
                 if (line[0] == '#') {
                     continue;
                 }
                 // Parse
                 std::string address;
                 std::string port_str;
-                // Add Default Port If Needed
-                size_t last_colon = line.find_last_of(':');
-                if (last_colon == std::string::npos) {
-                    line.append(":19132");
-                    last_colon = line.find_last_of(':');
-                }
-                // Loop
-                for (std::string::size_type i = 0; i < line.length(); i++) {
-                    if (i > last_colon) {
-                        port_str.push_back(line[i]);
-                    } else if (i < last_colon) {
-                        address.push_back(line[i]);
-                    }
+                size_t separator_pos = line.find_last_of('|');
+                if (separator_pos == std::string::npos) {
+                    port_str = "19132";
+                    address = line;
+                } else {
+                    address = line.substr(0, separator_pos);
+                    port_str = line.substr(separator_pos + 1);
                 }
                 // Check Line
-                if (address.length() < 1 || port_str.length() < 1 || port_str.find_first_not_of("0123456789") != std::string::npos) {
+                if (address.empty() || port_str.empty() || port_str.find_first_not_of("0123456789") != std::string::npos) {
                     // Invalid Line
                     WARN("Invalid Server: %s", line.c_str());
                     continue;
                 }
                 // Parse Port
                 int port = std::stoi(port_str);
-
                 // Done
-                struct server_list_entry entry;
-                entry.address = address;
-                entry.port = port;
+                server_list_entry entry = {
+                    .address = address,
+                    .port = port
+                };
                 server_list_entries.push_back(entry);
             }
         }
@@ -98,7 +86,7 @@ static void load_servers() {
 }
 
 // Iterare Server List
-static void iterate_servers(std::function<void(const char *address, int port)> callback) {
+static void iterate_servers(const std::function<void(const char *address, int port)> &callback) {
     // Load
     if (!server_list_loaded) {
         load_servers();
@@ -106,8 +94,7 @@ static void iterate_servers(std::function<void(const char *address, int port)> c
     }
 
     // Loop
-    for (std::vector<struct server_list_entry>::size_type i = 0; i < server_list_entries.size(); i++) {
-        struct server_list_entry entry = server_list_entries[i];
+    for (const server_list_entry &entry : server_list_entries) {
         callback(entry.address.c_str(), entry.port);
     }
 }
@@ -122,7 +109,7 @@ static void RakNetInstance_pingForHosts_injection(RakNetInstance_pingForHosts_t 
 
     // Add External Servers
     iterate_servers([rak_peer](const char *address, int port) {
-        rak_peer->Ping(address, port, 1, 0);
+        rak_peer->Ping(address, port, true, 0);
     });
 }
 

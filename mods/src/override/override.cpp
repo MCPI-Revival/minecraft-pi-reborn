@@ -34,34 +34,32 @@ char *override_get_path(const char *filename) {
     }
 
     // Get MCPI Home Path
-    char *home_path = home_get();
+    const std::string home_path = home_get();
     // Get Asset Override Path
-    char *overrides = nullptr;
-    safe_asprintf(&overrides, "%s/overrides", home_path);
+    const std::string overrides = home_path + "/overrides";
 
     // Data Prefiix
-    const char *data_prefix = "data/";
-    int data_prefix_length = strlen(data_prefix);
+    const std::string data_prefix = "data/";
+    int data_prefix_length = data_prefix.length();
 
     // Folders To Check
-    char *asset_folders[] = {
+    std::string asset_folders[] = {
         overrides,
         getenv("MCPI_REBORN_ASSETS_PATH"),
         getenv("MCPI_VANILLA_ASSETS_PATH"),
-        nullptr
+        ""
     };
 
     // Check For Override
-    char *new_path = nullptr;
-    if (starts_with(filename, data_prefix)) {
+    std::string new_path;
+    if (std::string(filename).rfind(data_prefix, 0) == 0) {
         // Test Asset Folders
-        for (int i = 0; asset_folders[i] != nullptr; i++) {
-            safe_asprintf(&new_path, "%s/%s", asset_folders[i], &filename[data_prefix_length]);
+        for (int i = 0; !asset_folders[i].empty(); i++) {
+            new_path = asset_folders[i] + '/' + &filename[data_prefix_length];
             ensure_access();
-            if (real_access(new_path, F_OK) == -1) {
+            if (real_access(new_path.c_str(), F_OK) == -1) {
                 // Not Found In Asset Folder
-                free(new_path);
-                new_path = nullptr;
+                new_path = "";
                 continue;
             } else {
                 // Found
@@ -70,11 +68,14 @@ char *override_get_path(const char *filename) {
         }
     }
 
-    // Free
-    free(overrides);
-
     // Return
-    return new_path;
+    if (new_path.empty()) {
+        return nullptr;
+    } else {
+        char *ret = strdup(new_path.c_str());
+        ALLOC_CHECK(ret);
+        return ret;
+    }
 }
 
 // Hook fopen

@@ -4,13 +4,9 @@ extern "C" {
 void run_tests();
 void init_version();
 void init_compat();
-#ifdef MCPI_SERVER_MODE
 void init_server();
-#else
 void init_multiplayer();
 void init_benchmark();
-#endif
-#ifndef MCPI_HEADLESS_MODE
 void init_sound();
 void init_input();
 void init_sign();
@@ -19,7 +15,6 @@ void init_atlas();
 void init_title_screen();
 void init_skin();
 void init_fps();
-#endif
 void init_touch();
 void init_textures();
 void init_creative();

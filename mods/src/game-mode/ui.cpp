@@ -1,5 +1,6 @@
 #include <string>
 #include <set>
+#include <utility>
 
 #include <symbols/minecraft.h>
 #include <libreborn/libreborn.h>
@@ -7,6 +8,7 @@
 #include <mods/text-input-box/TextInputScreen.h>
 #include <mods/touch/touch.h>
 #include <mods/misc/misc.h>
+#include <mods/game-mode/game-mode.h>
 #include "game-mode-internal.h"
 
 // Strings
@@ -175,20 +177,24 @@ static std::string getUniqueLevelName(LevelStorageSource *source, const std::str
 }
 
 // Create World
-static void create_world(Minecraft *minecraft, std::string name, bool is_creative, std::string seed_str) {
-    // Get Seed
+int get_seed_from_string(std::string str) {
     int seed;
-    seed_str = Util::stringTrim(&seed_str);
-    if (!seed_str.empty()) {
+    str = Util::stringTrim(&str);
+    if (!str.empty()) {
         int num;
-        if (sscanf(seed_str.c_str(), "%d", &num) > 0) {
+        if (sscanf(str.c_str(), "%d", &num) > 0) {
             seed = num;
         } else {
-            seed = Util::hashCode(&seed_str);
+            seed = Util::hashCode(&str);
         }
     } else {
         seed = Common::getEpochTimeS();
     }
+    return seed;
+}
+static void create_world(Minecraft *minecraft, std::string name, bool is_creative, std::string seed_str) {
+    // Get Seed
+    int seed = get_seed_from_string(std::move(seed_str));
 
     // Get Folder Name
     name = Util::stringTrim(&name);

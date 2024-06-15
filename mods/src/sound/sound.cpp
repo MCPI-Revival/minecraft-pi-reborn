@@ -117,6 +117,10 @@ static void SoundEngine_init_injection(SoundEngine_init_t original, SoundEngine 
 
 // Init
 void init_sound() {
+    // Not Needed On Headless Mode
+    if (reborn_is_headless()) {
+        return;
+    }
     // Implement Sound Engine
     if (feature_has("Implement Sound Engine", server_disabled)) {
         overwrite(SoundEngine_playUI, SoundEngine_playUI_injection);

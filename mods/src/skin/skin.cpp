@@ -79,6 +79,10 @@ static int32_t Textures_loadAndBindTexture_injection(Textures *textures, __attri
 
 // Init
 void init_skin() {
+    // Not Needed On Headless Mode
+    if (reborn_is_headless()) {
+        return;
+    }
     // Check Feature Flag
     if (feature_has("Load Custom Skins", server_disabled)) {
         // LocalPlayer

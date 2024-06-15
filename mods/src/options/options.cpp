@@ -57,10 +57,8 @@ static void Options_initDefaultValue_injection(Options_initDefaultValue_t origin
     original(options);
 
     // Default Graphics Settings
-#ifndef MCPI_SERVER_MODE
     options->fancy_graphics = true;
     options->ambient_occlusion = true;
-#endif
 
     // Store
     stored_options = options;
@@ -133,26 +131,15 @@ static std::vector<std::string> OptionsFile_getOptionStrings_injection(OptionsFi
 }
 
 // Get New options.txt Path
-#ifndef MCPI_SERVER_MODE
-static char *get_new_options_txt_path() {
-    static char *path = nullptr;
+static const char *get_new_options_txt_path() {
+    static std::string path = "";
     // Path
-    if (path == nullptr) {
-        safe_asprintf(&path, "%s/options.txt", home_get());
+    if (path.empty()) {
+        path = !reborn_is_server() ? (std::string(home_get()) + "/options.txt") : "/dev/null";
     }
     // Return
-    return path;
+    return path.c_str();
 }
-// Free
-__attribute__((destructor)) static void _free_new_options_txt_path() {
-    free(get_new_options_txt_path());
-}
-#else
-static char *get_new_options_txt_path() {
-    // Block options.txt On Servers
-    return (char *) "/dev/null";
-}
-#endif
 
 // Init
 void init_options() {

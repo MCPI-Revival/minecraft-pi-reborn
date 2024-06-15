@@ -8,9 +8,7 @@
 
 // Take Screenshot Using TripodCamera
 static void AppPlatform_saveScreenshot_injection(__attribute__((unused)) AppPlatform_saveScreenshot_t original, __attribute__((unused)) AppPlatform *app_platform, __attribute__((unused)) std::string *path, __attribute__((unused)) int32_t width, __attribute__((unused)) int32_t height) {
-#ifndef MCPI_HEADLESS_MODE
     screenshot_take(home_get());
-#endif
 }
 
 // Enable TripodCameraRenderer

@@ -91,9 +91,6 @@ static void FurnaceScreen_render_ItemRenderer_renderGuiItem_one_injection(Font *
 
 // Init
 void init_atlas() {
-    // Add Better nullptr-Check (And More UI Fixes When The gui_blocks Atlas Is Disabled)
-    overwrite_calls(ItemRenderer_renderGuiItem_two, ItemRenderer_renderGuiItem_two_injection);
-
     // Disable The gui_blocks Atlas Which Contains Pre-Rendered Textures For Blocks In The Inventory
     if (feature_has("Disable \"gui_blocks\" Atlas", server_disabled)) {
         unsigned char disable_gui_blocks_atlas_patch[4] = {0x00, 0xf0, 0x20, 0xe3}; // "nop"
@@ -105,5 +102,6 @@ void init_atlas() {
         overwrite_calls(Tesselator_color, Tesselator_color_injection);
         overwrite_call((void *) 0x32324, (void *) FurnaceScreen_render_ItemRenderer_renderGuiItem_one_injection);
         overwrite_call((void *) 0x1e21c, (void *) InventoryPane_renderBatch_Tesselator_color_injection);
+        overwrite_calls(ItemRenderer_renderGuiItem_two, ItemRenderer_renderGuiItem_two_injection);
     }
 }
