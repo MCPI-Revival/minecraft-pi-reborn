@@ -32,7 +32,7 @@ extern "C" {
 #endif
 
 // Sanitize String
-void sanitize_string(char **str, int max_length, unsigned int allow_newlines);
+void sanitize_string(char *str, int max_length, unsigned int allow_newlines);
 
 // CP437
 char *to_cp437(const char *input);

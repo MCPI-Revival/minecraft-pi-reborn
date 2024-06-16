@@ -35,8 +35,9 @@ file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/launcher.desktop"
     "Categories=Game;\n"
 )
 file(APPEND "${CMAKE_CURRENT_BINARY_DIR}/launcher.desktop"
-    "Terminal=true\n"
-    "NoDisplay=true\n"
+    "Terminal=false\n"
+    "StartupNotify=false\n"
+    "StartupWMClass=${MCPI_APP_ID}\n"
 )
 install(
     FILES "${CMAKE_CURRENT_BINARY_DIR}/launcher.desktop"

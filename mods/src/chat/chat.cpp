@@ -26,11 +26,9 @@ std::string chat_send_api_command(Minecraft *minecraft, std::string str) {
 }
 
 // Send API Chat Command
-static void send_api_chat_command(Minecraft *minecraft, char *str) {
-    char *command = nullptr;
-    safe_asprintf(&command, "chat.post(%s)\n", str);
+static void send_api_chat_command(Minecraft *minecraft, const char *str) {
+    const std::string command = std::string("chat.post(") + str + ")\n";
     chat_send_api_command(minecraft, command);
-    free(command);
 }
 
 // Send Message To Players
@@ -38,12 +36,13 @@ std::string _chat_get_prefix(char *username) {
     return std::string("<") + username + "> ";
 }
 void chat_send_message(ServerSideNetworkHandler *server_side_network_handler, char *username, char *message) {
-    char *full_message = nullptr;
-    safe_asprintf(&full_message, "%s%s", _chat_get_prefix(username).c_str(), message);
-    sanitize_string(&full_message, MAX_CHAT_MESSAGE_LENGTH, 0);
-    std::string cpp_string = full_message;
-    free(full_message);
-    server_side_network_handler->displayGameMessage(&cpp_string);
+    std::string full_message = _chat_get_prefix(username) + message;
+    char *raw_str = strdup(full_message.c_str());
+    ALLOC_CHECK(raw_str);
+    sanitize_string(raw_str, MAX_CHAT_MESSAGE_LENGTH, 0);
+    full_message = raw_str;
+    free(raw_str);
+    server_side_network_handler->displayGameMessage(&full_message);
 }
 // Handle Chat packet Send
 void chat_handle_packet_send(Minecraft *minecraft, ChatPacket *packet) {

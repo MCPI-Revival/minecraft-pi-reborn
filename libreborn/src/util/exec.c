@@ -55,7 +55,6 @@ char *run_command(const char *const command[], int *exit_status, size_t *output_
         close(output_pipe[1]);
 
         // Setup stderr
-        reborn_lock_debug(); // Lock Released On Process Exit
         dup2(reborn_get_debug_fd(), STDERR_FILENO);
 
         // Run

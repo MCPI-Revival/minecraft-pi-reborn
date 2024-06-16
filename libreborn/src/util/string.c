@@ -1,22 +1,20 @@
-#include <stdint.h>
-
 #include <libreborn/string.h>
 
 // Sanitize String
-void sanitize_string(char **str, int max_length, unsigned int allow_newlines) {
+void sanitize_string(char *str, int max_length, unsigned int allow_newlines) {
     // Store Message Length
-    int length = strlen(*str);
+    size_t length = strlen(str);
     // Truncate Message
-    if (max_length != -1 && length > max_length) {
-        (*str)[max_length] = '\0';
+    if (max_length >= 0 && length > ((size_t) max_length)) {
+        str[max_length] = '\0';
         length = max_length;
     }
     // Loop Through Message
     if (!allow_newlines) {
-        for (int i = 0; i < length; i++) {
-            if ((*str)[i] == '\n') {
+        for (size_t i = 0; i < length; i++) {
+            if (str[i] == '\n') {
                 // Replace Newline
-                (*str)[i] = ' ';
+                str[i] = ' ';
             }
         }
     }

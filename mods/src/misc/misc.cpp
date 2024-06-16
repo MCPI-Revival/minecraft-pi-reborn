@@ -217,7 +217,7 @@ static void LoginPacket_read_injection(LoginPacket_read_t original, LoginPacket 
     // Sanitize
     char *new_username = strdup(c_str);
     ALLOC_CHECK(new_username);
-    sanitize_string(&new_username, MAX_USERNAME_LENGTH, 0);
+    sanitize_string(new_username, MAX_USERNAME_LENGTH, 0);
     // Set New Username
     rak_string->Assign(new_username);
     // Free

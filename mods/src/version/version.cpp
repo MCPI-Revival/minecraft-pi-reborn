@@ -5,18 +5,14 @@
 #include <mods/init/init.h>
 
 // Get New Version
-char *version_get() {
-    static char *version = nullptr;
+const char *version_get() {
+    static std::string version = "";
     // Load
-    if (version == nullptr) {
-        safe_asprintf(&version, "%s / Reborn v%s", Strings::minecraft_pi_version, reborn_get_version());
+    if (version.empty()) {
+        version = std::string(Strings::minecraft_pi_version) + " / Reborn v" + reborn_get_version();
     }
     // Return
-    return version;
-}
-// Free
-__attribute__((destructor)) static void _free_version() {
-    free(version_get());
+    return version.c_str();
 }
 
 // Injection For Touch GUI Version
@@ -30,7 +26,7 @@ void init_version() {
     // Touch GUI
     overwrite(Common_getGameVersionString, Common_getGameVersionString_injection);
     // Normal GUI
-    patch_address((void *) &Strings::minecraft_pi_version, version_get());
+    patch_address((void *) &Strings::minecraft_pi_version, (void *) version_get());
 
     // Log
     INFO("Starting Minecraft: Pi Edition (%s)", version_get());

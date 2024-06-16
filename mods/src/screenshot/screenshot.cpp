@@ -14,12 +14,12 @@
 #include <mods/screenshot/screenshot.h>
 
 // Ensure Screenshots Folder Exists
-static void ensure_screenshots_folder(char *screenshots) {
+static void ensure_screenshots_folder(const char *screenshots) {
     // Check Screenshots Folder
     struct stat obj = {};
     if (stat(screenshots, &obj) != 0 || !S_ISDIR(obj.st_mode)) {
         // Create Screenshots Folder
-        int ret = mkdir(screenshots, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
+        const int ret = mkdir(screenshots, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
         if (ret != 0) {
             // Unable To Create Folder
             ERR("Error Creating Directory: %s: %s", screenshots, strerror(errno));
@@ -45,8 +45,7 @@ void screenshot_take(const char *home) {
     }
 
     // Get Directory
-    char *screenshots = nullptr;
-    safe_asprintf(&screenshots, "%s/screenshots", home);
+    const std::string screenshots = std::string(home) + "/screenshots";
 
     // Get Timestamp
     time_t rawtime;
@@ -57,16 +56,13 @@ void screenshot_take(const char *home) {
     strftime(time, TIME_SIZE, "%Y-%m-%d_%H.%M.%S", timeinfo);
 
     // Ensure Screenshots Folder Exists
-    ensure_screenshots_folder(screenshots);
+    ensure_screenshots_folder(screenshots.c_str());
 
     // Prevent Overwriting Screenshots
     int num = 1;
-    char *file = nullptr;
-    safe_asprintf(&file, "%s/%s.png", screenshots, time);
-    while (access(file, F_OK) != -1) {
-        free(file);
-        file = nullptr;
-        safe_asprintf(&file, "%s/%s-%i.png", screenshots, time, num);
+    std::string file = screenshots + '/' + time + ".png";
+    while (access(file.c_str(), F_OK) != -1) {
+        file = screenshots + '/' + time + '-' + std::to_string(num) + ".png";
         num++;
     }
 
@@ -98,14 +94,12 @@ void screenshot_take(const char *home) {
     glReadPixels(x, y, width, height, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
 
     // Save Image
-    if (save_png(file, pixels, line_size, width, height)) {
-        WARN("Screenshot Failed: %s", file);
+    if (save_png(file.c_str(), pixels, line_size, width, height)) {
+        WARN("Screenshot Failed: %s", file.c_str());
     } else {
-        INFO("Screenshot Saved: %s", file);
+        INFO("Screenshot Saved: %s", file.c_str());
     }
 
     // Free
-    free(file);
-    free(screenshots);
     free(pixels);
 }

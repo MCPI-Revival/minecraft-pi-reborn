@@ -12,7 +12,7 @@ static void Gui_addMessage_injection(Gui_addMessage_t original, Gui *gui, std::s
     // Sanitize Message
     char *new_message = strdup(text->c_str());
     ALLOC_CHECK(new_message);
-    sanitize_string(&new_message, -1, 1);
+    sanitize_string(new_message, -1, 1);
     std::string cpp_str = new_message;
 
     // Process Message

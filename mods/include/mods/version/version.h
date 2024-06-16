@@ -1,5 +1,5 @@
 #pragma once
 
 extern "C" {
-char *version_get();
+const char *version_get();
 }

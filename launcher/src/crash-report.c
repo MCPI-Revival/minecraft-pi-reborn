@@ -193,11 +193,9 @@ void setup_crash_report() {
                             fprintf(poll_fds[i].fd == output_pipe[PIPE_READ] ? stdout : stderr, "%s", buf);
 
                             // Write To log
-                            reborn_lock_log();
                             if (write(reborn_get_log_fd(), buf, bytes_read) == -1) {
                                 ERR("Unable To Write Log Data: %s", strerror(errno));
                             }
-                            reborn_unlock_log();
                         }
                     } else {
                         // File Descriptor No Longer Accessible
@@ -229,13 +227,10 @@ void setup_crash_report() {
 
             // Print Exit Code Log Line
             fprintf(stderr, "%s", exit_code_line);
-
             // Write Exit Code Log Line
-            reborn_lock_log();
             if (write(reborn_get_log_fd(), exit_code_line, strlen(exit_code_line)) == -1) {
                 ERR("Unable To Write Exit Code To Log: %s", strerror(errno));
             }
-            reborn_unlock_log();
 
             // Free Exit Code Log Line
             free(exit_code_line);
