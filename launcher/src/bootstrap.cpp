@@ -72,7 +72,9 @@ void bootstrap() {
     DEBUG("Binary Directory: %s", binary_directory.c_str());
 
     // Copy SDK
-    copy_sdk(binary_directory, true);
+    if (!reborn_is_server()) {
+        copy_sdk(binary_directory, true);
+    }
 
     // Set MCPI_REBORN_ASSETS_PATH
     {

@@ -55,7 +55,7 @@ static void load_servers() {
                 // Parse
                 std::string address;
                 std::string port_str;
-                size_t separator_pos = line.find_last_of('|');
+                size_t separator_pos = line.find_last_of(':');
                 if (separator_pos == std::string::npos) {
                     port_str = "19132";
                     address = line;
