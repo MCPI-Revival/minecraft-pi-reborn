@@ -24,22 +24,3 @@
 | Scroll Wheel | Cycle Selected Item In Toolbar |
 | Left-CLick | Attack/Destroy |
 | Right-Click | Use Item/Place Block |
-
-## Game Controller
-| Action | Function |
-| --- | --- |
-| A | Jump |
-| Y | Open Inventory |
-| B | Sneak[^1] |
-| X | Open Crafting |
-| D-Pad Up | Change Perspective |
-| D-Pad Down | Drop Item |
-| D-Pad Right | Open Chat |
-| Left/Right Bumper | Cycle Selected Item In Toolbar |
-| Left Trigger | Use Item/Place Block |
-| Right Trigger | Attack/Destroy |
-| Start/Back | Pause |
-| Left Stick | Movement |
-| Right Stick | Camera Control |
-
-[^1]: Unlike Minecraft: Bedrock Edition, this *is not* a toggle.

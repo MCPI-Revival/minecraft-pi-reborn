@@ -11,5 +11,7 @@
 # Minecraft: Pi Edition: Reborn [![Gitea Actions](https://gitea.thebrokenrail.com/minecraft-pi-reborn/minecraft-pi-reborn/actions/workflows/build.yml/badge.svg)](https://gitea.thebrokenrail.com/minecraft-pi-reborn/minecraft-pi-reborn/actions)
 Minecraft: Pi Edition Modding Project
 
+Get started [here](docs/GETTING_STARTED.md)!
+
 ## Documentation
 [View Documentation](docs/README.md)
