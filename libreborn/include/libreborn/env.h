@@ -5,7 +5,7 @@ extern "C" {
 #endif
 
 #define ENV(name, ...) extern const char *name##_ENV;
-#include "env_list.h"
+#include "env-list.h"
 #undef ENV
 
 int is_env_var_internal(const char *env);

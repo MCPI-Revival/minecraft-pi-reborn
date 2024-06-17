@@ -3,7 +3,7 @@
 
 // Define Constants
 #define ENV(name, ...) const char *name##_ENV = #name;
-#include <libreborn/env_list.h>
+#include <libreborn/env-list.h>
 #undef ENV
 
 // Clear Internal Variables
@@ -15,6 +15,6 @@ void clear_internal_env_vars() {
     if (is_env_var_internal(name##_ENV)) { \
         set_and_print_env(name##_ENV, NULL); \
     }
-#include <libreborn/env_list.h>
+#include <libreborn/env-list.h>
 #undef ENV
 }
