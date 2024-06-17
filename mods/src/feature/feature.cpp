@@ -12,7 +12,7 @@ bool _feature_has(const char *name, int server_default) {
         return server_default > 0;
     }
     // Get Value
-    char *env = getenv("MCPI_FEATURE_FLAGS");
+    char *env = getenv(MCPI_FEATURE_FLAGS_ENV);
     char *features = strdup(env != nullptr ? env : "");
     char *tok = strtok(features, "|");
     bool ret = false;

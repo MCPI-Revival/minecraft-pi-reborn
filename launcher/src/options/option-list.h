@@ -1,4 +1,4 @@
-OPTION(debug, "debug", 'd', "Enable Debug Logging (" MCPI_DEBUG_ENV ")")
+OPTION(debug, "debug", 'd', "Enable Debug Logging")
 OPTION(copy_sdk, "copy-sdk", -2, "Extract Modding SDK And Exit")
 OPTION(disable_crash_report, "disable-crash-report", -1, "Disable Crash Report Dialog")
 OPTION(use_default, "default", -3, "Skip Client-Mode Configuration Dialogs")

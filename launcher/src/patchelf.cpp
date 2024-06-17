@@ -13,17 +13,7 @@
 // Duplicate MCPI Executable Into /tmp
 static void duplicate_mcpi_executable(char *new_path) {
     // Ensure Temporary Directory
-    {
-        // Check If It Exists
-        struct stat tmp_stat = {};
-        int exists = stat(MCPI_PATCHED_DIR, &tmp_stat) != 0 ? 0 : S_ISDIR(tmp_stat.st_mode);
-        if (!exists) {
-            // Doesn't Exist
-            if (mkdir(MCPI_PATCHED_DIR, S_IRUSR | S_IWUSR | S_IXUSR) != 0) {
-                ERR("Unable To Create Temporary Folder: %s", strerror(errno));
-            }
-        }
-    }
+    ensure_directory(MCPI_PATCHED_DIR);
 
     // Generate New File
     int new_file_fd = mkstemp(new_path);

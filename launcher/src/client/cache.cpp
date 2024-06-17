@@ -13,7 +13,7 @@
 
 // Get Cache Path
 static std::string get_cache_path() {
-    const char *home = getenv("HOME");
+    const char *home = getenv(_MCPI_HOME_ENV);
     if (home == nullptr) {
         IMPOSSIBLE();
     }
@@ -120,18 +120,18 @@ void save_cache() {
         stream.write((const char *) &cache_version, 1);
 
         // Save Username And Render Distance
-        write_env_to_stream(stream, "MCPI_USERNAME");
-        write_env_to_stream(stream, "MCPI_RENDER_DISTANCE");
+        write_env_to_stream(stream, MCPI_USERNAME_ENV);
+        write_env_to_stream(stream, MCPI_RENDER_DISTANCE_ENV);
 
         // Save Feature Flags
         std::unordered_map<std::string, bool> flags;
         load_available_feature_flags([&flags](std::string flag) {
-            std::string stripped_flag = strip_feature_flag_default(flag, NULL);
+            std::string stripped_flag = strip_feature_flag_default(flag, nullptr);
             flags[stripped_flag] = false;
         });
         {
-            const char *enabled_flags = getenv("MCPI_FEATURE_FLAGS");
-            if (enabled_flags == NULL) {
+            const char *enabled_flags = getenv(MCPI_FEATURE_FLAGS_ENV);
+            if (enabled_flags == nullptr) {
                 IMPOSSIBLE();
             }
             std::istringstream enabled_flags_stream(enabled_flags);

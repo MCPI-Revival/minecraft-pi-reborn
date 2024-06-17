@@ -41,14 +41,17 @@ static void print_debug_information() {
     DEBUG("Reborn Version: v%s", MCPI_VERSION);
 
     // Architecture
-    const char *arch = "Unknown";
+    const char *arch =
 #ifdef __x86_64__
-    arch = "AMD64";
+        "AMD64"
 #elif defined(__aarch64__)
-    arch = "ARM64";
+        "ARM64"
 #elif defined(__arm__)
-    arch = "ARM32";
+        "ARM32"
+#else
+        "Unknown"
 #endif
+        ;
     DEBUG("Reborn Target Architecture: %s", arch);
 }
 
@@ -66,9 +69,7 @@ void bootstrap() {
 #endif
 
     // Get Binary Directory
-    char *binary_directory_raw = get_binary_directory();
-    const std::string binary_directory = binary_directory_raw;
-    free(binary_directory_raw);
+    const std::string binary_directory = get_binary_directory();
     DEBUG("Binary Directory: %s", binary_directory.c_str());
 
     // Copy SDK
@@ -78,24 +79,21 @@ void bootstrap() {
 
     // Set MCPI_REBORN_ASSETS_PATH
     {
-        char *assets_path = realpath("/proc/self/exe", nullptr);
-        ALLOC_CHECK(assets_path);
-        chop_last_component(&assets_path);
-        string_append(&assets_path, "/data");
-        set_and_print_env("MCPI_REBORN_ASSETS_PATH", assets_path);
-        free(assets_path);
+        std::string assets_path = safe_realpath("/proc/self/exe");
+        chop_last_component(assets_path);
+        assets_path += "/data";
+        set_and_print_env(_MCPI_REBORN_ASSETS_PATH_ENV, assets_path.c_str());
     }
 
     // Resolve Binary Path & Set MCPI_DIRECTORY
-    char *resolved_path = nullptr;
+    std::string game_binary;
     {
         // Log
         DEBUG("Resolving File Paths...");
 
         // Resolve Full Binary Path
         const std::string full_path = binary_directory + ("/" MCPI_BINARY);
-        resolved_path = realpath(full_path.c_str(), nullptr);
-        ALLOC_CHECK(resolved_path);
+        game_binary = safe_realpath(full_path);
     }
 
     // Fix MCPI Dependencies
@@ -113,7 +111,7 @@ void bootstrap() {
 #endif
 
         // Patch
-        patch_mcpi_elf_dependencies(resolved_path, new_mcpi_exe_path);
+        patch_mcpi_elf_dependencies(game_binary.c_str(), new_mcpi_exe_path);
 
         // Verify
         if (!starts_with(new_mcpi_exe_path, MCPI_PATCHED_DIR)) {
@@ -123,16 +121,11 @@ void bootstrap() {
 
     // Set MCPI_VANILLA_ASSETS_PATH
     {
-        char *assets_path = strdup(resolved_path);
-        ALLOC_CHECK(assets_path);
-        chop_last_component(&assets_path);
-        string_append(&assets_path, "/data");
-        set_and_print_env("MCPI_VANILLA_ASSETS_PATH", assets_path);
-        free(assets_path);
+        std::string assets_path = game_binary;
+        chop_last_component(assets_path);
+        assets_path += "/data";
+        set_and_print_env(_MCPI_VANILLA_ASSETS_PATH_ENV, assets_path.c_str());
     }
-
-    // Free Resolved Path
-    free(resolved_path);
 
     // Configure Library Search Path
     std::string mcpi_ld_path = "";

@@ -1,6 +1,5 @@
 #include <SDL/SDL.h>
 #include <SDL/SDL_syswm.h>
-#include <X11/Xlib.h>
 #include <sys/wait.h>
 
 #include <libreborn/libreborn.h>
@@ -31,11 +30,6 @@ int SDL_GetWMInfo(SDL_SysWMinfo *info) {
 void SDL_Quit() {
     // Cleanup Media Layer
     media_cleanup();
-
-    // Wait For Children To Stop
-    signal(SIGCHLD, SIG_IGN);
-    murder_children();
-    while (wait(NULL) > 0) {}
 
     // Exit
     INFO("Stopped");

@@ -32,11 +32,6 @@ char *run_command(const char *const command[], int *exit_status, size_t *output_
 // Get Exit Status String
 void get_exit_status_string(int status, char **out);
 
-// Track Children
-void track_child(pid_t pid);
-void untrack_child(pid_t pid);
-void murder_children();
-
 #ifdef __cplusplus
 }
 #endif

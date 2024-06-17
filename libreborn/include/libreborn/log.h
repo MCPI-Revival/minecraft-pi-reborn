@@ -8,12 +8,9 @@ extern "C" {
 #endif
 
 // Log File
-#define MCPI_LOG_ENV "_MCPI_LOG"
 int reborn_get_log_fd();
-void reborn_close_log();
-void reborn_set_log(const char *file);
+void reborn_set_log(int fd);
 // Debug Logging
-#define MCPI_DEBUG_ENV "MCPI_DEBUG"
 extern const char *reborn_debug_tag;
 int reborn_get_debug_fd();
 

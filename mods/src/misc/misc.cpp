@@ -381,7 +381,7 @@ HOOK(bind, int, (int sockfd, const struct sockaddr *addr, socklen_t addrlen)) {
     if (addr->sa_family == AF_INET) {
         in_addr = *(const struct sockaddr_in *) new_addr;
         if (in_addr.sin_port == ntohs(4711)) {
-            const char *new_port_str = getenv("MCPI_API_PORT");
+            const char *new_port_str = getenv(MCPI_API_PORT_ENV);
             long int new_port;
             if (new_port_str != nullptr && (new_port = strtol(new_port_str, nullptr, 0)) != 0L) {
                 in_addr.sin_port = htons(new_port);
@@ -555,7 +555,7 @@ static void LevelRenderer_render_AABB_glColor4f_injection(__attribute__((unused)
     glColor4f(0, 0, 0, 0.4);
 
     // Find Line Width
-    char *custom_line_width = getenv("MCPI_BLOCK_OUTLINE_WIDTH");
+    char *custom_line_width = getenv(MCPI_BLOCK_OUTLINE_WIDTH_ENV);
     float line_width;
     if (custom_line_width != nullptr) {
         // Custom
@@ -867,7 +867,7 @@ void init_misc() {
     }
 
     // Custom GUI Scale
-    const char *gui_scale_str = getenv("MCPI_GUI_SCALE");
+    const char *gui_scale_str = getenv(MCPI_GUI_SCALE_ENV);
     if (gui_scale_str != nullptr) {
         unsigned char nop_patch[4] = {0x00, 0xf0, 0x20, 0xe3}; // "nop"
         patch((void *) 0x173e8, nop_patch);

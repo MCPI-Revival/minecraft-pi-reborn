@@ -16,19 +16,8 @@
 // Ensure Screenshots Folder Exists
 static void ensure_screenshots_folder(const char *screenshots) {
     // Check Screenshots Folder
-    struct stat obj = {};
-    if (stat(screenshots, &obj) != 0 || !S_ISDIR(obj.st_mode)) {
-        // Create Screenshots Folder
-        const int ret = mkdir(screenshots, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
-        if (ret != 0) {
-            // Unable To Create Folder
-            ERR("Error Creating Directory: %s: %s", screenshots, strerror(errno));
-        }
-    }
+    ensure_directory(screenshots);
 }
-
-// 4 (Year) + 1 (Hyphen) + 2 (Month) + 1 (Hyphen) + 2 (Day) + 1 (Underscore) + 2 (Hour) + 1 (Period) + 2 (Minute) + 1 (Period) + 2 (Second) + 1 (Null Terminator)
-#define TIME_SIZE 20
 
 // Take Screenshot
 static int save_png(const char *filename, unsigned char *pixels, int line_size, int width, int height) {
@@ -48,12 +37,11 @@ void screenshot_take(const char *home) {
     const std::string screenshots = std::string(home) + "/screenshots";
 
     // Get Timestamp
-    time_t rawtime;
-    tm *timeinfo = {};
-    time(&rawtime);
-    timeinfo = localtime(&rawtime);
-    char time[TIME_SIZE];
-    strftime(time, TIME_SIZE, "%Y-%m-%d_%H.%M.%S", timeinfo);
+    time_t raw_time;
+    time(&raw_time);
+    tm *time_info = localtime(&raw_time);
+    char time[512];
+    strftime(time, 512, "%Y-%m-%d_%H.%M.%S", time_info);
 
     // Ensure Screenshots Folder Exists
     ensure_screenshots_folder(screenshots.c_str());

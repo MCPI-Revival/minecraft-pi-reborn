@@ -1,8 +1,10 @@
 #include <fcntl.h>
 #include <sys/file.h>
+#include <sys/stat.h>
 
 #include <libreborn/util.h>
 #include <libreborn/config.h>
+#include <libreborn/env.h>
 
 // Safe Version Of pipe()
 void safe_pipe2(int pipefd[2], int flags) {
@@ -54,9 +56,9 @@ int reborn_is_headless() {
     static int is_set = 0;
     if (!is_set) {
         ret = reborn_is_server();
-        if (getenv(MCPI_FORCE_HEADLESS_ENV)) {
+        if (getenv(_MCPI_FORCE_HEADLESS_ENV)) {
             ret = 1;
-        } else if (getenv(MCPI_FORCE_NON_HEADLESS_ENV)) {
+        } else if (getenv(_MCPI_FORCE_NON_HEADLESS_ENV)) {
             ret = 0;
         }
         is_set = 1;
@@ -67,7 +69,7 @@ int reborn_is_server() {
     static int ret;
     static int is_set = 0;
     if (!is_set) {
-        ret = getenv(MCPI_SERVER_MODE_ENV) != NULL;
+        ret = getenv(_MCPI_SERVER_MODE_ENV) != NULL;
         is_set = 1;
     }
     return ret;
@@ -88,5 +90,22 @@ const char *get_home_subdirectory_for_game_data() {
     } else {
         // Store Game Data In $HOME Root (In Server Mode, $HOME Is Changed To The Launch Directory)
         return "";
+    }
+}
+
+// Make Sure Directory Exists
+void ensure_directory(const char *path) {
+    int ret = mkdir(path, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
+    if (ret != 0 && errno != EEXIST) {
+        ERR("Unable To Create Directory: %s", strerror(errno));
+    }
+    int is_dir = 0;
+    struct stat obj = {};
+    ret = stat(path, &obj);
+    if (ret == 0) {
+        is_dir = S_ISDIR(obj.st_mode);
+    }
+    if (!is_dir) {
+        ERR("Not A Directory: %s", path);
     }
 }

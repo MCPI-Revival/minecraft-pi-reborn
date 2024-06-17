@@ -32,6 +32,7 @@ __attribute__((constructor)) static void init() {
     init_bucket();
     init_cake();
     init_home();
+    init_override();
     if (!reborn_is_server()) {
         init_benchmark();
     }

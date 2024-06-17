@@ -1,5 +1,3 @@
-#include <cerrno>
-
 #include <libreborn/libreborn.h>
 #include <symbols/minecraft.h>
 
@@ -11,16 +9,23 @@ const char *home_get() {
     static std::string dir = "";
     // Load
     if (dir.empty()) {
-        dir = std::string(getenv("HOME")) + std::string(get_home_subdirectory_for_game_data());
+        dir = std::string(getenv(_MCPI_HOME_ENV)) + std::string(get_home_subdirectory_for_game_data());
     }
     // Return
     return dir.c_str();
 }
 
+// Use MCPI_HOME
+static const char *getenv_HOME(__attribute__((unused)) const char *env) {
+    return getenv(_MCPI_HOME_ENV);
+}
+
 // Init
 void init_home() {
     // Store Data In ~/.minecraft-pi Instead Of ~/.minecraft
-    patch_address((void *) &Strings::default_path, (void *) get_home_subdirectory_for_game_data());
+    patch_address(&Strings::default_path, (void *) get_home_subdirectory_for_game_data());
+    // Use MCPI_HOME Instead Of $HOME
+    overwrite_call((void *) 0xe0e4, (void *) getenv_HOME);
 
     // The override code resolves assets manually,
     // making changing directory redundant.

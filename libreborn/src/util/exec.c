@@ -1,4 +1,5 @@
 #include <pthread.h>
+#include <sys/prctl.h>
 
 #include <libreborn/exec.h>
 
@@ -57,12 +58,12 @@ char *run_command(const char *const command[], int *exit_status, size_t *output_
         // Setup stderr
         dup2(reborn_get_debug_fd(), STDERR_FILENO);
 
+        // Kill On Parent Death
+        prctl(PR_SET_PDEATHSIG, SIGKILL);
+
         // Run
         safe_execvpe(command, (const char *const *) environ);
     } else {
-        // Parent Process
-        track_child(ret);
-
         // Read stdout
         close(output_pipe[1]);
 #define BUFFER_SIZE 1024
@@ -75,7 +76,7 @@ char *run_command(const char *const command[], int *exit_status, size_t *output_
             // Grow Output If Needed
             size_t needed_size = position + bytes_read;
             if (needed_size > size) {
-                // More Memeory Needed
+                // More Memory Needed
                 size_t new_size = size;
                 while (new_size < needed_size) {
                     new_size += BUFFER_SIZE;
@@ -98,7 +99,7 @@ char *run_command(const char *const command[], int *exit_status, size_t *output_
         // Add NULL-Terminator To Output
         size_t needed_size = position + 1;
         if (needed_size > size) {
-            // More Memeory Needed
+            // More Memory Needed
             size_t new_size = size + 1;
             char *new_output = realloc(output, new_size);
             if (new_output == NULL) {
@@ -117,7 +118,6 @@ char *run_command(const char *const command[], int *exit_status, size_t *output_
         // Get Return Code
         int status;
         waitpid(ret, &status, 0);
-        untrack_child(ret);
         if (exit_status != NULL) {
             *exit_status = status;
         }
@@ -139,37 +139,4 @@ void get_exit_status_string(int status, char **out) {
             safe_asprintf(out, ": Terminated");
         }
     }
-}
-
-// Track Children
-#define MAX_CHILDREN 128
-static pid_t children[MAX_CHILDREN] = { 0 };
-static pthread_mutex_t children_lock = PTHREAD_MUTEX_INITIALIZER;
-void track_child(pid_t pid) {
-    pthread_mutex_lock(&children_lock);
-    for (int i = 0; i < MAX_CHILDREN; i++) {
-        if (children[i] == 0) {
-            children[i] = pid;
-            break;
-        }
-    }
-    pthread_mutex_unlock(&children_lock);
-}
-void untrack_child(pid_t pid) {
-    pthread_mutex_lock(&children_lock);
-    for (int i = 0; i < MAX_CHILDREN; i++) {
-        if (children[i] == pid) {
-            children[i] = 0;
-        }
-    }
-    pthread_mutex_unlock(&children_lock);
-}
-void murder_children() {
-    pthread_mutex_lock(&children_lock);
-    for (int i = 0; i < MAX_CHILDREN; i++) {
-        if (children[i] != 0) {
-            kill(children[i], SIGTERM);
-        }
-    }
-    pthread_mutex_unlock(&children_lock);
 }

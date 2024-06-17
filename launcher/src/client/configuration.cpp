@@ -41,12 +41,8 @@ std::string strip_feature_flag_default(const std::string &flag, bool *default_re
 extern unsigned char available_feature_flags[];
 extern size_t available_feature_flags_len;
 void load_available_feature_flags(const std::function<void(std::string)> &callback) {
-    // Get Path
-    char *binary_directory = get_binary_directory();
-    std::string path = std::string(binary_directory) + "/available-feature-flags";
-    free(binary_directory);
-    // Load File
-    std::string data(available_feature_flags, available_feature_flags + available_feature_flags_len);
+    // Load Data
+    const std::string data(available_feature_flags, available_feature_flags + available_feature_flags_len);
     std::stringstream stream(data);
     // Store Lines
     std::vector<std::string> lines;
@@ -68,8 +64,8 @@ void load_available_feature_flags(const std::function<void(std::string)> &callba
     // Sort
     std::sort(lines.begin(), lines.end(), [](const std::string &a, const std::string &b) {
         // Strip Defaults
-        std::string stripped_a = strip_feature_flag_default(a, nullptr);
-        std::string stripped_b = strip_feature_flag_default(b, nullptr);
+        const std::string stripped_a = strip_feature_flag_default(a, nullptr);
+        const std::string stripped_b = strip_feature_flag_default(b, nullptr);
         // Sort
         return stripped_a < stripped_b;
     });
@@ -90,7 +86,7 @@ static void run_command_and_set_env(const char *env_name, const char *command[])
         char *output = run_command(command, &return_code, nullptr);
         if (output != nullptr) {
             // Trim
-            int length = strlen(output);
+            const size_t length = strlen(output);
             if (output[length - 1] == '\n') {
                 output[length - 1] = '\0';
             }
@@ -164,7 +160,7 @@ void configure_client(const options_t &options) {
     // --default
     if (options.use_default) {
         // Use Default Feature Flags
-        set_env_if_unset("MCPI_FEATURE_FLAGS", [&cache]() {
+        set_env_if_unset(MCPI_FEATURE_FLAGS_ENV, [&cache]() {
             std::string feature_flags = "";
             load_available_feature_flags([&feature_flags, &cache](const std::string &flag) {
                 bool value;
@@ -185,10 +181,10 @@ void configure_client(const options_t &options) {
             }
             return feature_flags;
         });
-        set_env_if_unset("MCPI_RENDER_DISTANCE", [&cache]() {
+        set_env_if_unset(MCPI_RENDER_DISTANCE_ENV, [&cache]() {
             return cache.render_distance;
         });
-        set_env_if_unset("MCPI_USERNAME", [&cache]() {
+        set_env_if_unset(MCPI_USERNAME_ENV, [&cache]() {
             return cache.username;
         });
     }
@@ -226,7 +222,7 @@ void configure_client(const options_t &options) {
             command.push_back(stripped_flag);
         });
         // Run
-        run_zenity_and_set_env("MCPI_FEATURE_FLAGS", command);
+        run_zenity_and_set_env(MCPI_FEATURE_FLAGS_ENV, command);
     }
     // Setup MCPI_RENDER_DISTANCE
     {
@@ -249,7 +245,7 @@ void configure_client(const options_t &options) {
             command.push_back(render_distance);
         }
         // Run
-        run_zenity_and_set_env("MCPI_RENDER_DISTANCE", command);
+        run_zenity_and_set_env(MCPI_RENDER_DISTANCE_ENV, command);
     }
     // Setup MCPI_USERNAME
     {
@@ -260,7 +256,7 @@ void configure_client(const options_t &options) {
         command.push_back("--entry-text");
         command.push_back(cache.username);
         // Run
-        run_zenity_and_set_env("MCPI_USERNAME", command);
+        run_zenity_and_set_env(MCPI_USERNAME_ENV, command);
     }
 
     // Save Cache

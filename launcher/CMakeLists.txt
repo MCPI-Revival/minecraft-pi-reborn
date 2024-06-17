@@ -4,8 +4,8 @@ project(launcher)
 add_executable(launcher
     src/bootstrap.cpp
     src/patchelf.cpp
-    src/util.c
-    src/crash-report.c
+    src/util.cpp
+    src/crash-report.cpp
     src/sdk.cpp
     src/mods.cpp
     src/options/parser.cpp

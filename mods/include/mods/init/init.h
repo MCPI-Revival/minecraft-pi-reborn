@@ -26,4 +26,5 @@ void init_chat();
 void init_bucket();
 void init_cake();
 void init_home();
+void init_override();
 }

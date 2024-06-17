@@ -26,7 +26,7 @@
 // --only-generate: Ony Generate World And Then Exit
 static bool only_generate = false;
 __attribute__((constructor)) static void _init_only_generate() {
-    only_generate = getenv("_MCPI_ONLY_GENERATE") != nullptr;
+    only_generate = getenv(_MCPI_ONLY_GENERATE_ENV) != nullptr;
 }
 
 // Server Properties
@@ -584,7 +584,7 @@ static void server_init() {
 // Init Server
 void init_server() {
     server_init();
-    set_and_print_env("MCPI_FEATURE_FLAGS", get_features());
-    set_and_print_env("MCPI_RENDER_DISTANCE", "Tiny");
-    set_and_print_env("MCPI_USERNAME", get_motd().c_str());
+    set_and_print_env(MCPI_FEATURE_FLAGS_ENV, get_features());
+    set_and_print_env(MCPI_RENDER_DISTANCE_ENV, "Tiny");
+    set_and_print_env(MCPI_USERNAME_ENV, get_motd().c_str());
 }

@@ -5,7 +5,14 @@ file(MAKE_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/include/libreborn")
 configure_file(include/libreborn/config.h.in "${CMAKE_CURRENT_BINARY_DIR}/include/libreborn/config.h" ESCAPE_QUOTES @ONLY)
 
 # Util
-add_library(reborn-util SHARED src/util/exec.c src/util/string.c src/util/util.c src/util/log.c src/util/cp437.cpp)
+add_library(reborn-util SHARED
+    src/util/exec.c
+    src/util/string.c
+    src/util/util.c
+    src/util/log.c
+    src/util/cp437.cpp
+    src/util/env.c
+)
 target_include_directories(
     reborn-util
     PUBLIC
@@ -25,7 +32,12 @@ endif()
 
 # Patch
 if(BUILD_ARM_COMPONENTS)
-    add_library(reborn-patch SHARED src/patch/patch.cpp src/patch/segments.cpp src/patch/code-block.cpp src/patch/instruction.cpp)
+    add_library(reborn-patch SHARED
+        src/patch/patch.cpp
+        src/patch/segments.cpp
+        src/patch/code-block.cpp
+        src/patch/instruction.cpp
+    )
     target_link_libraries(reborn-patch dl pthread reborn-util)
     target_compile_definitions(reborn-patch PUBLIC -DREBORN_HAS_PATCH_CODE)
     # Install

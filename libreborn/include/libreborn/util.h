@@ -51,9 +51,6 @@ int lock_file(const char *file);
 void unlock_file(const char *file, int fd);
 
 // Access Configuration At Runtime
-#define MCPI_SERVER_MODE_ENV "_MCPI_SERVER_MODE"
-#define MCPI_FORCE_HEADLESS_ENV "_MCPI_FORCE_HEADLESS"
-#define MCPI_FORCE_NON_HEADLESS_ENV "_MCPI_FORCE_NON_HEADLESS"
 const char *reborn_get_version();
 int reborn_is_headless();
 int reborn_is_server();
@@ -63,6 +60,9 @@ void reborn_check_display();
 
 // Get Home Subdirectory
 const char *get_home_subdirectory_for_game_data();
+
+// Make Sure Directory Exists
+void ensure_directory(const char *path);
 
 // Customize VTable
 #define CUSTOM_VTABLE(name, parent) \

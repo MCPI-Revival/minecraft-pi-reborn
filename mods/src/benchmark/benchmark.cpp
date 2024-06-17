@@ -158,7 +158,7 @@ static void Minecraft_update_injection(Minecraft *minecraft) {
 // Init Benchmark
 void init_benchmark() {
     // --benchmark: Activate Benchmark
-    bool active = getenv("_MCPI_BENCHMARK") != nullptr;
+    bool active = getenv(_MCPI_BENCHMARK_ENV) != nullptr;
     if (active) {
         misc_run_on_update(Minecraft_update_injection);
         // Track Ticks

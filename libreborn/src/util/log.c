@@ -5,6 +5,7 @@
 
 #include <libreborn/log.h>
 #include <libreborn/exec.h>
+#include <libreborn/env.h>
 
 // Debug Tag
 const char *reborn_debug_tag = "";
@@ -16,11 +17,8 @@ int reborn_get_log_fd() {
         return log_fd;
     }
     // Open Log File
-    const char *file = getenv(MCPI_LOG_ENV);
-    if (file == NULL) {
-        file = "/dev/null";
-    }
-    log_fd = open(file, O_WRONLY | O_APPEND | O_CLOEXEC);
+    const char *fd_str = getenv(_MCPI_LOG_FD_ENV);
+    log_fd = fd_str ? atoi(fd_str) : open("/dev/null", O_WRONLY | O_APPEND);
     // Check FD
     if (log_fd < 0) {
         ERR("Unable To Open Log: %s", strerror(errno));
@@ -28,17 +26,12 @@ int reborn_get_log_fd() {
     // Return
     return reborn_get_log_fd();
 }
-__attribute__((destructor)) void reborn_close_log() {
-    if (log_fd >= 0) {
-        close(log_fd);
-        log_fd = -1;
-    }
-}
-void reborn_set_log(const char *file) {
-    // Close Current Log
-    reborn_close_log();
+void reborn_set_log(const int fd) {
     // Set Variable
-    set_and_print_env(MCPI_LOG_ENV, file);
+    log_fd = -1;
+    char buf[128];
+    sprintf(buf, "%i", fd);
+    set_and_print_env(_MCPI_LOG_FD_ENV, buf);
 }
 
 // Debug Logging

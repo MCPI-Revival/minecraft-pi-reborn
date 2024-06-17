@@ -10,6 +10,7 @@
 
 #include <mods/override/override.h>
 #include <mods/home/home.h>
+#include <mods/init/init.h>
 
 // Hook access
 HOOK(access, int, (const char *pathname, int mode)) {
@@ -25,6 +26,12 @@ HOOK(access, int, (const char *pathname, int mode)) {
     return ret;
 }
 
+// Get Override Folder
+static std::string get_override_directory() {
+    const std::string home_path = home_get();
+    return home_path + "/overrides";
+}
+
 // Get Override Path For File (If It Exists)
 char *override_get_path(const char *filename) {
     // Custom Skin
@@ -33,10 +40,8 @@ char *override_get_path(const char *filename) {
         filename = "data/images/mob/char.png";
     }
 
-    // Get MCPI Home Path
-    const std::string home_path = home_get();
     // Get Asset Override Path
-    const std::string overrides = home_path + "/overrides";
+    const std::string overrides = get_override_directory();
 
     // Data Prefiix
     const std::string data_prefix = "data/";
@@ -45,8 +50,8 @@ char *override_get_path(const char *filename) {
     // Folders To Check
     std::string asset_folders[] = {
         overrides,
-        getenv("MCPI_REBORN_ASSETS_PATH"),
-        getenv("MCPI_VANILLA_ASSETS_PATH"),
+        getenv(_MCPI_REBORN_ASSETS_PATH_ENV),
+        getenv(_MCPI_VANILLA_ASSETS_PATH_ENV),
         ""
     };
 
@@ -104,4 +109,9 @@ HOOK(fopen64, FILE *, (const char *filename, const char *mode)) {
     }
     // Return File
     return file;
+}
+
+// Init
+void init_override() {
+    ensure_directory(get_override_directory().c_str());
 }

@@ -65,7 +65,7 @@ static void load_pending_skins(__attribute__((unused)) Minecraft *minecraft) {
 
 // Skin Server
 static std::string get_skin_server() {
-    const char *custom_server = getenv("MCPI_SKIN_SERVER");
+    const char *custom_server = getenv(MCPI_SKIN_SERVER_ENV);
     if (custom_server != nullptr) {
         return custom_server;
     } else {

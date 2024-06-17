@@ -1,6 +1,7 @@
 #pragma once
 
 #include <libreborn/config.h>
+#include "env.h"
 #include "log.h"
 #include "util.h"
 #include "string.h"

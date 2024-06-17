@@ -10,6 +10,7 @@
 // Get All Mods In Folder
 static void load(std::string &ld_preload, const std::string &folder) {
     // Open Folder
+    ensure_directory(folder.c_str());
     DIR *dp = opendir(folder.c_str());
     if (dp != nullptr) {
         // Loop Through Folder
@@ -43,8 +44,6 @@ static void load(std::string &ld_preload, const std::string &folder) {
         }
         // Close Folder
         closedir(dp);
-    } else if (errno == ENOENT) {
-        // Folder Doesn't Exist
     } else {
         // Unable To Open Folder
         ERR("Error Opening Directory: %s: %s", folder.c_str(), strerror(errno));
@@ -60,7 +59,7 @@ std::string bootstrap_mods(const std::string &binary_directory) {
     // ~/.minecraft-pi/mods
     {
         // Get Mods Folder
-        std::string mods_folder = std::string(getenv("HOME")) + get_home_subdirectory_for_game_data() + SUBDIRECTORY_FOR_MODS;
+        std::string mods_folder = std::string(getenv(_MCPI_HOME_ENV)) + get_home_subdirectory_for_game_data() + SUBDIRECTORY_FOR_MODS;
         // Load Mods From ./mods
         load(preload, mods_folder);
     }

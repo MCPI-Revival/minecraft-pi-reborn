@@ -19,7 +19,7 @@ static bool LevelData_getSpawnMobs_injection(__attribute__((unused)) LevelData *
 
 // Get Custom Render Distance
 static int get_render_distance() {
-    const char *distance_str = getenv("MCPI_RENDER_DISTANCE");
+    const char *distance_str = getenv(MCPI_RENDER_DISTANCE_ENV);
     if (distance_str == nullptr) {
         distance_str = "Short";
     }
@@ -38,7 +38,7 @@ static int get_render_distance() {
 
 // Get Custom Username
 static const char *get_username() {
-    const char *username = getenv("MCPI_USERNAME");
+    const char *username = getenv(MCPI_USERNAME_ENV);
     if (username == nullptr) {
         username = "StevePi";
     }
