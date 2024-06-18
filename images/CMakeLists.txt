@@ -14,14 +14,15 @@ install(
 )
 
 # Icon
+set(ICON_DIR "${MCPI_SHARE_DIR}/icons/hicolor/512x512/apps")
 install(
     FILES "icon.png"
-    DESTINATION "${MCPI_SHARE_DIR}/icons/hicolor/apps"
+    DESTINATION "${ICON_DIR}"
     RENAME "${MCPI_APP_ID}.png"
 )
 
 # AppImage
 if(MCPI_IS_APPIMAGE_BUILD)
-    install_symlink("${MCPI_SHARE_DIR}/icons/hicolor/apps/${MCPI_APP_ID}.png" "${MCPI_APP_ID}.png")
+    install_symlink("${ICON_DIR}/${MCPI_APP_ID}.png" "${MCPI_APP_ID}.png")
     install_symlink("${MCPI_APP_ID}.png" ".DirIcon")
 endif()
