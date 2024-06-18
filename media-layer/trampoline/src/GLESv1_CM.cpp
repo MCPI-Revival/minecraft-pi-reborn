@@ -546,8 +546,7 @@ static int get_glGetFloatv_params_size(GLenum pname) {
         case GL_PROJECTION_MATRIX: {
             return 16;
         }
-        case GL_ALIASED_LINE_WIDTH_RANGE:
-        case GL_SMOOTH_LINE_WIDTH_RANGE: {
+        case GL_ALIASED_LINE_WIDTH_RANGE: {
             return 2;
         }
         default: {
@@ -660,17 +659,11 @@ CALL(56, glViewport, void, (GLint x, GLint y, GLsizei width, GLsizei height))
 #endif
 }
 
-CALL(57, glNormal3f, void, (GLfloat nx, GLfloat ny, GLfloat nz))
 #ifdef MEDIA_LAYER_TRAMPOLINE_GUEST
-    trampoline(true, nx, ny, nz);
-#else
-    GLfloat nx = args.next<GLfloat>();
-    GLfloat ny = args.next<GLfloat>();
-    GLfloat nz = args.next<GLfloat>();
-    func(nx, ny, nz);
-    return 0;
-#endif
+void glNormal3f(__attribute__((unused)) GLfloat nx, __attribute__((unused)) GLfloat ny, __attribute__((unused)) GLfloat nz) {
+    // Do Nothing
 }
+#endif
 
 CALL(58, glIsEnabled, GLboolean, (GLenum cap))
 #ifdef MEDIA_LAYER_TRAMPOLINE_GUEST
