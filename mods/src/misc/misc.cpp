@@ -404,7 +404,7 @@ static int32_t get_color(LevelSource *level_source, int32_t x, int32_t z) {
     return biome->color;
 }
 #define BIOME_BLEND_SIZE 7
-static int32_t GrassTile_getColor_injection(__attribute__((unused)) GrassTile *tile, LevelSource *level_source, int32_t x, __attribute__((unused)) int32_t y, int32_t z) {
+static int32_t GrassTile_getColor_injection(__attribute__((unused)) GrassTile_getColor_t original, __attribute__((unused)) GrassTile *tile, LevelSource *level_source, int32_t x, __attribute__((unused)) int32_t y, int32_t z) {
     int r_sum = 0;
     int g_sum = 0;
     int b_sum = 0;
@@ -428,7 +428,7 @@ static int32_t GrassTile_getColor_injection(__attribute__((unused)) GrassTile *t
 static int32_t TallGrass_getColor_injection(TallGrass_getColor_t original, TallGrass *tile, LevelSource *level_source, int32_t x, int32_t y, int32_t z) {
     int32_t original_color = original(tile, level_source, x, y, z);
     if (original_color == 0x339933) {
-        return GrassTile_getColor_injection(nullptr, level_source, x, y, z);
+        return GrassTile_getColor_injection(nullptr, nullptr, level_source, x, y, z);
     } else {
         return original_color;
     }
@@ -850,7 +850,7 @@ void init_misc() {
 
     // Change Grass Color
     if (feature_has("Add Biome Colors To Grass", server_disabled)) {
-        patch_vtable(GrassTile_getColor, GrassTile_getColor_injection);
+        overwrite_calls(GrassTile_getColor, GrassTile_getColor_injection);
         overwrite_calls(TallGrass_getColor, TallGrass_getColor_injection);
     }
 
