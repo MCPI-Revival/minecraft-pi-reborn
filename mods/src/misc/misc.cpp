@@ -961,7 +961,7 @@ void init_misc() {
 
     // Replace 2011 std::sort With Optimized(TM) Code
     if (feature_has("Optimized Chunk Sorting", server_enabled)) {
-        overwrite_manual((void *) 0x51fac, (void *) sort_chunks);
+        overwrite_calls_manual((void *) 0x51fac, (void *) sort_chunks);
     }
 
     // Display Date In Select World Screen

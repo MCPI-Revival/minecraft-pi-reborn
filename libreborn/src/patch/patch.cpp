@@ -112,13 +112,6 @@ void _overwrite_calls_within_manual(const char *file, int line, void *from /* in
     increment_code_block();
 }
 
-// Overwrite Function
-void _overwrite_manual(const char *file, int line, void *start, void *target) {
-    // Replace the function's start with a call
-    // to the replacement function.
-    _overwrite_call_internal(file, line, start, target, 1);
-}
-
 // Print Patch Debug Data
 #define PATCH_PRINTF(file, line, start, str) if (file != NULL) DEBUG("(%s:%i): Patching (%p) - " str ": %02x %02x %02x %02x", file, line, start, data[0], data[1], data[2], data[3]);
 

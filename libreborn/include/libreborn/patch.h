@@ -58,23 +58,6 @@ void _overwrite_calls_within(const char *file, int line, void *from, void *to, s
 // Get Target Address From BL Instruction
 void *extract_from_bl_instruction(unsigned char *from);
 
-// Replace Method start With target
-void _overwrite_manual(const char *file, int line, void *start, void *target);
-#define overwrite_manual(...) \
-    _overwrite(__FILE__, __LINE__, __VA_ARGS__)
-template <typename start_t>
-void _overwrite(const char *file, int line, start_t start, start_t target) {
-    _overwrite_manual(file, line, (void *) start, (void *) target);
-}
-#define overwrite(start, ...) \
-    _overwrite< \
-        __raw_##start##_t \
-    >( \
-        __FILE__, __LINE__, \
-        start, \
-        __VA_ARGS__ \
-    )
-
 // Patch Instruction
 void _patch(const char *file, int line, void *start, unsigned char patch[4]);
 #define patch(...) \
