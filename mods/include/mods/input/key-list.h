@@ -1,0 +1,13 @@
+// MCPI Seems To Use https://learn.microsoft.com/en-us/windows/win32/inputdev/virtual-key-codes
+KEY(BACKSPACE, 0x8)
+KEY(DELETE, 0x2e)
+KEY(LEFT, 0x25)
+KEY(RIGHT, 0x27)
+KEY(F1, 0x70)
+KEY(F2, 0x71)
+KEY(F5, 0x74)
+KEY(F11, 0x7a)
+KEY(RETURN, 0xd)
+KEY(t, 0x54)
+KEY(q, 0x51)
+KEY(ESCAPE, 0x1b)

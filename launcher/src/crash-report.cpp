@@ -241,7 +241,7 @@ void setup_crash_report() {
             // Print Exit Code Log Line
             safe_write(STDERR_FILENO, exit_code_line.c_str(), strlen(exit_code_line.c_str()));
             // Write Exit Code Log Line
-            safe_write(reborn_get_debug_fd(), exit_code_line.c_str(), strlen(exit_code_line.c_str()));
+            safe_write(reborn_get_log_fd(), exit_code_line.c_str(), strlen(exit_code_line.c_str()));
         }
 
         // Close Log File

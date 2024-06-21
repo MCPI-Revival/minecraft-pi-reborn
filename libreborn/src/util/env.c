@@ -2,7 +2,7 @@
 #include <libreborn/exec.h>
 
 // Define Constants
-#define ENV(name, ...) const char *name##_ENV = #name;
+#define ENV(name, ...) const char *const name##_ENV = #name;
 #include <libreborn/env-list.h>
 #undef ENV
 

@@ -69,15 +69,15 @@ static void play(std::string name, float x, float y, float z, float volume, floa
         media_audio_play(source.c_str(), resolved_name.c_str(), x, y, z, pitch, volume, is_ui);
     }
 }
-static void SoundEngine_playUI_injection(__attribute__((unused)) SoundEngine *sound_engine, std::string *name, float volume, float pitch) {
+static void SoundEngine_playUI_injection(__attribute__((unused)) SoundEngine_playUI_t original, __attribute__((unused)) SoundEngine *sound_engine, std::string *name, float volume, float pitch) {
     play(*name, 0, 0, 0, volume, pitch, true);
 }
-static void SoundEngine_play_injection(__attribute__((unused)) SoundEngine *sound_engine, std::string *name, float x, float y, float z, float volume, float pitch) {
+static void SoundEngine_play_injection(__attribute__((unused)) SoundEngine_play_t original, __attribute__((unused)) SoundEngine *sound_engine, std::string *name, float x, float y, float z, float volume, float pitch) {
     play(*name, x, y, z, volume, pitch, false);
 }
 
 // Refresh Data
-static void SoundEngine_update_injection(SoundEngine *sound_engine, Mob *listener_mob, __attribute__((unused)) float listener_angle) {
+static void SoundEngine_update_injection(__attribute__((unused)) SoundEngine_update_t original, SoundEngine *sound_engine, Mob *listener_mob, __attribute__((unused)) float listener_angle) {
     // Variables
     static float volume = 0;
     static float x = 0;
@@ -117,15 +117,11 @@ static void SoundEngine_init_injection(SoundEngine_init_t original, SoundEngine 
 
 // Init
 void init_sound() {
-    // Not Needed On Headless Mode
-    if (reborn_is_headless()) {
-        return;
-    }
     // Implement Sound Engine
     if (feature_has("Implement Sound Engine", server_disabled)) {
-        overwrite(SoundEngine_playUI, SoundEngine_playUI_injection);
-        overwrite(SoundEngine_play, SoundEngine_play_injection);
-        overwrite(SoundEngine_update, SoundEngine_update_injection);
+        overwrite_calls(SoundEngine_playUI, SoundEngine_playUI_injection);
+        overwrite_calls(SoundEngine_play, SoundEngine_play_injection);
+        overwrite_calls(SoundEngine_update, SoundEngine_update_injection);
         overwrite_calls(SoundEngine_init, SoundEngine_init_injection);
     }
 }

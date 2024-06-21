@@ -127,10 +127,19 @@ char *run_command(const char *const command[], int *exit_status, size_t *output_
     }
 }
 
+// Set obj To NULL On asprintf() Failure
+#define safe_asprintf(obj, ...) \
+    { \
+        if (asprintf(obj, __VA_ARGS__) == -1) { \
+            *obj = NULL; \
+        } \
+        ALLOC_CHECK(*obj); \
+    }
+
 // Get Exit Status String
-void get_exit_status_string(int status, char **out) {
+void get_exit_status_string(const int status, char **out) {
     if (out != NULL) {
-        *out =NULL;
+        *out = NULL;
         if (WIFEXITED(status)) {
             safe_asprintf(out, ": Exit Code: %i", WEXITSTATUS(status));
         } else if (WIFSIGNALED(status)) {

@@ -9,11 +9,11 @@
 // Handle Toggle Options
 static bool _handle_toggle_options(Minecraft *minecraft, int key) {
     Options *options = &minecraft->options;
-    if (key == 0x70) {
+    if (key == MC_KEY_F1) {
         // Toggle Hide GUI
         options->hide_gui = options->hide_gui ^ 1;
         return true;
-    } else if (key == 0x74) {
+    } else if (key == MC_KEY_F5) {
         // Toggle Third Person
         options->third_person = (options->third_person + 1) % 3;
         return true;

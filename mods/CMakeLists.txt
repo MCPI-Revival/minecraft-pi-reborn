@@ -58,6 +58,7 @@ set(SRC
     src/input/toggle.cpp
     src/input/misc.cpp
     src/input/drop.cpp
+    src/input/keys.cpp
     # sign
     src/sign/sign.cpp
     # atlas

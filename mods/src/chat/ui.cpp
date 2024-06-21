@@ -1,9 +1,13 @@
 #include "chat-internal.h"
+
 #include <libreborn/libreborn.h>
+#include <symbols/minecraft.h>
+
 #include <mods/chat/chat.h>
 #include <mods/text-input-box/TextInputScreen.h>
 #include <mods/misc/misc.h>
 #include <mods/touch/touch.h>
+#include <mods/input/input.h>
 
 static std::vector<std::string> &get_history() {
     static std::vector<std::string> history = {};
@@ -143,7 +147,7 @@ static Screen *create_chat_screen() {
 // Init
 void _init_chat_ui() {
     misc_run_on_game_key_press([](Minecraft *minecraft, int key) {
-        if (key == 0x54) {
+        if (key == MC_KEY_t) {
             if (minecraft->isLevelGenerated() && minecraft->screen == nullptr) {
                 minecraft->setScreen(create_chat_screen());
             }

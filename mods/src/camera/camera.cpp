@@ -3,12 +3,11 @@
 
 #include <mods/feature/feature.h>
 #include <mods/screenshot/screenshot.h>
-#include <mods/home/home.h>
 #include <mods/init/init.h>
 
 // Take Screenshot Using TripodCamera
 static void AppPlatform_saveScreenshot_injection(__attribute__((unused)) AppPlatform_saveScreenshot_t original, __attribute__((unused)) AppPlatform *app_platform, __attribute__((unused)) std::string *path, __attribute__((unused)) int32_t width, __attribute__((unused)) int32_t height) {
-    screenshot_take(home_get());
+    screenshot_take(nullptr);
 }
 
 // Enable TripodCameraRenderer

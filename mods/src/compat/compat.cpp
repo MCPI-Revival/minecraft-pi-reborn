@@ -14,8 +14,6 @@
 
 #include <mods/input/input.h>
 #include <mods/sign/sign.h>
-#include <mods/chat/chat.h>
-#include <mods/home/home.h>
 
 // Custom Title
 HOOK(SDL_WM_SetCaption, void, (__attribute__((unused)) const char *title, const char *icon)) {
@@ -47,24 +45,16 @@ HOOK(SDL_PollEvent, int, (SDL_Event *event)) {
 
     // Handle Events
     if (ret == 1 && event != nullptr) {
-        int handled = 0;
+        bool handled = false;
         switch (event->type) {
-            case SDL_KEYDOWN: {
-                // Handle Key Presses
-                if (event->key.keysym.sym == SDLK_F11) {
-                    media_toggle_fullscreen();
-                    handled = 1;
-                } else if (event->key.keysym.sym == SDLK_F2) {
-                    screenshot_take(home_get());
-                    handled = 1;
-                } else if (event->key.keysym.sym == SDLK_ESCAPE) {
-                    // Treat Escape As Back Button Press (This Fixes Issues With Signs)
-                    handled = input_back();
-                } else if (event->key.keysym.sym == SDLK_q) {
-                    // Drop Item
-                    input_drop((event->key.keysym.mod & KMOD_CTRL) != 0);
-                    handled = 1;
+            case SDL_KEYDOWN:
+            case SDL_KEYUP: {
+                // Track Control Key
+                bool is_ctrl = (event->key.keysym.mod & KMOD_CTRL) != 0;
+                if (event->type == SDL_KEYUP) {
+                    is_ctrl = false;
                 }
+                input_set_is_ctrl(is_ctrl);
                 break;
             }
             case SDL_MOUSEBUTTONDOWN:
@@ -72,8 +62,6 @@ HOOK(SDL_PollEvent, int, (SDL_Event *event)) {
                 // Track Right-Click State
                 if (event->button.button == SDL_BUTTON_RIGHT) {
                     input_set_is_right_click(event->button.state != SDL_RELEASED);
-                } else if (event->button.button == SDL_BUTTON_LEFT) {
-                    input_set_is_left_click(event->button.state != SDL_RELEASED);
                 }
                 break;
             }
@@ -81,7 +69,7 @@ HOOK(SDL_PollEvent, int, (SDL_Event *event)) {
                 // SDL_UserEvent Is Never Used In MCPI, So It Is Repurposed For Character Events
                 if (event->user.code == USER_EVENT_CHARACTER) {
                     sign_key_press((char) event->user.data1);
-                    handled = 1;
+                    handled = true;
                 }
                 break;
             }

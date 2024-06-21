@@ -13,13 +13,17 @@ __attribute__((constructor)) static void init() {
     } else {
         init_multiplayer();
     }
-    init_sound();
+    if (!reborn_is_headless()) {
+        init_sound();
+    }
     init_input();
     init_sign();
     init_camera();
     init_atlas();
     init_title_screen();
-    init_skin();
+    if (!reborn_is_headless()) {
+        init_skin();
+    }
     init_fps();
     init_touch();
     init_textures();
@@ -35,5 +39,8 @@ __attribute__((constructor)) static void init() {
     init_override();
     if (!reborn_is_server()) {
         init_benchmark();
+    }
+    if (!reborn_is_headless()) {
+        init_screenshot();
     }
 }

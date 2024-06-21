@@ -7,25 +7,15 @@
 #include <mods/creative/creative.h>
 #include <mods/misc/misc.h>
 
-// Enable Item Dropping
-static int enable_drop = 0;
-
-// Store Drop Item Presses
-static int drop_item_presses = 0;
-static bool drop_slot_pressed = false;
-void input_drop(int drop_slot) {
-    if (enable_drop) {
-        if (drop_slot) {
-            drop_slot_pressed = true;
-        } else {
-            drop_item_presses++;
-        }
-    }
+// Track Control Key
+static bool drop_slot = false;
+void input_set_is_ctrl(const bool val) {
+    drop_slot = val;
 }
 
 // Handle Drop Item Presses
 static void _handle_drop(Minecraft *minecraft) {
-    if ((minecraft->screen == nullptr) && (!creative_is_restricted() || !Minecraft_isCreativeMode(minecraft)) && (drop_item_presses > 0 || drop_slot_pressed)) {
+    if (!creative_is_restricted() || !Minecraft_isCreativeMode(minecraft)) {
         // Get Player
         LocalPlayer *player = minecraft->player;
         if (player != nullptr) {
@@ -43,16 +33,12 @@ static void _handle_drop(Minecraft *minecraft) {
                 *dropped_item = *inventory_item;
 
                 // Update Inventory
-                if (drop_slot_pressed) {
-                    // Drop Slot
-
-                    // Empty Slot
+                if (drop_slot) {
+                    // Drop Entire Slot
                     inventory_item->count = 0;
                 } else {
                     // Drop Item
-
-                    // Set Item Drop Count
-                    int drop_count = drop_item_presses < inventory_item->count ? drop_item_presses : inventory_item->count;
+                    const int drop_count = 1;
                     dropped_item->count = drop_count;
                     inventory_item->count -= drop_count;
                 }
@@ -68,13 +54,18 @@ static void _handle_drop(Minecraft *minecraft) {
             }
         }
     }
-    // Reset
-    drop_item_presses = 0;
-    drop_slot_pressed = false;
 }
 
 // Init
 void _init_drop() {
-    enable_drop = feature_has("Bind \"Q\" Key To Item Dropping", server_disabled);
-    input_run_on_tick(_handle_drop);
+    if (feature_has("Bind \"Q\" Key To Item Dropping", server_disabled)) {
+        misc_run_on_game_key_press([](Minecraft *mc, int key) {
+            if (key == MC_KEY_q) {
+                _handle_drop(mc);
+                return true;
+            } else {
+                return false;
+            }
+        });
+    }
 }

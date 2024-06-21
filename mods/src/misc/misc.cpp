@@ -19,8 +19,10 @@
 
 #include <mods/init/init.h>
 #include <mods/feature/feature.h>
-#include "misc-internal.h"
+#include <mods/input/input.h>
 #include <mods/misc/misc.h>
+
+#include "misc-internal.h"
 
 // Classic HUD
 #define DEFAULT_HUD_PADDING 2
@@ -134,12 +136,12 @@ static void Gui_renderChatMessages_injection(Gui_renderChatMessages_t original, 
     }
 
     // Call Original Method
-    if (!hide_chat_messages && !is_in_chat) {
+    if (!hide_chat_messages && (!is_in_chat || disable_fading)) {
         original(gui, y_offset, max_messages, disable_fading, font);
     }
 
     // Render Selected Item Text
-    if (render_selected_item_text) {
+    if (render_selected_item_text && !disable_fading) {
         // Fix GL Mode
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
         // Calculate Selected Item Text Scale
@@ -361,7 +363,7 @@ int32_t misc_get_real_selected_slot(Player *player) {
 }
 
 // Properly Generate Buffers
-static void anGenBuffers_injection(int32_t count, uint32_t *buffers) {
+static void anGenBuffers_injection(__attribute__((unused)) Common_anGenBuffers_t original, const int32_t count, uint32_t *buffers) {
     if (!reborn_is_headless()) {
         glGenBuffers(count, buffers);
     }
@@ -829,7 +831,7 @@ void init_misc() {
     }
 
     // Properly Generate Buffers
-    overwrite(Common_anGenBuffers, anGenBuffers_injection);
+    overwrite_calls(Common_anGenBuffers, anGenBuffers_injection);
 
     // Fix Graphics Bug When Switching To First-Person While Sneaking
     patch_vtable(PlayerRenderer_render, PlayerRenderer_render_injection);
@@ -904,7 +906,9 @@ void init_misc() {
 
     // Replace Block Highlight With Outline
     if (feature_has("Replace Block Highlight With Outline", server_disabled)) {
-        overwrite(LevelRenderer_renderHitSelect, LevelRenderer_renderHitOutline);
+        overwrite_calls(LevelRenderer_renderHitSelect, [](__attribute__((unused)) LevelRenderer_renderHitSelect_t original, LevelRenderer *self, Player *player, HitResult *hit_result, int i, void *vp, float f) {
+            self->renderHitOutline(player, hit_result, i, vp, f);
+        });
         unsigned char fix_outline_patch[4] = {0x00, 0xf0, 0x20, 0xe3}; // "nop"
         patch((void *) 0x4d830, fix_outline_patch);
         overwrite_call((void *) 0x4d764, (void *) LevelRenderer_render_AABB_glColor4f_injection);
@@ -967,6 +971,16 @@ void init_misc() {
 
     // Don't Wrap Text On '\r' Or '\t' Because THey Are Actual Characters In MCPI
     patch_address(&Strings::text_wrapping_delimiter, (void *) " \n");
+
+    // Fullscreen
+    misc_run_on_key_press([](__attribute__((unused)) Minecraft *mc, int key) {
+        if (key == MC_KEY_F11) {
+            media_toggle_fullscreen();
+            return true;
+        } else {
+            return false;
+        }
+    });
 
     // Init Logging
     _init_misc_logging();

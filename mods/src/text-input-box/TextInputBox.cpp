@@ -1,6 +1,7 @@
 #include <libreborn/libreborn.h>
 
 #include <mods/text-input-box/TextInputBox.h>
+#include <mods/input/input.h>
 
 TextInputBox *TextInputBox::create(const std::string &placeholder, const std::string &text) {
     // Construct
@@ -49,7 +50,7 @@ void TextInputBox::keyPressed(int key) {
     }
 
     switch (key) {
-        case 0x8: {
+        case MC_KEY_BACKSPACE: {
             // Backspace
             if (m_text.empty()) {
                 return;
@@ -65,7 +66,7 @@ void TextInputBox::keyPressed(int key) {
             recalculateScroll();
             break;
         }
-        case 0x2e: {
+        case MC_KEY_DELETE: {
             // Delete
             if (m_text.empty()) {
                 return;
@@ -79,7 +80,7 @@ void TextInputBox::keyPressed(int key) {
             m_text.erase(m_text.begin() + m_insertHead, m_text.begin() + m_insertHead + 1);
             break;
         }
-        case 0x25: {
+        case MC_KEY_LEFT: {
             // Left
             m_insertHead--;
             if (m_insertHead < 0) {
@@ -88,7 +89,7 @@ void TextInputBox::keyPressed(int key) {
             recalculateScroll();
             break;
         }
-        case 0x27: {
+        case MC_KEY_RIGHT: {
             // Right
             m_insertHead++;
             if (!m_text.empty()) {
@@ -101,7 +102,7 @@ void TextInputBox::keyPressed(int key) {
             recalculateScroll();
             break;
         }
-        case 0x0d: {
+        case MC_KEY_RETURN: {
             // Enter
             m_bFocused = false;
             break;

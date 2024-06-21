@@ -13,7 +13,7 @@
 #include "options-internal.h"
 
 // Force Mob Spawning
-static bool LevelData_getSpawnMobs_injection(__attribute__((unused)) LevelData *level_data) {
+static bool LevelData_getSpawnMobs_injection(__attribute__((unused)) LevelData_getSpawnMobs_t original, __attribute__((unused)) LevelData *level_data) {
     return true;
 }
 
@@ -101,7 +101,7 @@ static void Options_save_Options_addOptionToSaveOutput_injection(Options *option
 }
 
 // MCPI's OptionsFile::getOptionStrings is broken, this is the version in v0.7.0
-static std::vector<std::string> OptionsFile_getOptionStrings_injection(OptionsFile *options_file) {
+static std::vector<std::string> OptionsFile_getOptionStrings_injection(__attribute__((unused)) OptionsFile_getOptionStrings_t original, OptionsFile *options_file) {
     // Get options.txt Path
     std::string path = options_file->options_txt_path;
     // Parse
@@ -145,7 +145,7 @@ static const char *get_new_options_txt_path() {
 void init_options() {
     // Force Mob Spawning
     if (feature_has("Force Mob Spawning", server_auto)) {
-        overwrite(LevelData_getSpawnMobs, LevelData_getSpawnMobs_injection);
+        overwrite_calls(LevelData_getSpawnMobs, LevelData_getSpawnMobs_injection);
     }
 
     // Render Distance
@@ -191,7 +191,7 @@ void init_options() {
     // When Loading, options.txt Should Be Opened In Read Mode
     patch_address((void *) &Strings::options_txt_fopen_mode_when_loading, (void *) "r");
     // Fix OptionsFile::getOptionStrings
-    overwrite(OptionsFile_getOptionStrings, OptionsFile_getOptionStrings_injection);
+    overwrite_calls(OptionsFile_getOptionStrings, OptionsFile_getOptionStrings_injection);
 
     // Sensitivity Loading/Saving Is Broken, Disable It
     patch((void *) 0x1931c, nop_patch);

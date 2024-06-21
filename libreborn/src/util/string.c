@@ -1,7 +1,9 @@
 #include <libreborn/string.h>
 
+#include <string.h>
+
 // Sanitize String
-void sanitize_string(char *str, int max_length, unsigned int allow_newlines) {
+void sanitize_string(char *str, const int max_length, const int allow_newlines) {
     // Store Message Length
     size_t length = strlen(str);
     // Truncate Message

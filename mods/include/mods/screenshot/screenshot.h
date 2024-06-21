@@ -1,5 +1,7 @@
 #pragma once
 
+struct Gui;
+
 extern "C" {
-void screenshot_take(const char *home);
+void screenshot_take(Gui *gui);
 }

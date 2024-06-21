@@ -11,23 +11,23 @@ void input_set_is_right_click(int val) {
     is_right_click = val;
 }
 
-// Enable Bow & Arrow Fix
-static int fix_bow = 0;
-
 // Handle Bow & Arrow
-static void _handle_bow(Minecraft *minecraft) {
-    if (fix_bow && !is_right_click) {
+static void _handle_bow(Minecraft_tickInput_t original, Minecraft *minecraft) {
+    if (!is_right_click) {
         GameMode *game_mode = minecraft->game_mode;
         LocalPlayer *player = minecraft->player;
         if (player != nullptr && game_mode != nullptr && player->isUsingItem()) {
             game_mode->releaseUsingItem((Player *) player);
         }
     }
+    // Call Original Method
+    original(minecraft);
 }
 
 // Init
 void _init_bow() {
     // Enable Bow & Arrow Fix
-    fix_bow = feature_has("Fix Bow & Arrow", server_disabled);
-    input_run_on_tick(_handle_bow);
+    if (feature_has("Fix Bow & Arrow", server_disabled)) {
+        overwrite_calls(Minecraft_tickInput, _handle_bow);
+    }
 }

@@ -16,7 +16,6 @@
 #include <symbols/minecraft.h>
 
 #include <mods/server/server.h>
-#include <mods/feature/feature.h>
 #include <mods/init/init.h>
 #include <mods/home/home.h>
 #include <mods/compat/compat.h>
@@ -202,23 +201,6 @@ static void list_callback(Minecraft *minecraft, const std::string &username, Pla
     INFO(" - %s (%s)", username.c_str(), get_player_ip(minecraft, player));
 }
 
-// Handle Server Stop
-static void handle_server_stop(Minecraft *minecraft) {
-    if (compat_check_exit_requested()) {
-        INFO("Stopping Server");
-        // Save And Exit
-        Level *level = get_level(minecraft);
-        if (level != nullptr) {
-            level->saveLevelData();
-        }
-        minecraft->leaveGame(false);
-        // Stop Game
-        SDL_Event event;
-        event.type = SDL_QUIT;
-        SDL_PushEvent(&event);
-    }
-}
-
 // Track TPS
 #define NANOSECONDS_IN_SECOND 1000000000ll
 static long long int get_time() {
@@ -248,112 +230,109 @@ static ServerSideNetworkHandler *get_server_side_network_handler(Minecraft *mine
 }
 
 // Read STDIN Thread
-static volatile bool stdin_buffer_complete = false;
-static volatile char *stdin_buffer = nullptr;
+static pthread_t read_stdin_thread_obj;
+static volatile bool stdin_line_ready = false;
+static std::string stdin_line;
 static void *read_stdin_thread(__attribute__((unused)) void *data) {
     // Loop
-    while (true) {
-        int bytes_available;
-        if (ioctl(fileno(stdin), FIONREAD, &bytes_available) == -1) {
-            bytes_available = 0;
-        }
-        char buffer[bytes_available];
-        bytes_available = read(fileno(stdin), (void *) buffer, bytes_available);
-        for (int i = 0; i < bytes_available; i++) {
-            if (!stdin_buffer_complete) {
-                // Read Data
-                char x = buffer[i];
-                if (x == '\n') {
-                    if (stdin_buffer == nullptr) {
-                        stdin_buffer = (volatile char *) malloc(1);
-                        stdin_buffer[0] = '\0';
-                    }
-                    stdin_buffer_complete = true;
-                } else {
-                    string_append((char **) &stdin_buffer, "%c", (char) x);
-                }
-            }
-        }
+    char *line = nullptr;
+    size_t len = 0;
+    while (getline(&line, &len, stdin) != -1) {
+        stdin_line = line;
+        stdin_line_ready = true;
+        // Wait For Line To Be Read
+        while (stdin_line_ready) {}
     }
+    free(line);
     return nullptr;
 }
-__attribute__((destructor)) static void _free_stdin_buffer() {
-    if (stdin_buffer != nullptr) {
-        free((void *) stdin_buffer);
-        stdin_buffer = nullptr;
+
+// Handle Server Stop
+static void handle_server_stop(Minecraft *minecraft) {
+    if (compat_check_exit_requested()) {
+        INFO("Stopping Server");
+        // Save And Exit
+        Level *level = get_level(minecraft);
+        if (level != nullptr) {
+            level->saveLevelData();
+        }
+        minecraft->leaveGame(false);
+        // Kill Reader Thread
+        pthread_cancel(read_stdin_thread_obj);
+        pthread_join(read_stdin_thread_obj, nullptr);
+        stdin_line_ready = false;
+        // Stop Game
+        SDL_Event event;
+        event.type = SDL_QUIT;
+        SDL_PushEvent(&event);
     }
 }
 
 // Handle Commands
 static void handle_commands(Minecraft *minecraft) {
     // Check If Level Is Generated
-    if (minecraft->isLevelGenerated() && stdin_buffer_complete) {
+    if (minecraft->isLevelGenerated() && stdin_line_ready) {
+        // Read Line
+        std::string data = std::move(stdin_line);
+        data.pop_back(); // Remove Newline
+        stdin_line_ready = false;
         // Command Ready; Run It
-        if (stdin_buffer != nullptr) {
-            ServerSideNetworkHandler *server_side_network_handler = get_server_side_network_handler(minecraft);
-            if (server_side_network_handler != nullptr) {
-                std::string data((char *) stdin_buffer);
-
-                static std::string ban_command("ban ");
-                static std::string say_command("say ");
-                static std::string kill_command("kill ");
-                static std::string list_command("list");
-                static std::string reload_command("reload");
-                static std::string tps_command("tps");
-                static std::string stop_command("stop");
-                static std::string help_command("help");
-                if (!is_whitelist() && data.rfind(ban_command, 0) == 0) {
-                    // IP-Ban Target Username
-                    std::string ban_username = data.substr(ban_command.length());
-                    find_players(minecraft, ban_username, ban_callback, false);
-                } else if (data == reload_command) {
-                    INFO("Reloading %s", is_whitelist() ? "Whitelist" : "Blacklist");
-                    is_ip_in_blacklist(nullptr);
-                } else if (data.rfind(kill_command, 0) == 0) {
-                    // Kill Target Username
-                    std::string kill_username = data.substr(kill_command.length());
-                    find_players(minecraft, kill_username, kill_callback, false);
-                } else if (data.rfind(say_command, 0) == 0) {
-                    // Format Message
-                    std::string message = "[Server] " + data.substr(say_command.length());
-                    char *safe_message = to_cp437(message.c_str());
-                    std::string cpp_string = safe_message;
-                    // Post Message To Chat
-                    server_side_network_handler->displayGameMessage(&cpp_string);
-                    // Free
-                    free(safe_message);
-                } else if (data == list_command) {
-                    // List Players
-                    INFO("All Players:");
-                    find_players(minecraft, "", list_callback, true);
-                } else if (data == tps_command) {
-                    // Print TPS
-                    INFO("TPS: %f", tps);
-                } else if (data == stop_command) {
-                    // Stop Server
-                    compat_request_exit();
-                } else if (data == help_command) {
-                    INFO("All Commands:");
-                    if (!is_whitelist()) {
-                        INFO("    ban <Username>  - IP-Ban All Players With Specifed Username");
-                    }
-                    INFO("    reload          - Reload The %s", is_whitelist() ? "Whitelist" : "Blacklist");
-                    INFO("    kill <Username> - Kill All Players With Specifed Username");
-                    INFO("    say <Message>   - Print Specified Message To Chat");
-                    INFO("    list            - List All Players");
-                    INFO("    tps             - Print TPS");
-                    INFO("    stop            - Stop Server");
-                    INFO("    help            - Print This Message");
-                } else {
-                    INFO("Invalid Command: %s", data.c_str());
+        ServerSideNetworkHandler *server_side_network_handler = get_server_side_network_handler(minecraft);
+        if (server_side_network_handler != nullptr) {
+            static std::string ban_command("ban ");
+            static std::string say_command("say ");
+            static std::string kill_command("kill ");
+            static std::string list_command("list");
+            static std::string reload_command("reload");
+            static std::string tps_command("tps");
+            static std::string stop_command("stop");
+            static std::string help_command("help");
+            if (!is_whitelist() && data.rfind(ban_command, 0) == 0) {
+                // IP-Ban Target Username
+                std::string ban_username = data.substr(ban_command.length());
+                find_players(minecraft, ban_username, ban_callback, false);
+            } else if (data == reload_command) {
+                INFO("Reloading %s", is_whitelist() ? "Whitelist" : "Blacklist");
+                is_ip_in_blacklist(nullptr);
+            } else if (data.rfind(kill_command, 0) == 0) {
+                // Kill Target Username
+                std::string kill_username = data.substr(kill_command.length());
+                find_players(minecraft, kill_username, kill_callback, false);
+            } else if (data.rfind(say_command, 0) == 0) {
+                // Format Message
+                std::string message = "[Server] " + data.substr(say_command.length());
+                char *safe_message = to_cp437(message.c_str());
+                std::string cpp_string = safe_message;
+                // Post Message To Chat
+                server_side_network_handler->displayGameMessage(&cpp_string);
+                // Free
+                free(safe_message);
+            } else if (data == list_command) {
+                // List Players
+                INFO("All Players:");
+                find_players(minecraft, "", list_callback, true);
+            } else if (data == tps_command) {
+                // Print TPS
+                INFO("TPS: %f", tps);
+            } else if (data == stop_command) {
+                // Stop Server
+                compat_request_exit();
+            } else if (data == help_command) {
+                INFO("All Commands:");
+                if (!is_whitelist()) {
+                    INFO("    ban <Username>  - IP-Ban All Players With Specifed Username");
                 }
+                INFO("    reload          - Reload The %s", is_whitelist() ? "Whitelist" : "Blacklist");
+                INFO("    kill <Username> - Kill All Players With Specifed Username");
+                INFO("    say <Message>   - Print Specified Message To Chat");
+                INFO("    list            - List All Players");
+                INFO("    tps             - Print TPS");
+                INFO("    stop            - Stop Server");
+                INFO("    help            - Print This Message");
+            } else {
+                INFO("Invalid Command: %s", data.c_str());
             }
-
-            // Free
-            free((void *) stdin_buffer);
-            stdin_buffer = nullptr;
         }
-        stdin_buffer_complete = false;
     }
 }
 
@@ -577,7 +556,6 @@ static void server_init() {
     misc_run_on_tick(Minecraft_tick_injection);
 
     // Start Reading STDIN
-    pthread_t read_stdin_thread_obj;
     pthread_create(&read_stdin_thread_obj, nullptr, read_stdin_thread, nullptr);
 }
 

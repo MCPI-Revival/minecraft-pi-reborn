@@ -89,6 +89,15 @@ void misc_run_on_game_key_press(const std::function<bool(Minecraft *, int)> &fun
         original(self, key);
     });
 }
+void misc_run_on_key_press(const std::function<bool(Minecraft *, int)> &func) {
+    misc_run_on_game_key_press(func);
+    overwrite_calls(Screen_keyPressed, [func](Screen_keyPressed_t original, Screen *self, int key) {
+        if (func(self->minecraft, key)) {
+            return;
+        }
+        original(self, key);
+    });
+}
 
 // Render Fancy Background
 void misc_render_background(int color, Minecraft *minecraft, int x, int y, int width, int height) {

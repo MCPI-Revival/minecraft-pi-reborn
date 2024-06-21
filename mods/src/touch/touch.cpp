@@ -7,8 +7,8 @@
 #include <symbols/minecraft.h>
 
 // Enable Touch GUI
-static int32_t Minecraft_isTouchscreen_injection(__attribute__((unused)) Minecraft *minecraft) {
-    return 1;
+static bool Minecraft_isTouchscreen_injection(__attribute__((unused)) Minecraft_isTouchscreen_t original, __attribute__((unused)) Minecraft *minecraft) {
+    return true;
 }
 
 // IngameBlockSelectionScreen Memory Allocation Override
@@ -17,7 +17,7 @@ static unsigned char *operator_new_IngameBlockSelectionScreen_injection(__attrib
 }
 
 // Improved Button Hover Behavior
-static int32_t Button_hovered_injection(__attribute__((unused)) Button *button, __attribute__((unused)) Minecraft *minecraft, __attribute__((unused)) int32_t click_x, __attribute__((unused)) int32_t click_y) {
+static int32_t Button_hovered_injection(__attribute__((unused)) Button_hovered_t original, __attribute__((unused)) Button *button, __attribute__((unused)) Minecraft *minecraft, __attribute__((unused)) int32_t click_x, __attribute__((unused)) int32_t click_y) {
     // Get Mouse Position
     int32_t x = Mouse::getX() * Gui::InvGuiScale;
     int32_t y = Mouse::getY() * Gui::InvGuiScale;
@@ -33,7 +33,7 @@ static int32_t Button_hovered_injection(__attribute__((unused)) Button *button, 
 }
 static void LargeImageButton_render_GuiComponent_drawCenteredString_injection(GuiComponent *component, Font *font, std::string *text, int32_t x, int32_t y, int32_t color) {
     // Change Color On Hover
-    if (color == 0xe0e0e0 && Button_hovered_injection((Button *) component, nullptr, 0, 0)) {
+    if (color == 0xe0e0e0 && Button_hovered_injection(nullptr, (Button *) component, nullptr, 0, 0)) {
         color = 0xffffa0;
     }
 
@@ -64,7 +64,7 @@ void init_touch() {
     int touch_buttons = touch_gui;
     if (touch_gui) {
         // Main UI
-        overwrite(Minecraft_isTouchscreen, Minecraft_isTouchscreen_injection);
+        overwrite_calls(Minecraft_isTouchscreen, Minecraft_isTouchscreen_injection);
 
         // Force Correct Toolbar Size
         unsigned char toolbar_patch[4] = {0x01, 0x00, 0x50, 0xe3}; // "cmp r0, #0x1"
@@ -97,7 +97,7 @@ void init_touch() {
 
     // Improved Button Hover Behavior
     if (touch_buttons && feature_has("Improved Button Hover Behavior", server_disabled)) {
-        overwrite(Button_hovered, Button_hovered_injection);
+        overwrite_calls(Button_hovered, Button_hovered_injection);
         overwrite_call((void *) 0x1ebd4, (void *) LargeImageButton_render_GuiComponent_drawCenteredString_injection);
     }
 

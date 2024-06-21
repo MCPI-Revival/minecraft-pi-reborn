@@ -23,3 +23,4 @@ void misc_run_on_tiles_setup(const std::function<void()> &func);
 void misc_run_on_items_setup(const std::function<void()> &func);
 void misc_run_on_language_setup(const std::function<void()> &func);
 void misc_run_on_game_key_press(const std::function<bool(Minecraft *, int)> &func);
+void misc_run_on_key_press(const std::function<bool(Minecraft *, int)> &func);

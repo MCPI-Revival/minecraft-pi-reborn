@@ -11,12 +11,22 @@
 
 #include <libreborn/libreborn.h>
 #include <GLES/gl.h>
+#include <symbols/minecraft.h>
+
 #include <mods/screenshot/screenshot.h>
+#include <mods/home/home.h>
+#include <mods/misc/misc.h>
+#include <mods/input/input.h>
+#include <mods/init/init.h>
 
 // Ensure Screenshots Folder Exists
-static void ensure_screenshots_folder(const char *screenshots) {
-    // Check Screenshots Folder
-    ensure_directory(screenshots);
+static std::string get_screenshot_dir() {
+    std::string dir = std::string(home_get()) + "/screenshots";
+    ensure_directory(dir.c_str());
+    return dir;
+}
+static std::string get_screenshot(const std::string &filename) {
+    return get_screenshot_dir() + '/' + filename;
 }
 
 // Take Screenshot
@@ -27,14 +37,11 @@ static int save_png(const char *filename, unsigned char *pixels, int line_size, 
     // Write Image
     return !stbi_write_png(filename, width, height, 4, pixels, line_size);
 }
-void screenshot_take(const char *home) {
+void screenshot_take(Gui *gui) {
     // Check
     if (reborn_is_headless()) {
         IMPOSSIBLE();
     }
-
-    // Get Directory
-    const std::string screenshots = std::string(home) + "/screenshots";
 
     // Get Timestamp
     time_t raw_time;
@@ -43,16 +50,18 @@ void screenshot_take(const char *home) {
     char time[512];
     strftime(time, 512, "%Y-%m-%d_%H.%M.%S", time_info);
 
-    // Ensure Screenshots Folder Exists
-    ensure_screenshots_folder(screenshots.c_str());
-
     // Prevent Overwriting Screenshots
-    int num = 1;
-    std::string file = screenshots + '/' + time + ".png";
-    while (access(file.c_str(), F_OK) != -1) {
-        file = screenshots + '/' + time + '-' + std::to_string(num) + ".png";
+    int num = 0;
+    std::string filename;
+    do {
+        filename = std::string(time);
+        if (num > 0) {
+            filename += '-' + std::to_string(num);
+        }
+        filename += ".png";
         num++;
-    }
+    } while (access(get_screenshot(filename).c_str(), F_OK) != -1);
+    const std::string file = get_screenshot(filename);
 
     // Get Image Size
     GLint viewport[4];
@@ -85,9 +94,29 @@ void screenshot_take(const char *home) {
     if (save_png(file.c_str(), pixels, line_size, width, height)) {
         WARN("Screenshot Failed: %s", file.c_str());
     } else {
-        INFO("Screenshot Saved: %s", file.c_str());
+        std::string msg = "Screenshot Saved: ";
+        INFO("%s%s", msg.c_str(), file.c_str());
+        if (gui) {
+            msg += filename;
+            gui->addMessage(&msg);
+        }
     }
 
     // Free
     free(pixels);
+}
+
+// Init
+void init_screenshot() {
+    // Create Directory
+    get_screenshot_dir();
+    // Take Screenshot On F2
+    misc_run_on_key_press([](Minecraft *mc, int key) {
+        if (key == MC_KEY_F2) {
+            screenshot_take(&mc->gui);
+            return true;
+        } else {
+            return false;
+        }
+    });
 }
