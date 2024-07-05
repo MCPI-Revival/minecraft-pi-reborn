@@ -9,9 +9,6 @@ extern "C" {
 int32_t misc_get_real_selected_slot(Player *player);
 void misc_render_background(int color, Minecraft *minecraft, int x, int y, int width, int height);
 
-typedef void (*misc_update_function_FillingContainer_t)(FillingContainer *obj);
-void misc_run_on_creative_inventory_setup(misc_update_function_FillingContainer_t function); // obj == FillingContainer *
-
 extern bool is_in_chat;
 }
 
@@ -24,3 +21,5 @@ void misc_run_on_items_setup(const std::function<void()> &func);
 void misc_run_on_language_setup(const std::function<void()> &func);
 void misc_run_on_game_key_press(const std::function<bool(Minecraft *, int)> &func);
 void misc_run_on_key_press(const std::function<bool(Minecraft *, int)> &func);
+void misc_run_on_creative_inventory_setup(const std::function<void(FillingContainer *)> &function);
+void misc_run_on_swap_buffers(const std::function<void()> &function);

@@ -87,6 +87,8 @@ set(SRC
     src/benchmark/benchmark.cpp
     # init
     src/init/init.cpp
+    # f3
+    src/f3/f3.cpp
 )
 # Install Splashes
 install(

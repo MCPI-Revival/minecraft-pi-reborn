@@ -15,6 +15,18 @@
         } \
     }
 
+// Align Number
+#define ALIGN_UP(x, alignment) \
+    ({ \
+        int _align_x = (x); \
+        int _align_alignment = (alignment); \
+        int _align_diff = _align_x % _align_alignment; \
+        if (_align_diff > 0) { \
+            _align_x += (_align_alignment - _align_diff); \
+        } \
+        _align_x; \
+    })
+
 // Hook Library Function
 #ifdef __cplusplus
 #define hooked_function_setup extern "C"

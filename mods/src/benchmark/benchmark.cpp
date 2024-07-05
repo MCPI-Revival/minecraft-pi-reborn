@@ -48,9 +48,7 @@ static void start_world(Minecraft *minecraft) {
 
 // Track Frames
 static unsigned long long int frames = 0;
-HOOK(media_swap_buffers, void, ()) {
-    ensure_media_swap_buffers();
-    real_media_swap_buffers();
+static void handle_swap_buffers() {
     frames++;
 }
 
@@ -64,8 +62,8 @@ static void Minecraft_tick_injection(__attribute__((unused)) Minecraft *minecraf
 static long long int get_time() {
     timespec ts = {};
     clock_gettime(CLOCK_MONOTONIC_RAW, &ts);
-    long long int a = (long long int) ts.tv_nsec;
-    long long int b = ((long long int) ts.tv_sec) * NANOSECONDS_IN_SECOND;
+    const long long int a = ts.tv_nsec;
+    const long long int b = ((long long int) ts.tv_sec) * NANOSECONDS_IN_SECOND;
     return a + b;
 }
 
@@ -161,6 +159,8 @@ void init_benchmark() {
     bool active = getenv(_MCPI_BENCHMARK_ENV) != nullptr;
     if (active) {
         misc_run_on_update(Minecraft_update_injection);
+        // Track Frames
+        misc_run_on_swap_buffers(handle_swap_buffers);
         // Track Ticks
         misc_run_on_tick(Minecraft_tick_injection);
         // Disable Interaction

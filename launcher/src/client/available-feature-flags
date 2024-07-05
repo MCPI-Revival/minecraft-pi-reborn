@@ -66,5 +66,6 @@ TRUE Display Date In Select World Screen
 TRUE Optimized Chunk Sorting
 TRUE Fix Held Item Caching
 TRUE Add Reborn Info To Options
-FALSE Track FPS
+FALSE Log FPS
 TRUE Add Welcome Screen
+TRUE F3 Debug Information

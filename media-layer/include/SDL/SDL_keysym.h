@@ -35,12 +35,12 @@ typedef enum {
     SDLK_LEFT = 276,
     SDLK_F1 = 282,
     SDLK_F2 = 283,
+    SDLK_F3 = 284,
     SDLK_F5 = 286,
     SDLK_F11 = 292,
     SDLK_F12 = 293,
     SDLK_RSHIFT = 303,
-    SDLK_LSHIFT = 304,
-    SDLK_WORLD_0 = 160 // Used For Controller Crafting Button
+    SDLK_LSHIFT = 304
 } SDLKey;
 
 typedef enum {

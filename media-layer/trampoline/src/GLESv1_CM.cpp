@@ -262,8 +262,7 @@ static int get_texture_size(const GLsizei width, const GLsizei height, const GLe
         int alignment;
         glGetIntegerv(is_upload ? GL_UNPACK_ALIGNMENT : GL_PACK_ALIGNMENT, &alignment);
         // Round
-        int diff = line_size % alignment;
-        line_size = line_size + (alignment - diff);
+        line_size = ALIGN_UP(line_size, alignment);
     }
     // Return
     return line_size * height;
@@ -718,7 +717,7 @@ CALL(65, glReadPixels, void, (GLint x, GLint y, GLsizei width, GLsizei height, G
     GLsizei height = args.next<GLsizei>();
     GLenum format = args.next<GLenum>();
     GLenum type = args.next<GLenum>();
-    int data_size = get_texture_size(width, height, format, type, false);
+    const int data_size = get_texture_size(width, height, format, type, false);
     unsigned char *data = new unsigned char[data_size];
     func(x, y, width, height, format, type, data);
     writer(args.next<uint32_t>(), data, data_size);

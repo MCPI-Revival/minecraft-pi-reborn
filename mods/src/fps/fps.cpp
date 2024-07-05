@@ -6,49 +6,42 @@
 #include <mods/feature/feature.h>
 #include <mods/fps/fps.h>
 
-// Track FPS
+// Get Time
 #define NANOSECONDS_IN_SECOND 1000000000ll
 static long long int get_time() {
     timespec ts = {};
     clock_gettime(CLOCK_MONOTONIC_RAW, &ts);
-    long long int a = (long long int) ts.tv_nsec;
-    long long int b = ((long long int) ts.tv_sec) * NANOSECONDS_IN_SECOND;
+    const long long int a = ts.tv_nsec;
+    const long long int b = ((long long int) ts.tv_sec) * NANOSECONDS_IN_SECOND;
     return a + b;
 }
+
+// Track FPS
+static bool log_fps;
 double fps = 0;
-static void update_fps(__attribute__((unused)) Minecraft *minecraft) {
-    static bool is_last_update_time_set = false;
-    static long long int last_update_time;
-    long long int time = get_time();
-    if (is_last_update_time_set) {
-        long long int update_time = time - last_update_time;
-        fps = ((double) NANOSECONDS_IN_SECOND) / ((double) update_time);
-    } else {
-        is_last_update_time_set = true;
-    }
-    last_update_time = time;
-}
-
-// Print FPS
-static void print_fps(__attribute__((unused)) Minecraft *minecraft) {
-    // Track Ticks
-    static int ticks = 0;
-    ticks++;
-    if (ticks == 20) {
-        // One Second Has Passed, Reset
-        ticks = 0;
-    }
-
-    // Print
-    if (ticks == 0) {
-        INFO("FPS: %f", fps);
+static void update_fps() {
+    // Track Frames
+    static long long int frames = 0;
+    frames++;
+    // Get Delta
+    const long long int time = get_time();
+    static long long int last_time = time;
+    const long long int delta = time - last_time;
+    const double delta_seconds = double(delta) / double(NANOSECONDS_IN_SECOND);
+    // Calculate FPS
+    if (delta_seconds >= 1) {
+        fps = double(frames) / delta_seconds;
+        frames = 0;
+        last_time = time;
+        // Log
+        if (log_fps) {
+            INFO("FPS: %f", fps);
+        }
     }
 }
 
 // Init
 void init_fps() {
-    if (feature_has("Track FPS", server_disabled)) {
-        misc_run_on_update(update_fps);
-        misc_run_on_tick(print_fps);
-    }
+    misc_run_on_swap_buffers(update_fps);
+    log_fps = feature_has("Log FPS", server_disabled);
 }

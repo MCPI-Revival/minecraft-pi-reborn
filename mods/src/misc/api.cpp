@@ -1,4 +1,3 @@
-#include <utility>
 #include <vector>
 
 #include <libreborn/libreborn.h>
@@ -9,31 +8,43 @@
 #include "misc-internal.h"
 
 // Callbacks
-#define STORE_CALLBACK(name, type) \
-    static std::vector<misc_update_function_##type##_t> &get_misc_##name##_functions() { \
-        static std::vector<misc_update_function_##type##_t> functions; \
+template <typename... Args>
+struct Callbacks {
+    std::vector<std::function<void(Args...)>> functions;
+    void run(Args... args) {
+        for (const std::function<void(Args...)> &func : functions) {
+            func(args...);
+        }
+    }
+};
+
+// Callbacks
+#define SETUP_CALLBACK(name, ...) \
+    static Callbacks<__VA_ARGS__> &get_misc_##name##_functions() { \
+        static Callbacks<__VA_ARGS__> functions; \
         return functions; \
     } \
-    void misc_run_on_##name(misc_update_function_##type##_t function) { \
-        get_misc_##name##_functions().push_back(function); \
-    }
-#define SETUP_CALLBACK(name, type) \
-    STORE_CALLBACK(name, type) \
-    static void handle_misc_##name(type *obj) { \
-        for (misc_update_function_##type##_t function : get_misc_##name##_functions()) { \
-            function(obj); \
-        } \
+    void misc_run_on_##name(const std::function<void(__VA_ARGS__)> &function) { \
+        get_misc_##name##_functions().functions.push_back(function); \
     }
 
 // Run Functions On Creative Inventory Setup
-SETUP_CALLBACK(creative_inventory_setup, FillingContainer);
+SETUP_CALLBACK(creative_inventory_setup, FillingContainer *);
 // Handle Custom Creative Inventory Setup Behavior
 static void Inventory_setupDefault_FillingContainer_addItem_call_injection(FillingContainer *filling_container, ItemInstance *item_instance) {
     // Call Original Method
     filling_container->addItem(item_instance);
 
     // Run Functions
-    handle_misc_creative_inventory_setup(filling_container);
+    get_misc_creative_inventory_setup_functions().run(filling_container);
+}
+
+// Track Frames
+SETUP_CALLBACK(swap_buffers);
+HOOK(media_swap_buffers, void, ()) {
+    get_misc_swap_buffers_functions().run();
+    ensure_media_swap_buffers();
+    real_media_swap_buffers();
 }
 
 // API

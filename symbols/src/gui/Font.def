@@ -1,1 +1,2 @@
 method int width(std::string *string) = 0x24d4c;
+method void draw(std::string *string, float x, float y, uint color) = 0x250e0;

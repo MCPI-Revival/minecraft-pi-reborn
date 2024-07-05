@@ -107,6 +107,9 @@ static SDLKey glfw_key_to_sdl_key(const int key) {
         // Screenshot
         case GLFW_KEY_F2:
             return SDLK_F2;
+        // Debug
+        case GLFW_KEY_F3:
+            return SDLK_F3;
         // Hide GUI
         case GLFW_KEY_F1:
             return SDLK_F1;
@@ -457,6 +460,9 @@ void media_cleanup() {
 
         // Cleanup OpenAL
         _media_audio_cleanup();
+
+        // Mark As Stopped
+        glfw_window = nullptr;
     }
 }
 

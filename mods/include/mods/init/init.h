@@ -28,4 +28,5 @@ void init_cake();
 void init_home();
 void init_override();
 void init_screenshot();
+void init_f3();
 }

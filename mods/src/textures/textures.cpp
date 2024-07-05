@@ -92,10 +92,7 @@ static int get_line_size(int width) {
         int alignment;
         glGetIntegerv(GL_UNPACK_ALIGNMENT, &alignment);
         // Round
-        int diff = line_size % alignment;
-        if (diff > 0) {
-            line_size = line_size + (alignment - diff);
-        }
+        line_size = ALIGN_UP(line_size, alignment);
     }
     return line_size;
 }
