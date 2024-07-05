@@ -90,7 +90,7 @@ static void start_game(const options_t &options) {
     }
 
     // Bootstrap
-    bootstrap();
+    bootstrap(options);
 }
 
 // Main

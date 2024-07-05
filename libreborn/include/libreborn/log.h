@@ -21,6 +21,14 @@ int reborn_get_debug_fd();
 #define DEBUG(format, ...) RAW_DEBUG(reborn_debug_tag, format, ##__VA_ARGS__)
 #define ERR(format, ...) { fprintf(stderr, "[ERR]: (%s:%i): " format "\n", __FILE__, __LINE__, ##__VA_ARGS__); exit(EXIT_FAILURE); }
 #define IMPOSSIBLE() ERR("This Should Never Be Called")
+#define CONDITIONAL_ERR(is_error, ...) \
+    { \
+        if ((is_error)) { \
+            ERR(__VA_ARGS__); \
+        } else { \
+            WARN(__VA_ARGS__); \
+        } \
+    }
 
 #ifdef __cplusplus
 }

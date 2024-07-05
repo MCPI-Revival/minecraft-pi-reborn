@@ -56,17 +56,15 @@ static void print_debug_information() {
 }
 
 // Bootstrap
-void bootstrap() {
+void bootstrap(const options_t &options) {
     // Debug Information
     print_debug_information();
 
     // Check Page Size (Not Needed When Using QEMU)
-#ifndef MCPI_RUNTIME_IS_QEMU
     long page_size = sysconf(_SC_PAGESIZE);
     if (page_size != REQUIRED_PAGE_SIZE) {
-        ERR("Invalid page size! A page size of %ld bytes is required, but the system size is %ld bytes.", (long) REQUIRED_PAGE_SIZE, page_size);
+        CONDITIONAL_ERR(!options.skip_pagesize_check, "Invalid page size! A page size of %ld bytes is required, but the system size is %ld bytes.", (long) REQUIRED_PAGE_SIZE, page_size);
     }
-#endif
 
     // Get Binary Directory
     const std::string binary_directory = get_binary_directory();

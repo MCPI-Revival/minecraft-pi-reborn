@@ -251,14 +251,6 @@ static const char *RAKNET_ERROR_NAMES[] = {
     "Couldn't Generate GUID",
     "Unknown"
 };
-#define CONDITIONAL_ERR(is_error, ...) \
-    { \
-        if ((is_error)) { \
-            ERR(__VA_ARGS__); \
-        } else { \
-            WARN(__VA_ARGS__); \
-        } \
-    }
 static RakNet_StartupResult RakNetInstance_host_RakNet_RakPeer_Startup_injection(RakNet_RakPeer *rak_peer, unsigned short maxConnections, unsigned char *socketDescriptors, uint32_t socketDescriptorCount, int32_t threadPriority) {
     // Call Original Method
     RakNet_StartupResult result = rak_peer->Startup(maxConnections, socketDescriptors, socketDescriptorCount, threadPriority);
