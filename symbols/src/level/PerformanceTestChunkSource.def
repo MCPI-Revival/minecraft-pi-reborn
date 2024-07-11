@@ -1,0 +1,5 @@
+extends ChunkSource;
+
+vtable 0x110560;
+
+property Level *level = 0x8;

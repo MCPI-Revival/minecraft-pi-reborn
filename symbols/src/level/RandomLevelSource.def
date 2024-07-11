@@ -1,5 +1,7 @@
 extends ChunkSource;
 
+constructor (Level *level, int seed, int version, bool enable_spawning) = 0xb4424;
+
 vtable 0x110598;
 
 method void buildSurface(int chunk_x, int chunk_y, uchar *chunk_data, Biome **biomes) = 0xb32ec;

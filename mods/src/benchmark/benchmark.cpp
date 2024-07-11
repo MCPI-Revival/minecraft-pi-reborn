@@ -153,10 +153,21 @@ static void Minecraft_update_injection(Minecraft *minecraft) {
     }
 }
 
+// PerformanceTestChunkSource
+static RandomLevelSource *PerformanceTestChunkSource_constructor(__attribute__((unused)) RandomLevelSource_constructor_t original, __attribute__((unused)) RandomLevelSource *self, Level *level, __attribute__((unused)) int seed, __attribute__((unused)) int version, __attribute__((unused)) bool enable_spawning) {
+    PerformanceTestChunkSource *self2 = (PerformanceTestChunkSource *) self;
+    self2->vtable = PerformanceTestChunkSource_vtable_base;
+    self2->level = level;
+    return self;
+}
+static bool LevelData_getSpawnMobs_injection(__attribute__((unused)) LevelData_getSpawnMobs_t original, __attribute__((unused)) LevelData *level_data) {
+    return false;
+}
+
 // Init Benchmark
 void init_benchmark() {
     // --benchmark: Activate Benchmark
-    bool active = getenv(_MCPI_BENCHMARK_ENV) != nullptr;
+    const bool active = getenv(_MCPI_BENCHMARK_ENV) != nullptr;
     if (active) {
         misc_run_on_update(Minecraft_update_injection);
         // Track Frames
@@ -167,5 +178,8 @@ void init_benchmark() {
         media_set_interactable(0);
         // Disable V-Sync
         media_disable_vsync();
+        // Use PerformanceTestChunkSource
+        overwrite_calls(RandomLevelSource_constructor, PerformanceTestChunkSource_constructor);
+        overwrite_calls(LevelData_getSpawnMobs, LevelData_getSpawnMobs_injection);
     }
 }

@@ -83,6 +83,7 @@ set(SRC
     src/level/LevelStorageSource.def
     src/level/renderer/ParticleEngine.def
     src/level/RandomLevelSource.def
+    src/level/PerformanceTestChunkSource.def
     src/level/LevelData.def
     src/level/LevelSettings.def
     src/level/ServerLevel.def
