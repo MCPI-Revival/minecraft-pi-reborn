@@ -724,7 +724,7 @@ static void sort_chunks(Chunk **chunks_begin, Chunk **chunks_end, DistanceChunkS
 // Display Date In Select World Screen
 static std::string AppPlatform_linux_getDateString_injection(__attribute__((unused)) AppPlatform_linux *app_platform, int time) {
     // From https://github.com/ReMinecraftPE/mcpe/blob/56e51027b1c2e67fe5a0e8a091cefe51d4d11926/platforms/sdl/base/AppPlatform_sdl_base.cpp#L68-L84
-    time_t tt = time;
+    const time_t tt = time;
     tm t = {};
     gmtime_r(&tt, &t);
     char buf[2048];

@@ -138,6 +138,23 @@ CALL(15, glDrawArrays, void, (GLenum mode, GLint first, GLsizei count))
 #endif
 }
 
+#ifdef MCPI_USE_GLES1_COMPATIBILITY_LAYER
+CALL(70, glMultiDrawArrays, void, (GLenum mode, const GLint *first, const GLsizei *count, GLsizei drawcount))
+#ifdef MEDIA_LAYER_TRAMPOLINE_GUEST
+    trampoline(true, gl_state, mode, copy_array(drawcount, first), copy_array(drawcount, count));
+#else
+    gl_state_t gl_state = args.next<gl_state_t>();
+    gl_state.send_to_driver();
+    GLenum mode = args.next<GLenum>();
+    uint32_t drawcount;
+    const GLint *first = args.next_arr<GLint>(&drawcount);
+    const GLsizei *count = args.next_arr<GLsizei>();
+    func(mode, first, count, GLsizei(drawcount));
+    return 0;
+#endif
+}
+#endif
+
 CALL(16, glColor4f, void, (GLfloat red, GLfloat green, GLfloat blue, GLfloat alpha))
 #ifdef MEDIA_LAYER_TRAMPOLINE_GUEST
     trampoline(true, red, green, blue, alpha);
@@ -162,14 +179,14 @@ CALL(17, glClear, void, (GLbitfield mask))
 
 CALL(18, glBufferData, void, (GLenum target, GLsizeiptr size, const void *data, GLenum usage))
 #ifdef MEDIA_LAYER_TRAMPOLINE_GUEST
-    trampoline(true, gl_state.bound_array_buffer, target, copy_array(size, (unsigned char *) data), usage);
+    trampoline(true, gl_state.bound_array_buffer, target, int32_t(size), copy_array(size, (unsigned char *) data), usage);
 #else
     glBindBuffer(GL_ARRAY_BUFFER, args.next<GLuint>());
     GLenum target = args.next<GLenum>();
-    uint32_t size;
-    const unsigned char *data = args.next_arr<unsigned char>(&size);
+    int32_t size = args.next<int32_t>();
+    const unsigned char *data = args.next_arr<unsigned char>();
     GLenum usage = args.next<GLenum>();
-    func(target, GLsizeiptr(size), data, usage);
+    func(target, size, data, usage);
     return 0;
 #endif
 }
@@ -735,6 +752,20 @@ CALL(67, glGenBuffers, void, (GLsizei n, GLuint *buffers))
     func(n, buffers);
     writer(args.next<uint32_t>(), buffers, n * sizeof(GLuint));
     delete[] buffers;
+    return 0;
+#endif
+}
+
+CALL(69, glBufferSubData, void, (GLenum target, GLintptr offset, GLsizeiptr size, const void *data))
+#ifdef MEDIA_LAYER_TRAMPOLINE_GUEST
+    trampoline(true, gl_state.bound_array_buffer, target, int32_t(offset), int32_t(size), copy_array(size, (unsigned char *) data));
+#else
+    glBindBuffer(GL_ARRAY_BUFFER, args.next<GLuint>());
+    GLenum target = args.next<GLenum>();
+    int32_t offset = args.next<int32_t>();
+    int32_t size = args.next<int32_t>();
+    const unsigned char *data = args.next_arr<unsigned char>();
+    func(target, offset, size, data);
     return 0;
 #endif
 }

@@ -43,5 +43,6 @@ __attribute__((constructor)) static void init() {
     if (!reborn_is_headless()) {
         init_screenshot();
         init_f3();
+        init_multidraw();
     }
 }

@@ -89,6 +89,10 @@ set(SRC
     src/init/init.cpp
     # f3
     src/f3/f3.cpp
+    # multidraw
+    src/multidraw/glue.cpp
+    src/multidraw/buffer.cpp
+    src/multidraw/storage.cpp
 )
 # Install Splashes
 install(

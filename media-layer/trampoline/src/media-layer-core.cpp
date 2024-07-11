@@ -182,3 +182,11 @@ CALL(68, media_ensure_loaded, void, ())
     return 0;
 #endif
 }
+
+CALL(71, media_has_extension, int, (const char *name))
+#ifdef MEDIA_LAYER_TRAMPOLINE_GUEST
+    return trampoline(false, copy_array(name));
+#else
+    return func(args.next_arr<char>());
+#endif
+}

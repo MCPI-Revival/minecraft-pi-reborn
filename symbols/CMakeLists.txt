@@ -79,9 +79,9 @@ set(SRC
     src/level/ChunkStorage.def
     src/level/LightLayer.def
     src/level/Level.def
-    src/level/LevelRenderer.def
+    src/level/renderer/LevelRenderer.def
     src/level/LevelStorageSource.def
-    src/level/ParticleEngine.def
+    src/level/renderer/ParticleEngine.def
     src/level/RandomLevelSource.def
     src/level/LevelData.def
     src/level/LevelSettings.def
@@ -90,7 +90,7 @@ set(SRC
     src/level/MultiPlayerLevel.def
     src/level/LevelSummary.def
     src/level/DistanceChunkSorter.def
-    src/level/Chunk.def
+    src/level/renderer/Chunk.def
     src/item/ItemRenderer.def
     src/item/ItemInHandRenderer.def
     src/item/AuxDataTileItem.def
@@ -161,6 +161,8 @@ set(SRC
     src/misc/Vec3.def
     src/misc/HitResult.def
     src/misc/PerfRenderer.def
+    src/level/renderer/RenderList.def
+    src/level/renderer/RenderChunk.def
     src/textures/Texture.def
     src/textures/Textures.def
     src/textures/DynamicTexture.def

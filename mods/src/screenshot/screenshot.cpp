@@ -91,11 +91,11 @@ void screenshot_take(Gui *gui) {
     if (save_png(file.c_str(), pixels, line_size, width, height)) {
         WARN("Screenshot Failed: %s", file.c_str());
     } else {
-        std::string msg = "Screenshot Saved: ";
-        INFO("%s%s", msg.c_str(), file.c_str());
+        INFO("Screenshot Saved: %s", file.c_str());
         if (gui) {
-            msg += filename;
-            gui->addMessage(&msg);
+            std::string chat_msg = "Saved screenshot as ";
+            chat_msg += filename;
+            gui->addMessage(&chat_msg);
         }
     }
 

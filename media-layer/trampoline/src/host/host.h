@@ -38,6 +38,9 @@ struct TrampolineArguments {
         if (length != nullptr) {
             *length = size / sizeof(T);
         }
+        if (size == 0) {
+            return nullptr;
+        }
         const T *ret = (const T *) raw_args;
         raw_args += size;
         return ret;

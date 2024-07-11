@@ -1,5 +1,0 @@
-property int x = 0x4;
-property int y = 0x8;
-property int z = 0xc;
-
-method float distanceToSqr(Entity *entity) = 0x47ba0;

@@ -69,3 +69,4 @@ TRUE Add Reborn Info To Options
 FALSE Log FPS
 TRUE Add Welcome Screen
 TRUE F3 Debug Information
+TRUE Multidraw Rendering

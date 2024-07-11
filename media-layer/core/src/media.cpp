@@ -565,3 +565,12 @@ void media_get_framebuffer_size(int *width, int *height) {
         *height = DEFAULT_HEIGHT;
     }
 }
+
+// Check OpenGL Extension
+int media_has_extension(const char *name) {
+    if (glfw_window) {
+        return glfwExtensionSupported(name);
+    } else {
+        return 0;
+    }
+}
