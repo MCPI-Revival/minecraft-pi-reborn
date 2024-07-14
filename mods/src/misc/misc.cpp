@@ -90,7 +90,7 @@ static void Gui_renderHearts_injection(Gui_renderHearts_t original, Gui *gui) {
     original(gui);
 }
 static GuiComponent_blit_t get_blit_with_classic_hud_offset() {
-    return use_classic_hud ? Gui_renderHearts_GuiComponent_blit_hearts_injection : GuiComponent_blit;
+    return use_classic_hud ? Gui_renderHearts_GuiComponent_blit_hearts_injection : GuiComponent_blit.get();
 }
 #define PINK_HEART_FULL 70
 #define PINK_HEART_HALF 79
@@ -130,7 +130,7 @@ static void Gui_renderChatMessages_injection(Gui_renderChatMessages_t original, 
     // Handle Classic HUD
     if (use_classic_hud) {
         Minecraft *minecraft = gui->minecraft;
-        if (!Minecraft_isCreativeMode(minecraft)) {
+        if (!minecraft->isCreativeMode()) {
             y_offset -= (HUD_ELEMENT_HEIGHT * 2) + NEW_HUD_PADDING;
         }
     }
@@ -231,6 +231,7 @@ static void LoginPacket_read_injection(LoginPacket_read_t original, LoginPacket 
 // RakNet::RakString's format constructor is often given unsanitized user input and is never used for formatting,
 // this is a massive security risk, allowing clients to run arbitrary format specifiers, this disables the
 // formatting functionality.
+RakNet_RakString_constructor_t RakNet_RakString_constructor = (RakNet_RakString_constructor_t) 0xea5cc;
 static RakNet_RakString *RakNet_RakString_injection(RakNet_RakString *rak_string, const char *format, ...) {
     // Call Original Method
     return RakNet_RakString_constructor(rak_string, "%s", format);
@@ -363,7 +364,7 @@ static void anGenBuffers_injection(__attribute__((unused)) Common_anGenBuffers_t
 
 // Fix Graphics Bug When Switching To First-Person While Sneaking
 static void PlayerRenderer_render_injection(PlayerRenderer *model_renderer, Entity *entity, float param_2, float param_3, float param_4, float param_5, float param_6) {
-    (*HumanoidMobRenderer_render_vtable_addr)((HumanoidMobRenderer *) model_renderer, entity, param_2, param_3, param_4, param_5, param_6);
+    HumanoidMobRenderer_vtable_base->render((HumanoidMobRenderer *) model_renderer, entity, param_2, param_3, param_4, param_5, param_6);
     HumanoidModel *model = model_renderer->model;
     model->is_sneaking = false;
 }

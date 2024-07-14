@@ -15,7 +15,7 @@ void input_set_is_ctrl(const bool val) {
 
 // Handle Drop Item Presses
 static void _handle_drop(Minecraft *minecraft) {
-    if (!creative_is_restricted() || !Minecraft_isCreativeMode(minecraft)) {
+    if (!creative_is_restricted() || !minecraft->isCreativeMode()) {
         // Get Player
         LocalPlayer *player = minecraft->player;
         if (player != nullptr) {

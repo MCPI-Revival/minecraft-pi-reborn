@@ -84,7 +84,7 @@ void ensure_directory(const char *path);
         /* Allocate VTable */ \
         if (vtable == NULL) { \
             /* Init */ \
-            vtable = dup_##parent##_vtable(parent##_vtable_base); \
+            vtable = dup_vtable(parent##_vtable_base); \
             ALLOC_CHECK(vtable); \
             /* Setup */ \
             _setup_##name##_vtable(vtable); \

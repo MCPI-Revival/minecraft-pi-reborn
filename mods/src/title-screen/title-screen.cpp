@@ -70,7 +70,7 @@ static Screen *last_screen = nullptr;
 static std::string current_splash;
 static void StartMenuScreen_render_Screen_render_injection(Screen *screen, int x, int y, float param_1) {
     // Call Original Method
-    (*Screen_render_vtable_addr)(screen, x, y, param_1);
+    Screen_render.get()(screen, x, y, param_1);
 
     // Load Splashes
     static std::vector<std::string> splashes;

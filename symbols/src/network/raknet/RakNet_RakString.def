@@ -1,4 +1,4 @@
-constructor (const char *format, ...) = 0xea5cc;
+//constructor (const char *format, ...) = 0xea5cc;
 
 method void Assign(const char *str) = 0xe9e34;
 

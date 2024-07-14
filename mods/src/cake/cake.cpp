@@ -102,7 +102,7 @@ static int Cake_use(__attribute__((unused)) Tile *tile, Level *level, int x, int
     // Eat
     player->foodData.eat(3);
     // Set the new tile
-    int data = level->getData(x, y, z);
+    const int data = level->getData(x, y, z);
     if (data >= 5) {
         // Remove the cake, it has been completely gobbled up
         level->setTileAndData(x, y, z, 0, 0);
@@ -123,7 +123,7 @@ static void make_cake() {
     cake->texture = texture;
 
     // Set VTable
-    cake->vtable = dup_Tile_vtable(Tile_vtable_base);
+    cake->vtable = dup_vtable(Tile_vtable_base);
     ALLOC_CHECK(cake->vtable);
 
     // Set shape

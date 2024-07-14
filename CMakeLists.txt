@@ -59,7 +59,7 @@ string(CONCAT COMPILE_FLAGS_SETUP
     # C Standard
     "add_definitions(-D_GNU_SOURCE)\n"
     "set(CMAKE_C_STANDARD 99)\n"
-    "set(CMAKE_CXX_STANDARD 11)\n"
+    "set(CMAKE_CXX_STANDARD 20)\n"
 
     # Skip RPath
     "set(CMAKE_SKIP_BUILD_RPATH TRUE)"

@@ -10,20 +10,20 @@
 #include "patch-internal.h"
 
 // Overwrite Specific B(L) Instruction
-static void _overwrite_call_internal(const char *file, int line, void *start, void *target, int use_b_instruction) {
+static void _overwrite_call_internal(void *start, void *target, const bool use_b_instruction) {
     // Add New Target To Code Block
     void *code_block = update_code_block(target);
 
     // Patch
     uint32_t new_instruction = generate_bl_instruction(start, code_block, use_b_instruction);
-    _patch(file, line, start, (unsigned char *) &new_instruction);
+    patch(start, (unsigned char *) &new_instruction);
 
     // Increment Code Block Position
     increment_code_block();
 }
-void _overwrite_call(const char *file, int line, void *start, void *target) {
-    int use_b_instruction = ((unsigned char *) start)[3] == B_INSTRUCTION;
-    _overwrite_call_internal(file, line, start, target, use_b_instruction);
+void overwrite_call(void *start, void *target) {
+    const bool use_b_instruction = ((unsigned char *) start)[3] == B_INSTRUCTION;
+    _overwrite_call_internal(start, target, use_b_instruction);
 }
 
 // .rodata Information
@@ -38,11 +38,11 @@ void _overwrite_call(const char *file, int line, void *start, void *target) {
         uint32_t *addr = (uint32_t *) i; \
         if (*addr == (uintptr_t) target) { \
             /* Found VTable Entry */ \
-            _patch_address(file, line, addr, replacement); \
+            patch_address(addr, replacement); \
             found++; \
         } \
     }
-static int _patch_vtables(const char *file, int line, void *target, void *replacement) {
+static int _patch_vtables(void *target, void *replacement) {
     int found = 0;
     scan_vtables(RODATA);
     scan_vtables(DATA_REL_RO);
@@ -51,11 +51,11 @@ static int _patch_vtables(const char *file, int line, void *target, void *replac
 #undef scan_vtables
 
 // Patch Calls Within Range
-static int _overwrite_calls_within_internal(const char *file, int line, void *from, void *to, void *target, void *replacement) {
+static int _overwrite_calls_within_internal(void *from, void *to, void *target, void *replacement) {
     int found = 0;
     for (uintptr_t i = (uintptr_t) from; i < (uintptr_t) to; i = i + 4) {
         unsigned char *addr = (unsigned char *) i;
-        int use_b_instruction = addr[3] == B_INSTRUCTION;
+        const int use_b_instruction = addr[3] == B_INSTRUCTION;
         // Check If Instruction is B Or BL
         if (addr[3] == BL_INSTRUCTION || use_b_instruction) {
             uint32_t check_instruction = generate_bl_instruction(addr, target, use_b_instruction);
@@ -64,7 +64,7 @@ static int _overwrite_calls_within_internal(const char *file, int line, void *fr
             if (addr[0] == check_instruction_array[0] && addr[1] == check_instruction_array[1] && addr[2] == check_instruction_array[2]) {
                 // Patch Instruction
                 uint32_t new_instruction = generate_bl_instruction(addr, replacement, use_b_instruction);
-                _patch(file, line, addr, (unsigned char *) &new_instruction);
+                patch(addr, (unsigned char *) &new_instruction);
                 found++;
             }
         }
@@ -76,57 +76,54 @@ static int _overwrite_calls_within_internal(const char *file, int line, void *fr
 #define TEXT_START 0xde60
 #define TEXT_END 0x1020c0
 // Overwrite All B(L) Intrusctions That Target The Specified Address
-#define NO_CALLSITE_ERROR "(%s:%i) Unable To Find Callsites For %p"
-void *_overwrite_calls_manual(const char *file, int line, void *start, void *target) {
+#define NO_CALLSITE_ERROR() ERR("Unable To Find Callsites")
+void *overwrite_calls_manual(void *start, void *target, const bool allow_no_callsites) {
     // Add New Target To Code Block
     void *code_block = update_code_block(target);
 
     // Patch Code
-    int found = _overwrite_calls_within_internal(file, line, (void *) TEXT_START, (void *) TEXT_END, start, code_block);
+    int found = _overwrite_calls_within_internal((void *) TEXT_START, (void *) TEXT_END, start, code_block);
     // Patch VTables
-    found += _patch_vtables(file, line, start, code_block);
+    found += _patch_vtables(start, code_block);
 
     // Increment Code Block Position
     increment_code_block();
 
     // Check
-    if (found < 1) {
-        ERR(NO_CALLSITE_ERROR, file, line, start);
+    if (found < 1 && !allow_no_callsites) {
+        NO_CALLSITE_ERROR();
     }
 
     // Return
     return code_block;
 }
-void _overwrite_calls_within_manual(const char *file, int line, void *from /* inclusive */, void *to /* exclusive */, void *target, void *replacement) {
+void overwrite_calls_within_manual(void *from /* inclusive */, void *to /* exclusive */, void *target, void *replacement) {
     // Add New Target To Code Block
     void *code_block = update_code_block(replacement);
 
     // Patch
-    int found = _overwrite_calls_within_internal(file, line, from, to, target, code_block);
+    const int found = _overwrite_calls_within_internal(from, to, target, code_block);
     // Check
     if (found < 1) {
-        ERR(NO_CALLSITE_ERROR, file, line, target);
+        NO_CALLSITE_ERROR();
     }
 
     // Increment Code Block Position
     increment_code_block();
 }
 
-// Print Patch Debug Data
-#define PATCH_PRINTF(file, line, start, str) if (file != NULL) DEBUG("(%s:%i): Patching (%p) - " str ": %02x %02x %02x %02x", file, line, start, data[0], data[1], data[2], data[3]);
-
 // Patch Instruction
 static void safe_mprotect(void *addr, size_t len, int prot) {
-    long page_size = sysconf(_SC_PAGESIZE);
-    long diff = ((uintptr_t) addr) % page_size;
+    const long page_size = sysconf(_SC_PAGESIZE);
+    const long diff = uintptr_t(addr) % page_size;
     void *aligned_addr = (void *) (((uintptr_t) addr) - diff);
     size_t aligned_len = len + diff;
-    int ret = mprotect(aligned_addr, aligned_len, prot);
+    const int ret = mprotect(aligned_addr, aligned_len, prot);
     if (ret == -1) {
         ERR("Unable To Set Permissions: %p: %s", addr, strerror(errno));
     }
 }
-void _patch(const char *file, int line, void *start, unsigned char patch[4]) {
+void patch(void *start, unsigned char patch[4]) {
     if (((uint32_t) start) % 4 != 0) {
         ERR("Invalid Address: %p", start);
     }
@@ -142,14 +139,12 @@ void _patch(const char *file, int line, void *start, unsigned char patch[4]) {
     }
 
     // Allow Writing To Code Memory
-    uint32_t size = 4;
+    const uint32_t size = 4;
     safe_mprotect(start, size, prot | PROT_WRITE);
 
     // Patch
     unsigned char *data = (unsigned char *) start;
-    PATCH_PRINTF(file, line, start, "original");
     memcpy(data, patch, 4);
-    PATCH_PRINTF(file, line, start, "result");
 
     // Reset Code Memory Permissions
     safe_mprotect(start, size, prot);
@@ -159,8 +154,13 @@ void _patch(const char *file, int line, void *start, unsigned char patch[4]) {
 }
 
 // Patch Address
-void _patch_address(const char *file, int line, void *start, void *target) {
+void patch_address(void *start, void *target) {
     uint32_t addr = (uint32_t) target;
     unsigned char *patch_data = (unsigned char *) &addr;
-    _patch(file, line, start, patch_data);
+    patch(start, patch_data);
+}
+
+// Thunks
+void *reborn_thunk_enabler(void *target, void *thunk) {
+    return overwrite_calls_manual(target, thunk, true);
 }
