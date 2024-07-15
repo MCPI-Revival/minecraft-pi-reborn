@@ -7,7 +7,7 @@
 #include <mods/init/init.h>
 
 // Fix Grass And Leaves Inventory Rendering When The gui_blocks Atlas Is Disabled
-static void ItemRenderer_renderGuiItemCorrect_injection(ItemRenderer_renderGuiItemCorrect_t original, Font *font, Textures *textures, ItemInstance *item_instance, int32_t param_1, int32_t param_2) {
+static void ItemRenderer_renderGuiItemCorrect_injection(ItemRenderer_renderGuiItemCorrect_t original, Font *font, Textures *textures, const ItemInstance *item_instance, int32_t param_1, int32_t param_2) {
     int32_t leaves_id = Tile::leaves->id;
     int32_t grass_id = Tile::grass->id;
     // Replace Rendered Item With Carried Variant
@@ -74,7 +74,7 @@ static void InventoryPane_renderBatch_Tesselator_color_injection(Tesselator *tes
     // Enable Item Color Fix
     item_color_fix_mode = 2;
 }
-static void ItemRenderer_renderGuiItem_two_injection(ItemRenderer_renderGuiItem_two_t original, Font *font, Textures *textures, ItemInstance *item_instance, float param_1, float param_2, float param_3, float param_4, bool param_5) {
+static void ItemRenderer_renderGuiItem_two_injection(ItemRenderer_renderGuiItem_two_t original, Font *font, Textures *textures, const ItemInstance *item_instance, float param_1, float param_2, float param_3, float param_4, bool param_5) {
     // Call Original Method
     original(font, textures, item_instance, param_1, param_2, param_3, param_4, param_5);
 

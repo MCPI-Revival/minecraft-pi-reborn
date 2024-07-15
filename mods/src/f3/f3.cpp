@@ -31,7 +31,7 @@ static std::vector<std::string> get_debug_info(const Minecraft *minecraft) {
         float x = minecraft->player->x;
         float y = minecraft->player->y - minecraft->player->height_offset;
         float z = minecraft->player->z;
-        minecraft->command_server->pos_translator.to(&x, &y, &z);
+        minecraft->command_server->pos_translator.to(x, y, z);
         info.push_back("X: " + to_string_with_precision(x, debug_precision));
         info.push_back("Y: " + to_string_with_precision(y, debug_precision));
         info.push_back("Z: " + to_string_with_precision(z, debug_precision));
@@ -47,13 +47,13 @@ static int debug_background_padding = 1;
 static int line_height = 8;
 static void render_debug_line(Gui *gui, std::string &line, const int x, const int y) {
     // Draw Background
-    int width = gui->minecraft->font->width(&line);
+    int width = gui->minecraft->font->width(line);
     if (width == 0) {
         return;
     }
     gui->fill(x - debug_background_padding, y - debug_background_padding, x + width + debug_background_padding, y + line_height, debug_background_color);
     // Draw Text
-    gui->minecraft->font->draw(&line, float(x), float(y), debug_text_color);
+    gui->minecraft->font->draw(line, float(x), float(y), debug_text_color);
 }
 // Draw Debug Information
 static bool debug_info_shown = false;

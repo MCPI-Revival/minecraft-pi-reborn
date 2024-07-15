@@ -95,7 +95,7 @@ void screenshot_take(Gui *gui) {
         if (gui) {
             std::string chat_msg = "Saved screenshot as ";
             chat_msg += filename;
-            gui->addMessage(&chat_msg);
+            gui->addMessage(chat_msg);
         }
     }
 

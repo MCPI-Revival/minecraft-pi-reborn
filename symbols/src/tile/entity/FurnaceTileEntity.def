@@ -1,5 +1,5 @@
 extends TileEntity;
 
 virtual-method ItemInstance *getItem(int slot) = 0x2c;
-static-method int getBurnDuration(ItemInstance *item_instance) = 0xd33f8;
+static-method int getBurnDuration(const ItemInstance &item_instance) = 0xd33f8;
 method int getLitProgress(int max) = 0xd3240;

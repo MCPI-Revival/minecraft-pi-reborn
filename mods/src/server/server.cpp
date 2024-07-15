@@ -77,7 +77,7 @@ static void start_world(Minecraft *minecraft) {
     settings.seed = seed;
 
     // Select Level
-    minecraft->selectLevel(&world_name, &world_name, &settings);
+    minecraft->selectLevel(world_name, world_name, settings);
 
     // Don't Open Port When Using --only-generate
     if (!only_generate) {
@@ -304,7 +304,7 @@ static void handle_commands(Minecraft *minecraft) {
                 char *safe_message = to_cp437(message.c_str());
                 std::string cpp_string = safe_message;
                 // Post Message To Chat
-                server_side_network_handler->displayGameMessage(&cpp_string);
+                server_side_network_handler->displayGameMessage(cpp_string);
                 // Free
                 free(safe_message);
             } else if (data == list_command) {
@@ -409,7 +409,7 @@ static bool RakNet_RakPeer_IsBanned_injection(__attribute__((unused)) RakNet_Rak
 }
 
 // Log IPs
-static Player *ServerSideNetworkHandler_onReady_ClientGeneration_ServerSideNetworkHandler_popPendingPlayer_injection(ServerSideNetworkHandler *server_side_network_handler, RakNet_RakNetGUID *guid) {
+static Player *ServerSideNetworkHandler_onReady_ClientGeneration_ServerSideNetworkHandler_popPendingPlayer_injection(ServerSideNetworkHandler *server_side_network_handler, const RakNet_RakNetGUID &guid) {
     // Call Original Method
     Player *player = server_side_network_handler->popPendingPlayer(guid);
 
@@ -419,7 +419,7 @@ static Player *ServerSideNetworkHandler_onReady_ClientGeneration_ServerSideNetwo
         std::string *username = &player->username;
         Minecraft *minecraft = server_side_network_handler->minecraft;
         RakNet_RakPeer *rak_peer = get_rak_peer(minecraft);
-        char *ip = get_rak_net_guid_ip(rak_peer, *guid);
+        char *ip = get_rak_net_guid_ip(rak_peer, guid);
 
         // Log
         INFO("%s Has Joined (IP: %s)", username->c_str(), ip);

@@ -10,7 +10,7 @@ virtual-method Feature *getGrassFeature(Random *random) = 0xc;
 virtual-method float adjustScale(float scale) = 0x10;
 virtual-method float adjustDepth(float depth) = 0x14;
 virtual-method uint getSkyColor(float temp) = 0x18;
-//virtual-method ??? *getMobs(MobCategory *category) = 0x1c;
+//virtual-method ??? *getMobs(const MobCategory &category) = 0x1c;
 virtual-method float getCreatureProbability() = 0x20;
 
 property int color = 0x2c;

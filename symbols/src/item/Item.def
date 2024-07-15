@@ -12,7 +12,7 @@ virtual-method int useOn(ItemInstance *item_instance, Player *player, Level *lev
 // Normally returns 0
 virtual-method int getUseDuration(ItemInstance *item_instance) = 0x24;
 virtual-method ItemInstance useTimeDepleted(ItemInstance *item_instance, Level *level, Player *player) = 0x28;
-virtual-method int getDestorySpeed(ItemInstance *item_instance, Tile *tile) = 0x2c;
+virtual-method int getDestroySpeed(ItemInstance *item_instance, Tile *tile) = 0x2c;
 virtual-method ItemInstance *use(ItemInstance *item_instance, Level *level, Player *player) = 0x30;
 virtual-method void hurtEnemy(ItemInstance *itemInstance, Mob *mob) = 0x44;
 virtual-method bool mineBlock(ItemInstance *instance, int tile_id, int x, int y, int z) = 0x48;
@@ -20,8 +20,8 @@ virtual-method bool mineBlock(ItemInstance *instance, int tile_id, int x, int y,
 virtual-method void interactEnemy(ItemInstance *item_instance, Mob *mob) = 0x54;
 virtual-method bool isFood() = 0x64;
 virtual-method bool isArmor() = 0x68;
-virtual-method void setDescriptionId(std::string *name) = 0x6c;
-virtual-method std::string getDescriptionId(ItemInstance *item_instance) = 0x7c;
+virtual-method void setDescriptionId(const std::string &name) = 0x6c;
+virtual-method std::string getDescriptionId(const ItemInstance *item_instance) = 0x7c;
 // This returns an Item*, but it's never called normally so it doesn't matter if we invent a better system over top of it
 virtual-method ItemInstance *getCraftingRemainingItem(ItemInstance *item_instance) = 0x84;
 // Swing = 0, eating = 1, drinking = 2, bow = 4, anything else is nothing

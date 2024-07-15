@@ -1,6 +1,6 @@
 virtual-method LevelChunk *load(Level *level, int chunk_x, int chunk_z) = 0x8;
 virtual-method void save(Level *level, LevelChunk *level_chunk) = 0xc;
 virtual-method void saveEntities(Level *level, LevelChunk *level_chunk) = 0x10;
-virtual-method void saveAll(Level *level, std::vector<LevelChunk *> *level_chunks) = 0x14;
+virtual-method void saveAll(Level *level, std::vector<LevelChunk *> &level_chunks) = 0x14;
 virtual-method void tick() = 0x18;
 virtual-method void flush() = 0x1c;

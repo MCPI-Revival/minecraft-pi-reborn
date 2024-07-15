@@ -19,7 +19,7 @@ static void StartMenuScreen_render_Screen_renderBackground_injection(Screen *scr
     Minecraft *minecraft = screen->minecraft;
     Textures *textures = minecraft->textures;
     std::string texture = "gui/titleBG.png";
-    textures->loadAndBindTexture(&texture);
+    textures->loadAndBindTexture(texture);
     screen->blit(0, 0, 0, 0, screen->width, screen->height, 0x100, 0x100);
 }
 
@@ -101,7 +101,7 @@ static void StartMenuScreen_render_Screen_render_injection(Screen *screen, int x
         glTranslatef(splash_x, splash_y, 0.0f);
         glRotatef(-20.0f, 0.0f, 0.0f, 1.0f);
         // Scale
-        int textWidth = screen->font->width(&current_splash);
+        int textWidth = screen->font->width(current_splash);
         float timeMS = float(Common::getTimeMs() % 1000) / 1000.0f;
         float scale = max_scale - Mth::abs(0.1f * Mth::sin(2.0f * float(M_PI) * timeMS));
         float real_text_width = textWidth * max_scale;
@@ -112,7 +112,7 @@ static void StartMenuScreen_render_Screen_render_injection(Screen *screen, int x
         glScalef(scale, scale, scale);
         // Render
         static int line_height = 8;
-        screen->drawCenteredString(screen->font, &current_splash, 0, -(float(line_height) / 2), 0xffff00);
+        screen->drawCenteredString(screen->font, current_splash, 0, -(float(line_height) / 2), 0xffff00);
         // Finish
         glPopMatrix();
     }

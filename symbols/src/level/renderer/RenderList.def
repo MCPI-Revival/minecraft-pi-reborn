@@ -2,7 +2,7 @@ method void render() = 0x52800;
 method void renderChunks() = 0x52708;
 method void clear() = 0x5288c;
 method void init(float x, float y, float z) = 0x526bc;
-method void addR(RenderChunk *chunk) = 0x526dc;
+method void addR(const RenderChunk &chunk) = 0x526dc;
 
 property int size = 0x1c;
 property RenderChunk *chunks = 0x10;

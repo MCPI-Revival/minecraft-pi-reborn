@@ -114,8 +114,7 @@ void misc_run_on_key_press(const std::function<bool(Minecraft *, int)> &func) {
 void misc_render_background(int color, Minecraft *minecraft, int x, int y, int width, int height) {
     // https://github.com/ReMinecraftPE/mcpe/blob/f0d65eaecec1b3fe9c2f2b251e114a890c54ab77/source/client/gui/components/RolledSelectionList.cpp#L169-L179
     glColor4f(1, 1, 1, 1);
-    std::string texture = "gui/background.png";
-    minecraft->textures->loadAndBindTexture(&texture);
+    minecraft->textures->loadAndBindTexture("gui/background.png");
     Tesselator *t = &Tesselator::instance;
     t->begin(7);
     t->color(color, color, color, 255);

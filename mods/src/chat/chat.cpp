@@ -1,7 +1,6 @@
 #include <string>
 #include <cstring>
 #include <cstdio>
-#include <vector>
 
 #include <libreborn/libreborn.h>
 #include <symbols/minecraft.h>
@@ -12,14 +11,14 @@
 #include <mods/chat/chat.h>
 
 // Send API Command
-std::string chat_send_api_command(Minecraft *minecraft, std::string str) {
+std::string chat_send_api_command(const Minecraft *minecraft, const std::string &str) {
     ConnectedClient client;
     client.sock = -1;
     client.str = "";
     client.time = 0;
     CommandServer *command_server = minecraft->command_server;
     if (command_server != nullptr) {
-        return command_server->parse(&client, &str);
+        return command_server->parse(client, str);
     } else {
         return "";
     }
@@ -42,7 +41,7 @@ void chat_send_message(ServerSideNetworkHandler *server_side_network_handler, ch
     sanitize_string(raw_str, MAX_CHAT_MESSAGE_LENGTH, 0);
     full_message = raw_str;
     free(raw_str);
-    server_side_network_handler->displayGameMessage(&full_message);
+    server_side_network_handler->displayGameMessage(full_message);
 }
 // Handle Chat packet Send
 void chat_handle_packet_send(Minecraft *minecraft, ChatPacket *packet) {
@@ -54,7 +53,7 @@ void chat_handle_packet_send(Minecraft *minecraft, ChatPacket *packet) {
         chat_send_message(server_side_network_handler, Strings::default_username, (char *) message);
     } else {
         // Client
-        rak_net_instance->send((Packet *) packet);
+        rak_net_instance->send(*(Packet *) packet);
     }
 }
 
@@ -67,7 +66,7 @@ static void CommandServer_parse_CommandServer_dispatchPacket_injection(CommandSe
 }
 
 // Handle ChatPacket Server-Side
-static void ServerSideNetworkHandler_handle_ChatPacket_injection(ServerSideNetworkHandler *server_side_network_handler, RakNet_RakNetGUID *rak_net_guid, ChatPacket *chat_packet) {
+static void ServerSideNetworkHandler_handle_ChatPacket_injection(ServerSideNetworkHandler *server_side_network_handler, const RakNet_RakNetGUID &rak_net_guid, ChatPacket *chat_packet) {
     Player *player = server_side_network_handler->getPlayer(rak_net_guid);
     if (player != nullptr) {
         const char *username = player->username.c_str();

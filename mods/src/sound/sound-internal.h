@@ -4,4 +4,4 @@
 
 __attribute__((visibility("internal"))) std::string _sound_get_source_file();
 __attribute__((visibility("internal"))) void _sound_resolve_all();
-__attribute__((visibility("internal"))) std::string _sound_pick(std::string sound);
+__attribute__((visibility("internal"))) std::string _sound_pick(const std::string &sound);

@@ -6,7 +6,7 @@
 #include "skin-internal.h"
 
 // Base64 Encode (https://gist.github.com/tomykaira/f0fd86b6c73063283afe550bc5d77594)
-static std::string base64_encode(const std::string data) {
+static std::string base64_encode(const std::string &data) {
     static constexpr char encoding_table[] = {
         'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H',
         'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P',
@@ -22,7 +22,7 @@ static std::string base64_encode(const std::string data) {
     size_t out_len = 4 * ((in_len + 2) / 3);
     std::string ret(out_len, '\0');
     size_t i;
-    char *p = const_cast<char*>(ret.c_str());
+    char *p = const_cast<char *>(ret.c_str());
 
     for (i = 0; i < in_len - 2; i += 3) {
         *p++ = encoding_table[(data[i] >> 2) & 0x3f];
@@ -74,7 +74,7 @@ static int32_t Textures_loadAndBindTexture_injection(Textures *textures, __attri
     }
 
     // Call Original Method
-    return textures->loadAndBindTexture(&new_texture);
+    return textures->loadAndBindTexture(new_texture);
 }
 
 // Init

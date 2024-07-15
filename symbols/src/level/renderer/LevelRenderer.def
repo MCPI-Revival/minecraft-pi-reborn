@@ -1,9 +1,9 @@
 method void tick() = 0x4da1c;
 method void render(Mob *mob, int param_1, float delta) = 0x4f710;
-method void renderDebug(AABB *aabb, float delta) = 0x4d310;
+method void renderDebug(const AABB &aabb, float delta) = 0x4d310;
 method void generateSky() = 0x4d0d4;
-method void renderHitSelect(Player *player, HitResult *hit_result, int i, void *vp, float f) = 0x4e318;
-method void renderHitOutline(Player *player, HitResult *hit_result, int i, void *vp, float f) = 0x4dc14;
+method void renderHitSelect(Player *player, const HitResult &hit_result, int i, void *vp, float f) = 0x4e318;
+method void renderHitOutline(Player *player, const HitResult &hit_result, int i, void *vp, float f) = 0x4dc14;
 method int renderChunks(int start, int end, int a, float b) = 0x4f35c;
 
 property Minecraft *minecraft = 0xb4;

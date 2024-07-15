@@ -4,8 +4,8 @@ constructor () = 0x28204;
 vtable 0x1039b0;
 
 method void blit(int x_dest, int y_dest, int x_src, int y_src, int width_dest, int height_dest, int width_src, int height_src) = 0x282a4;
-method void drawCenteredString(Font *font, std::string *text, int x, int y, uint color) = 0x2821c;
-method void drawString(Font *font, std::string *text, int x, int y, uint color) = 0x28284;
+method void drawCenteredString(Font *font, const std::string &text, int x, int y, uint color) = 0x2821c;
+method void drawString(Font *font, const std::string &text, int x, int y, uint color) = 0x28284;
 method void fill(int x1, int y1, int x2, int y2, uint color) = 0x285f0;
 method void fillGradient(int x1, int y1, int x2, int y2, int color1, int color2) = 0x287c0;
 

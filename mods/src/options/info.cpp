@@ -101,7 +101,7 @@ static void position_info(Font *font, int width, int height) {
     int info_text_width = 0;
     for (int i = 0; i < info_size; i++) {
         std::string text = info[i].get_text();
-        int text_width = font->width(&text);
+        int text_width = font->width(text);
         if (text_width > info_text_width) {
             info_text_width = text_width;
         }
@@ -127,7 +127,7 @@ static void position_info(Font *font, int width, int height) {
     // Third Stage (Find Line Button Width)
     line_button_width = 0;
     for (int i = 0; i < info_size; i++) {
-        int text_width = font->width(&info[i].button_text);
+        int text_width = font->width(info[i].button_text);
         if (text_width > line_button_width) {
             line_button_width = text_width;
         }
@@ -205,11 +205,11 @@ CUSTOM_VTABLE(info_screen, Screen) {
         original_render(self, x, y, param_1);
         // Title
         std::string title = "Reborn Information";
-        self->drawCenteredString(self->font, &title, self->width / 2, title_padding, 0xffffffff);
+        self->drawCenteredString(self->font, title, self->width / 2, title_padding, 0xffffffff);
         // Info Text
         for (int i = 0; i < info_size; i++) {
             std::string text = info[i].get_text();
-            self->drawString(self->font, &text, positioned_info[i].text.x, positioned_info[i].text.y, 0xffffffff);
+            self->drawString(self->font, text, positioned_info[i].text.x, positioned_info[i].text.y, 0xffffffff);
         }
     };
     // Positioning

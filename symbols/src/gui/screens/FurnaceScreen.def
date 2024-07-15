@@ -1,5 +1,5 @@
 extends Screen;
 
-method int handleAddItem(int slot, ItemInstance *item) = 0x327a0;
+method int handleAddItem(int slot, const ItemInstance *item) = 0x327a0;
 
 property FurnaceTileEntity *tile_entity = 0x1d0;

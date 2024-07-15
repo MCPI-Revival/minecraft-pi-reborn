@@ -3,7 +3,7 @@ static-method void initTiles() = 0xc358c;
 vtable 0x115670;
 vtable-size 0x104;
 
-constructor (int id, int texture, Material *material) = 0xc33a0;
+constructor (int id, int texture, const Material *material) = 0xc33a0;
 size 0x5c;
 
 method Tile *init() = 0xc34dc;
@@ -19,7 +19,7 @@ virtual-method int getTexture2(int face, int data) = 0x2c;
 virtual-method int getTexture3(LevelSource *level, int x, int y, int z, int face) = 0x30;
 virtual-method AABB *getAABB(Level *level, int x, int y, int z) = 0x34;
 // Chain Tile_setShape_non_virtual and Tile_addAABBs_non_virtual, look at how stairs and fences do it
-virtual-method void addAABBs(Level *level, int x, int y, int z, AABB *intersecting, std::vector<AABB> *aabbs) = 0x38;
+virtual-method void addAABBs(Level *level, int x, int y, int z, const AABB *intersecting, std::vector<AABB> &aabbs) = 0x38;
 virtual-method bool isSolidRender() = 0x40;
 virtual-method bool mayPlace(Level *level, int x, int y, int z, uchar face) = 0x4c;
 virtual-method bool mayPlace2(Level *level, int x, int y, int z) = 0x50;
@@ -49,8 +49,8 @@ virtual-method bool getSignal2(LevelSource *level, int x, int y, int z, int dire
 virtual-method bool getDirectSignal(Level *level, int x, int y, int z, int direction) = 0xc8;
 virtual-method void entityInside(Level *level, int x, int y, int z, Entity *entity) = 0xcc;
 virtual-method std::string getDescriptionId() = 0xdc;
-virtual-method Tile *setDescriptionId(std::string *description_id) = 0xe0;
-virtual-method Tile *setSoundType(Tile_SoundType *sound_type) = 0xe8;
+virtual-method Tile *setDescriptionId(const std::string &description_id) = 0xe0;
+virtual-method Tile *setSoundType(const Tile_SoundType &sound_type) = 0xe8;
 virtual-method Tile *setLightEmission(float light) = 0xf0;
 virtual-method Tile *setExplodeable(float explodeable) = 0xf4;
 virtual-method Tile *setDestroyTime(float destroy_time) = 0xf8;

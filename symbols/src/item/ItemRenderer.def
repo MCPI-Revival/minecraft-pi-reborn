@@ -1,9 +1,9 @@
-static-method void renderGuiItem_one(Font *font, Textures *textures, ItemInstance *item_instance, float x, float y, bool param_3) = 0x63e58;
-static-method void renderGuiItem_two(Font *font, Textures *textures, ItemInstance *item_instance, float x, float y, float w, float h, bool param_5) = 0x63be0;
-static-method void renderGuiItemCorrect(Font *font, Textures *textures, ItemInstance *item_instance, int x, int y) = 0x639a0;
-static-method void renderGuiItemDecorations(ItemInstance *item, float x, float y) = 0x63748;
+static-method void renderGuiItem_one(Font *font, Textures *textures, const ItemInstance *item_instance, float x, float y, bool param_3) = 0x63e58;
+static-method void renderGuiItem_two(Font *font, Textures *textures, const ItemInstance *item_instance, float x, float y, float w, float h, bool param_5) = 0x63be0;
+static-method void renderGuiItemCorrect(Font *font, Textures *textures, const ItemInstance *item_instance, int x, int y) = 0x639a0;
+static-method void renderGuiItemDecorations(const ItemInstance *item, float x, float y) = 0x63748;
 static-method void blit(float x, float y, float texture_x, float texture_y, float w, float h) = 0x638c0;
 
-// This doesn't include things that it doesn't need for item renderering (like the level)
+// This doesn't include things that it doesn't need for item rendering (like the level)
 // So if you are (ab)using it for something else, be sure to set what you need
 static-property TileRenderer *tileRenderer = 0x137c18;

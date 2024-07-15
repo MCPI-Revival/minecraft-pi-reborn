@@ -1,9 +1,9 @@
 size 0xc;
 
-constructor item(Item *item) = 0x9992c;
-constructor tile(Tile *item) = 0x998e4;
-constructor tile_extra(Tile *item, int count, int auxiliary) = 0x99918;
-constructor item_extra(Item *item, int count, int auxiliary) = 0x99960;
+constructor item(const Item *item) = 0x9992c;
+constructor tile(const Tile *item) = 0x998e4;
+constructor tile_extra(const Tile *item, int count, int auxiliary) = 0x99918;
+constructor item_extra(const Item *item, int count, int auxiliary) = 0x99960;
 
 static-method ItemInstance *fromTag(CompoundTag *tag) = 0x9a124;
 

@@ -150,7 +150,7 @@ static void make_cake() {
     cake->setExplodeable(20.0f);
     cake->category = 4;
     std::string name = "Cake";
-    cake->setDescriptionId(&name);
+    cake->setDescriptionId(name);
 }
 
 static void Tile_initTiles_injection() {
@@ -223,8 +223,8 @@ static void Recipes_injection(Recipes *recipes) {
     std::string line1 = "mmm";
     std::string line2 = "ses";
     std::string line3 = "www";
-    std::vector<Recipes_Type> ingredients = {milk, sugar, wheat, eggs};
-    recipes->addShapedRecipe_3(&cake_item, &line1, &line2, &line3, &ingredients);
+    std::vector ingredients = {milk, sugar, wheat, eggs};
+    recipes->addShapedRecipe_3(cake_item, line1, line2, line3, ingredients);
 }
 
 void init_cake() {

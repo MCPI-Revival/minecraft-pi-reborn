@@ -4,7 +4,7 @@ size 0x158;
 
 vtable 0x105758;
 
-method std::string getUniqueLevelName(std::string *name) = 0x3d82c;
+method std::string getUniqueLevelName(const std::string &name) = 0x3d82c;
 
 property bool should_create_world = 0x154;
 property bool world_created = 0x151;

@@ -34,10 +34,10 @@ static void start_world(Minecraft *minecraft) {
     // Delete World If It Already Exists
     LevelStorageSource *level_source = minecraft->getLevelSource();
     std::string name = BENCHMARK_WORLD_NAME;
-    level_source->deleteLevel(&name);
+    level_source->deleteLevel(name);
 
     // Select Level
-    minecraft->selectLevel(&name, &name, &settings);
+    minecraft->selectLevel(name, name, settings);
 
     // Open ProgressScreen
     ProgressScreen *screen = new ProgressScreen;

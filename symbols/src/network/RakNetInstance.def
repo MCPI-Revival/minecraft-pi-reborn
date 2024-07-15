@@ -2,8 +2,8 @@ vtable 0x109ae8;
 
 constructor () = 0x73b20;
 
-virtual-method void sendTo(RakNet_RakNetGUID *guid, Packet *packet) = 0x3c;
-virtual-method void send(Packet *packet) = 0x38;
+virtual-method void sendTo(const RakNet_RakNetGUID &guid, Packet &packet) = 0x3c;
+virtual-method void send(Packet &packet) = 0x38;
 virtual-method uint isServer() = 0x48;
 virtual-method void pingForHosts(int base_port) = 0x14;
 

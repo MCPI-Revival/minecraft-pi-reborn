@@ -86,12 +86,12 @@ CUSTOM_VTABLE(create_world_screen, Screen) {
         original_render(super, x, y, param_1);
         // Title
         std::string title = "Create world";
-        super->drawCenteredString(super->font, &title, super->width / 2, title_padding, 0xffffffff);
+        super->drawCenteredString(super->font, title, super->width / 2, title_padding, 0xffffffff);
         // Game Mode Description
         CreateWorldScreen *self = (CreateWorldScreen *) super;
         bool is_creative = self->game_mode->text == CREATIVE_STR;
         std::string description = is_creative ? Strings::creative_mode_description : Strings::survival_mode_description;
-        super->drawString(super->font, &description, self->game_mode->x, self->game_mode->y + self->game_mode->height + description_padding, 0xa0a0a0);
+        super->drawString(super->font, description, self->game_mode->x, self->game_mode->y + self->game_mode->height + description_padding, 0xa0a0a0);
     };
     // Positioning
     static Screen_setupPositions_t original_setupPositions = vtable->setupPositions;
@@ -164,7 +164,7 @@ static Screen *create_create_world_screen() {
 static std::string getUniqueLevelName(LevelStorageSource *source, const std::string &in) {
     std::set<std::string> maps;
     std::vector<LevelSummary> vls;
-    source->getLevelList(&vls);
+    source->getLevelList(vls);
     for (int i = 0; i < int(vls.size()); i++) {
         const LevelSummary &ls = vls[i];
         maps.insert(ls.folder);
@@ -179,13 +179,13 @@ static std::string getUniqueLevelName(LevelStorageSource *source, const std::str
 // Create World
 int get_seed_from_string(std::string str) {
     int seed;
-    str = Util::stringTrim(&str);
+    str = Util::stringTrim(str);
     if (!str.empty()) {
         int num;
         if (sscanf(str.c_str(), "%d", &num) > 0) {
             seed = num;
         } else {
-            seed = Util::hashCode(&str);
+            seed = Util::hashCode(str);
         }
     } else {
         seed = Common::getEpochTimeS();
@@ -197,7 +197,7 @@ static void create_world(Minecraft *minecraft, std::string name, bool is_creativ
     int seed = get_seed_from_string(std::move(seed_str));
 
     // Get Folder Name
-    name = Util::stringTrim(&name);
+    name = Util::stringTrim(name);
     std::string folder = "";
     for (char c : name) {
         if (
@@ -227,7 +227,7 @@ static void create_world(Minecraft *minecraft, std::string name, bool is_creativ
     settings.seed = seed;
 
     // Create World
-    minecraft->selectLevel(&folder, &name, &settings);
+    minecraft->selectLevel(folder, name, settings);
 
     // Multiplayer
     minecraft->hostMultiplayer(19132);

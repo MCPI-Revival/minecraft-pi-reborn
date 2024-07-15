@@ -168,7 +168,7 @@ void TextInputBox::charPressed(int k) {
 static std::string get_rendered_text(Font *font, int width, int scroll_pos, std::string text) {
     std::string rendered_text = text.substr(scroll_pos);
     int max_width = width - (PADDING * 2);
-    while (font->width(&rendered_text) > max_width) {
+    while (font->width(rendered_text) > max_width) {
         rendered_text.pop_back();
     }
     return rendered_text;
@@ -195,17 +195,17 @@ void TextInputBox::render() {
     rendered_text = get_rendered_text(m_pFont, m_width, scroll_pos, rendered_text);
 
     int textYPos = (m_height - 8) / 2;
-    super.drawString(m_pFont, &rendered_text, m_xPos + PADDING, m_yPos + textYPos, text_color);
+    super.drawString(m_pFont, rendered_text, m_xPos + PADDING, m_yPos + textYPos, text_color);
 
     if (m_bCursorOn) {
         int cursor_pos = m_insertHead - m_scrollPos;
         if (cursor_pos >= 0 && cursor_pos <= int(rendered_text.length())) {
             std::string substr = rendered_text.substr(0, cursor_pos);
-            int xPos = PADDING + m_pFont->width(&substr);
+            int xPos = PADDING + m_pFont->width(substr);
 
             std::string str;
             str += CURSOR_CHAR;
-            super.drawString(m_pFont, &str, m_xPos + xPos, m_yPos + textYPos + 2, 0xffffff);
+            super.drawString(m_pFont, str, m_xPos + xPos, m_yPos + textYPos + 2, 0xffffff);
         }
     }
 }

@@ -353,8 +353,8 @@ __attribute__((constructor)) static void init_rand_seed() {
     srand(time(nullptr));
 }
 // Pick Sound
-std::string _sound_pick(std::string sound) {
-    if (sound_repository.count(sound) > 0) {
+std::string _sound_pick(const std::string &sound) {
+    if (sound_repository.contains(sound)) {
         // Sound Exists
         std::vector<std::string> &options = sound_repository[sound];
         return options[rand() % options.size()];
@@ -367,8 +367,8 @@ std::string _sound_pick(std::string sound) {
 
 // Resolve All Sounds
 void _sound_resolve_all() {
-    std::string source = _sound_get_source_file();
-    if (source.size() > 0) {
+    const std::string source = _sound_get_source_file();
+    if (!source.empty()) {
         for (auto &it : sound_repository) {
             for (std::string &name : it.second) {
                 // Zero Volume Prevents An OpenAL Source From Being Allocated While Still Resolving The Sound

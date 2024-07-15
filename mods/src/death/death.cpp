@@ -84,7 +84,7 @@ static void Player_die_injection(std::function<void(ParentSelf *, Entity *)> ori
 
         // Post Death Message
         ServerSideNetworkHandler *server_side_network_handler = (ServerSideNetworkHandler *) player->minecraft->network_handler;
-        server_side_network_handler->displayGameMessage(&message);
+        server_side_network_handler->displayGameMessage(message);
     }
 }
 template <typename Self>
@@ -112,7 +112,7 @@ static void Player_actuallyHurt_injection(Self *player, int32_t damage) {
 
             // Post Death Message
             ServerSideNetworkHandler *server_side_network_handler = (ServerSideNetworkHandler *) player->minecraft->network_handler;
-            server_side_network_handler->displayGameMessage(&message);
+            server_side_network_handler->displayGameMessage(message);
         }
     }
 }

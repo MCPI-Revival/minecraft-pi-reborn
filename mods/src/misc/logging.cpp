@@ -8,9 +8,9 @@
 
 // Print Chat To Log
 static bool Gui_addMessage_recursing = false;
-static void Gui_addMessage_injection(Gui_addMessage_t original, Gui *gui, std::string *text) {
+static void Gui_addMessage_injection(Gui_addMessage_t original, Gui *gui, const std::string &text) {
     // Sanitize Message
-    char *new_message = strdup(text->c_str());
+    char *new_message = strdup(text.c_str());
     ALLOC_CHECK(new_message);
     sanitize_string(new_message, -1, 1);
     std::string cpp_str = new_message;
@@ -26,13 +26,13 @@ static void Gui_addMessage_injection(Gui_addMessage_t original, Gui *gui, std::s
         free(safe_message);
 
         // Call Original Method
-        original(gui, &cpp_str);
+        original(gui, cpp_str);
 
         // End Recursing
         Gui_addMessage_recursing = false;
     } else {
         // Call Original Method
-        original(gui, &cpp_str);
+        original(gui, cpp_str);
     }
 
     // Free

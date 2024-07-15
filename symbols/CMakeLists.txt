@@ -92,6 +92,7 @@ set(SRC
     src/level/LevelSummary.def
     src/level/DistanceChunkSorter.def
     src/level/renderer/Chunk.def
+    src/level/LevelStorage.def
     src/item/ItemRenderer.def
     src/item/ItemInHandRenderer.def
     src/item/AuxDataTileItem.def

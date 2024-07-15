@@ -95,7 +95,7 @@ CUSTOM_VTABLE(welcome_screen, Screen) {
         // Call Original Method
         original_render(self, x, y, param_1);
         // Text
-        self->drawCenteredString(self->font, &line1, self->width / 2, text_y, 0xFFFFFFFF);
+        self->drawCenteredString(self->font, line1, self->width / 2, text_y, 0xFFFFFFFF);
     };
     // Positioning
     vtable->setupPositions = [](Screen *self) {

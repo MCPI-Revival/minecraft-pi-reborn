@@ -1,4 +1,4 @@
 extends Button;
 
 size 0x28;
-constructor (int id, std::string *text) = 0x1c168;
+constructor (int id, const std::string &text) = 0x1c168;

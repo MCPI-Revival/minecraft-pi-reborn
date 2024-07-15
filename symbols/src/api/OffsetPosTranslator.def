@@ -1,5 +1,5 @@
-method void from(int *x, int *y, int *z) = 0x27c98;
-method void to(float *x, float *y, float *z) = 0x27be0;
+method void from(int &x, int &y, int &z) = 0x27c98;
+method void to(float &x, float &y, float &z) = 0x27be0;
 
 property float x = 0x4;
 property float y = 0x8;

@@ -3,7 +3,7 @@ vtable-size 0x28;
 vtable 0x115d78;
 constructor (int type) = 0xd2308;
 
-static-method void setId(int id, std::string *name) = 0xd26fc;
+static-method void setId(int id, const std::string &name) = 0xd26fc;
 static-method void initTileEntities() = 0xd2834;
 
 virtual-method bool shouldSave() = 0x8;

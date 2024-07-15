@@ -167,9 +167,9 @@ static void Textures_tick_glTexSubImage2D_injection(GLenum target, GLint level, 
 }
 
 // Load Textures
-static Texture AppPlatform_linux_loadTexture_injection(__attribute__((unused)) AppPlatform_linux_loadTexture_t original, __attribute__((unused)) AppPlatform_linux *app_platform, std::string *path, bool b) {
+static Texture AppPlatform_linux_loadTexture_injection(__attribute__((unused)) AppPlatform_linux_loadTexture_t original, __attribute__((unused)) AppPlatform_linux *app_platform, const std::string &path, bool b) {
     Texture out;
-    std::string real_path = *path;
+    std::string real_path = path;
     if (b) {
         real_path = "data/images/" + real_path;
     }

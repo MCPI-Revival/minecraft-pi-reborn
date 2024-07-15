@@ -5,7 +5,7 @@
 
 #include "textures-internal.h"
 
-// Lava texture code was originally decompield by @iProgramMC as part of ReMinecraftPE.
+// Lava texture code was originally decompiled by @iProgramMC as part of ReMinecraftPE.
 // See: https://github.com/ReMinecraftPE/mcpe
 
 // Structures

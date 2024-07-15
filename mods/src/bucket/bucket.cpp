@@ -10,7 +10,7 @@
 static FoodItem *bucket = nullptr;
 
 // Description And Texture
-static std::string BucketItem_getDescriptionId(__attribute__((unused)) FoodItem *item, ItemInstance *item_instance) {
+static std::string BucketItem_getDescriptionId(__attribute__((unused)) FoodItem *item, const ItemInstance *item_instance) {
     if (item_instance->auxiliary == Tile::water->id) {
         return "item.bucketWater";
     } else if (item_instance->auxiliary == Tile::lava->id) {
@@ -195,8 +195,8 @@ static FoodItem *create_bucket(int32_t id, int32_t texture_x, int32_t texture_y,
 
     // Setup
     item->setIcon(texture_x, texture_y);
-    item->setDescriptionId(&name);
-    item->is_stacked_by_data = 1;
+    item->setDescriptionId(name);
+    item->is_stacked_by_data = true;
     item->category = 2;
     item->max_damage = 0;
     item->max_stack_size = 1;
@@ -249,9 +249,9 @@ static void Inventory_setupDefault_FillingContainer_addItem_call_injection(Filli
 
 // Make Liquids Selectable
 static bool is_holding_bucket = false;
-static HitResult Mob_pick_Level_clip_injection(Level *level, unsigned char *param_1, unsigned char *param_2, __attribute__((unused)) bool clip_liquids, bool param_3) {
+static HitResult Mob_pick_Level_clip_injection(Level *level, const Vec3 &param_1, const Vec3 &param_2, __attribute__((unused)) bool clip_liquids, bool clip_hitboxes) {
     // Call Original Method
-    return level->clip(param_1, param_2, is_holding_bucket, param_3);
+    return level->clip(param_1, param_2, is_holding_bucket, clip_hitboxes);
 }
 static void handle_tick(Minecraft *minecraft) {
     LocalPlayer *player = minecraft->player;
@@ -315,12 +315,12 @@ static void Recipes_injection(Recipes *recipes) {
     std::string line1 = "# #";
     std::string line2 = " # ";
     std::vector<Recipes_Type> types = {type1};
-    recipes->addShapedRecipe_2(&result, &line1, &line2, &types);
+    recipes->addShapedRecipe_2(result, line1, line2, types);
 }
 
 // Custom Furnace Fuel
-static int32_t FurnaceTileEntity_getBurnDuration_injection(FurnaceTileEntity_getBurnDuration_t original, ItemInstance *item_instance) {
-    if (item_instance->count > 0 && item_instance->id == bucket->id && item_instance->auxiliary == Tile::lava->id) {
+static int32_t FurnaceTileEntity_getBurnDuration_injection(FurnaceTileEntity_getBurnDuration_t original, const ItemInstance &item_instance) {
+    if (item_instance.count > 0 && item_instance.id == bucket->id && item_instance.auxiliary == Tile::lava->id) {
         return 20000;
     } else {
         // Call Original Method

@@ -4,6 +4,6 @@ property int z = 0xc;
 property bool field_1c[3] = 0x1c;
 property bool visible = 0x4c;
 
-method float distanceToSqr(Entity *entity) = 0x47ba0;
+method float distanceToSqr(const Entity *entity) = 0x47ba0;
 method int getList(int a) = 0x47e48;
 method RenderChunk *getRenderChunk(int a) = 0x47e74;

@@ -1,6 +1,6 @@
 vtable 0x1020d8;
 
-virtual-method void saveScreenshot(std::string *path, int width, int height) = 0x8;
-virtual-method AppPlatform_readAssetFile_return_value readAssetFile(std::string *path) = 0x34;
-virtual-method Texture loadTexture(std::string *path, bool b) = 0xc;
+virtual-method void saveScreenshot(const std::string &path, int width, int height) = 0x8;
+virtual-method AppPlatform_readAssetFile_return_value readAssetFile(const std::string &path) = 0x34;
+virtual-method Texture loadTexture(const std::string &path, bool b) = 0xc;
 virtual-method std::string getDateString(int time) = 0x24;

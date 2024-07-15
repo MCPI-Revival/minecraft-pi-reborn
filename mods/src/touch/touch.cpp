@@ -31,7 +31,7 @@ static int32_t Button_hovered_injection(__attribute__((unused)) Button_hovered_t
     // Check
     return x >= button_x1 && x < button_x2 && y >= button_y1 && y < button_y2;
 }
-static void LargeImageButton_render_GuiComponent_drawCenteredString_injection(GuiComponent *component, Font *font, std::string *text, int32_t x, int32_t y, int32_t color) {
+static void LargeImageButton_render_GuiComponent_drawCenteredString_injection(GuiComponent *component, Font *font, const std::string &text, int32_t x, int32_t y, int32_t color) {
     // Change Color On Hover
     if (color == 0xe0e0e0 && Button_hovered_injection(nullptr, (Button *) component, nullptr, 0, 0)) {
         color = 0xffffa0;
@@ -47,7 +47,7 @@ template <typename T>
 static Button *create_button(int id, std::string text) {
     T *button = new T;
     ALLOC_CHECK(button);
-    button->constructor(id, &text);
+    button->constructor(id, text);
     return (Button *) button;
 }
 Button *touch_create_button(int id, std::string text) {

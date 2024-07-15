@@ -286,7 +286,7 @@ static void LocalPlayer_die_injection(LocalPlayer_die_t original, LocalPlayer *e
 }
 
 // Fix Furnace Not Checking Item Auxiliary When Inserting New Item
-static int32_t FurnaceScreen_handleAddItem_injection(FurnaceScreen_handleAddItem_t original, FurnaceScreen *furnace_screen, int32_t slot, ItemInstance *item) {
+static int32_t FurnaceScreen_handleAddItem_injection(FurnaceScreen_handleAddItem_t original, FurnaceScreen *furnace_screen, int32_t slot, const ItemInstance *item) {
     // Get Existing Item
     FurnaceTileEntity *tile_entity = furnace_screen->tile_entity;
     ItemInstance *existing_item = tile_entity->getItem(slot);
@@ -611,9 +611,9 @@ static void Dimension_updateLightRamp_injection(__attribute__((unused)) Dimensio
 }
 
 // Read Asset File
-static AppPlatform_readAssetFile_return_value AppPlatform_readAssetFile_injection(__attribute__((unused)) AppPlatform_readAssetFile_t original, __attribute__((unused)) AppPlatform *app_platform, std::string *path) {
+static AppPlatform_readAssetFile_return_value AppPlatform_readAssetFile_injection(__attribute__((unused)) AppPlatform_readAssetFile_t original, __attribute__((unused)) AppPlatform *app_platform, const std::string &path) {
     // Open File
-    std::ifstream stream("data/" + *path, std::ios_base::binary | std::ios_base::ate);
+    std::ifstream stream("data/" + path, std::ios_base::binary | std::ios_base::ate);
     if (!stream) {
         // Does Not Exist
         AppPlatform_readAssetFile_return_value ret;
@@ -899,7 +899,7 @@ void init_misc() {
 
     // Replace Block Highlight With Outline
     if (feature_has("Replace Block Highlight With Outline", server_disabled)) {
-        overwrite_calls(LevelRenderer_renderHitSelect, [](__attribute__((unused)) LevelRenderer_renderHitSelect_t original, LevelRenderer *self, Player *player, HitResult *hit_result, int i, void *vp, float f) {
+        overwrite_calls(LevelRenderer_renderHitSelect, [](__attribute__((unused)) LevelRenderer_renderHitSelect_t original, LevelRenderer *self, Player *player, const HitResult &hit_result, int i, void *vp, float f) {
             self->renderHitOutline(player, hit_result, i, vp, f);
         });
         unsigned char fix_outline_patch[4] = {0x00, 0xf0, 0x20, 0xe3}; // "nop"
@@ -983,7 +983,7 @@ void init_misc() {
     if (reborn_is_headless()) {
         overwrite_calls(GameRenderer_render, nop<GameRenderer_render_t, GameRenderer *, float>);
         overwrite_calls(NinecraftApp_initGLStates, nop<NinecraftApp_initGLStates_t, NinecraftApp *>);
-        overwrite_calls(Gui_onConfigChanged, nop<Gui_onConfigChanged_t, Gui *, Config *>);
+        overwrite_calls(Gui_onConfigChanged, nop<Gui_onConfigChanged_t, Gui *, const Config &>);
         overwrite_calls(LevelRenderer_generateSky, nop<LevelRenderer_generateSky_t, LevelRenderer *>);
     }
 }

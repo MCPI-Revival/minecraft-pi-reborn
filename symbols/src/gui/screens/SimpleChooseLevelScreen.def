@@ -2,4 +2,4 @@ extends Screen;
 
 size 0x68;
 
-constructor (std::string *world_name) = 0x31404;
+constructor (const std::string &world_name) = 0x31404;

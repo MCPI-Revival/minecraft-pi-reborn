@@ -1,2 +1,2 @@
 constructor () = 0xa0778;
-method void addFurnaceRecipe(int input_item_id, ItemInstance *result) = 0xa0714;
+method void addFurnaceRecipe(int input_item_id, const ItemInstance &result) = 0xa0714;

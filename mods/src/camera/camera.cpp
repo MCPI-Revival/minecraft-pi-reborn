@@ -6,7 +6,7 @@
 #include <mods/init/init.h>
 
 // Take Screenshot Using TripodCamera
-static void AppPlatform_saveScreenshot_injection(__attribute__((unused)) AppPlatform_saveScreenshot_t original, __attribute__((unused)) AppPlatform *app_platform, __attribute__((unused)) std::string *path, __attribute__((unused)) int32_t width, __attribute__((unused)) int32_t height) {
+static void AppPlatform_saveScreenshot_injection(__attribute__((unused)) AppPlatform_saveScreenshot_t original, __attribute__((unused)) AppPlatform *app_platform, __attribute__((unused)) const std::string &path, __attribute__((unused)) int32_t width, __attribute__((unused)) int32_t height) {
     screenshot_take(nullptr);
 }
 
@@ -25,7 +25,7 @@ static EntityRenderDispatcher *EntityRenderDispatcher_injection(EntityRenderDisp
 }
 
 // Display Smoke From TripodCamera Higher
-static void TripodCamera_tick_Level_addParticle_call_injection(Level *level, std::string *particle, float x, float y, float z, float deltaX, float deltaY, float deltaZ, int count) {
+static void TripodCamera_tick_Level_addParticle_call_injection(Level *level, const std::string &particle, float x, float y, float z, float deltaX, float deltaY, float deltaZ, int count) {
     // Call Original Method
     level->addParticle(particle, x, y + 0.5, z, deltaX, deltaY, deltaZ, count);
 }

@@ -2,4 +2,4 @@ extends Item;
 
 size 0x34;
 
-constructor (int id, ArmorMaterial *material, int param_3, int slot) = 0x9362c;
+constructor (int id, const ArmorMaterial &material, int param_3, int slot) = 0x9362c;

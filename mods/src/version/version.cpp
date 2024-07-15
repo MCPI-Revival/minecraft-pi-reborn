@@ -16,7 +16,7 @@ const char *version_get() {
 }
 
 // Injection For Touch GUI Version
-static std::string Common_getGameVersionString_injection(__attribute__((unused)) Common_getGameVersionString_t original, __attribute__((unused)) std::string *version_suffix) {
+static std::string Common_getGameVersionString_injection(__attribute__((unused)) Common_getGameVersionString_t original, __attribute__((unused)) const std::string &version_suffix) {
     // Set Version
     return version_get();
 }

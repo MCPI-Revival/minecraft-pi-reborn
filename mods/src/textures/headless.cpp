@@ -4,7 +4,7 @@
 #include "textures-internal.h"
 
 // Disable Texture Loading
-static Texture AppPlatform_linux_loadTexture_injection(__attribute__((unused)) AppPlatform_linux_loadTexture_t original, __attribute__((unused)) AppPlatform_linux *app_platform, __attribute__((unused)) std::string *path, __attribute__((unused)) bool b) {
+static Texture AppPlatform_linux_loadTexture_injection(__attribute__((unused)) AppPlatform_linux_loadTexture_t original, __attribute__((unused)) AppPlatform_linux *app_platform, __attribute__((unused)) const std::string &path, __attribute__((unused)) bool b) {
     Texture out;
     out.width = 0;
     out.height = 0;

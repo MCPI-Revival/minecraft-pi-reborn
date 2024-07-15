@@ -17,22 +17,22 @@ method void updateNearbyTiles(int x, int y, int z, int id) = 0xa36cc;
 method void neighborChanged(int x, int y, int z, int id) = 0xa3658;
 // clip_liquids and clip_hitboxes default to true
 // If clip_hitboxes is true it will ignore blocks that have their getAABB return NULL
-method HitResult clip(uchar *param_1, uchar *param_2, bool clip_liquids, bool clip_hitboxes) = 0xa3db0;
+method HitResult clip(const Vec3 &param_1, const Vec3 &param_2, bool clip_liquids, bool clip_hitboxes) = 0xa3db0;
 // Valid particles are crit, flame, lava, smoke, largesmoke, reddust, snowballpoof, and explode
 // There is also bubble which only works under water and ironcrack which will crash the game
-method void addParticle(std::string *particle, float x, float y, float z, float deltaX, float deltaY, float deltaZ, int count) = 0xa449c;
+method void addParticle(const std::string &particle, float x, float y, float z, float deltaX, float deltaY, float deltaZ, int count) = 0xa449c;
 method Entity *getEntity(int id) = 0xa45a4;
 method bool addEntity(Entity *entity) = 0xa7cbc;
-method int getBrightness2(LightLayer *layer, int x, int y, int z) = 0xa3c70;
+method int getBrightness2(const LightLayer &layer, int x, int y, int z) = 0xa3c70;
 method int getRawBrightness(int x, int y, int z) = 0xa3b70;
 // See mods/src/sound/repository.cpp for a list of sounds
-method void playSound(Entity *entity, std::string *name, float volume, float pitch) = 0xa42a8;
+method void playSound(Entity *entity, const std::string &name, float volume, float pitch) = 0xa42a8;
 // Searches aabb for entities, ignores the entity "ignore", overwrites the same vector each time
-method std::vector<Entity*> *getEntities(Entity *ignore, AABB *aabb) = 0xa5a4c;
+method std::vector<Entity *> *getEntities(Entity *ignore, const AABB &aabb) = 0xa5a4c;
 // Searches aabb for entities of type type_id, adds then to buff, returns the number of entities added
-method int getEntitiesOfType(int type_id, AABB *aabb, std::vector<Entity*> *buff) = 0xa612c;
+method int getEntitiesOfType(int type_id, const AABB &aabb, std::vector<Entity *> &buff) = 0xa612c;
 // Searches aabb for entities of base type base_type, adds then to buff, returns the number of entities added
-method int getEntitiesOfClass(int base_type, AABB *aabb, std::vector<Entity*> *buff) = 0xa6240;
+method int getEntitiesOfClass(int base_type, const AABB &aabb, std::vector<Entity *> &buff) = 0xa6240;
 // This will implicitly make the tile entity if the tile at x, y, z doesn't have one and is an EntityTile
 method TileEntity *getTileEntity(int x, int y, int z) = 0xa55d4;
 method void setTileEntity(int x, int y, int z, TileEntity *tileEntity) = 0xa7b58;

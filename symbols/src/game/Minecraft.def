@@ -16,12 +16,12 @@ method uchar *getCreator() = 0x17538;
 method LevelStorageSource *getLevelSource() = 0x16e84;
 method void handleMouseDown(int param_1, bool can_destroy) = 0x1584c;
 method void handleBuildAction(uint *build_action_intention) = 0x15920;
-method void joinMultiplayer(PingedCompatibleServer *server) = 0x165f4;
+method void joinMultiplayer(const PingedCompatibleServer &server) = 0x165f4;
 
 virtual-method void update() = 0x24;
 virtual-method int handleBack(bool do_nothing) = 0x34;
 virtual-method void init() = 0x38;
-virtual-method void selectLevel(std::string *level_dir, std::string *level_name, LevelSettings *settings) = 0x40;
+virtual-method void selectLevel(const std::string &level_dir, const std::string &level_name, const LevelSettings &settings) = 0x40;
 
 property int screen_width = 0x20;
 property int screen_height = 0x24;
