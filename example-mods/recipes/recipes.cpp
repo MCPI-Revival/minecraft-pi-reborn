@@ -32,7 +32,7 @@ static void Recipes_injection(Recipes *recipes) {
         .auxiliary = 0
     };
     std::vector<Recipes_Type> types = {type1, type2};
-    Recipes_addShapelessRecipe(recipes, &result, &types);
+    recipes->addShapelessRecipe(&result, &types);
 }
 
 // Custom Furnace Recipes
@@ -43,7 +43,7 @@ static void FurnaceRecipes_injection(FurnaceRecipes *recipes) {
         .id = 246,
         .auxiliary = 0
     };
-    FurnaceRecipes_addFurnaceRecipe(recipes, 49, &result);
+    recipes->addFurnaceRecipe(49, &result);
 }
 
 // Init
