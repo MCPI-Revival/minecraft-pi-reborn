@@ -15,7 +15,7 @@ HOOK(chat_handle_packet_send, void, (Minecraft *minecraft, ChatPacket *packet)) 
         if (out.length() > 0 && out[out.length() - 1] == '\n') {
             out[out.length() - 1] = '\0';
         }
-        gui->addMessage(&out);
+        gui->addMessage(out);
     } else {
         // Call Original Method
         ensure_chat_handle_packet_send();
