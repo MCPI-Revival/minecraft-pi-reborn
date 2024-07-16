@@ -15,10 +15,10 @@ void overwrite_call(void *start, void *target);
 // Replace All Calls To Method start With target
 void *overwrite_calls_manual(void *start, void *target, bool allow_no_callsites = false);
 template <typename T>
-void overwrite_calls(T &target, typename T::overwrite_type replacement) {
-    DEBUG("Overwriting Method: %s", target.get_name());
-    if (!target.overwrite(replacement)) {
-        ERR("Unable To Overwrite Method: %s", target.get_name());
+void overwrite_calls(T *target, typename T::overwrite_type replacement) {
+    DEBUG("Overwriting Method: %s", target->get_name());
+    if (!target->overwrite(replacement)) {
+        ERR("Unable To Overwrite Method: %s", target->get_name());
     }
 }
 
@@ -44,9 +44,9 @@ void patch_address(void *start, void *target);
 // Patch VTable Entry
 // This does not affect subclasses.
 template <typename T>
-void patch_vtable(const T &start, typename T::ptr_type target) {
-    DEBUG("Patching VTable: %s", start.get_name());
-    patch_address((void *) start.get_vtable_addr(), (void *) target);
+void patch_vtable(const T *start, typename T::ptr_type target) {
+    DEBUG("Patching VTable: %s", start->get_name());
+    patch_address((void *) start->get_vtable_addr(), (void *) target);
 }
 
 #endif

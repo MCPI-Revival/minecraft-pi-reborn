@@ -21,7 +21,7 @@ static void set_is_survival(bool new_is_survival) {
         patch((void *) 0x16ee4, size_patch);
 
         // Replace Default CreatorMode Constructor With CreatorMode Or SurvivalMode Constructor
-        overwrite_call((void *) 0x16ef4, new_is_survival ? (void *) SurvivalMode_constructor.get() : (void *) CreatorMode_constructor.get());
+        overwrite_call((void *) 0x16ef4, new_is_survival ? (void *) SurvivalMode_constructor->get() : (void *) CreatorMode_constructor->get());
 
         is_survival = new_is_survival;
     }
@@ -54,7 +54,7 @@ void init_game_mode() {
         overwrite_calls(Minecraft_setIsCreativeMode, Minecraft_setIsCreativeMode_injection);
 
         // Replace CreatorLevel With ServerLevel (This Fixes Beds And Mob Spawning)
-        overwrite_call((void *) 0x16f84, (void *) ServerLevel_constructor.get());
+        overwrite_call((void *) 0x16f84, (void *) ServerLevel_constructor->get());
 
         // Allocate Correct Size For ServerLevel
         uint32_t level_size = sizeof(ServerLevel);

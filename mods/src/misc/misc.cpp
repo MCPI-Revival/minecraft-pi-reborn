@@ -90,7 +90,7 @@ static void Gui_renderHearts_injection(Gui_renderHearts_t original, Gui *gui) {
     original(gui);
 }
 static GuiComponent_blit_t get_blit_with_classic_hud_offset() {
-    return use_classic_hud ? Gui_renderHearts_GuiComponent_blit_hearts_injection : GuiComponent_blit.get();
+    return use_classic_hud ? Gui_renderHearts_GuiComponent_blit_hearts_injection : GuiComponent_blit->get();
 }
 #define PINK_HEART_FULL 70
 #define PINK_HEART_HALF 79

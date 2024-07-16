@@ -93,7 +93,7 @@ static void Player_actuallyHurt_injection(Self *player, int32_t damage) {
     int32_t old_health = player->health;
 
     // Call Original Method
-    Mob_actuallyHurt.get()((Mob *) player, damage);
+    Mob_actuallyHurt->get()((Mob *) player, damage);
     if (is_hurt) {
         return;
     }
@@ -122,7 +122,7 @@ void init_death() {
     // Death Messages
     if (feature_has("Implement Death Messages", server_auto)) {
         patch_vtable(ServerPlayer_die, [](ServerPlayer *player, Entity *cause) {
-            Player_die_injection<ServerPlayer, Player>(Player_die.get(), player, cause);
+            Player_die_injection<ServerPlayer, Player>(Player_die->get(), player, cause);
         });
         overwrite_calls(LocalPlayer_die, Player_die_injection<LocalPlayer, LocalPlayer>);
         patch_vtable(LocalPlayer_actuallyHurt, Player_actuallyHurt_injection);

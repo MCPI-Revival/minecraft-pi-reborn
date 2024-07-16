@@ -70,7 +70,7 @@ static Screen *last_screen = nullptr;
 static std::string current_splash;
 static void StartMenuScreen_render_Screen_render_injection(Screen *screen, int x, int y, float param_1) {
     // Call Original Method
-    Screen_render.get()(screen, x, y, param_1);
+    Screen_render->get()(screen, x, y, param_1);
 
     // Load Splashes
     static std::vector<std::string> splashes;
@@ -83,28 +83,28 @@ static void StartMenuScreen_render_Screen_render_injection(Screen *screen, int x
     }
 
     // Display Splash
-    if (splashes.size() > 0) {
+    if (!splashes.empty()) {
         // Pick Splash
         if (last_screen != screen) {
             last_screen = screen;
             current_splash = splashes[rand() % splashes.size()];
         }
         // Choose Position
-        float multiplier = touch_gui ? 0.5f : 1.0f;
-        float splash_x = (float(screen->width) / 2.0f) + (94.0f * multiplier);
-        float splash_y = 4.0f + (36.0f * multiplier);
-        float max_width = 86;
-        float max_scale = 2.0f;
+        const float multiplier = touch_gui ? 0.5f : 1.0f;
+        const float splash_x = (float(screen->width) / 2.0f) + (94.0f * multiplier);
+        const float splash_y = 4.0f + (36.0f * multiplier);
+        const float max_width = 86;
+        const float max_scale = 2.0f;
         // Draw (From https://github.com/ReMinecraftPE/mcpe/blob/d7a8b6baecf8b3b050538abdbc976f690312aa2d/source/client/gui/screens/StartMenuScreen.cpp#L699-L718)
         glPushMatrix();
         // Position
         glTranslatef(splash_x, splash_y, 0.0f);
         glRotatef(-20.0f, 0.0f, 0.0f, 1.0f);
         // Scale
-        int textWidth = screen->font->width(current_splash);
-        float timeMS = float(Common::getTimeMs() % 1000) / 1000.0f;
+        const int textWidth = screen->font->width(current_splash);
+        const float timeMS = float(Common::getTimeMs() % 1000) / 1000.0f;
         float scale = max_scale - Mth::abs(0.1f * Mth::sin(2.0f * float(M_PI) * timeMS));
-        float real_text_width = textWidth * max_scale;
+        const float real_text_width = textWidth * max_scale;
         if (real_text_width > max_width) {
             scale *= max_width / real_text_width;
         }

@@ -136,7 +136,7 @@ static int BucketItem_getUseDuration(__attribute__((unused)) FoodItem *item, Ite
 
 static ItemInstance BucketItem_useTimeDepleted(FoodItem *item, ItemInstance *item_instance, Level *level, Player *player) {
     if (item_instance->auxiliary == 1) {
-        *item_instance = FoodItem_useTimeDepleted.get()(item, item_instance, level, player);
+        *item_instance = FoodItem_useTimeDepleted->get()(item, item_instance, level, player);
         // Set it to a empty bucket
         item_instance->auxiliary = 0;
         item_instance->count = 1;
@@ -154,7 +154,7 @@ static bool BucketItem_isFood(__attribute__((unused)) FoodItem *item) {
 
 static ItemInstance *BucketItem_use(FoodItem *item, ItemInstance *item_instance, __attribute__((unused)) Level *level, Player *player) {
     if (item_instance->auxiliary == 1) {
-        return FoodItem_use.get()(item, item_instance, level, player);
+        return FoodItem_use->get()(item, item_instance, level, player);
     }
     return item_instance;
 }
@@ -188,7 +188,7 @@ static FoodItem *create_bucket(int32_t id, int32_t texture_x, int32_t texture_y,
     // Construct
     FoodItem *item = new FoodItem;
     ALLOC_CHECK(item);
-    Item_constructor.get()((Item *) item, id); // FoodItem's Constructor Was Inlined
+    Item_constructor->get()((Item *) item, id); // FoodItem's Constructor Was Inlined
 
     // Set VTable
     item->vtable = get_bucket_vtable();
