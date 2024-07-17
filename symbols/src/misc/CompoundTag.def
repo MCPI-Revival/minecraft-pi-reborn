@@ -2,7 +2,7 @@ extends Tag;
 
 vtable-size 0x34;
 size 0x24;
-constructor (std::string name) = 0x69740;
+constructor (const std::string &name) = 0x69740;
 
 method bool getBoolean(const std::string &name) = 0xd1b28;
 method char getByte(const std::string &name) = 0x7f00c;

@@ -7,7 +7,7 @@ constructor item_extra(const Item *item, int count, int auxiliary) = 0x99960;
 
 static-method ItemInstance *fromTag(CompoundTag *tag) = 0x9a124;
 
-method void save(CompoundTag *tag) = 0x9a31c;
+method CompoundTag *save(CompoundTag *tag) = 0x9a31c;
 method int getMaxStackSize() = 0x99ac8;
 method bool isNull() = 0x999b0;
 

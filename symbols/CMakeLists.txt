@@ -151,6 +151,7 @@ set(SRC
     src/tile/StemTile.def
     src/tile/Tile_SoundType.def
     src/tile/TileRenderer.def
+    src/tile/CarriedTile.def
     src/tile/GrassTile.def
     src/tile/HeavyTile.def
     src/tile/EntityTile.def

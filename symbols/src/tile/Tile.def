@@ -23,7 +23,7 @@ virtual-method void addAABBs(Level *level, int x, int y, int z, const AABB *inte
 virtual-method bool isSolidRender() = 0x40;
 virtual-method bool mayPlace(Level *level, int x, int y, int z, uchar face) = 0x4c;
 virtual-method bool mayPlace2(Level *level, int x, int y, int z) = 0x50;
-virtual-method void tick(Level *level, int x, int y, int z) = 0x58;
+virtual-method void tick(Level *level, int x, int y, int z, Random *random) = 0x58;
 virtual-method void neighborChanged(Level *level, int x, int y, int z, int neighborId) = 0x64;
 virtual-method void onPlace(Level *level, int x, int y, int z) = 0x68;
 virtual-method void onRemove(Level *level, int x, int y, int z) = 0x6c;

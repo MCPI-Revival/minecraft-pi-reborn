@@ -3,10 +3,11 @@
 #include <libreborn/libreborn.h>
 #include "patch-internal.h"
 
-// Limit To 512 overwrite_calls() Uses
-#define CODE_BLOCK_SIZE 4096
+// Limit Amount Of overwrite_calls() Calls
+#define MAX_OVERWRITE_CALLS 4096
 static unsigned char *code_block = nullptr;
 #define CODE_SIZE 8
+#define CODE_BLOCK_SIZE (MAX_OVERWRITE_CALLS * CODE_SIZE)
 static int code_block_remaining = CODE_BLOCK_SIZE;
 
 // Create Long Overwrite At Current Position

@@ -659,7 +659,7 @@ static void PauseScreen_init_injection(PauseScreen_init_t original, PauseScreen 
 }
 
 // Implement crafting remainders
-void PaneCraftingScreen_craftSelectedItem_PaneCraftingScreen_recheckRecipes_injection(PaneCraftingScreen *self) {
+static void PaneCraftingScreen_craftSelectedItem_PaneCraftingScreen_recheckRecipes_injection(PaneCraftingScreen *self) {
     // Check for crafting remainders
     CItem *item = self->item;
     for (size_t i = 0; i < item->ingredients.size(); i++) {
@@ -678,8 +678,7 @@ void PaneCraftingScreen_craftSelectedItem_PaneCraftingScreen_recheckRecipes_inje
     // Call Original Method
     self->recheckRecipes();
 }
-
-ItemInstance *Item_getCraftingRemainingItem_injection(__attribute__((unused)) Item_getCraftingRemainingItem_t original, Item *self, ItemInstance *item_instance) {
+static ItemInstance *Item_getCraftingRemainingItem_injection(__attribute__((unused)) Item_getCraftingRemainingItem_t original, Item *self, ItemInstance *item_instance) {
     if (self->craftingRemainingItem != nullptr) {
         ItemInstance *ret = new ItemInstance;
         ret->id = self->craftingRemainingItem->id;
@@ -699,7 +698,7 @@ struct chunk_data {
 static chunk_data data[MAX_CHUNKS_SIZE];
 static void sort_chunks(Chunk **chunks_begin, Chunk **chunks_end, DistanceChunkSorter sorter) {
     // Calculate Distances
-    int chunks_size = chunks_end - chunks_begin;
+    const int chunks_size = chunks_end - chunks_begin;
     if (chunks_size > MAX_CHUNKS_SIZE) {
         IMPOSSIBLE();
     }
@@ -731,6 +730,50 @@ static std::string AppPlatform_linux_getDateString_injection(__attribute__((unus
     char buf[2048];
     strftime(buf, sizeof buf, "%b %d %Y %H:%M:%S", &t);
     return std::string(buf);
+}
+
+// Missing Strings
+static void add_missing_string(const std::string &key, const std::string &value) {
+    if (!I18n::_strings.contains(key)) {
+        I18n::_strings[key] = value;
+    }
+}
+static void Language_injection() {
+    // Fix Language Strings
+    add_missing_string("tile.waterStill.name", "Still Water");
+    add_missing_string("tile.lavaStill.name", "Still Lava");
+    add_missing_string("tile.grassCarried.name", "Carried Grass");
+    add_missing_string("tile.leavesCarried.name", "Carried Leaves");
+    add_missing_string("tile.invBedrock.name", "Invisible Bedrock");
+    // Missing Language Strings
+    add_missing_string("item.camera.name", "Camera");
+    add_missing_string("item.seedsMelon.name", "Melon Seeds");
+    add_missing_string("tile.pumpkinStem.name", "Pumpkin Stem");
+    add_missing_string("tile.stoneSlab.name", "Double Stone Slab");
+}
+// Invisible Bedrock
+static Tile *Tile_initTiles_Tile_init_invBedrock_injection(Tile *t) {
+    Tile *ret = t->init();
+    t->setDescriptionId("invBedrock");
+    return ret;
+}
+// Append "Still" Suffix To Liquid Description Keys
+static std::string *Tile_initTiles_std_string_constructor(std::string *self, const char *from, const std::string::allocator_type &alloc) {
+    new (self) std::string(from, alloc);
+    self->append("Still");
+    return self;
+}
+
+// Fix Pigmen Burning In The Sun
+static float Zombie_aiStep_getBrightness_injection(Entity *self, float param_1) {
+    if (self->getEntityTypeId() == 36) return 0;
+    return self->getBrightness(param_1);
+}
+
+// Fix grass_carried's Bottom Texture
+static int CarriedTile_getTexture2_injection(CarriedTile_getTexture2_t original, CarriedTile *self, int face, int metadata) {
+    if (face == 0) return 2;
+    return original(self, face, metadata);
 }
 
 // Init
@@ -867,7 +910,7 @@ void init_misc() {
         unsigned char nop_patch[4] = {0x00, 0xf0, 0x20, 0xe3}; // "nop"
         patch((void *) 0x173e8, nop_patch);
         patch((void *) 0x173f0, nop_patch);
-        float gui_scale = strtof(gui_scale_str, nullptr);
+        const float gui_scale = strtof(gui_scale_str, nullptr);
         uint32_t gui_scale_raw;
         memcpy(&gui_scale_raw, &gui_scale, sizeof (gui_scale_raw));
         patch_address((void *) 0x17520, (void *) gui_scale_raw);
@@ -949,8 +992,10 @@ void init_misc() {
     }
 
     // Implement Crafting Remainders
-    overwrite_call((void *) 0x2e230, (void *) PaneCraftingScreen_craftSelectedItem_PaneCraftingScreen_recheckRecipes_injection);
-    overwrite_calls(Item_getCraftingRemainingItem, Item_getCraftingRemainingItem_injection);
+    if (feature_has("Implement Crafting Remainders", server_enabled)) {
+        overwrite_call((void *) 0x2e230, (void *) PaneCraftingScreen_craftSelectedItem_PaneCraftingScreen_recheckRecipes_injection);
+        overwrite_calls(Item_getCraftingRemainingItem, Item_getCraftingRemainingItem_injection);
+    }
 
     // Replace 2011 std::sort With Optimized(TM) Code
     if (feature_has("Optimized Chunk Sorting", server_enabled)) {
@@ -962,7 +1007,7 @@ void init_misc() {
         patch_vtable(AppPlatform_linux_getDateString, AppPlatform_linux_getDateString_injection);
     }
 
-    // Don't Wrap Text On '\r' Or '\t' Because THey Are Actual Characters In MCPI
+    // Don't Wrap Text On '\r' Or '\t' Because They Are Actual Characters In MCPI
     patch_address(&Strings::text_wrapping_delimiter, (void *) " \n");
 
     // Fullscreen
@@ -974,6 +1019,29 @@ void init_misc() {
             return false;
         }
     });
+
+    // Fix/Update Language Strings
+    if (feature_has("Add Missing Language Strings", server_disabled)) {
+        misc_run_on_language_setup(Language_injection);
+        // Water/Lava Language Strings
+        overwrite_call((void *) 0xc3b54, (void *) Tile_initTiles_std_string_constructor);
+        overwrite_call((void *) 0xc3c7c, (void *) Tile_initTiles_std_string_constructor);
+        // Carried Tile Language Strings
+        patch_address((void *) 0xc6674, (void *) "grassCarried");
+        patch_address((void *) 0xc6684, (void *) "leavesCarried");
+        // Invisible Bedrock Language String
+        overwrite_call((void *) 0xc5f04, (void *) Tile_initTiles_Tile_init_invBedrock_injection);
+    }
+
+    // Fix pigmen from burning in the sun
+    if (feature_has("Fix Pigmen Burning In The Sun", server_enabled)) {
+        overwrite_call((void *) 0x89a1c, (void *) Zombie_aiStep_getBrightness_injection);
+    }
+
+    // Fix grass_carried's bottom texture
+    if (feature_has("Fix Grass's Bottom Texture", server_disabled)) {
+        overwrite_calls(CarriedTile_getTexture2, CarriedTile_getTexture2_injection);
+    }
 
     // Init Logging
     _init_misc_logging();

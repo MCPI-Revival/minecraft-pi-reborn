@@ -70,3 +70,9 @@ FALSE Log FPS
 TRUE Add Welcome Screen
 TRUE F3 Debug Information
 TRUE Multidraw Rendering
+TRUE Add Missing Language Strings
+TRUE Fix Pigmen Burning In The Sun
+TRUE Fix Carried Grass's Bottom Texture
+TRUE Hide Crosshair In Third-Person
+TRUE Fix Camera Legs
+TRUE Implement Crafting Remainders

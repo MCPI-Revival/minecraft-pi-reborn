@@ -47,7 +47,7 @@ static void revert_rotation(Entity *entity) {
         entity->old_pitch = -entity->old_pitch;
     }
 }
-static int is_front_facing = 0;
+static bool is_front_facing = false;
 static LocalPlayer *stored_player = nullptr;
 static void GameRenderer_setupCamera_injection(GameRenderer_setupCamera_t original, GameRenderer *game_renderer, float param_1, int param_2) {
     // Get Objects
@@ -86,6 +86,13 @@ static void ParticleEngine_render_injection(ParticleEngine_render_t original, Pa
     }
 }
 
+// Hide Crosshair
+static void Gui_renderProgressIndicator_GuiComponent_blit_injection(GuiComponent *self, int x1, int y1, int x2, int y2, int w1, int h1, int w2, int h2) {
+    if (((Gui *) self)->minecraft->options.third_person == 0) {
+        self->blit(x1, y1, x2, y2, w1, h1, w2, h2);
+    }
+}
+
 // Init
 void _init_toggle() {
     if (feature_has("Bind Common Toggleable Options To Function Keys", server_disabled)) {
@@ -95,5 +102,8 @@ void _init_toggle() {
         // Font-Facing View
         overwrite_calls(GameRenderer_setupCamera, GameRenderer_setupCamera_injection);
         overwrite_calls(ParticleEngine_render, ParticleEngine_render_injection);
+    }
+    if (feature_has("Hide Crosshair In Third-Person", server_disabled)) {
+        overwrite_call((void *) 0x261b8, (void *) Gui_renderProgressIndicator_GuiComponent_blit_injection);
     }
 }
