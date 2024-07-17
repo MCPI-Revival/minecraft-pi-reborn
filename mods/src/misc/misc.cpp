@@ -90,7 +90,7 @@ static void Gui_renderHearts_injection(Gui_renderHearts_t original, Gui *gui) {
     original(gui);
 }
 static GuiComponent_blit_t get_blit_with_classic_hud_offset() {
-    return use_classic_hud ? Gui_renderHearts_GuiComponent_blit_hearts_injection : GuiComponent_blit->get();
+    return use_classic_hud ? Gui_renderHearts_GuiComponent_blit_hearts_injection : GuiComponent_blit->get(false);
 }
 #define PINK_HEART_FULL 70
 #define PINK_HEART_HALF 79
@@ -1039,7 +1039,7 @@ void init_misc() {
     }
 
     // Fix grass_carried's bottom texture
-    if (feature_has("Fix Grass's Bottom Texture", server_disabled)) {
+    if (feature_has("Fix Carried Grass's Bottom Texture", server_disabled)) {
         overwrite_calls(CarriedTile_getTexture2, CarriedTile_getTexture2_injection);
     }
 

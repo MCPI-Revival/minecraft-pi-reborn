@@ -6,7 +6,7 @@
 #include <mods/feature/feature.h>
 
 // Check For Feature
-bool _feature_has(const char *name, int server_default) {
+bool _feature_has(const char *name, const int server_default) {
     // Server Handling
     if (reborn_is_server() && server_default != -1) {
         return server_default > 0;

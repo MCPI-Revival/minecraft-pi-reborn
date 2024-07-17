@@ -8,7 +8,7 @@
 
 // Death Messages
 static const char *monster_names[] = {"Zombie", "Creeper", "Skeleton", "Spider", "Zombie Pigman"};
-std::string get_death_message(Player *player, Entity *cause, bool was_shot = false) {
+std::string get_death_message(Player *player, Entity *cause, const bool was_shot = false) {
     // Prepare Death Message
     std::string message = player->username;
     if (cause) {
@@ -62,9 +62,9 @@ std::string get_death_message(Player *player, Entity *cause, bool was_shot = fal
 }
 
 static bool is_hurt = false;
-static bool Mob_hurt_injection(Mob_hurt_t original, Mob *mob, Entity *source, int dmg) {
+static bool Mob_hurt_injection(Mob_hurt_t original, Mob *mob, Entity *source, const int dmg) {
     is_hurt = true;
-    bool ret = original(mob, source, dmg);
+    const bool ret = original(mob, source, dmg);
     is_hurt = false;
     return ret;
 }
@@ -87,19 +87,19 @@ static void Player_die_injection(std::function<void(ParentSelf *, Entity *)> ori
         server_side_network_handler->displayGameMessage(message);
     }
 }
-template <typename Self>
-static void Player_actuallyHurt_injection(Self *player, int32_t damage) {
+template <typename OriginalSelf, typename Self>
+static void Player_actuallyHurt_injection(std::function<void(OriginalSelf *, int)> original, Self *player, int32_t damage) {
     // Store Old Health
     int32_t old_health = player->health;
 
     // Call Original Method
-    Mob_actuallyHurt->get()((Mob *) player, damage);
+    original((OriginalSelf *) player, damage);
     if (is_hurt) {
         return;
     }
 
     // Store New Health
-    int32_t new_health = player->health;
+    const int32_t new_health = player->health;
 
     // Get Variables
     RakNetInstance *rak_net_instance = player->minecraft->rak_net_instance;
@@ -116,17 +116,23 @@ static void Player_actuallyHurt_injection(Self *player, int32_t damage) {
         }
     }
 }
+static void ServerPlayer_actuallyHurt_injection(ServerPlayer *player, const int32_t damage) {
+    Player_actuallyHurt_injection<Mob, ServerPlayer>(Mob_actuallyHurt->get(false), player, damage);
+}
+static void LocalPlayer_actuallyHurt_injection(LocalPlayer_actuallyHurt_t original, LocalPlayer *player, const int32_t damage) {
+    Player_actuallyHurt_injection(std::move(original), player, damage);
+}
 
 // Init
 void init_death() {
     // Death Messages
     if (feature_has("Implement Death Messages", server_auto)) {
         patch_vtable(ServerPlayer_die, [](ServerPlayer *player, Entity *cause) {
-            Player_die_injection<ServerPlayer, Player>(Player_die->get(), player, cause);
+            Player_die_injection<ServerPlayer, Player>(Player_die->get(false), player, cause);
         });
         overwrite_calls(LocalPlayer_die, Player_die_injection<LocalPlayer, LocalPlayer>);
-        patch_vtable(LocalPlayer_actuallyHurt, Player_actuallyHurt_injection);
-        patch_vtable(ServerPlayer_actuallyHurt, Player_actuallyHurt_injection);
+        overwrite_calls(LocalPlayer_actuallyHurt, LocalPlayer_actuallyHurt_injection);
+        patch_vtable(ServerPlayer_actuallyHurt, ServerPlayer_actuallyHurt_injection);
         overwrite_calls(Mob_hurt, Mob_hurt_injection);
     }
 
