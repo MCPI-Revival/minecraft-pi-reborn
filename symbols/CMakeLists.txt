@@ -188,11 +188,6 @@ set(SRC
     src/recipes/ReqItem.def
     src/recipes/CItem.def
 )
-# Resolve Definition Files
-set(RESOLVED_SRC "")
-foreach(FILE IN LISTS SRC)
-    list(APPEND RESOLVED_SRC "${CMAKE_CURRENT_SOURCE_DIR}/${FILE}")
-endforeach()
 
 # Directories
 function(set_and_mkdir name dir)
@@ -204,21 +199,38 @@ set_and_mkdir(INCLUDE_OUTPUT_DIR "${GENERATED_DIR}/include")
 set_and_mkdir(HEADER_OUTPUT_DIR "${INCLUDE_OUTPUT_DIR}/symbols")
 set_and_mkdir(SRC_OUTPUT_DIR "${GENERATED_DIR}/src")
 
-# Files
+# Generated Header File
 set(HEADER_OUTPUT_FILE "${HEADER_OUTPUT_DIR}/minecraft.h")
-set(SRC_OUTPUT_FILE "${SRC_OUTPUT_DIR}/minecraft.cpp")
+
+# Generated Source Files
+set(SRC_OUTPUT_FILES "")
+foreach(FILE IN LISTS SRC)
+    get_filename_component(FILE_EXT "${FILE}" EXT)
+    if(FILE_EXT STREQUAL ".def")
+        get_filename_component(FILE "${FILE}" NAME_WE)
+        list(APPEND SRC_OUTPUT_FILES "${SRC_OUTPUT_DIR}/${FILE}.cpp")
+    endif()
+endforeach()
 
 # Generate
+set(INPUT_FILES "")
+foreach(FILE IN LISTS SRC)
+    list(APPEND INPUT_FILES "${CMAKE_CURRENT_SOURCE_DIR}/${FILE}")
+endforeach()
+set(OUTPUT_FILES ${SRC_OUTPUT_FILES} "${HEADER_OUTPUT_FILE}")
 add_custom_command(
-    OUTPUT "${SRC_OUTPUT_FILE}" "${HEADER_OUTPUT_FILE}"
-    DEPENDS ${RESOLVED_SRC}
-    COMMAND npm start --silent -- "${SRC_OUTPUT_FILE}" "${HEADER_OUTPUT_FILE}" ${RESOLVED_SRC}
+    OUTPUT ${OUTPUT_FILES}
+    DEPENDS ${INPUT_FILES}
+    COMMAND npm start --silent -- "${SRC_OUTPUT_DIR}" "${HEADER_OUTPUT_FILE}" ${INPUT_FILES}
     WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/../dependencies/symbol-processor/src"
     VERBATIM
 )
 
 # Build
-add_library(symbols SHARED "${SRC_OUTPUT_FILE}" "${HEADER_OUTPUT_FILE}")
+add_library(symbols SHARED ${OUTPUT_FILES})
+
+# Speed Up Compilation
+#target_precompile_headers(symbols PRIVATE "${HEADER_OUTPUT_FILE}")
 
 # Show In IDE
 add_custom_target(symbols-src
