@@ -15,7 +15,7 @@
 // Allow Disabling Interaction
 static void update_cursor();
 static int is_interactable = 1;
-void media_set_interactable(int toggle) {
+void media_set_interactable(const int toggle) {
     if (bool(toggle) != is_interactable) {
         is_interactable = toggle;
         update_cursor();
