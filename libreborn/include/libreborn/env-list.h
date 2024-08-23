@@ -22,3 +22,4 @@ ENV(MCPI_BLOCK_OUTLINE_WIDTH, "Custom Width For Block Outline (In Pixels)")
 ENV(MCPI_GUI_SCALE, "Custom GUI Scale")
 // $HOME
 ENV(_MCPI_HOME, "")
+ENV(MCPI_PROFILE_DIRECTORY, "Custom Profile Directory")

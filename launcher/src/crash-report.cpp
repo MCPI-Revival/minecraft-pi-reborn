@@ -68,7 +68,7 @@ static void setup_log_file() {
     // Get Timestamp
     time_t raw_time;
     time(&raw_time);
-    tm *time_info = localtime(&raw_time);
+    const tm *time_info = localtime(&raw_time);
     char time[512];
     strftime(time, 512, "%Y-%m-%d", time_info);
 

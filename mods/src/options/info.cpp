@@ -2,6 +2,7 @@
 #include <symbols/minecraft.h>
 #include <GLES/gl.h>
 
+#include <mods/home/home.h>
 #include <mods/touch/touch.h>
 #include <mods/misc/misc.h>
 #include <mods/options/info.h>
@@ -45,11 +46,19 @@ static std::string profile_directory_suffix =
     std::string(get_home_subdirectory_for_game_data())
     ;
 static std::string get_profile_directory_url() {
-    const char *home = getenv("HOME");
-    if (home == nullptr) {
-        IMPOSSIBLE();
+    std::string directory;
+    if (getenv(MCPI_PROFILE_DIRECTORY_ENV) != nullptr) {
+        // Using Custom Directory
+        directory = home_get();
+    } else {
+        // Determine Proper Directory
+        const char *home = getenv("HOME");
+        if (home == nullptr) {
+            IMPOSSIBLE();
+        }
+        directory = home + profile_directory_suffix;
     }
-    return std::string("file://") + home + profile_directory_suffix;
+    return std::string("file://") + directory;
 }
 
 // Info Data

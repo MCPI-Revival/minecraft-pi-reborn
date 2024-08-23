@@ -781,6 +781,11 @@ static void DoorTile_neighborChanged_Tile_spawnResources_injection(DoorTile *sel
     self->spawnResources(level, x, y, z, data2, 1);
 }
 
+// Fix Cobweb Lighting
+static Tile *Tile_initTiles_WebTile_setLightBlock_injection(Tile *self, __attribute__((unused)) int strength) {
+    return self;
+}
+
 // Init
 template <typename... Args>
 static void nop(__attribute__((unused)) Args... args) {
@@ -1053,6 +1058,11 @@ void init_misc() {
         unsigned char nop_patch[4] = {0x00, 0xf0, 0x20, 0xe3}; // "nop"
         patch((void *) 0xbe230, nop_patch);
         overwrite_call((void *) 0xbe110, (void *) DoorTile_neighborChanged_Tile_spawnResources_injection);
+    }
+
+    // Fix Cobweb Lighting
+    if (feature_has("Fix Cobweb Lighting", server_enabled)) {
+        overwrite_call((void *) 0xc444c, (void *) Tile_initTiles_WebTile_setLightBlock_injection);
     }
 
     // Init Logging

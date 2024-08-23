@@ -25,13 +25,13 @@ void copy_sdk(const std::string &binary_directory, const bool log_with_debug) {
     }
 
     // Lock File
-    std::string lock_file_path = sdk_path + "/.lock";
-    int lock_file_fd = lock_file(lock_file_path.c_str());
+    const std::string lock_file_path = sdk_path + "/.lock";
+    const int lock_file_fd = lock_file(lock_file_path.c_str());
 
     // Output Directory
-    std::string output = sdk_path + "/" MCPI_SDK_DIR;
+    const std::string output = sdk_path + "/" MCPI_SDK_DIR;
     // Source Directory
-    std::string source = binary_directory + "/sdk/.";
+    const std::string source = binary_directory + "/sdk/.";
 
     // Clean
     {

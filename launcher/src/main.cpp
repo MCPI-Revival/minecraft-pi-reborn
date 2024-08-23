@@ -45,7 +45,13 @@ static void setup_environment(const options_t &options) {
     }
 
     // Setup MCPI_HOME
-    if (!reborn_is_server()) {
+    if (const char *custom_profile_directory = getenv(MCPI_PROFILE_DIRECTORY_ENV); custom_profile_directory != nullptr) {
+        // Custom Directory
+        custom_profile_directory = realpath(custom_profile_directory, nullptr);
+        ALLOC_CHECK(custom_profile_directory);
+        set_and_print_env(_MCPI_HOME_ENV, custom_profile_directory);
+        free((void *) custom_profile_directory);
+    } else if (!reborn_is_server()) {
         // Ensure $HOME
         const char *home = getenv("HOME");
         if (home == nullptr) {

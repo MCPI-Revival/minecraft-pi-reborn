@@ -40,7 +40,7 @@ int lock_file(const char *file) {
     }
     return fd;
 }
-void unlock_file(const char *file, int fd) {
+void unlock_file(const char *file, const int fd) {
     if (flock(fd, LOCK_UN) == -1) {
         ERR("Unable To Unlock File: %s: %s", file, strerror(errno));
     }
@@ -84,7 +84,10 @@ void reborn_check_display() {
 
 // Home Subdirectory
 const char *get_home_subdirectory_for_game_data() {
-    if (!reborn_is_server()) {
+    if (getenv(MCPI_PROFILE_DIRECTORY_ENV) != NULL) {
+        // No Subdirectory When Using Custom Profile Directory
+        return "";
+    } else if (!reborn_is_server()) {
         // Store Game Data In "~/.minecraft-pi" Instead Of "~/.minecraft" To Avoid Conflicts
         return "/.minecraft-pi";
     } else {
