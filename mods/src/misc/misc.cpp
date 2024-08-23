@@ -776,6 +776,11 @@ static int CarriedTile_getTexture2_injection(CarriedTile_getTexture2_t original,
     return original(self, face, metadata);
 }
 
+// Fix Door Item Dropping
+static void DoorTile_neighborChanged_Tile_spawnResources_injection(DoorTile *self, Level *level, int x, int y, int z, int data2, __attribute__((unused)) float chance) {
+    self->spawnResources(level, x, y, z, data2, 1);
+}
+
 // Init
 template <typename... Args>
 static void nop(__attribute__((unused)) Args... args) {
@@ -1041,6 +1046,13 @@ void init_misc() {
     // Fix grass_carried's bottom texture
     if (feature_has("Fix Carried Grass's Bottom Texture", server_disabled)) {
         overwrite_calls(CarriedTile_getTexture2, CarriedTile_getTexture2_injection);
+    }
+
+    // Fix Door Duplication
+    if (feature_has("Fix Door Duplication", server_enabled)) {
+        unsigned char nop_patch[4] = {0x00, 0xf0, 0x20, 0xe3}; // "nop"
+        patch((void *) 0xbe230, nop_patch);
+        overwrite_call((void *) 0xbe110, (void *) DoorTile_neighborChanged_Tile_spawnResources_injection);
     }
 
     // Init Logging

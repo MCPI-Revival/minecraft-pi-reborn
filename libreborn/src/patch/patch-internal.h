@@ -23,4 +23,5 @@ __attribute__((visibility("internal"))) void increment_code_block();
 // BL Instruction Magic Number
 #define BL_INSTRUCTION 0xeb
 #define B_INSTRUCTION 0xea
-__attribute__((visibility("internal"))) uint32_t generate_bl_instruction(void *from, void *to, int use_b_instruction);
+__attribute__((visibility("internal"))) bool is_branch_instruction(unsigned char opcode);
+__attribute__((visibility("internal"))) uint32_t generate_bl_instruction(void *from, void *to, unsigned char opcode = BL_INSTRUCTION);

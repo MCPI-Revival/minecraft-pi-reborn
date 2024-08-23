@@ -47,7 +47,7 @@ static int debug_background_padding = 1;
 static int line_height = 8;
 static void render_debug_line(Gui *gui, std::string &line, const int x, const int y) {
     // Draw Background
-    int width = gui->minecraft->font->width(line);
+    const int width = gui->minecraft->font->width(line);
     if (width == 0) {
         return;
     }

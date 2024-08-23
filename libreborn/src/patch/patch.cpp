@@ -15,7 +15,7 @@ static void _overwrite_call_internal(void *start, void *target, const bool use_b
     void *code_block = update_code_block(target);
 
     // Patch
-    uint32_t new_instruction = generate_bl_instruction(start, code_block, use_b_instruction);
+    uint32_t new_instruction = generate_bl_instruction(start, code_block, use_b_instruction ? B_INSTRUCTION : BL_INSTRUCTION);
     patch(start, (unsigned char *) &new_instruction);
 
     // Increment Code Block Position
@@ -55,15 +55,15 @@ static int _overwrite_calls_within_internal(void *from, void *to, void *target, 
     int found = 0;
     for (uintptr_t i = (uintptr_t) from; i < (uintptr_t) to; i = i + 4) {
         unsigned char *addr = (unsigned char *) i;
-        const int use_b_instruction = addr[3] == B_INSTRUCTION;
+        const unsigned char opcode = addr[3];
         // Check If Instruction is B Or BL
-        if (addr[3] == BL_INSTRUCTION || use_b_instruction) {
-            uint32_t check_instruction = generate_bl_instruction(addr, target, use_b_instruction);
-            unsigned char *check_instruction_array = (unsigned char *) &check_instruction;
+        if (is_branch_instruction(opcode)) {
+            // Extract Instruction Target
+            const void *instruction_target = extract_from_bl_instruction(addr);
             // Check If Instruction Calls Target
-            if (addr[0] == check_instruction_array[0] && addr[1] == check_instruction_array[1] && addr[2] == check_instruction_array[2]) {
+            if (instruction_target == target) {
                 // Patch Instruction
-                uint32_t new_instruction = generate_bl_instruction(addr, replacement, use_b_instruction);
+                uint32_t new_instruction = generate_bl_instruction(addr, replacement, opcode);
                 patch(addr, (unsigned char *) &new_instruction);
                 found++;
             }
@@ -113,11 +113,11 @@ void overwrite_calls_within_manual(void *from /* inclusive */, void *to /* exclu
 }
 
 // Patch Instruction
-static void safe_mprotect(void *addr, size_t len, int prot) {
+static void safe_mprotect(void *addr, const size_t len, const int prot) {
     const long page_size = sysconf(_SC_PAGESIZE);
     const long diff = uintptr_t(addr) % page_size;
     void *aligned_addr = (void *) (((uintptr_t) addr) - diff);
-    size_t aligned_len = len + diff;
+    const size_t aligned_len = len + diff;
     const int ret = mprotect(aligned_addr, aligned_len, prot);
     if (ret == -1) {
         ERR("Unable To Set Permissions: %p: %s", addr, strerror(errno));

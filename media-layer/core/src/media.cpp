@@ -380,7 +380,7 @@ void SDL_WM_SetCaption(const char *title, __attribute__((unused)) const char *ic
 #endif
 
     // Debug
-    glGetString_t glGetString = (glGetString_t) glfwGetProcAddress("glGetString");
+    const glGetString_t glGetString = (glGetString_t) glfwGetProcAddress("glGetString");
     DEBUG("Using %s", (*glGetString)(GL_VERSION));
 
     // Init OpenAL
