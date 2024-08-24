@@ -7,16 +7,38 @@
 * Add Peaceful Mode To Options Screen
 * Proper Create New World Screen
 * Proper Chat Screen
-* Add `Animated Lava` Feature Flag (Enabled By Default)
-* Add `Animated Fire` Feature Flag (Enabled By Default)
-* Add `Use Java Beta 1.3 Light Ramp` Feature Flag (Enabled By Default)
-* Add `Send Full Level When Hosting Game` Feature Flag (Enabled By Default)
-* Add `Food Overlay` Feature Flag (Disabled By Default)
-* Add `Display Date In Select World Screen` Feature Flag (Enabled By Default)
-* Add `Optimized Chunk Sorting` Feature Flag (Enabled By Default)
-* Add `Add Cake` Feature Flag (Enabled By Default)
-* Add `Add Reborn Info To Options` Feature Flag (Enabled By Default)
-* Add `Log FPS` Feature Flag (Disabled By Default)
+* New Feature Flags
+  * `Animated Lava` (Enabled By Default)
+  * `Animated Fire` (Enabled By Default)
+  * `Add Cake` (Enabled By Default)
+  * `Use Java Beta 1.3 Light Ramp` (Enabled By Default)
+  * `Send Full Level When Hosting Game` (Enabled By Default)
+  * `Food Overlay` (Disabled By Default)
+  * `Add Splashes` (Enabled By Default)
+  * `Display Date In Select World Screen` (Enabled By Default)
+  * `Optimized Chunk Sorting` (Enabled By Default)
+  * `Fix Held Item Caching` (Enabled By Default)
+  * `Add Reborn Info To Options` (Enabled By Default)
+  * `Log FPS` (Disabled By Default)
+  * `Add Welcome Screen` (Enabled By Default)
+  * `F3 Debug Information` (Enabled By Default)
+  * `Multidraw Rendering` (Enabled By Default)
+  * `Add Missing Language Strings` (Enabled By Default)
+  * `Fix Pigmen Burning In The Sun` (Enabled By Default)
+  * `Fix Carried Grass's Bottom Texture` (Enabled By Default)
+  * `Hide Crosshair In Third-Person` (Enabled By Default)
+  * `Fix Camera Legs` (Enabled By Default)
+  * `Implement Crafting Remainders` (Enabled By Default)
+  * `Fix Door Duplication` (Enabled By Default)
+  * `Fix Cobweb Lighting` (Enabled By Default)
+  * `Fix Sneaking Syncing` (Enabled By Default)
+  * `Fix Fire Immunity` (Enabled By Default)
+  * `Fix Fire Syncing` (Enabled By Default)
+  * `Fix Sunlight Not Properly Setting Mobs On Fire` (Enabled By Default)
+  * `Stop Creative Players From Burning` (Enabled By Default)
+  * `Render Fire In Third-Person` (Enabled By Default)
+  * `Improved Water Rendering` (Enabled By Default)
+  * `Classic Item Count UI` (Enabled By Default)
 * Split Up `Remove Creative Mode Restrictions` Feature Flag
   * `Remove Creative Mode Restrictions` (Disabled By Default)
   * `Display Slot Count In Creative Mode` (Disabled By Default)
@@ -25,12 +47,11 @@
   * `Maximize Creative Mode Inventory Stack Size` (Disabled By Default)
 * Rename `Disable Buggy Held Item Caching` Feature Flag To `Fix Held Item Caching`
 * Add Milk Buckets
-* Implement Crafting Remainders
+  * Included In The `Add Buckets` Feature Flag
 * Improve Death Messages
 * Massive Build System Improvements
 * Fix Item Dropping When Killing Players From The Server Console
 * Fix Furnace Visual Bug When Using Lava Bucket As Fuel
-* Add Splash Text To Start Screen
 * `overwrite_calls` Now Scans VTables
 * Unify Server/Client Builds
 

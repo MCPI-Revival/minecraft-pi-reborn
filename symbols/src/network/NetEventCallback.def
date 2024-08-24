@@ -5,3 +5,4 @@ virtual-method void levelGenerated(Level *level) = 0x0;
 virtual-method void onDisconnect(const RakNet_RakNetGUID &guid) = 0x18;
 virtual-method void handle_SignUpdatePacket(const RakNet_RakNetGUID &guid, SignUpdatePacket *packet) = 0xcc;
 virtual-method void handle_ChatPacket(const RakNet_RakNetGUID &rak_net_guid, ChatPacket *packet) = 0xc8;
+virtual-method void handle_PlayerActionPacket(const RakNet_RakNetGUID &rak_net_guid, PlayerActionPacket *packet) = 0xa0;

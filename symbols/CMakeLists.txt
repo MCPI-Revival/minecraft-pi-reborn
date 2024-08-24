@@ -28,6 +28,7 @@ set(SRC
     src/network/packet/Packet.def
     src/network/packet/StartGamePacket.def
     src/network/packet/ChatPacket.def
+    src/network/packet/PlayerActionPacket.def
     src/entity/EntityFactory.def
     src/entity/PrimedTnt.def
     src/entity/CameraEntity.def

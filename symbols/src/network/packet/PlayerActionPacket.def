@@ -1,0 +1,7 @@
+extends Packet;
+
+size 0x24;
+vtable 0x102dd8;
+
+property int action = 0x1c;
+property int entity_id = 0x20;

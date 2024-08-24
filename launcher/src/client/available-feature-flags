@@ -78,3 +78,11 @@ TRUE Fix Camera Legs
 TRUE Implement Crafting Remainders
 TRUE Fix Door Duplication
 TRUE Fix Cobweb Lighting
+TRUE Fix Sneaking Syncing
+TRUE Fix Fire Immunity
+TRUE Fix Fire Syncing
+TRUE Fix Sunlight Not Properly Setting Mobs On Fire
+TRUE Stop Creative Players From Burning
+TRUE Render Fire In Third-Person
+TRUE Improved Water Rendering
+TRUE Classic Item Count UI

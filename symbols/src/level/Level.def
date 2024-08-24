@@ -47,6 +47,8 @@ method bool getSignal(int x, int y, int z, int direction) = 0xa5e6c;
 method bool hasDirectSignal(int x, int y, int z) = 0xa5d88;
 // Called by hasDirectSignal
 method bool getDirectSignal(int x, int y, int z, int direction) = 0xa5d2c;
+method bool canSeeSky(int x, int y, int z) = 0xa39b8;
+method bool isDay() = 0xa3d9c;
 
 virtual-method void tick() = 0x28;
 virtual-method void updateSleepingPlayerList() = 0x2c;

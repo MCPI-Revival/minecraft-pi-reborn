@@ -21,6 +21,7 @@
 #include <mods/feature/feature.h>
 #include <mods/input/input.h>
 #include <mods/misc/misc.h>
+#include <mods/multidraw/multidraw.h>
 
 #include "misc-internal.h"
 
@@ -765,9 +766,13 @@ static std::string *Tile_initTiles_std_string_constructor(std::string *self, con
 }
 
 // Fix Pigmen Burning In The Sun
+static bool fix_pigmen_burning = false;
 static float Zombie_aiStep_getBrightness_injection(Entity *self, float param_1) {
-    if (self->getEntityTypeId() == 36) return 0;
-    return self->getBrightness(param_1);
+    if (fix_pigmen_burning && self->getEntityTypeId() == 36) {
+        return 0;
+    } else {
+        return self->getBrightness(param_1);
+    }
 }
 
 // Fix grass_carried's Bottom Texture
@@ -784,6 +789,263 @@ static void DoorTile_neighborChanged_Tile_spawnResources_injection(DoorTile *sel
 // Fix Cobweb Lighting
 static Tile *Tile_initTiles_WebTile_setLightBlock_injection(Tile *self, __attribute__((unused)) int strength) {
     return self;
+}
+
+// Fix Fire Immunity
+static void Mob_baseTick_injection_fire_immunity(Mob_baseTick_t original, Mob *self) {
+    // Fix Fire Timer
+    if (self->fire_immune) {
+        self->fire_timer = 0;
+    }
+    // Call Original Method
+    original(self);
+}
+
+// Fix Fire Syncing
+#define FLAG_ONFIRE 0
+static void Mob_baseTick_injection_fire_syncing(Mob_baseTick_t original, Mob *self) {
+    // Fix Fire Timer
+    if (self->level->is_client_side) {
+        self->fire_timer = 0;
+    }
+    // Call Original Method
+    original(self);
+    // Sync Data
+    if (!self->level->is_client_side) {
+        self->setSharedFlag(FLAG_ONFIRE, self->fire_timer > 0);
+    }
+}
+static bool Entity_isOnFire_injection(Entity_isOnFire_t original, Entity *self) {
+    // Call Original Method
+    bool ret = original(self);
+
+    // Check Shared Data
+    bool shared_data = false;
+    if (self->isMob()) {
+        shared_data = ((Mob *) self)->getSharedFlag(FLAG_ONFIRE);
+    }
+    if (shared_data) {
+        ret = true;
+    }
+
+    // Return
+    return ret;
+}
+
+// Fix Sneaking Syncing
+#define FLAG_SNEAKING 1
+#define PLAYER_ACTION_STOP_SNEAKING 100
+#define PLAYER_ACTION_START_SNEAKING 101
+static void LocalPlayer_tick_injection(LocalPlayer_tick_t original, LocalPlayer *self) {
+    // Call Original Method
+    original(self);
+    // Sync Data
+    if (!self->level->is_client_side) {
+        self->setSharedFlag(FLAG_SNEAKING, self->isSneaking());
+    } else {
+        const bool real = self->isSneaking();
+        const bool synced = self->getSharedFlag(FLAG_SNEAKING);
+        if (real != synced) {
+            // Send To Server
+            PlayerActionPacket *packet = new PlayerActionPacket;
+            Packet_constructor->get(false)((Packet *) packet);
+            packet->vtable = PlayerActionPacket_vtable_base;
+            packet->entity_id = self->id;
+            packet->action = real ? PLAYER_ACTION_START_SNEAKING : PLAYER_ACTION_STOP_SNEAKING;
+            self->minecraft->rak_net_instance->send(*(Packet *) packet);
+        }
+    }
+}
+static void ServerSideNetworkHandler_handle_PlayerActionPacket_injection(ServerSideNetworkHandler_handle_PlayerActionPacket_t original, ServerSideNetworkHandler *self, const RakNet_RakNetGUID &rak_net_guid, PlayerActionPacket *packet) {
+    // Call Original Method
+    original(self, rak_net_guid, packet);
+
+    // Handle Sneaking
+    const bool is_sneaking = packet->action == PLAYER_ACTION_START_SNEAKING;
+    if (self->level != nullptr && (is_sneaking || packet->action == PLAYER_ACTION_STOP_SNEAKING)) {
+        Entity *entity = self->level->getEntity(packet->entity_id);
+        if (entity != nullptr && entity->isPlayer()) {
+            ((Player *) entity)->setSharedFlag(FLAG_SNEAKING, is_sneaking);
+        }
+    }
+}
+
+// Make Mobs Actually Catch On Fire
+static void set_on_fire(Mob *mob, const int seconds) {
+    const int value = seconds * 20;
+    if (value > mob->fire_timer) {
+        mob->fire_timer = value;
+    }
+}
+template <typename Self>
+static void Monster_aiStep_injection(__attribute__((unused)) std::function<void(Self *)> original, Self *self) {
+    // Fire!
+    Level *level = self->level;
+    if (level->isDay() && !level->is_client_side) {
+        const float brightness = Zombie_aiStep_getBrightness_injection((Entity *) self, 1);
+        if (brightness > 0.5f) {
+            Random *random = &self->random;
+            if (level->canSeeSky(Mth::floor(self->x), Mth::floor(self->y), Mth::floor(self->z)) && random->nextFloat() * 3.5f < (brightness - 0.4f)) {
+                set_on_fire((Mob *) self, 8);
+            }
+        }
+    }
+
+    // Call Parent Method
+    Monster_aiStep->get(false)((Monster *) self);
+}
+
+// Fire Rendering
+static void EntityRenderDispatcher_render_EntityRenderer_render_injection(EntityRenderer *self, Entity *entity, float x, float y, float z, float rot, float unknown) {
+    // Call Original Method
+    self->render(entity, x, y, z, rot, unknown);
+
+    // Render Fire
+    if (entity->isOnFire()) {
+        // Here Be Decompiled Code
+        y -= entity->height_offset;
+        const int texture = Tile::fire->texture;
+        const int xt = (texture & 0xf) << 4;
+        const int yt = texture & 0xf0;
+        glPushMatrix();
+        glTranslatef(x, y, z);
+        const float s = entity->hitbox_width * 1.4f;
+        glScalef(s, s, s);
+        self->bindTexture("terrain.png");
+        Tesselator &t = Tesselator::instance;
+        float r = 0.5f;
+        float h = entity->hitbox_height / s;
+        float yo = entity->y - entity->height_offset - entity->hitbox.y1;
+        float player_rot_y = EntityRenderer::entityRenderDispatcher->player_rot_y;
+        if (EntityRenderer::entityRenderDispatcher->minecraft->options.third_person == 2) {
+            // Handle Front-Facing
+            player_rot_y -= 180.f;
+        }
+        glRotatef(-player_rot_y, 0, 1, 0);
+        glTranslatef(0, 0, -0.3f + float(int(h)) * 0.02f);
+        glColor4f(1, 1, 1, 1);
+        float zo = 0;
+        int ss = 0;
+        t.begin(7);
+        while (h > 0) {
+            constexpr float xo = 0.0f;
+            float u0;
+            float u1;
+            float v0;
+            float v1;
+            if (ss % 2 == 0) {
+                u0 = float(xt) / 256.0f;
+                u1 = (float(xt) + 15.99f) / 256.0f;
+                v0 = float(yt) / 256.0f;
+                v1 = (float(yt) + 15.99f) / 256.0f;
+            } else {
+                u0 = float(xt) / 256.0f;
+                u1 = (float(xt) + 15.99f) / 256.0f;
+                v0 = (float(yt) + 16) / 256.0f;
+                v1 = (float(yt) + 16 + 15.99f) / 256.0f;
+            }
+            if (ss / 2 % 2 == 0) {
+                std::swap(u1, u0);
+            }
+            t.vertexUV(r - xo, 0 - yo, zo, u1, v1);
+            t.vertexUV(-r - xo, 0 - yo, zo, u0, v1);
+            t.vertexUV(-r - xo, 1.4f - yo, zo, u0, v0);
+            t.vertexUV(r - xo, 1.4f - yo, zo, u1, v0);
+            h -= 0.45f;
+            yo -= 0.45f;
+            r *= 0.9f;
+            zo += 0.03f;
+            ss++;
+        }
+        t.draw();
+        glPopMatrix();
+    }
+}
+
+// Clear Fire For Creative Players
+static void Player_tick_injection(Player_tick_t original, Player *self) {
+    // Fix Value
+    if (self->inventory->is_creative && !self->level->is_client_side && self->isOnFire()) {
+        self->fire_timer = 0;
+    }
+    // Call Original Method
+    original(self);
+}
+
+// Nicer Water Rendering
+static bool game_render_anaglyph_color_mask[4];
+static void GameRenderer_render_glColorMask_injection(const bool red, const bool green, const bool blue, const bool alpha) {
+    game_render_anaglyph_color_mask[0] = red;
+    game_render_anaglyph_color_mask[1] = green;
+    game_render_anaglyph_color_mask[2] = blue;
+    game_render_anaglyph_color_mask[3] = alpha;
+    glColorMask(red, green, blue, alpha);
+}
+static int GameRenderer_render_LevelRenderer_render_injection(LevelRenderer *self, Mob *mob, int param_1, float delta) {
+    glColorMask(false, false, false, false);
+    const int water_chunks = self->render(mob, param_1, delta);
+    glColorMask(true, true, true, true);
+    if (self->minecraft->options.anaglyph_3d) {
+        glColorMask(game_render_anaglyph_color_mask[0], game_render_anaglyph_color_mask[1], game_render_anaglyph_color_mask[2], game_render_anaglyph_color_mask[3]);
+    }
+    if (water_chunks > 0) {
+        LevelRenderer_renderSameAsLast(self, delta);
+    }
+    return water_chunks;
+}
+
+// Classic Slot Count Location
+static void Gui_renderSlotText_injection_common(Gui *self, const ItemInstance *item, float x, float y, const bool param_1, const bool param_2) {
+    // Position
+    x += 17;
+    y += 9;
+    // Call Original Method
+    self->renderSlotText(item, x, y, param_1, param_2);
+}
+static void Gui_renderSlotText_injection_furnace(Gui *self, const ItemInstance *item, float x, float y, const bool param_1, const bool param_2) {
+    // Position
+    x += 4;
+    y += 5;
+    // Call Original Method
+    Gui_renderSlotText_injection_common(self, item, x, y, param_1, param_2);
+}
+static void unscale_slot_text(float &x, float &y) {
+    const float factor = 0.5f * Gui::GuiScale;
+    x /= factor;
+    y /= factor;
+}
+static void Gui_renderSlotText_injection_classic_inventory(Gui *self, const ItemInstance *item, float x, float y, const bool param_1, const bool param_2) {
+    // Position
+    unscale_slot_text(x, y);
+    // Call Original Method
+    Gui_renderSlotText_injection_common(self, item, x, y, param_1, param_2);
+}
+static void Gui_renderSlotText_injection_toolbar(Gui *self, const ItemInstance *item, float x, float y, const bool param_1, const bool param_2) {
+    // Position
+    y--;
+    unscale_slot_text(x, y);
+    // Call Original Method
+    Gui_renderSlotText_injection_common(self, item, x, y, param_1, param_2);
+}
+static void Gui_renderSlotText_injection_inventory(Gui *self, const ItemInstance *item, float x, float y, const bool param_1, const bool param_2) {
+    // Position
+    unscale_slot_text(x, y);
+    x++;
+    y++;
+    // Call Original Method
+    Gui_renderSlotText_injection_common(self, item, x, y, param_1, param_2);
+}
+template <auto *const func>
+static void Gui_renderSlotText_Font_draw_injection(Font *self, const char *raw_string, float x, float y, uint color) {
+    // Fix X
+    std::string string = raw_string;
+    x -= self->width(string);
+    // Fix Color
+    if (color == 0xffcccccc) {
+        color = 0xffffffff;
+    }
+    // Call
+    (*func)->get(false)(self, string, x, y, color);
 }
 
 // Init
@@ -1045,6 +1307,7 @@ void init_misc() {
 
     // Fix pigmen from burning in the sun
     if (feature_has("Fix Pigmen Burning In The Sun", server_enabled)) {
+        fix_pigmen_burning = true;
         overwrite_call((void *) 0x89a1c, (void *) Zombie_aiStep_getBrightness_injection);
     }
 
@@ -1063,6 +1326,62 @@ void init_misc() {
     // Fix Cobweb Lighting
     if (feature_has("Fix Cobweb Lighting", server_enabled)) {
         overwrite_call((void *) 0xc444c, (void *) Tile_initTiles_WebTile_setLightBlock_injection);
+    }
+
+    // Fix Fire Immunity
+    if (feature_has("Fix Fire Immunity", server_enabled)) {
+        overwrite_calls(Mob_baseTick, Mob_baseTick_injection_fire_immunity);
+    }
+
+    // Fix Fire Syncing
+    if (feature_has("Fix Fire Syncing", server_enabled)) {
+        overwrite_calls(Mob_baseTick, Mob_baseTick_injection_fire_syncing);
+        overwrite_calls(Entity_isOnFire, Entity_isOnFire_injection);
+    }
+
+    // Fix Sneaking Syncing
+    if (feature_has("Fix Sneaking Syncing", server_enabled)) {
+        overwrite_calls(LocalPlayer_tick, LocalPlayer_tick_injection);
+        overwrite_calls(ServerSideNetworkHandler_handle_PlayerActionPacket, ServerSideNetworkHandler_handle_PlayerActionPacket_injection);
+    }
+
+    // Make Skeletons/Zombies Actually Catch On Fire
+    if (feature_has("Fix Sunlight Not Properly Setting Mobs On Fire", server_enabled)) {
+        overwrite_calls(Zombie_aiStep, Monster_aiStep_injection<Zombie>);
+        overwrite_calls(Skeleton_aiStep, Monster_aiStep_injection<Skeleton>);
+    }
+
+    // Render Fire In Third-Person
+    if (feature_has("Render Fire In Third-Person", server_disabled)) {
+        overwrite_call((void *) 0x606c0, (void *) EntityRenderDispatcher_render_EntityRenderer_render_injection);
+    }
+
+    // Clear Fire For Creative Players
+    if (feature_has("Stop Creative Players From Burning", server_enabled)) {
+        overwrite_calls(Player_tick, Player_tick_injection);
+    }
+
+    // Slightly Nicer Water Rendering
+    if (feature_has("Improved Water Rendering", server_disabled)) {
+        overwrite_call((void *) 0x49ed4, (void *) GameRenderer_render_glColorMask_injection);
+        overwrite_call((void *) 0x4a18c, (void *) GameRenderer_render_LevelRenderer_render_injection);
+        unsigned char nop_patch[4] = {0x00, 0xf0, 0x20, 0xe3}; // "nop"
+        patch((void *) 0x4a12c, nop_patch);
+    }
+
+    // Classic Slot Count Location
+    if (feature_has("Classic Item Count UI", server_disabled)) {
+        unsigned char nop_patch[4] = {0x00, 0xf0, 0x20, 0xe3}; // "nop"
+        patch((void *) 0x27074, nop_patch);
+        patch((void *) 0x33984, nop_patch);
+        patch((void *) 0x1e424, nop_patch);
+        overwrite_call((void *) 0x1e4b8, (void *) Gui_renderSlotText_injection_inventory);
+        overwrite_call((void *) 0x27100, (void *) Gui_renderSlotText_injection_toolbar);
+        overwrite_call((void *) 0x339b4, (void *) Gui_renderSlotText_injection_classic_inventory);
+        overwrite_call((void *) 0x2b268, (void *) Gui_renderSlotText_injection_furnace);
+        overwrite_call((void *) 0x320c4, (void *) Gui_renderSlotText_injection_furnace);
+        overwrite_call((void *) 0x25e84, (void *) Gui_renderSlotText_Font_draw_injection<&Font_draw>);
+        overwrite_call((void *) 0x25e74, (void *) Gui_renderSlotText_Font_draw_injection<&Font_drawShadow>);
     }
 
     // Init Logging

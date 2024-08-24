@@ -6,6 +6,7 @@
 
 #include <mods/init/init.h>
 #include <mods/feature/feature.h>
+#include <mods/multidraw/multidraw.h>
 
 #include "storage.h"
 
@@ -30,7 +31,7 @@ HOOK(glDeleteBuffers, void, (GLsizei n, const GLuint *buffers)) {
     }
 }
 
-// Usage
+// Setup Fake OpenGL Buffers
 static int current_chunk = -1;
 HOOK(glBindBuffer, void, (const GLenum target, GLuint buffer)) {
     if (target == GL_ARRAY_BUFFER && buffer >= MULTIDRAW_BASE && storage != nullptr) {
@@ -50,6 +51,8 @@ HOOK(glBufferData, void, (GLenum target, GLsizeiptr size, const void *data, GLen
         real_glBufferData(target, size, data, usage);
     }
 }
+
+// Render
 #define VERTEX_SIZE 24
 #define MAX_RENDER_CHUNKS 4096
 static bool supports_multidraw() {
@@ -59,9 +62,11 @@ static bool supports_multidraw() {
     }
     return ret;
 }
-static int LevelRenderer_renderChunks_injection(__attribute__((unused)) LevelRenderer_renderChunks_t original, LevelRenderer *self, const int start, const int end, const int a, const float b) {
+static GLint multidraw_firsts[MAX_RENDER_CHUNKS];
+static GLsizei multidraw_counts[MAX_RENDER_CHUNKS];
+static GLsizei multidraw_total = 0;
+static void multidraw_renderSameAsLast(const LevelRenderer *self, const float b) {
     // Prepare Offset
-    self->render_list.clear();
     const Mob *camera = self->minecraft->camera;
     const float x = camera->old_x + ((camera->x - camera->old_x) * b);
     const float y = camera->old_y + ((camera->y - camera->old_y) * b);
@@ -78,10 +83,27 @@ static int LevelRenderer_renderChunks_injection(__attribute__((unused)) LevelRen
     glTexCoordPointer(2, GL_FLOAT, VERTEX_SIZE, (void *) 0xc);
     glColorPointer(4, GL_UNSIGNED_BYTE, VERTEX_SIZE, (void *) 0x14);
 
+    // Draw
+#ifdef MCPI_USE_GLES1_COMPATIBILITY_LAYER
+    if (supports_multidraw()) {
+        glMultiDrawArrays(GL_TRIANGLES, multidraw_firsts, multidraw_counts, multidraw_total);
+    } else {
+#endif
+        for (int i = 0; i < multidraw_total; i++) {
+            glDrawArrays(GL_TRIANGLES, multidraw_firsts[i], multidraw_counts[i]);
+        }
+#ifdef MCPI_USE_GLES1_COMPATIBILITY_LAYER
+    }
+#endif
+
+    // Cleanup
+    glDisableClientState(GL_COLOR_ARRAY);
+    glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+    glPopMatrix();
+}
+static int LevelRenderer_renderChunks_injection(__attribute__((unused)) LevelRenderer_renderChunks_t original, LevelRenderer *self, const int start, const int end, const int a, const float b) {
     // Batch
-    static GLint firsts[MAX_RENDER_CHUNKS];
-    static GLsizei counts[MAX_RENDER_CHUNKS];
-    GLsizei total = 0;
+    multidraw_total = 0;
     for (int i = start; i < end; i++) {
         Chunk *chunk = self->chunks[i];
         // Check If Chunk Is Visible
@@ -94,32 +116,27 @@ static int LevelRenderer_renderChunks_injection(__attribute__((unused)) LevelRen
                 continue;
             }
             // Queue
-            const int j = total++;
-            firsts[j] = block->offset / VERTEX_SIZE;
-            counts[j] = render_chunk->vertices;
+            const int j = multidraw_total++;
+            multidraw_firsts[j] = block->offset / VERTEX_SIZE;
+            multidraw_counts[j] = render_chunk->vertices;
         }
     }
 
     // Draw
-#ifdef MCPI_USE_GLES1_COMPATIBILITY_LAYER
-    if (supports_multidraw()) {
-        glMultiDrawArrays(GL_TRIANGLES, firsts, counts, total);
-    } else {
-#endif
-        for (int i = 0; i < total; i++) {
-            glDrawArrays(GL_TRIANGLES, firsts[i], counts[i]);
-        }
-#ifdef MCPI_USE_GLES1_COMPATIBILITY_LAYER
-    }
-#endif
-
-    // Cleanup
-    glDisableClientState(GL_COLOR_ARRAY);
-    glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-    glPopMatrix();
+    multidraw_renderSameAsLast(self, b);
 
     // Return
-    return total;
+    return multidraw_total;
+}
+
+// API
+static bool use_multidraw = false;
+void LevelRenderer_renderSameAsLast(LevelRenderer *self, const float delta) {
+    if (use_multidraw) {
+        multidraw_renderSameAsLast(self, delta);
+    } else {
+        self->render_list.render();
+    }
 }
 
 // Init
@@ -131,5 +148,6 @@ void init_multidraw() {
         overwrite_calls(LevelRenderer_renderChunks, LevelRenderer_renderChunks_injection);
         unsigned char nop_patch[4] = {0x00, 0xf0, 0x20, 0xe3}; // "nop"
         patch((void *) 0x479fc, nop_patch);
+        use_multidraw = true;
     }
 }

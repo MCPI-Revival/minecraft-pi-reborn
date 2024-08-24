@@ -17,7 +17,7 @@ HOOK(access, int, (const char *pathname, int mode)) {
     char *new_path = override_get_path(pathname);
     // Open File
     ensure_access();
-    int ret = real_access(new_path != nullptr ? new_path : pathname, mode);
+    const int ret = real_access(new_path != nullptr ? new_path : pathname, mode);
     // Free Data
     if (new_path != nullptr) {
         free(new_path);

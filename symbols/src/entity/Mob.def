@@ -9,6 +9,11 @@ virtual-method void die(Entity *cause) = 0x130;
 virtual-method ItemInstance *getCarriedItem() = 0x1ac;
 virtual-method void updateAi() = 0x1cc;
 virtual-method float getWalkingSpeedModifier() = 0x1e8;
+virtual-method void aiStep() = 0x180;
+
+method bool getSharedFlag(int flag) = 0x81fd8;
+method void setSharedFlag(int flag, bool value) = 0x81ef8;
 
 property int health = 0xec;
 property std::string texture = 0xb54;
+property Random random = 0x138;

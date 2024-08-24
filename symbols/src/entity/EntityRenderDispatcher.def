@@ -5,3 +5,5 @@ method void render(Entity *entity, float x, float y, float z, float rot, float u
 static-method EntityRenderDispatcher *getInstance() = 0x60e90;
 
 property ItemInHandRenderer *item_renderer = 0x0;
+property float player_rot_y = 0x14;
+property Minecraft *minecraft = 0xc;

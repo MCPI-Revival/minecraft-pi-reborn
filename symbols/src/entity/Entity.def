@@ -19,6 +19,9 @@ virtual-method bool isItemEntity() = 0xec;
 virtual-method bool isHangingEntity() = 0xf0;
 // The owner entity id for arrows/throwables, else 0
 virtual-method int getAuxData() = 0xf4;
+virtual-method bool isOnFire() = 0x90;
+virtual-method void baseTick() = 0x38;
+virtual-method bool isSneaking() = 0x88;
 
 property float x = 0x4;
 property float y = 0x8;
@@ -37,9 +40,12 @@ property float old_yaw = 0x48;
 property float old_pitch = 0x4c;
 property AABB hitbox = 0x50;
 property float height_offset = 0x68;
+property float hitbox_width = 0x6c;
+property float hitbox_height = 0x70;
 property int fire_timer = 0xa0;
 property int renderer_id = 0xa8;
 property bool on_ground = 0xb2;
 property bool pending_removal = 0xb8;
 property bool freeze_physics = 0xb9;
 property float fall_distance = 0xac;
+property bool fire_immune = 0xc6;

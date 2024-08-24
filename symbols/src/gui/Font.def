@@ -1,2 +1,3 @@
 method int width(const std::string &string) = 0x24d4c;
 method void draw(const std::string &string, float x, float y, uint color) = 0x250e0;
+method void drawShadow(const std::string &string, float x, float y, uint color) = 0x250ec;
