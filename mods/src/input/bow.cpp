@@ -7,7 +7,7 @@
 
 // Store Right-Click Status
 static int is_right_click = 0;
-void input_set_is_right_click(int val) {
+void input_set_is_right_click(const int val) {
     is_right_click = val;
 }
 

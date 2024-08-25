@@ -38,7 +38,7 @@ static void _handle_drop(Minecraft *minecraft) {
                     inventory_item->count = 0;
                 } else {
                     // Drop Item
-                    const int drop_count = 1;
+                    constexpr int drop_count = 1;
                     dropped_item->count = drop_count;
                     inventory_item->count -= drop_count;
                 }
@@ -59,7 +59,7 @@ static void _handle_drop(Minecraft *minecraft) {
 // Init
 void _init_drop() {
     if (feature_has("Bind \"Q\" Key To Item Dropping", server_disabled)) {
-        misc_run_on_game_key_press([](Minecraft *mc, int key) {
+        misc_run_on_game_key_press([](Minecraft *mc, const int key) {
             if (key == MC_KEY_q) {
                 _handle_drop(mc);
                 return true;

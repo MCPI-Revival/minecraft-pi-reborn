@@ -19,14 +19,14 @@ static unsigned char *operator_new_IngameBlockSelectionScreen_injection(__attrib
 // Improved Button Hover Behavior
 static int32_t Button_hovered_injection(__attribute__((unused)) Button_hovered_t original, __attribute__((unused)) Button *button, __attribute__((unused)) Minecraft *minecraft, __attribute__((unused)) int32_t click_x, __attribute__((unused)) int32_t click_y) {
     // Get Mouse Position
-    int32_t x = Mouse::getX() * Gui::InvGuiScale;
-    int32_t y = Mouse::getY() * Gui::InvGuiScale;
+    const int32_t x = Mouse::getX() * Gui::InvGuiScale;
+    const int32_t y = Mouse::getY() * Gui::InvGuiScale;
 
     // Get Button Position
-    int32_t button_x1 = button->x;
-    int32_t button_y1 = button->y;
-    int32_t button_x2 = button_x1 + button->width;
-    int32_t button_y2 = button_y1 + button->height;
+    const int32_t button_x1 = button->x;
+    const int32_t button_y1 = button->y;
+    const int32_t button_x2 = button_x1 + button->width;
+    const int32_t button_y2 = button_y1 + button->height;
 
     // Check
     return x >= button_x1 && x < button_x2 && y >= button_y1 && y < button_y2;
@@ -50,7 +50,7 @@ static Button *create_button(int id, std::string text) {
     button->constructor(id, text);
     return (Button *) button;
 }
-Button *touch_create_button(int id, std::string text) {
+Button *touch_create_button(const int id, std::string text) {
     if (touch_gui) {
         return create_button<Touch_TButton>(id, text);
     } else {
@@ -102,7 +102,7 @@ void init_touch() {
     }
 
     // Show Block Outlines
-    int block_outlines = feature_has("Show Block Outlines", server_disabled);
+    const bool block_outlines = feature_has("Show Block Outlines", server_disabled);
     unsigned char outline_patch[4] = {(unsigned char) (block_outlines ? !touch_gui : touch_gui), 0x00, 0x50, 0xe3}; // "cmp r0, #0x1" or "cmp r0, #0x0"
     patch((void *) 0x4a210, outline_patch);
 }

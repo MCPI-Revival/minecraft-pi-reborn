@@ -32,7 +32,7 @@ static bool OptionsScreen_handleBackEvent_injection(OptionsScreen *screen, bool 
 }
 
 // Fix "Sleeping Beauty" Bug
-static bool InBedScreen_handleBackEvent_injection(InBedScreen *screen, bool do_nothing) {
+static bool InBedScreen_handleBackEvent_injection(InBedScreen *screen, const bool do_nothing) {
     if (!do_nothing) {
         // Close Screen
         Minecraft *minecraft = screen->minecraft;
@@ -48,7 +48,7 @@ static bool InBedScreen_handleBackEvent_injection(InBedScreen *screen, bool do_n
 
 // Block UI Interaction When Mouse Is Locked
 static bool Gui_tickItemDrop_Minecraft_isCreativeMode_call_injection(Minecraft *minecraft) {
-    bool is_in_game = minecraft->screen == nullptr || minecraft->screen->vtable == (Screen_vtable *) Touch_IngameBlockSelectionScreen_vtable_base;
+    const bool is_in_game = minecraft->screen == nullptr || minecraft->screen->vtable == (Screen_vtable *) Touch_IngameBlockSelectionScreen_vtable_base;
     if (!enable_misc || (SDL_WM_GrabInput(SDL_GRAB_QUERY) == SDL_GRAB_OFF && is_in_game)) {
         // Call Original Method
         return creative_is_restricted() && minecraft->isCreativeMode();

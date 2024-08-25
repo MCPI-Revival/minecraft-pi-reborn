@@ -16,10 +16,10 @@ struct TextInputBox {
     void tick();
     void setFocused(bool b);
     void onClick(int x, int y);
-    bool clicked(int x, int y);
-    std::string getText();
+    [[nodiscard]] bool clicked(int x, int y) const;
+    [[nodiscard]] std::string getText() const;
     void setText(std::string text);
-    bool isFocused();
+    [[nodiscard]] bool isFocused() const;
     void setMaxLength(int max_length);
 
 private:

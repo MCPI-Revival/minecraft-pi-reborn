@@ -53,6 +53,11 @@
     * `Always Save Chest Tile Entities`
     * `Fix Transferring Durability When Using Items`
     * `Fix Switching Perspective While Sneaking`
+    * `Log Chat Messages`
+    * `Log Game Status`
+    * `Screenshot Support`
+    * `Fix Camera Functionality`
+    * `Property Scale Animated Textures`
 * Split Up `Remove Creative Mode Restrictions` Feature Flag
   * `Remove Creative Mode Restrictions` (Disabled By Default)
   * `Display Slot Count In Creative Mode` (Disabled By Default)

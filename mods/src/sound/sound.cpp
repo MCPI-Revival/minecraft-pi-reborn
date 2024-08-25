@@ -59,9 +59,9 @@ std::string _sound_get_source_file() {
 
 // Play Sound
 // The pitch value is unsued because it causes glitchy sounds, it is seemingly unused in MCPE as well.
-static void play(std::string name, float x, float y, float z, float volume, float pitch, bool is_ui) {
-    std::string source = _sound_get_source_file();
-    std::string resolved_name = _sound_pick(name);
+static void play(const std::string &name, const float x, const float y, const float z, const float volume, float pitch, const bool is_ui) {
+    const std::string source = _sound_get_source_file();
+    const std::string resolved_name = _sound_pick(name);
     if (pitch < 0.01f) {
         pitch = 1;
     }
@@ -69,10 +69,10 @@ static void play(std::string name, float x, float y, float z, float volume, floa
         media_audio_play(source.c_str(), resolved_name.c_str(), x, y, z, pitch, volume, is_ui);
     }
 }
-static void SoundEngine_playUI_injection(__attribute__((unused)) SoundEngine_playUI_t original, __attribute__((unused)) SoundEngine *sound_engine, const std::string &name, float volume, float pitch) {
+static void SoundEngine_playUI_injection(__attribute__((unused)) SoundEngine_playUI_t original, __attribute__((unused)) SoundEngine *sound_engine, const std::string &name, const float volume, const float pitch) {
     play(name, 0, 0, 0, volume, pitch, true);
 }
-static void SoundEngine_play_injection(__attribute__((unused)) SoundEngine_play_t original, __attribute__((unused)) SoundEngine *sound_engine, const std::string &name, float x, float y, float z, float volume, float pitch) {
+static void SoundEngine_play_injection(__attribute__((unused)) SoundEngine_play_t original, __attribute__((unused)) SoundEngine *sound_engine, const std::string &name, const float x, const float y, const float z, const float volume, const float pitch) {
     play(name, x, y, z, volume, pitch, false);
 }
 
@@ -89,7 +89,7 @@ static void SoundEngine_update_injection(__attribute__((unused)) SoundEngine_upd
     Options *options = sound_engine->options;
 
     // Volume
-    int32_t sound_enabled = options->sound;
+    const int32_t sound_enabled = options->sound;
     volume = sound_enabled ? 1 : 0;
 
     // Position And Rotation

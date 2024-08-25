@@ -98,3 +98,8 @@ TRUE Fullscreen Support
 TRUE Always Save Chest Tile Entities
 TRUE Fix Transferring Durability When Using Items
 TRUE Fix Switching Perspective While Sneaking
+TRUE Log Chat Messages
+TRUE Log Game Status
+TRUE Screenshot Support
+TRUE Fix Camera Functionality
+TRUE Property Scale Animated Textures

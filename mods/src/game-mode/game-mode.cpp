@@ -57,7 +57,7 @@ void init_game_mode() {
         overwrite_call((void *) 0x16f84, (void *) ServerLevel_constructor->get(true));
 
         // Allocate Correct Size For ServerLevel
-        uint32_t level_size = sizeof(ServerLevel);
+        constexpr uint32_t level_size = sizeof(ServerLevel);
         patch_address((void *) 0x17004, (void *) level_size);
 
         // Disable CreatorMode-Specific API Features (Polling Block Hits) In SurvivalMode, This Is Preferable To Crashing

@@ -50,7 +50,9 @@ static void TripodCameraRenderer_render_TileRenderer_tesselateCrossTexture_injec
 // Init
 void init_camera() {
     // Implement AppPlatform_linux::saveScreenshot So Cameras Work
-    overwrite_calls(AppPlatform_saveScreenshot, AppPlatform_saveScreenshot_injection);
+    if (feature_has("Fix Camera Functionality", server_disabled)) {
+        overwrite_calls(AppPlatform_saveScreenshot, AppPlatform_saveScreenshot_injection);
+    }
 
     // Fix Camera Rendering
     if (feature_has("Fix Camera Rendering", server_disabled)) {

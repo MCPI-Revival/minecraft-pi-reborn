@@ -81,16 +81,6 @@ static RakNet_StartupResult RakNetInstance_host_RakNet_RakPeer_Startup_injection
     return result;
 }
 
-// Fix Bug Where RakNetInstance Starts Pinging Potential Servers Before The "Join Game" Screen Is Opened
-static RakNetInstance *RakNetInstance_injection(RakNetInstance_constructor_t original, RakNetInstance *rak_net_instance) {
-    // Call Original Method
-    RakNetInstance *result = original(rak_net_instance);
-    // Fix
-    rak_net_instance->pinging_for_hosts = 0;
-    // Return
-    return result;
-}
-
 // Fix Furnace Not Checking Item Auxiliary When Inserting New Item
 static int32_t FurnaceScreen_handleAddItem_injection(FurnaceScreen_handleAddItem_t original, FurnaceScreen *furnace_screen, int32_t slot, const ItemInstance *item) {
     // Get Existing Item
@@ -459,11 +449,6 @@ void init_misc() {
     // Print Error Message If RakNet Startup Fails
     if (feature_has("Log RakNet Startup Errors", server_enabled)) {
         overwrite_call((void *) 0x73778, (void *) RakNetInstance_host_RakNet_RakPeer_Startup_injection);
-    }
-
-    // Fix Bug Where RakNetInstance Starts Pinging Potential Servers Before The "Join Game" Screen Is Opened
-    if (feature_has("Prevent Unnecessary Server Pinging", server_enabled)) {
-        overwrite_calls(RakNetInstance_constructor, RakNetInstance_injection);
     }
 
     // Fix Furnace Not Checking Item Auxiliary When Inserting New Item

@@ -12,7 +12,7 @@ static bool MouseBuildInput_tickBuild_injection(MouseBuildInput_tickBuild_t orig
     const bool ret = original(mouse_build_input, local_player, build_action_intention_return);
     // Convert Remove/Attack Into Attack If A Tile Is Not Selected
     if (ret && *build_action_intention_return == REMOVE_ATTACK_BAI) {
-        Minecraft *minecraft = ((LocalPlayer *) local_player)->minecraft;
+        const Minecraft *minecraft = ((LocalPlayer *) local_player)->minecraft;
         if (minecraft->hit_result.type != 0) {
             *build_action_intention_return = ATTACK_BAI;
         }

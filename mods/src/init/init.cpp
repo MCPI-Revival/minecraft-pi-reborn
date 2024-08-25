@@ -12,9 +12,8 @@ __attribute__((constructor)) static void init() {
     init_compat();
     if (reborn_is_server()) {
         init_server();
-    } else {
-        init_multiplayer();
     }
+    init_multiplayer();
     if (!reborn_is_headless()) {
         init_sound();
     }

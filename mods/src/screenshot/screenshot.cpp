@@ -18,6 +18,7 @@
 #include <mods/misc/misc.h>
 #include <mods/input/input.h>
 #include <mods/init/init.h>
+#include <mods/feature/feature.h>
 
 // Ensure Screenshots Folder Exists
 static std::string get_screenshot_dir() {
@@ -46,7 +47,7 @@ void screenshot_take(Gui *gui) {
     // Get Timestamp
     time_t raw_time;
     time(&raw_time);
-    tm *time_info = localtime(&raw_time);
+    const tm *time_info = localtime(&raw_time);
     char time[512];
     strftime(time, 512, "%Y-%m-%d_%H.%M.%S", time_info);
 
@@ -66,10 +67,10 @@ void screenshot_take(Gui *gui) {
     // Get Image Size
     GLint viewport[4];
     glGetIntegerv(GL_VIEWPORT, viewport);
-    int x = viewport[0];
-    int y = viewport[1];
-    int width = viewport[2];
-    int height = viewport[3];
+    const int x = viewport[0];
+    const int y = viewport[1];
+    const int width = viewport[2];
+    const int height = viewport[3];
 
     // Get Line Size
     int line_size = width * 4;
@@ -80,7 +81,7 @@ void screenshot_take(Gui *gui) {
         // Round
         line_size = ALIGN_UP(line_size, alignment);
     }
-    int size = height * line_size;
+    const int size = height * line_size;
 
     // Read Pixels
     unsigned char *pixels = (unsigned char *) malloc(size);
@@ -105,15 +106,17 @@ void screenshot_take(Gui *gui) {
 
 // Init
 void init_screenshot() {
-    // Create Directory
-    get_screenshot_dir();
-    // Take Screenshot On F2
-    misc_run_on_key_press([](Minecraft *mc, int key) {
-        if (key == MC_KEY_F2) {
-            screenshot_take(&mc->gui);
-            return true;
-        } else {
-            return false;
-        }
-    });
+    if (feature_has("Screenshot Support", server_disabled)) {
+        // Create Directory
+        get_screenshot_dir();
+        // Take Screenshot On F2
+        misc_run_on_key_press([](Minecraft *mc, int key) {
+            if (key == MC_KEY_F2) {
+                screenshot_take(&mc->gui);
+                return true;
+            } else {
+                return false;
+            }
+        });
+    }
 }

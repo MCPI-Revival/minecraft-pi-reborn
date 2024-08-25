@@ -13,9 +13,9 @@ std::string get_death_message(Player *player, Entity *cause, const bool was_shot
     std::string message = player->username;
     if (cause) {
         // Entity cause
-        int type_id = cause->getEntityTypeId();
+        const int type_id = cause->getEntityTypeId();
         int aux = cause->getAuxData();
-        bool is_player = cause->isPlayer();
+        const bool is_player = cause->isPlayer();
         if (cause->getCreatureBaseType() != 0 || is_player) {
             // Killed by a creature
             if (was_shot) {
@@ -134,12 +134,12 @@ void init_death() {
         overwrite_calls(LocalPlayer_actuallyHurt, LocalPlayer_actuallyHurt_injection);
         patch_vtable(ServerPlayer_actuallyHurt, ServerPlayer_actuallyHurt_injection);
         overwrite_calls(Mob_hurt, Mob_hurt_injection);
-    }
 
-    // Fix TNT
-    // This changes PrimedTnt_explode from Level::explode(nullptr, x, y, z, 3.1f) to Level::explode(this, x, y, z, 3.1f)
-    unsigned char cpy_r1_r0_patch[4] = {0x00, 0x10, 0xa0, 0xe1}; // "cpy r1, r0"
-    patch((void *) 0x87998, cpy_r1_r0_patch);
-    unsigned char ldr_r0_24_patch[4] = {0x24, 0x00, 0x90, 0xe5}; // "ldr r0, [r0, #0x24]"
-    patch((void *) 0x8799c, ldr_r0_24_patch);
+        // Fix TNT
+        // This changes PrimedTnt_explode from Level::explode(nullptr, x, y, z, 3.1f) to Level::explode(this, x, y, z, 3.1f)
+        unsigned char cpy_r1_r0_patch[4] = {0x00, 0x10, 0xa0, 0xe1}; // "cpy r1, r0"
+        patch((void *) 0x87998, cpy_r1_r0_patch);
+        unsigned char ldr_r0_24_patch[4] = {0x24, 0x00, 0x90, 0xe5}; // "ldr r0, [r0, #0x24]"
+        patch((void *) 0x8799c, ldr_r0_24_patch);
+    }
 }

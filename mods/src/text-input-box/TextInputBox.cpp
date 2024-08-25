@@ -28,7 +28,7 @@ TextInputBox *TextInputBox::create(const std::string &placeholder, const std::st
     return self;
 }
 
-void TextInputBox::setSize(int x, int y, int width, int height) {
+void TextInputBox::setSize(const int x, const int y, const int width, const int height) {
     m_xPos = x;
     m_yPos = y;
     m_width = width;
@@ -40,11 +40,11 @@ void TextInputBox::init(Font *pFont) {
     m_pFont = pFont;
 }
 
-void TextInputBox::setEnabled(bool bEnabled) {
+void TextInputBox::setEnabled(const bool bEnabled) {
     m_bEnabled = bEnabled;
 }
 
-void TextInputBox::keyPressed(int key) {
+void TextInputBox::keyPressed(const int key) {
     if (!m_bFocused) {
         return;
     }
@@ -125,7 +125,7 @@ void TextInputBox::tick() {
     }
 }
 
-void TextInputBox::setFocused(bool b) {
+void TextInputBox::setFocused(const bool b) {
     if (m_bFocused == b) {
         return;
     }
@@ -144,7 +144,7 @@ void TextInputBox::onClick(int x, int y) {
 }
 
 static int PADDING = 5;
-void TextInputBox::charPressed(int k) {
+void TextInputBox::charPressed(const int k) {
     if (!m_bFocused) {
         return;
     }
@@ -165,9 +165,9 @@ void TextInputBox::charPressed(int k) {
     recalculateScroll();
 }
 
-static std::string get_rendered_text(Font *font, int width, int scroll_pos, std::string text) {
+static std::string get_rendered_text(Font *font, const int width, const int scroll_pos, std::string text) {
     std::string rendered_text = text.substr(scroll_pos);
-    int max_width = width - (PADDING * 2);
+    const int max_width = width - (PADDING * 2);
     while (font->width(rendered_text) > max_width) {
         rendered_text.pop_back();
     }
@@ -194,14 +194,14 @@ void TextInputBox::render() {
     }
     rendered_text = get_rendered_text(m_pFont, m_width, scroll_pos, rendered_text);
 
-    int textYPos = (m_height - 8) / 2;
+    const int textYPos = (m_height - 8) / 2;
     super.drawString(m_pFont, rendered_text, m_xPos + PADDING, m_yPos + textYPos, text_color);
 
     if (m_bCursorOn) {
-        int cursor_pos = m_insertHead - m_scrollPos;
+        const int cursor_pos = m_insertHead - m_scrollPos;
         if (cursor_pos >= 0 && cursor_pos <= int(rendered_text.length())) {
             std::string substr = rendered_text.substr(0, cursor_pos);
-            int xPos = PADDING + m_pFont->width(substr);
+            const int xPos = PADDING + m_pFont->width(substr);
 
             std::string str;
             str += CURSOR_CHAR;
@@ -210,7 +210,7 @@ void TextInputBox::render() {
     }
 }
 
-bool TextInputBox::clicked(int xPos, int yPos) {
+bool TextInputBox::clicked(const int xPos, const int yPos) const {
     if (!m_bEnabled) {
         return false;
     }
@@ -237,18 +237,18 @@ void TextInputBox::recalculateScroll() {
         return;
     }
     // Ensure Cursor Is Visible
-    bool is_cursor_at_end = m_insertHead == int(m_text.length());
+    const bool is_cursor_at_end = m_insertHead == int(m_text.length());
     if (m_scrollPos >= m_insertHead && m_scrollPos > 0) {
         // Cursor Is At Scroll Position
         // Move Back Scroll As Far As Possible
         while (true) {
-            int test_scroll_pos = m_scrollPos - 1;
+            const int test_scroll_pos = m_scrollPos - 1;
             std::string rendered_text = m_text;
             if (is_cursor_at_end) {
                 rendered_text += CURSOR_CHAR;
             }
             rendered_text = get_rendered_text(m_pFont, m_width, test_scroll_pos, rendered_text);
-            int cursor_pos = m_insertHead - test_scroll_pos;
+            const int cursor_pos = m_insertHead - test_scroll_pos;
             if (cursor_pos >= int(rendered_text.length())) {
                 break;
             } else {
@@ -267,7 +267,7 @@ void TextInputBox::recalculateScroll() {
                 rendered_text += CURSOR_CHAR;
             }
             rendered_text = get_rendered_text(m_pFont, m_width, m_scrollPos, rendered_text);
-            int cursor_pos = m_insertHead - m_scrollPos;
+            const int cursor_pos = m_insertHead - m_scrollPos;
             if (cursor_pos < int(rendered_text.length())) {
                 break;
             } else {
@@ -282,7 +282,7 @@ void TextInputBox::recalculateScroll() {
     }
 }
 
-std::string TextInputBox::getText() {
+std::string TextInputBox::getText() const {
     return m_text;
 }
 
@@ -291,10 +291,10 @@ void TextInputBox::setText(std::string str) {
     m_insertHead = int(m_text.size());
 }
 
-bool TextInputBox::isFocused() {
+bool TextInputBox::isFocused() const {
     return m_bFocused;
 }
 
-void TextInputBox::setMaxLength(int max_length) {
+void TextInputBox::setMaxLength(const int max_length) {
     m_maxLength = max_length;
 }

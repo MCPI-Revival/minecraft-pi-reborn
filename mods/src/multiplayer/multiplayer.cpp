@@ -113,10 +113,25 @@ static void RakNetInstance_pingForHosts_injection(RakNetInstance_pingForHosts_t 
     });
 }
 
+// Fix Bug Where RakNetInstance Starts Pinging Potential Servers Before The "Join Game" Screen Is Opened
+static RakNetInstance *RakNetInstance_injection(RakNetInstance_constructor_t original, RakNetInstance *rak_net_instance) {
+    // Call Original Method
+    RakNetInstance *result = original(rak_net_instance);
+    // Fix
+    rak_net_instance->pinging_for_hosts = false;
+    // Return
+    return result;
+}
+
 // Init
 void init_multiplayer() {
     // Inject Code
     if (feature_has("External Server Support", server_disabled)) {
         overwrite_calls(RakNetInstance_pingForHosts, RakNetInstance_pingForHosts_injection);
+    }
+
+    // Fix Bug Where RakNetInstance Starts Pinging Potential Servers Before The "Join Game" Screen Is Opened
+    if (feature_has("Prevent Unnecessary Server Pinging", server_enabled)) {
+        overwrite_calls(RakNetInstance_constructor, RakNetInstance_injection);
     }
 }

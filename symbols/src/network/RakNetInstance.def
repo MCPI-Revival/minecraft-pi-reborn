@@ -8,4 +8,4 @@ virtual-method uint isServer() = 0x48;
 virtual-method void pingForHosts(int base_port) = 0x14;
 
 property RakNet_RakPeer *peer = 0x4;
-property uchar pinging_for_hosts = 0x24;
+property bool pinging_for_hosts = 0x24;

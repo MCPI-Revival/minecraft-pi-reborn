@@ -1,5 +1,5 @@
 #include <vector>
-#include <assert.h>
+#include <cassert>
 #include <cstdint>
 
 #include <GLES/gl.h>
@@ -49,7 +49,7 @@ HOOK(glTexImage2D, void, (GLenum target, GLint level, GLint internalformat, GLsi
 HOOK(glDeleteTextures, void, (GLsizei n, const GLuint *textures)) {
     // Remove Old Data
     for (int i = 0; i < n; i++) {
-        GLint id = textures[i];
+        const GLint id = textures[i];
         std::vector<texture_data>::iterator it = get_texture_data().begin();
         while (it != get_texture_data().end()) {
             texture_data data = *it;
@@ -65,7 +65,7 @@ HOOK(glDeleteTextures, void, (GLsizei n, const GLuint *textures)) {
     ensure_glDeleteTextures();
     real_glDeleteTextures(n, textures);
 }
-static void get_texture_size(GLint id, GLsizei *width, GLsizei *height) {
+static void get_texture_size(const GLint id, GLsizei *width, GLsizei *height) {
     // Iterate
     std::vector<texture_data>::iterator it = get_texture_data().begin();
     while (it != get_texture_data().end()) {
@@ -85,7 +85,7 @@ static void get_texture_size(GLint id, GLsizei *width, GLsizei *height) {
 
 // Scale Texture (Remember To Free)
 #define PIXEL_SIZE 4
-static int get_line_size(int width) {
+static int get_line_size(const int width) {
     int line_size = width * PIXEL_SIZE;
     {
         // Handle Alignment
@@ -96,9 +96,9 @@ static int get_line_size(int width) {
     }
     return line_size;
 }
-static void *scale_texture(const unsigned char *src, GLsizei old_width, GLsizei old_height, GLsizei new_width, GLsizei new_height) {
-    int old_line_size = get_line_size(old_width);
-    int new_line_size = get_line_size(new_width);
+static void *scale_texture(const unsigned char *src, const GLsizei old_width, const GLsizei old_height, const GLsizei new_width, const GLsizei new_height) {
+    const int old_line_size = get_line_size(old_width);
+    const int new_line_size = get_line_size(new_width);
 
     // Allocate
     unsigned char *dst = (unsigned char *) malloc(new_height * new_line_size);
@@ -106,13 +106,13 @@ static void *scale_texture(const unsigned char *src, GLsizei old_width, GLsizei 
 
     // Scale
     for (int new_x = 0; new_x < new_width; new_x++) {
-        int old_x = (int) (((float) new_x / (float) new_width) * (float) old_width);
+        const int old_x = (int) (((float) new_x / (float) new_width) * (float) old_width);
         for (int new_y = 0; new_y < new_height; new_y++) {
-            int old_y = (int) (((float) new_y / (float) new_height) * (float) old_height);
+            const int old_y = (int) (((float) new_y / (float) new_height) * (float) old_height);
 
             // Find Position
-            int new_position = (new_y * new_line_size) + (new_x * PIXEL_SIZE);
-            int old_position = (old_y * old_line_size) + (old_x * PIXEL_SIZE);
+            const int new_position = (new_y * new_line_size) + (new_x * PIXEL_SIZE);
+            const int old_position = (old_y * old_line_size) + (old_x * PIXEL_SIZE);
 
             // Copy
             static_assert(sizeof (int32_t) == PIXEL_SIZE, "Pixel Size Doesn't Match 32-Bit Integer Size");
@@ -125,7 +125,7 @@ static void *scale_texture(const unsigned char *src, GLsizei old_width, GLsizei 
 }
 
 // Scale Animated Textures
-void glTexSubImage2D_with_scaling(GLenum target, GLint level, GLint xoffset, GLint yoffset, GLsizei width, GLsizei height, GLsizei normal_texture_width, GLsizei normal_texture_height, GLenum format, GLenum type, const void *pixels) {
+void glTexSubImage2D_with_scaling(const GLenum target, const GLint level, const GLint xoffset, const GLint yoffset, const GLsizei width, const GLsizei height, const GLsizei normal_texture_width, const GLsizei normal_texture_height, const GLenum format, const GLenum type, const void *pixels) {
     // Get Current Texture Size
     GLint current_texture;
     glGetIntegerv(GL_TEXTURE_BINDING_2D, &current_texture);
@@ -134,8 +134,8 @@ void glTexSubImage2D_with_scaling(GLenum target, GLint level, GLint xoffset, GLi
     get_texture_size(current_texture, &texture_width, &texture_height);
 
     // Calculate Factor
-    float width_factor = ((float) texture_width) / ((float) normal_texture_width);
-    float height_factor = ((float) texture_height) / ((float) normal_texture_height);
+    const float width_factor = ((float) texture_width) / ((float) normal_texture_width);
+    const float height_factor = ((float) texture_height) / ((float) normal_texture_height);
 
     // Only Scale If Needed
     if (width_factor == 1.0f && height_factor == 1.0f) {
@@ -149,25 +149,25 @@ void glTexSubImage2D_with_scaling(GLenum target, GLint level, GLint xoffset, GLi
         }
 
         // Scale
-        GLsizei new_width = width * width_factor;
-        GLsizei new_height = height * height_factor;
+        const GLsizei new_width = width * width_factor;
+        const GLsizei new_height = height * height_factor;
         void *new_pixels = scale_texture((const unsigned char *) pixels, width, height, new_width, new_height);
 
         // Call Original Method
-        GLint new_xoffset = xoffset * width_factor;
-        GLint new_yoffset = yoffset * height_factor;
+        const GLint new_xoffset = xoffset * width_factor;
+        const GLint new_yoffset = yoffset * height_factor;
         glTexSubImage2D(target, level, new_xoffset, new_yoffset, new_width, new_height, format, type, new_pixels);
 
         // Free
         free(new_pixels);
     }
 }
-static void Textures_tick_glTexSubImage2D_injection(GLenum target, GLint level, GLint xoffset, GLint yoffset, GLsizei width, GLsizei height, GLenum format, GLenum type, const void *pixels) {
+static void Textures_tick_glTexSubImage2D_injection(const GLenum target, const GLint level, const GLint xoffset, const GLint yoffset, const GLsizei width, const GLsizei height, const GLenum format, const GLenum type, const void *pixels) {
     glTexSubImage2D_with_scaling(target, level, xoffset, yoffset, width, height, 256, 256, format, type, pixels);
 }
 
 // Load Textures
-static Texture AppPlatform_linux_loadTexture_injection(__attribute__((unused)) AppPlatform_linux_loadTexture_t original, __attribute__((unused)) AppPlatform_linux *app_platform, const std::string &path, bool b) {
+static Texture AppPlatform_linux_loadTexture_injection(__attribute__((unused)) AppPlatform_linux_loadTexture_t original, __attribute__((unused)) AppPlatform_linux *app_platform, const std::string &path, const bool b) {
     Texture out;
     std::string real_path = path;
     if (b) {
@@ -217,9 +217,9 @@ void init_textures() {
     }
 
     // Tick Dynamic Textures (Animated Water)
-    bool animated_water = feature_has("Animated Water", server_disabled);
-    bool animated_lava = feature_has("Animated Lava", server_disabled);
-    bool animated_fire = feature_has("Animated Fire", server_disabled);
+    const bool animated_water = feature_has("Animated Water", server_disabled);
+    const bool animated_lava = feature_has("Animated Lava", server_disabled);
+    const bool animated_fire = feature_has("Animated Fire", server_disabled);
     if (animated_water || animated_lava || animated_fire) {
         // Tick Dynamic Textures
         misc_run_on_tick(Minecraft_tick_injection);
@@ -234,7 +234,9 @@ void init_textures() {
     }
 
     // Scale Animated Textures
-    overwrite_call((void *) 0x53274, (void *) Textures_tick_glTexSubImage2D_injection);
+    if (feature_has("Property Scale Animated Textures", server_disabled)) {
+        overwrite_call((void *) 0x53274, (void *) Textures_tick_glTexSubImage2D_injection);
+    }
 
     // Load Textures
     overwrite_calls(AppPlatform_linux_loadTexture, AppPlatform_linux_loadTexture_injection);

@@ -5,6 +5,7 @@
 
 #include "misc-internal.h"
 #include <mods/misc/misc.h>
+#include <mods/feature/feature.h>
 
 // Print Chat To Log
 static bool Gui_addMessage_recursing = false;
@@ -13,7 +14,7 @@ static void Gui_addMessage_injection(Gui_addMessage_t original, Gui *gui, const 
     char *new_message = strdup(text.c_str());
     ALLOC_CHECK(new_message);
     sanitize_string(new_message, -1, 1);
-    std::string cpp_str = new_message;
+    const std::string cpp_str = new_message;
 
     // Process Message
     if (!Gui_addMessage_recursing) {
@@ -50,8 +51,8 @@ static void print_progress(Minecraft *minecraft) {
         progress = -1;
     }
     if (message != nullptr) {
-        bool message_different = message != last_message;
-        bool progress_significant = is_progress_difference_significant(progress, last_progress);
+        const bool message_different = message != last_message;
+        const bool progress_significant = is_progress_difference_significant(progress, last_progress);
         if (message_different || progress_significant) {
             if (progress != -1) {
                 INFO("Status: %s: %i%%", message, progress);
@@ -86,13 +87,18 @@ static void Level_saveLevelData_injection(Level_saveLevelData_t original, Level 
 // Init
 void _init_misc_logging() {
     // Print Chat To Log
-    overwrite_calls(Gui_addMessage, Gui_addMessage_injection);
+    if (feature_has("Log Chat Messages", server_enabled)) {
+        overwrite_calls(Gui_addMessage, Gui_addMessage_injection);
+    }
 
-    // Print Progress Reports
-    misc_run_on_update(Minecraft_update_injection);
+    // Game Status
+    if (feature_has("Log Game Status", server_enabled)) {
+        // Print Progress Reports
+        misc_run_on_update(Minecraft_update_injection);
 
-    // Print Log On Game Save
-    overwrite_calls(Level_saveLevelData, Level_saveLevelData_injection);
+        // Print Log On Game Save
+        overwrite_calls(Level_saveLevelData, Level_saveLevelData_injection);
+    }
 
     // Disable stdout Buffering
     setvbuf(stdout, nullptr, _IONBF, 0);
