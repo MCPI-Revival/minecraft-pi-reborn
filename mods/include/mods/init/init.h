@@ -30,4 +30,5 @@ void init_override();
 void init_screenshot();
 void init_f3();
 void init_multidraw();
+void init_classic_ui();
 }

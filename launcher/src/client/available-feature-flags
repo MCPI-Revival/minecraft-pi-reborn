@@ -86,3 +86,15 @@ TRUE Stop Creative Players From Burning
 TRUE Render Fire In Third-Person
 TRUE Improved Water Rendering
 TRUE Classic Item Count UI
+TRUE Fix Screen Rendering When Hiding HUD
+TRUE Sanitize Usernames
+TRUE Patch RakNet Security Bug
+TRUE Log RakNet Startup Errors
+TRUE Prevent Unnecessary Server Pinging
+TRUE Proper OpenGL Buffer Generation
+TRUE Fix Furnace Screen Visual Bug
+TRUE Fix Text Wrapping
+TRUE Fullscreen Support
+TRUE Always Save Chest Tile Entities
+TRUE Fix Transferring Durability When Using Items
+TRUE Fix Switching Perspective While Sneaking

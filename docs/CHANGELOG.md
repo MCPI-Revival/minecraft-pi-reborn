@@ -8,37 +8,51 @@
 * Proper Create New World Screen
 * Proper Chat Screen
 * New Feature Flags
-  * `Animated Lava` (Enabled By Default)
-  * `Animated Fire` (Enabled By Default)
-  * `Add Cake` (Enabled By Default)
-  * `Use Java Beta 1.3 Light Ramp` (Enabled By Default)
-  * `Send Full Level When Hosting Game` (Enabled By Default)
-  * `Food Overlay` (Disabled By Default)
-  * `Add Splashes` (Enabled By Default)
-  * `Display Date In Select World Screen` (Enabled By Default)
-  * `Optimized Chunk Sorting` (Enabled By Default)
-  * `Fix Held Item Caching` (Enabled By Default)
-  * `Add Reborn Info To Options` (Enabled By Default)
-  * `Log FPS` (Disabled By Default)
-  * `Add Welcome Screen` (Enabled By Default)
-  * `F3 Debug Information` (Enabled By Default)
-  * `Multidraw Rendering` (Enabled By Default)
-  * `Add Missing Language Strings` (Enabled By Default)
-  * `Fix Pigmen Burning In The Sun` (Enabled By Default)
-  * `Fix Carried Grass's Bottom Texture` (Enabled By Default)
-  * `Hide Crosshair In Third-Person` (Enabled By Default)
-  * `Fix Camera Legs` (Enabled By Default)
-  * `Implement Crafting Remainders` (Enabled By Default)
-  * `Fix Door Duplication` (Enabled By Default)
-  * `Fix Cobweb Lighting` (Enabled By Default)
-  * `Fix Sneaking Syncing` (Enabled By Default)
-  * `Fix Fire Immunity` (Enabled By Default)
-  * `Fix Fire Syncing` (Enabled By Default)
-  * `Fix Sunlight Not Properly Setting Mobs On Fire` (Enabled By Default)
-  * `Stop Creative Players From Burning` (Enabled By Default)
-  * `Render Fire In Third-Person` (Enabled By Default)
-  * `Improved Water Rendering` (Enabled By Default)
-  * `Classic Item Count UI` (Enabled By Default)
+  * New Functionality
+    * `Animated Lava` (Enabled By Default)
+    * `Animated Fire` (Enabled By Default)
+    * `Add Cake` (Enabled By Default)
+    * `Use Java Beta 1.3 Light Ramp` (Enabled By Default)
+    * `Send Full Level When Hosting Game` (Enabled By Default)
+    * `Food Overlay` (Disabled By Default)
+    * `Add Splashes` (Enabled By Default)
+    * `Display Date In Select World Screen` (Enabled By Default)
+    * `Optimized Chunk Sorting` (Enabled By Default)
+    * `Fix Held Item Caching` (Enabled By Default)
+    * `Add Reborn Info To Options` (Enabled By Default)
+    * `Log FPS` (Disabled By Default)
+    * `Add Welcome Screen` (Enabled By Default)
+    * `F3 Debug Information` (Enabled By Default)
+    * `Multidraw Rendering` (Enabled By Default)
+    * `Add Missing Language Strings` (Enabled By Default)
+    * `Fix Pigmen Burning In The Sun` (Enabled By Default)
+    * `Fix Carried Grass's Bottom Texture` (Enabled By Default)
+    * `Hide Crosshair In Third-Person` (Enabled By Default)
+    * `Fix Camera Legs` (Enabled By Default)
+    * `Implement Crafting Remainders` (Enabled By Default)
+    * `Fix Door Duplication` (Enabled By Default)
+    * `Fix Cobweb Lighting` (Enabled By Default)
+    * `Fix Sneaking Syncing` (Enabled By Default)
+    * `Fix Fire Immunity` (Enabled By Default)
+    * `Fix Fire Syncing` (Enabled By Default)
+    * `Fix Sunlight Not Properly Setting Mobs On Fire` (Enabled By Default)
+    * `Stop Creative Players From Burning` (Enabled By Default)
+    * `Render Fire In Third-Person` (Enabled By Default)
+    * `Improved Water Rendering` (Enabled By Default)
+    * `Classic Item Count UI` (Enabled By Default)
+  * Existing Functionality (All Enabled By Default)
+    * `Fix Screen Rendering When Hiding HUD`
+    * `Sanitize Usernames`
+    * `Patch RakNet Security Bug`
+    * `Log RakNet Startup Errors`
+    * `Prevent Unnecessary Server Pinging`
+    * `Proper OpenGL Buffer Generation`
+    * `Fix Furnace Screen Visual Bug`
+    * `Fix Text Wrapping`
+    * `Fullscreen Support`
+    * `Always Save Chest Tile Entities`
+    * `Fix Transferring Durability When Using Items`
+    * `Fix Switching Perspective While Sneaking`
 * Split Up `Remove Creative Mode Restrictions` Feature Flag
   * `Remove Creative Mode Restrictions` (Disabled By Default)
   * `Display Slot Count In Creative Mode` (Disabled By Default)

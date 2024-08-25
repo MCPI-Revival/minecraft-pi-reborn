@@ -29,6 +29,9 @@ set(SRC
     src/misc/misc.cpp
     src/misc/logging.cpp
     src/misc/api.cpp
+    src/misc/graphics.cpp
+    src/misc/ui.cpp
+    src/misc/tinting.cpp
     # options
     src/options/options.cpp
     src/options/ui.cpp
@@ -93,6 +96,8 @@ set(SRC
     src/multidraw/glue.cpp
     src/multidraw/buffer.cpp
     src/multidraw/storage.cpp
+    # classic-ui
+    src/classic-ui/classic-ui.cpp
 )
 # Install Splashes
 install(
