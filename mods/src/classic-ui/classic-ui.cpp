@@ -26,7 +26,7 @@ static void Gui_renderHearts_GuiComponent_blit_hearts_injection(GuiComponent *co
     // Call Original Method
     component->blit(x_dest, y_dest, x_src, y_src, width_dest, height_dest, width_src, height_src);
 }
-GuiComponent_blit_t get_blit_with_classic_hud_offset() {
+std::remove_reference_t<GuiComponent_blit_t> get_blit_with_classic_hud_offset() {
     return use_classic_hud ? Gui_renderHearts_GuiComponent_blit_hearts_injection : GuiComponent_blit->get(false);
 }
 static void Gui_renderHearts_GuiComponent_blit_armor_injection(Gui *component, int32_t x_dest, int32_t y_dest, int32_t x_src, int32_t y_src, int32_t width_dest, int32_t height_dest, int32_t width_src, int32_t height_src) {

@@ -120,7 +120,7 @@ static void ServerPlayer_actuallyHurt_injection(ServerPlayer *player, const int3
     Player_actuallyHurt_injection<Mob, ServerPlayer>(Mob_actuallyHurt->get(false), player, damage);
 }
 static void LocalPlayer_actuallyHurt_injection(LocalPlayer_actuallyHurt_t original, LocalPlayer *player, const int32_t damage) {
-    Player_actuallyHurt_injection(std::move(original), player, damage);
+    Player_actuallyHurt_injection(original, player, damage);
 }
 
 // Init
