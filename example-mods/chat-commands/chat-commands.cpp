@@ -5,13 +5,14 @@
 #include <mods/misc/misc.h>
 
 // The Actual Mod
-HOOK(chat_handle_packet_send, void, (Minecraft *minecraft, ChatPacket *packet)) {
+HOOK(chat_handle_packet_send, void, (const Minecraft *minecraft, ChatPacket *packet)) {
     // Get Message
     const char *message = packet->message.c_str();
     if (message[0] == '/') {
         // API Command
-        Gui *gui = &minecraft->gui;
-        std::string out = chat_send_api_command(minecraft, (char *) &message[1]);
+        Minecraft *mc = (Minecraft *) minecraft;
+        Gui *gui = &mc->gui;
+        std::string out = chat_send_api_command(mc, (char *) &message[1]);
         if (out.length() > 0 && out[out.length() - 1] == '\n') {
             out[out.length() - 1] = '\0';
         }
