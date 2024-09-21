@@ -271,30 +271,115 @@ static void handle_server_stop(Minecraft *minecraft) {
 }
 
 // Handle Commands
-struct Command {
-    const std::string name;
-    const std::string comment;
-    const std::function<void(const std::string &)> callback;
-    [[nodiscard]] bool has_args() const {
-        return name[name.length() - 1] == ' ';
+bool ServerCommand::has_args() const {
+    return name[name.length() - 1] == ' ';
+}
+std::string ServerCommand::get_lhs_help() const {
+    std::string out;
+    out.append(4, ' ');
+    out += name;
+    if (has_args()) {
+        out += "<Arguments>";
     }
-    [[nodiscard]] std::string get_lhs_help() const {
-        std::string out;
-        out.append(4, ' ');
-        out += name;
-        if (has_args()) {
-            out += "<Arguments>";
+    return out;
+}
+std::string ServerCommand::get_full_help(const int max_lhs_length) const {
+    std::string out = get_lhs_help();
+    out.append(max_lhs_length - out.length(), ' ');
+    out += " - ";
+    out += comment;
+    return out;
+}
+std::vector<ServerCommand> *server_get_commands(Minecraft *minecraft, ServerSideNetworkHandler *server_side_network_handler) {
+    std::vector<ServerCommand> *commands = new std::vector<ServerCommand>;
+    // Ban Player
+    if (!is_whitelist()) {
+        commands->push_back({
+            .name = "ban ",
+            .comment = "IP-Ban All Players With Specified Username",
+            .callback = [minecraft](const std::string &cmd) {
+                find_players(minecraft, cmd, ban_callback, false);
+            }
+        });
+    }
+    // Reload White/Blacklist
+    commands->push_back({
+        .name = "reload",
+        .comment = std::string("Reload The ") + (is_whitelist() ? "Whitelist" : "Blacklist"),
+        .callback = [](__attribute__((unused)) const std::string &cmd) {
+            INFO("Reloading %s", is_whitelist() ? "Whitelist" : "Blacklist");
+            is_ip_in_blacklist(nullptr);
         }
-        return out;
-    }
-    [[nodiscard]] std::string get_full_help(const int max_lhs_length) const {
-        std::string out = get_lhs_help();
-        out.append(max_lhs_length - out.length(), ' ');
-        out += " - ";
-        out += comment;
-        return out;
-    }
-};
+    });
+    // Kill Player
+    commands->push_back({
+        .name = "kill ",
+        .comment = "Kill All Players With Specified Username",
+        .callback = [minecraft](const std::string &cmd) {
+            find_players(minecraft, cmd, kill_callback, false);
+        }
+    });
+    // Post Message
+    commands->push_back({
+        .name = "say ",
+        .comment = "Print Specified Message To Chat",
+        .callback = [server_side_network_handler](const std::string &cmd) {
+            // Format Message
+            const std::string message = "[Server] " + cmd;
+            char *safe_message = to_cp437(message.c_str());
+            std::string cpp_string = safe_message;
+            // Post Message To Chat
+            server_side_network_handler->displayGameMessage(cpp_string);
+            // Free
+            free(safe_message);
+        }
+    });
+    // List Players
+    commands->push_back({
+        .name = "list",
+        .comment = "List All Players",
+        .callback = [minecraft](__attribute__((unused)) const std::string &cmd) {
+            INFO("All Players:");
+            find_players(minecraft, "", list_callback, true);
+        }
+    });
+    // Ticks-Per-Second
+    commands->push_back({
+        .name = "tps",
+        .comment = "Print TPS",
+        .callback = [](__attribute__((unused)) const std::string &cmd) {
+            INFO("TPS: %f", tps);
+        }
+    });
+    // Stop
+    commands->push_back({
+        .name = "stop",
+        .comment = "Stop Server",
+        .callback = [](__attribute__((unused)) const std::string &cmd) {
+            compat_request_exit();
+        }
+    });
+    // Help Page
+    commands->push_back({
+        .name = "help",
+        .comment = "Print This Message",
+        .callback = [commands](__attribute__((unused)) const std::string &cmd) {
+            INFO("All Commands:");
+            int max_lhs_length = 0;
+            for (ServerCommand command : *commands) {
+                const int lhs_length = command.get_lhs_help().length();
+                if (lhs_length > max_lhs_length) {
+                    max_lhs_length = lhs_length;
+                }
+            }
+            for (ServerCommand command : *commands) {
+                INFO("%s", command.get_full_help(max_lhs_length).c_str());
+            }
+        }
+    });
+    // Return
+    return commands;
+}
 static void handle_commands(Minecraft *minecraft) {
     // Check If Level Is Generated
     if (minecraft->isLevelGenerated() && stdin_line_ready) {
@@ -306,87 +391,10 @@ static void handle_commands(Minecraft *minecraft) {
         ServerSideNetworkHandler *server_side_network_handler = get_server_side_network_handler(minecraft);
         if (server_side_network_handler != nullptr) {
             // Generate Command List
-            std::vector<Command> commands;
-            if (!is_whitelist()) {
-                commands.push_back({
-                    .name = "ban ",
-                    .comment = "IP-Ban All Players With Specified Username",
-                    .callback = [&minecraft](const std::string &cmd) {
-                        find_players(minecraft, cmd, ban_callback, false);
-                    }
-                });
-            }
-            commands.push_back({
-                .name = "reload",
-                .comment = std::string("Reload The ") + (is_whitelist() ? "Whitelist" : "Blacklist"),
-                .callback = [](__attribute__((unused)) const std::string &cmd) {
-                    INFO("Reloading %s", is_whitelist() ? "Whitelist" : "Blacklist");
-                    is_ip_in_blacklist(nullptr);
-                }
-            });
-            commands.push_back({
-                .name = "kill ",
-                .comment = "Kill All Players With Specified Username",
-                .callback = [&minecraft](const std::string &cmd) {
-                    find_players(minecraft, cmd, kill_callback, false);
-                }
-            });
-            commands.push_back({
-                .name = "say ",
-                .comment = "Print Specified Message To Chat",
-                .callback = [&server_side_network_handler](const std::string &cmd) {
-                    // Format Message
-                    const std::string message = "[Server] " + cmd;
-                    char *safe_message = to_cp437(message.c_str());
-                    std::string cpp_string = safe_message;
-                    // Post Message To Chat
-                    server_side_network_handler->displayGameMessage(cpp_string);
-                    // Free
-                    free(safe_message);
-                }
-            });
-            commands.push_back({
-                .name = "list",
-                .comment = "List All Players",
-                .callback = [&minecraft](__attribute__((unused)) const std::string &cmd) {
-                    INFO("All Players:");
-                    find_players(minecraft, "", list_callback, true);
-                }
-            });
-            commands.push_back({
-                .name = "tps",
-                .comment = "Print TPS",
-                .callback = [](__attribute__((unused)) const std::string &cmd) {
-                    INFO("TPS: %f", tps);
-                }
-            });
-            commands.push_back({
-                .name = "stop",
-                .comment = "Stop Server",
-                .callback = [](__attribute__((unused)) const std::string &cmd) {
-                    compat_request_exit();
-                }
-            });
-            commands.push_back({
-                .name = "help",
-                .comment = "Print This Message",
-                .callback = [&commands](__attribute__((unused)) const std::string &cmd) {
-                    INFO("All Commands:");
-                    int max_lhs_length = 0;
-                    for (Command command : commands) {
-                        const int lhs_length = command.get_lhs_help().length();
-                        if (lhs_length > max_lhs_length) {
-                            max_lhs_length = lhs_length;
-                        }
-                    }
-                    for (Command command : commands) {
-                        INFO("%s", command.get_full_help(max_lhs_length).c_str());
-                    }
-                }
-            });
+            std::vector<ServerCommand> *commands = server_get_commands(minecraft, server_side_network_handler);
             // Run
             bool success = false;
-            for (Command command : commands) {
+            for (ServerCommand command : *commands) {
                 const bool valid = command.has_args() ? data.rfind(command.name, 0) == 0 : data == command.name;
                 if (valid) {
                     command.callback(data.substr(command.name.length()));
@@ -397,6 +405,8 @@ static void handle_commands(Minecraft *minecraft) {
             if (!success) {
                 INFO("Invalid Command: %s", data.c_str());
             }
+            // Free
+            delete commands;
         }
     }
 }
