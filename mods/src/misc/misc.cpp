@@ -114,7 +114,7 @@ static int32_t FurnaceScreen_handleAddItem_injection(FurnaceScreen_handleAddItem
 }
 
 // Get Real Selected Slot
-int32_t misc_get_real_selected_slot(Player *player) {
+int32_t misc_get_real_selected_slot(const Player *player) {
     // Get Selected Slot
     const Inventory *inventory = player->inventory;
     int32_t selected_slot = inventory->selectedSlot;
@@ -376,7 +376,7 @@ static void LocalPlayer_tick_injection(LocalPlayer_tick_t original, LocalPlayer 
         const bool synced = self->getSharedFlag(FLAG_SNEAKING);
         if (real != synced) {
             // Send To Server
-            PlayerActionPacket *packet = new PlayerActionPacket;
+            PlayerActionPacket *packet = PlayerActionPacket::allocate();
             Packet_constructor->get(false)((Packet *) packet);
             packet->vtable = PlayerActionPacket_vtable_base;
             packet->entity_id = self->id;

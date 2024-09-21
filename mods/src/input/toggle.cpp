@@ -7,7 +7,7 @@
 #include <mods/misc/misc.h>
 
 // Handle Toggle Options
-static bool _handle_toggle_options(Minecraft *minecraft, int key) {
+static bool _handle_toggle_options(Minecraft *minecraft, const int key) {
     Options *options = &minecraft->options;
     if (key == MC_KEY_F1) {
         // Toggle Hide GUI
@@ -49,13 +49,13 @@ static void revert_rotation(Entity *entity) {
 }
 static bool is_front_facing = false;
 static LocalPlayer *stored_player = nullptr;
-static void GameRenderer_setupCamera_injection(GameRenderer_setupCamera_t original, GameRenderer *game_renderer, float param_1, int param_2) {
+static void GameRenderer_setupCamera_injection(GameRenderer_setupCamera_t original, GameRenderer *game_renderer, const float param_1, const int param_2) {
     // Get Objects
     Minecraft *minecraft = game_renderer->minecraft;
     stored_player = minecraft->player;
 
     // Check If In Third-Person
-    Options *options = &minecraft->options;
+    const Options *options = &minecraft->options;
     is_front_facing = (options->third_person == 2);
 
     // Invert Rotation
@@ -71,7 +71,7 @@ static void GameRenderer_setupCamera_injection(GameRenderer_setupCamera_t origin
         revert_rotation((Entity *) stored_player);
     }
 }
-static void ParticleEngine_render_injection(ParticleEngine_render_t original, ParticleEngine *particle_engine, Entity *entity, float param_2) {
+static void ParticleEngine_render_injection(ParticleEngine_render_t original, ParticleEngine *particle_engine, Entity *entity, const float param_2) {
     // Invert Rotation
     if (is_front_facing && (Entity *) stored_player == entity) {
         invert_rotation((Entity *) stored_player);

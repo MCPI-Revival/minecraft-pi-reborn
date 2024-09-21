@@ -3,22 +3,23 @@
 #include <symbols/minecraft.h>
 
 struct TextInputBox {
-    static TextInputBox *create(const std::string &placeholder = "", const std::string &text = "");
+    explicit TextInputBox(const std::string &placeholder = "", const std::string &text = "");
+    ~TextInputBox();
 
-    GuiComponent super;
+    GuiComponent *component;
 
     void setSize(int x, int y, int width = 200, int height = 12);
     void init(Font *pFont);
     void setEnabled(bool bEnabled);
     void keyPressed(int key);
-    void charPressed(int chr);
+    void charPressed(int k);
     void render();
     void tick();
     void setFocused(bool b);
     void onClick(int x, int y);
-    [[nodiscard]] bool clicked(int x, int y) const;
+    [[nodiscard]] bool clicked(int xPos, int yPos) const;
     [[nodiscard]] std::string getText() const;
-    void setText(std::string text);
+    void setText(const std::string &text);
     [[nodiscard]] bool isFocused() const;
     void setMaxLength(int max_length);
 

@@ -5,14 +5,12 @@
 #include <map>
 
 class ServerProperties {
-
-private:
     std::map<std::string, std::string> properties;
 
 public:
-    void load(std::istream& fstream);
+    void load(std::istream &stream);
 
-    std::string get_string(std::string const& name, std::string const& def);
-    int get_int(std::string const& name, std::string const& def);
-    bool get_bool(std::string const& name, std::string const& def);
+    [[nodiscard]] std::string get_string(const std::string &name, const std::string &def) const;
+    [[nodiscard]] int get_int(const std::string &name, const std::string &def) const;
+    [[nodiscard]] bool get_bool(const std::string &name, const std::string &def) const;
 };

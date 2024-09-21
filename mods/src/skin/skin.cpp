@@ -18,8 +18,8 @@ static std::string base64_encode(const std::string &data) {
         '4', '5', '6', '7', '8', '9', '+', '/'
     };
 
-    size_t in_len = data.size();
-    size_t out_len = 4 * ((in_len + 2) / 3);
+    const size_t in_len = data.size();
+    const size_t out_len = 4 * ((in_len + 2) / 3);
     std::string ret(out_len, '\0');
     size_t i;
     char *p = const_cast<char *>(ret.c_str());

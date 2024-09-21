@@ -26,14 +26,14 @@ struct Storage {
     Buffer *buffer;
 
     // Chunks
-    std::vector<Block *> chunk_to_block;
+    std::vector<Block *> chunk_to_block = {};
     void upload(int chunk, ssize_t size, const void *data);
 
     // Management
     ssize_t total_size;
     ssize_t used_size;
-    std::vector<Block *> free_blocks;
-    std::vector<Block *> used_blocks;
+    std::vector<Block *> free_blocks = {};
+    std::vector<Block *> used_blocks = {};
     void free_block(Block *block);
     void recreate(ssize_t extra_size = 0);
     void check_fragmentation();

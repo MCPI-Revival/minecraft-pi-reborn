@@ -8,7 +8,7 @@
 // Syscall Method
 static uint32_t trampoline_syscall(const uint32_t id, const uint32_t length, const unsigned char *args) {
     // Make Syscall
-    long ret = syscall(TRAMPOLINE_SYSCALL, id, length, args);
+    const long ret = syscall(TRAMPOLINE_SYSCALL, id, length, args);
     if (ret == -1) {
         // Error
         ERR("Trampoline Error: %s", strerror(errno));
@@ -23,7 +23,7 @@ static int get_pipe(const char *env) {
     if (value == nullptr) {
         IMPOSSIBLE();
     }
-    std::string str = value;
+    const std::string str = value;
     return std::stoi(str);
 }
 static uint32_t trampoline_pipe(const uint32_t id, const bool allow_early_return, const uint32_t length, const unsigned char *args) {

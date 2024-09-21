@@ -6,3 +6,5 @@ property float z1 = 0x8;
 property float x2 = 0xc;
 property float y2 = 0x10;
 property float z2 = 0x14;
+
+mark-as-simple;

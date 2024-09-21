@@ -23,7 +23,7 @@ static void _handle_back(Minecraft *minecraft) {
 }
 
 // Fix OptionsScreen Ignoring The Back Button
-static bool OptionsScreen_handleBackEvent_injection(OptionsScreen *screen, bool do_nothing) {
+static bool OptionsScreen_handleBackEvent_injection(OptionsScreen *screen, const bool do_nothing) {
     if (!do_nothing) {
         Minecraft *minecraft = screen->minecraft;
         minecraft->setScreen(nullptr);
@@ -59,7 +59,7 @@ static bool Gui_tickItemDrop_Minecraft_isCreativeMode_call_injection(Minecraft *
 }
 
 // Block UI Interaction When Mouse Is Locked
-static void Gui_handleClick_injection(Gui_handleClick_t original, Gui *gui, int32_t param_2, int32_t param_3, int32_t param_4) {
+static void Gui_handleClick_injection(Gui_handleClick_t original, Gui *gui, const int32_t param_2, const int32_t param_3, const int32_t param_4) {
     if (SDL_WM_GrabInput(SDL_GRAB_QUERY) == SDL_GRAB_OFF) {
         // Call Original Method
         original(gui, param_2, param_3, param_4);

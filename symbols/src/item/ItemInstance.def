@@ -14,3 +14,5 @@ method bool isNull() = 0x999b0;
 property int count = 0x0;
 property int id = 0x4;
 property int auxiliary = 0x8;
+
+mark-as-simple;

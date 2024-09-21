@@ -33,7 +33,7 @@ static void Gui_renderHearts_injection(Gui_renderHearts_t original, Gui *gui) {
 }
 #define PINK_HEART_FULL 70
 #define PINK_HEART_HALF 79
-static void Gui_renderHearts_GuiComponent_blit_overlay_empty_injection(Gui *gui, int32_t x1, int32_t y1, int32_t x2, int32_t y2, int32_t w1, int32_t h1, int32_t w2, int32_t h2) {
+static void Gui_renderHearts_GuiComponent_blit_overlay_empty_injection(Gui *gui, const int32_t x1, const int32_t y1, const int32_t x2, const int32_t y2, const int32_t w1, const int32_t h1, const int32_t w2, const int32_t h2) {
     // Call Original Method
     get_blit_with_classic_hud_offset()((GuiComponent *) gui, x1, y1, x2, y2, w1, h1, w2, h2);
     // Render The Overlay
@@ -47,7 +47,7 @@ static void Gui_renderHearts_GuiComponent_blit_overlay_empty_injection(Gui *gui,
         heal_amount_drawing -= 2;
     }
 }
-static void Gui_renderHearts_GuiComponent_blit_overlay_hearts_injection(Gui *gui, int32_t x1, int32_t y1, int32_t x2, int32_t y2, int32_t w1, int32_t h1, int32_t w2, int32_t h2) {
+static void Gui_renderHearts_GuiComponent_blit_overlay_hearts_injection(Gui *gui, const int32_t x1, const int32_t y1, const int32_t x2, const int32_t y2, const int32_t w1, const int32_t h1, const int32_t w2, const int32_t h2) {
     // Offset the overlay
     if (x2 == 52) {
         heal_amount_drawing += 2;
@@ -100,7 +100,7 @@ static void Gui_tick_injection(Gui_tick_t original, Gui *gui) {
     }
 }
 // Trigger Reset Selected Item Text Timer On Slot Select
-static void Inventory_selectSlot_injection(Inventory_selectSlot_t original, Inventory *inventory, int32_t slot) {
+static void Inventory_selectSlot_injection(Inventory_selectSlot_t original, Inventory *inventory, const int32_t slot) {
     // Call Original Method
     original(inventory, slot);
 

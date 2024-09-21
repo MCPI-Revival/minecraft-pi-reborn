@@ -8,3 +8,5 @@ property bool field4_0x10 = 0x10;
 property bool field5_0x11 = 0x11;
 property int field6_0x14 = 0x14;
 property int field7_0x18 = 0x18;
+
+mark-as-simple;

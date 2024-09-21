@@ -184,9 +184,9 @@ CUSTOM_VTABLE(bucket, FoodItem) {
 }
 
 // Create Items
-static FoodItem *create_bucket(int32_t id, int32_t texture_x, int32_t texture_y, std::string name) {
+static FoodItem *create_bucket(const int32_t id, int32_t texture_x, int32_t texture_y, std::string name) {
     // Construct
-    FoodItem *item = new FoodItem;
+    FoodItem *item = FoodItem::allocate();
     ALLOC_CHECK(item);
     Item_constructor->get(false)((Item *) item, id); // FoodItem's Constructor Was Inlined
 
@@ -253,7 +253,7 @@ static HitResult Mob_pick_Level_clip_injection(Level *level, const Vec3 &param_1
     // Call Original Method
     return level->clip(param_1, param_2, is_holding_bucket, clip_hitboxes);
 }
-static void handle_tick(Minecraft *minecraft) {
+static void handle_tick(const Minecraft *minecraft) {
     LocalPlayer *player = minecraft->player;
     if (player != nullptr) {
         // Get Selected Slot
@@ -261,14 +261,14 @@ static void handle_tick(Minecraft *minecraft) {
         Inventory *inventory = player->inventory;
 
         // Get Item
-        ItemInstance *inventory_item = inventory->getItem(selected_slot);
+        const ItemInstance *inventory_item = inventory->getItem(selected_slot);
         // Check
         is_holding_bucket = inventory_item != nullptr && inventory_item->id == bucket->id && inventory_item->auxiliary == 0;
     }
 }
 
 // Prevent Breaking Liquid
-static bool is_calm_liquid(int32_t id) {
+static bool is_calm_liquid(const int32_t id) {
     if (id == Tile::calmWater->id) {
         return true;
     } else if (id == Tile::calmLava->id) {
@@ -277,14 +277,14 @@ static bool is_calm_liquid(int32_t id) {
         return false;
     }
 }
-static void Minecraft_handleMouseDown_injection(Minecraft_handleMouseDown_t original, Minecraft *minecraft, int param_1, bool can_destroy) {
+static void Minecraft_handleMouseDown_injection(Minecraft_handleMouseDown_t original, Minecraft *minecraft, const int param_1, bool can_destroy) {
     // Check
     Level *level = minecraft->level;
     if (level != nullptr) {
         int32_t x = minecraft->hit_result.x;
         int32_t y = minecraft->hit_result.y;
         int32_t z = minecraft->hit_result.z;
-        int32_t tile = level->getTile(x, y, z);
+        const int32_t tile = level->getTile(x, y, z);
         if (is_calm_liquid(tile)) {
             can_destroy = false;
         }
@@ -297,9 +297,9 @@ static void Minecraft_handleMouseDown_injection(Minecraft_handleMouseDown_t orig
 // Custom Crafting Recipes
 static void Recipes_injection(Recipes *recipes) {
     // Add
-    Recipes_Type type1 = {
-        .item = 0,
-        .tile = 0,
+    constexpr Recipes_Type type1 = {
+        .item = nullptr,
+        .tile = nullptr,
         .instance = {
             .count = 3,
             .id = 265,
@@ -314,7 +314,7 @@ static void Recipes_injection(Recipes *recipes) {
     };
     std::string line1 = "# #";
     std::string line2 = " # ";
-    std::vector<Recipes_Type> types = {type1};
+    std::vector types = {type1};
     recipes->addShapedRecipe_2(result, line1, line2, types);
 }
 

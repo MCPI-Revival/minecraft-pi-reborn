@@ -32,7 +32,7 @@ static void load_pending_skins(__attribute__((unused)) Minecraft *minecraft) {
     pthread_mutex_lock(&pending_skins_lock);
 
     // Loop
-    for (pending_skin &skin : get_pending_skins()) {
+    for (const pending_skin &skin : get_pending_skins()) {
         // Read PNG Info
         int width = 0, height = 0, channels = 0;
         stbi_uc *img = stbi_load_from_memory((unsigned char *) skin.data, skin.size, &width, &height, &channels, STBI_rgb_alpha);
@@ -52,7 +52,7 @@ static void load_pending_skins(__attribute__((unused)) Minecraft *minecraft) {
     }
 
     // Free
-    for (pending_skin &skin : get_pending_skins()) {
+    for (const pending_skin &skin : get_pending_skins()) {
         free(skin.data);
     }
 
@@ -80,10 +80,10 @@ struct loader_data {
 };
 static void *loader_thread(void *user_data) {
     // Loader Data
-    loader_data *data = (loader_data *) user_data;
+    const loader_data *data = (loader_data *) user_data;
 
     // Download
-    std::string url = get_skin_server() + '/' + data->name + ".png";
+    const std::string url = get_skin_server() + '/' + data->name + ".png";
     int return_code;
     const char *command[] = {"wget", "-O", "-", url.c_str(), nullptr};
     size_t output_size = 0;
@@ -95,7 +95,7 @@ static void *loader_thread(void *user_data) {
         DEBUG("Downloaded Skin: %s", data->name.c_str());
 
         // Add To Pending Skins
-        pending_skin skin;
+        pending_skin skin = {};
         skin.texture_id = data->texture_id;
         skin.data = output;
         skin.size = (int) output_size;
@@ -116,7 +116,7 @@ static void *loader_thread(void *user_data) {
 // Intercept Texture Creation
 static int32_t Textures_assignTexture_injection(Textures_assignTexture_t original, Textures *textures, const std::string &name, unsigned char *data) {
     // Call Original Method
-    int32_t id = original(textures, name, data);
+    const int32_t id = original(textures, name, data);
 
     // Load Skin
     if (starts_with(name.c_str(), "$")) {

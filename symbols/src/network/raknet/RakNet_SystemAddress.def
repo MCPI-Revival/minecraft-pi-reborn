@@ -1,3 +1,7 @@
 size 0x14;
 
 method char *ToString(bool print_delimiter, char delimiter) = 0xd6198;
+
+property uchar data[0x14] = 0x0;
+
+mark-as-simple;

@@ -6,8 +6,8 @@
 #include <symbols/minecraft.h>
 
 extern "C" {
-int32_t misc_get_real_selected_slot(Player *player);
-void misc_render_background(int color, Minecraft *minecraft, int x, int y, int width, int height);
+int32_t misc_get_real_selected_slot(const Player *player);
+void misc_render_background(int color, const Minecraft *minecraft, int x, int y, int width, int height);
 
 extern bool is_in_chat;
 

@@ -1,7 +1,5 @@
 #define __USE_LARGEFILE64
 
-#include <cstddef>
-#include <cstdint>
 #include <dirent.h>
 
 // Minecraft: Pi Edition Was Not Compiled With 64-Bit Filesystem Support, So This Shims readdir() To Read Directories Properly
@@ -9,7 +7,7 @@
 #define FILENAME_SIZE 256
 
 dirent *readdir(DIR *dirp) {
-    dirent64 *original = readdir64(dirp);
+    const dirent64 *original = readdir64(dirp);
     if (original == nullptr) {
         return nullptr;
     }

@@ -8,3 +8,5 @@ property int side = 0x10;
 property Vec3 exact = 0x14;
 property Entity *entity = 0x20;
 property uchar unknown = 0x24;
+
+mark-as-simple;

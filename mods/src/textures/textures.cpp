@@ -16,7 +16,7 @@
 #include "stb_image.h"
 
 // Animated Water
-static void Minecraft_tick_injection(Minecraft *minecraft) {
+static void Minecraft_tick_injection(const Minecraft *minecraft) {
     // Tick Dynamic Textures
     Textures *textures = minecraft->textures;
     if (textures != nullptr) {
@@ -36,7 +36,7 @@ static std::vector<texture_data> &get_texture_data() {
 }
 HOOK(glTexImage2D, void, (GLenum target, GLint level, GLint internalformat, GLsizei width, GLsizei height, GLint border, GLenum format, GLenum type, const void *pixels)) {
     // Store
-    texture_data data;
+    texture_data data = {};
     glGetIntegerv(GL_TEXTURE_BINDING_2D, &data.id);
     data.width = width;
     data.height = height;
@@ -52,7 +52,7 @@ HOOK(glDeleteTextures, void, (GLsizei n, const GLuint *textures)) {
         const GLint id = textures[i];
         std::vector<texture_data>::iterator it = get_texture_data().begin();
         while (it != get_texture_data().end()) {
-            texture_data data = *it;
+            const texture_data data = *it;
             if (data.id == id) {
                 it = get_texture_data().erase(it);
             } else {
@@ -69,7 +69,7 @@ static void get_texture_size(const GLint id, GLsizei *width, GLsizei *height) {
     // Iterate
     std::vector<texture_data>::iterator it = get_texture_data().begin();
     while (it != get_texture_data().end()) {
-        texture_data data = *it;
+        const texture_data data = *it;
         if (data.id == id) {
             // Found
             *width = data.width;

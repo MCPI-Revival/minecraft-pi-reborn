@@ -75,7 +75,7 @@ static void Minecraft_init_injection(Minecraft_init_t original, Minecraft *minec
 }
 
 // Smooth Lighting
-static bool TileRenderer_tesselateBlockInWorld_injection(TileRenderer_tesselateBlockInWorld_t original, TileRenderer *tile_renderer, Tile *tile, int32_t x, int32_t y, int32_t z) {
+static bool TileRenderer_tesselateBlockInWorld_injection(TileRenderer_tesselateBlockInWorld_t original, TileRenderer *tile_renderer, Tile *tile, const int32_t x, const int32_t y, const int32_t z) {
     // Set Variable
     Minecraft::useAmbientOcclusion = stored_options->ambient_occlusion;
 
@@ -103,20 +103,20 @@ static void Options_save_Options_addOptionToSaveOutput_injection(Options *option
 // MCPI's OptionsFile::getOptionStrings is broken, this is the version in v0.7.0
 static std::vector<std::string> OptionsFile_getOptionStrings_injection(__attribute__((unused)) OptionsFile_getOptionStrings_t original, OptionsFile *options_file) {
     // Get options.txt Path
-    std::string path = options_file->options_txt_path;
+    const std::string path = options_file->options_txt_path;
     // Parse
     std::vector<std::string> ret;
     FILE *stream = fopen(path.c_str(), "r");
-    char line[128];
     if (stream != nullptr) {
+        char line[128];
         while (fgets(line, 0x80, stream) != nullptr) {
-            size_t sVar1 = strlen(line);
+            const size_t sVar1 = strlen(line);
             if (2 < sVar1) {
                 std::stringstream string_stream(line);
                 while (true) {
                     std::string data;
                     std::getline(string_stream, data, ':');
-                    int iVar2 = data.find_last_not_of(" \n\r\t");
+                    const int iVar2 = data.find_last_not_of(" \n\r\t");
                     data.erase(iVar2 + 1);
                     if (data.length() == 0) {
                         break;
@@ -210,7 +210,7 @@ void init_options() {
         // Replace String
         patch_address((void *) &Strings::feedback_vibration_options_txt_name, (void *) "gfx_ao");
         // Loading
-        unsigned char offset = (unsigned char) offsetof(Options, ambient_occlusion);
+        const unsigned char offset = (unsigned char) offsetof(Options, ambient_occlusion);
         unsigned char gfx_ao_loading_patch[4] = {offset, 0x10, 0x84, 0xe2}; // "add r1, r4, #OFFSET"
         patch((void *) 0x193b8, gfx_ao_loading_patch);
         // Saving
@@ -223,7 +223,7 @@ void init_options() {
         // Replace String
         patch_address((void *) &Strings::gfx_lowquality_options_txt_name, (void *) "gfx_anaglyph");
         // Loading
-        unsigned char offset = (unsigned char) offsetof(Options, anaglyph_3d);
+        const unsigned char offset = (unsigned char) offsetof(Options, anaglyph_3d);
         unsigned char gfx_anaglyph_loading_patch[4] = {offset, 0x10, 0x84, 0xe2}; // "add r1, r4, #OFFSET"
         patch((void *) 0x19400, gfx_anaglyph_loading_patch);
         // Disable Loading Side Effects

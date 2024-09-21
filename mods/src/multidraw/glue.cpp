@@ -15,7 +15,7 @@
 
 // Setup
 static Storage *storage = nullptr;
-static void setup_multidraw(int chunks, GLuint *buffers) {
+static void setup_multidraw(const int chunks, GLuint *buffers) {
     delete storage;
     storage = new Storage(chunks);
     for (int i = 0; i < chunks; i++) {

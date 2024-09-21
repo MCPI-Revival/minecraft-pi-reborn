@@ -31,7 +31,7 @@ static std::string get_screenshot(const std::string &filename) {
 }
 
 // Take Screenshot
-static int save_png(const char *filename, unsigned char *pixels, int line_size, int width, int height) {
+static int save_png(const char *filename, const unsigned char *pixels, const int line_size, const int width, const int height) {
     // Setup
     stbi_flip_vertically_on_write(1);
 
@@ -110,7 +110,7 @@ void init_screenshot() {
         // Create Directory
         get_screenshot_dir();
         // Take Screenshot On F2
-        misc_run_on_key_press([](Minecraft *mc, int key) {
+        misc_run_on_key_press([](Minecraft *mc, const int key) {
             if (key == MC_KEY_F2) {
                 screenshot_take(&mc->gui);
                 return true;

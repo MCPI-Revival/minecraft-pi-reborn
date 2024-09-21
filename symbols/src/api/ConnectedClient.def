@@ -3,3 +3,5 @@ size 0xc;
 property uint sock = 0x0;
 property std::string str = 0x4;
 property int time = 0x8;
+
+mark-as-simple;

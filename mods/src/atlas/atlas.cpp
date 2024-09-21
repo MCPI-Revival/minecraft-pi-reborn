@@ -7,9 +7,9 @@
 #include <mods/init/init.h>
 
 // Fix Grass And Leaves Inventory Rendering When The gui_blocks Atlas Is Disabled
-static void ItemRenderer_renderGuiItemCorrect_injection_one(ItemRenderer_renderGuiItemCorrect_t original, Font *font, Textures *textures, const ItemInstance *item_instance, int32_t param_1, int32_t param_2) {
-    int32_t leaves_id = Tile::leaves->id;
-    int32_t grass_id = Tile::grass->id;
+static void ItemRenderer_renderGuiItemCorrect_injection_one(ItemRenderer_renderGuiItemCorrect_t original, Font *font, Textures *textures, const ItemInstance *item_instance, const int32_t param_1, const int32_t param_2) {
+    const int32_t leaves_id = Tile::leaves->id;
+    const int32_t grass_id = Tile::grass->id;
     // Replace Rendered Item With Carried Variant
     ItemInstance carried_item_instance;
     bool use_carried = false;
@@ -24,7 +24,7 @@ static void ItemRenderer_renderGuiItemCorrect_injection_one(ItemRenderer_renderG
     }
 
     // Fix Toolbar Rendering
-    GLboolean depth_test_was_enabled = glIsEnabled(GL_DEPTH_TEST);
+    const GLboolean depth_test_was_enabled = glIsEnabled(GL_DEPTH_TEST);
     glDisable(GL_DEPTH_TEST);
 
     // Call Original Method
@@ -57,7 +57,7 @@ static void Tesselator_color_injection(Tesselator_color_t original, Tesselator *
     // Call Original Method
     original(tesselator, r, g, b, a);
 }
-static void Tesselator_begin_injection(Tesselator_begin_t original, Tesselator *tesselator, int32_t mode) {
+static void Tesselator_begin_injection(Tesselator_begin_t original, Tesselator *tesselator, const int32_t mode) {
     // Call Original Method
     original(tesselator, mode);
 
@@ -74,7 +74,7 @@ static void InventoryPane_renderBatch_Tesselator_color_injection(Tesselator *tes
     // Enable Item Color Fix
     item_color_fix_mode = 2;
 }
-static void ItemRenderer_renderGuiItem_two_injection_one(ItemRenderer_renderGuiItem_two_t original, Font *font, Textures *textures, const ItemInstance *item_instance, float param_1, float param_2, float param_3, float param_4, bool param_5) {
+static void ItemRenderer_renderGuiItem_two_injection_one(ItemRenderer_renderGuiItem_two_t original, Font *font, Textures *textures, const ItemInstance *item_instance, const float param_1, const float param_2, const float param_3, const float param_4, const bool param_5) {
     // Call Original Method
     original(font, textures, item_instance, param_1, param_2, param_3, param_4, param_5);
 
@@ -92,7 +92,7 @@ static void FurnaceScreen_render_ItemRenderer_renderGuiItem_one_injection(Font *
 // Smooth Scrolling
 static float target_x;
 static float target_y;
-static void ItemRenderer_renderGuiItem_two_injection_two(ItemRenderer_renderGuiItem_two_t original, Font *font, Textures *textures, const ItemInstance *item_instance, float x, float y, float w, float h, bool param_5) {
+static void ItemRenderer_renderGuiItem_two_injection_two(ItemRenderer_renderGuiItem_two_t original, Font *font, Textures *textures, const ItemInstance *item_instance, const float x, const float y, const float w, const float h, const bool param_5) {
     target_x = x;
     target_y = y;
     original(font, textures, item_instance, x, y, w, h, param_5);

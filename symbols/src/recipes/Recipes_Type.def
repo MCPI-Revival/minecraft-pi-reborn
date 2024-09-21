@@ -4,3 +4,5 @@ property Item *item = 0x0;
 property Tile *tile = 0x4;
 property ItemInstance instance = 0x8;
 property char letter = 0x14;
+
+mark-as-simple;

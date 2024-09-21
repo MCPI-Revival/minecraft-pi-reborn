@@ -30,7 +30,7 @@ static bool should_show_welcome() {
     // Read Line
     std::string line;
     std::getline(stream, line);
-    bool invalid = line != MCPI_VERSION;
+    const bool invalid = line != MCPI_VERSION;
     // Close File
     stream.close();
     // Return
@@ -53,7 +53,7 @@ static Button *getting_started;
 static Button *changelog;
 static Button *proceed;
 static int text_y;
-static void position_screen(int width, int height) {
+static void position_screen(const int width, const int height) {
     // Width/Height
     getting_started->width = changelog->width = proceed->width = button_width;
     getting_started->height = changelog->height = proceed->height = button_height;
@@ -66,8 +66,8 @@ static void position_screen(int width, int height) {
     getting_started->y = changelog->y = line_height + line_padding;
     proceed->y = getting_started->y + button_height + (button_padding * 2);
     // Center
-    int content_height = proceed->y + proceed->height;
-    int y_offset = (height - content_height) / 2;
+    const int content_height = proceed->y + proceed->height;
+    const int y_offset = (height - content_height) / 2;
     text_y += y_offset;
     getting_started->y += y_offset;
     changelog->y += y_offset;
@@ -89,7 +89,7 @@ CUSTOM_VTABLE(welcome_screen, Screen) {
     };
     // Rendering
     static Screen_render_t original_render = vtable->render;
-    vtable->render = [](Screen *self, int x, int y, float param_1) {
+    vtable->render = [](Screen *self, const int x, const int y, const float param_1) {
         // Background
         self->renderBackground();
         // Call Original Method
@@ -121,7 +121,7 @@ CUSTOM_VTABLE(welcome_screen, Screen) {
 }
 static Screen *create_welcome_screen() {
     // Allocate
-    Screen *screen = new Screen;
+    Screen *screen = Screen::allocate();
     ALLOC_CHECK(screen);
     screen->constructor();
 

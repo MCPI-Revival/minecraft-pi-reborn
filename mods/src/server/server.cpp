@@ -50,7 +50,7 @@ ServerProperties &get_server_properties() {
 
 // Get World Name
 static std::string get_world_name() {
-    std::string name = get_server_properties().get_string("world-name", DEFAULT_WORLD_NAME);
+    const std::string name = get_server_properties().get_string("world-name", DEFAULT_WORLD_NAME);
     char *safe_name_c = to_cp437(name.c_str());
     std::string safe_name = safe_name_c;
     free(safe_name_c);
@@ -88,7 +88,7 @@ static void start_world(Minecraft *minecraft) {
     }
 
     // Open ProgressScreen
-    ProgressScreen *screen = new ProgressScreen;
+    ProgressScreen *screen = ProgressScreen::allocate();
     ALLOC_CHECK(screen);
     screen = screen->constructor();
     minecraft->setScreen((Screen *) screen);
@@ -111,22 +111,22 @@ static std::vector<Player *> get_players_in_level(Level *level) {
 }
 // Get Player's Username
 static std::string get_player_username(Player *player) {
-    std::string *username = &player->username;
+    const std::string *username = &player->username;
     char *safe_username_c = from_cp437(username->c_str());
     std::string safe_username = safe_username_c;
     free(safe_username_c);
     return safe_username;
 }
 // Get Level From Minecraft
-static Level *get_level(Minecraft *minecraft) {
+static Level *get_level(const Minecraft *minecraft) {
     return minecraft->level;
 }
 
 // Find Players With Username And Run Callback
 typedef void (*player_callback_t)(Minecraft *minecraft, const std::string &username, Player *player);
-static void find_players(Minecraft *minecraft, const std::string &target_username, player_callback_t callback, bool all_players) {
+static void find_players(Minecraft *minecraft, const std::string &target_username, const player_callback_t callback, const bool all_players) {
     Level *level = get_level(minecraft);
-    std::vector<Player *> players = get_players_in_level(level);
+    const std::vector<Player *> players = get_players_in_level(level);
     bool found_player = false;
     for (std::size_t i = 0; i < players.size(); i++) {
         // Iterate Players
@@ -151,19 +151,19 @@ static RakNet_SystemAddress get_system_address(RakNet_RakPeer *rak_peer, RakNet_
     // Get SystemAddress
     return rak_peer->GetSystemAddressFromGuid(guid);
 }
-static RakNet_RakPeer *get_rak_peer(Minecraft *minecraft) {
+static RakNet_RakPeer *get_rak_peer(const Minecraft *minecraft) {
     return minecraft->rak_net_instance->peer;
 }
-static char *get_rak_net_guid_ip(RakNet_RakPeer *rak_peer, RakNet_RakNetGUID guid) {
+static char *get_rak_net_guid_ip(RakNet_RakPeer *rak_peer, const RakNet_RakNetGUID &guid) {
     RakNet_SystemAddress address = get_system_address(rak_peer, guid);
     // Get IP
     return address.ToString(false, '|');
 }
 
 // Get IP From Player
-static char *get_player_ip(Minecraft *minecraft, Player *player) {
+static char *get_player_ip(const Minecraft *minecraft, Player *player) {
     RakNet_RakPeer *rak_peer = get_rak_peer(minecraft);
-    RakNet_RakNetGUID guid = get_rak_net_guid(player);
+    const RakNet_RakNetGUID guid = get_rak_net_guid(player);
     // Return
     return get_rak_net_guid_ip(rak_peer, guid);
 }
@@ -206,17 +206,17 @@ static void list_callback(Minecraft *minecraft, const std::string &username, Pla
 static long long int get_time() {
     timespec ts = {};
     clock_gettime(CLOCK_MONOTONIC_RAW, &ts);
-    long long int a = (long long int) ts.tv_nsec;
-    long long int b = ((long long int) ts.tv_sec) * NANOSECONDS_IN_SECOND;
+    const long long int a = (long long int) ts.tv_nsec;
+    const long long int b = ((long long int) ts.tv_sec) * NANOSECONDS_IN_SECOND;
     return a + b;
 }
 static bool is_last_tick_time_set = false;
 static long long int last_tick_time;
 static double tps = 0;
-static void Minecraft_tick_injection(__attribute__((unused)) Minecraft *minecraft) {
-    long long int time = get_time();
+static void Minecraft_tick_injection(__attribute__((unused)) const Minecraft *minecraft) {
+    const long long int time = get_time();
     if (is_last_tick_time_set) {
-        long long int tick_time = time - last_tick_time;
+        const long long int tick_time = time - last_tick_time;
         tps = ((double) NANOSECONDS_IN_SECOND) / ((double) tick_time);
     } else {
         is_last_tick_time_set = true;
@@ -225,7 +225,7 @@ static void Minecraft_tick_injection(__attribute__((unused)) Minecraft *minecraf
 }
 
 // Get ServerSideNetworkHandler From Minecraft
-static ServerSideNetworkHandler *get_server_side_network_handler(Minecraft *minecraft) {
+static ServerSideNetworkHandler *get_server_side_network_handler(const Minecraft *minecraft) {
     return (ServerSideNetworkHandler *) minecraft->network_handler;
 }
 
@@ -289,18 +289,18 @@ static void handle_commands(Minecraft *minecraft) {
             static std::string help_command("help");
             if (!is_whitelist() && data.rfind(ban_command, 0) == 0) {
                 // IP-Ban Target Username
-                std::string ban_username = data.substr(ban_command.length());
+                const std::string ban_username = data.substr(ban_command.length());
                 find_players(minecraft, ban_username, ban_callback, false);
             } else if (data == reload_command) {
                 INFO("Reloading %s", is_whitelist() ? "Whitelist" : "Blacklist");
                 is_ip_in_blacklist(nullptr);
             } else if (data.rfind(kill_command, 0) == 0) {
                 // Kill Target Username
-                std::string kill_username = data.substr(kill_command.length());
+                const std::string kill_username = data.substr(kill_command.length());
                 find_players(minecraft, kill_username, kill_callback, false);
             } else if (data.rfind(say_command, 0) == 0) {
                 // Format Message
-                std::string message = "[Server] " + data.substr(say_command.length());
+                const std::string message = "[Server] " + data.substr(say_command.length());
                 char *safe_message = to_cp437(message.c_str());
                 std::string cpp_string = safe_message;
                 // Post Message To Chat
@@ -367,7 +367,7 @@ static bool is_ip_in_blacklist(const char *ip) {
         // Reload
         ips.clear();
         // Check banned-ips.txt
-        std::string blacklist_file_path = get_blacklist_file();
+        const std::string blacklist_file_path = get_blacklist_file();
         std::ifstream blacklist_file(blacklist_file_path);
         if (blacklist_file) {
             if (blacklist_file.good()) {
@@ -400,7 +400,7 @@ static bool is_ip_in_blacklist(const char *ip) {
 // Ban Players
 static bool RakNet_RakPeer_IsBanned_injection(__attribute__((unused)) RakNet_RakPeer_IsBanned_t original, __attribute__((unused)) RakNet_RakPeer *rakpeer, const char *ip) {
     // Check List
-    bool ret = is_ip_in_blacklist(ip);
+    const bool ret = is_ip_in_blacklist(ip);
     if (is_whitelist()) {
         return !ret;
     } else {
@@ -416,8 +416,8 @@ static Player *ServerSideNetworkHandler_onReady_ClientGeneration_ServerSideNetwo
     // Check If Player Is Null
     if (player != nullptr) {
         // Get Data
-        std::string *username = &player->username;
-        Minecraft *minecraft = server_side_network_handler->minecraft;
+        const std::string *username = &player->username;
+        const Minecraft *minecraft = server_side_network_handler->minecraft;
         RakNet_RakPeer *rak_peer = get_rak_peer(minecraft);
         char *ip = get_rak_net_guid_ip(rak_peer, guid);
 

@@ -3,29 +3,29 @@
 #include <mods/text-input-box/TextInputBox.h>
 #include <mods/input/input.h>
 
-TextInputBox *TextInputBox::create(const std::string &placeholder, const std::string &text) {
+TextInputBox::TextInputBox(const std::string &placeholder, const std::string &text) {
     // Construct
-    TextInputBox *self = new TextInputBox;
-    self->super.constructor();
+    this->component = GuiComponent::allocate();
+    this->component->constructor();
 
     // Setup
-    self->m_xPos = 0;
-    self->m_yPos = 0;
-    self->m_width = 0;
-    self->m_height = 0;
-    self->m_placeholder = placeholder;
-    self->m_text = text;
-    self->m_bFocused = false;
-    self->m_bEnabled = true;
-    self->m_bCursorOn = true;
-    self->m_insertHead = 0;
-    self->m_lastFlashed = 0;
-    self->m_pFont = nullptr;
-    self->m_maxLength = -1;
-    self->m_scrollPos = 0;
-
-    // Return
-    return self;
+    this->m_xPos = 0;
+    this->m_yPos = 0;
+    this->m_width = 0;
+    this->m_height = 0;
+    this->m_placeholder = placeholder;
+    this->m_text = text;
+    this->m_bFocused = false;
+    this->m_bEnabled = true;
+    this->m_bCursorOn = true;
+    this->m_insertHead = 0;
+    this->m_lastFlashed = 0;
+    this->m_pFont = nullptr;
+    this->m_maxLength = -1;
+    this->m_scrollPos = 0;
+}
+TextInputBox::~TextInputBox() {
+    component->destructor_deleting();
 }
 
 void TextInputBox::setSize(const int x, const int y, const int width, const int height) {
@@ -139,7 +139,7 @@ void TextInputBox::setFocused(const bool b) {
     }
 }
 
-void TextInputBox::onClick(int x, int y) {
+void TextInputBox::onClick(const int x, const int y) {
     setFocused(clicked(x, y));
 }
 
@@ -165,7 +165,7 @@ void TextInputBox::charPressed(const int k) {
     recalculateScroll();
 }
 
-static std::string get_rendered_text(Font *font, const int width, const int scroll_pos, std::string text) {
+static std::string get_rendered_text(Font *font, const int width, const int scroll_pos, const std::string &text) {
     std::string rendered_text = text.substr(scroll_pos);
     const int max_width = width - (PADDING * 2);
     while (font->width(rendered_text) > max_width) {
@@ -177,8 +177,8 @@ static std::string get_rendered_text(Font *font, const int width, const int scro
 static char CURSOR_CHAR = '_';
 
 void TextInputBox::render() {
-    super.fill(m_xPos, m_yPos, m_xPos + m_width, m_yPos + m_height, 0xFFAAAAAA);
-    super.fill(m_xPos + 1, m_yPos + 1, m_xPos + m_width - 1, m_yPos + m_height - 1, 0xFF000000);
+    component->fill(m_xPos, m_yPos, m_xPos + m_width, m_yPos + m_height, 0xFFAAAAAA);
+    component->fill(m_xPos + 1, m_yPos + 1, m_xPos + m_width - 1, m_yPos + m_height - 1, 0xFF000000);
 
     int text_color;
     int scroll_pos;
@@ -195,7 +195,7 @@ void TextInputBox::render() {
     rendered_text = get_rendered_text(m_pFont, m_width, scroll_pos, rendered_text);
 
     const int textYPos = (m_height - 8) / 2;
-    super.drawString(m_pFont, rendered_text, m_xPos + PADDING, m_yPos + textYPos, text_color);
+    component->drawString(m_pFont, rendered_text, m_xPos + PADDING, m_yPos + textYPos, text_color);
 
     if (m_bCursorOn) {
         const int cursor_pos = m_insertHead - m_scrollPos;
@@ -205,7 +205,7 @@ void TextInputBox::render() {
 
             std::string str;
             str += CURSOR_CHAR;
-            super.drawString(m_pFont, str, m_xPos + xPos, m_yPos + textYPos + 2, 0xffffff);
+            component->drawString(m_pFont, str, m_xPos + xPos, m_yPos + textYPos + 2, 0xffffff);
         }
     }
 }
@@ -286,8 +286,8 @@ std::string TextInputBox::getText() const {
     return m_text;
 }
 
-void TextInputBox::setText(std::string str) {
-    m_text = str;
+void TextInputBox::setText(const std::string &text) {
+    m_text = text;
     m_insertHead = int(m_text.size());
 }
 

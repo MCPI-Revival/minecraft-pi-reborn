@@ -40,7 +40,7 @@ static void start_world(Minecraft *minecraft) {
     minecraft->selectLevel(name, name, settings);
 
     // Open ProgressScreen
-    ProgressScreen *screen = new ProgressScreen;
+    ProgressScreen *screen = ProgressScreen::allocate();
     ALLOC_CHECK(screen);
     screen = screen->constructor();
     minecraft->setScreen((Screen *) screen);
@@ -54,7 +54,7 @@ static void handle_swap_buffers() {
 
 // Track Ticks
 static unsigned long long int ticks = 0;
-static void Minecraft_tick_injection(__attribute__((unused)) Minecraft *minecraft) {
+static void Minecraft_tick_injection(__attribute__((unused)) const Minecraft *minecraft) {
     ticks++;
 }
 

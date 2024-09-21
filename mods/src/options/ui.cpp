@@ -1,5 +1,4 @@
 #include <string>
-#include <algorithm>
 
 #include <libreborn/libreborn.h>
 #include <symbols/minecraft.h>
@@ -22,9 +21,9 @@ static OptionButton *OptionsPane_unknown_toggle_creating_function_OptionButton_i
 }
 
 // Modify Option Toggles
-static void OptionsPane_unknown_toggle_creating_function_injection(OptionsPane_unknown_toggle_creating_function_t original, OptionsPane *options_pane, uint32_t group_id, std::string *name_ptr, Options_Option *option) {
+static void OptionsPane_unknown_toggle_creating_function_injection(OptionsPane_unknown_toggle_creating_function_t original, OptionsPane *options_pane, const uint32_t group_id, std::string *name_ptr, Options_Option *option) {
     // Modify
-    std::string name = *name_ptr;
+    const std::string name = *name_ptr;
     std::string new_name = name;
     if (name == "Fancy Graphics") {
         option = &Options_Option::GRAPHICS;
@@ -97,7 +96,7 @@ static void OptionsScreen_init_injection(OptionsScreen_init_t original, OptionsS
     original(self);
 
     // Add Button
-    Touch_TButton *button = new Touch_TButton;
+    Touch_TButton *button = Touch_TButton::allocate();
     ALLOC_CHECK(button);
     std::string name = "Reborn";
     button->constructor(INFO_BUTTON_ID, name);
@@ -109,7 +108,7 @@ static void OptionsScreen_setupPositions_injection(OptionsScreen_setupPositions_
     original(self);
 
     // Find Button
-    Button *prevButton = nullptr;
+    const Button *prevButton = nullptr;
     Button *button = nullptr;
     for (Button *x : self->selectable_buttons) {
         if (x->id == INFO_BUTTON_ID) {

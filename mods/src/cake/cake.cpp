@@ -16,7 +16,7 @@ static std::string Cake_getDescriptionId(__attribute__((unused)) Tile *tile) {
 }
 
 // Textures
-static int Cake_getTexture2(__attribute__((unused)) Tile *tile, int face, __attribute__((unused)) int data) {
+static int Cake_getTexture2(__attribute__((unused)) Tile *tile, const int face, __attribute__((unused)) int data) {
     if (face == 1) {
         // Top texture
         return 121;
@@ -28,10 +28,10 @@ static int Cake_getTexture2(__attribute__((unused)) Tile *tile, int face, __attr
     return 122;
 }
 
-static int Cake_getTexture3(__attribute__((unused)) Tile *tile, LevelSource *level, int x, int y, int z, int face) {
+static int Cake_getTexture3(__attribute__((unused)) Tile *tile, LevelSource *level, int x, int y, int z, const int face) {
     // Eaten face
     if (face == 3) {
-        int data = level->getData(x, y, z);
+        const int data = level->getData(x, y, z);
         if (data != 0 && data < 6) {
             // Sliced texture
             return 123;
@@ -69,7 +69,7 @@ static AABB *Cake_getAABB(Tile *tile, Level *level, int x, int y, int z) {
     // Get the size of the slices
     int data = level->getData(x, y, z);
     if (data >= 6) data = 0;
-    float slice_size = (1.0 / 7.0) * (float) data;
+    const float slice_size = (1.0 / 7.0) * (float) data;
 
     // Corner 1
     AABB *aabb = &tile->aabb;
@@ -90,7 +90,7 @@ static void Cake_updateShape(Tile *tile, LevelSource *level, int x, int y, int z
     int data = level->getData(x, y, z);
     if (data >= 6) data = 0;
     // Get slice amount
-    float slice_size = (1.0 / 7.0) * (float) data;
+    const float slice_size = (1.0 / 7.0) * (float) data;
     tile->setShape(
         CAKE_LEN,       0.0, CAKE_LEN,
         1.0 - CAKE_LEN, 0.5, (1.0 - CAKE_LEN) - slice_size
@@ -116,7 +116,7 @@ static int Cake_use(__attribute__((unused)) Tile *tile, Level *level, int x, int
 // Makes the cakes
 static void make_cake() {
     // Construct
-    cake = new Tile;
+    cake = Tile::allocate();
     ALLOC_CHECK(cake);
     int texture = 122;
     cake->constructor(92, texture, Material::dirt);
@@ -170,9 +170,9 @@ static void Inventory_setupDefault_FillingContainer_addItem_call_injection(Filli
 // Recipe (only when buckets are enabled)
 static void Recipes_injection(Recipes *recipes) {
     // Sugar
-    Recipes_Type sugar = {
-        .item = 0,
-        .tile = 0,
+    constexpr Recipes_Type sugar = {
+        .item = nullptr,
+        .tile = nullptr,
         .instance = {
             .count = 1,
             .id = 353,
@@ -181,9 +181,9 @@ static void Recipes_injection(Recipes *recipes) {
         .letter = 's'
     };
     // Wheat
-    Recipes_Type wheat = {
-        .item = 0,
-        .tile = 0,
+    constexpr Recipes_Type wheat = {
+        .item = nullptr,
+        .tile = nullptr,
         .instance = {
             .count = 1,
             .id = 296,
@@ -192,9 +192,9 @@ static void Recipes_injection(Recipes *recipes) {
         .letter = 'w'
     };
     // Eggs
-    Recipes_Type eggs = {
-        .item = 0,
-        .tile = 0,
+    constexpr Recipes_Type eggs = {
+        .item = nullptr,
+        .tile = nullptr,
         .instance = {
             .count = 1,
             .id = 344,
@@ -203,9 +203,9 @@ static void Recipes_injection(Recipes *recipes) {
         .letter = 'e'
     };
     // Milk
-    Recipes_Type milk = {
-        .item = 0,
-        .tile = 0,
+    constexpr Recipes_Type milk = {
+        .item = nullptr,
+        .tile = nullptr,
         .instance = {
             .count = 1,
             .id = 325,

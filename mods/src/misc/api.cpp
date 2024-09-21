@@ -55,7 +55,7 @@ void misc_run_on_update(const std::function<void(Minecraft *)> &func) {
     });
 }
 void misc_run_on_tick(const std::function<void(Minecraft *)> &func) {
-    overwrite_calls(Minecraft_tick, [func](Minecraft_tick_t original, Minecraft *self, int tick, int max_ticks) {
+    overwrite_calls(Minecraft_tick, [func](Minecraft_tick_t original, Minecraft *self, const int tick, const int max_ticks) {
         original(self, tick, max_ticks);
         func(self);
     });
@@ -93,7 +93,7 @@ void misc_run_on_language_setup(const std::function<void()> &func) {
     });
 }
 void misc_run_on_game_key_press(const std::function<bool(Minecraft *, int)> &func) {
-    overwrite_calls(Gui_handleKeyPressed, [func](Gui_handleKeyPressed_t original, Gui *self, int key) {
+    overwrite_calls(Gui_handleKeyPressed, [func](Gui_handleKeyPressed_t original, Gui *self, const int key) {
         if (func(self->minecraft, key)) {
             return;
         }
@@ -102,7 +102,7 @@ void misc_run_on_game_key_press(const std::function<bool(Minecraft *, int)> &fun
 }
 void misc_run_on_key_press(const std::function<bool(Minecraft *, int)> &func) {
     misc_run_on_game_key_press(func);
-    overwrite_calls(Screen_keyPressed, [func](Screen_keyPressed_t original, Screen *self, int key) {
+    overwrite_calls(Screen_keyPressed, [func](Screen_keyPressed_t original, Screen *self, const int key) {
         if (func(self->minecraft, key)) {
             return;
         }
@@ -111,7 +111,7 @@ void misc_run_on_key_press(const std::function<bool(Minecraft *, int)> &func) {
 }
 
 // Render Fancy Background
-void misc_render_background(int color, Minecraft *minecraft, int x, int y, int width, int height) {
+void misc_render_background(int color, const Minecraft *minecraft, const int x, const int y, const int width, const int height) {
     // https://github.com/ReMinecraftPE/mcpe/blob/f0d65eaecec1b3fe9c2f2b251e114a890c54ab77/source/client/gui/components/RolledSelectionList.cpp#L169-L179
     glColor4f(1, 1, 1, 1);
     minecraft->textures->loadAndBindTexture("gui/background.png");

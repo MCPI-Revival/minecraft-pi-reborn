@@ -3,7 +3,7 @@
 #include "../common/common.h"
 
 // Trampoline Function
-extern "C" std::remove_pointer<trampoline_t>::type trampoline;
+extern "C" std::remove_pointer_t<trampoline_t> trampoline;
 
 // Macro
 typedef uint32_t handler_t(trampoline_writer_t writer, const unsigned char *args);
@@ -17,9 +17,9 @@ __attribute__((visibility("internal"))) void _add_handler(unsigned char id, hand
         __attribute__((unused)) TrampolineArguments args(raw_args); \
         static typeof(name) *func = name;
 
-// Arguemnts
+// Arguments
 struct TrampolineArguments {
-    TrampolineArguments(const unsigned char *args) {
+    explicit TrampolineArguments(const unsigned char *args) {
         this->raw_args = args;
         this->position = 0;
     }

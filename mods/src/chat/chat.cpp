@@ -25,16 +25,16 @@ std::string chat_send_api_command(const Minecraft *minecraft, const std::string 
 }
 
 // Send API Chat Command
-static void send_api_chat_command(Minecraft *minecraft, const char *str) {
+static void send_api_chat_command(const Minecraft *minecraft, const char *str) {
     const std::string command = std::string("chat.post(") + str + ")\n";
     chat_send_api_command(minecraft, command);
 }
 
 // Send Message To Players
-std::string _chat_get_prefix(char *username) {
+std::string _chat_get_prefix(const char *username) {
     return std::string("<") + username + "> ";
 }
-void chat_send_message(ServerSideNetworkHandler *server_side_network_handler, char *username, char *message) {
+void chat_send_message(ServerSideNetworkHandler *server_side_network_handler, const char *username, const char *message) {
     std::string full_message = _chat_get_prefix(username) + message;
     char *raw_str = strdup(full_message.c_str());
     ALLOC_CHECK(raw_str);
@@ -44,7 +44,7 @@ void chat_send_message(ServerSideNetworkHandler *server_side_network_handler, ch
     server_side_network_handler->displayGameMessage(full_message);
 }
 // Handle Chat packet Send
-void chat_handle_packet_send(Minecraft *minecraft, ChatPacket *packet) {
+void chat_handle_packet_send(const Minecraft *minecraft, ChatPacket *packet) {
     RakNetInstance *rak_net_instance = minecraft->rak_net_instance;
     if (rak_net_instance->isServer()) {
         // Hosting Multiplayer
@@ -58,8 +58,8 @@ void chat_handle_packet_send(Minecraft *minecraft, ChatPacket *packet) {
 }
 
 // Manually Send (And Loopback) ChatPacket
-static void CommandServer_parse_CommandServer_dispatchPacket_injection(CommandServer *command_server, Packet *packet) {
-    Minecraft *minecraft = command_server->minecraft;
+static void CommandServer_parse_CommandServer_dispatchPacket_injection(const CommandServer *command_server, Packet *packet) {
+    const Minecraft *minecraft = command_server->minecraft;
     if (minecraft != nullptr) {
         chat_handle_packet_send(minecraft, (ChatPacket *) packet);
     }
@@ -67,17 +67,17 @@ static void CommandServer_parse_CommandServer_dispatchPacket_injection(CommandSe
 
 // Handle ChatPacket Server-Side
 static void ServerSideNetworkHandler_handle_ChatPacket_injection(ServerSideNetworkHandler *server_side_network_handler, const RakNet_RakNetGUID &rak_net_guid, ChatPacket *chat_packet) {
-    Player *player = server_side_network_handler->getPlayer(rak_net_guid);
+    const Player *player = server_side_network_handler->getPlayer(rak_net_guid);
     if (player != nullptr) {
         const char *username = player->username.c_str();
         const char *message = chat_packet->message.c_str();
-        chat_send_message(server_side_network_handler, (char *) username, (char *) message);
+        chat_send_message(server_side_network_handler, username, message);
     }
 }
 
 // Send Message
-void _chat_send_message(Minecraft *minecraft, const char *message) {
-    send_api_chat_command(minecraft, (char *) message);
+void _chat_send_message(const Minecraft *minecraft, const char *message) {
+    send_api_chat_command(minecraft, message);
 }
 
 // Init

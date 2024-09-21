@@ -8,10 +8,10 @@
 #define MAX_CHAT_MESSAGE_LENGTH 256
 
 // Message Prefix
-__attribute__((visibility("internal"))) std::string _chat_get_prefix(char *username);
+__attribute__((visibility("internal"))) std::string _chat_get_prefix(const char *username);
 
 // Queue Message For Sending
-__attribute__((visibility("internal"))) void _chat_send_message(Minecraft *minecraft, const char *message);
+__attribute__((visibility("internal"))) void _chat_send_message(const Minecraft *minecraft, const char *message);
 
 // Init Chat UI
 __attribute__((visibility("internal"))) void _init_chat_ui();

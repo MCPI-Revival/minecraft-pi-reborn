@@ -37,7 +37,7 @@ void Storage::free_block(Block *block) {
     }
 
     // Find Block
-    std::vector<Block *>::iterator it = std::find(used_blocks.begin(), used_blocks.end(), block);
+    std::vector<Block *>::iterator it = std::ranges::find(used_blocks, block);
     if (it == used_blocks.end()) {
         return;
     }

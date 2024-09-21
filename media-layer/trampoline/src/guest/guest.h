@@ -25,7 +25,7 @@ struct copy_array {
         this->size = length * sizeof(T);
         this->data = arr;
     }
-    copy_array(const char *str) {
+    explicit copy_array(const char *str) {
         this->size = str != nullptr ? (strlen(str) + 1) : 0;
         this->data = str;
     }

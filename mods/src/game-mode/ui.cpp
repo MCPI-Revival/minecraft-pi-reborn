@@ -17,17 +17,17 @@
 #define CREATIVE_STR GAME_MODE_STR("Creative")
 
 // Structure
-struct CreateWorldScreen {
-    TextInputScreen super;
+EXTEND_STRUCT(CreateWorldScreen, Screen, struct {
+    TextInputScreen text_input;
     TextInputBox *name;
     TextInputBox *seed;
     Button *game_mode;
     Button *create;
     Button *back;
-};
-static void create_world(Minecraft *minecraft, std::string name, bool is_creative, std::string seed);
+});
+static void create_world(Minecraft *minecraft, std::string name, bool is_creative, std::string seed_str);
 CUSTOM_VTABLE(create_world_screen, Screen) {
-    TextInputScreen::setup(vtable);
+    TextInputScreen::setup<CreateWorldScreen>(vtable);
     // Constants
     static int line_height = 8;
     static int bottom_padding = 4;
@@ -43,42 +43,42 @@ CUSTOM_VTABLE(create_world_screen, Screen) {
         original_init(super);
         CreateWorldScreen *self = (CreateWorldScreen *) super;
         // Name
-        self->name = TextInputBox::create("World Name", "Unnamed world");
-        self->super.m_textInputs->push_back(self->name);
-        self->name->init(super->font);
-        self->name->setFocused(true);
+        self->data.name = new TextInputBox("World Name", "Unnamed world");
+        self->data.text_input.m_textInputs->push_back(self->data.name);
+        self->data.name->init(super->font);
+        self->data.name->setFocused(true);
         // Seed
-        self->seed = TextInputBox::create("Seed");
-        self->super.m_textInputs->push_back(self->seed);
-        self->seed->init(super->font);
-        self->seed->setFocused(false);
+        self->data.seed = new TextInputBox("Seed");
+        self->data.text_input.m_textInputs->push_back(self->data.seed);
+        self->data.seed->init(super->font);
+        self->data.seed->setFocused(false);
         // Game Mode
-        self->game_mode = touch_create_button(1, CREATIVE_STR);
-        super->rendered_buttons.push_back(self->game_mode);
-        super->selectable_buttons.push_back(self->game_mode);
+        self->data.game_mode = touch_create_button(1, CREATIVE_STR);
+        super->rendered_buttons.push_back(self->data.game_mode);
+        super->selectable_buttons.push_back(self->data.game_mode);
         // Create
-        self->create = touch_create_button(2, "Create");
-        super->rendered_buttons.push_back(self->create);
-        super->selectable_buttons.push_back(self->create);
+        self->data.create = touch_create_button(2, "Create");
+        super->rendered_buttons.push_back(self->data.create);
+        super->selectable_buttons.push_back(self->data.create);
         // Back
-        self->back = touch_create_button(3, "Back");
-        super->rendered_buttons.push_back(self->back);
-        super->selectable_buttons.push_back(self->back);
+        self->data.back = touch_create_button(3, "Back");
+        super->rendered_buttons.push_back(self->data.back);
+        super->selectable_buttons.push_back(self->data.back);
     };
     // Removal
     static Screen_removed_t original_removed = vtable->removed;
     vtable->removed = [](Screen *super) {
         original_removed(super);
         CreateWorldScreen *self = (CreateWorldScreen *) super;
-        delete self->name;
-        delete self->seed;
-        self->game_mode->destructor_deleting();
-        self->back->destructor_deleting();
-        self->create->destructor_deleting();
+        delete self->data.name;
+        delete self->data.seed;
+        self->data.game_mode->destructor_deleting();
+        self->data.back->destructor_deleting();
+        self->data.create->destructor_deleting();
     };
     // Rendering
     static Screen_render_t original_render = vtable->render;
-    vtable->render = [](Screen *super, int x, int y, float param_1) {
+    vtable->render = [](Screen *super, const int x, const int y, const float param_1) {
         // Background
         misc_render_background(80, super->minecraft, 0, 0, super->width, super->height);
         misc_render_background(32, super->minecraft, 0, content_y_offset_top, super->width, super->height - content_y_offset_top - content_y_offset_bottom);
@@ -89,9 +89,9 @@ CUSTOM_VTABLE(create_world_screen, Screen) {
         super->drawCenteredString(super->font, title, super->width / 2, title_padding, 0xffffffff);
         // Game Mode Description
         CreateWorldScreen *self = (CreateWorldScreen *) super;
-        bool is_creative = self->game_mode->text == CREATIVE_STR;
+        const bool is_creative = self->data.game_mode->text == CREATIVE_STR;
         std::string description = is_creative ? Strings::creative_mode_description : Strings::survival_mode_description;
-        super->drawString(super->font, description, self->game_mode->x, self->game_mode->y + self->game_mode->height + description_padding, 0xa0a0a0);
+        super->drawString(super->font, description, self->data.game_mode->x, self->data.game_mode->y + self->data.game_mode->height + description_padding, 0xa0a0a0);
     };
     // Positioning
     static Screen_setupPositions_t original_setupPositions = vtable->setupPositions;
@@ -99,33 +99,33 @@ CUSTOM_VTABLE(create_world_screen, Screen) {
         original_setupPositions(super);
         CreateWorldScreen *self = (CreateWorldScreen *) super;
         // Height/Width
-        int width = 120;
-        int height = button_height;
-        self->create->width = self->back->width = self->game_mode->width = width;
-        int seed_width = self->game_mode->width;
+        constexpr int width = 120;
+        const int height = button_height;
+        self->data.create->width = self->data.back->width = self->data.game_mode->width = width;
+        int seed_width = self->data.game_mode->width;
         int name_width = width * 1.5f;
-        self->create->height = self->back->height = self->game_mode->height = height;
-        int text_box_height = self->game_mode->height;
+        self->data.create->height = self->data.back->height = self->data.game_mode->height = height;
+        int text_box_height = self->data.game_mode->height;
         // Find Center Y
-        int top = content_y_offset_top;
-        int bottom = super->height - content_y_offset_bottom;
+        const int top = content_y_offset_top;
+        const int bottom = super->height - content_y_offset_bottom;
         int center_y = ((bottom - top) / 2) + top;
         center_y -= (description_padding + line_height) / 2;
         // X/Y
-        self->create->y = self->back->y = super->height - bottom_padding - height;
-        self->create->x = self->game_mode->x = (super->width / 2) - inner_padding - width;
-        self->back->x = (super->width / 2) + inner_padding;
-        int seed_x = self->back->x;
-        int name_x = (super->width / 2) - (name_width / 2);
-        int name_y = center_y - inner_padding - height;
-        self->game_mode->y = center_y + inner_padding;
-        int seed_y = self->game_mode->y;
+        self->data.create->y = self->data.back->y = super->height - bottom_padding - height;
+        self->data.create->x = self->data.game_mode->x = (super->width / 2) - inner_padding - width;
+        self->data.back->x = (super->width / 2) + inner_padding;
+        const int seed_x = self->data.back->x;
+        const int name_x = (super->width / 2) - (name_width / 2);
+        const int name_y = center_y - inner_padding - height;
+        self->data.game_mode->y = center_y + inner_padding;
+        const int seed_y = self->data.game_mode->y;
         // Update Text Boxes
-        self->name->setSize(name_x, name_y, name_width, text_box_height);
-        self->seed->setSize(seed_x, seed_y, seed_width, text_box_height);
+        self->data.name->setSize(name_x, name_y, name_width, text_box_height);
+        self->data.seed->setSize(seed_x, seed_y, seed_width, text_box_height);
     };
     // ESC
-    vtable->handleBackEvent = [](Screen *super, bool do_nothing) {
+    vtable->handleBackEvent = [](Screen *super, const bool do_nothing) {
         if (!do_nothing) {
             super->minecraft->screen_chooser.setScreen(5);
         }
@@ -134,16 +134,16 @@ CUSTOM_VTABLE(create_world_screen, Screen) {
     // Button Click
     vtable->buttonClicked = [](Screen *super, Button *button) {
         CreateWorldScreen *self = (CreateWorldScreen *) super;
-        bool is_creative = self->game_mode->text == CREATIVE_STR;
-        if (button == self->game_mode) {
+        const bool is_creative = self->data.game_mode->text == CREATIVE_STR;
+        if (button == self->data.game_mode) {
             // Toggle Game Mode
-            self->game_mode->text = is_creative ? SURVIVAL_STR : CREATIVE_STR;
-        } else if (button == self->back) {
+            self->data.game_mode->text = is_creative ? SURVIVAL_STR : CREATIVE_STR;
+        } else if (button == self->data.back) {
             // Back
             super->handleBackEvent(false);
-        } else if (button == self->create) {
+        } else if (button == self->data.create) {
             // Create
-            create_world(super->minecraft, self->name->getText(), is_creative, self->seed->getText());
+            create_world(super->minecraft, self->data.name->getText(), is_creative, self->data.seed->getText());
         }
     };
 }
@@ -151,10 +151,10 @@ static Screen *create_create_world_screen() {
     // Construct
     CreateWorldScreen *screen = new CreateWorldScreen;
     ALLOC_CHECK(screen);
-    screen->super.super.constructor();
+    screen->super()->constructor();
 
     // Set VTable
-    screen->super.super.vtable = get_create_world_screen_vtable();
+    screen->super()->vtable = get_create_world_screen_vtable();
 
     // Return
     return (Screen *) screen;
@@ -170,7 +170,7 @@ static std::string getUniqueLevelName(LevelStorageSource *source, const std::str
         maps.insert(ls.folder);
     }
     std::string out = in;
-    while (maps.find(out) != maps.end()) {
+    while (maps.contains(out)) {
         out += "-";
     }
     return out;
@@ -192,14 +192,14 @@ int get_seed_from_string(std::string str) {
     }
     return seed;
 }
-static void create_world(Minecraft *minecraft, std::string name, bool is_creative, std::string seed_str) {
+static void create_world(Minecraft *minecraft, std::string name, const bool is_creative, std::string seed_str) {
     // Get Seed
-    int seed = get_seed_from_string(std::move(seed_str));
+    const int seed = get_seed_from_string(std::move(seed_str));
 
     // Get Folder Name
     name = Util::stringTrim(name);
     std::string folder = "";
-    for (char c : name) {
+    for (const char c : name) {
         if (
             c >= ' ' && c <= '~' &&
             c != '/' &&
@@ -233,7 +233,7 @@ static void create_world(Minecraft *minecraft, std::string name, bool is_creativ
     minecraft->hostMultiplayer(19132);
 
     // Open ProgressScreen
-    ProgressScreen *screen = new ProgressScreen;
+    ProgressScreen *screen = ProgressScreen::allocate();
     ALLOC_CHECK(screen);
     screen = screen->constructor();
     minecraft->setScreen((Screen *) screen);

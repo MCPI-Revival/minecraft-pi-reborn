@@ -16,7 +16,7 @@
 // Improved Title Screen Background
 static void StartMenuScreen_render_Screen_renderBackground_injection(Screen *screen) {
     // Draw
-    Minecraft *minecraft = screen->minecraft;
+    const Minecraft *minecraft = screen->minecraft;
     Textures *textures = minecraft->textures;
     std::string texture = "gui/titleBG.png";
     textures->loadAndBindTexture(texture);
@@ -93,8 +93,8 @@ static void StartMenuScreen_render_Screen_render_injection(Screen *screen, int x
         const float multiplier = touch_gui ? 0.5f : 1.0f;
         const float splash_x = (float(screen->width) / 2.0f) + (94.0f * multiplier);
         const float splash_y = 4.0f + (36.0f * multiplier);
-        const float max_width = 86;
-        const float max_scale = 2.0f;
+        constexpr float max_width = 86;
+        constexpr float max_scale = 2.0f;
         // Draw (From https://github.com/ReMinecraftPE/mcpe/blob/d7a8b6baecf8b3b050538abdbc976f690312aa2d/source/client/gui/screens/StartMenuScreen.cpp#L699-L718)
         glPushMatrix();
         // Position

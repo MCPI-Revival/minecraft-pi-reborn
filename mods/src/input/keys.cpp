@@ -6,7 +6,7 @@
 #include "input-internal.h"
 
 // Translator
-static int32_t sdl_key_to_minecraft_key_injection(Common_sdl_key_to_minecraft_key_t original, int32_t sdl_key) {
+static int32_t sdl_key_to_minecraft_key_injection(Common_sdl_key_to_minecraft_key_t original, const int32_t sdl_key) {
     switch (sdl_key) {
 #define KEY(name, value) case SDLK_##name: return MC_KEY_##name;
 #include <mods/input/key-list.h>

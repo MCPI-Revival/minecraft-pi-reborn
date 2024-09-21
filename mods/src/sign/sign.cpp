@@ -11,7 +11,7 @@
 static void LocalPlayer_openTextEdit_injection(__attribute__((unused)) LocalPlayer_openTextEdit_t original, LocalPlayer *local_player, TileEntity *sign) {
     if (sign->type == 4) {
         Minecraft *minecraft = local_player->minecraft;
-        TextEditScreen *screen = new TextEditScreen;
+        TextEditScreen *screen = TextEditScreen::allocate();
         ALLOC_CHECK(screen);
         screen = screen->constructor((SignTileEntity *) sign);
         minecraft->setScreen((Screen *) screen);

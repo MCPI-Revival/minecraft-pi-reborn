@@ -136,7 +136,7 @@ static void position_info(Font *font, int width, int height) {
     // Third Stage (Find Line Button Width)
     line_button_width = 0;
     for (int i = 0; i < info_size; i++) {
-        int text_width = font->width(info[i].button_text);
+        const int text_width = font->width(info[i].button_text);
         if (text_width > line_button_width) {
             line_button_width = text_width;
         }
@@ -144,11 +144,11 @@ static void position_info(Font *font, int width, int height) {
     line_button_width += line_button_padding * 2;
 
     // Fourth Stage (Centering)
-    int info_height = y;
-    int info_width = info_text_width + padding + line_button_width;
+    const int info_height = y;
+    const int info_width = info_text_width + padding + line_button_width;
     content_height = height - content_y_offset_top - content_y_offset_bottom;
-    int info_y_offset = ((content_height - info_height) / 2) + content_y_offset_top;
-    int info_x_offset = (width - info_width) / 2;
+    const int info_y_offset = ((content_height - info_height) / 2) + content_y_offset_top;
+    const int info_x_offset = (width - info_width) / 2;
     for (int i = 0; i < info_size; i++) {
         positioned_info[i].button.x += info_x_offset;
         positioned_info[i].button.y += info_y_offset;
@@ -195,9 +195,9 @@ CUSTOM_VTABLE(info_screen, Screen) {
         self->selectable_buttons.push_back(back);
     };
     // Handle Back
-    vtable->handleBackEvent = [](Screen *self, bool do_nothing) {
+    vtable->handleBackEvent = [](Screen *self, const bool do_nothing) {
         if (!do_nothing) {
-            OptionsScreen *screen = new OptionsScreen;
+            OptionsScreen *screen = OptionsScreen::allocate();
             ALLOC_CHECK(screen);
             screen->constructor();
             self->minecraft->setScreen((Screen *) screen);
@@ -206,7 +206,7 @@ CUSTOM_VTABLE(info_screen, Screen) {
     };
     // Rendering
     static Screen_render_t original_render = vtable->render;
-    vtable->render = [](Screen *self, int x, int y, float param_1) {
+    vtable->render = [](Screen *self, const int x, const int y, const float param_1) {
         // Background
         misc_render_background(80, self->minecraft, 0, 0, self->width, self->height);
         misc_render_background(32, self->minecraft, 0, content_y_offset_top, self->width, content_height);
@@ -224,7 +224,7 @@ CUSTOM_VTABLE(info_screen, Screen) {
     // Positioning
     vtable->setupPositions = [](Screen *self) {
         // Height/Width
-        int width = 120;
+        constexpr int width = 120;
         discord->width = back->width = width;
         discord->height = back->height = line_button_height;
         // X/Y
@@ -257,7 +257,7 @@ CUSTOM_VTABLE(info_screen, Screen) {
             open_url(MCPI_DISCORD_INVITE);
         } else if (button->id >= INFO_ID_START) {
             // Open Info URL
-            int i = button->id - INFO_ID_START;
+            const int i = button->id - INFO_ID_START;
             open_url(info[i].button_url);
         }
     };
@@ -266,7 +266,7 @@ CUSTOM_VTABLE(info_screen, Screen) {
 // Create Screen
 Screen *_create_options_info_screen() {
     // Allocate
-    Screen *screen = new Screen;
+    Screen *screen = Screen::allocate();
     ALLOC_CHECK(screen);
     screen->constructor();
 
