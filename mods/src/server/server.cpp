@@ -35,22 +35,24 @@ ServerProperties &get_server_properties() {
 }
 
 // Default Server Properties
-#define DEFAULT_MOTD "Minecraft Server"
-#define DEFAULT_SHOW_MINECON_BADGE "false"
-#define DEFAULT_GAME_MODE "0"
-#define DEFAULT_PORT "19132"
-#define DEFAULT_SEED ""
-#define DEFAULT_FORCE_MOB_SPAWNING "false"
-#define DEFAULT_PEACEFUL_MODE "false"
-#define DEFAULT_WORLD_NAME "world"
-#define DEFAULT_MAX_PLAYERS "4"
-#define DEFAULT_WHITELIST "false"
-#define DEFAULT_DEATH_MESSAGES "true"
-#define DEFAULT_GENERATE_CAVES "true"
+namespace ServerPropertyTypes {
+    static ServerProperty message_of_the_day("motd", "Minecraft Server", "Message Of The Day");
+    static ServerProperty show_minecon_badge("show-minecon-badge", "false", "Show The MineCon Badge Next To MOTD In Server List");
+    static ServerProperty game_mode("game-mode", "0", "Game Mode (0 = Survival, 1 = Creative)");
+    static ServerProperty port("port", "19132", "Port");
+    static ServerProperty seed("seed", "", "World Seed (Blank = Random Seed)");
+    static ServerProperty force_mob_spawning("force-mob-spawning", "false", "Force Mob Spawning (false = Disabled, true = Enabled)");
+    static ServerProperty peaceful_mode("peaceful-mode", "false", "Peaceful Mode (false = Disabled, true = Enabled)");
+    static ServerProperty world_name("world-name", "world", "World To Select");
+    static ServerProperty max_players("max-players", "4", "Maximum Player Count");
+    static ServerProperty enable_whitelist("whitelist", "false", "Enable Whitelist");
+    static ServerProperty enable_death_messages("death-messages", "true", "Enable Death Messages");
+    static ServerProperty enable_cave_generation("generate-caves", "true", "Generate Caves");
+}
 
 // Get World Name
 static std::string get_world_name() {
-    const std::string name = get_server_properties().get_string("world-name", DEFAULT_WORLD_NAME);
+    const std::string name = get_server_properties().get_string(ServerPropertyTypes::world_name);
     char *safe_name_c = to_cp437(name.c_str());
     std::string safe_name = safe_name_c;
     free(safe_name_c);
@@ -67,12 +69,12 @@ static void start_world(Minecraft *minecraft) {
 
     // Peaceful Mode
     Options *options = &minecraft->options;
-    options->game_difficulty = get_server_properties().get_bool("peaceful-mode", DEFAULT_PEACEFUL_MODE) ? 0 : 2;
+    options->game_difficulty = get_server_properties().get_bool(ServerPropertyTypes::peaceful_mode) ? 0 : 2;
 
     // Specify Level Settings
     LevelSettings settings;
-    settings.game_type = get_server_properties().get_int("game-mode", DEFAULT_GAME_MODE);
-    const std::string seed_str = get_server_properties().get_string("seed", DEFAULT_SEED);
+    settings.game_type = get_server_properties().get_int(ServerPropertyTypes::game_mode);
+    const std::string seed_str = get_server_properties().get_string(ServerPropertyTypes::seed);
     const int32_t seed = get_seed_from_string(seed_str);
     settings.seed = seed;
 
@@ -82,7 +84,7 @@ static void start_world(Minecraft *minecraft) {
     // Don't Open Port When Using --only-generate
     if (!only_generate) {
         // Open Port
-        const int port = get_server_properties().get_int("port", DEFAULT_PORT);
+        const int port = get_server_properties().get_int(ServerPropertyTypes::port);
         INFO("Listening On: %i", port);
         minecraft->hostMultiplayer(port);
     }
@@ -96,7 +98,7 @@ static void start_world(Minecraft *minecraft) {
 
 // Check If Running In Whitelist Mode
 static bool is_whitelist() {
-    return get_server_properties().get_bool("whitelist", DEFAULT_WHITELIST);
+    return get_server_properties().get_bool(ServerPropertyTypes::enable_whitelist);
 }
 // Get Path Of Blacklist (Or Whitelist) File
 static std::string get_blacklist_file() {
@@ -269,6 +271,30 @@ static void handle_server_stop(Minecraft *minecraft) {
 }
 
 // Handle Commands
+struct Command {
+    const std::string name;
+    const std::string comment;
+    const std::function<void(const std::string &)> callback;
+    [[nodiscard]] bool has_args() const {
+        return name[name.length() - 1] == ' ';
+    }
+    [[nodiscard]] std::string get_lhs_help() const {
+        std::string out;
+        out.append(4, ' ');
+        out += name;
+        if (has_args()) {
+            out += "<Arguments>";
+        }
+        return out;
+    }
+    [[nodiscard]] std::string get_full_help(const int max_lhs_length) const {
+        std::string out = get_lhs_help();
+        out.append(max_lhs_length - out.length(), ' ');
+        out += " - ";
+        out += comment;
+        return out;
+    }
+};
 static void handle_commands(Minecraft *minecraft) {
     // Check If Level Is Generated
     if (minecraft->isLevelGenerated() && stdin_line_ready) {
@@ -279,57 +305,96 @@ static void handle_commands(Minecraft *minecraft) {
         // Command Ready; Run It
         ServerSideNetworkHandler *server_side_network_handler = get_server_side_network_handler(minecraft);
         if (server_side_network_handler != nullptr) {
-            static std::string ban_command("ban ");
-            static std::string say_command("say ");
-            static std::string kill_command("kill ");
-            static std::string list_command("list");
-            static std::string reload_command("reload");
-            static std::string tps_command("tps");
-            static std::string stop_command("stop");
-            static std::string help_command("help");
-            if (!is_whitelist() && data.rfind(ban_command, 0) == 0) {
-                // IP-Ban Target Username
-                const std::string ban_username = data.substr(ban_command.length());
-                find_players(minecraft, ban_username, ban_callback, false);
-            } else if (data == reload_command) {
-                INFO("Reloading %s", is_whitelist() ? "Whitelist" : "Blacklist");
-                is_ip_in_blacklist(nullptr);
-            } else if (data.rfind(kill_command, 0) == 0) {
-                // Kill Target Username
-                const std::string kill_username = data.substr(kill_command.length());
-                find_players(minecraft, kill_username, kill_callback, false);
-            } else if (data.rfind(say_command, 0) == 0) {
-                // Format Message
-                const std::string message = "[Server] " + data.substr(say_command.length());
-                char *safe_message = to_cp437(message.c_str());
-                std::string cpp_string = safe_message;
-                // Post Message To Chat
-                server_side_network_handler->displayGameMessage(cpp_string);
-                // Free
-                free(safe_message);
-            } else if (data == list_command) {
-                // List Players
-                INFO("All Players:");
-                find_players(minecraft, "", list_callback, true);
-            } else if (data == tps_command) {
-                // Print TPS
-                INFO("TPS: %f", tps);
-            } else if (data == stop_command) {
-                // Stop Server
-                compat_request_exit();
-            } else if (data == help_command) {
-                INFO("All Commands:");
-                if (!is_whitelist()) {
-                    INFO("    ban <Username>  - IP-Ban All Players With Specifed Username");
+            // Generate Command List
+            std::vector<Command> commands;
+            if (!is_whitelist()) {
+                commands.push_back({
+                    .name = "ban ",
+                    .comment = "IP-Ban All Players With Specified Username",
+                    .callback = [&minecraft](const std::string &cmd) {
+                        find_players(minecraft, cmd, ban_callback, false);
+                    }
+                });
+            }
+            commands.push_back({
+                .name = "reload",
+                .comment = std::string("Reload The ") + (is_whitelist() ? "Whitelist" : "Blacklist"),
+                .callback = [](__attribute__((unused)) const std::string &cmd) {
+                    INFO("Reloading %s", is_whitelist() ? "Whitelist" : "Blacklist");
+                    is_ip_in_blacklist(nullptr);
                 }
-                INFO("    reload          - Reload The %s", is_whitelist() ? "Whitelist" : "Blacklist");
-                INFO("    kill <Username> - Kill All Players With Specifed Username");
-                INFO("    say <Message>   - Print Specified Message To Chat");
-                INFO("    list            - List All Players");
-                INFO("    tps             - Print TPS");
-                INFO("    stop            - Stop Server");
-                INFO("    help            - Print This Message");
-            } else {
+            });
+            commands.push_back({
+                .name = "kill ",
+                .comment = "Kill All Players With Specified Username",
+                .callback = [&minecraft](const std::string &cmd) {
+                    find_players(minecraft, cmd, kill_callback, false);
+                }
+            });
+            commands.push_back({
+                .name = "say ",
+                .comment = "Print Specified Message To Chat",
+                .callback = [&server_side_network_handler](const std::string &cmd) {
+                    // Format Message
+                    const std::string message = "[Server] " + cmd;
+                    char *safe_message = to_cp437(message.c_str());
+                    std::string cpp_string = safe_message;
+                    // Post Message To Chat
+                    server_side_network_handler->displayGameMessage(cpp_string);
+                    // Free
+                    free(safe_message);
+                }
+            });
+            commands.push_back({
+                .name = "list",
+                .comment = "List All Players",
+                .callback = [&minecraft](__attribute__((unused)) const std::string &cmd) {
+                    INFO("All Players:");
+                    find_players(minecraft, "", list_callback, true);
+                }
+            });
+            commands.push_back({
+                .name = "tps",
+                .comment = "Print TPS",
+                .callback = [](__attribute__((unused)) const std::string &cmd) {
+                    INFO("TPS: %f", tps);
+                }
+            });
+            commands.push_back({
+                .name = "stop",
+                .comment = "Stop Server",
+                .callback = [](__attribute__((unused)) const std::string &cmd) {
+                    compat_request_exit();
+                }
+            });
+            commands.push_back({
+                .name = "help",
+                .comment = "Print This Message",
+                .callback = [&commands](__attribute__((unused)) const std::string &cmd) {
+                    INFO("All Commands:");
+                    int max_lhs_length = 0;
+                    for (Command command : commands) {
+                        const int lhs_length = command.get_lhs_help().length();
+                        if (lhs_length > max_lhs_length) {
+                            max_lhs_length = lhs_length;
+                        }
+                    }
+                    for (Command command : commands) {
+                        INFO("%s", command.get_full_help(max_lhs_length).c_str());
+                    }
+                }
+            });
+            // Run
+            bool success = false;
+            for (Command command : commands) {
+                const bool valid = command.has_args() ? data.rfind(command.name, 0) == 0 : data == command.name;
+                if (valid) {
+                    command.callback(data.substr(command.name.length()));
+                    success = true;
+                    break;
+                }
+            }
+            if (!success) {
                 INFO("Invalid Command: %s", data.c_str());
             }
         }
@@ -431,7 +496,7 @@ static Player *ServerSideNetworkHandler_onReady_ClientGeneration_ServerSideNetwo
 
 // Get MOTD
 static std::string get_motd() {
-    std::string motd(get_server_properties().get_string("motd", DEFAULT_MOTD));
+    std::string motd(get_server_properties().get_string(ServerPropertyTypes::message_of_the_day));
     return motd;
 }
 
@@ -443,13 +508,13 @@ static const char *get_features() {
         loaded_features = true;
 
         features.clear();
-        if (get_server_properties().get_bool("force-mob-spawning", DEFAULT_FORCE_MOB_SPAWNING)) {
+        if (get_server_properties().get_bool(ServerPropertyTypes::force_mob_spawning)) {
             features += "Force Mob Spawning|";
         }
-        if (get_server_properties().get_bool("death-messages", DEFAULT_DEATH_MESSAGES)) {
+        if (get_server_properties().get_bool(ServerPropertyTypes::enable_death_messages)) {
             features += "Implement Death Messages|";
         }
-        if (get_server_properties().get_bool("generate-caves", DEFAULT_GENERATE_CAVES)) {
+        if (get_server_properties().get_bool(ServerPropertyTypes::enable_cave_generation)) {
             features += "Generate Caves|";
         }
     }
@@ -458,7 +523,7 @@ static const char *get_features() {
 
 // Get Max Players
 static unsigned char get_max_players() {
-    int val = get_server_properties().get_int("max-players", DEFAULT_MAX_PLAYERS);
+    int val = get_server_properties().get_int(ServerPropertyTypes::max_players);
     if (val < 0) {
         val = 0;
     }
@@ -479,30 +544,10 @@ static void server_init() {
     if (!properties_file.good()) {
         // Write Defaults
         std::ofstream properties_file_output(file);
-        properties_file_output << "# Message Of The Day\n";
-        properties_file_output << "motd=" DEFAULT_MOTD "\n";
-        properties_file_output << "# Show The MineCon Badge Next To MOTD In Server List\n";
-        properties_file_output << "show-minecon-badge=" DEFAULT_SHOW_MINECON_BADGE "\n";
-        properties_file_output << "# Game Mode (0 = Survival, 1 = Creative)\n";
-        properties_file_output << "game-mode=" DEFAULT_GAME_MODE "\n";
-        properties_file_output << "# Port\n";
-        properties_file_output << "port=" DEFAULT_PORT "\n";
-        properties_file_output << "# World Seed (Blank = Random Seed)\n";
-        properties_file_output << "seed=" DEFAULT_SEED "\n";
-        properties_file_output << "# Force Mob Spawning (false = Disabled, true = Enabled)\n";
-        properties_file_output << "force-mob-spawning=" DEFAULT_FORCE_MOB_SPAWNING "\n";
-        properties_file_output << "# Peaceful Mode (false = Disabled, true = Enabled)\n";
-        properties_file_output << "peaceful-mode=" DEFAULT_PEACEFUL_MODE "\n";
-        properties_file_output << "# World To Select\n";
-        properties_file_output << "world-name=" DEFAULT_WORLD_NAME "\n";
-        properties_file_output << "# Maximum Player Count\n";
-        properties_file_output << "max-players=" DEFAULT_MAX_PLAYERS "\n";
-        properties_file_output << "# Enable Whitelist\n";
-        properties_file_output << "whitelist=" DEFAULT_WHITELIST "\n";
-        properties_file_output << "# Enable Death Messages\n";
-        properties_file_output << "death-messages=" DEFAULT_DEATH_MESSAGES "\n";
-        properties_file_output << "# Generate Caves\n";
-        properties_file_output << "generate-caves=" DEFAULT_GENERATE_CAVES "\n";
+        for (const ServerProperty *property : ServerProperty::all) {
+            properties_file_output << "# " << property->comment << '\n';
+            properties_file_output << property->key << '=' << property->def << '\n';
+        }
         properties_file_output.close();
         // Re-Open File
         properties_file = std::ifstream(file);
@@ -544,7 +589,7 @@ static void server_init() {
     overwrite_calls(RakNet_RakPeer_IsBanned, RakNet_RakPeer_IsBanned_injection);
 
     // Show The MineCon Icon Next To MOTD In Server List
-    if (get_server_properties().get_bool("show-minecon-badge", DEFAULT_SHOW_MINECON_BADGE)) {
+    if (get_server_properties().get_bool(ServerPropertyTypes::show_minecon_badge)) {
         unsigned char minecon_badge_patch[4] = {0x04, 0x1a, 0x9f, 0xe5}; // "ldr r1, [0x741f0]"
         patch((void *) 0x737e4, minecon_badge_patch);
     }

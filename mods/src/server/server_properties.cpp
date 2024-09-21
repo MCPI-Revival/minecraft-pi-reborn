@@ -1,5 +1,7 @@
 #include <mods/server/server_properties.h>
 
+std::vector<const ServerProperty *> ServerProperty::all;
+
 static bool is_true(std::string const& val) {
     return (val == "true" || val == "yes" || val == "1");
 }
@@ -20,18 +22,14 @@ void ServerProperties::load(std::istream &stream) {
     }
 }
 
-std::string ServerProperties::get_string(const std::string &name, const std::string &def) const {
-    return properties.contains(name) ? properties.at(name) : def;
+std::string ServerProperties::get_string(const ServerProperty &property) const {
+    return properties.contains(property.key) ? properties.at(property.key) : property.def;
 }
 
-int ServerProperties::get_int(const std::string &name, const std::string &def) const {
-    return properties.contains(name) ? std::stoi(properties.at(name)) : std::stoi(def);
+int ServerProperties::get_int(const ServerProperty &property) const {
+    return std::stoi(get_string(property));
 }
 
-bool ServerProperties::get_bool(const std::string &name, const std::string &def) const {
-    if (properties.contains(name)) {
-        const std::string &val = properties.at(name);
-        return is_true(val);
-    }
-    return is_true(def);
+bool ServerProperties::get_bool(const ServerProperty &property) const {
+    return is_true(get_string(property));
 }
