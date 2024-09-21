@@ -19,3 +19,9 @@ function(mcpi_option name description type default)
     list(APPEND MCPI_OPTIONS "-D${full_name}:${type}=${${full_name}}")
     set(MCPI_OPTIONS "${MCPI_OPTIONS}" PARENT_SCOPE)
 endfunction()
+
+# Clear External CFLAGS When Building ARM Components
+if(BUILD_ARM_COMPONENTS)
+    unset(ENV{CFLAGS})
+    unset(ENV{CXXFLAGS})
+endif()

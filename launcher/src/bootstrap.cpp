@@ -84,6 +84,7 @@ void bootstrap(const options_t &options) {
     }
 
     // Resolve Binary Path & Set MCPI_DIRECTORY
+    std::string original_game_binary;
     std::string game_binary;
     {
         // Log
@@ -91,7 +92,13 @@ void bootstrap(const options_t &options) {
 
         // Resolve Full Binary Path
         const std::string full_path = binary_directory + ("/" MCPI_BINARY);
-        game_binary = safe_realpath(full_path);
+        original_game_binary = safe_realpath(full_path);
+        const char *custom_binary = getenv(MCPI_BINARY_ENV);
+        if (custom_binary != nullptr) {
+            game_binary = safe_realpath(custom_binary);
+        } else {
+            game_binary = original_game_binary;
+        }
     }
 
     // Fix MCPI Dependencies
@@ -119,7 +126,7 @@ void bootstrap(const options_t &options) {
 
     // Set MCPI_VANILLA_ASSETS_PATH
     {
-        std::string assets_path = game_binary;
+        std::string assets_path = original_game_binary;
         chop_last_component(assets_path);
         assets_path += "/data";
         set_and_print_env(_MCPI_VANILLA_ASSETS_PATH_ENV, assets_path.c_str());
