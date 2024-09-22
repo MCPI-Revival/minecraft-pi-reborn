@@ -119,6 +119,7 @@ set(SRC
     src/gui/screens/OptionsScreen.def
     src/gui/screens/TextEditScreen.def
     src/gui/screens/StartMenuScreen.def
+    src/gui/screens/Touch_StartMenuScreen.def
     src/gui/screens/ProgressScreen.def
     src/gui/screens/Touch_SelectWorldScreen.def
     src/gui/screens/PaneCraftingScreen.def

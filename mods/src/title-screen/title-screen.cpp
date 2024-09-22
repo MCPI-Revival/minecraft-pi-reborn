@@ -8,13 +8,14 @@
 #include <mods/feature/feature.h>
 #include <mods/init/init.h>
 #include <mods/compat/compat.h>
-#include <mods/touch/touch.h>
 #include <mods/title-screen/title-screen.h>
+#include <mods/misc/misc.h>
 
 #include "title-screen-internal.h"
 
 // Improved Title Screen Background
-static void StartMenuScreen_render_Screen_renderBackground_injection(Screen *screen) {
+template <typename Self>
+static void StartMenuScreen_renderBackground_injection(Self *screen) {
     // Draw
     const Minecraft *minecraft = screen->minecraft;
     Textures *textures = minecraft->textures;
@@ -51,71 +52,74 @@ static void StartMenuScreen_buttonClicked_injection(StartMenuScreen_buttonClicke
     }
 }
 
-// Add Splashes
-void title_screen_load_splashes(std::vector<std::string> &splashes) {
-    std::ifstream stream("data/splashes.txt");
-    if (stream.good()) {
-        std::string line;
-        while (std::getline(stream, line)) {
-            if (line.length() > 0) {
-                splashes.push_back(line);
-            }
-        }
-        stream.close();
-    } else {
-        WARN("Unable To Load Splashes");
-    }
-}
-static Screen *last_screen = nullptr;
-static std::string current_splash;
-static void StartMenuScreen_render_Screen_render_injection(Screen *screen, int x, int y, float param_1) {
+// Fix High-Resolution Title
+static constexpr int title_width = 256;
+static constexpr int title_height = 64;
+static Texture *StartMenuScreen_render_Textures_getTemporaryTextureData_injection(Textures *self, uint id) {
     // Call Original Method
-    Screen_render->get(false)(screen, x, y, param_1);
+    const Texture *out = self->getTemporaryTextureData(id);
+    // Patch
+    static Texture ret;
+    ret = *out;
+    ret.width = title_width;
+    ret.height = title_height;
+    return &ret;
+}
+static float StartMenuScreen_render_Mth_min_injection(__attribute__((unused)) float a, const float b) {
+    return b;
+}
 
-    // Load Splashes
-    static std::vector<std::string> splashes;
-    static bool splashes_loaded = false;
-    if (!splashes_loaded) {
-        // Mark As Loaded
-        splashes_loaded = true;
-        // Load
-        title_screen_load_splashes(splashes);
+// Track Version Text Y
+int version_text_bottom;
+static int (*adjust_version_y)(const StartMenuScreen *) = nullptr;
+static void StartMenuScreen_render_GuiComponent_drawString_injection(GuiComponent *self, Font *font, const std::string &text, int x, int y, int color) {
+    // Adjust Position
+    if (adjust_version_y) {
+        y = adjust_version_y((StartMenuScreen *) self);
     }
+    // Draw
+    self->drawString(font, text, x, y, color);
+    // Store Position
+    version_text_bottom = y + line_height;
+}
 
-    // Display Splash
-    if (!splashes.empty()) {
-        // Pick Splash
-        if (last_screen != screen) {
-            last_screen = screen;
-            current_splash = splashes[rand() % splashes.size()];
-        }
-        // Choose Position
-        const float multiplier = touch_gui ? 0.5f : 1.0f;
-        const float splash_x = (float(screen->width) / 2.0f) + (94.0f * multiplier);
-        const float splash_y = 4.0f + (36.0f * multiplier);
-        constexpr float max_width = 86;
-        constexpr float max_scale = 2.0f;
-        // Draw (From https://github.com/ReMinecraftPE/mcpe/blob/d7a8b6baecf8b3b050538abdbc976f690312aa2d/source/client/gui/screens/StartMenuScreen.cpp#L699-L718)
-        glPushMatrix();
-        // Position
-        glTranslatef(splash_x, splash_y, 0.0f);
-        glRotatef(-20.0f, 0.0f, 0.0f, 1.0f);
-        // Scale
-        const int textWidth = screen->font->width(current_splash);
-        const float timeMS = float(Common::getTimeMs() % 1000) / 1000.0f;
-        float scale = max_scale - Mth::abs(0.1f * Mth::sin(2.0f * float(M_PI) * timeMS));
-        const float real_text_width = textWidth * max_scale;
-        if (real_text_width > max_width) {
-            scale *= max_width / real_text_width;
-        }
-        scale *= multiplier;
-        glScalef(scale, scale, scale);
-        // Render
-        static int line_height = 8;
-        screen->drawCenteredString(screen->font, current_splash, 0, -(float(line_height) / 2), 0xffff00);
-        // Finish
-        glPopMatrix();
-    }
+// Modern Logo
+static constexpr float modern_title_scale = 0.75f;
+static constexpr int modern_title_width = int(title_width * modern_title_scale);
+static constexpr int modern_title_height = int(title_height * modern_title_scale);
+static constexpr int version_text_y_offset = -6;
+static int get_title_y(const StartMenuScreen *screen) {
+    float y = float(screen->start_button.y - modern_title_height);
+    y *= (5.0f / 24.0f);
+    y = ceilf(y);
+    return int(y);
+}
+static int get_version_y(const StartMenuScreen *screen) {
+    int y = get_title_y(screen);
+    y += modern_title_height;
+    y += version_text_y_offset;
+    return y;
+}
+static void StartMenuScreen_render_Screen_renderBackground_injection(StartMenuScreen *self) {
+    // Call Original Method
+    self->renderBackground();
+    // Draw Logo
+    self->minecraft->textures->loadAndBindTexture(Strings::title_texture_classic);
+    const float x = float(self->width) / 2;
+    const float y = float(get_title_y(self));
+    constexpr int w = modern_title_width / 2;
+    constexpr int h = modern_title_height;
+    Tesselator& t = Tesselator::instance;
+    glColor4f(1, 1, 1, 1);
+    t.begin(7);
+    t.vertexUV(x - w, y + h, self->z, 0, 1);
+    t.vertexUV(x + w, y + h, self->z, 1, 1);
+    t.vertexUV(x + w, y, self->z, 1, 0);
+    t.vertexUV(x - w, y, self->z, 0, 0);
+    t.draw();
+}
+static Texture *StartMenuScreen_render_Textures_getTemporaryTextureData_injection_modern(__attribute__((unused)) Textures *self, __attribute__((unused)) uint id) {
+    return nullptr;
 }
 
 // Init
@@ -123,8 +127,8 @@ void init_title_screen() {
     // Improved Title Screen Background
     if (feature_has("Add Title Screen Background", server_disabled)) {
         // Switch Background
-        overwrite_call((void *) 0x39528, (void *) StartMenuScreen_render_Screen_renderBackground_injection);
-        overwrite_call((void *) 0x3dee0, (void *) StartMenuScreen_render_Screen_renderBackground_injection);
+        patch_vtable(StartMenuScreen_renderBackground, StartMenuScreen_renderBackground_injection<StartMenuScreen>);
+        patch_vtable(Touch_StartMenuScreen_renderBackground, StartMenuScreen_renderBackground_injection<Touch_StartMenuScreen>);
         // Text Color
         patch_address((void *) 0x397ac, (void *) 0xffffffff);
         patch_address((void *) 0x3e10c, (void *) 0xffffffff);
@@ -160,12 +164,35 @@ void init_title_screen() {
         overwrite_calls(StartMenuScreen_buttonClicked, StartMenuScreen_buttonClicked_injection);
     }
 
+    // Modern Logo
+    const bool modern_logo = feature_has("Use Updated Title", server_disabled);
+    if (modern_logo) {
+        const char *new_path = "gui/modern_logo.png";
+        patch_address((void *) &Strings::title_texture_classic, (void *) new_path);
+        patch_address((void *) &Strings::title_texture_touch, (void *) new_path);
+    }
+
+    // High-Resolution Title
+    if (feature_has("Allow High-Resolution Title", server_disabled) || modern_logo) {
+        // Touch
+        overwrite_call((void *) 0x3df2c, (void *) StartMenuScreen_render_Textures_getTemporaryTextureData_injection);
+        overwrite_call((void *) 0x3df98, (void *) StartMenuScreen_render_Mth_min_injection);
+        // Classic
+        overwrite_call((void *) 0x3956c, (void *) StartMenuScreen_render_Textures_getTemporaryTextureData_injection);
+        overwrite_call((void *) 0x395d8, (void *) StartMenuScreen_render_Mth_min_injection);
+    }
+
+    // Better Scaling And Position
+    if (feature_has("Improved Classic Title Positioning", server_disabled)) {
+        overwrite_call((void *) 0x3956c, (void *) StartMenuScreen_render_Textures_getTemporaryTextureData_injection_modern);
+        overwrite_call((void *) 0x39528, (void *) StartMenuScreen_render_Screen_renderBackground_injection);
+        adjust_version_y = get_version_y;
+    }
+    overwrite_call((void *) 0x39728, (void *) StartMenuScreen_render_GuiComponent_drawString_injection);
+
     // Add Splashes
     if (feature_has("Add Splashes", server_disabled)) {
-        overwrite_call((void *) 0x39764, (void *) StartMenuScreen_render_Screen_render_injection);
-        overwrite_call((void *) 0x3e0c4, (void *) StartMenuScreen_render_Screen_render_injection);
-        // Init Random
-        srand(time(nullptr));
+        _init_splashes();
     }
 
     // Init Welcome Screen

@@ -26,3 +26,5 @@ void misc_run_on_game_key_press(const std::function<bool(Minecraft *, int)> &fun
 void misc_run_on_key_press(const std::function<bool(Minecraft *, int)> &func);
 void misc_run_on_creative_inventory_setup(const std::function<void(FillingContainer *)> &function);
 void misc_run_on_swap_buffers(const std::function<void()> &function);
+
+static constexpr int line_height = 8;

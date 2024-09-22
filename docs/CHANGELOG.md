@@ -40,6 +40,9 @@
     * `Render Fire In Third-Person` (Enabled By Default)
     * `Improved Water Rendering` (Enabled By Default)
     * `Classic Item Count UI` (Enabled By Default)
+    * `Allow High-Resolution Title` (Enabled By Default)
+    * `Improved Classic Title Positioning` (Enabled By Default)
+    * `Use Updated Title` (Enabled By Default)
   * Existing Functionality (All Enabled By Default)
     * `Fix Screen Rendering When Hiding HUD`
     * `Sanitize Usernames`
@@ -73,6 +76,7 @@
 * Fix Furnace Visual Bug When Using Lava Bucket As Fuel
 * `overwrite_calls` Now Scans VTables
 * Unify Server/Client Builds
+* Controller Support Removed
 
 **2.5.3**
 * Add `Replace Block Highlight With Outline` Feature Flag (Enabled By Default)

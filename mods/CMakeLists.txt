@@ -68,6 +68,7 @@ set(SRC
     src/atlas/atlas.cpp
     # title-screen
     src/title-screen/title-screen.cpp
+    src/title-screen/splashes.cpp
     src/title-screen/splashes.txt # Show In IDE
     src/title-screen/welcome.cpp
     # skin

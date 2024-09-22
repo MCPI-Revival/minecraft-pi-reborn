@@ -41,10 +41,9 @@ static std::vector<std::string> get_debug_info(const Minecraft *minecraft) {
 }
 
 // Render Text With Background
-static uint32_t debug_background_color = 0x90505050;
-static int debug_text_color = 0xe0e0e0;
-static int debug_background_padding = 1;
-static int line_height = 8;
+static constexpr uint32_t debug_background_color = 0x90505050;
+static constexpr int debug_text_color = 0xe0e0e0;
+static constexpr int debug_background_padding = 1;
 static void render_debug_line(Gui *gui, std::string &line, const int x, const int y) {
     // Draw Background
     const int width = gui->minecraft->font->width(line);
@@ -57,8 +56,8 @@ static void render_debug_line(Gui *gui, std::string &line, const int x, const in
 }
 // Draw Debug Information
 static bool debug_info_shown = false;
-static int debug_margin = 2;
-static int debug_line_padding = 1;
+static constexpr int debug_margin = 2;
+static constexpr int debug_line_padding = 1;
 static void Gui_renderDebugInfo_injection(__attribute__((unused)) Gui_renderDebugInfo_t original, Gui *self) {
     if (debug_info_shown) {
         std::vector<std::string> info = get_debug_info(self->minecraft);

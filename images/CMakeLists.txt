@@ -1,5 +1,11 @@
 project(images)
 
+# Logo
+install(
+    FILES "modern_logo.png"
+    DESTINATION "${MCPI_INSTALL_DIR}/data/images/gui"
+)
+
 # Title Background
 install(
     FILES "background.png"
@@ -14,7 +20,7 @@ install(
 )
 
 # Icon
-set(ICON_DIR "${MCPI_SHARE_DIR}/icons/hicolor/512x512/apps")
+set(ICON_DIR "${MCPI_SHARE_DIR}/icons/hicolor/1024x1024/apps")
 install(
     FILES "icon.png"
     DESTINATION "${ICON_DIR}"

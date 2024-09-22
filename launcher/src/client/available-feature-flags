@@ -103,3 +103,6 @@ TRUE Log Game Status
 TRUE Screenshot Support
 TRUE Fix Camera Functionality
 TRUE Property Scale Animated Textures
+TRUE Allow High-Resolution Title
+TRUE Improved Classic Title Positioning
+TRUE Use Updated Title

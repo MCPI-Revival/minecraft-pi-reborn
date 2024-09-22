@@ -29,14 +29,13 @@ static void create_world(Minecraft *minecraft, std::string name, bool is_creativ
 CUSTOM_VTABLE(create_world_screen, Screen) {
     TextInputScreen::setup<CreateWorldScreen>(vtable);
     // Constants
-    static int line_height = 8;
-    static int bottom_padding = 4;
-    static int inner_padding = 4;
-    static int description_padding = 4;
-    static int title_padding = 8;
-    static int button_height = 24;
-    static int content_y_offset_top = (title_padding * 2) + line_height;
-    static int content_y_offset_bottom = button_height + (bottom_padding * 2);
+    static constexpr int bottom_padding = 4;
+    static constexpr int inner_padding = 4;
+    static constexpr int description_padding = 4;
+    static constexpr int title_padding = 8;
+    static constexpr int button_height = 24;
+    static constexpr int content_y_offset_top = (title_padding * 2) + line_height;
+    static constexpr int content_y_offset_bottom = button_height + (bottom_padding * 2);
     // Init
     static Screen_init_t original_init = vtable->init;
     vtable->init = [](Screen *super) {

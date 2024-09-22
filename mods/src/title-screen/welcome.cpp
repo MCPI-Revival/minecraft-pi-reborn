@@ -6,16 +6,16 @@
 #include <mods/home/home.h>
 #include <mods/touch/touch.h>
 #include <mods/options/info.h>
+#include <mods/misc/misc.h>
 
 #include "title-screen-internal.h"
 
 // Constants
 static std::string line1 = "Welcome to " MCPI_APP_TITLE " v" MCPI_VERSION "!";
-static int line_height = 8;
-static int button_width = 120;
-static int button_height = 24;
-static int line_padding = 28;
-static int button_padding = 4;
+static constexpr int button_width = 120;
+static constexpr int button_height = 24;
+static constexpr int line_padding = 28;
+static constexpr int button_padding = 4;
 
 // Track Whether To Show Screen
 static std::string get_tracker_file() {

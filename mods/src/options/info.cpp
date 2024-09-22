@@ -15,16 +15,15 @@
 #define INFO_ID_START 2
 
 // Constants
-static int line_button_padding = 8;
-static int line_height = 8;
-static int line_button_height = (line_button_padding * 2) + line_height;
-static int padding = 4;
-static int bottom_padding = padding;
-static int inner_padding = padding;
-static int title_padding = 8;
-static int info_text_y_offset = (line_button_height - line_height) / 2;
-static int content_y_offset_top = (title_padding * 2) + line_height;
-static int content_y_offset_bottom = (bottom_padding * 2) + line_button_height;
+static constexpr int line_button_padding = 8;
+static constexpr int line_button_height = (line_button_padding * 2) + line_height;
+static constexpr int padding = 4;
+static constexpr int bottom_padding = padding;
+static constexpr int inner_padding = padding;
+static constexpr int title_padding = 8;
+static constexpr int info_text_y_offset = (line_button_height - line_height) / 2;
+static constexpr int content_y_offset_top = (title_padding * 2) + line_height;
+static constexpr int content_y_offset_bottom = (bottom_padding * 2) + line_button_height;
 
 // Extra Version Info
 static std::string extra_version_info =

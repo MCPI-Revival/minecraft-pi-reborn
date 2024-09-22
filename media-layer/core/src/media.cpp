@@ -283,7 +283,7 @@ static void glfw_click(__attribute__((unused)) GLFWwindow *window, const int but
 // Pass Mouse Scroll To SDL
 static void glfw_scroll(__attribute__((unused)) GLFWwindow *window, __attribute__((unused)) double xoffset, double yoffset) {
     if (is_interactable && yoffset != 0) {
-        int sdl_button = yoffset > 0 ? SDL_BUTTON_WHEELUP : SDL_BUTTON_WHEELDOWN;
+        const int sdl_button = yoffset > 0 ? SDL_BUTTON_WHEELUP : SDL_BUTTON_WHEELDOWN;
         click_event(sdl_button, false);
         click_event(sdl_button, true);
     }
@@ -359,7 +359,7 @@ void SDL_WM_SetCaption(const char *title, __attribute__((unused)) const char *ic
     glfwWindowHintString(GLFW_WAYLAND_APP_ID, MCPI_APP_ID);
 
     // Create Window
-    glfw_window = glfwCreateWindow(DEFAULT_WIDTH, DEFAULT_HEIGHT, title, NULL, NULL);
+    glfw_window = glfwCreateWindow(DEFAULT_WIDTH, DEFAULT_HEIGHT, title, nullptr, nullptr);
     if (!glfw_window) {
         ERR("Unable To Create GLFW Window");
     }

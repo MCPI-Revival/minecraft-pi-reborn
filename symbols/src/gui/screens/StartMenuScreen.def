@@ -2,5 +2,6 @@ extends Screen;
 
 vtable 0x105188;
 
+property Button start_button = 0x48;
 property Button options_button = 0x98;
 property Button create_button = 0xc0;
