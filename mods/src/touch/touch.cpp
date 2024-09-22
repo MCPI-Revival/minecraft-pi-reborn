@@ -20,7 +20,7 @@ static unsigned char *operator_new_IngameBlockSelectionScreen_injection(__attrib
 static int32_t Button_hovered_injection(__attribute__((unused)) Button_hovered_t original, __attribute__((unused)) Button *button, __attribute__((unused)) Minecraft *minecraft, __attribute__((unused)) int32_t click_x, __attribute__((unused)) int32_t click_y) {
     // Get Mouse Position
     const int32_t x = Mouse::getX() * Gui::InvGuiScale;
-    const int32_t y = Mouse::getY() * Gui::InvGuiScale;
+    const int32_t y = (Mouse::getY() * Gui::InvGuiScale) - 1; // Screen::mouseEvent Offsets Mouse Events
 
     // Get Button Position
     const int32_t button_x1 = button->x;
