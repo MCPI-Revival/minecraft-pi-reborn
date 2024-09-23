@@ -288,6 +288,15 @@ void _init_misc_graphics() {
         overwrite_call((void *) 0x4d764, (void *) LevelRenderer_render_AABB_glColor4f_injection);
     }
 
+    // Properly Hide Block Outline
+    if (feature_has("Hide Block Outline When GUI Is Hidden", server_disabled)) {
+        overwrite_calls(LevelRenderer_renderHitSelect, [](LevelRenderer_renderHitSelect_t original, LevelRenderer *self, Player *player, const HitResult &hit_result, const int i, void *vp, const float f) {
+            if (!self->minecraft->options.hide_gui) {
+                original(self, player, hit_result, i, vp, f);
+            }
+        });
+    }
+
     // Java Light Ramp
     if (feature_has("Use Java Beta 1.3 Light Ramp", server_disabled)) {
         overwrite_calls(Dimension_updateLightRamp, Dimension_updateLightRamp_injection);
