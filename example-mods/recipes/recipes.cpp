@@ -4,6 +4,7 @@
 #include <mods/misc/misc.h>
 
 // Custom Crafting Recipes
+#define SAND 12
 static void Recipes_injection(Recipes *recipes) {
     // Add
     Recipes_Type type1 = {
@@ -11,7 +12,7 @@ static void Recipes_injection(Recipes *recipes) {
         .tile = 0,
         .instance = {
             .count = 1,
-            .id = 12,
+            .id = SAND,
             .auxiliary = 0
         },
         .letter = 'a'
@@ -54,4 +55,10 @@ __attribute__((constructor)) static void init_recipes() {
     // Setup
     misc_run_on_recipes_setup(Recipes_injection);
     misc_run_on_furnace_recipes_setup(FurnaceRecipes_injection);
+
+    // Recipe Remainder
+    overwrite_calls(Minecraft_init, [](Minecraft_init_t original, Minecraft *self) {
+        original(self);
+        Item::items[SAND]->craftingRemainingItem = Item::snowball;
+    });
 }

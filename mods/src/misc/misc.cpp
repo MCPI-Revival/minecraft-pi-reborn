@@ -250,7 +250,7 @@ static ItemInstance *Item_getCraftingRemainingItem_injection(__attribute__((unus
     if (self->craftingRemainingItem != nullptr) {
         ItemInstance *ret = new ItemInstance;
         ret->id = self->craftingRemainingItem->id;
-        ret->count = item_instance->count;
+        ret->count = 1;
         ret->auxiliary = 0;
         return ret;
     }
