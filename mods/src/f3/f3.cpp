@@ -74,7 +74,7 @@ static void Gui_renderDebugInfo_injection(__attribute__((unused)) Gui_renderDebu
 void init_f3() {
     if (feature_has("F3 Debug Information", server_disabled)) {
         overwrite_calls(Gui_renderDebugInfo, Gui_renderDebugInfo_injection);
-        misc_run_on_game_key_press([](__attribute__((unused)) Minecraft *minecraft, int key) {
+        misc_run_on_game_key_press([](__attribute__((unused)) Minecraft *minecraft, const int key) {
             if (key == MC_KEY_F3) {
                 debug_info_shown = !debug_info_shown;
                 return true;

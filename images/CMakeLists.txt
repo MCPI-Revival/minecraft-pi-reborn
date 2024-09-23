@@ -20,7 +20,7 @@ install(
 )
 
 # Icon
-set(ICON_DIR "${MCPI_SHARE_DIR}/icons/hicolor/1024x1024/apps")
+set(ICON_DIR "${MCPI_SHARE_DIR}/icons/hicolor/512x512/apps")
 install(
     FILES "icon.png"
     DESTINATION "${ICON_DIR}"
