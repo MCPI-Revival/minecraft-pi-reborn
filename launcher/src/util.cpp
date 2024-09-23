@@ -26,7 +26,9 @@ void chop_last_component(std::string &str) {
 // Get Binary Directory (Remember To Free)
 std::string safe_realpath(const std::string &path) {
     char *raw = realpath(path.c_str(), nullptr);
-    ALLOC_CHECK(raw);
+    if (raw == nullptr) {
+        ERR("Unable To Resolve: %s", path.c_str());
+    }
     std::string str = raw;
     free(raw);
     return str;
