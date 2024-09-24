@@ -434,6 +434,15 @@ static void Player_tick_injection(Player_tick_t original, Player *self) {
     original(self);
 }
 
+// Rare Segfault
+static int Dimension_isValidSpawn_Level_getTopTile_injection(Level *self, int x, int z) {
+    int ret = self->getTopTile(x, z);
+    if (ret == 0) {
+        ret = Tile::invisible_bedrock->id;
+    }
+    return ret;
+}
+
 // Init
 void init_misc() {
     // Sanitize Username
@@ -577,6 +586,11 @@ void init_misc() {
     // Clear Fire For Creative Players
     if (feature_has("Stop Creative Players From Burning", server_enabled)) {
         overwrite_calls(Player_tick, Player_tick_injection);
+    }
+
+    // Rare Segfault
+    if (feature_has("Fix Crash When Generating Certain Seed", server_enabled)) {
+        overwrite_call((void *) 0xb198c, (void *) Dimension_isValidSpawn_Level_getTopTile_injection);
     }
 
     // Init Other Components
