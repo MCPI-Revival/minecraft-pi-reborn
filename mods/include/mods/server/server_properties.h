@@ -6,7 +6,7 @@
 #include <vector>
 
 struct ServerProperty {
-    static std::vector<const ServerProperty *> all;
+    static std::vector<const ServerProperty *> &get_all();
     const char *const key;
     const char *const def;
     const char *const comment;
@@ -14,7 +14,7 @@ struct ServerProperty {
         key(key_),
         def(def_),
         comment(comment_) {
-        all.push_back(this);
+        get_all().push_back(this);
     }
 };
 

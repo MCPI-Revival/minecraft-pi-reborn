@@ -1,6 +1,9 @@
 #include <mods/server/server_properties.h>
 
-std::vector<const ServerProperty *> ServerProperty::all;
+std::vector<const ServerProperty *> &ServerProperty::get_all() {
+    static std::vector<const ServerProperty *> out;
+    return out;
+}
 
 static bool is_true(std::string const& val) {
     return (val == "true" || val == "yes" || val == "1");

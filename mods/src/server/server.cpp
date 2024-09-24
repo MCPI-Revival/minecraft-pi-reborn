@@ -35,24 +35,28 @@ ServerProperties &get_server_properties() {
 }
 
 // Default Server Properties
-namespace ServerPropertyTypes {
-    static ServerProperty message_of_the_day("motd", "Minecraft Server", "Message Of The Day");
-    static ServerProperty show_minecon_badge("show-minecon-badge", "false", "Show The MineCon Badge Next To MOTD In Server List");
-    static ServerProperty game_mode("game-mode", "0", "Game Mode (0 = Survival, 1 = Creative)");
-    static ServerProperty port("port", "19132", "Port");
-    static ServerProperty seed("seed", "", "World Seed (Blank = Random Seed)");
-    static ServerProperty force_mob_spawning("force-mob-spawning", "false", "Force Mob Spawning (false = Disabled, true = Enabled)");
-    static ServerProperty peaceful_mode("peaceful-mode", "false", "Peaceful Mode (false = Disabled, true = Enabled)");
-    static ServerProperty world_name("world-name", "world", "World To Select");
-    static ServerProperty max_players("max-players", "4", "Maximum Player Count");
-    static ServerProperty enable_whitelist("whitelist", "false", "Enable Whitelist");
-    static ServerProperty enable_death_messages("death-messages", "true", "Enable Death Messages");
-    static ServerProperty enable_cave_generation("generate-caves", "true", "Generate Caves");
+struct ServerPropertyTypes {
+    const ServerProperty message_of_the_day = ServerProperty("motd", "Minecraft Server", "Message Of The Day");
+    const ServerProperty show_minecon_badge = ServerProperty("show-minecon-badge", "false", "Show The MineCon Badge Next To MOTD In Server List");
+    const ServerProperty game_mode = ServerProperty("game-mode", "0", "Game Mode (0 = Survival, 1 = Creative)");
+    const ServerProperty port = ServerProperty("port", "19132", "Port");
+    const ServerProperty seed = ServerProperty("seed", "", "World Seed (Blank = Random Seed)");
+    const ServerProperty force_mob_spawning = ServerProperty("force-mob-spawning", "false", "Force Mob Spawning (false = Disabled, true = Enabled)");
+    const ServerProperty peaceful_mode = ServerProperty("peaceful-mode", "false", "Peaceful Mode (false = Disabled, true = Enabled)");
+    const ServerProperty world_name = ServerProperty("world-name", "world", "World To Select");
+    const ServerProperty max_players = ServerProperty("max-players", "4", "Maximum Player Count");
+    const ServerProperty enable_whitelist = ServerProperty("whitelist", "false", "Enable Whitelist");
+    const ServerProperty enable_death_messages = ServerProperty("death-messages", "true", "Enable Death Messages");
+    const ServerProperty enable_cave_generation = ServerProperty("generate-caves", "true", "Generate Caves");
+};
+static ServerPropertyTypes &get_property_types() {
+    static ServerPropertyTypes types;
+    return types;
 }
 
 // Get World Name
 static std::string get_world_name() {
-    const std::string name = get_server_properties().get_string(ServerPropertyTypes::world_name);
+    const std::string name = get_server_properties().get_string(get_property_types().world_name);
     char *safe_name_c = to_cp437(name.c_str());
     std::string safe_name = safe_name_c;
     free(safe_name_c);
@@ -69,12 +73,12 @@ static void start_world(Minecraft *minecraft) {
 
     // Peaceful Mode
     Options *options = &minecraft->options;
-    options->game_difficulty = get_server_properties().get_bool(ServerPropertyTypes::peaceful_mode) ? 0 : 2;
+    options->game_difficulty = get_server_properties().get_bool(get_property_types().peaceful_mode) ? 0 : 2;
 
     // Specify Level Settings
     LevelSettings settings;
-    settings.game_type = get_server_properties().get_int(ServerPropertyTypes::game_mode);
-    const std::string seed_str = get_server_properties().get_string(ServerPropertyTypes::seed);
+    settings.game_type = get_server_properties().get_int(get_property_types().game_mode);
+    const std::string seed_str = get_server_properties().get_string(get_property_types().seed);
     const int32_t seed = get_seed_from_string(seed_str);
     settings.seed = seed;
 
@@ -84,7 +88,7 @@ static void start_world(Minecraft *minecraft) {
     // Don't Open Port When Using --only-generate
     if (!only_generate) {
         // Open Port
-        const int port = get_server_properties().get_int(ServerPropertyTypes::port);
+        const int port = get_server_properties().get_int(get_property_types().port);
         INFO("Listening On: %i", port);
         minecraft->hostMultiplayer(port);
     }
@@ -98,7 +102,7 @@ static void start_world(Minecraft *minecraft) {
 
 // Check If Running In Whitelist Mode
 static bool is_whitelist() {
-    return get_server_properties().get_bool(ServerPropertyTypes::enable_whitelist);
+    return get_server_properties().get_bool(get_property_types().enable_whitelist);
 }
 // Get Path Of Blacklist (Or Whitelist) File
 static std::string get_blacklist_file() {
@@ -506,7 +510,7 @@ static Player *ServerSideNetworkHandler_onReady_ClientGeneration_ServerSideNetwo
 
 // Get MOTD
 static std::string get_motd() {
-    std::string motd(get_server_properties().get_string(ServerPropertyTypes::message_of_the_day));
+    std::string motd(get_server_properties().get_string(get_property_types().message_of_the_day));
     return motd;
 }
 
@@ -518,13 +522,13 @@ static const char *get_features() {
         loaded_features = true;
 
         features.clear();
-        if (get_server_properties().get_bool(ServerPropertyTypes::force_mob_spawning)) {
+        if (get_server_properties().get_bool(get_property_types().force_mob_spawning)) {
             features += "Force Mob Spawning|";
         }
-        if (get_server_properties().get_bool(ServerPropertyTypes::enable_death_messages)) {
+        if (get_server_properties().get_bool(get_property_types().enable_death_messages)) {
             features += "Implement Death Messages|";
         }
-        if (get_server_properties().get_bool(ServerPropertyTypes::enable_cave_generation)) {
+        if (get_server_properties().get_bool(get_property_types().enable_cave_generation)) {
             features += "Generate Caves|";
         }
     }
@@ -533,7 +537,7 @@ static const char *get_features() {
 
 // Get Max Players
 static unsigned char get_max_players() {
-    int val = get_server_properties().get_int(ServerPropertyTypes::max_players);
+    int val = get_server_properties().get_int(get_property_types().max_players);
     if (val < 0) {
         val = 0;
     }
@@ -554,7 +558,8 @@ static void server_init() {
     if (!properties_file.good()) {
         // Write Defaults
         std::ofstream properties_file_output(file);
-        for (const ServerProperty *property : ServerProperty::all) {
+        get_property_types();
+        for (const ServerProperty *property : ServerProperty::get_all()) {
             properties_file_output << "# " << property->comment << '\n';
             properties_file_output << property->key << '=' << property->def << '\n';
         }
@@ -599,7 +604,7 @@ static void server_init() {
     overwrite_calls(RakNet_RakPeer_IsBanned, RakNet_RakPeer_IsBanned_injection);
 
     // Show The MineCon Icon Next To MOTD In Server List
-    if (get_server_properties().get_bool(ServerPropertyTypes::show_minecon_badge)) {
+    if (get_server_properties().get_bool(get_property_types().show_minecon_badge)) {
         unsigned char minecon_badge_patch[4] = {0x04, 0x1a, 0x9f, 0xe5}; // "ldr r1, [0x741f0]"
         patch((void *) 0x737e4, minecon_badge_patch);
     }
