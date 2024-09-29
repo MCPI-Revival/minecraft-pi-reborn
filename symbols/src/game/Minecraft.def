@@ -26,8 +26,8 @@ virtual-method void selectLevel(const std::string &level_dir, const std::string 
 property int screen_width = 0x20;
 property int screen_height = 0x24;
 property Options options = 0x3c;
-property LevelRenderer *levelrenderer = 0x150;
-property GameRenderer *gamerenderer = 0x154;
+property LevelRenderer *level_renderer = 0x150;
+property GameRenderer *game_renderer = 0x154;
 property GameMode *game_mode = 0x160;
 property Textures *textures = 0x164;
 property ScreenChooser screen_chooser = 0x168;
@@ -45,6 +45,8 @@ property int ticks_per_update = 0xc70;
 property bool is_creative_mode = 0xcb5;
 property PerfRenderer *perf_renderer = 0xcbc;
 property CommandServer *command_server = 0xcc0;
+property SoundEngine *sound_engine = 0x15c;
+property int miss_time = 0xca0;
 
 // Smooth Lighting
 static-property bool useAmbientOcclusion = 0x136b90;

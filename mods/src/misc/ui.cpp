@@ -199,6 +199,41 @@ static void PauseScreen_init_injection(PauseScreen_init_t original, PauseScreen 
     }
 }
 
+// Click Buttons On Mouse Down
+static void Screen_mouseClicked_injection(__attribute__((unused)) Screen_mouseClicked_t original, Screen *self,  int x, int y, const int param_1) {
+    if (param_1 == 1) {
+        for (Button *button : self->rendered_buttons) {
+            if (button->clicked(self->minecraft, x, y)) {
+                // Click
+                button->setPressed();
+                self->clicked_button = button;
+                self->buttonClicked(button);
+                // Play Sound
+                self->minecraft->sound_engine->playUI("random.click", 1, 1);
+            }
+        }
+    }
+}
+static void Screen_mouseReleased_injection(__attribute__((unused)) Screen_mouseReleased_t original, Screen *self,  int x, int y, const int param_1) {
+    if (param_1 == 1 && self->clicked_button) {
+        self->clicked_button->released(x, y);
+        self->clicked_button = nullptr;
+    }
+}
+// Fix Exiting Pause Screen
+static void Minecraft_grabMouse_injection(Minecraft_grabMouse_t original, Minecraft *self) {
+    original(self);
+    self->miss_time = 10000;
+}
+static void Minecraft_handleMouseDown_injection(Minecraft_handleMouseDown_t original, Minecraft *self, int param_1, bool can_destroy) {
+    // Call Original Method
+    original(self, param_1, can_destroy);
+    // Reset Miss Time
+    if (!can_destroy) {
+        self->miss_time = 0;
+    }
+}
+
 // Init
 void _init_misc_ui() {
     // Food Overlay
@@ -287,5 +322,13 @@ void _init_misc_ui() {
         patch((void *) 0x4b938, ensure_equal_patch);
         uchar set_true_patch[] = {0x01, 0x30, 0xa0, 0x03}; // "moveq r3, #0x1"
         patch((void *) 0x4b93c, set_true_patch);
+    }
+
+    // Click Buttons On Mouse Down
+    if (feature_has("Click Buttons On Mouse Down", server_disabled)) {
+        overwrite_calls(Screen_mouseClicked, Screen_mouseClicked_injection);
+        overwrite_calls(Screen_mouseReleased, Screen_mouseReleased_injection);
+        overwrite_calls(Minecraft_grabMouse, Minecraft_grabMouse_injection);
+        overwrite_calls(Minecraft_handleMouseDown, Minecraft_handleMouseDown_injection);
     }
 }

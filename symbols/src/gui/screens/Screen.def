@@ -16,6 +16,7 @@ virtual-method void removed() = 0x2c;
 virtual-method void renderBackground() = 0x30;
 virtual-method void buttonClicked(Button *button) = 0x60;
 virtual-method void mouseClicked(int x, int y, int param_1) = 0x64;
+virtual-method void mouseReleased(int x, int y, int param_1) = 0x68;
 virtual-method void keyPressed(int key) = 0x6c;
 virtual-method void keyboardNewChar(char key) = 0x70;
 
@@ -26,3 +27,4 @@ property Minecraft *minecraft = 0x14;
 property std::vector<Button *> rendered_buttons = 0x18;
 property std::vector<Button *> selectable_buttons = 0x30;
 property Font *font = 0x40;
+property Button *clicked_button = 0x44;

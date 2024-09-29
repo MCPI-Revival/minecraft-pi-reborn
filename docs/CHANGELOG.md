@@ -45,6 +45,7 @@
     * `Use Updated Title` (Enabled By Default)
     * `Hide Block Outline When GUI Is Hidden` (Enabled By Default)
     * `Fix Crash When Generating Certain Seed` (Enabled By Default)
+    * `Click Buttons On Mouse Down` (Enabled By Default)
   * Existing Functionality (All Enabled By Default)
     * `Fix Screen Rendering When Hiding HUD`
     * `Sanitize Usernames`
