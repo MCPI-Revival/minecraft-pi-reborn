@@ -25,6 +25,11 @@ static std::vector<std::string> get_debug_info(const Minecraft *minecraft) {
     info.push_back(std::string("MCPI ") + version_get());
     // FPS
     info.push_back("FPS: " + to_string_with_precision(fps, debug_precision));
+    // Seed
+    if (minecraft->level) {
+        info.push_back("");
+        info.push_back("Seed: " + std::to_string(minecraft->level->data.seed));
+    }
     // X/Y/Z
     if (minecraft->player) {
         info.push_back("");

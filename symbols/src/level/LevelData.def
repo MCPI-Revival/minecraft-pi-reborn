@@ -3,3 +3,4 @@ method void setTime(int time) = 0xbab28;
 method bool getSpawnMobs() = 0xbabec;
 
 property int time = 0x68;
+property int seed = 0x58;
