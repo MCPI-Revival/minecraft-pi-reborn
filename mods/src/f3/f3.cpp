@@ -48,14 +48,17 @@ static std::vector<std::string> get_debug_info(const Minecraft *minecraft) {
 // Render Text With Background
 static constexpr uint32_t debug_background_color = 0x90505050;
 static constexpr int debug_text_color = 0xe0e0e0;
-static constexpr int debug_background_padding = 1;
 static void render_debug_line(Gui *gui, std::string &line, const int x, const int y) {
     // Draw Background
     const int width = gui->minecraft->font->width(line);
     if (width == 0) {
         return;
     }
-    gui->fill(x - debug_background_padding, y - debug_background_padding, x + width + debug_background_padding, y + line_height, debug_background_color);
+    int x1 = x - 1;
+    int y1 = y - 1;
+    int x2 = x + width;
+    int y2 = y + line_height;
+    gui->fill(x1, y1, x2, y2, debug_background_color);
     // Draw Text
     gui->minecraft->font->draw(line, float(x), float(y), debug_text_color);
 }
