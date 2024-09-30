@@ -1,5 +1,7 @@
 extends Tile;
 
+constructor (int id, int texture, const Material *material) = 0xbe578;
+
 vtable 0x111348;
 vtable-size 0x108;
 size 0x5c;

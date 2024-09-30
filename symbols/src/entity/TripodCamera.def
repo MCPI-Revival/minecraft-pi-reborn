@@ -1,0 +1,3 @@
+extends Mob;
+
+vtable 0x10c870;

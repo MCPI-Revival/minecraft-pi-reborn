@@ -589,7 +589,7 @@ void init_misc() {
     }
 
     // Rare Segfault
-    if (feature_has("Fix Crash When Generating Certain Seed", server_enabled)) {
+    if (feature_has("Fix Crash When Generating Certain Seeds", server_enabled)) {
         overwrite_call((void *) 0xb198c, (void *) Dimension_isValidSpawn_Level_getTopTile_injection);
     }
 

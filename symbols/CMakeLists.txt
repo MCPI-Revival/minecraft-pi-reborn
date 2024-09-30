@@ -37,6 +37,7 @@ set(SRC
     src/entity/PathfinderMob.def
     src/entity/HumanoidModel.def
     src/entity/TripodCameraRenderer.def
+    src/entity/TripodCamera.def
     src/entity/MobFactory.def
     src/entity/EntityRenderDispatcher.def
     src/entity/MobRenderer.def
