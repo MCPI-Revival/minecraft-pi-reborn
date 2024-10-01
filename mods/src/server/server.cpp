@@ -1,6 +1,5 @@
 #include <string>
 #include <cstdint>
-#include <ctime>
 #include <cstdio>
 #include <fstream>
 #include <vector>
@@ -21,6 +20,7 @@
 #include <mods/compat/compat.h>
 #include <mods/misc/misc.h>
 #include <mods/game-mode/game-mode.h>
+#include <mods/fps/fps.h>
 
 // --only-generate: Ony Generate World And Then Exit
 static bool only_generate = false;
@@ -205,29 +205,6 @@ static void kill_callback(__attribute__((unused)) Minecraft *minecraft, __attrib
 // List Player
 static void list_callback(Minecraft *minecraft, const std::string &username, Player *player) {
     INFO(" - %s (%s)", username.c_str(), get_player_ip(minecraft, player));
-}
-
-// Track TPS
-#define NANOSECONDS_IN_SECOND 1000000000ll
-static long long int get_time() {
-    timespec ts = {};
-    clock_gettime(CLOCK_MONOTONIC_RAW, &ts);
-    const long long int a = (long long int) ts.tv_nsec;
-    const long long int b = ((long long int) ts.tv_sec) * NANOSECONDS_IN_SECOND;
-    return a + b;
-}
-static bool is_last_tick_time_set = false;
-static long long int last_tick_time;
-static double tps = 0;
-static void Minecraft_tick_injection(__attribute__((unused)) const Minecraft *minecraft) {
-    const long long int time = get_time();
-    if (is_last_tick_time_set) {
-        const long long int tick_time = time - last_tick_time;
-        tps = ((double) NANOSECONDS_IN_SECOND) / ((double) tick_time);
-    } else {
-        is_last_tick_time_set = true;
-    }
-    last_tick_time = time;
 }
 
 // Get ServerSideNetworkHandler From Minecraft
@@ -611,9 +588,6 @@ static void server_init() {
 
     // Log IPs
     overwrite_call((void *) 0x75e54, (void *) ServerSideNetworkHandler_onReady_ClientGeneration_ServerSideNetworkHandler_popPendingPlayer_injection);
-
-    // Track TPS
-    misc_run_on_tick(Minecraft_tick_injection);
 
     // Start Reading STDIN
     pthread_create(&read_stdin_thread_obj, nullptr, read_stdin_thread, nullptr);

@@ -24,8 +24,8 @@ __attribute__((constructor)) static void init() {
     init_title_screen();
     if (!reborn_is_headless()) {
         init_skin();
-        init_fps();
     }
+    init_fps();
     init_touch();
     init_textures();
     init_creative();
