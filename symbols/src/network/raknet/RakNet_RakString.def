@@ -1,5 +1,10 @@
+size 0x4;
+
+constructor () = 0xe8f80;
 //constructor (const char *format, ...) = 0xea5cc;
 
 method void Assign(const char *str) = 0xe9e34;
+method void Free() = 0xe9b50;
+method bool Deserialize(RakNet_BitStream *stream) = 0xea990;
 
 property RakNet_RakString_SharedString *sharedString = 0x0;

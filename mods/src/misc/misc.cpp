@@ -48,10 +48,10 @@ static void LoginPacket_read_injection(LoginPacket_read_t original, LoginPacket 
 // RakNet::RakString's format constructor is often given unsanitized user input and is never used for formatting,
 // this is a massive security risk, allowing clients to run arbitrary format specifiers, this disables the
 // formatting functionality.
-RakNet_RakString_constructor_t RakNet_RakString_constructor = (RakNet_RakString_constructor_t) 0xea5cc;
+RakNet_RakString_constructor_2_t RakNet_RakString_constructor_2 = (RakNet_RakString_constructor_2_t) 0xea5cc;
 static RakNet_RakString *RakNet_RakString_injection(RakNet_RakString *rak_string, const char *format, ...) {
     // Call Original Method
-    return RakNet_RakString_constructor(rak_string, "%s", format);
+    return RakNet_RakString_constructor_2(rak_string, "%s", format);
 }
 
 // Print Error Message If RakNet Startup Fails
@@ -452,7 +452,7 @@ void init_misc() {
 
     // Fix RakNet::RakString Security Bug
     if (feature_has("Patch RakNet Security Bug", server_enabled)) {
-        overwrite_calls_manual((void *) RakNet_RakString_constructor, (void *) RakNet_RakString_injection);
+        overwrite_calls_manual((void *) RakNet_RakString_constructor_2, (void *) RakNet_RakString_injection);
     }
 
     // Print Error Message If RakNet Startup Fails

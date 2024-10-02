@@ -80,6 +80,16 @@ void _chat_send_message(const Minecraft *minecraft, const char *message) {
     send_api_chat_command(minecraft, message);
 }
 
+// Allow Reading Longer ChatPacket Messages
+static void ChatPacket_read_injection(__attribute__((unused)) ChatPacket_read_t original, ChatPacket *self, RakNet_BitStream *stream) {
+    RakNet_RakString *str = RakNet_RakString::allocate();
+    str->constructor();
+    str->Deserialize(stream);
+    self->message = str->sharedString->c_str;
+    str->Free();
+    ::operator delete(str);
+}
+
 // Init
 void init_chat() {
     if (feature_has("Implement Chat", server_enabled)) {
@@ -95,5 +105,6 @@ void init_chat() {
         // Disable Built-In Chat Message Limiting
         unsigned char message_limit_patch[4] = {0x03, 0x00, 0x53, 0xe1}; // "cmp r4, r4"
         patch((void *) 0x6b4c0, message_limit_patch);
+        overwrite_calls(ChatPacket_read, ChatPacket_read_injection);
     }
 }

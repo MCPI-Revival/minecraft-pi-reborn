@@ -11,8 +11,8 @@ void misc_render_background(int color, const Minecraft *minecraft, int x, int y,
 
 extern bool is_in_chat;
 
-typedef RakNet_RakString *(*RakNet_RakString_constructor_t)(RakNet_RakString *self, const char *format, ...);
-extern RakNet_RakString_constructor_t RakNet_RakString_constructor;
+typedef RakNet_RakString *(*RakNet_RakString_constructor_2_t)(RakNet_RakString *self, const char *format, ...);
+extern RakNet_RakString_constructor_2_t RakNet_RakString_constructor_2;
 }
 
 void misc_run_on_update(const std::function<void(Minecraft *)> &func);
