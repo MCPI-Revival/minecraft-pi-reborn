@@ -322,14 +322,7 @@ static void ItemRenderer_render_injection(ItemRenderer_render_t original, ItemRe
         disable_hand_positioning = true;
         for (int i = 0; i < count; i++) {
             glTranslatef(0, 0, zo);
-            glPushMatrix();
-            if (i > 0) {
-                const float c = (self->random.nextFloat() * 2 - 1) * 0.15f;
-                const float d = (self->random.nextFloat() * 2 - 1) * 0.15f;
-                glTranslatef(c, d, 0.0f);
-            }
             EntityRenderer::entityRenderDispatcher->item_renderer->renderItem(nullptr, &item);
-            glPopMatrix();
         }
         disable_hand_positioning = false;
 
