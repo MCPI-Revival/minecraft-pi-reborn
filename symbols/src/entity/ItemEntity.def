@@ -5,3 +5,4 @@ constructor (Level *level, float x, float y, float z, const ItemInstance &item) 
 
 property ItemInstance item = 0xd0;
 property int age = 0xdc;
+property float bob_offset = 0xe4;

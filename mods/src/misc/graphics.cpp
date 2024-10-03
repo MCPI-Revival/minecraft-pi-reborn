@@ -1,3 +1,5 @@
+#include <cmath>
+
 #include <libreborn/libreborn.h>
 #include <symbols/minecraft.h>
 
@@ -261,6 +263,81 @@ static ContainerMenu *ContainerMenu_destructor_injection(ContainerMenu_destructo
     return original(container_menu);
 }
 
+// 3D Dropped Items
+static bool disable_hand_positioning = false;
+static void ItemInHandRenderer_renderItem_glTranslatef_injection(const float x, const float y, const float z) {
+    if (disable_hand_positioning) {
+        glPopMatrix();
+        glPushMatrix();
+    } else {
+        glTranslatef(x, y, z);
+    }
+}
+static void ItemRenderer_render_injection(ItemRenderer_render_t original, ItemRenderer *self, Entity *entity, const float x, const float y, const float z, const float a, const float b) {
+    // Get Item
+    const ItemEntity *item_entity = (ItemEntity *) entity;
+    ItemInstance item = item_entity->item;
+    // Check If Item Is Tile
+    if (item.id < 256 && TileRenderer::canRender(Tile::tiles[item.id]->getRenderShape())) {
+        // Call Original Method
+        original(self, entity, x, y, z, a, b);
+    } else {
+        // 3D Item
+        self->random.setSeed(187);
+        glPushMatrix();
+
+        // Count
+        int count;
+        if (item.count < 2) {
+            count = 1;
+        } else if (item.count < 16) {
+            count = 2;
+        } else if (item.count < 32) {
+            count = 3;
+        } else {
+            count = 4;
+        }
+
+        // Bob
+        const float age = float(item_entity->age) + b;
+        const float bob = (Mth::sin((age / 10.0f) + item_entity->bob_offset) * 0.1f) + 0.1f;
+        glTranslatef(x, y + bob, z);
+
+        // Scale
+        glScalef(0.5f, 0.5f, 0.5f);
+
+        // Spin
+        const float spin = ((age / 20.0f) + item_entity->bob_offset) * float(180.0f / M_PI);
+        glRotatef(spin, 0, 1, 0);
+
+        // Position
+        constexpr float xo = 0.5f;
+        constexpr float yo = 0.25f;
+        constexpr float width = 1 / 16.0f;
+        constexpr float margin = 0.35f / 16.0f;
+        constexpr float zo = width + margin;
+        glTranslatef(-xo, -yo, -((zo * float(count)) / 2));
+
+        // Draw
+        disable_hand_positioning = true;
+        for (int i = 0; i < count; i++) {
+            glTranslatef(0, 0, zo);
+            glPushMatrix();
+            if (i > 0) {
+                const float c = (self->random.nextFloat() * 2 - 1) * 0.15f;
+                const float d = (self->random.nextFloat() * 2 - 1) * 0.15f;
+                glTranslatef(c, d, 0.0f);
+            }
+            EntityRenderer::entityRenderDispatcher->item_renderer->renderItem(nullptr, &item);
+            glPopMatrix();
+        }
+        disable_hand_positioning = false;
+
+        // Finish
+        glPopMatrix();
+    }
+}
+
 // Init
 void _init_misc_graphics() {
     // Disable V-Sync
@@ -349,6 +426,12 @@ void _init_misc_graphics() {
     }
     if (feature_has("Always Save Chest Tile Entities", server_enabled)) {
         overwrite_calls(ChestTileEntity_shouldSave, ChestTileEntity_shouldSave_injection);
+    }
+
+    // 3D Dropped Items
+    if (feature_has("3D Dropped Items", server_disabled)) {
+        overwrite_calls(ItemRenderer_render, ItemRenderer_render_injection);
+        overwrite_call((void *) 0x4bf34, (void *) ItemInHandRenderer_renderItem_glTranslatef_injection);
     }
 
     // Don't Render Game In Headless Mode

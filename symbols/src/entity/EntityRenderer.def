@@ -1,6 +1,8 @@
+vtable 0x1075a8;
+
 virtual-method void render(Entity *entity, float param_2, float param_3, float param_4, float param_5, float param_6) = 0x8;
 
-// Can be called without an EntityRenderer, just do EntityRenderer_bindTexture(NULL, &file);
+// Can be called without an EntityRenderer, just do EntityRenderer_bindTexture->get(false)(NULL, &file);
 method void bindTexture(const std::string &file) = 0x62540;
 
 // Globals

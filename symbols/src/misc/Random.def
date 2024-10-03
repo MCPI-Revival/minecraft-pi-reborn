@@ -1,8 +1,11 @@
 size 0x9d0;
 
+constructor () = 0xb7490;
+
 method float nextFloat() = 0x42cf8;
 method uint genrand_int32() = 0x50e14;
 method void init_genrand(uint seed) = 0x27d38;
+method void setSeed(int seed) = 0xaf884;
 
 property uint seed = 0x0;
 property int param_1 = 0x9c4; // Set To 0x271

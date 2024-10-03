@@ -1,5 +1,6 @@
 method void tick() = 0x4da1c;
 method int render(Mob *mob, int param_1, float delta) = 0x4f710;
+method void render_AABB(const AABB &box) = 0x4d740;
 method void renderDebug(const AABB &aabb, float delta) = 0x4d310;
 method void generateSky() = 0x4d0d4;
 method void renderHitSelect(Player *player, const HitResult &hit_result, int i, void *vp, float f) = 0x4e318;

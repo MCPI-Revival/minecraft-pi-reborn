@@ -216,11 +216,7 @@ static DynamicTexture *create_fire_texture(const int a2) {
     texture->super()->vtable = get_fire_texture_vtable();
     // Setup Random
     texture->data.m_random = Random::allocate();
-    const int seed = Common::getTimeMs();
-    texture->data.m_random->seed = seed;
-    texture->data.m_random->param_1 = 0x271;
-    texture->data.m_random->param_2 = false;
-    texture->data.m_random->param_3 = 0;
+    texture->data.m_random->constructor();
     for (int i = 0; i < 320; i++) {
         texture->data.m_data1[i] = 0.0f;
         texture->data.m_data2[i] = 0.0f;
