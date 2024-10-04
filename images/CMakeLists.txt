@@ -19,6 +19,12 @@ install(
     DESTINATION "${MCPI_INSTALL_DIR}/data/images/item"
 )
 
+# Entity Shadow
+install(
+    FILES "shadow.png"
+    DESTINATION "${MCPI_INSTALL_DIR}/data/images/misc"
+)
+
 # Icon
 set(ICON_DIR "${MCPI_SHARE_DIR}/icons/hicolor/512x512/apps")
 install(

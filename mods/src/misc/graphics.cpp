@@ -90,69 +90,193 @@ static void sort_chunks(Chunk **chunks_begin, Chunk **chunks_end, const Distance
 }
 
 // Fire Rendering
+static void render_fire(EntityRenderer *self, Entity *entity, const float x, float y, const float z) {
+    // Check If Entity Is On Fire
+    if (!entity->isOnFire()) {
+        return;
+    }
+    // Here Be Decompiled Code
+    y -= entity->height_offset;
+    const int texture = Tile::fire->texture;
+    const int xt = (texture & 0xf) << 4;
+    const int yt = texture & 0xf0;
+    glPushMatrix();
+    glTranslatef(x, y, z);
+    const float s = entity->hitbox_width * 1.4f;
+    glScalef(s, s, s);
+    self->bindTexture("terrain.png");
+    Tesselator &t = Tesselator::instance;
+    float r = 0.5f;
+    float h = entity->hitbox_height / s;
+    float yo = entity->y - entity->height_offset - entity->hitbox.y1;
+    float player_rot_y = EntityRenderer::entityRenderDispatcher->player_rot_y;
+    if (EntityRenderer::entityRenderDispatcher->minecraft->options.third_person == 2) {
+        // Handle Front-Facing
+        player_rot_y -= 180.f;
+    }
+    glRotatef(-player_rot_y, 0, 1, 0);
+    glTranslatef(0, 0, -0.3f + float(int(h)) * 0.02f);
+    glColor4f(1, 1, 1, 1);
+    float zo = 0;
+    int ss = 0;
+    t.begin(7);
+    while (h > 0) {
+        constexpr float xo = 0.0f;
+        float u0;
+        float u1;
+        float v0;
+        float v1;
+        if (ss % 2 == 0) {
+            u0 = float(xt) / 256.0f;
+            u1 = (float(xt) + 15.99f) / 256.0f;
+            v0 = float(yt) / 256.0f;
+            v1 = (float(yt) + 15.99f) / 256.0f;
+        } else {
+            u0 = float(xt) / 256.0f;
+            u1 = (float(xt) + 15.99f) / 256.0f;
+            v0 = (float(yt) + 16) / 256.0f;
+            v1 = (float(yt) + 16 + 15.99f) / 256.0f;
+        }
+        if (ss / 2 % 2 == 0) {
+            std::swap(u1, u0);
+        }
+        t.vertexUV(r - xo, 0 - yo, zo, u1, v1);
+        t.vertexUV(-r - xo, 0 - yo, zo, u0, v1);
+        t.vertexUV(-r - xo, 1.4f - yo, zo, u0, v0);
+        t.vertexUV(r - xo, 1.4f - yo, zo, u1, v0);
+        h -= 0.45f;
+        yo -= 0.45f;
+        r *= 0.9f;
+        zo += 0.03f;
+        ss++;
+    }
+    t.draw();
+    glPopMatrix();
+}
+
+// Entity Shadows
+static void render_shadow_tile(Tile *tile, const float x, const float y, const float z, int xt, int yt, int zt, const float pow, const float r, const float xo, const float yo, const float zo) {
+    Tesselator &t = Tesselator::instance;
+    if (!tile->isCubeShaped()) {
+        return;
+    }
+    float a = ((pow - (y - (float(yt) + yo)) / 2) * 0.5f) * EntityRenderer::entityRenderDispatcher->level->getBrightness(xt, yt, zt);
+    if (a < 0) {
+        return;
+    } else if (a > 1) {
+        a = 1;
+    }
+    t.color(255, 255, 255, int(a * 255));
+    float x0 = float(xt) + tile->x1 + xo;
+    float x1 = float(xt) + tile->x2 + xo;
+    float y0 = float(yt) + tile->y1 + yo + 1.0f / 64.0f;
+    float z0 = float(zt) + tile->z1 + zo;
+    float z1 = float(zt) + tile->z2 + zo;
+    float u0 = (x - x0) / 2 / r + 0.5f;
+    float u1 = (x - x1) / 2 / r + 0.5f;
+    float v0 = (z - z0) / 2 / r + 0.5f;
+    float v1 = (z - z1) / 2 / r + 0.5f;
+    t.vertexUV(x0, y0, z0, u0, v0);
+    t.vertexUV(x0, y0, z1, u0, v1);
+    t.vertexUV(x1, y0, z1, u1, v1);
+    t.vertexUV(x1, y0, z0, u1, v0);
+}
+static void render_shadow(const EntityRenderer *self, Entity *entity, float x, float y, float z, const float a) {
+    // Calculate Power
+    float pow = 0;
+    if (self->shadow_radius > 0) {
+        const float dist = EntityRenderer::entityRenderDispatcher->distanceToSqr(entity->x, entity->y, entity->z);
+        pow = (1 - dist / (16.0f * 16.0f)) * self->shadow_strength;
+    }
+    if (pow <= 0) {
+        return;
+    }
+    // Render
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    Textures *textures = EntityRenderer::entityRenderDispatcher->textures;
+    textures->loadAndBindTexture("misc/shadow.png");
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    Level *level = EntityRenderer::entityRenderDispatcher->level;
+    glDepthMask(false);
+    const float r = self->shadow_radius;
+    const float ex = entity->old_x + (entity->x - entity->old_x) * a;
+    float ey = entity->old_y + (entity->y - entity->old_y) * a + entity->getShadowHeightOffs() - entity->height_offset;
+    const float ez = entity->old_z + (entity->z - entity->old_z) * a;
+    const int x0 = Mth::floor(ex - r);
+    const int x1 = Mth::floor(ex + r);
+    const int y0 = Mth::floor(ey - r);
+    const int y1 = Mth::floor(ey);
+    const int z0 = Mth::floor(ez - r);
+    const int z1 = Mth::floor(ez + r);
+    const float xo = x - ex;
+    const float yo = y - ey;
+    const float zo = z - ez;
+    Tesselator &tt = Tesselator::instance;
+    tt.begin(7);
+    for (int xt = x0; xt <= x1; xt++) {
+        for (int yt = y0; yt <= y1; yt++) {
+            for (int zt = z0; zt <= z1; zt++) {
+                const int t = level->getTile(xt, yt - 1, zt);
+                if (t > 0 && level->getRawBrightness(xt, yt, zt) > 3) {
+                    render_shadow_tile(
+                        Tile::tiles[t],
+                        x, y + entity->getShadowHeightOffs() - entity->height_offset, z,
+                        xt, yt, zt,
+                        pow, r,
+                        xo, yo + entity->getShadowHeightOffs() - entity->height_offset, zo
+                    );
+                }
+            }
+        }
+    }
+    tt.draw();
+    glColor4f(1, 1, 1, 1);
+    glDisable(GL_BLEND);
+    glDepthMask(true);
+}
+static void EntityRenderDispatcher_assign_injection(EntityRenderDispatcher_assign_t original, EntityRenderDispatcher *self, const uchar entity_id, EntityRenderer *renderer) {
+    // Modify Shadow Size
+    float new_radius;
+    switch (entity_id) {
+        case 16:
+        case 3: {
+            new_radius = 0.5f;
+            break;
+        }
+        case 9:
+        case 7:
+        case 8: {
+            new_radius = 0.7f;
+            break;
+        }
+        case 6: {
+            new_radius = 0.3f;
+            break;
+        }
+        default: {
+            new_radius = renderer->shadow_radius;
+        }
+    }
+    renderer->shadow_radius = new_radius;
+    // Call Original Method
+    original(self, entity_id, renderer);
+}
+
+// Modify Entity Rendering
+static bool should_render_fire;
+static bool should_render_shadows;
 static void EntityRenderDispatcher_render_EntityRenderer_render_injection(EntityRenderer *self, Entity *entity, float x, float y, float z, float rot, float unknown) {
     // Call Original Method
     self->render(entity, x, y, z, rot, unknown);
-
+    // Render Shadow
+    if (should_render_shadows) {
+        render_shadow(self, entity, x, y, z, unknown);
+    }
     // Render Fire
-    if (entity->isOnFire()) {
-        // Here Be Decompiled Code
-        y -= entity->height_offset;
-        const int texture = Tile::fire->texture;
-        const int xt = (texture & 0xf) << 4;
-        const int yt = texture & 0xf0;
-        glPushMatrix();
-        glTranslatef(x, y, z);
-        const float s = entity->hitbox_width * 1.4f;
-        glScalef(s, s, s);
-        self->bindTexture("terrain.png");
-        Tesselator &t = Tesselator::instance;
-        float r = 0.5f;
-        float h = entity->hitbox_height / s;
-        float yo = entity->y - entity->height_offset - entity->hitbox.y1;
-        float player_rot_y = EntityRenderer::entityRenderDispatcher->player_rot_y;
-        if (EntityRenderer::entityRenderDispatcher->minecraft->options.third_person == 2) {
-            // Handle Front-Facing
-            player_rot_y -= 180.f;
-        }
-        glRotatef(-player_rot_y, 0, 1, 0);
-        glTranslatef(0, 0, -0.3f + float(int(h)) * 0.02f);
-        glColor4f(1, 1, 1, 1);
-        float zo = 0;
-        int ss = 0;
-        t.begin(7);
-        while (h > 0) {
-            constexpr float xo = 0.0f;
-            float u0;
-            float u1;
-            float v0;
-            float v1;
-            if (ss % 2 == 0) {
-                u0 = float(xt) / 256.0f;
-                u1 = (float(xt) + 15.99f) / 256.0f;
-                v0 = float(yt) / 256.0f;
-                v1 = (float(yt) + 15.99f) / 256.0f;
-            } else {
-                u0 = float(xt) / 256.0f;
-                u1 = (float(xt) + 15.99f) / 256.0f;
-                v0 = (float(yt) + 16) / 256.0f;
-                v1 = (float(yt) + 16 + 15.99f) / 256.0f;
-            }
-            if (ss / 2 % 2 == 0) {
-                std::swap(u1, u0);
-            }
-            t.vertexUV(r - xo, 0 - yo, zo, u1, v1);
-            t.vertexUV(-r - xo, 0 - yo, zo, u0, v1);
-            t.vertexUV(-r - xo, 1.4f - yo, zo, u0, v0);
-            t.vertexUV(r - xo, 1.4f - yo, zo, u1, v0);
-            h -= 0.45f;
-            yo -= 0.45f;
-            r *= 0.9f;
-            zo += 0.03f;
-            ss++;
-        }
-        t.draw();
-        glPopMatrix();
+    if (should_render_fire) {
+        render_fire(self, entity, x, y, z);
     }
 }
 
@@ -377,9 +501,12 @@ void _init_misc_graphics() {
         overwrite_calls_manual((void *) 0x51fac, (void *) sort_chunks);
     }
 
-    // Render Fire In Third-Person
-    if (feature_has("Render Fire In Third-Person", server_disabled)) {
-        overwrite_call((void *) 0x606c0, (void *) EntityRenderDispatcher_render_EntityRenderer_render_injection);
+    // Modify Entity Rendering
+    overwrite_call((void *) 0x606c0, (void *) EntityRenderDispatcher_render_EntityRenderer_render_injection);
+    should_render_fire = feature_has("Render Fire In Third-Person", server_disabled);
+    should_render_shadows = feature_has("Render Entity Shadows", server_disabled);
+    if (should_render_shadows) {
+        overwrite_calls(EntityRenderDispatcher_assign, EntityRenderDispatcher_assign_injection);
     }
 
     // Slightly Nicer Water Rendering

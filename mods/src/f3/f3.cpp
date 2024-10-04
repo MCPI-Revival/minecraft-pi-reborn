@@ -135,6 +135,7 @@ static std::vector<std::string> get_debug_info_right(const Minecraft *minecraft)
             }
             xyz_precision = debug_precision;
         }
+        minecraft->command_server->pos_translator.to(x, y, z);
         info.push_back("");
         info.push_back("Target X: " + to_string_with_precision(x, xyz_precision));
         info.push_back("Target Y: " + to_string_with_precision(y, xyz_precision));

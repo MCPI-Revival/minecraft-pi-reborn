@@ -2,8 +2,11 @@ constructor () = 0x6096c;
 
 method void assign(uchar entity_id, EntityRenderer *renderer) = 0x6094c;
 method void render(Entity *entity, float x, float y, float z, float rot, float unknown) = 0x60674;
+method float distanceToSqr(float x, float y, float z) = 0x60790;
 static-method EntityRenderDispatcher *getInstance() = 0x60e90;
 
 property ItemInHandRenderer *item_renderer = 0x0;
 property float player_rot_y = 0x14;
 property Minecraft *minecraft = 0xc;
+property Level *level = 0x8;
+property Textures *textures = 0x4;

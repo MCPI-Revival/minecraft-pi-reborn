@@ -47,6 +47,7 @@
     * `Fix Crash When Generating Certain Seeds` (Enabled By Default)
     * `Click Buttons On Mouse Down` (Enabled By Default)
     * `3D Dropped Items` (Enabled By Default)
+    * `Render Entity Shadows` (Enabled By Default)
   * Existing Functionality (All Enabled By Default)
     * `Fix Screen Rendering When Hiding HUD`
     * `Sanitize Usernames`

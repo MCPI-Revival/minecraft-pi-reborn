@@ -5,5 +5,8 @@ virtual-method void render(Entity *entity, float param_2, float param_3, float p
 // Can be called without an EntityRenderer, just do EntityRenderer_bindTexture->get(false)(NULL, &file);
 method void bindTexture(const std::string &file) = 0x62540;
 
+property float shadow_radius = 0x4;
+property float shadow_strength = 0x8;
+
 // Globals
 static-property EntityRenderDispatcher *entityRenderDispatcher = 0x137bc0;
