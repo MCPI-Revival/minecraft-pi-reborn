@@ -1,8 +1,5 @@
 project(media-layer-core)
 
-# OpenGL
-add_subdirectory(gles)
-
 # SDL Re-Implementation Using GLFW
 set(CORE_SRC
     src/base.cpp

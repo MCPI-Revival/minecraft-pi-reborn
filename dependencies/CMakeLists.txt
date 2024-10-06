@@ -22,10 +22,6 @@ add_subdirectory(runtime)
 if(BUILD_MEDIA_LAYER_CORE)
     add_subdirectory(glfw)
 endif()
-# GLES Compatibility Layer
-if(BUILD_MEDIA_LAYER_CORE AND MCPI_USE_GLES1_COMPATIBILITY_LAYER)
-    add_subdirectory(gles-compatibility-layer)
-endif()
 # UTF8-CPP
 add_subdirectory(utf8cpp)
 # Symbol Prcoessor

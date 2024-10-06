@@ -16,12 +16,6 @@ if(BUILD_ARM_COMPONENTS)
     install(
         DIRECTORY "include/"
         DESTINATION "${MCPI_SDK_INCLUDE_DIR}/media-layer"
-        PATTERN "${GLES_HEADERS}" EXCLUDE
-    )
-    get_filename_component(GLES_HEADERS "${GLES_HEADERS}" REALPATH)
-    install(
-        DIRECTORY "${GLES_HEADERS}/"
-        DESTINATION "${MCPI_SDK_INCLUDE_DIR}/media-layer/GLES"
     )
 endif()
 
@@ -30,6 +24,7 @@ add_subdirectory(extras)
 
 # Add Core
 if(BUILD_MEDIA_LAYER_CORE)
+    add_subdirectory(gles)
     add_subdirectory(core)
 endif()
 

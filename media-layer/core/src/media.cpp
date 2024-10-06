@@ -321,9 +321,6 @@ void media_force_egl() {
 // Init Media Layer
 #define GL_VERSION 0x1f02
 typedef const char *(*glGetString_t)(unsigned int name);
-#ifdef MCPI_USE_GLES1_COMPATIBILITY_LAYER
-extern "C" void init_gles_compatibility_layer(void *);
-#endif
 void SDL_WM_SetCaption(const char *title, __attribute__((unused)) const char *icon) {
     // Disable In Headless Mode
     if (reborn_is_headless()) {
@@ -337,15 +334,9 @@ void SDL_WM_SetCaption(const char *title, __attribute__((unused)) const char *ic
         ERR("Unable To Initialize GLFW");
     }
 
-    // Create OpenGL ES Context
-    glfwWindowHint(GLFW_CLIENT_API, GLFW_OPENGL_ES_API);
-#ifdef MCPI_USE_GLES1_COMPATIBILITY_LAYER
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 2);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
-#else
+    // Create OpenGL Context
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 1);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 1);
-#endif
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 5);
     // Use EGL
     if (force_egl) {
         glfwWindowHint(GLFW_CONTEXT_CREATION_API, GLFW_EGL_CONTEXT_API);
@@ -374,14 +365,9 @@ void SDL_WM_SetCaption(const char *title, __attribute__((unused)) const char *ic
     // Make Window Context Current
     glfwMakeContextCurrent(glfw_window);
 
-    // Setup Compatibility Layer
-#ifdef MCPI_USE_GLES1_COMPATIBILITY_LAYER
-    init_gles_compatibility_layer((void *) glfwGetProcAddress);
-#endif
-
     // Debug
     const glGetString_t glGetString = (glGetString_t) glfwGetProcAddress("glGetString");
-    DEBUG("Using %s", (*glGetString)(GL_VERSION));
+    DEBUG("Using OpenGL %s", (*glGetString)(GL_VERSION));
 
     // Init OpenAL
     _media_audio_init();

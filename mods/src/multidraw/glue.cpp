@@ -84,17 +84,13 @@ static void multidraw_renderSameAsLast(const LevelRenderer *self, const float b)
     glColorPointer(4, GL_UNSIGNED_BYTE, VERTEX_SIZE, (void *) 0x14);
 
     // Draw
-#ifdef MCPI_USE_GLES1_COMPATIBILITY_LAYER
     if (supports_multidraw()) {
         glMultiDrawArrays(GL_TRIANGLES, multidraw_firsts, multidraw_counts, multidraw_total);
     } else {
-#endif
         for (int i = 0; i < multidraw_total; i++) {
             glDrawArrays(GL_TRIANGLES, multidraw_firsts[i], multidraw_counts[i]);
         }
-#ifdef MCPI_USE_GLES1_COMPATIBILITY_LAYER
     }
-#endif
 
     // Cleanup
     glDisableClientState(GL_COLOR_ARRAY);

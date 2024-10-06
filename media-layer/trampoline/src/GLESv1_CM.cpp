@@ -6,7 +6,7 @@
 #include "common/common.h"
 
 #ifdef MEDIA_LAYER_TRAMPOLINE_GUEST
-static int get_glFogfv_params_length(GLenum pname) {
+static int get_glFogfv_params_length(const GLenum pname) {
     return pname == GL_FOG_COLOR ? 4 : 1;
 }
 #endif
@@ -90,12 +90,13 @@ static gl_state_t gl_state;
             state.type = type; \
             state.stride = stride; \
             state.pointer = uint32_t(pointer); \
-            trampoline(true, state); \
+            trampoline(true, gl_state.bound_array_buffer, state); \
         } \
     }
 #else
 #define CALL_GL_POINTER(unique_id, name) \
     CALL(unique_id, name, unused, ()) \
+        glBindBuffer(GL_ARRAY_BUFFER, args.next<GLuint>()); \
         gl_array_details_t state = args.next<gl_array_details_t>(); \
         func(state.size, state.type, state.stride, (const void *) uintptr_t(state.pointer)); \
         return 0; \
@@ -138,7 +139,6 @@ CALL(15, glDrawArrays, void, (GLenum mode, GLint first, GLsizei count))
 #endif
 }
 
-#ifdef MCPI_USE_GLES1_COMPATIBILITY_LAYER
 CALL(70, glMultiDrawArrays, void, (GLenum mode, const GLint *first, const GLsizei *count, GLsizei drawcount))
 #ifdef MEDIA_LAYER_TRAMPOLINE_GUEST
     trampoline(true, gl_state, mode, copy_array(drawcount, first), copy_array(drawcount, count));
@@ -153,7 +153,6 @@ CALL(70, glMultiDrawArrays, void, (GLenum mode, const GLint *first, const GLsize
     return 0;
 #endif
 }
-#endif
 
 CALL(16, glColor4f, void, (GLfloat red, GLfloat green, GLfloat blue, GLfloat alpha))
 #ifdef MEDIA_LAYER_TRAMPOLINE_GUEST
@@ -335,8 +334,6 @@ CALL_GL_POINTER(41, glTexCoordPointer)
 #ifdef MEDIA_LAYER_TRAMPOLINE_GUEST
 void glDisableClientState(const GLenum array) {
     gl_state.get_array_enabled(array) = false;
-    // Not needed when using compatibility layer
-#ifndef MCPI_USE_GLES1_COMPATIBILITY_LAYER
     switch (array) {
         case GL_VERTEX_ARRAY: {
             gl_array_details.glVertexPointer.size = -1;
@@ -351,7 +348,6 @@ void glDisableClientState(const GLenum array) {
             break;
         }
     }
-#endif
 }
 #endif
 
@@ -382,12 +378,9 @@ void glBindBuffer(const GLenum target, const GLuint buffer) {
     } else {
         ERR("Unsupported Buffer Binding: %u", target);
     }
-    // Not needed when using compatibility layer
-#ifndef MCPI_USE_GLES1_COMPATIBILITY_LAYER
     gl_array_details.glVertexPointer.size = -1;
     gl_array_details.glColorPointer.size = -1;
     gl_array_details.glTexCoordPointer.size = -1;
-#endif
 }
 #endif
 
