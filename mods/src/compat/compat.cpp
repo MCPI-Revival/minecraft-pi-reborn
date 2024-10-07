@@ -17,15 +17,13 @@
 
 // Custom Title
 HOOK(SDL_WM_SetCaption, void, (__attribute__((unused)) const char *title, const char *icon)) {
-    ensure_SDL_WM_SetCaption();
-    real_SDL_WM_SetCaption(MCPI_APP_TITLE, icon);
+    real_SDL_WM_SetCaption()(MCPI_APP_TITLE, icon);
 }
 
 // Mouse Cursor Is Always Invisible In Vanilla MCPI
 // Because In Vanilla MCPI, The GPU Overlay Covered The Normal Mouse Cursor
 HOOK(SDL_ShowCursor, int, (int toggle)) {
-    ensure_SDL_ShowCursor();
-    return real_SDL_ShowCursor(toggle == SDL_QUERY ? SDL_QUERY : SDL_DISABLE);
+    return real_SDL_ShowCursor()(toggle == SDL_QUERY ? SDL_QUERY : SDL_DISABLE);
 }
 
 // Intercept SDL Events
@@ -40,8 +38,7 @@ HOOK(SDL_PollEvent, int, (SDL_Event *event)) {
     }
 
     // Poll Events
-    ensure_SDL_PollEvent();
-    int ret = real_SDL_PollEvent(event);
+    int ret = real_SDL_PollEvent()(event);
 
     // Handle Events
     if (ret == 1 && event != nullptr) {

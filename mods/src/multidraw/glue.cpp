@@ -26,8 +26,7 @@ HOOK(glDeleteBuffers, void, (GLsizei n, const GLuint *buffers)) {
     if (buffers[0] >= MULTIDRAW_BASE) {
         delete storage;
     } else {
-        ensure_glDeleteBuffers();
-        real_glDeleteBuffers(n, buffers);
+        real_glDeleteBuffers()(n, buffers);
     }
 }
 
@@ -40,15 +39,13 @@ HOOK(glBindBuffer, void, (const GLenum target, GLuint buffer)) {
     } else {
         current_chunk = -1;
     }
-    ensure_glBindBuffer();
-    real_glBindBuffer(target, buffer);
+    real_glBindBuffer()(target, buffer);
 }
 HOOK(glBufferData, void, (GLenum target, GLsizeiptr size, const void *data, GLenum usage)) {
     if (target == GL_ARRAY_BUFFER && current_chunk >= 0 && storage != nullptr) {
         storage->upload(current_chunk, size, data);
     } else {
-        ensure_glBufferData();
-        real_glBufferData(target, size, data, usage);
+        real_glBufferData()(target, size, data, usage);
     }
 }
 

@@ -145,8 +145,7 @@ HOOK(bind, int, (int sockfd, const struct sockaddr *addr, socklen_t addrlen)) {
         }
         new_addr = (const sockaddr *) &in_addr;
     }
-    ensure_bind();
-    return real_bind(sockfd, new_addr, addrlen);
+    return real_bind()(sockfd, new_addr, addrlen);
 }
 
 // Generate Caves

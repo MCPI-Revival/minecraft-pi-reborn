@@ -20,16 +20,14 @@ HOOK(chat_handle_packet_send, void, (const Minecraft *minecraft, ChatPacket *pac
         gui->addMessage(out);
     } else {
         // Call Original Method
-        ensure_chat_handle_packet_send();
-        real_chat_handle_packet_send(minecraft, packet);
+        real_chat_handle_packet_send()(minecraft, packet);
     }
 }
 
 // Add Server Command
 HOOK(server_get_commands, std::vector<ServerCommand> *, (Minecraft *minecraft, ServerSideNetworkHandler *server_side_network_handler)) {
     // Call Original Method
-    ensure_server_get_commands();
-    std::vector<ServerCommand> *commands = real_server_get_commands(minecraft, server_side_network_handler);
+    std::vector<ServerCommand> *commands = real_server_get_commands()(minecraft, server_side_network_handler);
     // Add Command
     commands->push_back({
         .name = "greet",

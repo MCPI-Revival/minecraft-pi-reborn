@@ -34,19 +34,18 @@
 #define hooked_function_setup
 #endif
 #define HOOK(name, return_type, args) \
-    typedef return_type (*name##_t)args; \
-    static name##_t real_##name = NULL; \
-    \
-    __attribute__((__unused__)) static void ensure_##name() { \
-        if (!real_##name) { \
+    typedef return_type (*real_##name##_t)args; \
+    __attribute__((__unused__)) static real_##name##_t real_##name() { \
+        static real_##name##_t func = NULL; \
+        if (!func) { \
             dlerror(); \
-            real_##name = (name##_t) dlsym(RTLD_NEXT, #name); \
-            if (!real_##name) { \
+            func = (real_##name##_t) dlsym(RTLD_NEXT, #name); \
+            if (!func) { \
                 ERR("Error Resolving Symbol: " #name ": %s", dlerror()); \
             } \
         } \
+        return func; \
     } \
-    \
     hooked_function_setup __attribute__((__used__)) return_type name args
 
 #ifdef __cplusplus

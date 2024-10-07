@@ -7,8 +7,7 @@
 // Load GL Function
 #define GL_FUNC(name, return_type, args) \
     typedef return_type (*real_##name##_t)args; \
-    \
-    real_##name##_t real_##name() { \
+    static real_##name##_t real_##name() { \
         static real_##name##_t func = nullptr; \
         if (!func) { \
             func = (real_##name##_t) glfwGetProcAddress(#name); \

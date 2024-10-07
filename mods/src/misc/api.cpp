@@ -43,8 +43,7 @@ static void Inventory_setupDefault_FillingContainer_addItem_call_injection(Filli
 SETUP_CALLBACK(swap_buffers);
 HOOK(media_swap_buffers, void, ()) {
     get_misc_swap_buffers_functions().run();
-    ensure_media_swap_buffers();
-    real_media_swap_buffers();
+    real_media_swap_buffers()();
 }
 
 // API
