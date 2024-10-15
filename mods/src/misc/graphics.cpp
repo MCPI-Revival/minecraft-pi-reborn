@@ -455,6 +455,18 @@ static void ItemRenderer_render_injection(ItemRenderer_render_t original, ItemRe
     }
 }
 
+// Vignette
+static void Gui_renderProgressIndicator_injection(Gui_renderProgressIndicator_t original, Gui *self, const bool is_touch, int width, int height, float a) {
+    // Render
+    glEnable(GL_BLEND);
+    self->minecraft->textures->blur = true;
+    self->renderVignette(self->minecraft->player->getBrightness(a), width, height);
+    self->minecraft->textures->blur = false;
+    glDisable(GL_BLEND);
+    // Call Original Method
+    original(self, is_touch, width, height, a);
+}
+
 // Init
 void _init_misc_graphics() {
     // Disable V-Sync
@@ -552,6 +564,11 @@ void _init_misc_graphics() {
     if (feature_has("3D Dropped Items", server_disabled)) {
         overwrite_calls(ItemRenderer_render, ItemRenderer_render_injection);
         overwrite_call((void *) 0x4bf34, (void *) ItemInHandRenderer_renderItem_glTranslatef_injection);
+    }
+
+    // Vignette
+    if (feature_has("Render Vignette", server_disabled)) {
+        overwrite_calls(Gui_renderProgressIndicator, Gui_renderProgressIndicator_injection);
     }
 
     // Don't Render Game In Headless Mode

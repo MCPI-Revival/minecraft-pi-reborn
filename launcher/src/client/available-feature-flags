@@ -111,3 +111,4 @@ TRUE Fix Crash When Generating Certain Seeds
 TRUE Click Buttons On Mouse Down
 TRUE 3D Dropped Items
 TRUE Render Entity Shadows
+TRUE Render Vignette

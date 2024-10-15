@@ -13,15 +13,13 @@ install(
     RENAME "titleBG.png"
 )
 
-# Chest Model
+# Mojang Textures
 install(
-    FILES "chest.png"
+    FILES "mojang/chest.png"
     DESTINATION "${MCPI_INSTALL_DIR}/data/images/item"
 )
-
-# Entity Shadow
 install(
-    FILES "shadow.png"
+    FILES "mojang/shadow.png" "mojang/vignette.png"
     DESTINATION "${MCPI_INSTALL_DIR}/data/images/misc"
 )
 

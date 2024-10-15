@@ -3,3 +3,5 @@ method int loadAndBindTexture(const std::string &name) = 0x539cc;
 method int assignTexture(const std::string &name, uchar *data) = 0x5354c;
 method void addDynamicTexture(DynamicTexture *texture) = 0x534f8;
 method Texture *getTemporaryTextureData(uint id) = 0x53168;
+
+property bool blur = 0x39;

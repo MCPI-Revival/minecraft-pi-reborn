@@ -15,7 +15,7 @@ __attribute__((visibility("internal"))) void _add_handler(unsigned char id, hand
     } \
     static uint32_t _run_##name(__attribute__((unused)) trampoline_writer_t writer, const unsigned char *raw_args) { \
         __attribute__((unused)) TrampolineArguments args(raw_args); \
-        static typeof(name) *func = name;
+        static constexpr typeof(name) *func = name;
 
 // Arguments
 struct TrampolineArguments {
