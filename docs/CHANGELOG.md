@@ -48,6 +48,7 @@
     * `Click Buttons On Mouse Down` (Enabled By Default)
     * `3D Dropped Items` (Enabled By Default)
     * `Render Entity Shadows` (Enabled By Default)
+    * `Render Vignette` (Enabled By Default)
   * Existing Functionality (All Enabled By Default)
     * `Fix Screen Rendering When Hiding HUD`
     * `Sanitize Usernames`
