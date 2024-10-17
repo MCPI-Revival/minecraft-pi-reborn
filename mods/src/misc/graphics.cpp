@@ -467,6 +467,15 @@ static void Gui_renderProgressIndicator_injection(Gui_renderProgressIndicator_t 
     original(self, is_touch, width, height, a);
 }
 
+// Increase Render Chunk Size
+static void adjust_mov_shift(void *addr, const uint32_t new_shift) {
+    uint32_t instruction = *(uint32_t *) addr;
+    instruction &= ~0x00000f80;
+    instruction |= (new_shift << 7);
+    unsigned char *x = (unsigned char *) &instruction;
+    patch(addr, x);
+}
+
 // Init
 void _init_misc_graphics() {
     // Disable V-Sync
@@ -569,6 +578,51 @@ void _init_misc_graphics() {
     // Vignette
     if (feature_has("Render Vignette", server_disabled)) {
         overwrite_calls(Gui_renderProgressIndicator, Gui_renderProgressIndicator_injection);
+    }
+
+    // Increase Render Chunk Size
+    if (feature_has("Increase Render Chunk Size", server_disabled)) {
+        constexpr int chunk_size = 16;
+        // LevelRenderer::LevelRenderer
+        int a = 512 / chunk_size + 1;
+        a = a * a * (128 / chunk_size) * 3;
+        patch_address((void *) 0x4e748, (void *) a);
+        a *= sizeof(int);
+        patch_address((void *) 0x4e74c, (void *) a);
+        // LevelRenderer::allChanged
+        constexpr int b = 128 / chunk_size;
+        unsigned char render_chunk_patch_one[] = {(unsigned char) b, 0x20, 0xa0, 0xe3}; // "mov r2, #b"
+        patch((void *) 0x4fbec, render_chunk_patch_one);
+        adjust_mov_shift((void *) 0x4fbfc, std::log2(b));
+        const int c = std::log2(chunk_size);
+        adjust_mov_shift((void *) 0x4fbf0, c);
+        adjust_mov_shift((void *) 0x4fc74, c);
+        adjust_mov_shift((void *) 0x4fd60, c);
+        adjust_mov_shift((void *) 0x4fd40, c);
+        unsigned char render_chunk_patch_two[] = {(unsigned char) chunk_size, 0x20, 0xa0, 0xe3}; // "mov r2, #chunk_size"
+        patch((void *) 0x4fc80, render_chunk_patch_two);
+        // LevelRenderer::resortChunks
+        adjust_mov_shift((void *) 0x4f534, c);
+        constexpr int d = chunk_size / 2;
+        unsigned char render_chunk_patch_three[] = {(unsigned char) d, 0x10, 0x61, 0xe2}; // "rsb r1, r1, #d"
+        patch((void *) 0x4f548, render_chunk_patch_three);
+        adjust_mov_shift((void *) 0x4f58c, c);
+        unsigned char render_chunk_patch_four[] = {(unsigned char) d, 0x90, 0x63, 0xe2}; // "rsb r9, r3, #d"
+        patch((void *) 0x4f5d0, render_chunk_patch_four);
+        adjust_mov_shift((void *) 0x4f5f4, c);
+        adjust_mov_shift((void *) 0x4f638, c);
+        unsigned char render_chunk_patch_five[] = {(unsigned char) chunk_size, 0x90, 0x89, 0xe2}; // "add r9, r9, #chunk_size"
+        patch((void *) 0x4f6c0, render_chunk_patch_five);
+        unsigned char render_chunk_patch_six[] = {(unsigned char) chunk_size, 0x30, 0x83, 0xe2}; // "add r3, r3, #chunk_size"
+        patch((void *) 0x4f6ec, render_chunk_patch_six);
+        // LevelRenderer::setDirty
+        unsigned char render_chunk_patch_seven[] = {(unsigned char) chunk_size, 0x10, 0xa0, 0xe3}; // "mov r1, #chunk_size"
+        patch((void *) 0x4f1bc, render_chunk_patch_seven);
+        patch((void *) 0x4f1cc, render_chunk_patch_seven);
+        patch((void *) 0x4f1dc, render_chunk_patch_seven);
+        patch((void *) 0x4f1ec, render_chunk_patch_seven);
+        patch((void *) 0x4f1fc, render_chunk_patch_seven);
+        patch((void *) 0x4f20c, render_chunk_patch_seven);
     }
 
     // Don't Render Game In Headless Mode
