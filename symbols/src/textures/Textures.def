@@ -1,6 +1,7 @@
 method void tick(bool param_1) = 0x531c4;
-method int loadAndBindTexture(const std::string &name) = 0x539cc;
-method int assignTexture(const std::string &name, uchar *data) = 0x5354c;
+method uint loadAndBindTexture(const std::string &name) = 0x539cc;
+method uint loadTexture(const std::string &name, bool param_1) = 0x53800;
+method uint assignTexture(const std::string &name, uchar *data) = 0x5354c;
 method void addDynamicTexture(DynamicTexture *texture) = 0x534f8;
 method Texture *getTemporaryTextureData(uint id) = 0x53168;
 

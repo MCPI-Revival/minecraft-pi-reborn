@@ -26,7 +26,7 @@ static void Minecraft_tick_injection(const Minecraft *minecraft) {
 
 // Store Texture Sizes
 struct texture_data {
-    GLint id;
+    GLuint id;
     GLsizei width;
     GLsizei height;
 };
@@ -37,7 +37,7 @@ static std::vector<texture_data> &get_texture_data() {
 HOOK(glTexImage2D, void, (GLenum target, GLint level, GLint internalformat, GLsizei width, GLsizei height, GLint border, GLenum format, GLenum type, const void *pixels)) {
     // Store
     texture_data data = {};
-    glGetIntegerv(GL_TEXTURE_BINDING_2D, &data.id);
+    glGetIntegerv(GL_TEXTURE_BINDING_2D, (GLint *) &data.id);
     data.width = width;
     data.height = height;
     get_texture_data().push_back(data);
@@ -48,7 +48,7 @@ HOOK(glTexImage2D, void, (GLenum target, GLint level, GLint internalformat, GLsi
 HOOK(glDeleteTextures, void, (GLsizei n, const GLuint *textures)) {
     // Remove Old Data
     for (int i = 0; i < n; i++) {
-        const GLint id = textures[i];
+        const GLuint id = textures[i];
         std::vector<texture_data>::iterator it = get_texture_data().begin();
         while (it != get_texture_data().end()) {
             const texture_data data = *it;
@@ -63,7 +63,7 @@ HOOK(glDeleteTextures, void, (GLsizei n, const GLuint *textures)) {
     // Call Original Method
     real_glDeleteTextures()(n, textures);
 }
-static void get_texture_size(const GLint id, GLsizei *width, GLsizei *height) {
+static void get_texture_size(const GLuint id, GLsizei *width, GLsizei *height) {
     // Iterate
     std::vector<texture_data>::iterator it = get_texture_data().begin();
     while (it != get_texture_data().end()) {

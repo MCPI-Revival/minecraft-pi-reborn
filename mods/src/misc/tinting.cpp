@@ -7,10 +7,12 @@
 
 // Change Grass Color
 static int32_t get_color(LevelSource *level_source, int32_t x, int32_t z) {
+    // Get Biome
     const Biome *biome = level_source->getBiome(x, z);
     if (biome == nullptr) {
         return 0;
     }
+    // Return
     return biome->color;
 }
 #define BIOME_BLEND_SIZE 7
