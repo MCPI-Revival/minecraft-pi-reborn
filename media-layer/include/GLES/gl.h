@@ -30,6 +30,7 @@ extern "C" {
 #define GL_VERTEX_ARRAY 0x8074
 #define GL_COLOR_ARRAY 0x8076
 #define GL_TEXTURE_COORD_ARRAY 0x8078
+#define GL_NORMAL_ARRAY 0x8075
 #define GL_GREATER 0x204
 #define GL_ALPHA_TEST 0xbc0
 #define GL_TEXTURE_2D 0xde1
@@ -47,6 +48,7 @@ extern "C" {
 #define GL_TRIANGLES 0x4
 #define GL_TRIANGLE_STRIP 0x5
 #define GL_TRIANGLE_FAN 0x6
+#define GL_QUADS 0x7
 #define GL_FASTEST 0x1101
 #define GL_BACK 0x405
 #define GL_CULL_FACE 0xb44
@@ -158,6 +160,7 @@ GLenum glGetError();
 void glBufferSubData(GLenum target, GLintptr offset, GLsizeiptr size, const void *data);
 void glPixelStorei(GLenum pname, GLint param);
 void glMultiDrawArrays(GLenum mode, const GLint *first, const GLsizei *count, GLsizei drawcount);
+void glNormalPointer(GLenum type, GLsizei stride, const void *pointer);
 
 #ifdef __cplusplus
 }

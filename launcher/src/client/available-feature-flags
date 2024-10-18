@@ -113,3 +113,4 @@ TRUE 3D Dropped Items
 TRUE Render Entity Shadows
 TRUE Render Vignette
 TRUE Increase Render Chunk Size
+TRUE Proper Entity Shading

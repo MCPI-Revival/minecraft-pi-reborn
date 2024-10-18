@@ -33,6 +33,7 @@ struct {
     gl_array_details_t glVertexPointer;
     gl_array_details_t glColorPointer;
     gl_array_details_t glTexCoordPointer;
+    gl_array_details_t glNormalPointer;
 } gl_array_details;
 #endif
 struct gl_state_t {
@@ -41,6 +42,7 @@ struct gl_state_t {
     bool vertex_array_enabled = false;
     bool color_array_enabled = false;
     bool tex_coord_array_enabled = false;
+    bool normal_array_enabled = false;
     // Update State
     bool &get_array_enabled(const GLenum array) {
         switch (array) {
@@ -52,6 +54,9 @@ struct gl_state_t {
             }
             case GL_TEXTURE_COORD_ARRAY: {
                 return tex_coord_array_enabled;
+            }
+            case GL_NORMAL_ARRAY: {
+                return normal_array_enabled;
             }
             default: {
                 ERR("Unsupported Array Type: %i", array);
@@ -71,6 +76,7 @@ struct gl_state_t {
         send_array_to_driver(GL_VERTEX_ARRAY);
         send_array_to_driver(GL_COLOR_ARRAY);
         send_array_to_driver(GL_TEXTURE_COORD_ARRAY);
+        send_array_to_driver(GL_NORMAL_ARRAY);
         glBindBuffer(GL_ARRAY_BUFFER, bound_array_buffer);
         glBindTexture(GL_TEXTURE_2D, bound_texture);
     }
@@ -759,6 +765,23 @@ CALL(69, glBufferSubData, void, (GLenum target, GLintptr offset, GLsizeiptr size
     int32_t size = args.next<int32_t>();
     const unsigned char *data = args.next_arr<unsigned char>();
     func(target, offset, size, data);
+    return 0;
+#endif
+}
+
+CALL(72, glNormalPointer, void, (GLenum type, GLsizei stride, const void *pointer))
+#ifdef MEDIA_LAYER_TRAMPOLINE_GUEST
+    gl_array_details_t &state = gl_array_details.glNormalPointer; \
+    if (state.type != type || state.stride != stride || state.pointer != uint32_t(pointer)) { \
+        state.type = type; \
+        state.stride = stride; \
+        state.pointer = uint32_t(pointer); \
+        trampoline(true, gl_state.bound_array_buffer, state); \
+    }
+#else
+    glBindBuffer(GL_ARRAY_BUFFER, args.next<GLuint>());
+    gl_array_details_t state = args.next<gl_array_details_t>();
+    func(state.type, state.stride, (const void *) uintptr_t(state.pointer));
     return 0;
 #endif
 }

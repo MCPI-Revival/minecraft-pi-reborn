@@ -10,7 +10,7 @@
 void reborn_init_patch();
 
 // Replace Call Located At start With A Call To target
-void overwrite_call(void *start, void *target);
+void overwrite_call(void *start, void *target, bool force_b_instruction = false);
 
 // Replace All Calls To Method start With target
 void *overwrite_calls_manual(void *start, void *target, bool allow_no_callsites = false);

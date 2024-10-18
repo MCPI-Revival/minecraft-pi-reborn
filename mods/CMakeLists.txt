@@ -99,6 +99,9 @@ set(SRC
     src/multidraw/storage.cpp
     # classic-ui
     src/classic-ui/classic-ui.cpp
+    # shading
+    src/shading/init.cpp
+    src/shading/tesselator.cpp
 )
 # Install Splashes
 install(

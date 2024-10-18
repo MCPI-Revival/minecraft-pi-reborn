@@ -16,6 +16,7 @@ __attribute__((constructor)) static void init() {
     init_multiplayer();
     if (!reborn_is_headless()) {
         init_sound();
+        init_shading();
     }
     init_input();
     init_sign();

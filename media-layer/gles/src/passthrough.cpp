@@ -228,3 +228,7 @@ GL_FUNC(glGenBuffers, void, (GLsizei n, GLuint *buffers))
 void glGenBuffers(const GLsizei n, GLuint *buffers) {
     real_glGenBuffers()(n, buffers);
 }
+GL_FUNC(glNormalPointer, void, (GLenum type, GLsizei stride, const void *pointer))
+void glNormalPointer(const GLenum type, const GLsizei stride, const void *pointer) {
+    real_glNormalPointer()(type, stride, pointer);
+}

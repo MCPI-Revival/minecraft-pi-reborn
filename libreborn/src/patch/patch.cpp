@@ -21,8 +21,8 @@ static void _overwrite_call_internal(void *start, void *target, const bool use_b
     // Increment Code Block Position
     increment_code_block();
 }
-void overwrite_call(void *start, void *target) {
-    const bool use_b_instruction = ((unsigned char *) start)[3] == B_INSTRUCTION;
+void overwrite_call(void *start, void *target, const bool force_b_instruction) {
+    const bool use_b_instruction = force_b_instruction || ((unsigned char *) start)[3] == B_INSTRUCTION;
     _overwrite_call_internal(start, target, use_b_instruction);
 }
 

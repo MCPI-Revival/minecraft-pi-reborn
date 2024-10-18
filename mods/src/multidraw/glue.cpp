@@ -50,7 +50,7 @@ HOOK(glBufferData, void, (GLenum target, GLsizeiptr size, const void *data, GLen
 }
 
 // Render
-#define VERTEX_SIZE 24
+int multidraw_vertex_size = 24;
 #define MAX_RENDER_CHUNKS 4096
 static bool supports_multidraw() {
     static int ret = -1;
@@ -76,9 +76,9 @@ static void multidraw_renderSameAsLast(const LevelRenderer *self, const float b)
     glEnableClientState(GL_COLOR_ARRAY);
     glEnableClientState(GL_TEXTURE_COORD_ARRAY);
     glBindBuffer(GL_ARRAY_BUFFER, storage->buffer->server_side_data);
-    glVertexPointer(3, GL_FLOAT, VERTEX_SIZE, (void *) 0);
-    glTexCoordPointer(2, GL_FLOAT, VERTEX_SIZE, (void *) 0xc);
-    glColorPointer(4, GL_UNSIGNED_BYTE, VERTEX_SIZE, (void *) 0x14);
+    glVertexPointer(3, GL_FLOAT, multidraw_vertex_size, (void *) 0);
+    glTexCoordPointer(2, GL_FLOAT, multidraw_vertex_size, (void *) 0xc);
+    glColorPointer(4, GL_UNSIGNED_BYTE, multidraw_vertex_size, (void *) 0x14);
 
     // Draw
     if (supports_multidraw()) {
@@ -110,7 +110,7 @@ static int LevelRenderer_renderChunks_injection(__attribute__((unused)) LevelRen
             }
             // Queue
             const int j = multidraw_total++;
-            multidraw_firsts[j] = block->offset / VERTEX_SIZE;
+            multidraw_firsts[j] = block->offset / multidraw_vertex_size;
             multidraw_counts[j] = render_chunk->vertices;
         }
     }

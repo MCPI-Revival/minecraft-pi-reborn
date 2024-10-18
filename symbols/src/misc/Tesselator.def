@@ -1,9 +1,53 @@
+method void init() = 0x5289c;
+method void clear() = 0x528ac;
+
 method void begin(int mode) = 0x529d4;
+method void begin_quads() = 0x52a24;
+
+method RenderChunk end(bool use_given_buffer, int buffer) = 0x528d4;
 method void draw() = 0x52e08;
+method void voidBeginAndEndCalls(bool x) = 0x52f74;
+
 method void colorABGR(int color) = 0x52b54;
 method void color(int r, int g, int b, int a) = 0x52a48;
+method void noColor() = 0x52d54;
+method void enableColor() = 0x52f7c;
+
 method void vertex(float x, float y, float z) = 0x52bc0;
+method void tex(float u, float v) = 0x52a2c;
 method void vertexUV(float x, float y, float z, float u, float v) = 0x52d40;
+
+method void scale2d(float sx, float sy) = 0x52b94;
+method void resetScale() = 0x52bb0;
+
+method void normal(float nx, float ny, float nz) = 0x52d68;
+
+method void offset(float x, float y, float z) = 0x52d80;
 method void addOffset(float x, float y, float z) = 0x52d90;
+method void offset_vec3(const Vec3 &x) = 0x52db8;
+method void addOffset_vec3(const Vec3 &x) = 0x52dd4;
+
+property bool active = 0x3c;
+property int mode = 0x58;
+
+property int next_buffer_id = 0x44;
+property uint *buffers = 0x48;
+property int buffer_count = 0x40;
+
+property float offset_x = 0x8;
+property float offset_y = 0xc;
+property float offset_z = 0x10;
+
+property bool has_texture = 0x2d;
+property float u = 0x14;
+property float v = 0x18;
+
+property bool has_color = 0x2c;
+property uint _color = 0x1c;
+
+property float sx = 0x24;
+property float sy = 0x28;
+
+property bool void_begin_end = 0x30;
 
 static-property Tesselator instance = 0x137538;

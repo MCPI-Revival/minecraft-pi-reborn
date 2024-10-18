@@ -1,7 +1,10 @@
 size 0x18;
 
+constructor () = 0x525ac;
+
 property uint buffer = 0x0;
 property int vertices = 0x4;
-property float x = 0xc;
-property float y = 0x10;
-property float z = 0x14;
+property int id = 0x8;
+property Vec3 pos = 0xc;
+
+mark-as-simple;
