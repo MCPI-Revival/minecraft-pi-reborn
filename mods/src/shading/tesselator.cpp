@@ -31,6 +31,7 @@ struct CustomTesselator {
 };
 CustomTesselator CustomTesselator::instance;
 
+// Setup Vertex Array
 static void Tesselator_clear_injection(Tesselator_clear_t original, Tesselator *self) {
     if (original) {
         original(self);
@@ -39,7 +40,6 @@ static void Tesselator_clear_injection(Tesselator_clear_t original, Tesselator *
     CustomTesselator::instance.quad_to_triangle_tracker = 0;
     CustomTesselator::instance.normal.reset();
 }
-
 #define MAX_VERTICES 524288
 static void Tesselator_init_injection(Tesselator_init_t original, Tesselator *self) {
     original(self);
@@ -47,6 +47,7 @@ static void Tesselator_init_injection(Tesselator_init_t original, Tesselator *se
     Tesselator_clear_injection(nullptr, nullptr);
 }
 
+// Handle Tesselation Start
 static void Tesselator_begin_injection(Tesselator_begin_t original, Tesselator *self, const int mode) {
     original(self, mode);
     if (!self->void_begin_end) {
@@ -54,13 +55,13 @@ static void Tesselator_begin_injection(Tesselator_begin_t original, Tesselator *
     }
 }
 
+// Drawing
 static GLuint get_next_buffer() {
     Tesselator::instance.next_buffer_id++;
     Tesselator::instance.next_buffer_id %= Tesselator::instance.buffer_count;
     const GLuint out = Tesselator::instance.buffers[Tesselator::instance.next_buffer_id];
     return out;
 }
-
 static RenderChunk Tesselator_end_injection(Tesselator *self, const bool use_given_buffer, const int buffer) {
     // Check
     if (!self->active) {
@@ -83,7 +84,6 @@ static RenderChunk Tesselator_end_injection(Tesselator *self, const bool use_giv
     self->active = false;
     return out;
 }
-
 static void Tesselator_draw_injection(Tesselator *self) {
     // Check
     if (!self->active) {
@@ -132,7 +132,22 @@ static void Tesselator_draw_injection(Tesselator *self) {
     self->clear();
     self->active = false;
 }
+static void drawArrayVT_injection(const int buffer, const int vertices, int vertex_size, const uint mode) {
+    vertex_size = sizeof(CustomVertex);
+    glBindBuffer(GL_ARRAY_BUFFER, buffer);
+    glTexCoordPointer(2, GL_FLOAT, vertex_size, (void *) offsetof(CustomVertex, uv));
+    glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+    glVertexPointer(3, GL_FLOAT, vertex_size, (void *) offsetof(CustomVertex, pos));
+    glEnableClientState(GL_VERTEX_ARRAY);
+    glNormalPointer(GL_BYTE, sizeof(CustomVertex), (void *) offsetof(CustomVertex, normal));
+    glEnableClientState(GL_NORMAL_ARRAY);
+    glDrawArrays(mode, 0, vertices);
+    glDisableClientState(GL_VERTEX_ARRAY);
+    glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+    glDisableClientState(GL_NORMAL_ARRAY);
+}
 
+// Add Vertex
 static void Tesselator_vertex_injection(const Tesselator *self, const float x, const float y, const float z) {
     CustomVertex &vertex = CustomTesselator::instance.vertices[CustomTesselator::instance.vertex_count++];
     vertex.pos = {
@@ -166,26 +181,12 @@ static void Tesselator_vertex_injection(const Tesselator *self, const float x, c
     }
 }
 
+// Specify Normal
 static void Tesselator_normal_injection(__attribute__((unused)) Tesselator *self, const float nx, const float ny, const float nz) {
-    const char xx = (char) (nx * 128);
-    const char yy = (char) (ny * 127);
-    const char zz = (char) (nz * 127);
+    const signed char xx = (signed char) (nx * 127);
+    const signed char yy = (signed char) (ny * 127);
+    const signed char zz = (signed char) (nz * 127);
     CustomTesselator::instance.normal = xx | (yy << 8) | (zz << 16);
-}
-
-static void drawArrayVT_injection(const int buffer, const int vertices, int vertex_size, const uint mode) {
-    vertex_size = sizeof(CustomVertex);
-    glBindBuffer(GL_ARRAY_BUFFER, buffer);
-    glTexCoordPointer(2, GL_FLOAT, vertex_size, (void *) offsetof(CustomVertex, uv));
-    glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-    glVertexPointer(3, GL_FLOAT, vertex_size, (void *) offsetof(CustomVertex, pos));
-    glEnableClientState(GL_VERTEX_ARRAY);
-    glNormalPointer(GL_BYTE, sizeof(CustomVertex), (void *) offsetof(CustomVertex, normal));
-    glEnableClientState(GL_NORMAL_ARRAY);
-    glDrawArrays(mode, 0, vertices);
-    glDisableClientState(GL_VERTEX_ARRAY);
-    glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-    glDisableClientState(GL_NORMAL_ARRAY);
 }
 
 // Init

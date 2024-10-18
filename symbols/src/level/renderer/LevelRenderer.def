@@ -6,6 +6,7 @@ method void generateSky() = 0x4d0d4;
 method void renderHitSelect(Player *player, const HitResult &hit_result, int i, void *vp, float f) = 0x4e318;
 method void renderHitOutline(Player *player, const HitResult &hit_result, int i, void *vp, float f) = 0x4dc14;
 method int renderChunks(int start, int end, int a, float b) = 0x4f35c;
+method void renderEntities(Vec3 pos, void *unknown, float a) = 0x500ec;
 
 property Minecraft *minecraft = 0xb4;
 property RenderList render_list = 0x34;

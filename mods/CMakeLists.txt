@@ -102,6 +102,8 @@ set(SRC
     # shading
     src/shading/init.cpp
     src/shading/tesselator.cpp
+    src/shading/lighting.cpp
+    src/shading/normals.cpp
 )
 # Install Splashes
 install(

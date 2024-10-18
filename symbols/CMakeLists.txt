@@ -35,7 +35,7 @@ set(SRC
     src/entity/EntityRenderer.def
     src/entity/ItemSpriteRenderer.def
     src/entity/PathfinderMob.def
-    src/entity/HumanoidModel.def
+    src/entity/model/HumanoidModel.def
     src/entity/TripodCameraRenderer.def
     src/entity/TripodCamera.def
     src/entity/MobFactory.def
@@ -161,7 +161,9 @@ set(SRC
     src/misc/Strings.def
     src/misc/I18n.def
     src/misc/SimpleFoodData.def
-    src/entity/ModelPart.def
+    src/entity/model/ModelPart.def
+    src/entity/model/PolygonQuad.def
+    src/entity/model/VertexPT.def
     src/misc/Tesselator.def
     src/misc/AABB.def
     src/misc/Vec3.def

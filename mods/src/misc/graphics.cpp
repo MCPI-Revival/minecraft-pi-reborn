@@ -346,14 +346,13 @@ static void ModelPart_render_injection(ModelPart *model_part, float scale) {
     // Stop
     is_rendering_chest = false;
 }
-static void Tesselator_vertexUV_injection(Tesselator_vertexUV_t original, Tesselator *tesselator, const float x, const float y, const float z, const float u, float v) {
+static void Tesselator_vertexUV_injection(Tesselator *self, const float x, const float y, const float z, const float u, float v) {
     // Fix Chest Texture
     if (is_rendering_chest) {
         v /= 2;
     }
-
     // Call Original Method
-    original(tesselator, x, y, z, u, v);
+    self->vertexUV(x, y, z, u, v);
 }
 static bool ChestTileEntity_shouldSave_injection(__attribute__((unused)) ChestTileEntity_shouldSave_t original, __attribute__((unused)) ChestTileEntity *tile_entity) {
     return true;
@@ -555,7 +554,7 @@ void _init_misc_graphics() {
         overwrite_call((void *) 0x6655c, (void *) ModelPart_render_injection);
         overwrite_call((void *) 0x66568, (void *) ModelPart_render_injection);
         overwrite_call((void *) 0x66574, (void *) ModelPart_render_injection);
-        overwrite_calls(Tesselator_vertexUV, Tesselator_vertexUV_injection);
+        overwrite_call((void *) 0x4278c, (void *) Tesselator_vertexUV_injection);
         unsigned char chest_model_patch[4] = {0x13, 0x20, 0xa0, 0xe3}; // "mov r2, #0x13"
         patch((void *) 0x66fc8, chest_model_patch);
         unsigned char chest_color_patch[4] = {0x00, 0xf0, 0x20, 0xe3}; // "nop"

@@ -1,0 +1,7 @@
+size 0x14;
+
+property Vec3 pos = 0x0;
+property float u = 0xc;
+property float v = 0x10;
+
+mark-as-simple;

@@ -88,6 +88,17 @@ extern "C" {
 #define GL_ALPHA 0x1906
 #define GL_NONE 0
 #define GL_ALIASED_LINE_WIDTH_RANGE 0x846e
+#define GL_LIGHTING 0xb50
+#define GL_LIGHT0 0x4000
+#define GL_LIGHT1 0x4001
+#define GL_RESCALE_NORMAL 0x803a
+#define GL_POSITION 0x1203
+#define GL_DIFFUSE 0x1201
+#define GL_AMBIENT 0x1200
+#define GL_SPECULAR 0x1202
+#define GL_FRONT_AND_BACK 0x408
+#define GL_AMBIENT_AND_DIFFUSE 0x1602
+#define GL_LIGHT_MODEL_AMBIENT 0xb53
 
 typedef float GLfloat;
 typedef float GLclampf;
@@ -161,6 +172,9 @@ void glBufferSubData(GLenum target, GLintptr offset, GLsizeiptr size, const void
 void glPixelStorei(GLenum pname, GLint param);
 void glMultiDrawArrays(GLenum mode, const GLint *first, const GLsizei *count, GLsizei drawcount);
 void glNormalPointer(GLenum type, GLsizei stride, const void *pointer);
+void glLightfv(GLenum light, GLenum pname, const GLfloat *params);
+void glColorMaterial(GLenum face, GLenum mode);
+void glLightModelfv(GLenum pname, const GLfloat *params);
 
 #ifdef __cplusplus
 }

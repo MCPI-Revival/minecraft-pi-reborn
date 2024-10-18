@@ -1,0 +1,3 @@
+method void render(Tesselator &t, float scale, int buffer) = 0x42744;
+
+property VertexPT vertices[4] = 0x0;

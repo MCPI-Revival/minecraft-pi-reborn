@@ -232,3 +232,15 @@ GL_FUNC(glNormalPointer, void, (GLenum type, GLsizei stride, const void *pointer
 void glNormalPointer(const GLenum type, const GLsizei stride, const void *pointer) {
     real_glNormalPointer()(type, stride, pointer);
 }
+GL_FUNC(glLightfv, void, (GLenum light, GLenum pname, const GLfloat *params))
+void glLightfv(const GLenum light, const GLenum pname, const GLfloat *params) {
+    real_glLightfv()(light, pname, params);
+}
+GL_FUNC(glColorMaterial, void, (GLenum face, GLenum mode))
+void glColorMaterial(const GLenum face, const GLenum mode) {
+    real_glColorMaterial()(face, mode);
+}
+GL_FUNC(glLightModelfv, void, (GLenum pname, const GLfloat *params))
+void glLightModelfv(const GLenum pname, const GLfloat *params) {
+    real_glLightModelfv()(pname, params);
+}
