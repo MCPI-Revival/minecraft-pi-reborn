@@ -1,6 +1,7 @@
 #include <optional>
 #include <cstddef>
 #include <algorithm>
+#include <cxxabi.h>
 
 #include <GLES/gl.h>
 
@@ -189,6 +190,21 @@ static void Tesselator_normal_injection(__attribute__((unused)) Tesselator *self
     CustomTesselator::instance.normal = xx | (yy << 8) | (zz << 16);
 }
 
+static void explore(const __cxxabiv1::__class_type_info *info) {
+    INFO("Test: %s", info->name());
+    const __cxxabiv1::__si_class_type_info *a = dynamic_cast<const __cxxabiv1::__si_class_type_info *>(info);
+    if (a) {
+        explore(a->__base_type);
+    } else {
+        const __cxxabiv1::__vmi_class_type_info *b = dynamic_cast<const __cxxabiv1::__vmi_class_type_info *>(info);
+        if (b) {
+            for (unsigned int i = 0; i < b->__base_count; i++) {
+                explore(b->__base_info[i].__base_type);
+            }
+        }
+    }
+}
+
 // Init
 void _init_custom_tesselator() {
     multidraw_vertex_size = sizeof(CustomVertex);
@@ -200,4 +216,8 @@ void _init_custom_tesselator() {
     overwrite_call((void *) Tesselator_vertex->backup, (void *) Tesselator_vertex_injection, true);
     overwrite_call((void *) Tesselator_normal->backup, (void *) Tesselator_normal_injection, true);
     overwrite_call((void *) Common_drawArrayVT->backup, (void *) drawArrayVT_injection, true);
+
+    const std::type_info *info = *(((std::type_info **) Cow_vtable_base) - 1);
+    const __cxxabiv1::__si_class_type_info *info2 = dynamic_cast<const __cxxabiv1::__si_class_type_info *>(info);
+    explore(info2);
 }

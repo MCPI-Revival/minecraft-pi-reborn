@@ -1,4 +1,5 @@
 #include <cmath>
+#include <cxxabi.h>
 
 #include <libreborn/libreborn.h>
 #include <symbols/minecraft.h>
@@ -181,7 +182,10 @@ static void render_shadow_tile(Tile *tile, const float x, const float y, const f
     t.vertexUV(x1, y0, z1, u1, v1);
     t.vertexUV(x1, y0, z0, u1, v0);
 }
-static void render_shadow(const EntityRenderer *self, Entity *entity, float x, float y, float z, const float a) {
+static const __cxxabiv1::__class_type_info *get_type_info(void *vtable) {
+    return *(((__cxxabiv1::__class_type_info **) Cow_vtable_base) - 1);;
+}
+static void render_shadow(const EntityRenderer *self, Entity *entity, const float x, const float y, const float z, const float a) {
     // Calculate Power
     float pow = 0;
     if (self->shadow_radius > 0) {
@@ -200,7 +204,13 @@ static void render_shadow(const EntityRenderer *self, Entity *entity, float x, f
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
     Level *level = EntityRenderer::entityRenderDispatcher->level;
     glDepthMask(false);
-    const float r = self->shadow_radius;
+    float r = self->shadow_radius;
+    if (entity->isMob()) {
+        Mob *mob = (Mob *) entity;
+        if (mob->isBaby()) {
+            r *= 0.5f;
+        }
+    }
     const float ex = entity->old_x + (entity->x - entity->old_x) * a;
     float ey = entity->old_y + (entity->y - entity->old_y) * a + entity->getShadowHeightOffs() - entity->height_offset;
     const float ez = entity->old_z + (entity->z - entity->old_z) * a;
