@@ -48,7 +48,7 @@ static int32_t TallGrass_getColor_injection(TallGrass_getColor_t original, TallG
 
 // No Block Tinting
 template <typename T>
-static int32_t Tile_getColor_injection(__attribute__((unused)) std::function<int(T *, LevelSource *, int, int, int)> original, __attribute__((unused)) T *self, __attribute__((unused)) LevelSource *level_source, __attribute__((unused)) int x, __attribute__((unused)) int y, __attribute__((unused)) int z) {
+static int32_t Tile_getColor_injection(__attribute__((unused)) const std::function<int(T *, LevelSource *, int, int, int)> &original, __attribute__((unused)) T *self, __attribute__((unused)) LevelSource *level_source, __attribute__((unused)) int x, __attribute__((unused)) int y, __attribute__((unused)) int z) {
     return 0xffffff;
 }
 

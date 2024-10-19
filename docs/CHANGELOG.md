@@ -50,6 +50,7 @@
     * `Render Entity Shadows` (Enabled By Default)
     * `Render Vignette` (Enabled By Default)
     * `Increase Render Chunk Size` (Enabled By Default)
+    * `Proper Entity Shading` (Enabled By Default)
   * Existing Functionality (All Enabled By Default)
     * `Fix Screen Rendering When Hiding HUD`
     * `Sanitize Usernames`

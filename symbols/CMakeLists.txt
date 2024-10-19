@@ -63,6 +63,8 @@ set(SRC
     src/entity/Entity.def
     src/entity/ItemEntity.def
     src/entity/Arrow.def
+    src/entity/ArrowRenderer.def
+    src/entity/PaintingRenderer.def
     src/entity/Throwable.def
     src/level/container/FillingContainer.def
     src/level/container/Container.def
@@ -125,6 +127,7 @@ set(SRC
     src/gui/screens/Touch_SelectWorldScreen.def
     src/gui/screens/PaneCraftingScreen.def
     src/gui/screens/ScreenChooser.def
+    src/gui/screens/ArmorScreen.def
     src/gui/Font.def
     src/gui/components/ImageButton.def
     src/gui/components/OptionButton.def

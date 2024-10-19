@@ -276,7 +276,12 @@ static void EntityRenderDispatcher_render_EntityRenderer_render_injection(Entity
     }
     // Render Fire
     if (should_render_fire) {
+        const bool was_lighting_enabled = glIsEnabled(GL_LIGHTING);
+        glDisable(GL_LIGHTING);
         render_fire(self, entity, x, y, z);
+        if (was_lighting_enabled) {
+            glEnable(GL_LIGHTING);
+        }
     }
 }
 

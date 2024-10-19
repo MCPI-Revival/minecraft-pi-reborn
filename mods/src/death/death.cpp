@@ -71,7 +71,7 @@ static bool Mob_hurt_injection(Mob_hurt_t original, Mob *mob, Entity *source, co
 
 // Death Message Logic
 template <typename Self, typename ParentSelf>
-static void Player_die_injection(std::function<void(ParentSelf *, Entity *)> original, Self *player, Entity *cause) {
+static void Player_die_injection(const std::function<void(ParentSelf *, Entity *)> &original, Self *player, Entity *cause) {
     // Call Original Method
     original((ParentSelf *) player, cause);
 
@@ -88,7 +88,7 @@ static void Player_die_injection(std::function<void(ParentSelf *, Entity *)> ori
     }
 }
 template <typename OriginalSelf, typename Self>
-static void Player_actuallyHurt_injection(std::function<void(OriginalSelf *, int)> original, Self *player, int32_t damage) {
+static void Player_actuallyHurt_injection(const std::function<void(OriginalSelf *, int)> &original, Self *player, int32_t damage) {
     // Store Old Health
     int32_t old_health = player->health;
 

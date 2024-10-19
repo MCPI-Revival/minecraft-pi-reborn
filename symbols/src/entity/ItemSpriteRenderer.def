@@ -1,5 +1,7 @@
 extends EntityRenderer;
 
+vtable 0x107e18;
+
 size 0x10;
 
 constructor (int texture) = 0x64078;

@@ -1,0 +1,3 @@
+extends Screen;
+
+method void renderPlayer(float param_1, float param_2) = 0x29cd0;

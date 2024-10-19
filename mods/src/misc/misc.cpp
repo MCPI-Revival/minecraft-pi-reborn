@@ -406,7 +406,7 @@ static void set_on_fire(Mob *mob, const int seconds) {
     }
 }
 template <typename Self>
-static void Monster_aiStep_injection(__attribute__((unused)) std::function<void(Self *)> original, Self *self) {
+static void Monster_aiStep_injection(__attribute__((unused)) const std::function<void(Self *)> &original, Self *self) {
     // Fire!
     Level *level = self->level;
     if (level->isDay() && !level->is_client_side) {
