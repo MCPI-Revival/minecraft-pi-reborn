@@ -22,12 +22,12 @@ static void PolygonQuad_render_injection(PolygonQuad_render_t original, PolygonQ
 
 // Specify Normal Before Vertex
 #define add_normal_before(type, name) \
-    template <float nx, float ny, float nz> \
+    template <int nx, int ny, int nz> \
     static decltype(auto) type##_##name##_injection(type *self, auto... args) { \
         Tesselator::instance.normal(nx, ny, nz); \
         return self->name(std::forward<decltype(args)>(args)...); \
     } \
-    template <float nx, float ny, float nz> \
+    template <int nx, int ny, int nz> \
     static void add_normal_before_##name(uint32_t addr) { \
         std::remove_pointer_t<decltype(type##_##name)>::ptr_type func = type##_##name##_injection<nx, ny, nz>; \
         overwrite_call((void *) addr, (void *) func); \
@@ -43,60 +43,60 @@ void _init_normals() {
     // PolygonQuad::render
     overwrite_calls(PolygonQuad_render, PolygonQuad_render_injection);
     // ItemInHandRenderer::renderItem
-    add_normal_before_vertexUV<0.0f, 0.0f, 1.0f>(0x4bb4c);
-    add_normal_before_vertexUV<0.0f, 0.0f, -1.0f>(0x4bbbc);
-    add_normal_before_vertexUV<-1.0f, 0.0f, 0.0f>(0x4bc50);
-    add_normal_before_vertexUV<1.0f, 0.0f, 0.0f>(0x4bcf0);
-    add_normal_before_vertexUV<0.0f, 1.0f, 0.0f>(0x4bd90);
-    add_normal_before_vertexUV<0.0f, -1.0f, 0.0f>(0x4be28);
+    add_normal_before_vertexUV<0, 0, 1>(0x4bb4c);
+    add_normal_before_vertexUV<0, 0, -1>(0x4bbbc);
+    add_normal_before_vertexUV<-1, 0, 0>(0x4bc50);
+    add_normal_before_vertexUV<1, 0, 0>(0x4bcf0);
+    add_normal_before_vertexUV<0, 1, 0>(0x4bd90);
+    add_normal_before_vertexUV<0, -1, 0>(0x4be28);
     // TileRenderer::renderTile
-    add_normal_before_getTexture2<0.0f, -1.0f, 0.0f>(0x5dd2c);
-    add_normal_before_getTexture2<0.0f, 1.0f, 0.0f>(0x5dd60);
-    add_normal_before_getTexture2<0.0f, 0.0f, -1.0f>(0x5dd94);
-    add_normal_before_getTexture2<0.0f, 0.0f, 1.0f>(0x5ddc8);
-    add_normal_before_getTexture2<-1.0f, 0.0f, 0.0f>(0x5ddfc);
-    add_normal_before_getTexture2<1.0f, 0.0f, 0.0f>(0x5de30);
-    add_normal_before_tesselateCrossTexture<0.0f, -1.0f, 0.0f>(0x5de7c);
-    add_normal_before_updateDefaultShape<0.0f, -1.0f, 0.0f>(0x5dea0);
-    add_normal_before_getTexture2<0.0f, -1.0f, 0.0f>(0x5df38);
-    add_normal_before_getTexture2<0.0f, 1.0f, 0.0f>(0x5df68);
-    add_normal_before_getTexture2<0.0f, 0.0f, -1.0f>(0x5dfac);
-    add_normal_before_getTexture2<0.0f, 0.0f, 1.0f>(0x5e004);
-    add_normal_before_getTexture2<-1.0f, 0.0f, 0.0f>(0x5e05c);
-    add_normal_before_getTexture2<1.0f, 0.0f, 0.0f>(0x5e0b4);
-    add_normal_before_getTexture2<0.0f, -1.0f, 0.0f>(0x5e1e4);
-    add_normal_before_getTexture2<0.0f, 1.0f, 0.0f>(0x5e218);
-    add_normal_before_getTexture2<0.0f, 0.0f, -1.0f>(0x5e248);
-    add_normal_before_getTexture2<0.0f, 0.0f, 1.0f>(0x5e278);
-    add_normal_before_getTexture2<-1.0f, 0.0f, 0.0f>(0x5e2a8);
-    add_normal_before_getTexture2<1.0f, 0.0f, 0.0f>(0x5e2d8);
-    add_normal_before_getTexture2<0.0f, -1.0f, 0.0f>(0x5e408);
-    add_normal_before_getTexture2<0.0f, 1.0f, 0.0f>(0x5e43c);
-    add_normal_before_getTexture2<0.0f, 0.0f, -1.0f>(0x5e46c);
-    add_normal_before_getTexture2<0.0f, 0.0f, 1.0f>(0x5e49c);
-    add_normal_before_getTexture2<-1.0f, 0.0f, 0.0f>(0x5e4cc);
-    add_normal_before_getTexture2<1.0f, 0.0f, 0.0f>(0x5e4fc);
-    add_normal_before_getTexture2<0.0f, -1.0f, 0.0f>(0x5e60c);
-    add_normal_before_getTexture2<0.0f, 1.0f, 0.0f>(0x5e640);
-    add_normal_before_getTexture2<0.0f, 0.0f, -1.0f>(0x5e670);
-    add_normal_before_getTexture2<0.0f, 0.0f, 1.0f>(0x5e6a0);
-    add_normal_before_getTexture2<-1.0f, 0.0f, 0.0f>(0x5e6d0);
-    add_normal_before_getTexture2<1.0f, 0.0f, 0.0f>(0x5e700);
+    add_normal_before_getTexture2<0, -1, 0>(0x5dd2c);
+    add_normal_before_getTexture2<0, 1, 0>(0x5dd60);
+    add_normal_before_getTexture2<0, 0, -1>(0x5dd94);
+    add_normal_before_getTexture2<0, 0, 1>(0x5ddc8);
+    add_normal_before_getTexture2<-1, 0, 0>(0x5ddfc);
+    add_normal_before_getTexture2<1, 0, 0>(0x5de30);
+    add_normal_before_tesselateCrossTexture<0, -1, 0>(0x5de7c);
+    add_normal_before_updateDefaultShape<0, -1, 0>(0x5dea0);
+    add_normal_before_getTexture2<0, -1, 0>(0x5df38);
+    add_normal_before_getTexture2<0, 1, 0>(0x5df68);
+    add_normal_before_getTexture2<0, 0, -1>(0x5dfac);
+    add_normal_before_getTexture2<0, 0, 1>(0x5e004);
+    add_normal_before_getTexture2<-1, 0, 0>(0x5e05c);
+    add_normal_before_getTexture2<1, 0, 0>(0x5e0b4);
+    add_normal_before_getTexture2<0, -1, 0>(0x5e1e4);
+    add_normal_before_getTexture2<0, 1, 0>(0x5e218);
+    add_normal_before_getTexture2<0, 0, -1>(0x5e248);
+    add_normal_before_getTexture2<0, 0, 1>(0x5e278);
+    add_normal_before_getTexture2<-1, 0, 0>(0x5e2a8);
+    add_normal_before_getTexture2<1, 0, 0>(0x5e2d8);
+    add_normal_before_getTexture2<0, -1, 0>(0x5e408);
+    add_normal_before_getTexture2<0, 1, 0>(0x5e43c);
+    add_normal_before_getTexture2<0, 0, -1>(0x5e46c);
+    add_normal_before_getTexture2<0, 0, 1>(0x5e49c);
+    add_normal_before_getTexture2<-1, 0, 0>(0x5e4cc);
+    add_normal_before_getTexture2<1, 0, 0>(0x5e4fc);
+    add_normal_before_getTexture2<0, -1, 0>(0x5e60c);
+    add_normal_before_getTexture2<0, 1, 0>(0x5e640);
+    add_normal_before_getTexture2<0, 0, -1>(0x5e670);
+    add_normal_before_getTexture2<0, 0, 1>(0x5e6a0);
+    add_normal_before_getTexture2<-1, 0, 0>(0x5e6d0);
+    add_normal_before_getTexture2<1, 0, 0>(0x5e700);
     // ArrowRenderer::render
-    add_normal_before_vertexUV<1.0f, 0.0f, 0.0f>(0x60184);
-    add_normal_before_vertexUV<-1.0f, 0.0f, 0.0f>(0x601f4);
-    add_normal_before_vertexUV<0.0f, 0.0f, 1.0f>(0x60288);
+    add_normal_before_vertexUV<1, 0, 0>(0x60184);
+    add_normal_before_vertexUV<-1, 0, 0>(0x601f4);
+    add_normal_before_vertexUV<0, 0, 1>(0x60288);
     // ItemRenderer::render
-    add_normal_before_vertexUV<0.0f, 1.0f, 0.0f>(0x63394);
+    add_normal_before_vertexUV<0, 1, 0>(0x63394);
     // ItemSpriteRenderer::render
-    add_normal_before_vertexUV<0.0f, 1.0f, 0.0f>(0x63fd0);
+    add_normal_before_vertexUV<0, 1, 0>(0x63fd0);
     // MobRenderer::renderNameTag
-    add_normal_before_vertex<0.0f, 1.0f, 0.0f>(0x64918);
+    add_normal_before_vertex<0, 1, 0>(0x64918);
     // PaintingRenderer::renderPainting
-    add_normal_before_vertexUV<0.0f, 0.0f, -1.0f>(0x64c94);
-    add_normal_before_vertexUV<0.0f, 0.0f, 1.0f>(0x64d04);
-    add_normal_before_vertexUV<0.0f, 1.0f, 0.0f>(0x64d74);
-    add_normal_before_vertexUV<0.0f, -1.0f, 0.0f>(0x64de4);
-    add_normal_before_vertexUV<-1.0f, 0.0f, 0.0f>(0x64e54);
-    add_normal_before_vertexUV<1.0f, 0.0f, 0.0f>(0x64ec4);
+    add_normal_before_vertexUV<0, 0, -1>(0x64c94);
+    add_normal_before_vertexUV<0, 0, 1>(0x64d04);
+    add_normal_before_vertexUV<0, 1, 0>(0x64d74);
+    add_normal_before_vertexUV<0, -1, 0>(0x64de4);
+    add_normal_before_vertexUV<-1, 0, 0>(0x64e54);
+    add_normal_before_vertexUV<1, 0, 0>(0x64ec4);
 }
