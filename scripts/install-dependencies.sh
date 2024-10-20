@@ -68,7 +68,7 @@ run_build() {
 
 # Test Dependencies
 run_test() {
-    sudo apt-get install --no-install-recommends -y \
+    install_pkg \
         "libc6:$1" \
         "libstdc++6:$1" \
         "libopenal1:$1" \
