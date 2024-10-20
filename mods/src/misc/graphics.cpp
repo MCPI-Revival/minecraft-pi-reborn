@@ -291,6 +291,13 @@ static void EntityRenderDispatcher_render_EntityRenderer_render_injection(Entity
     }
 }
 
+// Hide Shadow In Armor Screen
+static void ArmorScreen_renderPlayer_injection(ArmorScreen_renderPlayer_t original, ArmorScreen *self, float param_1, float param_2) {
+    should_render_shadows = false;
+    original(self, param_1, param_2);
+    should_render_shadows = true;
+}
+
 // Nicer Water Rendering
 static bool game_render_anaglyph_color_mask[4];
 static void GameRenderer_render_glColorMask_injection(const bool red, const bool green, const bool blue, const bool alpha) {
@@ -538,6 +545,7 @@ void _init_misc_graphics() {
     should_render_shadows = feature_has("Render Entity Shadows", server_disabled);
     if (should_render_shadows) {
         overwrite_calls(EntityRenderDispatcher_assign, EntityRenderDispatcher_assign_injection);
+        overwrite_calls(ArmorScreen_renderPlayer, ArmorScreen_renderPlayer_injection);
     }
 
     // Slightly Nicer Water Rendering
