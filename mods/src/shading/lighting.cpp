@@ -98,9 +98,12 @@ static void MobRenderer_renderNameTag_injection(MobRenderer_renderNameTag_t orig
 
 // Armor Screen
 static void ArmorScreen_renderPlayer_injection(ArmorScreen_renderPlayer_t original, ArmorScreen *self, float param_1, float param_2) {
-    lighting_turn_on();
     original(self, param_1, param_2);
     lighting_turn_off();
+}
+static void ArmorScreen_renderPlayer_glRotatef_injection(float angle, float x, float y, float z) {
+    lighting_turn_on();
+    media_glRotatef(angle, x, y, z);
 }
 
 // Init
@@ -120,4 +123,5 @@ void _init_lighting() {
     overwrite_call((void *) 0x65754, (void *) TntRenderer_render_TileRenderer_renderTile_injection);
     overwrite_calls(MobRenderer_renderNameTag, MobRenderer_renderNameTag_injection);
     overwrite_calls(ArmorScreen_renderPlayer, ArmorScreen_renderPlayer_injection);
+    overwrite_call((void *) 0x29d88, (void *) ArmorScreen_renderPlayer_glRotatef_injection);
 }
