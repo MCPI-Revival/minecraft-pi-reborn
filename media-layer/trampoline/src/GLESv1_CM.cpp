@@ -10,7 +10,7 @@ static int get_glFogfv_params_length(const GLenum pname) {
     return pname == GL_FOG_COLOR ? 4 : 1;
 }
 #endif
-CALL(11, glFogfv, void, (GLenum pname, const GLfloat *params))
+CALL(11, media_glFogfv, void, (GLenum pname, const GLfloat *params))
 #ifdef MEDIA_LAYER_TRAMPOLINE_GUEST
     trampoline(true, pname, copy_array(get_glFogfv_params_length(pname), params));
 #else
@@ -30,10 +30,10 @@ struct gl_array_details_t {
 };
 #ifdef MEDIA_LAYER_TRAMPOLINE_GUEST
 struct {
-    gl_array_details_t glVertexPointer;
-    gl_array_details_t glColorPointer;
-    gl_array_details_t glTexCoordPointer;
-    gl_array_details_t glNormalPointer;
+    gl_array_details_t media_glVertexPointer;
+    gl_array_details_t media_glColorPointer;
+    gl_array_details_t media_glTexCoordPointer;
+    gl_array_details_t media_glNormalPointer;
 } gl_array_details;
 #endif
 struct gl_state_t {
@@ -67,9 +67,9 @@ struct gl_state_t {
     void send_array_to_driver(const GLenum array) {
         const bool state = get_array_enabled(array);
         if (state) {
-            glEnableClientState(array);
+            media_glEnableClientState(array);
         } else {
-            glDisableClientState(array);
+            media_glDisableClientState(array);
         }
     }
     void send_to_driver() {
@@ -77,8 +77,8 @@ struct gl_state_t {
         send_array_to_driver(GL_COLOR_ARRAY);
         send_array_to_driver(GL_TEXTURE_COORD_ARRAY);
         send_array_to_driver(GL_NORMAL_ARRAY);
-        glBindBuffer(GL_ARRAY_BUFFER, bound_array_buffer);
-        glBindTexture(GL_TEXTURE_2D, bound_texture);
+        media_glBindBuffer(GL_ARRAY_BUFFER, bound_array_buffer);
+        media_glBindTexture(GL_TEXTURE_2D, bound_texture);
     }
 #endif
 };
@@ -102,16 +102,16 @@ static gl_state_t gl_state;
 #else
 #define CALL_GL_POINTER(unique_id, name) \
     CALL(unique_id, name, unused, ()) \
-        glBindBuffer(GL_ARRAY_BUFFER, args.next<GLuint>()); \
+        media_glBindBuffer(GL_ARRAY_BUFFER, args.next<GLuint>()); \
         gl_array_details_t state = args.next<gl_array_details_t>(); \
         func(state.size, state.type, state.stride, (const void *) uintptr_t(state.pointer)); \
         return 0; \
     }
 #endif
 
-CALL_GL_POINTER(12, glVertexPointer)
+CALL_GL_POINTER(12, media_glVertexPointer)
 
-CALL(13, glLineWidth, void, (GLfloat width))
+CALL(13, media_glLineWidth, void, (GLfloat width))
 #ifdef MEDIA_LAYER_TRAMPOLINE_GUEST
     trampoline(true, width);
 #else
@@ -120,7 +120,7 @@ CALL(13, glLineWidth, void, (GLfloat width))
 #endif
 }
 
-CALL(14, glBlendFunc, void, (GLenum sfactor, GLenum dfactor))
+CALL(14, media_glBlendFunc, void, (GLenum sfactor, GLenum dfactor))
 #ifdef MEDIA_LAYER_TRAMPOLINE_GUEST
     trampoline(true, sfactor, dfactor);
 #else
@@ -131,7 +131,7 @@ CALL(14, glBlendFunc, void, (GLenum sfactor, GLenum dfactor))
 #endif
 }
 
-CALL(15, glDrawArrays, void, (GLenum mode, GLint first, GLsizei count))
+CALL(15, media_glDrawArrays, void, (GLenum mode, GLint first, GLsizei count))
 #ifdef MEDIA_LAYER_TRAMPOLINE_GUEST
     trampoline(true, gl_state, mode, first, count);
 #else
@@ -145,7 +145,7 @@ CALL(15, glDrawArrays, void, (GLenum mode, GLint first, GLsizei count))
 #endif
 }
 
-CALL(70, glMultiDrawArrays, void, (GLenum mode, const GLint *first, const GLsizei *count, GLsizei drawcount))
+CALL(70, media_glMultiDrawArrays, void, (GLenum mode, const GLint *first, const GLsizei *count, GLsizei drawcount))
 #ifdef MEDIA_LAYER_TRAMPOLINE_GUEST
     trampoline(true, gl_state, mode, copy_array(drawcount, first), copy_array(drawcount, count));
 #else
@@ -160,7 +160,7 @@ CALL(70, glMultiDrawArrays, void, (GLenum mode, const GLint *first, const GLsize
 #endif
 }
 
-CALL(16, glColor4f, void, (GLfloat red, GLfloat green, GLfloat blue, GLfloat alpha))
+CALL(16, media_glColor4f, void, (GLfloat red, GLfloat green, GLfloat blue, GLfloat alpha))
 #ifdef MEDIA_LAYER_TRAMPOLINE_GUEST
     trampoline(true, red, green, blue, alpha);
 #else
@@ -173,7 +173,7 @@ CALL(16, glColor4f, void, (GLfloat red, GLfloat green, GLfloat blue, GLfloat alp
 #endif
 }
 
-CALL(17, glClear, void, (GLbitfield mask))
+CALL(17, media_glClear, void, (GLbitfield mask))
 #ifdef MEDIA_LAYER_TRAMPOLINE_GUEST
     trampoline(true, mask);
 #else
@@ -182,11 +182,11 @@ CALL(17, glClear, void, (GLbitfield mask))
 #endif
 }
 
-CALL(18, glBufferData, void, (GLenum target, GLsizeiptr size, const void *data, GLenum usage))
+CALL(18, media_glBufferData, void, (GLenum target, GLsizeiptr size, const void *data, GLenum usage))
 #ifdef MEDIA_LAYER_TRAMPOLINE_GUEST
     trampoline(true, gl_state.bound_array_buffer, target, int32_t(size), copy_array(size, (unsigned char *) data), usage);
 #else
-    glBindBuffer(GL_ARRAY_BUFFER, args.next<GLuint>());
+    media_glBindBuffer(GL_ARRAY_BUFFER, args.next<GLuint>());
     GLenum target = args.next<GLenum>();
     int32_t size = args.next<int32_t>();
     const unsigned char *data = args.next_arr<unsigned char>();
@@ -196,7 +196,7 @@ CALL(18, glBufferData, void, (GLenum target, GLsizeiptr size, const void *data, 
 #endif
 }
 
-CALL(19, glFogx, void, (GLenum pname, GLfixed param))
+CALL(19, media_glFogx, void, (GLenum pname, GLfixed param))
 #ifdef MEDIA_LAYER_TRAMPOLINE_GUEST
     trampoline(true, pname, param);
 #else
@@ -207,7 +207,7 @@ CALL(19, glFogx, void, (GLenum pname, GLfixed param))
 #endif
 }
 
-CALL(20, glFogf, void, (GLenum pname, GLfloat param))
+CALL(20, media_glFogf, void, (GLenum pname, GLfloat param))
 #ifdef MEDIA_LAYER_TRAMPOLINE_GUEST
     trampoline(true, pname, param);
 #else
@@ -218,7 +218,7 @@ CALL(20, glFogf, void, (GLenum pname, GLfloat param))
 #endif
 }
 
-CALL(21, glMatrixMode, void, (GLenum mode))
+CALL(21, media_glMatrixMode, void, (GLenum mode))
 #ifdef MEDIA_LAYER_TRAMPOLINE_GUEST
     trampoline(true, mode);
 #else
@@ -227,9 +227,9 @@ CALL(21, glMatrixMode, void, (GLenum mode))
 #endif
 }
 
-CALL_GL_POINTER(22, glColorPointer)
+CALL_GL_POINTER(22, media_glColorPointer)
 
-CALL(23, glScissor, void, (GLint x, GLint y, GLsizei width, GLsizei height))
+CALL(23, media_glScissor, void, (GLint x, GLint y, GLsizei width, GLsizei height))
 #ifdef MEDIA_LAYER_TRAMPOLINE_GUEST
     trampoline(true, x, y, width, height);
 #else
@@ -242,11 +242,11 @@ CALL(23, glScissor, void, (GLint x, GLint y, GLsizei width, GLsizei height))
 #endif
 }
 
-CALL(24, glTexParameteri, void, (GLenum target, GLenum pname, GLint param))
+CALL(24, media_glTexParameteri, void, (GLenum target, GLenum pname, GLint param))
 #ifdef MEDIA_LAYER_TRAMPOLINE_GUEST
     trampoline(true, gl_state.bound_texture, target, pname, param);
 #else
-    glBindTexture(GL_TEXTURE_2D, args.next<GLuint>());
+    media_glBindTexture(GL_TEXTURE_2D, args.next<GLuint>());
     GLenum target = args.next<GLenum>();
     GLenum pname = args.next<GLenum>();
     GLint param = args.next<GLint>();
@@ -282,7 +282,7 @@ static int get_texture_size(const GLsizei width, const GLsizei height, const GLe
     {
         // Handle Alignment
         int alignment;
-        glGetIntegerv(is_upload ? GL_UNPACK_ALIGNMENT : GL_PACK_ALIGNMENT, &alignment);
+        media_glGetIntegerv(is_upload ? GL_UNPACK_ALIGNMENT : GL_PACK_ALIGNMENT, &alignment);
         // Round
         line_size = ALIGN_UP(line_size, alignment);
     }
@@ -290,11 +290,11 @@ static int get_texture_size(const GLsizei width, const GLsizei height, const GLe
     return line_size * height;
 }
 
-CALL(25, glTexImage2D, void, (GLenum target, GLint level, GLint internalformat, GLsizei width, GLsizei height, GLint border, GLenum format, GLenum type, const void *pixels))
+CALL(25, media_glTexImage2D, void, (GLenum target, GLint level, GLint internalformat, GLsizei width, GLsizei height, GLint border, GLenum format, GLenum type, const void *pixels))
 #ifdef MEDIA_LAYER_TRAMPOLINE_GUEST
     trampoline(true, gl_state.bound_texture, target, level, internalformat, width, height, border, format, type, copy_array(get_texture_size(width, height, format, type, true), (const unsigned char *) pixels));
 #else
-    glBindTexture(GL_TEXTURE_2D, args.next<GLuint>());
+    media_glBindTexture(GL_TEXTURE_2D, args.next<GLuint>());
     GLenum target = args.next<GLenum>();
     GLint level = args.next<GLint>();
     GLint internalformat = args.next<GLint>();
@@ -309,7 +309,7 @@ CALL(25, glTexImage2D, void, (GLenum target, GLint level, GLint internalformat, 
 #endif
 }
 
-CALL(26, glEnable, void, (GLenum cap))
+CALL(26, media_glEnable, void, (GLenum cap))
 #ifdef MEDIA_LAYER_TRAMPOLINE_GUEST
     trampoline(true, cap);
 #else
@@ -319,12 +319,12 @@ CALL(26, glEnable, void, (GLenum cap))
 }
 
 #ifdef MEDIA_LAYER_TRAMPOLINE_GUEST
-void glEnableClientState(const GLenum array) {
+void media_glEnableClientState(const GLenum array) {
     gl_state.get_array_enabled(array) = true;
 }
 #endif
 
-CALL(28, glPolygonOffset, void, (GLfloat factor, GLfloat units))
+CALL(28, media_glPolygonOffset, void, (GLfloat factor, GLfloat units))
 #ifdef MEDIA_LAYER_TRAMPOLINE_GUEST
     trampoline(true, factor, units);
 #else
@@ -335,33 +335,33 @@ CALL(28, glPolygonOffset, void, (GLfloat factor, GLfloat units))
 #endif
 }
 
-CALL_GL_POINTER(41, glTexCoordPointer)
+CALL_GL_POINTER(41, media_glTexCoordPointer)
 
 #ifdef MEDIA_LAYER_TRAMPOLINE_GUEST
-void glDisableClientState(const GLenum array) {
+void media_glDisableClientState(const GLenum array) {
     gl_state.get_array_enabled(array) = false;
     switch (array) {
         case GL_VERTEX_ARRAY: {
-            gl_array_details.glVertexPointer.size = -1;
+            gl_array_details.media_glVertexPointer.size = -1;
             break;
         }
         case GL_COLOR_ARRAY: {
-            gl_array_details.glColorPointer.size = -1;
+            gl_array_details.media_glColorPointer.size = -1;
             break;
         }
         case GL_TEXTURE_COORD_ARRAY: {
-            gl_array_details.glTexCoordPointer.size = -1;
+            gl_array_details.media_glTexCoordPointer.size = -1;
             break;
         }
         case GL_NORMAL_ARRAY: {
-            gl_array_details.glNormalPointer.size = -1;
+            gl_array_details.media_glNormalPointer.size = -1;
             break;
         }
     }
 }
 #endif
 
-CALL(30, glDepthRangef, void, (GLclampf near, GLclampf far))
+CALL(30, media_glDepthRangef, void, (GLclampf near, GLclampf far))
 #ifdef MEDIA_LAYER_TRAMPOLINE_GUEST
     trampoline(true, near, far);
 #else
@@ -372,7 +372,7 @@ CALL(30, glDepthRangef, void, (GLclampf near, GLclampf far))
 #endif
 }
 
-CALL(31, glDepthFunc, void, (GLenum func))
+CALL(31, media_glDepthFunc, void, (GLenum func))
 #ifdef MEDIA_LAYER_TRAMPOLINE_GUEST
     trampoline(true, func);
 #else
@@ -382,20 +382,20 @@ CALL(31, glDepthFunc, void, (GLenum func))
 }
 
 #ifdef MEDIA_LAYER_TRAMPOLINE_GUEST
-void glBindBuffer(const GLenum target, const GLuint buffer) {
+void media_glBindBuffer(const GLenum target, const GLuint buffer) {
     if (target == GL_ARRAY_BUFFER) {
         gl_state.bound_array_buffer = buffer;
     } else {
         ERR("Unsupported Buffer Binding: %u", target);
     }
-    gl_array_details.glVertexPointer.size = -1;
-    gl_array_details.glColorPointer.size = -1;
-    gl_array_details.glTexCoordPointer.size = -1;
-    gl_array_details.glNormalPointer.size = -1;
+    gl_array_details.media_glVertexPointer.size = -1;
+    gl_array_details.media_glColorPointer.size = -1;
+    gl_array_details.media_glTexCoordPointer.size = -1;
+    gl_array_details.media_glNormalPointer.size = -1;
 }
 #endif
 
-CALL(33, glClearColor, void, (GLclampf red, GLclampf green, GLclampf blue, GLclampf alpha))
+CALL(33, media_glClearColor, void, (GLclampf red, GLclampf green, GLclampf blue, GLclampf alpha))
 #ifdef MEDIA_LAYER_TRAMPOLINE_GUEST
     trampoline(true, red, green, blue, alpha);
 #else
@@ -408,7 +408,7 @@ CALL(33, glClearColor, void, (GLclampf red, GLclampf green, GLclampf blue, GLcla
 #endif
 }
 
-CALL(34, glPopMatrix, void, ())
+CALL(34, media_glPopMatrix, void, ())
 #ifdef MEDIA_LAYER_TRAMPOLINE_GUEST
     trampoline(true);
 #else
@@ -417,7 +417,7 @@ CALL(34, glPopMatrix, void, ())
 #endif
 }
 
-CALL(35, glLoadIdentity, void, ())
+CALL(35, media_glLoadIdentity, void, ())
 #ifdef MEDIA_LAYER_TRAMPOLINE_GUEST
     trampoline(true);
 #else
@@ -426,7 +426,7 @@ CALL(35, glLoadIdentity, void, ())
 #endif
 }
 
-CALL(36, glScalef, void, (GLfloat x, GLfloat y, GLfloat z))
+CALL(36, media_glScalef, void, (GLfloat x, GLfloat y, GLfloat z))
 #ifdef MEDIA_LAYER_TRAMPOLINE_GUEST
     trampoline(true, x, y, z);
 #else
@@ -438,7 +438,7 @@ CALL(36, glScalef, void, (GLfloat x, GLfloat y, GLfloat z))
 #endif
 }
 
-CALL(37, glPushMatrix, void, ())
+CALL(37, media_glPushMatrix, void, ())
 #ifdef MEDIA_LAYER_TRAMPOLINE_GUEST
     trampoline(true);
 #else
@@ -447,7 +447,7 @@ CALL(37, glPushMatrix, void, ())
 #endif
 }
 
-CALL(38, glDepthMask, void, (GLboolean flag))
+CALL(38, media_glDepthMask, void, (GLboolean flag))
 #ifdef MEDIA_LAYER_TRAMPOLINE_GUEST
     trampoline(true, flag);
 #else
@@ -456,7 +456,7 @@ CALL(38, glDepthMask, void, (GLboolean flag))
 #endif
 }
 
-CALL(39, glHint, void, (GLenum target, GLenum mode))
+CALL(39, media_glHint, void, (GLenum target, GLenum mode))
 #ifdef MEDIA_LAYER_TRAMPOLINE_GUEST
     trampoline(true, target, mode);
 #else
@@ -472,7 +472,7 @@ static int get_glMultMatrixf_size() {
     return 16;
 }
 #endif
-CALL(40, glMultMatrixf, void, (const GLfloat *m))
+CALL(40, media_glMultMatrixf, void, (const GLfloat *m))
 #ifdef MEDIA_LAYER_TRAMPOLINE_GUEST
     trampoline(true, copy_array(get_glMultMatrixf_size(), m));
 #else
@@ -481,7 +481,7 @@ CALL(40, glMultMatrixf, void, (const GLfloat *m))
 #endif
 }
 
-CALL(42, glDeleteBuffers, void, (GLsizei n, const GLuint *buffers))
+CALL(42, media_glDeleteBuffers, void, (GLsizei n, const GLuint *buffers))
 #ifdef MEDIA_LAYER_TRAMPOLINE_GUEST
     trampoline(true, copy_array(n, buffers));
 #else
@@ -492,7 +492,7 @@ CALL(42, glDeleteBuffers, void, (GLsizei n, const GLuint *buffers))
 #endif
 }
 
-CALL(43, glColorMask, void, (GLboolean red, GLboolean green, GLboolean blue, GLboolean alpha))
+CALL(43, media_glColorMask, void, (GLboolean red, GLboolean green, GLboolean blue, GLboolean alpha))
 #ifdef MEDIA_LAYER_TRAMPOLINE_GUEST
     trampoline(true, red, green, blue, alpha);
 #else
@@ -505,11 +505,11 @@ CALL(43, glColorMask, void, (GLboolean red, GLboolean green, GLboolean blue, GLb
 #endif
 }
 
-CALL(44, glTexSubImage2D, void, (GLenum target, GLint level, GLint xoffset, GLint yoffset, GLsizei width, GLsizei height, GLenum format, GLenum type, const void *pixels))
+CALL(44, media_glTexSubImage2D, void, (GLenum target, GLint level, GLint xoffset, GLint yoffset, GLsizei width, GLsizei height, GLenum format, GLenum type, const void *pixels))
 #ifdef MEDIA_LAYER_TRAMPOLINE_GUEST
     trampoline(true, gl_state.bound_texture, target, level, xoffset, yoffset, width, height, format, type, copy_array(get_texture_size(width, height, format, type, true), (const unsigned char *) pixels));
 #else
-    glBindTexture(GL_TEXTURE_2D, args.next<GLuint>());
+    media_glBindTexture(GL_TEXTURE_2D, args.next<GLuint>());
     GLenum target = args.next<GLenum>();
     GLint level = args.next<GLint>();
     GLint xoffset = args.next<GLint>();
@@ -524,7 +524,7 @@ CALL(44, glTexSubImage2D, void, (GLenum target, GLint level, GLint xoffset, GLin
 #endif
 }
 
-CALL(45, glGenTextures, void, (GLsizei n, GLuint *textures))
+CALL(45, media_glGenTextures, void, (GLsizei n, GLuint *textures))
 #ifdef MEDIA_LAYER_TRAMPOLINE_GUEST
     trampoline(false, n, uint32_t(textures));
 #else
@@ -537,7 +537,7 @@ CALL(45, glGenTextures, void, (GLsizei n, GLuint *textures))
 #endif
 }
 
-CALL(46, glDeleteTextures, void, (GLsizei n, const GLuint *textures))
+CALL(46, media_glDeleteTextures, void, (GLsizei n, const GLuint *textures))
 #ifdef MEDIA_LAYER_TRAMPOLINE_GUEST
     trampoline(true, copy_array(n, textures));
 #else
@@ -548,7 +548,7 @@ CALL(46, glDeleteTextures, void, (GLsizei n, const GLuint *textures))
 #endif
 }
 
-CALL(47, glAlphaFunc, void, (GLenum func, GLclampf ref))
+CALL(47, media_glAlphaFunc, void, (GLenum func, GLclampf ref))
 #ifdef MEDIA_LAYER_TRAMPOLINE_GUEST
     trampoline(true, func, ref);
 #else
@@ -570,12 +570,12 @@ static int get_glGetFloatv_params_size(GLenum pname) {
             return 2;
         }
         default: {
-            ERR("Unsupported glGetFloatv Property: %u", pname);
+            ERR("Unsupported media_glGetFloatv Property: %u", pname);
         }
     }
 }
 #endif
-CALL(48, glGetFloatv, void, (GLenum pname, GLfloat *params))
+CALL(48, media_glGetFloatv, void, (GLenum pname, GLfloat *params))
 #ifdef MEDIA_LAYER_TRAMPOLINE_GUEST
     trampoline(false, pname, uint32_t(params));
 #else
@@ -590,7 +590,7 @@ CALL(48, glGetFloatv, void, (GLenum pname, GLfloat *params))
 }
 
 #ifdef MEDIA_LAYER_TRAMPOLINE_GUEST
-void glBindTexture(const GLenum target, const GLuint texture) {
+void media_glBindTexture(const GLenum target, const GLuint texture) {
     if (target == GL_TEXTURE_2D) {
         gl_state.bound_texture = texture;
     } else {
@@ -599,7 +599,7 @@ void glBindTexture(const GLenum target, const GLuint texture) {
 }
 #endif
 
-CALL(50, glTranslatef, void, (GLfloat x, GLfloat y, GLfloat z))
+CALL(50, media_glTranslatef, void, (GLfloat x, GLfloat y, GLfloat z))
 #ifdef MEDIA_LAYER_TRAMPOLINE_GUEST
     trampoline(true, x, y, z);
 #else
@@ -611,7 +611,7 @@ CALL(50, glTranslatef, void, (GLfloat x, GLfloat y, GLfloat z))
 #endif
 }
 
-CALL(51, glShadeModel, void, (GLenum mode))
+CALL(51, media_glShadeModel, void, (GLenum mode))
 #ifdef MEDIA_LAYER_TRAMPOLINE_GUEST
     trampoline(true, mode);
 #else
@@ -620,7 +620,7 @@ CALL(51, glShadeModel, void, (GLenum mode))
 #endif
 }
 
-CALL(52, glOrthof, void, (GLfloat left, GLfloat right, GLfloat bottom, GLfloat top, GLfloat near, GLfloat far))
+CALL(52, media_glOrthof, void, (GLfloat left, GLfloat right, GLfloat bottom, GLfloat top, GLfloat near, GLfloat far))
 #ifdef MEDIA_LAYER_TRAMPOLINE_GUEST
     trampoline(true, left, right, bottom, top, near, far);
 #else
@@ -635,7 +635,7 @@ CALL(52, glOrthof, void, (GLfloat left, GLfloat right, GLfloat bottom, GLfloat t
 #endif
 }
 
-CALL(53, glDisable, void, (GLenum cap))
+CALL(53, media_glDisable, void, (GLenum cap))
 #ifdef MEDIA_LAYER_TRAMPOLINE_GUEST
     trampoline(true, cap);
 #else
@@ -644,7 +644,7 @@ CALL(53, glDisable, void, (GLenum cap))
 #endif
 }
 
-CALL(54, glCullFace, void, (GLenum mode))
+CALL(54, media_glCullFace, void, (GLenum mode))
 #ifdef MEDIA_LAYER_TRAMPOLINE_GUEST
     trampoline(true, mode);
 #else
@@ -653,7 +653,7 @@ CALL(54, glCullFace, void, (GLenum mode))
 #endif
 }
 
-CALL(55, glRotatef, void, (GLfloat angle, GLfloat x, GLfloat y, GLfloat z))
+CALL(55, media_glRotatef, void, (GLfloat angle, GLfloat x, GLfloat y, GLfloat z))
 #ifdef MEDIA_LAYER_TRAMPOLINE_GUEST
     trampoline(true, angle, x, y, z);
 #else
@@ -666,7 +666,7 @@ CALL(55, glRotatef, void, (GLfloat angle, GLfloat x, GLfloat y, GLfloat z))
 #endif
 }
 
-CALL(56, glViewport, void, (GLint x, GLint y, GLsizei width, GLsizei height))
+CALL(56, media_glViewport, void, (GLint x, GLint y, GLsizei width, GLsizei height))
 #ifdef MEDIA_LAYER_TRAMPOLINE_GUEST
     trampoline(true, x, y, width, height);
 #else
@@ -679,7 +679,7 @@ CALL(56, glViewport, void, (GLint x, GLint y, GLsizei width, GLsizei height))
 #endif
 }
 
-CALL(57, glNormal3f, void, (GLfloat nx, GLfloat ny, GLfloat nz))
+CALL(57, media_glNormal3f, void, (GLfloat nx, GLfloat ny, GLfloat nz))
 #ifdef MEDIA_LAYER_TRAMPOLINE_GUEST
     trampoline(true, nx, ny, nz);
 #else
@@ -691,7 +691,7 @@ CALL(57, glNormal3f, void, (GLfloat nx, GLfloat ny, GLfloat nz))
 #endif
 }
 
-CALL(58, glIsEnabled, GLboolean, (GLenum cap))
+CALL(58, media_glIsEnabled, GLboolean, (GLenum cap))
 #ifdef MEDIA_LAYER_TRAMPOLINE_GUEST
     return trampoline(false, cap);
 #else
@@ -711,12 +711,12 @@ static int get_glGetIntegerv_params_size(GLenum pname) {
             return 4;
         }
         default: {
-            ERR("Unsupported glGetIntegerv Property: %u", pname);
+            ERR("Unsupported media_glGetIntegerv Property: %u", pname);
         }
     }
 }
 #endif
-CALL(61, glGetIntegerv, void, (GLenum pname, GLint *params))
+CALL(61, media_glGetIntegerv, void, (GLenum pname, GLint *params))
 #ifdef MEDIA_LAYER_TRAMPOLINE_GUEST
     if (pname == GL_TEXTURE_BINDING_2D) {
         params[0] = gl_state.bound_texture;
@@ -734,7 +734,7 @@ CALL(61, glGetIntegerv, void, (GLenum pname, GLint *params))
 #endif
 }
 
-CALL(65, glReadPixels, void, (GLint x, GLint y, GLsizei width, GLsizei height, GLenum format, GLenum type, void *data))
+CALL(65, media_glReadPixels, void, (GLint x, GLint y, GLsizei width, GLsizei height, GLenum format, GLenum type, void *data))
 #ifdef MEDIA_LAYER_TRAMPOLINE_GUEST
     trampoline(false, x, y, width, height, format, type, uint32_t(data));
 #else
@@ -753,7 +753,7 @@ CALL(65, glReadPixels, void, (GLint x, GLint y, GLsizei width, GLsizei height, G
 #endif
 }
 
-CALL(67, glGenBuffers, void, (GLsizei n, GLuint *buffers))
+CALL(67, media_glGenBuffers, void, (GLsizei n, GLuint *buffers))
 #ifdef MEDIA_LAYER_TRAMPOLINE_GUEST
     trampoline(false, n, uint32_t(buffers));
 #else
@@ -766,11 +766,11 @@ CALL(67, glGenBuffers, void, (GLsizei n, GLuint *buffers))
 #endif
 }
 
-CALL(69, glBufferSubData, void, (GLenum target, GLintptr offset, GLsizeiptr size, const void *data))
+CALL(69, media_glBufferSubData, void, (GLenum target, GLintptr offset, GLsizeiptr size, const void *data))
 #ifdef MEDIA_LAYER_TRAMPOLINE_GUEST
     trampoline(true, gl_state.bound_array_buffer, target, int32_t(offset), int32_t(size), copy_array(size, (unsigned char *) data));
 #else
-    glBindBuffer(GL_ARRAY_BUFFER, args.next<GLuint>());
+    media_glBindBuffer(GL_ARRAY_BUFFER, args.next<GLuint>());
     GLenum target = args.next<GLenum>();
     int32_t offset = args.next<int32_t>();
     int32_t size = args.next<int32_t>();
@@ -780,9 +780,9 @@ CALL(69, glBufferSubData, void, (GLenum target, GLintptr offset, GLsizeiptr size
 #endif
 }
 
-CALL(72, glNormalPointer, void, (GLenum type, GLsizei stride, const void *pointer))
+CALL(72, media_glNormalPointer, void, (GLenum type, GLsizei stride, const void *pointer))
 #ifdef MEDIA_LAYER_TRAMPOLINE_GUEST
-    gl_array_details_t &state = gl_array_details.glNormalPointer;
+    gl_array_details_t &state = gl_array_details.media_glNormalPointer;
     if (state.size == -1 || state.type != type || state.stride != stride || state.pointer != uint32_t(pointer)) {
         state.size = 0;
         state.type = type;
@@ -791,14 +791,14 @@ CALL(72, glNormalPointer, void, (GLenum type, GLsizei stride, const void *pointe
         trampoline(true, gl_state.bound_array_buffer, state);
     }
 #else
-    glBindBuffer(GL_ARRAY_BUFFER, args.next<GLuint>());
+    media_glBindBuffer(GL_ARRAY_BUFFER, args.next<GLuint>());
     gl_array_details_t state = args.next<gl_array_details_t>();
     func(state.type, state.stride, (const void *) uintptr_t(state.pointer));
     return 0;
 #endif
 }
 
-CALL(73, glLightfv, void, (GLenum light, GLenum pname, const GLfloat *params))
+CALL(73, media_glLightfv, void, (GLenum light, GLenum pname, const GLfloat *params))
 #ifdef MEDIA_LAYER_TRAMPOLINE_GUEST
     trampoline(true, light, pname, copy_array(4, params));
 #else
@@ -810,7 +810,7 @@ CALL(73, glLightfv, void, (GLenum light, GLenum pname, const GLfloat *params))
 #endif
 }
 
-CALL(74, glColorMaterial, void, (GLenum face, GLenum mode))
+CALL(74, media_glColorMaterial, void, (GLenum face, GLenum mode))
 #ifdef MEDIA_LAYER_TRAMPOLINE_GUEST
     trampoline(true, face, mode);
 #else
@@ -821,7 +821,7 @@ CALL(74, glColorMaterial, void, (GLenum face, GLenum mode))
 #endif
 }
 
-CALL(75, glLightModelfv, void, (GLenum pname, const GLfloat *params))
+CALL(75, media_glLightModelfv, void, (GLenum pname, const GLfloat *params))
 #ifdef MEDIA_LAYER_TRAMPOLINE_GUEST
     trampoline(true, pname, copy_array(4, params));
 #else

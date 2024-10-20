@@ -107,24 +107,24 @@ static bool draw_splash(StartMenuScreen *screen, const float y_factor, const boo
         splash_width *= multiplier;
     }
     // Position
-    glPushMatrix();
-    glTranslatef(x, y, 0.0f);
+    media_glPushMatrix();
+    media_glTranslatef(x, y, 0.0f);
     // Rotate
-    glRotatef(SplashLine::angle, 0.0f, 0.0f, 1.0f);
+    media_glRotatef(SplashLine::angle, 0.0f, 0.0f, 1.0f);
     // Oscillate
     const float timeMS = float(Common::getTimeMs() % 1000) / 1000.0f;
     const float oscillation = (scale / SplashLine::max_scale) * 0.1f;
     scale = scale - Mth::abs(oscillation * Mth::sin(2.0f * float(M_PI) * timeMS));
     // Scale
-    glTranslatef(splash_width / 2.0f, 0, 0);
-    glScalef(scale, scale, 1);
-    glTranslatef(-text_width / 2.0f, 0, 0);
+    media_glTranslatef(splash_width / 2.0f, 0, 0);
+    media_glScalef(scale, scale, 1);
+    media_glTranslatef(-text_width / 2.0f, 0, 0);
     // Render
     float y_offset = float(-line_height) / 2.0f;
     y_offset += 1; // Make It Look Vertically Centered
     screen->drawString(screen->font, current_splash, 0, y_offset, 0xffff00);
     // Finish
-    glPopMatrix();
+    media_glPopMatrix();
     return true;
 }
 static void StartMenuScreen_render_injection(StartMenuScreen_render_t original, StartMenuScreen *screen, const int mouse_x, const int mouse_y, const float param_1) {

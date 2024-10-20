@@ -126,7 +126,7 @@ static void Minecraft_update_injection(Minecraft *minecraft) {
             event.motion.y = 0;
             event.motion.xrel = (rotation_diff > INT16_MAX) ? INT16_MAX : int16_t(rotation_diff);
             event.motion.yrel = 0;
-            SDL_PushEvent(&event);
+            media_SDL_PushEvent(&event);
             // Reset Rotation Timer
             rotation_so_far += event.motion.xrel;
         }

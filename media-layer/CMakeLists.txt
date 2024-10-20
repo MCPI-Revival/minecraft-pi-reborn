@@ -19,9 +19,6 @@ if(BUILD_ARM_COMPONENTS)
     )
 endif()
 
-# Add Extras
-add_subdirectory(extras)
-
 # Add Core
 if(BUILD_MEDIA_LAYER_CORE)
     add_subdirectory(gles)

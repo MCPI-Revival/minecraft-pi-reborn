@@ -49,7 +49,7 @@ static bool InBedScreen_handleBackEvent_injection(InBedScreen *screen, const boo
 // Block UI Interaction When Mouse Is Locked
 static bool Gui_tickItemDrop_Minecraft_isCreativeMode_call_injection(Minecraft *minecraft) {
     const bool is_in_game = minecraft->screen == nullptr || minecraft->screen->vtable == (Screen_vtable *) Touch_IngameBlockSelectionScreen_vtable_base;
-    if (!enable_misc || (SDL_WM_GrabInput(SDL_GRAB_QUERY) == SDL_GRAB_OFF && is_in_game)) {
+    if (!enable_misc || (media_SDL_WM_GrabInput(SDL_GRAB_QUERY) == SDL_GRAB_OFF && is_in_game)) {
         // Call Original Method
         return creative_is_restricted() && minecraft->isCreativeMode();
     } else {
@@ -60,7 +60,7 @@ static bool Gui_tickItemDrop_Minecraft_isCreativeMode_call_injection(Minecraft *
 
 // Block UI Interaction When Mouse Is Locked
 static void Gui_handleClick_injection(Gui_handleClick_t original, Gui *gui, const int32_t param_2, const int32_t param_3, const int32_t param_4) {
-    if (SDL_WM_GrabInput(SDL_GRAB_QUERY) == SDL_GRAB_OFF) {
+    if (media_SDL_WM_GrabInput(SDL_GRAB_QUERY) == SDL_GRAB_OFF) {
         // Call Original Method
         original(gui, param_2, param_3, param_4);
     }

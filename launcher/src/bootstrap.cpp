@@ -101,22 +101,57 @@ void bootstrap(const options_t &options) {
         }
     }
 
-    // Fix MCPI Dependencies
-    char new_mcpi_exe_path[] = MCPI_PATCHED_DIR "/XXXXXX";
-    std::string linker;
+    // Configure Preloaded Objects
+    std::vector<std::string> mcpi_ld_preload;
     {
         // Log
-        DEBUG("Patching ELF Dependencies...");
+        DEBUG("Locating Mods...");
+
+        // ARM Components
+        mcpi_ld_preload = bootstrap_mods(binary_directory);
+    }
+
+    // Configure Library Search Path
+    std::vector<std::string> mcpi_ld_path;
+    {
+        // Log
+        DEBUG("Setting Linker Search Paths...");
+
+        // Library Search Path For ARM Components
+        {
+            // Add ARM Library Directory
+            mcpi_ld_path.push_back("lib/arm");
+
+            // Add ARM Sysroot Libraries (Ensure Priority) (Ignore On Actual ARM System)
+#ifdef MCPI_USE_PREBUILT_ARMHF_TOOLCHAIN
+            mcpi_ld_path.push_back("sysroot/lib");
+            mcpi_ld_path.push_back("sysroot/lib/arm-linux-gnueabihf");
+            mcpi_ld_path.push_back("sysroot/usr/lib");
+            mcpi_ld_path.push_back("sysroot/usr/lib/arm-linux-gnueabihf");
+#endif
+
+            // Fix Paths
+            for (std::string &path : mcpi_ld_path) {
+                path = binary_directory + '/' + path;
+            }
+        }
+    }
+
+    // Fix MCPI Dependencies
+    char new_mcpi_exe_path[] = MCPI_PATCHED_DIR "/XXXXXX";
+    {
+        // Log
+        DEBUG("Patching ELF...");
 
         // Find Linker
-        linker = "/lib/ld-linux-armhf.so.3";
+        std::string linker = "/lib/ld-linux-armhf.so.3";
 #ifdef MCPI_USE_PREBUILT_ARMHF_TOOLCHAIN
         // Use ARM Sysroot Linker
         linker = binary_directory + "/sysroot" + linker;
 #endif
 
         // Patch
-        patch_mcpi_elf_dependencies(game_binary.c_str(), new_mcpi_exe_path);
+        patch_mcpi_elf_dependencies(game_binary, new_mcpi_exe_path, linker, mcpi_ld_path, mcpi_ld_preload);
 
         // Verify
         if (!starts_with(new_mcpi_exe_path, MCPI_PATCHED_DIR)) {
@@ -130,37 +165,6 @@ void bootstrap(const options_t &options) {
         chop_last_component(assets_path);
         assets_path += "/data";
         set_and_print_env(_MCPI_VANILLA_ASSETS_PATH_ENV, assets_path.c_str());
-    }
-
-    // Configure Library Search Path
-    std::string mcpi_ld_path = "";
-    {
-        // Log
-        DEBUG("Setting Linker Search Paths...");
-
-        // Library Search Path For ARM Components
-        {
-            // Add ARM Library Directory
-            mcpi_ld_path += binary_directory + "/lib/arm:";
-
-            // Add ARM Sysroot Libraries (Ensure Priority) (Ignore On Actual ARM System)
-#ifdef MCPI_USE_PREBUILT_ARMHF_TOOLCHAIN
-            mcpi_ld_path += binary_directory + "/sysroot/lib:";
-            mcpi_ld_path += binary_directory + "/sysroot/lib/arm-linux-gnueabihf:";
-            mcpi_ld_path += binary_directory + "/sysroot/usr/lib:";
-            mcpi_ld_path += binary_directory + "/sysroot/usr/lib/arm-linux-gnueabihf:";
-#endif
-        }
-    }
-
-    // Configure Preloaded Objects
-    std::string mcpi_ld_preload;
-    {
-        // Log
-        DEBUG("Locating Mods...");
-
-        // ARM Components
-        mcpi_ld_preload = bootstrap_mods(binary_directory);
     }
 
     // Start Game
@@ -177,13 +181,6 @@ void bootstrap(const options_t &options) {
     args.push_back("-B");
     args.push_back("0x40000"); // Arbitrary Value (Aligns To 4k And 16k Page Sizes)
 #endif
-
-    // Setup Linker
-    args.push_back(linker);
-    args.push_back("--library-path");
-    args.push_back(mcpi_ld_path);
-    args.push_back("--preload");
-    args.push_back(mcpi_ld_preload);
 
     // Specify MCPI Binary
     args.push_back(new_mcpi_exe_path);

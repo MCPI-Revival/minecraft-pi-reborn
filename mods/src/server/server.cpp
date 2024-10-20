@@ -247,7 +247,7 @@ static void handle_server_stop(Minecraft *minecraft) {
         // Stop Game
         SDL_Event event;
         event.type = SDL_QUIT;
-        SDL_PushEvent(&event);
+        media_SDL_PushEvent(&event);
     }
 }
 

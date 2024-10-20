@@ -4,8 +4,6 @@
 extern "C" {
 #endif
 
-#include <stdint.h>
-
 typedef unsigned long XID;
 
 typedef struct {
@@ -31,9 +29,6 @@ typedef struct {
     int override_redirect;
     void *screen;
 } XWindowAttributes;
-
-int XTranslateCoordinates(void *display, XID src_w, XID dest_w, int src_x, int src_y, int *dest_x_return, int *dest_y_return, XID *child_return);
-int XGetWindowAttributes(void *display, XID w, XWindowAttributes *window_attributes_return);
 
 #ifdef __cplusplus
 }

@@ -7,6 +7,7 @@ set(SRC
     src/compat/egl.cpp
     src/compat/x11.cpp
     src/compat/bcm_host.cpp
+    src/compat/sdl.cpp
     # readdir
     src/readdir/readdir.cpp
     # feature

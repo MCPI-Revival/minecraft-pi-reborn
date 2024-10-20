@@ -11,10 +11,10 @@ extern "C" {
 #include "SDL_syswm.h"
 #include "SDL_version.h"
 
-int SDL_Init(uint32_t flags);
-int SDL_PollEvent(SDL_Event *event);
-int SDL_PushEvent(SDL_Event *event);
-void SDL_WM_SetCaption(const char *title, const char *icon);
+int media_SDL_Init(uint32_t flags);
+int media_SDL_PollEvent(SDL_Event *event);
+int media_SDL_PushEvent(SDL_Event *event);
+void media_SDL_WM_SetCaption(const char *title, const char *icon);
 
 typedef enum {
     SDL_GRAB_QUERY = -1,
@@ -22,17 +22,13 @@ typedef enum {
     SDL_GRAB_ON = 1,
     SDL_GRAB_FULLSCREEN
 } SDL_GrabMode;
-SDL_GrabMode SDL_WM_GrabInput(SDL_GrabMode mode);
+SDL_GrabMode media_SDL_WM_GrabInput(SDL_GrabMode mode);
 
-#define SDL_QUERY -1
+#define SDL_QUERY (-1)
 #define SDL_IGNORE 0
 #define SDL_DISABLE 0
 #define SDL_ENABLE 1
-int SDL_ShowCursor(int toggle);
-
-void *SDL_SetVideoMode(int width, int height, int bpp, uint32_t flags);
-int SDL_GetWMInfo(SDL_SysWMinfo *info);
-void SDL_Quit();
+int media_SDL_ShowCursor(int toggle);
 
 #ifdef __cplusplus
 }

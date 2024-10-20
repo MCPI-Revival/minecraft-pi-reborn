@@ -42,10 +42,10 @@ static void load_pending_skins(__attribute__((unused)) Minecraft *minecraft) {
 
         // Load Texture
         GLint last_texture;
-        glGetIntegerv(GL_TEXTURE_BINDING_2D, &last_texture);
-        glBindTexture(GL_TEXTURE_2D, skin.texture_id);
-        glTexSubImage2D_with_scaling(GL_TEXTURE_2D, 0, 0, 0, width, height, SKIN_WIDTH, SKIN_HEIGHT, GL_RGBA, GL_UNSIGNED_BYTE, img);
-        glBindTexture(GL_TEXTURE_2D, last_texture);
+        media_glGetIntegerv(GL_TEXTURE_BINDING_2D, &last_texture);
+        media_glBindTexture(GL_TEXTURE_2D, skin.texture_id);
+        media_glTexSubImage2D_with_scaling(GL_TEXTURE_2D, 0, 0, 0, width, height, SKIN_WIDTH, SKIN_HEIGHT, GL_RGBA, GL_UNSIGNED_BYTE, img);
+        media_glBindTexture(GL_TEXTURE_2D, last_texture);
 
         // Free
         stbi_image_free(img);

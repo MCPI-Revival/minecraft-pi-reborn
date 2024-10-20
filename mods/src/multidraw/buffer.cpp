@@ -8,15 +8,15 @@ Buffer::Buffer(const ssize_t size) {
     client_side_data = new unsigned char[size];
     // Server-Side Data
     server_side_data = 0;
-    glGenBuffers(1, &server_side_data);
-    glBindBuffer(GL_ARRAY_BUFFER, server_side_data);
-    glBufferData(GL_ARRAY_BUFFER, size, nullptr, GL_DYNAMIC_DRAW);
+    media_glGenBuffers(1, &server_side_data);
+    media_glBindBuffer(GL_ARRAY_BUFFER, server_side_data);
+    media_glBufferData(GL_ARRAY_BUFFER, size, nullptr, GL_DYNAMIC_DRAW);
 }
 Buffer::~Buffer() {
     // Client-Side Data
     delete[] client_side_data;
     // Server-Side Data
-    glDeleteBuffers(1, &server_side_data);
+    media_glDeleteBuffers(1, &server_side_data);
 }
 
 // Upload Data
@@ -24,6 +24,6 @@ void Buffer::upload(const intptr_t offset, const ssize_t size, const void *data)
     // Client-Side Data
     memcpy(client_side_data + offset, data, size);
     // Server-Side Data
-    glBindBuffer(GL_ARRAY_BUFFER, server_side_data);
-    glBufferSubData(GL_ARRAY_BUFFER, offset, size, data);
+    media_glBindBuffer(GL_ARRAY_BUFFER, server_side_data);
+    media_glBufferSubData(GL_ARRAY_BUFFER, offset, size, data);
 }

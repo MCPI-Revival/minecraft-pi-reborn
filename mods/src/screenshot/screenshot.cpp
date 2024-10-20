@@ -66,7 +66,7 @@ void screenshot_take(Gui *gui) {
 
     // Get Image Size
     GLint viewport[4];
-    glGetIntegerv(GL_VIEWPORT, viewport);
+    media_glGetIntegerv(GL_VIEWPORT, viewport);
     const int x = viewport[0];
     const int y = viewport[1];
     const int width = viewport[2];
@@ -77,7 +77,7 @@ void screenshot_take(Gui *gui) {
     {
         // Handle Alignment
         int alignment;
-        glGetIntegerv(GL_PACK_ALIGNMENT, &alignment);
+        media_glGetIntegerv(GL_PACK_ALIGNMENT, &alignment);
         // Round
         line_size = ALIGN_UP(line_size, alignment);
     }
@@ -86,7 +86,7 @@ void screenshot_take(Gui *gui) {
     // Read Pixels
     unsigned char *pixels = (unsigned char *) malloc(size);
     ALLOC_CHECK(pixels);
-    glReadPixels(x, y, width, height, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
+    media_glReadPixels(x, y, width, height, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
 
     // Save Image
     if (save_png(file.c_str(), pixels, line_size, width, height)) {

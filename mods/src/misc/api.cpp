@@ -112,7 +112,7 @@ void misc_run_on_key_press(const std::function<bool(Minecraft *, int)> &func) {
 // Render Fancy Background
 void misc_render_background(int color, const Minecraft *minecraft, const int x, const int y, const int width, const int height) {
     // https://github.com/ReMinecraftPE/mcpe/blob/f0d65eaecec1b3fe9c2f2b251e114a890c54ab77/source/client/gui/components/RolledSelectionList.cpp#L169-L179
-    glColor4f(1, 1, 1, 1);
+    media_glColor4f(1, 1, 1, 1);
     minecraft->textures->loadAndBindTexture("gui/background.png");
     Tesselator *t = &Tesselator::instance;
     t->begin(7);

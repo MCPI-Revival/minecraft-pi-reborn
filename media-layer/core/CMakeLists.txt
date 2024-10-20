@@ -4,10 +4,12 @@ project(media-layer-core)
 set(CORE_SRC
     src/base.cpp
     src/media.cpp
+    src/cursor.cpp
+    src/util.cpp
+    src/events.cpp
     src/audio/api.cpp
     src/audio/engine.c
     src/audio/file.cpp
-    $<TARGET_OBJECTS:media-layer-extras>
 )
 
 # Build

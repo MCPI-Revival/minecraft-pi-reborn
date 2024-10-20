@@ -1,5 +1,4 @@
 #include <cmath>
-#include <cxxabi.h>
 
 #include <libreborn/libreborn.h>
 #include <symbols/minecraft.h>
@@ -15,14 +14,14 @@
 // Properly Generate Buffers
 static void anGenBuffers_injection(__attribute__((unused)) Common_anGenBuffers_t original, const int32_t count, uint32_t *buffers) {
     if (!reborn_is_headless()) {
-        glGenBuffers(count, buffers);
+        media_glGenBuffers(count, buffers);
     }
 }
 
 // Custom Outline Color
 static void LevelRenderer_render_AABB_glColor4f_injection(__attribute__((unused)) GLfloat red, __attribute__((unused)) GLfloat green, __attribute__((unused)) GLfloat blue, __attribute__((unused)) GLfloat alpha) {
     // Set Color
-    glColor4f(0, 0, 0, 0.4);
+    media_glColor4f(0, 0, 0, 0.4);
 
     // Find Line Width
     const char *custom_line_width = getenv(MCPI_BLOCK_OUTLINE_WIDTH_ENV);
@@ -36,14 +35,14 @@ static void LevelRenderer_render_AABB_glColor4f_injection(__attribute__((unused)
     }
     // Clamp Line Width
     float range[2];
-    glGetFloatv(GL_ALIASED_LINE_WIDTH_RANGE, range);
+    media_glGetFloatv(GL_ALIASED_LINE_WIDTH_RANGE, range);
     if (range[1] < line_width) {
         line_width = range[1];
     } else if (range[0] > line_width) {
         line_width = range[0];
     }
     // Set Line Width
-    glLineWidth(line_width);
+    media_glLineWidth(line_width);
 }
 
 // Java Light Ramp
@@ -101,10 +100,10 @@ static void render_fire(EntityRenderer *self, Entity *entity, const float x, flo
     const int texture = Tile::fire->texture;
     const int xt = (texture & 0xf) << 4;
     const int yt = texture & 0xf0;
-    glPushMatrix();
-    glTranslatef(x, y, z);
+    media_glPushMatrix();
+    media_glTranslatef(x, y, z);
     const float s = entity->hitbox_width * 1.4f;
-    glScalef(s, s, s);
+    media_glScalef(s, s, s);
     self->bindTexture("terrain.png");
     Tesselator &t = Tesselator::instance;
     float r = 0.5f;
@@ -115,9 +114,9 @@ static void render_fire(EntityRenderer *self, Entity *entity, const float x, flo
         // Handle Front-Facing
         player_rot_y -= 180.f;
     }
-    glRotatef(-player_rot_y, 0, 1, 0);
-    glTranslatef(0, 0, -0.3f + float(int(h)) * 0.02f);
-    glColor4f(1, 1, 1, 1);
+    media_glRotatef(-player_rot_y, 0, 1, 0);
+    media_glTranslatef(0, 0, -0.3f + float(int(h)) * 0.02f);
+    media_glColor4f(1, 1, 1, 1);
     float zo = 0;
     int ss = 0;
     t.begin(7);
@@ -152,7 +151,7 @@ static void render_fire(EntityRenderer *self, Entity *entity, const float x, flo
         ss++;
     }
     t.draw();
-    glPopMatrix();
+    media_glPopMatrix();
 }
 
 // Entity Shadows
@@ -182,9 +181,6 @@ static void render_shadow_tile(Tile *tile, const float x, const float y, const f
     t.vertexUV(x1, y0, z1, u1, v1);
     t.vertexUV(x1, y0, z0, u1, v0);
 }
-static const __cxxabiv1::__class_type_info *get_type_info(void *vtable) {
-    return *(((__cxxabiv1::__class_type_info **) Cow_vtable_base) - 1);;
-}
 static void render_shadow(const EntityRenderer *self, Entity *entity, const float x, const float y, const float z, const float a) {
     // Calculate Power
     float pow = 0;
@@ -196,14 +192,14 @@ static void render_shadow(const EntityRenderer *self, Entity *entity, const floa
         return;
     }
     // Render
-    glEnable(GL_BLEND);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    media_glEnable(GL_BLEND);
+    media_glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     Textures *textures = EntityRenderer::entityRenderDispatcher->textures;
     textures->loadAndBindTexture("misc/shadow.png");
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    media_glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    media_glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
     Level *level = EntityRenderer::entityRenderDispatcher->level;
-    glDepthMask(false);
+    media_glDepthMask(false);
     float r = self->shadow_radius;
     if (entity->isMob()) {
         Mob *mob = (Mob *) entity;
@@ -242,9 +238,9 @@ static void render_shadow(const EntityRenderer *self, Entity *entity, const floa
         }
     }
     tt.draw();
-    glColor4f(1, 1, 1, 1);
-    glDisable(GL_BLEND);
-    glDepthMask(true);
+    media_glColor4f(1, 1, 1, 1);
+    media_glDisable(GL_BLEND);
+    media_glDepthMask(true);
 }
 static void EntityRenderDispatcher_assign_injection(EntityRenderDispatcher_assign_t original, EntityRenderDispatcher *self, const uchar entity_id, EntityRenderer *renderer) {
     // Modify Shadow Size
@@ -286,11 +282,11 @@ static void EntityRenderDispatcher_render_EntityRenderer_render_injection(Entity
     }
     // Render Fire
     if (should_render_fire) {
-        const bool was_lighting_enabled = glIsEnabled(GL_LIGHTING);
-        glDisable(GL_LIGHTING);
+        const bool was_lighting_enabled = media_glIsEnabled(GL_LIGHTING);
+        media_glDisable(GL_LIGHTING);
         render_fire(self, entity, x, y, z);
         if (was_lighting_enabled) {
-            glEnable(GL_LIGHTING);
+            media_glEnable(GL_LIGHTING);
         }
     }
 }
@@ -302,14 +298,14 @@ static void GameRenderer_render_glColorMask_injection(const bool red, const bool
     game_render_anaglyph_color_mask[1] = green;
     game_render_anaglyph_color_mask[2] = blue;
     game_render_anaglyph_color_mask[3] = alpha;
-    glColorMask(red, green, blue, alpha);
+    media_glColorMask(red, green, blue, alpha);
 }
 static int GameRenderer_render_LevelRenderer_render_injection(LevelRenderer *self, Mob *mob, int param_1, float delta) {
-    glColorMask(false, false, false, false);
+    media_glColorMask(false, false, false, false);
     const int water_chunks = self->render(mob, param_1, delta);
-    glColorMask(true, true, true, true);
+    media_glColorMask(true, true, true, true);
     if (self->minecraft->options.anaglyph_3d) {
-        glColorMask(game_render_anaglyph_color_mask[0], game_render_anaglyph_color_mask[1], game_render_anaglyph_color_mask[2], game_render_anaglyph_color_mask[3]);
+        media_glColorMask(game_render_anaglyph_color_mask[0], game_render_anaglyph_color_mask[1], game_render_anaglyph_color_mask[2], game_render_anaglyph_color_mask[3]);
     }
     if (water_chunks > 0) {
         LevelRenderer_renderSameAsLast(self, delta);
@@ -405,10 +401,10 @@ static ContainerMenu *ContainerMenu_destructor_injection(ContainerMenu_destructo
 static bool disable_hand_positioning = false;
 static void ItemInHandRenderer_renderItem_glTranslatef_injection(const float x, const float y, const float z) {
     if (disable_hand_positioning) {
-        glPopMatrix();
-        glPushMatrix();
+        media_glPopMatrix();
+        media_glPushMatrix();
     } else {
-        glTranslatef(x, y, z);
+        media_glTranslatef(x, y, z);
     }
 }
 static void ItemRenderer_render_injection(ItemRenderer_render_t original, ItemRenderer *self, Entity *entity, const float x, const float y, const float z, const float a, const float b) {
@@ -422,7 +418,7 @@ static void ItemRenderer_render_injection(ItemRenderer_render_t original, ItemRe
     } else {
         // 3D Item
         self->random.setSeed(187);
-        glPushMatrix();
+        media_glPushMatrix();
 
         // Count
         int count;
@@ -439,14 +435,14 @@ static void ItemRenderer_render_injection(ItemRenderer_render_t original, ItemRe
         // Bob
         const float age = float(item_entity->age) + b;
         const float bob = (Mth::sin((age / 10.0f) + item_entity->bob_offset) * 0.1f) + 0.1f;
-        glTranslatef(x, y + bob, z);
+        media_glTranslatef(x, y + bob, z);
 
         // Scale
-        glScalef(0.5f, 0.5f, 0.5f);
+        media_glScalef(0.5f, 0.5f, 0.5f);
 
         // Spin
         const float spin = ((age / 20.0f) + item_entity->bob_offset) * float(180.0f / M_PI);
-        glRotatef(spin, 0, 1, 0);
+        media_glRotatef(spin, 0, 1, 0);
 
         // Position
         constexpr float xo = 0.5f;
@@ -454,29 +450,29 @@ static void ItemRenderer_render_injection(ItemRenderer_render_t original, ItemRe
         constexpr float width = 1 / 16.0f;
         constexpr float margin = 0.35f / 16.0f;
         constexpr float zo = width + margin;
-        glTranslatef(-xo, -yo, -((zo * float(count)) / 2));
+        media_glTranslatef(-xo, -yo, -((zo * float(count)) / 2));
 
         // Draw
         disable_hand_positioning = true;
         for (int i = 0; i < count; i++) {
-            glTranslatef(0, 0, zo);
+            media_glTranslatef(0, 0, zo);
             EntityRenderer::entityRenderDispatcher->item_renderer->renderItem(nullptr, &item);
         }
         disable_hand_positioning = false;
 
         // Finish
-        glPopMatrix();
+        media_glPopMatrix();
     }
 }
 
 // Vignette
 static void Gui_renderProgressIndicator_injection(Gui_renderProgressIndicator_t original, Gui *self, const bool is_touch, int width, int height, float a) {
     // Render
-    glEnable(GL_BLEND);
+    media_glEnable(GL_BLEND);
     self->minecraft->textures->blur = true;
     self->renderVignette(self->minecraft->player->getBrightness(a), width, height);
     self->minecraft->textures->blur = false;
-    glDisable(GL_BLEND);
+    media_glDisable(GL_BLEND);
     // Call Original Method
     original(self, is_touch, width, height, a);
 }

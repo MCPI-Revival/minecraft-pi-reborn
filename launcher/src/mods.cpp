@@ -8,14 +8,14 @@
 #include "bootstrap.h"
 
 // Get All Mods In Folder
-static void load(std::string &ld_preload, const std::string &folder, int recursion_limit = 128);
-static void handle_file(std::string &ld_preload, const std::string &file, const int recursion_limit) {
+static void load(std::vector<std::string> &ld_preload, const std::string &folder, int recursion_limit = 128);
+static void handle_file(std::vector<std::string> &ld_preload, const std::string &file, const int recursion_limit) {
     // Check Type
     struct stat file_stat = {};
     lstat(file.c_str(), &file_stat);
     if (S_ISDIR(file_stat.st_mode)) {
         // Recurse Into Directory
-        load(ld_preload, std::string(file) + "/", recursion_limit - 1);
+        load(ld_preload, std::string(file) + '/', recursion_limit - 1);
     } else if (S_ISLNK(file_stat.st_mode)) {
         // Resolve Symlink
         char *resolved_file = realpath(file.c_str(), nullptr);
@@ -27,7 +27,8 @@ static void handle_file(std::string &ld_preload, const std::string &file, const 
         const int result = access(file.c_str(), R_OK);
         if (result == 0) {
             // Add To LD_PRELOAD
-            ld_preload += file + ":";
+            DEBUG("Found Mod: %s", file.c_str());
+            ld_preload.push_back(file);
         } else if (result == -1 && errno != 0) {
             // Fail
             WARN("Unable To Access: %s: %s", file.c_str(), strerror(errno));
@@ -35,7 +36,7 @@ static void handle_file(std::string &ld_preload, const std::string &file, const 
         }
     }
 }
-static void load(std::string &ld_preload, const std::string &folder, const int recursion_limit) {
+static void load(std::vector<std::string> &ld_preload, const std::string &folder, const int recursion_limit) {
     // Check Recursion
     if (recursion_limit <= 0) {
         ERR("Reached Recursion Limit While Loading Mods");
@@ -74,9 +75,9 @@ static void load(std::string &ld_preload, const std::string &folder, const int r
 
 // Bootstrap Mods
 #define SUBDIRECTORY_FOR_MODS "/mods/"
-std::string bootstrap_mods(const std::string &binary_directory) {
+std::vector<std::string> bootstrap_mods(const std::string &binary_directory) {
     // Prepare
-    std::string preload = "";
+    std::vector<std::string> preload;
 
     // ~/.minecraft-pi/mods
     {

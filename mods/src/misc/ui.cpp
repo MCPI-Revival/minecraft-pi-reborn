@@ -77,7 +77,7 @@ static void Gui_renderChatMessages_injection(Gui_renderChatMessages_t original, 
     // Render Selected Item Text
     if (render_selected_item_text && !disable_fading) {
         // Fix GL Mode
-        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+        media_glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
         // Calculate Selected Item Text Scale
         const Minecraft *minecraft = gui->minecraft;
         const int32_t screen_width = minecraft->screen_width;
@@ -113,20 +113,20 @@ static void Inventory_selectSlot_injection(Inventory_selectSlot_t original, Inve
 // Translucent Toolbar
 static void Gui_renderToolBar_injection(Gui_renderToolBar_t original, Gui *gui, const float param_1, const int32_t param_2, const int32_t param_3) {
     // Call Original Method
-    glEnable(GL_BLEND);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    media_glEnable(GL_BLEND);
+    media_glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     original(gui, param_1, param_2, param_3);
-    glDisable(GL_BLEND);
+    media_glDisable(GL_BLEND);
 }
 static void Gui_renderToolBar_glColor4f_injection(const GLfloat red, const GLfloat green, const GLfloat blue, __attribute__((unused)) GLfloat alpha) {
     // Fix Alpha
-    glColor4f(red, green, blue, 1.0f);
+    media_glColor4f(red, green, blue, 1.0f);
 }
 
 // Fix Screen Rendering When GUI is Hidden
 static void Screen_render_injection(Screen_render_t original, Screen *screen, const int32_t param_1, const int32_t param_2, const float param_3) {
     // Fix
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    media_glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     // Call Original Method
     original(screen, param_1, param_2, param_3);
 }
@@ -150,9 +150,9 @@ static void GameRenderer_render_injection(GameRenderer_render_t original, GameRe
     original(game_renderer, param_1);
 
     // Check If Cursor Should Render
-    if (SDL_WM_GrabInput(SDL_GRAB_QUERY) == SDL_GRAB_OFF) {
+    if (media_SDL_WM_GrabInput(SDL_GRAB_QUERY) == SDL_GRAB_OFF) {
         // Fix GL Mode
-        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+        media_glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
         // Get X And Y
         float x = Mouse::getX() * Gui::InvGuiScale;
         float y = Mouse::getY() * Gui::InvGuiScale;

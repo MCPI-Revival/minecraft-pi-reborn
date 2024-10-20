@@ -34,18 +34,18 @@ static std::vector<texture_data> &get_texture_data() {
     static std::vector<texture_data> data;
     return data;
 }
-HOOK(glTexImage2D, void, (GLenum target, GLint level, GLint internalformat, GLsizei width, GLsizei height, GLint border, GLenum format, GLenum type, const void *pixels)) {
+HOOK(media_glTexImage2D, void, (GLenum target, GLint level, GLint internalformat, GLsizei width, GLsizei height, GLint border, GLenum format, GLenum type, const void *pixels)) {
     // Store
     texture_data data = {};
-    glGetIntegerv(GL_TEXTURE_BINDING_2D, (GLint *) &data.id);
+    media_glGetIntegerv(GL_TEXTURE_BINDING_2D, (GLint *) &data.id);
     data.width = width;
     data.height = height;
     get_texture_data().push_back(data);
 
     // Call Original Method
-    real_glTexImage2D()(target, level, internalformat, width, height, border, format, type, pixels);
+    real_media_glTexImage2D()(target, level, internalformat, width, height, border, format, type, pixels);
 }
-HOOK(glDeleteTextures, void, (GLsizei n, const GLuint *textures)) {
+HOOK(media_glDeleteTextures, void, (GLsizei n, const GLuint *textures)) {
     // Remove Old Data
     for (int i = 0; i < n; i++) {
         const GLuint id = textures[i];
@@ -61,7 +61,7 @@ HOOK(glDeleteTextures, void, (GLsizei n, const GLuint *textures)) {
     }
 
     // Call Original Method
-    real_glDeleteTextures()(n, textures);
+    real_media_glDeleteTextures()(n, textures);
 }
 static void get_texture_size(const GLuint id, GLsizei *width, GLsizei *height) {
     // Iterate
@@ -88,7 +88,7 @@ static int get_line_size(const int width) {
     {
         // Handle Alignment
         int alignment;
-        glGetIntegerv(GL_UNPACK_ALIGNMENT, &alignment);
+        media_glGetIntegerv(GL_UNPACK_ALIGNMENT, &alignment);
         // Round
         line_size = ALIGN_UP(line_size, alignment);
     }
@@ -123,10 +123,10 @@ static void *scale_texture(const unsigned char *src, const GLsizei old_width, co
 }
 
 // Scale Animated Textures
-void glTexSubImage2D_with_scaling(const GLenum target, const GLint level, const GLint xoffset, const GLint yoffset, const GLsizei width, const GLsizei height, const GLsizei normal_texture_width, const GLsizei normal_texture_height, const GLenum format, const GLenum type, const void *pixels) {
+void media_glTexSubImage2D_with_scaling(const GLenum target, const GLint level, const GLint xoffset, const GLint yoffset, const GLsizei width, const GLsizei height, const GLsizei normal_texture_width, const GLsizei normal_texture_height, const GLenum format, const GLenum type, const void *pixels) {
     // Get Current Texture Size
     GLint current_texture;
-    glGetIntegerv(GL_TEXTURE_BINDING_2D, &current_texture);
+    media_glGetIntegerv(GL_TEXTURE_BINDING_2D, &current_texture);
     GLsizei texture_width;
     GLsizei texture_height;
     get_texture_size(current_texture, &texture_width, &texture_height);
@@ -138,7 +138,7 @@ void glTexSubImage2D_with_scaling(const GLenum target, const GLint level, const 
     // Only Scale If Needed
     if (width_factor == 1.0f && height_factor == 1.0f) {
         // No Scaling
-        glTexSubImage2D(target, level, xoffset, yoffset, width, height, format, type, pixels);
+        media_glTexSubImage2D(target, level, xoffset, yoffset, width, height, format, type, pixels);
     } else {
         // Check
         if (format != GL_RGBA || type != GL_UNSIGNED_BYTE) {
@@ -154,14 +154,14 @@ void glTexSubImage2D_with_scaling(const GLenum target, const GLint level, const 
         // Call Original Method
         const GLint new_xoffset = xoffset * width_factor;
         const GLint new_yoffset = yoffset * height_factor;
-        glTexSubImage2D(target, level, new_xoffset, new_yoffset, new_width, new_height, format, type, new_pixels);
+        media_glTexSubImage2D(target, level, new_xoffset, new_yoffset, new_width, new_height, format, type, new_pixels);
 
         // Free
         free(new_pixels);
     }
 }
 static void Textures_tick_glTexSubImage2D_injection(const GLenum target, const GLint level, const GLint xoffset, const GLint yoffset, const GLsizei width, const GLsizei height, const GLenum format, const GLenum type, const void *pixels) {
-    glTexSubImage2D_with_scaling(target, level, xoffset, yoffset, width, height, 256, 256, format, type, pixels);
+    media_glTexSubImage2D_with_scaling(target, level, xoffset, yoffset, width, height, 256, 256, format, type, pixels);
 }
 
 // Load Textures

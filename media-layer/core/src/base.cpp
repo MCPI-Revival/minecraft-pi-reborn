@@ -2,13 +2,14 @@
 
 #include <SDL/SDL.h>
 
-#include <media-layer/internal.h>
 #include <media-layer/core.h>
 #include <libreborn/libreborn.h>
 
+#include "media.h"
+
 // SDL Is Replaced With GLFW
 
-int SDL_Init(__attribute__((unused)) uint32_t flags) {
+int media_SDL_Init(__attribute__((unused)) uint32_t flags) {
     return 0;
 }
 
@@ -16,9 +17,9 @@ int SDL_Init(__attribute__((unused)) uint32_t flags) {
 
 static std::vector<SDL_Event> queue;
 
-int SDL_PollEvent(SDL_Event *event) {
+int media_SDL_PollEvent(SDL_Event *event) {
     // Handle External Events
-    _media_handle_SDL_PollEvent();
+    _media_handle_media_SDL_PollEvent();
 
     // Poll Event
     int ret;
@@ -32,7 +33,7 @@ int SDL_PollEvent(SDL_Event *event) {
     return ret;
 }
 
-int SDL_PushEvent(SDL_Event *event) {
+int media_SDL_PushEvent(SDL_Event *event) {
     queue.push_back(*event);
     return 1;
 }

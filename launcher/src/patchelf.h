@@ -1,13 +1,8 @@
 #pragma once
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+#include <string>
+#include <vector>
 
 #define MCPI_PATCHED_DIR "/tmp/.minecraft-pi-patched"
 
-void patch_mcpi_elf_dependencies(const char *original_path, char *new_path);
-
-#ifdef __cplusplus
-}
-#endif
+void patch_mcpi_elf_dependencies(const std::string &original_path, char *new_path, const std::string &interpreter, const std::vector<std::string> &rpath, const std::vector<std::string> &mods);

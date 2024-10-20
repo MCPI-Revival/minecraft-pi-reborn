@@ -1,5 +1,6 @@
 #include <cstdlib>
 #include <sys/stat.h>
+#include <ranges>
 
 #include <LIEF/ELF.hpp>
 
@@ -16,7 +17,7 @@ static void duplicate_mcpi_executable(char *new_path) {
     ensure_directory(MCPI_PATCHED_DIR);
 
     // Generate New File
-    int new_file_fd = mkstemp(new_path);
+    const int new_file_fd = mkstemp(new_path);
     if (new_file_fd == -1) {
         ERR("Unable To Create Temporary File: %s", strerror(errno));
     }
@@ -24,33 +25,71 @@ static void duplicate_mcpi_executable(char *new_path) {
 }
 
 // Fix MCPI Dependencies
-static const char *libraries_to_remove[] = {
-    "libbcm_host.so",
-    "libX11.so.6",
-    "libEGL.so",
-    "libGLESv2.so",
-    "libSDL-1.2.so.0"
+static std::vector<std::string> needed_libraries = {
+    "libmedia-layer-core.so",
+    "libpng12.so.0",
+    "libstdc++.so.6",
+    "libm.so.6",
+    "libgcc_s.so.1",
+    "libc.so.6",
+    "libpthread.so.0"
 };
-static const char *libraries_to_add[] = {
-    "libmedia-layer-core.so"
+static std::vector<std::string> function_prefixes_to_patch = {
+    "SDL_",
+    "gl"
 };
-void patch_mcpi_elf_dependencies(const char *original_path, char *new_path) {
+void patch_mcpi_elf_dependencies(const std::string &original_path, char *new_path, const std::string &interpreter, const std::vector<std::string> &rpath, const std::vector<std::string> &mods) {
     // Duplicate MCPI executable into /tmp so it can be modified.
     duplicate_mcpi_executable(new_path);
 
-    // Patch File
-    {
-        std::unique_ptr<LIEF::ELF::Binary> binary = LIEF::ELF::Parser::parse(original_path);
-        for (size_t i = 0; i < (sizeof (libraries_to_remove) / sizeof (const char *)); i++) {
-            binary->remove_library(libraries_to_remove[i]);
-        }
-        for (size_t i = 0; i < (sizeof (libraries_to_add) / sizeof (const char *)); i++) {
-            binary->add_library(libraries_to_add[i]);
-        }
-        LIEF::ELF::Builder builder{*binary};
-        builder.build();
-        builder.write(new_path);
+    // Load Binary
+    std::unique_ptr<LIEF::ELF::Binary> binary = LIEF::ELF::Parser::parse(original_path);
+
+    // Set Interpreter
+    if (!interpreter.empty()) {
+        binary->interpreter(interpreter);
     }
+
+    // Remove Existing Needed Libraries
+    std::vector<std::string> to_remove;
+    for (const LIEF::ELF::DynamicEntry &entry : binary->dynamic_entries()) {
+        const LIEF::ELF::DynamicEntryLibrary *library = dynamic_cast<const LIEF::ELF::DynamicEntryLibrary *>(&entry);
+        if (library) {
+            to_remove.push_back(library->name());
+        }
+    }
+    for (const std::string &library : to_remove) {
+        binary->remove_library(library);
+    }
+
+    // Setup RPath
+    binary->add(LIEF::ELF::DynamicEntryRpath(rpath));
+
+    // Add Libraries
+    std::vector<std::string> all_libraries;
+    for (const std::vector<std::string> &list : {mods, needed_libraries}) {
+        all_libraries.insert(all_libraries.end(), list.begin(), list.end());
+    }
+    for (const std::string &library : all_libraries | std::views::reverse) {
+        binary->add_library(library);
+    }
+
+    // Fix Symbol Names
+    for (LIEF::ELF::Symbol &symbol : binary->dynamic_symbols()) {
+        if (symbol.is_function()) {
+            for (const std::string &prefix : function_prefixes_to_patch) {
+                if (symbol.name().rfind(prefix, 0) == 0) {
+                    symbol.name("media_" + symbol.name());
+                    break;
+                }
+            }
+        }
+    }
+
+    // Write Binary
+    LIEF::ELF::Builder builder{*binary};
+    builder.build();
+    builder.write(new_path);
 
     // Fix Permissions
     if (chmod(new_path, S_IRUSR | S_IXUSR) != 0) {

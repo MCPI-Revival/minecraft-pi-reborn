@@ -22,30 +22,30 @@ static void setup_multidraw(const int chunks, GLuint *buffers) {
         buffers[i] = i + MULTIDRAW_BASE;
     }
 }
-HOOK(glDeleteBuffers, void, (GLsizei n, const GLuint *buffers)) {
+HOOK(media_glDeleteBuffers, void, (GLsizei n, const GLuint *buffers)) {
     if (buffers[0] >= MULTIDRAW_BASE) {
         delete storage;
     } else {
-        real_glDeleteBuffers()(n, buffers);
+        real_media_glDeleteBuffers()(n, buffers);
     }
 }
 
 // Setup Fake OpenGL Buffers
 static int current_chunk = -1;
-HOOK(glBindBuffer, void, (const GLenum target, GLuint buffer)) {
+HOOK(media_glBindBuffer, void, (const GLenum target, GLuint buffer)) {
     if (target == GL_ARRAY_BUFFER && buffer >= MULTIDRAW_BASE && storage != nullptr) {
         current_chunk = int(buffer - MULTIDRAW_BASE);
         buffer = storage->buffer->server_side_data;
     } else {
         current_chunk = -1;
     }
-    real_glBindBuffer()(target, buffer);
+    real_media_glBindBuffer()(target, buffer);
 }
-HOOK(glBufferData, void, (GLenum target, GLsizeiptr size, const void *data, GLenum usage)) {
+HOOK(media_glBufferData, void, (GLenum target, GLsizeiptr size, const void *data, GLenum usage)) {
     if (target == GL_ARRAY_BUFFER && current_chunk >= 0 && storage != nullptr) {
         storage->upload(current_chunk, size, data);
     } else {
-        real_glBufferData()(target, size, data, usage);
+        real_media_glBufferData()(target, size, data, usage);
     }
 }
 
@@ -68,31 +68,31 @@ static void multidraw_renderSameAsLast(const LevelRenderer *self, const float b)
     const float x = camera->old_x + ((camera->x - camera->old_x) * b);
     const float y = camera->old_y + ((camera->y - camera->old_y) * b);
     const float z = camera->old_z + ((camera->z - camera->old_z) * b);
-    glPushMatrix();
-    glTranslatef(-x, -y, -z);
+    media_glPushMatrix();
+    media_glTranslatef(-x, -y, -z);
 
     // Setup OpenGL
-    glEnableClientState(GL_VERTEX_ARRAY);
-    glEnableClientState(GL_COLOR_ARRAY);
-    glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-    glBindBuffer(GL_ARRAY_BUFFER, storage->buffer->server_side_data);
-    glVertexPointer(3, GL_FLOAT, multidraw_vertex_size, (void *) 0);
-    glTexCoordPointer(2, GL_FLOAT, multidraw_vertex_size, (void *) 0xc);
-    glColorPointer(4, GL_UNSIGNED_BYTE, multidraw_vertex_size, (void *) 0x14);
+    media_glEnableClientState(GL_VERTEX_ARRAY);
+    media_glEnableClientState(GL_COLOR_ARRAY);
+    media_glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+    media_glBindBuffer(GL_ARRAY_BUFFER, storage->buffer->server_side_data);
+    media_glVertexPointer(3, GL_FLOAT, multidraw_vertex_size, (void *) 0);
+    media_glTexCoordPointer(2, GL_FLOAT, multidraw_vertex_size, (void *) 0xc);
+    media_glColorPointer(4, GL_UNSIGNED_BYTE, multidraw_vertex_size, (void *) 0x14);
 
     // Draw
     if (supports_multidraw()) {
-        glMultiDrawArrays(GL_TRIANGLES, multidraw_firsts, multidraw_counts, multidraw_total);
+        media_glMultiDrawArrays(GL_TRIANGLES, multidraw_firsts, multidraw_counts, multidraw_total);
     } else {
         for (int i = 0; i < multidraw_total; i++) {
-            glDrawArrays(GL_TRIANGLES, multidraw_firsts[i], multidraw_counts[i]);
+            media_glDrawArrays(GL_TRIANGLES, multidraw_firsts[i], multidraw_counts[i]);
         }
     }
 
     // Cleanup
-    glDisableClientState(GL_COLOR_ARRAY);
-    glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-    glPopMatrix();
+    media_glDisableClientState(GL_COLOR_ARRAY);
+    media_glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+    media_glPopMatrix();
 }
 static int LevelRenderer_renderChunks_injection(__attribute__((unused)) LevelRenderer_renderChunks_t original, LevelRenderer *self, const int start, const int end, const int a, const float b) {
     // Batch

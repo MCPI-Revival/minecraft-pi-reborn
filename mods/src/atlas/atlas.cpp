@@ -24,15 +24,15 @@ static void ItemRenderer_renderGuiItemCorrect_injection_one(ItemRenderer_renderG
     }
 
     // Fix Toolbar Rendering
-    const GLboolean depth_test_was_enabled = glIsEnabled(GL_DEPTH_TEST);
-    glDisable(GL_DEPTH_TEST);
+    const GLboolean depth_test_was_enabled = media_glIsEnabled(GL_DEPTH_TEST);
+    media_glDisable(GL_DEPTH_TEST);
 
     // Call Original Method
     original(font, textures, use_carried ? &carried_item_instance : item_instance, param_1, param_2);
 
     // Revert GL State Changes
     if (depth_test_was_enabled) {
-        glEnable(GL_DEPTH_TEST);
+        media_glEnable(GL_DEPTH_TEST);
     }
 }
 
@@ -98,10 +98,10 @@ static void ItemRenderer_renderGuiItem_two_injection_two(ItemRenderer_renderGuiI
     original(font, textures, item_instance, x, y, w, h, param_5);
 }
 static void ItemRenderer_renderGuiItemCorrect_injection_two(ItemRenderer_renderGuiItemCorrect_t original, Font *font, Textures *textures, const ItemInstance *item_instance, __attribute__((unused)) int x, __attribute__((unused)) int y) {
-    glPushMatrix();
-    glTranslatef(target_x, target_y, 0);
+    media_glPushMatrix();
+    media_glTranslatef(target_x, target_y, 0);
     original(font, textures, item_instance, 0, 0);
-    glPopMatrix();;
+    media_glPopMatrix();;
 }
 
 // Init

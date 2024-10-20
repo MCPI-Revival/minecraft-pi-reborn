@@ -110,7 +110,7 @@ static void StartMenuScreen_render_Screen_renderBackground_injection(StartMenuSc
     constexpr int w = modern_title_width / 2;
     constexpr int h = modern_title_height;
     Tesselator& t = Tesselator::instance;
-    glColor4f(1, 1, 1, 1);
+    media_glColor4f(1, 1, 1, 1);
     t.begin(7);
     t.vertexUV(x - w, y + h, self->z, 0, 1);
     t.vertexUV(x + w, y + h, self->z, 1, 1);

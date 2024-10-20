@@ -11,7 +11,7 @@
 
 // SDL Functions
 
-CALL(0, SDL_Init, int, (uint32_t flags))
+CALL(0, media_SDL_Init, int, (uint32_t flags))
 #ifdef MEDIA_LAYER_TRAMPOLINE_GUEST
     return trampoline(false, flags);
 #else
@@ -20,7 +20,7 @@ CALL(0, SDL_Init, int, (uint32_t flags))
 #endif
 }
 
-CALL(1, SDL_PollEvent, int, (SDL_Event *event))
+CALL(1, media_SDL_PollEvent, int, (SDL_Event *event))
 #ifdef MEDIA_LAYER_TRAMPOLINE_GUEST
     return trampoline(false, uint32_t(event));
 #else
@@ -31,7 +31,7 @@ CALL(1, SDL_PollEvent, int, (SDL_Event *event))
 #endif
 }
 
-CALL(2, SDL_PushEvent, int, (SDL_Event *event))
+CALL(2, media_SDL_PushEvent, int, (SDL_Event *event))
 #ifdef MEDIA_LAYER_TRAMPOLINE_GUEST
     return trampoline(false, *event);
 #else
@@ -40,7 +40,7 @@ CALL(2, SDL_PushEvent, int, (SDL_Event *event))
 #endif
 }
 
-CALL(3, SDL_WM_SetCaption, void, (const char *title, const char *icon))
+CALL(3, media_SDL_WM_SetCaption, void, (const char *title, const char *icon))
 #ifdef MEDIA_LAYER_TRAMPOLINE_GUEST
     trampoline(true, copy_array(title), copy_array(icon));
 #else
@@ -60,7 +60,7 @@ CALL(4, media_toggle_fullscreen, void, ())
 #endif
 }
 
-CALL(5, SDL_WM_GrabInput, SDL_GrabMode, (SDL_GrabMode mode))
+CALL(5, media_SDL_WM_GrabInput, SDL_GrabMode, (SDL_GrabMode mode))
 #ifdef MEDIA_LAYER_TRAMPOLINE_GUEST
     return (SDL_GrabMode) trampoline(false, mode);
 #else
@@ -68,7 +68,7 @@ CALL(5, SDL_WM_GrabInput, SDL_GrabMode, (SDL_GrabMode mode))
 #endif
 }
 
-CALL(6, SDL_ShowCursor, int, (int32_t toggle))
+CALL(6, media_SDL_ShowCursor, int, (int32_t toggle))
 #ifdef MEDIA_LAYER_TRAMPOLINE_GUEST
     return trampoline(false, toggle);
 #else
