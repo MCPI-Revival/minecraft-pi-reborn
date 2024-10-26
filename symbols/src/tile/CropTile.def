@@ -1,0 +1,3 @@
+extends Bush;
+
+vtable 0x1110f8;

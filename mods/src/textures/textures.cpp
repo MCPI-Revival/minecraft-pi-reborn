@@ -10,6 +10,7 @@
 #include <mods/misc/misc.h>
 #include <mods/feature/feature.h>
 #include <mods/textures/textures.h>
+#include <mods/atlas/atlas.h>
 #include <mods/init/init.h>
 #include "textures-internal.h"
 
@@ -20,65 +21,20 @@ static void Minecraft_tick_injection(const Minecraft *minecraft) {
     // Tick Dynamic Textures
     Textures *textures = minecraft->textures;
     if (textures != nullptr) {
-        textures->tick(true);
-    }
-}
-
-// Store Texture Sizes
-struct texture_data {
-    GLuint id;
-    GLsizei width;
-    GLsizei height;
-};
-static std::vector<texture_data> &get_texture_data() {
-    static std::vector<texture_data> data;
-    return data;
-}
-HOOK(media_glTexImage2D, void, (GLenum target, GLint level, GLint internalformat, GLsizei width, GLsizei height, GLint border, GLenum format, GLenum type, const void *pixels)) {
-    // Store
-    texture_data data = {};
-    media_glGetIntegerv(GL_TEXTURE_BINDING_2D, (GLint *) &data.id);
-    data.width = width;
-    data.height = height;
-    get_texture_data().push_back(data);
-
-    // Call Original Method
-    real_media_glTexImage2D()(target, level, internalformat, width, height, border, format, type, pixels);
-}
-HOOK(media_glDeleteTextures, void, (GLsizei n, const GLuint *textures)) {
-    // Remove Old Data
-    for (int i = 0; i < n; i++) {
-        const GLuint id = textures[i];
-        std::vector<texture_data>::iterator it = get_texture_data().begin();
-        while (it != get_texture_data().end()) {
-            const texture_data data = *it;
-            if (data.id == id) {
-                it = get_texture_data().erase(it);
-            } else {
-                ++it;
+        for (DynamicTexture *texture : textures->dynamic_textures) {
+            texture->tick();
+            texture->bindTexture(textures);
+            for (int x = 0; x < texture->texture_size; x++) {
+                for (int y = 0; y < texture->texture_size; y++) {
+                    const Texture *data = textures->getTemporaryTextureData(textures->current_texture);
+                    const int x_offset = 16 * ((texture->texture_index % 16) + x);
+                    const int y_offset = 16 * ((texture->texture_index / 16) + y);
+                    media_glTexSubImage2D_with_scaling(data, x_offset, y_offset, 16, 16, 256, 256, texture->pixels);
+                }
             }
+            atlas_update_tile(textures, texture->texture_index, texture->pixels);
         }
     }
-
-    // Call Original Method
-    real_media_glDeleteTextures()(n, textures);
-}
-static void get_texture_size(const GLuint id, GLsizei *width, GLsizei *height) {
-    // Iterate
-    std::vector<texture_data>::iterator it = get_texture_data().begin();
-    while (it != get_texture_data().end()) {
-        const texture_data data = *it;
-        if (data.id == id) {
-            // Found
-            *width = data.width;
-            *height = data.height;
-            return;
-        }
-        ++it;
-    }
-    // Not Found
-    *width = 0;
-    *height = 0;
 }
 
 // Scale Texture (Remember To Free)
@@ -94,42 +50,33 @@ static int get_line_size(const int width) {
     }
     return line_size;
 }
-static void *scale_texture(const unsigned char *src, const GLsizei old_width, const GLsizei old_height, const GLsizei new_width, const GLsizei new_height) {
+static unsigned char *scale_texture(const unsigned char *src, const GLsizei old_width, const GLsizei old_height, const GLsizei new_width, const GLsizei new_height) {
     const int old_line_size = get_line_size(old_width);
     const int new_line_size = get_line_size(new_width);
-
     // Allocate
-    unsigned char *dst = (unsigned char *) malloc(new_height * new_line_size);
-    ALLOC_CHECK(dst);
-
+    unsigned char *dst = new unsigned char[new_height * new_line_size];
     // Scale
     for (int new_x = 0; new_x < new_width; new_x++) {
-        const int old_x = (int) (((float) new_x / (float) new_width) * (float) old_width);
         for (int new_y = 0; new_y < new_height; new_y++) {
+            const int old_x = (int) (((float) new_x / (float) new_width) * (float) old_width);
             const int old_y = (int) (((float) new_y / (float) new_height) * (float) old_height);
-
             // Find Position
             const int new_position = (new_y * new_line_size) + (new_x * PIXEL_SIZE);
             const int old_position = (old_y * old_line_size) + (old_x * PIXEL_SIZE);
-
             // Copy
             static_assert(sizeof (int32_t) == PIXEL_SIZE, "Pixel Size Doesn't Match 32-Bit Integer Size");
             *(int32_t *) &dst[new_position] = *(int32_t *) &src[old_position];
         }
     }
-
     // Return
     return dst;
 }
 
 // Scale Animated Textures
-void media_glTexSubImage2D_with_scaling(const GLenum target, const GLint level, const GLint xoffset, const GLint yoffset, const GLsizei width, const GLsizei height, const GLsizei normal_texture_width, const GLsizei normal_texture_height, const GLenum format, const GLenum type, const void *pixels) {
+void media_glTexSubImage2D_with_scaling(const Texture *target, const GLint xoffset, const GLint yoffset, const GLsizei width, const GLsizei height, const GLsizei normal_texture_width, const GLsizei normal_texture_height, const void *pixels) {
     // Get Current Texture Size
-    GLint current_texture;
-    media_glGetIntegerv(GL_TEXTURE_BINDING_2D, &current_texture);
-    GLsizei texture_width;
-    GLsizei texture_height;
-    get_texture_size(current_texture, &texture_width, &texture_height);
+    const GLsizei texture_width = target->width;
+    const GLsizei texture_height = target->height;
 
     // Calculate Factor
     const float width_factor = ((float) texture_width) / ((float) normal_texture_width);
@@ -138,30 +85,21 @@ void media_glTexSubImage2D_with_scaling(const GLenum target, const GLint level, 
     // Only Scale If Needed
     if (width_factor == 1.0f && height_factor == 1.0f) {
         // No Scaling
-        media_glTexSubImage2D(target, level, xoffset, yoffset, width, height, format, type, pixels);
+        media_glTexSubImage2D(GL_TEXTURE_2D, 0, xoffset, yoffset, width, height, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
     } else {
-        // Check
-        if (format != GL_RGBA || type != GL_UNSIGNED_BYTE) {
-            // Pixels Must Be 4 Bytes
-            ERR("Unsupported Texture Format For Scaling");
-        }
-
         // Scale
-        const GLsizei new_width = width * width_factor;
-        const GLsizei new_height = height * height_factor;
-        void *new_pixels = scale_texture((const unsigned char *) pixels, width, height, new_width, new_height);
+        const GLsizei new_width = GLsizei(float(width) * width_factor);
+        const GLsizei new_height = GLsizei(float(height) * height_factor);
+        const unsigned char *new_pixels = scale_texture((const unsigned char *) pixels, width, height, new_width, new_height);
 
         // Call Original Method
-        const GLint new_xoffset = xoffset * width_factor;
-        const GLint new_yoffset = yoffset * height_factor;
-        media_glTexSubImage2D(target, level, new_xoffset, new_yoffset, new_width, new_height, format, type, new_pixels);
+        const GLint new_xoffset = GLint(float(xoffset) * width_factor);
+        const GLint new_yoffset = GLint(float(yoffset) * height_factor);
+        media_glTexSubImage2D(GL_TEXTURE_2D, 0, new_xoffset, new_yoffset, new_width, new_height, GL_RGBA, GL_UNSIGNED_BYTE, new_pixels);
 
         // Free
-        free(new_pixels);
+        delete[] new_pixels;
     }
-}
-static void Textures_tick_glTexSubImage2D_injection(const GLenum target, const GLint level, const GLint xoffset, const GLint yoffset, const GLsizei width, const GLsizei height, const GLenum format, const GLenum type, const void *pixels) {
-    media_glTexSubImage2D_with_scaling(target, level, xoffset, yoffset, width, height, 256, 256, format, type, pixels);
 }
 
 // Load Textures
@@ -231,11 +169,10 @@ void init_textures() {
         _init_textures_lava(animated_water, animated_lava, animated_fire);
     }
 
-    // Scale Animated Textures
-    if (feature_has("Property Scale Animated Textures", server_disabled)) {
-        overwrite_call((void *) 0x53274, (void *) Textures_tick_glTexSubImage2D_injection);
-    }
-
     // Load Textures
     overwrite_calls(AppPlatform_linux_loadTexture, AppPlatform_linux_loadTexture_injection);
+
+    // Stop Reloading Textures On Resize
+    unsigned char texture_reset_patch[4] = {0x00, 0xf0, 0x20, 0xe3}; // "nop"
+    patch((void *) 0x126b4, texture_reset_patch);
 }

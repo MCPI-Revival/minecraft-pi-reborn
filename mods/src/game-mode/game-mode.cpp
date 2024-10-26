@@ -8,7 +8,9 @@
 static int is_survival = -1;
 
 // Patch Game Mode
-static void set_is_survival(bool new_is_survival) {
+static void *survival_mode_constructor;
+static void *creative_mode_constructor;
+static void set_is_survival(const bool new_is_survival) {
     if (is_survival != new_is_survival) {
         DEBUG("Setting Game Mode: %s", new_is_survival ? "Survival" : "Creative");
 
@@ -21,7 +23,7 @@ static void set_is_survival(bool new_is_survival) {
         patch((void *) 0x16ee4, size_patch);
 
         // Replace Default CreatorMode Constructor With CreatorMode Or SurvivalMode Constructor
-        overwrite_call((void *) 0x16ef4, new_is_survival ? (void *) SurvivalMode_constructor->get(true) : (void *) CreatorMode_constructor->get(true));
+        overwrite_call((void *) 0x16ef4, new_is_survival ? survival_mode_constructor : creative_mode_constructor);
 
         is_survival = new_is_survival;
     }
@@ -50,6 +52,8 @@ static unsigned char *Minecraft_getCreator_injection(Minecraft_getCreator_t orig
 void init_game_mode() {
     // Dynamic Game Mode Switching
     if (feature_has("Implement Game-Mode Switching", server_enabled)) {
+        survival_mode_constructor = (void *) SurvivalMode_constructor->get(true);
+        creative_mode_constructor = (void *) CreatorMode_constructor->get(true);
         set_is_survival(true);
         overwrite_calls(Minecraft_setIsCreativeMode, Minecraft_setIsCreativeMode_injection);
 

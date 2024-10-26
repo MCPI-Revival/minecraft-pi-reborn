@@ -65,3 +65,7 @@ unsigned int _trampoline(const unsigned int id, const bool allow_early_return, A
 #define CALL(unique_id, name, return_type, args) \
     return_type name args { \
         static unsigned char _id = unique_id;
+
+// Handle Cached GL State When Switching To Offscreen Context
+__attribute__((visibility("internal"))) void _media_backup_gl_state();
+__attribute__((visibility("internal"))) void _media_restore_gl_state();

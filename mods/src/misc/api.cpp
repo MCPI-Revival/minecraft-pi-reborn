@@ -47,6 +47,12 @@ HOOK(media_swap_buffers, void, ()) {
 }
 
 // API
+void misc_run_on_init(const std::function<void(Minecraft *)> &func) {
+    overwrite_calls(Minecraft_init, [func](Minecraft_init_t original, Minecraft *self) {
+        original(self);
+        func(self);
+    });
+}
 void misc_run_on_update(const std::function<void(Minecraft *)> &func) {
     overwrite_calls(Minecraft_update, [func](Minecraft_update_t original, Minecraft *self) {
         original(self);
@@ -115,7 +121,7 @@ void misc_render_background(int color, const Minecraft *minecraft, const int x, 
     media_glColor4f(1, 1, 1, 1);
     minecraft->textures->loadAndBindTexture("gui/background.png");
     Tesselator *t = &Tesselator::instance;
-    t->begin(7);
+    t->begin(GL_QUADS);
     t->color(color, color, color, 255);
     float x1 = x;
     float x2 = x + width;

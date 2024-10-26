@@ -4,6 +4,7 @@
 #include <vector>
 
 #include <libreborn/libreborn.h>
+#include <trampoline/types.h>
 
 #include "util.h"
 #include "bootstrap.h"
@@ -179,7 +180,7 @@ void bootstrap(const options_t &options) {
     // Fix QEMU Bug
 #ifdef MCPI_RUNTIME_IS_QEMU
     args.push_back("-B");
-    args.push_back("0x40000"); // Arbitrary Value (Aligns To 4k And 16k Page Sizes)
+    args.push_back(std::to_string(QEMU_GUEST_BASE));
 #endif
 
     // Specify MCPI Binary

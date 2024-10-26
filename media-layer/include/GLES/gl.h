@@ -99,6 +99,7 @@ extern "C" {
 #define GL_FRONT_AND_BACK 0x408
 #define GL_AMBIENT_AND_DIFFUSE 0x1602
 #define GL_LIGHT_MODEL_AMBIENT 0xb53
+#define GL_STREAM_DRAW 0x88e0
 
 typedef float GLfloat;
 typedef float GLclampf;
@@ -175,6 +176,8 @@ void media_glNormalPointer(GLenum type, GLsizei stride, const void *pointer);
 void media_glLightfv(GLenum light, GLenum pname, const GLfloat *params);
 void media_glColorMaterial(GLenum face, GLenum mode);
 void media_glLightModelfv(GLenum pname, const GLfloat *params);
+
+extern unsigned int media_context_id;
 
 #ifdef __cplusplus
 }

@@ -22,6 +22,7 @@ virtual-method void update() = 0x24;
 virtual-method int handleBack(bool do_nothing) = 0x34;
 virtual-method void init() = 0x38;
 virtual-method void selectLevel(const std::string &level_dir, const std::string &level_name, const LevelSettings &settings) = 0x40;
+virtual-method AppPlatform *platform() = 0x8;
 
 property int screen_width = 0x20;
 property int screen_height = 0x24;

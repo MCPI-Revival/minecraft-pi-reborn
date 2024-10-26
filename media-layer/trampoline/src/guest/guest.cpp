@@ -67,10 +67,7 @@ static uint32_t trampoline_pipe(const uint32_t id, const bool allow_early_return
 // Main Function
 uint32_t _raw_trampoline(const uint32_t id, const bool allow_early_return, const uint32_t length, const unsigned char *args) {
     // Configure Method
-    static int use_syscall = -1;
-    if (use_syscall == -1) {
-        use_syscall = getenv(TRAMPOLINE_ARGUMENTS_PIPE_ENV) == nullptr;
-    }
+    static bool use_syscall = getenv(TRAMPOLINE_ARGUMENTS_PIPE_ENV) == nullptr;
     // Use Correct Method
     if (use_syscall) {
         return trampoline_syscall(id, length, args);

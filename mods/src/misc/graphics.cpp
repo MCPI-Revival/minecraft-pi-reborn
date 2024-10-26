@@ -119,7 +119,7 @@ static void render_fire(EntityRenderer *self, Entity *entity, const float x, flo
     media_glColor4f(1, 1, 1, 1);
     float zo = 0;
     int ss = 0;
-    t.begin(7);
+    t.begin(GL_QUADS);
     while (h > 0) {
         constexpr float xo = 0.0f;
         float u0;
@@ -220,7 +220,7 @@ static void render_shadow(const EntityRenderer *self, Entity *entity, const floa
     const float yo = y - ey;
     const float zo = z - ez;
     Tesselator &tt = Tesselator::instance;
-    tt.begin(7);
+    tt.begin(GL_QUADS);
     for (int xt = x0; xt <= x1; xt++) {
         for (int yt = y0; yt <= y1; yt++) {
             for (int zt = z0; zt <= z1; zt++) {

@@ -97,7 +97,7 @@ static void Tesselator_draw_injection(Tesselator *self) {
     if (vertices > 0) {
         const GLuint buffer = get_next_buffer();
         media_glBindBuffer(GL_ARRAY_BUFFER, buffer);
-        media_glBufferData(GL_ARRAY_BUFFER, vertices * sizeof(CustomVertex), CustomTesselator::instance.vertices, GL_STATIC_DRAW);
+        media_glBufferData(GL_ARRAY_BUFFER, vertices * sizeof(CustomVertex), CustomTesselator::instance.vertices, GL_STREAM_DRAW);
         if (self->has_texture) {
             media_glTexCoordPointer(2, GL_FLOAT, sizeof(CustomVertex), (void *) offsetof(CustomVertex, uv));
             media_glEnableClientState(GL_TEXTURE_COORD_ARRAY);

@@ -2,124 +2,229 @@
 
 #include <libreborn/libreborn.h>
 #include <symbols/minecraft.h>
+#include <media-layer/core.h>
 
 #include <mods/feature/feature.h>
+#include <mods/misc/misc.h>
+#include <mods/textures/textures.h>
+#include <mods/atlas/atlas.h>
 #include <mods/init/init.h>
 
-// Fix Grass And Leaves Inventory Rendering When The gui_blocks Atlas Is Disabled
-static void ItemRenderer_renderGuiItemCorrect_injection_one(ItemRenderer_renderGuiItemCorrect_t original, Font *font, Textures *textures, const ItemInstance *item_instance, const int32_t param_1, const int32_t param_2) {
-    const int32_t leaves_id = Tile::leaves->id;
-    const int32_t grass_id = Tile::grass->id;
-    // Replace Rendered Item With Carried Variant
-    ItemInstance carried_item_instance;
-    bool use_carried = false;
-    if (item_instance != nullptr) {
-        if (item_instance->id == leaves_id) {
-            carried_item_instance.constructor_tile_extra(Tile::leaves_carried, item_instance->count, item_instance->auxiliary);
-            use_carried = true;
-        } else if (item_instance->id == grass_id) {
-            carried_item_instance.constructor_tile_extra(Tile::grass_carried, item_instance->count, item_instance->auxiliary);
-            use_carried = true;
+// Render Atlas
+#define ATLAS_SIZE 32
+#define ATLAS_ENTRY_SIZE 48
+static int get_atlas_key(Item *item, const int data) {
+    const int id = item->id;
+    const int icon = item->getIcon(data);
+    return (id << 16) | icon;
+}
+static std::unordered_map<int, std::pair<int, int>> atlas_key_to_pos;
+static std::unordered_map<int, std::vector<std::pair<int, int>>> tile_texture_to_atlas_pos;
+static void render_atlas(Textures *textures) {
+    int x = 0;
+    int y = 0;
+    // Loop Over All Possible IDs
+    for (int id = 0; id < 512; id++) {
+        Item *item = Item::items[id];
+        if (!item) {
+            // Invalid ID
+            continue;
+        }
+        // Count Unique Textures
+        constexpr int amount_of_data_values_to_check = 512;
+        std::unordered_map<int, int> key_to_data;
+        for (int data = amount_of_data_values_to_check - 1; data >= 0; data--) {
+            int key = get_atlas_key(item, data);
+            key_to_data[key] = data;
+        }
+        // Loop Over All Data Values With Unique Textures
+        for (const std::pair<int, int> info : key_to_data) {
+            const int key = info.first;
+            const int data = info.second;
+            // Check Remaining Space (Leave Last Slot Empty)
+            if (x == (ATLAS_SIZE - 1) && y == (ATLAS_SIZE - 1)) {
+                WARN("Out Of gui_blocks Atlas Space!");
+                return;
+            }
+            // Position
+            media_glPushMatrix();
+            media_glTranslatef(ATLAS_ENTRY_SIZE * x, ATLAS_ENTRY_SIZE * y, 0);
+            constexpr float scale = ATLAS_ENTRY_SIZE / 16.0f;
+            media_glScalef(scale, scale, 1);
+            // Render
+            ItemInstance obj = {
+                .count = 1,
+                .id = id,
+                .auxiliary = data
+            };
+            ItemRenderer::renderGuiItemCorrect(nullptr, textures, &obj, 0, 0);
+            media_glPopMatrix();
+            // Store
+            atlas_key_to_pos[key] = {x, y};
+            if (id < 256) {
+                Tile *tile = Tile::tiles[id];
+                if (tile && !TileRenderer::canRender(tile->getRenderShape())) {
+                    int icon = item->getIcon(data);
+                    tile_texture_to_atlas_pos[icon].push_back(atlas_key_to_pos[key]);
+                }
+            }
+            // Advance To Next Slot
+            x++;
+            if (x >= ATLAS_SIZE) {
+                x = 0;
+                y++;
+            }
         }
     }
+}
+static void generate_atlas(Minecraft *minecraft) {
+    // Setup Offscreen Rendering
+    constexpr int atlas_size = ATLAS_SIZE * ATLAS_ENTRY_SIZE;
+    media_begin_offscreen_render(atlas_size, atlas_size);
 
-    // Fix Toolbar Rendering
-    const GLboolean depth_test_was_enabled = media_glIsEnabled(GL_DEPTH_TEST);
+    // Setup OpenGL
+    ((NinecraftApp *) minecraft)->initGLStates();
+    media_glViewport(0, 0, atlas_size, atlas_size);
+    media_glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    media_glMatrixMode(GL_PROJECTION);
+    media_glLoadIdentity();
+    media_glOrthof(0, atlas_size, atlas_size, 0, 2000, 3000);
+    media_glMatrixMode(GL_MODELVIEW);
+    media_glLoadIdentity();
+    media_glTranslatef(0, 0, -2000);
     media_glDisable(GL_DEPTH_TEST);
 
-    // Call Original Method
-    original(font, textures, use_carried ? &carried_item_instance : item_instance, param_1, param_2);
+    // Re-Upload Textures
+    Textures *textures = Textures::allocate();
+    textures->constructor(&minecraft->options, minecraft->platform());
 
-    // Revert GL State Changes
-    if (depth_test_was_enabled) {
-        media_glEnable(GL_DEPTH_TEST);
+    // Render
+    render_atlas(textures);
+
+    // Copy Open Inventory Button
+    textures->loadAndBindTexture("gui/gui_blocks.png");
+    constexpr int icon_width = 28;
+    constexpr int icon_height = 8;
+    minecraft->gui.blit(atlas_size - icon_width, atlas_size - icon_height, 242, 252, icon_width, icon_height, 14, 4);
+
+    // Read Texture
+    int line_size = atlas_size * 4;
+    {
+        // Handle Alignment
+        int alignment;
+        media_glGetIntegerv(GL_PACK_ALIGNMENT, &alignment);
+        // Round
+        line_size = ALIGN_UP(line_size, alignment);
     }
-}
-
-// Fix Translucent Preview Items In Furnace UI Being Fully Opaque When The gui_blocks Atlas Is Disabled
-static int item_color_fix_mode = 0;
-#define POTENTIAL_FURNACE_ITEM_TRANSPARENCY 0x33
-#define INVALID_FURNACE_ITEM_MULTIPLIER 0.25f
-static void Tesselator_color_injection(Tesselator_color_t original, Tesselator *tesselator, int32_t r, int32_t g, int32_t b, int32_t a) {
-    // Fix Furnace UI
-    if (item_color_fix_mode != 0) {
-        // Force Translucent
-        if (item_color_fix_mode == 1) {
-            a = POTENTIAL_FURNACE_ITEM_TRANSPARENCY;
-        } else {
-            static double multiplier = INVALID_FURNACE_ITEM_MULTIPLIER;
-            b *= multiplier;
-            g *= multiplier;
-            r *= multiplier;
+    Texture texture;
+    texture.width = atlas_size;
+    texture.height = atlas_size;
+    texture.field3_0xc = 0;
+    texture.field4_0x10 = true;
+    texture.field5_0x11 = false;
+    texture.field6_0x14 = 0;
+    texture.field7_0x18 = -1;
+    texture.data = new unsigned char[atlas_size * line_size];
+    media_glReadPixels(0, 0, atlas_size, atlas_size, GL_RGBA, GL_UNSIGNED_BYTE, texture.data);
+    for (int y = 0; y < (texture.height / 2); y++) {
+        for (int x = 0; x < (texture.width * 4); x++) {
+            unsigned char &a = texture.data[(y * line_size) + x];
+            unsigned char &b = texture.data[((texture.height - y - 1) * line_size) + x];
+            std::swap(a, b);
         }
     }
 
-    // Call Original Method
-    original(tesselator, r, g, b, a);
-}
-static void Tesselator_begin_injection(Tesselator_begin_t original, Tesselator *tesselator, const int32_t mode) {
-    // Call Original Method
-    original(tesselator, mode);
+    // Restore Old Context
+    textures->destructor();
+    ::operator delete(textures);
+    media_end_offscreen_render();
 
-    // Fix Furnace UI
-    if (item_color_fix_mode != 0) {
-        // Implicit Translucent
-        tesselator->color(0xff, 0xff, 0xff, 0xff);
+    // Upload Texture
+    minecraft->textures->assignTexture("gui/gui_blocks.png", texture);
+    DEBUG("Generated gui_blocks Atlas");
+}
+
+// Use New Atlas
+static void ItemRenderer_renderGuiItem_two_injection(__attribute__((unused)) ItemRenderer_renderGuiItem_two_t original, __attribute__((unused)) Font *font, Textures *textures, const ItemInstance *item_instance_ptr, const float x, const float y, const float w, const float h, __attribute__((unused)) bool param_5) {
+    // "Carried" Items
+    ItemInstance item_instance = *item_instance_ptr;
+    if (item_instance.id == Tile::leaves->id) {
+        item_instance.id = Tile::leaves_carried->id;
+    } else if (item_instance.id == Tile::grass->id) {
+        item_instance.id = Tile::grass_carried->id;
     }
+    // Get Position
+    Item *item = Item::items[item_instance.id];
+    if (!item) {
+        return;
+    }
+    const int key = get_atlas_key(item, item_instance.auxiliary);
+    if (!atlas_key_to_pos.contains(key)) {
+        WARN("Skipping Item Not In gui_blocks Atlas: %i:%i", item_instance.id, item_instance.auxiliary);
+        return;
+    }
+    const std::pair<int, int> &pos = atlas_key_to_pos[key];
+    // Convert To UV
+    float u0 = float(pos.first) / ATLAS_SIZE;
+    float u1 = float(pos.first + 1) / ATLAS_SIZE;
+    float v0 = float(pos.second) / ATLAS_SIZE;
+    float v1 = float(pos.second + 1) / ATLAS_SIZE;
+    // Render
+    textures->loadAndBindTexture("gui/gui_blocks.png");
+    Tesselator &t = Tesselator::instance;
+    t.begin(GL_QUADS);
+    t.colorABGR(item_instance.count > 0 ? 0xffffffff : 0x60ffffff);
+    t.vertexUV(x, y + h, 0, u0, v1);
+    t.vertexUV(x + w, y + h, 0, u1, v1);
+    t.vertexUV(x + w, y, 0, u1, v0);
+    t.vertexUV(x, y, 0, u0, v0);
+    t.draw();
 }
-static void InventoryPane_renderBatch_Tesselator_color_injection(Tesselator *tesselator, int32_t r, int32_t g, int32_t b) {
-    // Call Original Method
-    tesselator->color(r, g, b, 0xff);
 
-    // Enable Item Color Fix
-    item_color_fix_mode = 2;
-}
-static void ItemRenderer_renderGuiItem_two_injection_one(ItemRenderer_renderGuiItem_two_t original, Font *font, Textures *textures, const ItemInstance *item_instance, const float param_1, const float param_2, const float param_3, const float param_4, const bool param_5) {
-    // Call Original Method
-    original(font, textures, item_instance, param_1, param_2, param_3, param_4, param_5);
-
-    // Disable Item Color Fix
-    item_color_fix_mode = 0;
-}
-static void FurnaceScreen_render_ItemRenderer_renderGuiItem_one_injection(Font *font, Textures *textures, ItemInstance *item_instance, float param_1, float param_2, bool param_3) {
-    // Enable Item Color Fix
-    item_color_fix_mode = 1;
-
-    // Call Original Method
-    ItemRenderer::renderGuiItem_one(font, textures, item_instance, param_1, param_2, param_3);
+// Fix Buggy Crop Textures
+#define MAX_CROP_DATA 7
+static int CropTile_getTexture2_injection(CropTile_getTexture2_t original, CropTile *self, const int face, int data) {
+    if (data > MAX_CROP_DATA) {
+        data = MAX_CROP_DATA;
+    }
+    return original(self, face, data);
 }
 
-// Smooth Scrolling
-static float target_x;
-static float target_y;
-static void ItemRenderer_renderGuiItem_two_injection_two(ItemRenderer_renderGuiItem_two_t original, Font *font, Textures *textures, const ItemInstance *item_instance, const float x, const float y, const float w, const float h, const bool param_5) {
-    target_x = x;
-    target_y = y;
-    original(font, textures, item_instance, x, y, w, h, param_5);
+// Fix Open Inventory Button
+static void Gui_renderToolBar_GuiComponent_blit_injection(GuiComponent *self, int x_dest, int y_dest, __attribute__((unused)) const int x_src, __attribute__((unused)) const int y_src, const int width_dest, const int height_dest, const int width_src, const int height_src) {
+    constexpr float size_scale = 2.0f / (ATLAS_SIZE * ATLAS_ENTRY_SIZE);
+    constexpr float u1 = 1.0f;
+    const float u0 = u1 - (float(width_src) * size_scale);
+    constexpr float v1 = 1.0f;
+    const float v0 = v1 - (float(height_src) * size_scale);
+    Tesselator &t = Tesselator::instance;
+    t.begin(GL_QUADS);
+    t.vertexUV(x_dest, y_dest + height_dest, self->z, u0, v1);
+    t.vertexUV(x_dest + width_dest, y_dest + height_dest, self->z, u1, v1);
+    t.vertexUV(x_dest + width_dest, y_dest, self->z, u1, v0);
+    t.vertexUV(x_dest, y_dest, self->z, u0, v0);
+    t.draw();
 }
-static void ItemRenderer_renderGuiItemCorrect_injection_two(ItemRenderer_renderGuiItemCorrect_t original, Font *font, Textures *textures, const ItemInstance *item_instance, __attribute__((unused)) int x, __attribute__((unused)) int y) {
-    media_glPushMatrix();
-    media_glTranslatef(target_x, target_y, 0);
-    original(font, textures, item_instance, 0, 0);
-    media_glPopMatrix();;
+
+// Update Dynamic Textures In Atlas
+void atlas_update_tile(Textures *textures, const int texture, const unsigned char *pixels) {
+    // Update Texture
+    for (const std::pair<int, int> &pos : tile_texture_to_atlas_pos[texture]) {
+        uint32_t atlas_id = textures->loadAndBindTexture("gui/gui_blocks.png");
+        const Texture *atlas_data = textures->getTemporaryTextureData(atlas_id);
+        constexpr int texture_size = 16;
+        constexpr int fake_atlas_size = (ATLAS_SIZE * texture_size);
+        media_glTexSubImage2D_with_scaling(atlas_data, pos.first * texture_size, pos.second * texture_size, texture_size, texture_size, fake_atlas_size, fake_atlas_size, pixels);
+    }
 }
 
 // Init
 void init_atlas() {
-    // Disable The gui_blocks Atlas Which Contains Pre-Rendered Textures For Blocks In The Inventory
-    if (feature_has("Disable \"gui_blocks\" Atlas", server_disabled)) {
-        unsigned char disable_gui_blocks_atlas_patch[4] = {0x00, 0xf0, 0x20, 0xe3}; // "nop"
-        patch((void *) 0x63c2c, disable_gui_blocks_atlas_patch);
-        // Fix Grass And Leaves Inventory Rendering When The gui_blocks Atlas Is Disabled
-        overwrite_calls(ItemRenderer_renderGuiItemCorrect, ItemRenderer_renderGuiItemCorrect_injection_one);
-        // Fix Furnace UI
-        overwrite_calls(Tesselator_begin, Tesselator_begin_injection);
-        overwrite_calls(Tesselator_color, Tesselator_color_injection);
-        overwrite_call((void *) 0x32324, (void *) FurnaceScreen_render_ItemRenderer_renderGuiItem_one_injection);
-        overwrite_call((void *) 0x1e21c, (void *) InventoryPane_renderBatch_Tesselator_color_injection);
-        overwrite_calls(ItemRenderer_renderGuiItem_two, ItemRenderer_renderGuiItem_two_injection_one);
-        // Fix Inventory Scrolling
-        overwrite_calls(ItemRenderer_renderGuiItem_two, ItemRenderer_renderGuiItem_two_injection_two);
-        overwrite_calls(ItemRenderer_renderGuiItemCorrect, ItemRenderer_renderGuiItemCorrect_injection_two);
+    // Generate Atlas
+    if (feature_has("Regenerate \"gui_blocks\" Atlas", server_disabled)) {
+        misc_run_on_init(generate_atlas);
+        overwrite_calls(CropTile_getTexture2, CropTile_getTexture2_injection);
+        overwrite_calls(ItemRenderer_renderGuiItem_two, ItemRenderer_renderGuiItem_two_injection);
+        overwrite_call((void *) 0x26f50, (void *) Gui_renderToolBar_GuiComponent_blit_injection);
     }
 }

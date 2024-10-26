@@ -592,6 +592,13 @@ void init_misc() {
         overwrite_call((void *) 0xb198c, (void *) Dimension_isValidSpawn_Level_getTopTile_injection);
     }
 
+    // Disable overwrite_calls() After Minecraft::init
+    misc_run_on_init([](__attribute__((unused)) Minecraft *minecraft) {
+        thunk_enabler = [](__attribute__((unused)) void *a, __attribute__((unused)) void *b) -> void * {
+            IMPOSSIBLE();
+        };
+    });
+
     // Init Other Components
     _init_misc_tinting();
     _init_misc_ui();

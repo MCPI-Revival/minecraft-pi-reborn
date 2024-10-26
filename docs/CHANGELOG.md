@@ -76,8 +76,11 @@
   * `Force Survival Mode Inventory Behavior` (Disabled By Default)
   * `Maximize Creative Mode Inventory Stack Size` (Disabled By Default)
 * Rename `Disable Buggy Held Item Caching` Feature Flag To `Fix Held Item Caching`
+* Rename `Disable 'gui_blocks' Atlas` Feature Flag To `Regenerate "gui_blocks" Atlas`
 * Add Milk Buckets
   * Included In The `Add Buckets` Feature Flag
+* Removed `Property Scale Animated Textures` Feature Flag
+* Removed `Remove Invalid Item Background` Feature Flag
 * Improve Death Messages
 * Massive Build System Improvements
 * Fix Item Dropping When Killing Players From The Server Console
@@ -277,7 +280,7 @@
 
 **2.2.11**
 * Add `Close Current Screen On Death` Feature Flag (Enabled By Default) To Prevent Bugs
-* Fix More Furnace UI Bugs When Using "Disable 'gui_blocks' Atlas"
+* Fix More Furnace UI Bugs When Using `Disable 'gui_blocks' Atlas`
 
 **2.2.10**
 * Fix Bug With Picking Up Items In "Remove Creative Mode Restrictions" Mode

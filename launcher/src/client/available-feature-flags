@@ -15,8 +15,7 @@ FALSE Maximize Creative Mode Inventory Stack Size
 TRUE Animated Water
 TRUE Animated Lava
 TRUE Animated Fire
-TRUE Remove Invalid Item Background
-TRUE Disable "gui_blocks" Atlas
+TRUE Regenerate "gui_blocks" Atlas
 TRUE Fix Camera Rendering
 TRUE Implement Chat
 FALSE Hide Chat Messages
@@ -102,7 +101,6 @@ TRUE Log Chat Messages
 TRUE Log Game Status
 TRUE Screenshot Support
 TRUE Fix Camera Functionality
-TRUE Property Scale Animated Textures
 TRUE Allow High-Resolution Title
 TRUE Improved Classic Title Positioning
 TRUE Use Updated Title

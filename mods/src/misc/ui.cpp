@@ -261,12 +261,6 @@ void _init_misc_ui() {
         overwrite_calls(Screen_render, Screen_render_injection);
     }
 
-    // Remove Invalid Item Background (A Red Background That Appears For Items That Are Not Included In The gui_blocks Atlas)
-    if (feature_has("Remove Invalid Item Background", server_disabled)) {
-        unsigned char invalid_item_background_patch[4] = {0x00, 0xf0, 0x20, 0xe3}; // "nop"
-        patch((void *) 0x63c98, invalid_item_background_patch);
-    }
-
     // Close Current Screen On Death To Prevent Bugs
     if (feature_has("Close Current Screen On Death", server_disabled)) {
         overwrite_calls(LocalPlayer_die, LocalPlayer_die_injection);

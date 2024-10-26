@@ -8,7 +8,6 @@
 #include <mods/feature/feature.h>
 
 // Print Chat To Log
-static bool Gui_addMessage_recursing = false;
 static void Gui_addMessage_injection(Gui_addMessage_t original, Gui *gui, const std::string &text) {
     // Sanitize Message
     char *new_message = strdup(text.c_str());
@@ -17,9 +16,10 @@ static void Gui_addMessage_injection(Gui_addMessage_t original, Gui *gui, const 
     const std::string cpp_str = new_message;
 
     // Process Message
-    if (!Gui_addMessage_recursing) {
+    static bool recursing = false;
+    if (!recursing) {
         // Start Recursing
-        Gui_addMessage_recursing = true;
+        recursing = true;
 
         // Print Log Message
         char *safe_message = from_cp437(new_message);
@@ -30,7 +30,7 @@ static void Gui_addMessage_injection(Gui_addMessage_t original, Gui *gui, const 
         original(gui, cpp_str);
 
         // End Recursing
-        Gui_addMessage_recursing = false;
+        recursing = false;
     } else {
         // Call Original Method
         original(gui, cpp_str);

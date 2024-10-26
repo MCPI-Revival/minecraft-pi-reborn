@@ -174,19 +174,32 @@ CALL(66, media_force_egl, void, ())
 #endif
 }
 
-CALL(68, media_ensure_loaded, void, ())
-#ifdef MEDIA_LAYER_TRAMPOLINE_GUEST
-    trampoline(true);
-#else
-    func();
-    return 0;
-#endif
-}
-
 CALL(71, media_has_extension, int, (const char *name))
 #ifdef MEDIA_LAYER_TRAMPOLINE_GUEST
     return trampoline(false, copy_array(name));
 #else
     return func(args.next_arr<char>());
+#endif
+}
+
+CALL(76, media_begin_offscreen_render, void, (const int width, const int height))
+#ifdef MEDIA_LAYER_TRAMPOLINE_GUEST
+    trampoline(true, width, height);
+    _media_backup_gl_state();
+#else
+    const int width = args.next<int32_t>();
+    const int height = args.next<int32_t>();
+    func(width, height);
+    return 0;
+#endif
+}
+
+CALL(77, media_end_offscreen_render, void, ())
+#ifdef MEDIA_LAYER_TRAMPOLINE_GUEST
+    trampoline(true);
+    _media_restore_gl_state();
+#else
+    func();
+    return 0;
 #endif
 }

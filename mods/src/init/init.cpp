@@ -4,7 +4,6 @@
 #include <symbols/minecraft.h>
 
 __attribute__((constructor)) static void init() {
-    media_ensure_loaded();
     reborn_init_patch();
     thunk_enabler = reborn_thunk_enabler;
     run_tests();

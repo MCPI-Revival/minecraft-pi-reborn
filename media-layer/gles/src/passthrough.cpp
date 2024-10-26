@@ -5,15 +5,21 @@
 #include <libreborn/libreborn.h>
 
 // Load GL Function
-static char *gl_dlerror() {
-    return (char *) "Unknown Error";
-}
-#define dlerror gl_dlerror
-static void *gl_dlsysm(__attribute__((unused)) void *handle, __attribute__((unused)) const char *name) {
-    return (void *) glfwGetProcAddress(name);
-}
-#define dlsym gl_dlsysm
-#define GL_FUNC EXTERNAL_FUNC
+unsigned int media_context_id = 0;
+#define GL_FUNC(name, return_type, args) \
+    typedef return_type (*real_##name##_t)args; \
+    __attribute__((__unused__)) static real_##name##_t real_##name() { \
+        static real_##name##_t func = nullptr; \
+        static unsigned int old_context = 0; \
+        if (!func || old_context != media_context_id) { \
+            old_context = media_context_id; \
+            func = (real_##name##_t) glfwGetProcAddress(#name); \
+            if (!func) { \
+                ERR("Error Resolving OpenGL Function: " #name); \
+            } \
+        } \
+        return func; \
+    }
 
 // Passthrough Functions
 GL_FUNC(glFogfv, void, (GLenum pname, const GLfloat *params))
@@ -35,10 +41,6 @@ void media_glBlendFunc(const GLenum sfactor, const GLenum dfactor) {
 GL_FUNC(glDrawArrays, void, (GLenum mode, GLint first, GLsizei count))
 void media_glDrawArrays(const GLenum mode, const GLint first, const GLsizei count) {
     real_glDrawArrays()(mode, first, count);
-}
-GL_FUNC(glMultiDrawArraysEXT, void, (GLenum mode, const GLint *first, const GLsizei *count, GLsizei drawcount))
-void media_glMultiDrawArrays(const GLenum mode, const GLint *first, const GLsizei *count, const GLsizei drawcount) {
-    real_glMultiDrawArraysEXT()(mode, first, count, drawcount);
 }
 GL_FUNC(glColor4f, void, (GLfloat red, GLfloat green, GLfloat blue, GLfloat alpha))
 void media_glColor4f(const GLfloat red, const GLfloat green, const GLfloat blue, const GLfloat alpha) {
@@ -243,4 +245,10 @@ void media_glColorMaterial(const GLenum face, const GLenum mode) {
 GL_FUNC(glLightModelfv, void, (GLenum pname, const GLfloat *params))
 void media_glLightModelfv(const GLenum pname, const GLfloat *params) {
     real_glLightModelfv()(pname, params);
+}
+
+// GL_EXT_multi_draw_arrays
+GL_FUNC(glMultiDrawArraysEXT, void, (GLenum mode, const GLint *first, const GLsizei *count, GLsizei drawcount))
+void media_glMultiDrawArrays(const GLenum mode, const GLint *first, const GLsizei *count, const GLsizei drawcount) {
+    real_glMultiDrawArraysEXT()(mode, first, count, drawcount);
 }

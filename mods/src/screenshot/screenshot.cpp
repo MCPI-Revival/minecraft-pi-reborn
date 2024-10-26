@@ -84,7 +84,7 @@ void screenshot_take(Gui *gui) {
     const int size = height * line_size;
 
     // Read Pixels
-    unsigned char *pixels = (unsigned char *) malloc(size);
+    unsigned char *pixels = new unsigned char[size];
     ALLOC_CHECK(pixels);
     media_glReadPixels(x, y, width, height, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
 
@@ -101,7 +101,7 @@ void screenshot_take(Gui *gui) {
     }
 
     // Free
-    free(pixels);
+    delete[] pixels;
 }
 
 // Init

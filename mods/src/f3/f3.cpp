@@ -5,6 +5,7 @@
 
 #include <symbols/minecraft.h>
 #include <libreborn/libreborn.h>
+#include <GLES/gl.h>
 
 #include <mods/misc/misc.h>
 #include <mods/feature/feature.h>
@@ -124,7 +125,7 @@ static std::vector<std::string> get_debug_info_right(const Minecraft *minecraft)
             // Entity
             Entity *entity = target.entity;
             x = entity->x;
-            y = entity->y;
+            y = entity->y - entity->height_offset;
             z = entity->z;
             type = "Entity";
             type_info.push_back("Type ID: " + std::to_string(entity->getEntityTypeId())); // TODO: Specify name when RJ PR is merged
@@ -151,7 +152,7 @@ static std::vector<std::string> get_debug_info_right(const Minecraft *minecraft)
 // Render Text With Background
 static constexpr uint32_t debug_background_color = 0x90505050;
 static constexpr int debug_text_color = 0xe0e0e0;
-static void render_debug_line(Gui *gui, const std::string &line, int x, const int y, const bool right_aligned) {
+static void render_debug_line(Gui *gui, const std::string &line, int x, const int y, const bool right_aligned, const int pass) {
     // Draw Background
     const int width = gui->minecraft->font->width(line);
     if (width == 0) {
@@ -165,26 +166,46 @@ static void render_debug_line(Gui *gui, const std::string &line, int x, const in
     int y1 = y - 1;
     int x2 = x + width;
     int y2 = y + line_height;
-    gui->fill(x1, y1, x2, y2, debug_background_color);
+    if (pass == 0) {
+        gui->fill(x1, y1, x2, y2, debug_background_color);
+    }
     // Draw Text
-    gui->minecraft->font->draw(line, float(x), float(y), debug_text_color);
+    if (pass == 1) {
+        gui->minecraft->font->draw(line, float(x), float(y), debug_text_color);
+    }
 }
 // Draw Debug Information
 static bool debug_info_shown = false;
 static constexpr int debug_margin = 2;
 static constexpr int debug_line_padding = 1;
-static void render_debug_info(Gui *self, const std::vector<std::string> &info, const bool right_aligned) {
+static void render_debug_info(Gui *self, const std::vector<std::string> &info, const bool right_aligned, const int pass) {
     int y = debug_margin;
     for (const std::string &line : info) {
-        render_debug_line(self, line, debug_margin, y, right_aligned);
+        render_debug_line(self, line, debug_margin, y, right_aligned, pass);
         y += line_height;
         y += debug_line_padding;
     }
 }
 static void Gui_renderDebugInfo_injection(__attribute__((unused)) Gui_renderDebugInfo_t original, Gui *self) {
     if (debug_info_shown) {
-        render_debug_info(self, get_debug_info_left(self->minecraft), false);
-        render_debug_info(self, get_debug_info_right(self->minecraft), true);
+        for (int pass = 0; pass < 2; pass++) {
+            Tesselator &t = Tesselator::instance;
+            t.begin(GL_QUADS);
+            t.voidBeginAndEndCalls(true);
+            render_debug_info(self, get_debug_info_left(self->minecraft), false, pass);
+            render_debug_info(self, get_debug_info_right(self->minecraft), true, pass);
+            t.voidBeginAndEndCalls(false);
+            if (pass == 0) {
+                media_glEnable(GL_BLEND);
+                media_glDisable(GL_TEXTURE_2D);
+                media_glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+            }
+            t.draw();
+            if (pass == 0) {
+                media_glEnable(GL_TEXTURE_2D);
+                media_glDisable(GL_BLEND);
+            }
+        }
     }
 }
 

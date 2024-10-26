@@ -2,7 +2,6 @@
 
 #include <SDL/SDL.h>
 
-#include <media-layer/core.h>
 #include <libreborn/libreborn.h>
 
 #include "media.h"
@@ -36,8 +35,4 @@ int media_SDL_PollEvent(SDL_Event *event) {
 int media_SDL_PushEvent(SDL_Event *event) {
     queue.push_back(*event);
     return 1;
-}
-
-void media_ensure_loaded() {
-    // NOP
 }

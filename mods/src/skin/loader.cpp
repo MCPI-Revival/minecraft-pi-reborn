@@ -27,7 +27,7 @@ static std::vector<pending_skin> &get_pending_skins() {
     return pending_skins;
 }
 static pthread_mutex_t pending_skins_lock = PTHREAD_MUTEX_INITIALIZER;
-static void load_pending_skins(__attribute__((unused)) Minecraft *minecraft) {
+static void load_pending_skins(Minecraft *minecraft) {
     // Lock
     pthread_mutex_lock(&pending_skins_lock);
 
@@ -44,7 +44,8 @@ static void load_pending_skins(__attribute__((unused)) Minecraft *minecraft) {
         GLint last_texture;
         media_glGetIntegerv(GL_TEXTURE_BINDING_2D, &last_texture);
         media_glBindTexture(GL_TEXTURE_2D, skin.texture_id);
-        media_glTexSubImage2D_with_scaling(GL_TEXTURE_2D, 0, 0, 0, width, height, SKIN_WIDTH, SKIN_HEIGHT, GL_RGBA, GL_UNSIGNED_BYTE, img);
+        const Texture *texture = minecraft->textures->getTemporaryTextureData(skin.texture_id);
+        media_glTexSubImage2D_with_scaling(texture, 0, 0, width, height, SKIN_WIDTH, SKIN_HEIGHT, img);
         media_glBindTexture(GL_TEXTURE_2D, last_texture);
 
         // Free
@@ -114,7 +115,7 @@ static void *loader_thread(void *user_data) {
 }
 
 // Intercept Texture Creation
-static int32_t Textures_assignTexture_injection(Textures_assignTexture_t original, Textures *textures, const std::string &name, unsigned char *data) {
+static int32_t Textures_assignTexture_injection(Textures_assignTexture_t original, Textures *textures, const std::string &name, const Texture &data) {
     // Call Original Method
     const int32_t id = original(textures, name, data);
 
