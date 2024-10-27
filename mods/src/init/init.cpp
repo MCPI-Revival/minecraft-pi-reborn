@@ -20,7 +20,9 @@ __attribute__((constructor)) static void init() {
     init_input();
     init_sign();
     init_camera();
-    init_atlas();
+    if (!reborn_is_headless()) {
+        init_atlas();
+    }
     init_title_screen();
     if (!reborn_is_headless()) {
         init_skin();
