@@ -20,6 +20,17 @@ static int get_atlas_key(Item *item, const int data) {
 }
 static std::unordered_map<int, std::pair<int, int>> atlas_key_to_pos;
 static std::unordered_map<int, std::vector<std::pair<int, int>>> tile_texture_to_atlas_pos;
+static bool is_flat_tile(const int id) {
+    // Check If An Item Is A Tile
+    if (id < 256) {
+        Tile *tile = Tile::tiles[id];
+        // Check If It Renders Without A Model ("Flat" Rendering)
+        if (tile && !TileRenderer::canRender(tile->getRenderShape())) {
+            return true;
+        }
+    }
+    return false;
+}
 static void render_atlas(Textures *textures) {
     int x = 0;
     int y = 0;
@@ -61,12 +72,9 @@ static void render_atlas(Textures *textures) {
             media_glPopMatrix();
             // Store
             atlas_key_to_pos[key] = {x, y};
-            if (id < 256) {
-                Tile *tile = Tile::tiles[id];
-                if (tile && !TileRenderer::canRender(tile->getRenderShape())) {
-                    int icon = item->getIcon(data);
-                    tile_texture_to_atlas_pos[icon].push_back(atlas_key_to_pos[key]);
-                }
+            if (is_flat_tile(id)) {
+                int icon = item->getIcon(data);
+                tile_texture_to_atlas_pos[icon].push_back(atlas_key_to_pos[key]);
             }
             // Advance To Next Slot
             x++;

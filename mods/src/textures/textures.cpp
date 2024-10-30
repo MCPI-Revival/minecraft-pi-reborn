@@ -32,7 +32,9 @@ static void Minecraft_tick_injection(const Minecraft *minecraft) {
                     media_glTexSubImage2D_with_scaling(data, x_offset, y_offset, 16, 16, 256, 256, texture->pixels);
                 }
             }
-            atlas_update_tile(textures, texture->texture_index, texture->pixels);
+            if (textures->current_texture == textures->loadTexture("terrain.png", true)) {
+                atlas_update_tile(textures, texture->texture_index, texture->pixels);
+            }
         }
     }
 }
