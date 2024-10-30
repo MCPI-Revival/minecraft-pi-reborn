@@ -83,6 +83,14 @@ static std::vector<std::string> get_debug_info_left(const Minecraft *minecraft) 
     // Return
     return info;
 }
+static std::string format_type(const int id, const std::string &name) {
+    std::string out = std::to_string(id);
+    if (!name.empty()) {
+        out = name + " (" + out + ')';
+    }
+    out = "Type: " + out;
+    return out;
+}
 static std::vector<std::string> get_debug_info_right(const Minecraft *minecraft) {
     std::vector<std::string> info;
     // TPS
@@ -104,20 +112,17 @@ static std::vector<std::string> get_debug_info_right(const Minecraft *minecraft)
             type = "Tile";
             if (minecraft->level) {
                 const int id = minecraft->level->getTile(x, y, z);
-                std::string id_info = "ID: " + std::to_string(id);
+                std::string name;
                 if (Tile *tile = Tile::tiles[id]) {
                     const std::string description_id = tile->getDescriptionId();
-                    std::string name = description_id + ".name";
+                    name = description_id + ".name";
                     if (I18n::_strings.contains(name)) {
                         name = I18n::_strings[name];
                     } else {
                         name = description_id;
                     }
-                    if (!name.empty()) {
-                        id_info += " (" + name + ')';
-                    }
                 }
-                type_info.push_back(id_info);
+                type_info.push_back(format_type(id, name));
                 type_info.push_back("Data: " + std::to_string(minecraft->level->getData(x, y, z)));
             }
             xyz_precision = 0;
@@ -128,7 +133,8 @@ static std::vector<std::string> get_debug_info_right(const Minecraft *minecraft)
             y = entity->y - entity->height_offset;
             z = entity->z;
             type = "Entity";
-            type_info.push_back("Type ID: " + std::to_string(entity->getEntityTypeId())); // TODO: Specify name when RJ PR is merged
+            const int type_id = entity->getEntityTypeId();
+            type_info.push_back(format_type(type_id, "")); // TODO: Specify name when RJ PR is merged
             type_info.push_back("ID: " + std::to_string(entity->id));
             if (entity->isMob()) {
                 Mob *mob = (Mob *) entity;
@@ -142,7 +148,7 @@ static std::vector<std::string> get_debug_info_right(const Minecraft *minecraft)
         info.push_back("Target Y: " + to_string_with_precision(y, xyz_precision));
         info.push_back("Target Z: " + to_string_with_precision(z, xyz_precision));
         info.push_back("");
-        info.push_back("Target Type: " + type);
+        info.push_back("Target: " + type);
         info.insert(info.end(), type_info.begin(), type_info.end());
     }
     // Return
