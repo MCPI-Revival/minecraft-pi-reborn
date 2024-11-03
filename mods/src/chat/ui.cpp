@@ -93,7 +93,7 @@ CUSTOM_VTABLE(chat_screen, Screen) {
                     if (get_history().size() == 0 || text != get_history().back()) {
                         get_history().push_back(text);
                     }
-                    _chat_send_message(super->minecraft, text.c_str());
+                    _chat_send_message_to_server(super->minecraft, text.c_str());
                 }
                 super->minecraft->setScreen(nullptr);
             } else if (key == MC_KEY_UP) {

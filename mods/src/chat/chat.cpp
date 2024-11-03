@@ -34,7 +34,7 @@ static void send_api_chat_command(const Minecraft *minecraft, const char *str) {
 std::string _chat_get_prefix(const char *username) {
     return std::string("<") + username + "> ";
 }
-void chat_send_message(ServerSideNetworkHandler *server_side_network_handler, const char *username, const char *message) {
+void chat_send_message_to_clients(ServerSideNetworkHandler *server_side_network_handler, const char *username, const char *message) {
     std::string full_message = _chat_get_prefix(username) + message;
     char *raw_str = strdup(full_message.c_str());
     ALLOC_CHECK(raw_str);
@@ -50,7 +50,7 @@ void chat_handle_packet_send(const Minecraft *minecraft, ChatPacket *packet) {
         // Hosting Multiplayer
         const char *message = packet->message.c_str();
         ServerSideNetworkHandler *server_side_network_handler = (ServerSideNetworkHandler *) minecraft->network_handler;
-        chat_send_message(server_side_network_handler, Strings::default_username, (char *) message);
+        chat_send_message_to_clients(server_side_network_handler, Strings::default_username, (char *) message);
     } else {
         // Client
         rak_net_instance->send(*(Packet *) packet);
@@ -71,12 +71,12 @@ static void ServerSideNetworkHandler_handle_ChatPacket_injection(ServerSideNetwo
     if (player != nullptr) {
         const char *username = player->username.c_str();
         const char *message = chat_packet->message.c_str();
-        chat_send_message(server_side_network_handler, username, message);
+        chat_send_message_to_clients(server_side_network_handler, username, message);
     }
 }
 
 // Send Message
-void _chat_send_message(const Minecraft *minecraft, const char *message) {
+void _chat_send_message_to_server(const Minecraft *minecraft, const char *message) {
     send_api_chat_command(minecraft, message);
 }
 

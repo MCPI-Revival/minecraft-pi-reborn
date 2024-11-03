@@ -9,9 +9,7 @@
 
 // Message Prefix
 __attribute__((visibility("internal"))) std::string _chat_get_prefix(const char *username);
-
 // Queue Message For Sending
-__attribute__((visibility("internal"))) void _chat_send_message(const Minecraft *minecraft, const char *message);
-
+__attribute__((visibility("internal"))) void _chat_send_message_to_server(const Minecraft *minecraft, const char *message);
 // Init Chat UI
 __attribute__((visibility("internal"))) void _init_chat_ui();
