@@ -17,7 +17,9 @@ HOOK(chat_handle_packet_send, void, (const Minecraft *minecraft, ChatPacket *pac
         if (out.length() > 0 && out[out.length() - 1] == '\n') {
             out[out.length() - 1] = '\0';
         }
-        gui->addMessage(out);
+        char *cp437_out = to_cp437(out.c_str());
+        gui->addMessage(cp437_out);
+        free(cp437_out);
     } else {
         // Call Original Method
         real_chat_handle_packet_send()(minecraft, packet);

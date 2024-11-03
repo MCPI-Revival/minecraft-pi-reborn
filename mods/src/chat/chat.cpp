@@ -10,7 +10,7 @@
 #include "chat-internal.h"
 #include <mods/chat/chat.h>
 
-// Send API Command
+// Send UTF-8 API Command
 std::string chat_send_api_command(const Minecraft *minecraft, const std::string &str) {
     ConnectedClient client;
     client.sock = -1;
@@ -26,7 +26,9 @@ std::string chat_send_api_command(const Minecraft *minecraft, const std::string 
 
 // Send API Chat Command
 static void send_api_chat_command(const Minecraft *minecraft, const char *str) {
-    const std::string command = std::string("chat.post(") + str + ")\n";
+    char *utf_str = from_cp437(str);
+    const std::string command = std::string("chat.post(") + utf_str + ")\n";
+    free(utf_str);
     chat_send_api_command(minecraft, command);
 }
 
@@ -45,6 +47,11 @@ void chat_send_message_to_clients(ServerSideNetworkHandler *server_side_network_
 }
 // Handle Chat packet Send
 void chat_handle_packet_send(const Minecraft *minecraft, ChatPacket *packet) {
+    // Convert To CP-437
+    char *cp437_str = to_cp437(packet->message.c_str());
+    packet->message = cp437_str;
+    free(cp437_str);
+    // Send
     RakNetInstance *rak_net_instance = minecraft->rak_net_instance;
     if (rak_net_instance->isServer()) {
         // Hosting Multiplayer
