@@ -442,6 +442,11 @@ static int Dimension_isValidSpawn_Level_getTopTile_injection(Level *self, int x,
     return ret;
 }
 
+// Prevent Sugar From Being "handEquipped()"
+static Item *Item_initItems_Item_handEquipped_injection(Item *self) {
+    return self;
+}
+
 // Init
 void init_misc() {
     // Sanitize Username
@@ -590,6 +595,11 @@ void init_misc() {
     // Rare Segfault
     if (feature_has("Fix Crash When Generating Certain Seeds", server_enabled)) {
         overwrite_call((void *) 0xb198c, (void *) Dimension_isValidSpawn_Level_getTopTile_injection);
+    }
+
+    // Fix Sugar Rendering
+    if (feature_has("Fix Sugar Position In Hand", server_disabled)) {
+        overwrite_call((void *) 0x976f8, (void *) Item_initItems_Item_handEquipped_injection);
     }
 
     // Disable overwrite_calls() After Minecraft::init

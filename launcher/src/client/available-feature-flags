@@ -112,3 +112,4 @@ TRUE Render Entity Shadows
 TRUE Render Vignette
 TRUE Increase Render Chunk Size
 TRUE Proper Entity Shading
+TRUE Fix Sugar Position In Hand

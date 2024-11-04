@@ -26,6 +26,7 @@ virtual-method std::string getDescriptionId(const ItemInstance *item_instance) =
 virtual-method ItemInstance *getCraftingRemainingItem(ItemInstance *item_instance) = 0x84;
 // Swing = 0, eating = 1, drinking = 2, bow = 4, anything else is nothing
 virtual-method int getUseAnimation() = 0x94;
+virtual-method Item *handEquipped() = 0x58;
 
 property int id = 0x4;
 property int max_damage = 0x8;
