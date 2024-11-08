@@ -77,25 +77,6 @@ const char *get_home_subdirectory_for_game_data();
 // Make Sure Directory Exists
 void ensure_directory(const char *path);
 
-// Customize VTable
-#define CUSTOM_VTABLE(name, parent) \
-    void _setup_##name##_vtable(parent##_vtable *vtable); \
-    static parent##_vtable *get_##name##_vtable() { \
-        static parent##_vtable *vtable = NULL; \
-        /* Allocate VTable */ \
-        if (vtable == NULL) { \
-            /* Init */ \
-            vtable = dup_vtable(parent##_vtable_base); \
-            ALLOC_CHECK(vtable); \
-            /* Setup */ \
-            _setup_##name##_vtable(vtable); \
-        } \
-        /* Return */ \
-        return vtable; \
-    } \
-    /* User-Defined Setup Code */ \
-    void _setup_##name##_vtable(parent##_vtable *vtable)
-
 #ifdef __cplusplus
 }
 #endif

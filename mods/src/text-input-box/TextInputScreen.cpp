@@ -1,25 +1,29 @@
 #include <mods/text-input-box/TextInputScreen.h>
 
 // VTable
-void TextInputScreen::keyPressed(const int key) const {
+void TextInputScreen::keyPressed(const int key) {
+    CustomScreen::keyPressed(key);
     for (int i = 0; i < int(m_textInputs->size()); i++) {
         TextInputBox *textInput = (*m_textInputs)[i];
         textInput->keyPressed(key);
     }
 }
-void TextInputScreen::keyboardNewChar(const char key) const {
+void TextInputScreen::keyboardNewChar(const char key) {
+    CustomScreen::keyboardNewChar(key);
     for (int i = 0; i < int(m_textInputs->size()); i++) {
         TextInputBox *textInput = (*m_textInputs)[i];
         textInput->charPressed(key);
     }
 }
-void TextInputScreen::mouseClicked(const int x, const int y, __attribute__((unused)) int param_1) const {
+void TextInputScreen::mouseClicked(const int x, const int y, const int param_1) {
+    CustomScreen::mouseClicked(x, y, param_1);
     for (int i = 0; i < int(m_textInputs->size()); i++) {
         TextInputBox *textInput = (*m_textInputs)[i];
         textInput->onClick(x, y);
     }
 }
-void TextInputScreen::render(__attribute__((unused)) int x, __attribute__((unused)) int y, __attribute__((unused)) float param_1) const {
+void TextInputScreen::render(const int x, const int y, const float param_1) {
+    CustomScreen::render(x, y, param_1);
     for (int i = 0; i < int(m_textInputs->size()); i++) {
         TextInputBox *textInput = (*m_textInputs)[i];
         textInput->tick();
@@ -27,8 +31,9 @@ void TextInputScreen::render(__attribute__((unused)) int x, __attribute__((unuse
     }
 }
 void TextInputScreen::init() {
+    CustomScreen::init();
     m_textInputs = new std::vector<TextInputBox *>;
 }
-void TextInputScreen::removed() const {
+TextInputScreen::~TextInputScreen() {
     delete m_textInputs;
 }

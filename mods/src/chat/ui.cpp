@@ -15,81 +15,66 @@ static std::vector<std::string> &get_history() {
 }
 
 // Structure
-EXTEND_STRUCT(ChatScreen, Screen, struct {
-    TextInputScreen text_input;
+struct ChatScreen final : TextInputScreen {
     TextInputBox *chat;
     Button *send;
     int history_pos;
-});
-CUSTOM_VTABLE(chat_screen, Screen) {
-    TextInputScreen::setup<ChatScreen>(vtable);
     // Init
-    static std::vector<std::string> local_history = {};
-    static Screen_init_t original_init = vtable->init;
-    vtable->init = [](Screen *super) {
-        original_init(super);
-        ChatScreen *self = (ChatScreen *) super;
+    std::vector<std::string> local_history = {};
+    void init() override {
+        TextInputScreen::init();
         // Text Input
-        self->data.chat = new TextInputBox;
-        self->data.text_input.m_textInputs->push_back(self->data.chat);
-        self->data.chat->init(super->font);
-        self->data.chat->setFocused(true);
-        self->data.history_pos = get_history().size();
+        chat = new TextInputBox;
+        m_textInputs->push_back(chat);
+        chat->init(super->font);
+        chat->setFocused(true);
+        history_pos = get_history().size();
         local_history = get_history();
         local_history.push_back("");
         // Determine Max Length
         const std::string prefix = _chat_get_prefix(Strings::default_username);
         const int max_length = MAX_CHAT_MESSAGE_LENGTH - prefix.length();
-        self->data.chat->setMaxLength(max_length);
+        chat->setMaxLength(max_length);
         // Send Button
-        self->data.send = touch_create_button(1, "Send");
-        super->rendered_buttons.push_back(self->data.send);
-        super->selectable_buttons.push_back(self->data.send);
+        send = touch_create_button(1, "Send");
+        super->rendered_buttons.push_back(send);
+        super->selectable_buttons.push_back(send);
         // Hide Chat Messages
         is_in_chat = true;
-    };
+    }
     // Removal
-    static Screen_removed_t original_removed = vtable->removed;
-    vtable->removed = [](Screen *super) {
-        original_removed(super);
+    ~ChatScreen() override {
         is_in_chat = false;
-        const ChatScreen *self = (ChatScreen *) super;
-        delete self->data.chat;
-        self->data.send->destructor_deleting();
-    };
+        delete chat;
+        send->destructor_deleting();
+    }
     // Rendering
-    static Screen_render_t original_render = vtable->render;
-    vtable->render = [](Screen *super, const int x, const int y, const float param_1) {
+    void render(const int x, const int y, const float param_1) override {
         // Background
         super->renderBackground();
         // Render Chat
         super->minecraft->gui.renderChatMessages(super->height, 20, true, super->font);
         // Call Original Method
-        original_render(super, x, y, param_1);
-    };
+        TextInputScreen::render(x, y, param_1);
+    }
     // Positioning
-    static Screen_setupPositions_t original_setupPositions = vtable->setupPositions;
-    vtable->setupPositions = [](Screen *super) {
-        original_setupPositions(super);
-        const ChatScreen *self = (ChatScreen *) super;
-        self->data.send->height = 24;
-        self->data.send->width = 40;
+    void setupPositions() override {
+        TextInputScreen::setupPositions();
+        send->height = 24;
+        send->width = 40;
         constexpr int x = 0;
-        const int y = super->height - self->data.send->height;
-        const int width = super->width - self->data.send->width;
-        self->data.chat->setSize(x, y, width, self->data.send->height);
-        self->data.send->y = super->height - self->data.send->height;
-        self->data.send->x = x + width;
-    };
+        const int y = super->height - send->height;
+        const int width = super->width - send->width;
+        chat->setSize(x, y, width, send->height);
+        send->y = super->height - send->height;
+        send->x = x + width;
+    }
     // Key Presses
-    static Screen_keyPressed_t original_keyPressed = vtable->keyPressed;
-    vtable->keyPressed = [](Screen *super, const int key) {
-        // Handle Enter
-        ChatScreen *self = (ChatScreen *) super;
-        if (self->data.chat->isFocused()) {
+    void keyPressed(const int key) override {
+        if (chat->isFocused()) {
             if (key == MC_KEY_RETURN) {
-                if (self->data.chat->getText().length() > 0) {
-                    const std::string text = self->data.chat->getText();
+                if (chat->getText().length() > 0) {
+                    const std::string text = chat->getText();
                     if (get_history().size() == 0 || text != get_history().back()) {
                         get_history().push_back(text);
                     }
@@ -98,50 +83,39 @@ CUSTOM_VTABLE(chat_screen, Screen) {
                 super->minecraft->setScreen(nullptr);
             } else if (key == MC_KEY_UP) {
                 // Up
-                local_history.at(self->data.history_pos) = self->data.chat->getText();
+                local_history.at(history_pos) = chat->getText();
                 // Change
-                self->data.history_pos -= 1;
-                if (self->data.history_pos < 0) self->data.history_pos = local_history.size() - 1;
-                self->data.chat->setText(local_history.at(self->data.history_pos));
+                history_pos -= 1;
+                if (history_pos < 0) history_pos = local_history.size() - 1;
+                chat->setText(local_history.at(history_pos));
                 return;
             } else if (key == MC_KEY_DOWN) {
                 // Down
-                local_history.at(self->data.history_pos) = self->data.chat->getText();
+                local_history.at(history_pos) = chat->getText();
                 // Change
-                self->data.history_pos += 1;
-                if (self->data.history_pos > int(local_history.size()) - 1) self->data.history_pos = 0;
-                self->data.chat->setText(local_history.at(self->data.history_pos));
+                history_pos += 1;
+                if (history_pos > int(local_history.size()) - 1) history_pos = 0;
+                chat->setText(local_history.at(history_pos));
                 return;
             }
         }
         // Call Original Method
-        original_keyPressed(super, key);
-    };
+        TextInputScreen::keyPressed(key);
+    }
     // Button Click
-    static Screen_buttonClicked_t original_buttonClicked = vtable->buttonClicked;
-    vtable->buttonClicked = [](Screen *super, Button *button) {
-        ChatScreen *self = (ChatScreen *) super;
-        if (button == self->data.send) {
+    void buttonClicked(Button *button) override {
+        if (button == send) {
             // Send
-            self->data.chat->setFocused(true);
+            chat->setFocused(true);
             super->keyPressed(0x0d);
         } else {
             // Call Original Method
-            original_buttonClicked(super, button);
+            TextInputScreen::buttonClicked(button);
         }
-    };
-}
+    }
+};
 static Screen *create_chat_screen() {
-    // Construct
-    ChatScreen *screen = new ChatScreen;
-    ALLOC_CHECK(screen);
-    screen->super()->constructor();
-
-    // Set VTable
-    screen->super()->vtable = get_chat_screen_vtable();
-
-    // Return
-    return (Screen *) screen;
+    return extend_struct<Screen, ChatScreen>();
 }
 
 // Init

@@ -7,6 +7,7 @@
 #include <mods/touch/touch.h>
 #include <mods/options/info.h>
 #include <mods/misc/misc.h>
+#include <mods/extend/extend.h>
 
 #include "title-screen-internal.h"
 
@@ -75,61 +76,55 @@ static void position_screen(const int width, const int height) {
 }
 
 // Welcome Screen
-CUSTOM_VTABLE(welcome_screen, Screen) {
+struct WelcomeScreen final : CustomScreen {
     // Init
-    vtable->init = [](__attribute__((unused)) Screen *self) {
+    void init() override {
+        CustomScreen::init();
         // Buttons
         getting_started = touch_create_button(0, "Getting Started");
         changelog = touch_create_button(1, "Changelog");
         proceed = touch_create_button(2, "Proceed");
         for (Button *button : {getting_started, changelog, proceed}) {
-            self->rendered_buttons.push_back(button);
-            self->selectable_buttons.push_back(button);
+            super->rendered_buttons.push_back(button);
+            super->selectable_buttons.push_back(button);
         }
-    };
+    }
     // Rendering
-    static Screen_render_t original_render = vtable->render;
-    vtable->render = [](Screen *self, const int x, const int y, const float param_1) {
+    void render(const int x, const int y, const float param_1) override {
         // Background
-        self->renderBackground();
+        super->renderBackground();
         // Call Original Method
-        original_render(self, x, y, param_1);
+        CustomScreen::render(x, y, param_1);
         // Text
-        self->drawCenteredString(self->font, line1, self->width / 2, text_y, 0xFFFFFFFF);
-    };
+        super->drawCenteredString(super->font, line1, super->width / 2, text_y, 0xFFFFFFFF);
+    }
     // Positioning
-    vtable->setupPositions = [](Screen *self) {
-        position_screen(self->width, self->height);
-    };
+    void setupPositions() override {
+        CustomScreen::setupPositions();
+        position_screen(super->width, super->height);
+    }
     // Cleanup
-    vtable->removed = [](Screen *self) {
-        for (Button *button : self->rendered_buttons) {
+    ~WelcomeScreen() override {
+        for (Button *button : super->rendered_buttons) {
             button->destructor_deleting();
         }
-    };
+    }
     // Handle Button Click
-    vtable->buttonClicked = [](Screen *self, Button *button) {
+    void buttonClicked(Button *button) override {
         if (button == getting_started) {
             open_url(MCPI_DOCUMENTATION "GETTING_STARTED.md");
         } else if (button == changelog) {
             open_url(MCPI_DOCUMENTATION CHANGELOG_FILE);
         } else if (button == proceed) {
             mark_welcome_as_shown();
-            self->minecraft->screen_chooser.setScreen(1);
+            super->minecraft->screen_chooser.setScreen(1);
+        } else {
+            CustomScreen::buttonClicked(button);
         }
-    };
-}
+    }
+};
 static Screen *create_welcome_screen() {
-    // Allocate
-    Screen *screen = Screen::allocate();
-    ALLOC_CHECK(screen);
-    screen->constructor();
-
-    // Set VTable
-    screen->vtable = get_welcome_screen_vtable();
-
-    // Return
-    return screen;
+    return extend_struct<Screen, WelcomeScreen>();
 }
 
 // Show Welcome Screen

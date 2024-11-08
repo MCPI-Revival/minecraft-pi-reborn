@@ -6,6 +6,7 @@
 #include <mods/touch/touch.h>
 #include <mods/misc/misc.h>
 #include <mods/options/info.h>
+#include <mods/extend/extend.h>
 
 #include "options-internal.h"
 
@@ -104,12 +105,12 @@ struct info_line_position {
 static info_line_position positioned_info[info_size];
 static int content_height = 0;
 static int line_button_width = 0;
-static void position_info(Font *font, int width, int height) {
+static void position_info(Font *font, const int width, const int height) {
     // First Stage (Find Max Text Width)
     int info_text_width = 0;
     for (int i = 0; i < info_size; i++) {
         std::string text = info[i].get_text();
-        int text_width = font->width(text);
+        const int text_width = font->width(text);
         if (text_width > info_text_width) {
             info_text_width = text_width;
         }
@@ -170,68 +171,68 @@ void open_url(const std::string &url) {
 }
 
 // Create VTable
-CUSTOM_VTABLE(info_screen, Screen) {
+struct InfoScreen final : CustomScreen {
     // Buttons
-    static Button *discord;
-    static Button *back;
-    static Button *info_buttons[info_size];
+    Button *discord;
+    Button *back;
+    Button *info_buttons[info_size];
     // Init
-    vtable->init = [](Screen *self) {
+    void init() override {
+        CustomScreen::init();
         // Info
         for (int i = 0; i < info_size; i++) {
             Button *button = touch_create_button(INFO_ID_START + i, info[i].button_text);
-            self->rendered_buttons.push_back(button);
-            self->selectable_buttons.push_back(button);
+            super->rendered_buttons.push_back(button);
+            super->selectable_buttons.push_back(button);
             info_buttons[i] = button;
         }
         // Discord Button
         discord = touch_create_button(DISCORD_ID, "Discord");
-        self->rendered_buttons.push_back(discord);
-        self->selectable_buttons.push_back(discord);
+        super->rendered_buttons.push_back(discord);
+        super->selectable_buttons.push_back(discord);
         // Back Button
         back = touch_create_button(BACK_ID, "Back");
-        self->rendered_buttons.push_back(back);
-        self->selectable_buttons.push_back(back);
-    };
+        super->rendered_buttons.push_back(back);
+        super->selectable_buttons.push_back(back);
+    }
     // Handle Back
-    vtable->handleBackEvent = [](Screen *self, const bool do_nothing) {
+    bool handleBackEvent(const bool do_nothing) override {
         if (!do_nothing) {
             OptionsScreen *screen = OptionsScreen::allocate();
-            ALLOC_CHECK(screen);
             screen->constructor();
-            self->minecraft->setScreen((Screen *) screen);
+            super->minecraft->setScreen((Screen *) screen);
         }
         return true;
-    };
+    }
     // Rendering
-    static Screen_render_t original_render = vtable->render;
-    vtable->render = [](Screen *self, const int x, const int y, const float param_1) {
+    void render(const int x, const int y, const float param_1) override {
         // Background
-        misc_render_background(80, self->minecraft, 0, 0, self->width, self->height);
-        misc_render_background(32, self->minecraft, 0, content_y_offset_top, self->width, content_height);
+        misc_render_background(80, super->minecraft, 0, 0, super->width, super->height);
+        misc_render_background(32, super->minecraft, 0, content_y_offset_top, super->width, content_height);
         // Call Original Method
-        original_render(self, x, y, param_1);
+        CustomScreen::render(x, y, param_1);
         // Title
         std::string title = "Reborn Information";
-        self->drawCenteredString(self->font, title, self->width / 2, title_padding, 0xffffffff);
+        super->drawCenteredString(super->font, title, super->width / 2, title_padding, 0xffffffff);
         // Info Text
         for (int i = 0; i < info_size; i++) {
             std::string text = info[i].get_text();
-            self->drawString(self->font, text, positioned_info[i].text.x, positioned_info[i].text.y, 0xffffffff);
+            super->drawString(super->font, text, positioned_info[i].text.x, positioned_info[i].text.y, 0xffffffff);
         }
-    };
+    }
     // Positioning
-    vtable->setupPositions = [](Screen *self) {
+    void setupPositions() override {
+        CustomScreen::setupPositions();
         // Height/Width
         constexpr int width = 120;
         discord->width = back->width = width;
         discord->height = back->height = line_button_height;
         // X/Y
-        discord->y = back->y = self->height - bottom_padding - line_button_height;
-        discord->x = (self->width / 2) - inner_padding - width;
-        back->x = (self->width / 2) + inner_padding;
+        discord->y = back->y = super->height - bottom_padding - line_button_height;
+        discord->x = (super->width / 2) - inner_padding - width;
+        back->x = (super->width / 2) + inner_padding;
         // Info
-        position_info(self->font, self->width, self->height);
+        position_info(super->font, super->width, super->height);
         for (int i = 0; i < info_size; i++) {
             Button *button = info_buttons[i];
             button->width = line_button_width;
@@ -239,18 +240,18 @@ CUSTOM_VTABLE(info_screen, Screen) {
             button->x = positioned_info[i].button.x;
             button->y = positioned_info[i].button.y;
         }
-    };
+    }
     // Cleanup
-    vtable->removed = [](Screen *self) {
-        for (Button *button : self->rendered_buttons) {
+    ~InfoScreen() override {
+        for (Button *button : super->rendered_buttons) {
             button->destructor_deleting();
         }
-    };
+    }
     // Handle Button Click
-    vtable->buttonClicked = [](Screen *self, Button *button) {
+    void buttonClicked(Button *button) override {
         if (button->id == BACK_ID) {
             // Back
-            self->handleBackEvent(false);
+            super->handleBackEvent(false);
         } else if (button->id == DISCORD_ID) {
             // Open Discord Invite
             open_url(MCPI_DISCORD_INVITE);
@@ -258,20 +259,13 @@ CUSTOM_VTABLE(info_screen, Screen) {
             // Open Info URL
             const int i = button->id - INFO_ID_START;
             open_url(info[i].button_url);
+        } else {
+            CustomScreen::buttonClicked(button);
         }
-    };
-}
+    }
+};
 
 // Create Screen
 Screen *_create_options_info_screen() {
-    // Allocate
-    Screen *screen = Screen::allocate();
-    ALLOC_CHECK(screen);
-    screen->constructor();
-
-    // Set VTable
-    screen->vtable = get_info_screen_vtable();
-
-    // Return
-    return screen;
+    return extend_struct<Screen, InfoScreen>();
 }

@@ -33,6 +33,9 @@ set(SRC
     src/misc/graphics.cpp
     src/misc/ui.cpp
     src/misc/tinting.cpp
+    # extend
+    src/extend/Screen.cpp
+    src/extend/DynamicTexture.cpp
     # options
     src/options/options.cpp
     src/options/ui.cpp

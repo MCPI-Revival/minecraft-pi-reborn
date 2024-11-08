@@ -328,7 +328,7 @@ static int CarriedTile_getTexture2_injection(CarriedTile_getTexture2_t original,
 
 // Fix Graphics Bug When Switching To First-Person While Sneaking
 static void PlayerRenderer_render_injection(PlayerRenderer *model_renderer, Entity *entity, const float param_2, const float param_3, const float param_4, const float param_5, const float param_6) {
-    HumanoidMobRenderer_vtable_base->render((HumanoidMobRenderer *) model_renderer, entity, param_2, param_3, param_4, param_5, param_6);
+    HumanoidMobRenderer_vtable::base->render((HumanoidMobRenderer *) model_renderer, entity, param_2, param_3, param_4, param_5, param_6);
     HumanoidModel *model = model_renderer->model;
     model->is_sneaking = false;
 }

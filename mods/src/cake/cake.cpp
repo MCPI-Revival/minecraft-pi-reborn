@@ -5,6 +5,7 @@
 #include <mods/init/init.h>
 #include <mods/misc/misc.h>
 #include <mods/bucket/bucket.h>
+#include <mods/extend/extend.h>
 
 static Tile *cake = nullptr;
 
@@ -123,7 +124,7 @@ static void make_cake() {
     cake->texture = texture;
 
     // Set VTable
-    cake->vtable = dup_vtable(Tile_vtable_base);
+    cake->vtable = extend_dup_vtable(Tile_vtable::base);
     ALLOC_CHECK(cake->vtable);
 
     // Set shape

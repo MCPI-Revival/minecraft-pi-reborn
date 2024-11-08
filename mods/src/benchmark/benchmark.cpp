@@ -156,7 +156,7 @@ static void Minecraft_update_injection(Minecraft *minecraft) {
 // PerformanceTestChunkSource
 static RandomLevelSource *PerformanceTestChunkSource_constructor(__attribute__((unused)) RandomLevelSource_constructor_t original, __attribute__((unused)) RandomLevelSource *self, Level *level, __attribute__((unused)) int seed, __attribute__((unused)) int version, __attribute__((unused)) bool enable_spawning) {
     PerformanceTestChunkSource *self2 = (PerformanceTestChunkSource *) self;
-    self2->vtable = PerformanceTestChunkSource_vtable_base;
+    self2->vtable = PerformanceTestChunkSource_vtable::base;
     self2->level = level;
     return self;
 }

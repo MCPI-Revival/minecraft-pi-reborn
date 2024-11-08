@@ -5,6 +5,7 @@
 #include <mods/init/init.h>
 #include <mods/misc/misc.h>
 #include <mods/bucket/bucket.h>
+#include <mods/extend/extend.h>
 
 // Items
 static FoodItem *bucket = nullptr;
