@@ -182,42 +182,42 @@ struct InfoScreen final : CustomScreen {
         // Info
         for (int i = 0; i < info_size; i++) {
             Button *button = touch_create_button(INFO_ID_START + i, info[i].button_text);
-            super->rendered_buttons.push_back(button);
-            super->selectable_buttons.push_back(button);
+            self->rendered_buttons.push_back(button);
+            self->selectable_buttons.push_back(button);
             info_buttons[i] = button;
         }
         // Discord Button
         discord = touch_create_button(DISCORD_ID, "Discord");
-        super->rendered_buttons.push_back(discord);
-        super->selectable_buttons.push_back(discord);
+        self->rendered_buttons.push_back(discord);
+        self->selectable_buttons.push_back(discord);
         // Back Button
         back = touch_create_button(BACK_ID, "Back");
-        super->rendered_buttons.push_back(back);
-        super->selectable_buttons.push_back(back);
+        self->rendered_buttons.push_back(back);
+        self->selectable_buttons.push_back(back);
     }
     // Handle Back
     bool handleBackEvent(const bool do_nothing) override {
         if (!do_nothing) {
             OptionsScreen *screen = OptionsScreen::allocate();
             screen->constructor();
-            super->minecraft->setScreen((Screen *) screen);
+            self->minecraft->setScreen((Screen *) screen);
         }
         return true;
     }
     // Rendering
     void render(const int x, const int y, const float param_1) override {
         // Background
-        misc_render_background(80, super->minecraft, 0, 0, super->width, super->height);
-        misc_render_background(32, super->minecraft, 0, content_y_offset_top, super->width, content_height);
+        misc_render_background(80, self->minecraft, 0, 0, self->width, self->height);
+        misc_render_background(32, self->minecraft, 0, content_y_offset_top, self->width, content_height);
         // Call Original Method
         CustomScreen::render(x, y, param_1);
         // Title
         std::string title = "Reborn Information";
-        super->drawCenteredString(super->font, title, super->width / 2, title_padding, 0xffffffff);
+        self->drawCenteredString(self->font, title, self->width / 2, title_padding, 0xffffffff);
         // Info Text
         for (int i = 0; i < info_size; i++) {
             std::string text = info[i].get_text();
-            super->drawString(super->font, text, positioned_info[i].text.x, positioned_info[i].text.y, 0xffffffff);
+            self->drawString(self->font, text, positioned_info[i].text.x, positioned_info[i].text.y, 0xffffffff);
         }
     }
     // Positioning
@@ -228,11 +228,11 @@ struct InfoScreen final : CustomScreen {
         discord->width = back->width = width;
         discord->height = back->height = line_button_height;
         // X/Y
-        discord->y = back->y = super->height - bottom_padding - line_button_height;
-        discord->x = (super->width / 2) - inner_padding - width;
-        back->x = (super->width / 2) + inner_padding;
+        discord->y = back->y = self->height - bottom_padding - line_button_height;
+        discord->x = (self->width / 2) - inner_padding - width;
+        back->x = (self->width / 2) + inner_padding;
         // Info
-        position_info(super->font, super->width, super->height);
+        position_info(self->font, self->width, self->height);
         for (int i = 0; i < info_size; i++) {
             Button *button = info_buttons[i];
             button->width = line_button_width;
@@ -243,7 +243,7 @@ struct InfoScreen final : CustomScreen {
     }
     // Cleanup
     ~InfoScreen() override {
-        for (Button *button : super->rendered_buttons) {
+        for (Button *button : self->rendered_buttons) {
             button->destructor_deleting();
         }
     }
@@ -251,7 +251,7 @@ struct InfoScreen final : CustomScreen {
     void buttonClicked(Button *button) override {
         if (button->id == BACK_ID) {
             // Back
-            super->handleBackEvent(false);
+            self->handleBackEvent(false);
         } else if (button->id == DISCORD_ID) {
             // Open Discord Invite
             open_url(MCPI_DISCORD_INVITE);

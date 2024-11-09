@@ -37,27 +37,27 @@ T *extend_get_vtable() {
     static void setup_##name##_vtable(parent##_vtable *vtable)
 
 // Extend MCPI Classes
-template <typename Super, typename Self>
-Self *extend_get_data(Super *super) {
-    return (Self *) (super + 1);
+template <typename Self, typename Data>
+Data *extend_get_data(Self *self) {
+    return (Data *) (self + 1);
 }
-template <typename Super, typename Self>
-auto extend_struct(auto&&... args) -> decltype(Super::allocate()) {
-    constexpr size_t size = sizeof(Super) + sizeof(Self);
-    Super *super = (Super *) ::operator new(size);
-    Self *self = extend_get_data<Super, Self>(super);
-    new (self) Self(std::forward<decltype(args)>(args)...);
-    return super;
+template <typename Self, typename Data>
+auto extend_struct(auto&&... args) -> decltype(Self::allocate()) {
+    constexpr size_t size = sizeof(Self) + sizeof(Data);
+    Self *out = (Self *) ::operator new(size);
+    Data *data = extend_get_data<Self, Data>(out);
+    new (data) Data(std::forward<decltype(args)>(args)...);
+    return out;
 }
 
 // Helpers
 #define CREATE_HELPER(name) \
     struct Custom##name { \
-        explicit Custom##name(auto&&... args): super(((name *) this) - 1) { \
-            super->constructor(std::forward<decltype(args)>(args)...); \
-            super->vtable = get_vtable(); \
+        explicit Custom##name(auto&&... args): self(((name *) this) - 1) { \
+            self->constructor(std::forward<decltype(args)>(args)...); \
+            self->vtable = get_vtable(); \
         } \
-        name *const super; \
+        name *const self; \
         static name##_vtable *get_vtable(); \
     private: \
         static void setup_vtable(name##_vtable *vtable); \

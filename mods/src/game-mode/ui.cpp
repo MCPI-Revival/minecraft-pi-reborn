@@ -39,25 +39,25 @@ struct CreateWorldScreen final : TextInputScreen {
         // Name
         name = new TextInputBox("World Name", "Unnamed world");
         m_textInputs->push_back(name);
-        name->init(super->font);
+        name->init(self->font);
         name->setFocused(true);
         // Seed
         seed = new TextInputBox("Seed");
         m_textInputs->push_back(seed);
-        seed->init(super->font);
+        seed->init(self->font);
         seed->setFocused(false);
         // Game Mode
         game_mode = touch_create_button(1, CREATIVE_STR);
-        super->rendered_buttons.push_back(game_mode);
-        super->selectable_buttons.push_back(game_mode);
+        self->rendered_buttons.push_back(game_mode);
+        self->selectable_buttons.push_back(game_mode);
         // Create
         create = touch_create_button(2, "Create");
-        super->rendered_buttons.push_back(create);
-        super->selectable_buttons.push_back(create);
+        self->rendered_buttons.push_back(create);
+        self->selectable_buttons.push_back(create);
         // Back
         back = touch_create_button(3, "Back");
-        super->rendered_buttons.push_back(back);
-        super->selectable_buttons.push_back(back);
+        self->rendered_buttons.push_back(back);
+        self->selectable_buttons.push_back(back);
     }
     // Removal
     ~CreateWorldScreen() override {
@@ -70,17 +70,17 @@ struct CreateWorldScreen final : TextInputScreen {
     // Rendering
     void render(const int x, const int y, const float param_1) override {
         // Background
-        misc_render_background(80, super->minecraft, 0, 0, super->width, super->height);
-        misc_render_background(32, super->minecraft, 0, content_y_offset_top, super->width, super->height - content_y_offset_top - content_y_offset_bottom);
+        misc_render_background(80, self->minecraft, 0, 0, self->width, self->height);
+        misc_render_background(32, self->minecraft, 0, content_y_offset_top, self->width, self->height - content_y_offset_top - content_y_offset_bottom);
         // Call Original Method
         TextInputScreen::render(x, y, param_1);
         // Title
         std::string title = "Create world";
-        super->drawCenteredString(super->font, title, super->width / 2, title_padding, 0xffffffff);
+        self->drawCenteredString(self->font, title, self->width / 2, title_padding, 0xffffffff);
         // Game Mode Description
         const bool is_creative = game_mode->text == CREATIVE_STR;
         std::string description = is_creative ? Strings::creative_mode_description : Strings::survival_mode_description;
-        super->drawString(super->font, description, game_mode->x, game_mode->y + game_mode->height + description_padding, 0xa0a0a0);
+        self->drawString(self->font, description, game_mode->x, game_mode->y + game_mode->height + description_padding, 0xa0a0a0);
     }
     // Positioning
     void setupPositions() override {
@@ -95,15 +95,15 @@ struct CreateWorldScreen final : TextInputScreen {
         const int text_box_height = game_mode->height;
         // Find Center Y
         constexpr int top = content_y_offset_top;
-        const int bottom = super->height - content_y_offset_bottom;
+        const int bottom = self->height - content_y_offset_bottom;
         int center_y = ((bottom - top) / 2) + top;
         center_y -= (description_padding + line_height) / 2;
         // X/Y
-        create->y = back->y = super->height - bottom_padding - height;
-        create->x = game_mode->x = (super->width / 2) - inner_padding - width;
-        back->x = (super->width / 2) + inner_padding;
+        create->y = back->y = self->height - bottom_padding - height;
+        create->x = game_mode->x = (self->width / 2) - inner_padding - width;
+        back->x = (self->width / 2) + inner_padding;
         const int seed_x = back->x;
-        const int name_x = (super->width / 2) - (name_width / 2);
+        const int name_x = (self->width / 2) - (name_width / 2);
         const int name_y = center_y - inner_padding - height;
         game_mode->y = center_y + inner_padding;
         const int seed_y = game_mode->y;
@@ -114,7 +114,7 @@ struct CreateWorldScreen final : TextInputScreen {
     // ESC
     bool handleBackEvent(const bool do_nothing) override {
         if (!do_nothing) {
-            super->minecraft->screen_chooser.setScreen(5);
+            self->minecraft->screen_chooser.setScreen(5);
         }
         return true;
     }
@@ -126,10 +126,10 @@ struct CreateWorldScreen final : TextInputScreen {
             game_mode->text = is_creative ? SURVIVAL_STR : CREATIVE_STR;
         } else if (button == back) {
             // Back
-            super->handleBackEvent(false);
+            self->handleBackEvent(false);
         } else if (button == create) {
             // Create
-            create_world(super->minecraft, name->getText(), is_creative, seed->getText());
+            create_world(self->minecraft, name->getText(), is_creative, seed->getText());
         } else {
             TextInputScreen::buttonClicked(button);
         }

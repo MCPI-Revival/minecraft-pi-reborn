@@ -85,27 +85,27 @@ struct WelcomeScreen final : CustomScreen {
         changelog = touch_create_button(1, "Changelog");
         proceed = touch_create_button(2, "Proceed");
         for (Button *button : {getting_started, changelog, proceed}) {
-            super->rendered_buttons.push_back(button);
-            super->selectable_buttons.push_back(button);
+            self->rendered_buttons.push_back(button);
+            self->selectable_buttons.push_back(button);
         }
     }
     // Rendering
     void render(const int x, const int y, const float param_1) override {
         // Background
-        super->renderBackground();
+        self->renderBackground();
         // Call Original Method
         CustomScreen::render(x, y, param_1);
         // Text
-        super->drawCenteredString(super->font, line1, super->width / 2, text_y, 0xFFFFFFFF);
+        self->drawCenteredString(self->font, line1, self->width / 2, text_y, 0xFFFFFFFF);
     }
     // Positioning
     void setupPositions() override {
         CustomScreen::setupPositions();
-        position_screen(super->width, super->height);
+        position_screen(self->width, self->height);
     }
     // Cleanup
     ~WelcomeScreen() override {
-        for (Button *button : super->rendered_buttons) {
+        for (Button *button : self->rendered_buttons) {
             button->destructor_deleting();
         }
     }
@@ -117,7 +117,7 @@ struct WelcomeScreen final : CustomScreen {
             open_url(MCPI_DOCUMENTATION CHANGELOG_FILE);
         } else if (button == proceed) {
             mark_welcome_as_shown();
-            super->minecraft->screen_chooser.setScreen(1);
+            self->minecraft->screen_chooser.setScreen(1);
         } else {
             CustomScreen::buttonClicked(button);
         }

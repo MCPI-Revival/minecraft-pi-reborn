@@ -60,10 +60,10 @@ struct LavaTexture final : CustomDynamicTexture {
             if (x1 < 0.0f) {
                 x1 = 0.0f;
             }
-            super->pixels[i * 4 + 0] = int(155.0f + 100.0f * x1);
-            super->pixels[i * 4 + 1] = int(255.0f * x1 * x1);
-            super->pixels[i * 4 + 2] = int(128.0f * x1 * x1 * x1 * x1);
-            super->pixels[i * 4 + 3] = 255;
+            self->pixels[i * 4 + 0] = int(155.0f + 100.0f * x1);
+            self->pixels[i * 4 + 1] = int(255.0f * x1 * x1);
+            self->pixels[i * 4 + 2] = int(128.0f * x1 * x1 * x1 * x1);
+            self->pixels[i * 4 + 3] = 255;
         }
     }
 };
@@ -84,7 +84,7 @@ struct LavaSideTexture final : CustomDynamicTexture {
         field_14 = 0;
         field_18 = 0;
         field_1C = 0;
-        super->texture_size = 2;
+        self->texture_size = 2;
         for (int i = 0; i < 256; i++) {
             m_data1[i] = 0.0f;
             m_data2[i] = 0.0f;
@@ -126,10 +126,10 @@ struct LavaSideTexture final : CustomDynamicTexture {
             if (x1 < 0.0f) {
                 x1 = 0.0f;
             }
-            super->pixels[i * 4 + 0] = int(155.0f + 100.0f * x1);
-            super->pixels[i * 4 + 1] = int(255.0f * x1 * x1);
-            super->pixels[i * 4 + 2] = int(128.0f * x1 * x1 * x1 * x1);
-            super->pixels[i * 4 + 3] = 255;
+            self->pixels[i * 4 + 0] = int(155.0f + 100.0f * x1);
+            self->pixels[i * 4 + 1] = int(255.0f * x1 * x1);
+            self->pixels[i * 4 + 2] = int(128.0f * x1 * x1 * x1 * x1);
+            self->pixels[i * 4 + 3] = 255;
         }
     }
 };
@@ -186,10 +186,10 @@ struct FireTexture final : CustomDynamicTexture {
             if (x < 0.0f) {
                 x = 0.0f;
             }
-            super->pixels[4 * i + 0] = int(x * 155.0f + 100.0f);
-            super->pixels[4 * i + 1] = int(x * x * 255.0f);
-            super->pixels[4 * i + 2] = int(x * x * x * x * x * x * x * x * x * x * 255.0f);
-            super->pixels[4 * i + 3] = x >= 0.5f ? 255 : 0;
+            self->pixels[4 * i + 0] = int(x * 155.0f + 100.0f);
+            self->pixels[4 * i + 1] = int(x * x * 255.0f);
+            self->pixels[4 * i + 2] = int(x * x * x * x * x * x * x * x * x * x * 255.0f);
+            self->pixels[4 * i + 3] = x >= 0.5f ? 255 : 0;
         }
     }
 };

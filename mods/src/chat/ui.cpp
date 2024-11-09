@@ -26,7 +26,7 @@ struct ChatScreen final : TextInputScreen {
         // Text Input
         chat = new TextInputBox;
         m_textInputs->push_back(chat);
-        chat->init(super->font);
+        chat->init(self->font);
         chat->setFocused(true);
         history_pos = get_history().size();
         local_history = get_history();
@@ -37,8 +37,8 @@ struct ChatScreen final : TextInputScreen {
         chat->setMaxLength(max_length);
         // Send Button
         send = touch_create_button(1, "Send");
-        super->rendered_buttons.push_back(send);
-        super->selectable_buttons.push_back(send);
+        self->rendered_buttons.push_back(send);
+        self->selectable_buttons.push_back(send);
         // Hide Chat Messages
         is_in_chat = true;
     }
@@ -51,9 +51,9 @@ struct ChatScreen final : TextInputScreen {
     // Rendering
     void render(const int x, const int y, const float param_1) override {
         // Background
-        super->renderBackground();
+        self->renderBackground();
         // Render Chat
-        super->minecraft->gui.renderChatMessages(super->height, 20, true, super->font);
+        self->minecraft->gui.renderChatMessages(self->height, 20, true, self->font);
         // Call Original Method
         TextInputScreen::render(x, y, param_1);
     }
@@ -63,10 +63,10 @@ struct ChatScreen final : TextInputScreen {
         send->height = 24;
         send->width = 40;
         constexpr int x = 0;
-        const int y = super->height - send->height;
-        const int width = super->width - send->width;
+        const int y = self->height - send->height;
+        const int width = self->width - send->width;
         chat->setSize(x, y, width, send->height);
-        send->y = super->height - send->height;
+        send->y = self->height - send->height;
         send->x = x + width;
     }
     // Key Presses
@@ -78,9 +78,9 @@ struct ChatScreen final : TextInputScreen {
                     if (get_history().size() == 0 || text != get_history().back()) {
                         get_history().push_back(text);
                     }
-                    _chat_send_message_to_server(super->minecraft, text.c_str());
+                    _chat_send_message_to_server(self->minecraft, text.c_str());
                 }
-                super->minecraft->setScreen(nullptr);
+                self->minecraft->setScreen(nullptr);
             } else if (key == MC_KEY_UP) {
                 // Up
                 local_history.at(history_pos) = chat->getText();
@@ -107,7 +107,7 @@ struct ChatScreen final : TextInputScreen {
         if (button == send) {
             // Send
             chat->setFocused(true);
-            super->keyPressed(0x0d);
+            self->keyPressed(0x0d);
         } else {
             // Call Original Method
             TextInputScreen::buttonClicked(button);
