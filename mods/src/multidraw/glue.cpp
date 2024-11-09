@@ -94,13 +94,13 @@ static void multidraw_renderSameAsLast(const LevelRenderer *self, const float b)
     media_glDisableClientState(GL_TEXTURE_COORD_ARRAY);
     media_glPopMatrix();
 }
-static int LevelRenderer_renderChunks_injection(__attribute__((unused)) LevelRenderer_renderChunks_t original, LevelRenderer *self, const int start, const int end, const int a, const float b) {
+static int LevelRenderer_renderChunks_injection(__attribute__((unused)) LevelRenderer_renderChunks_t original, const LevelRenderer *self, const int start, const int end, const int a, const float b) {
     // Batch
     multidraw_total = 0;
     for (int i = start; i < end; i++) {
         Chunk *chunk = self->chunks[i];
         // Check If Chunk Is Visible
-        if (!chunk->field_1c[a] && chunk->visible) {
+        if (!chunk->field_1c[a] && chunk->visible && (!self->occlusion_check || chunk->occlusion_visible)) {
             const RenderChunk *render_chunk = chunk->getRenderChunk(a);
             // Get Data Block
             const int chunk_id = int(render_chunk->buffer - MULTIDRAW_BASE);

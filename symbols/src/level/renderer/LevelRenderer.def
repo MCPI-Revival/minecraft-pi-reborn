@@ -1,3 +1,7 @@
+vtable 0x107438;
+
+constructor (Minecraft *minecraft) = 0x4e5f8;
+
 method void tick() = 0x4da1c;
 method int render(Mob *mob, int param_1, float delta) = 0x4f710;
 method void render_AABB(const AABB &box) = 0x4d740;
@@ -11,3 +15,5 @@ method void renderEntities(Vec3 pos, void *unknown, float a) = 0x500ec;
 property Minecraft *minecraft = 0xb4;
 property RenderList render_list = 0x34;
 property Chunk **chunks = 0x98;
+property bool occlusion_check = 0xb8;
+property int num_buffers = 0xd0;
