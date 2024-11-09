@@ -246,6 +246,26 @@ GL_FUNC(glLightModelfv, void, (GLenum pname, const GLfloat *params))
 void media_glLightModelfv(const GLenum pname, const GLfloat *params) {
     real_glLightModelfv()(pname, params);
 }
+GL_FUNC(glGenQueries, void, (GLsizei n, GLuint *ids))
+void media_glGenQueries(const GLsizei n, GLuint *ids) {
+    real_glGenQueries()(n, ids);
+}
+GL_FUNC(glDeleteQueries, void, (GLsizei n, const GLuint *ids))
+void media_glDeleteQueries(const GLsizei n, const GLuint *ids) {
+    real_glDeleteQueries()(n, ids);
+}
+GL_FUNC(glBeginQuery, void, (GLenum target, GLuint id))
+void media_glBeginQuery(const GLenum target, const GLuint id) {
+    real_glBeginQuery()(target, id);
+}
+GL_FUNC(glEndQuery, void, (GLenum target))
+void media_glEndQuery(const GLenum target) {
+    real_glEndQuery()(target);
+}
+GL_FUNC(glGetQueryObjectuiv, void, (GLuint id, GLenum pname, GLuint *params))
+void media_glGetQueryObjectuiv(const GLuint id, const GLenum pname, GLuint *params) {
+    real_glGetQueryObjectuiv()(id, pname, params);
+}
 
 // GL_EXT_multi_draw_arrays
 GL_FUNC(glMultiDrawArraysEXT, void, (GLenum mode, const GLint *first, const GLsizei *count, GLsizei drawcount))

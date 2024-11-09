@@ -492,6 +492,14 @@ static void adjust_mov_shift(void *addr, const uint32_t new_shift) {
     unsigned char *x = (unsigned char *) &instruction;
     patch(addr, x);
 }
+static int safe_log2(const int x) {
+    const double y = std::log2(x);
+    const int z = int(y);
+    if (double(z) != y) {
+        IMPOSSIBLE();
+    }
+    return z;
+}
 
 // Init
 void _init_misc_graphics() {
@@ -611,8 +619,8 @@ void _init_misc_graphics() {
         constexpr int b = 128 / chunk_size;
         unsigned char render_chunk_patch_one[] = {(unsigned char) b, 0x20, 0xa0, 0xe3}; // "mov r2, #b"
         patch((void *) 0x4fbec, render_chunk_patch_one);
-        adjust_mov_shift((void *) 0x4fbfc, std::log2(b));
-        const int c = std::log2(chunk_size);
+        adjust_mov_shift((void *) 0x4fbfc, safe_log2(b));
+        const int c = safe_log2(chunk_size);
         adjust_mov_shift((void *) 0x4fbf0, c);
         adjust_mov_shift((void *) 0x4fc74, c);
         adjust_mov_shift((void *) 0x4fd60, c);
