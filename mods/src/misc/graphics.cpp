@@ -501,63 +501,6 @@ static int safe_log2(const int x) {
     return z;
 }
 
-// Occlusion Checking
-static int num_occlusion_ids;
-static GLuint *occlusion_ids;
-static LevelRenderer *LevelRenderer_injection(LevelRenderer_constructor_t original, LevelRenderer *self, Minecraft *minecraft) {
-    // Call Original Method
-    original(self, minecraft);
-    // Setup
-    self->occlusion_check = true;
-    num_occlusion_ids = self->num_buffers / 3;
-    occlusion_ids = new GLuint[num_occlusion_ids];
-    media_glGenQueries(num_occlusion_ids, occlusion_ids);
-    return self;
-}
-static void LevelRenderer_allChanged_Chunk_setDirty_injection(Chunk *self) {
-    self->occlusion_id = int(occlusion_ids[self->id]);
-    // Call Original Method
-    self->setDirty();
-}
-static void check_query_result(Chunk *chunk) {
-    if (chunk->occlusion_querying) {
-        GLuint val;
-        media_glGetQueryObjectuiv(chunk->occlusion_id, GL_QUERY_RESULT_AVAILABLE, &val);
-        if (val != 0) {
-            chunk->occlusion_querying = false;
-            media_glGetQueryObjectuiv(chunk->occlusion_id, GL_QUERY_RESULT, &val);
-            chunk->occlusion_visible = val != 0;
-        }
-    }
-}
-static int LevelRenderer_render_LevelRenderer_renderChunks_injection(LevelRenderer *self, const int start, const int end, const int a, const float b) {
-    for (int i = start; i < end; i++) {
-        Chunk *chunk = self->chunks[i];
-        check_query_result(chunk);
-        chunk->occlusion_visible = true;
-    }
-    // Call Original Method
-    return self->renderChunks(start, end, a, b);
-}
-static bool LevelRenderer_render_Chunk_isEmpty_injection(Chunk *self) {
-    check_query_result(self);
-    // Call Original Method
-    return self->isEmpty();
-}
-static void Chunk_renderBB_injection(__attribute__((unused)) Chunk_renderBB_t original, Chunk *self) {
-    media_glBeginQuery(GL_SAMPLES_PASSED, self->occlusion_id);
-    AABB aabb = {
-        .x1 = self->aabb.x1 - float(self->x),
-        .y1 = self->aabb.y1 - float(self->y),
-        .z1 = self->aabb.z1 - float(self->z),
-        .x2 = self->aabb.x2 - float(self->x),
-        .y2 = self->aabb.y2 - float(self->y),
-        .z2 = self->aabb.z2 - float(self->z)
-    };
-    EntityRenderer::renderFlat(aabb);
-    media_glEndQuery(GL_SAMPLES_PASSED);
-}
-
 // Init
 void _init_misc_graphics() {
     // Disable V-Sync
@@ -706,15 +649,6 @@ void _init_misc_graphics() {
         patch((void *) 0x4f1ec, render_chunk_patch_seven);
         patch((void *) 0x4f1fc, render_chunk_patch_seven);
         patch((void *) 0x4f20c, render_chunk_patch_seven);
-    }
-
-    // Occlusion Checking
-    if(feature_has("Chunk OpenGL Occlusion Checking", server_disabled)) {
-        overwrite_calls(LevelRenderer_constructor, LevelRenderer_injection);
-        overwrite_call((void *) 0x4fce4, (void *) LevelRenderer_allChanged_Chunk_setDirty_injection);
-        overwrite_call((void *) 0x4f8d4, (void *) LevelRenderer_render_LevelRenderer_renderChunks_injection);
-        overwrite_call((void *) 0x4f960, (void *) LevelRenderer_render_Chunk_isEmpty_injection);
-        overwrite_calls(Chunk_renderBB, Chunk_renderBB_injection);
     }
 
     // Don't Render Game In Headless Mode

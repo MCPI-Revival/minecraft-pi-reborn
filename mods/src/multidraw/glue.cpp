@@ -100,7 +100,7 @@ static int LevelRenderer_renderChunks_injection(__attribute__((unused)) LevelRen
     for (int i = start; i < end; i++) {
         Chunk *chunk = self->chunks[i];
         // Check If Chunk Is Visible
-        if (!chunk->field_1c[a] && chunk->visible && (!self->occlusion_check || chunk->occlusion_visible)) {
+        if (!chunk->field_1c[a] && chunk->visible) {
             const RenderChunk *render_chunk = chunk->getRenderChunk(a);
             // Get Data Block
             const int chunk_id = int(render_chunk->buffer - MULTIDRAW_BASE);
