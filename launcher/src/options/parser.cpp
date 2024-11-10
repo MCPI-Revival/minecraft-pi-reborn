@@ -1,5 +1,6 @@
 #include <argp.h>
 
+#include <trampoline/types.h>
 #include "parser.h"
 
 // Globals
@@ -17,6 +18,9 @@ static argp_option options_data[] = {
     {nullptr, 0, nullptr, 0, "Environmental Variables:", 0},
 #define ENV(name, doc) {#name, env_key--, nullptr, OPTION_DOC | OPTION_NO_USAGE | (is_env_var_internal(name##_ENV) ? OPTION_HIDDEN : 0), doc, 0},
 #include <libreborn/env-list.h>
+#ifdef MCPI_BUILD_RUNTIME
+#include <trampoline/env-list.h>
+#endif
 #undef ENV
     {nullptr, 0, nullptr, 0, "Help Options:", -1},
     {nullptr, 0, nullptr, 0, nullptr, 0}

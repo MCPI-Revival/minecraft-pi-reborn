@@ -6,9 +6,9 @@
 #include "guest.h"
 
 // Syscall Method
-static uint32_t trampoline_syscall(const uint32_t id, const uint32_t length, const unsigned char *args) {
+static uint32_t trampoline_syscall(const uint32_t id, const unsigned char *args) {
     // Make Syscall
-    const long ret = syscall(TRAMPOLINE_SYSCALL, id, length, args);
+    const long ret = syscall(TRAMPOLINE_SYSCALL, id, args);
     if (ret == -1) {
         // Error
         ERR("Trampoline Error: %s", strerror(errno));
@@ -17,7 +17,7 @@ static uint32_t trampoline_syscall(const uint32_t id, const uint32_t length, con
     return *(uint32_t *) args;
 }
 
-// Pipe Method (Native Trampoline Only)
+// Pipe Method
 static int get_pipe(const char *env) {
     const char *value = getenv(env);
     if (value == nullptr) {
@@ -31,8 +31,8 @@ static uint32_t trampoline_pipe(const uint32_t id, const bool allow_early_return
     static int arguments_pipe = -1;
     static int return_value_pipe = -1;
     if (arguments_pipe == -1) {
-        arguments_pipe = get_pipe(TRAMPOLINE_ARGUMENTS_PIPE_ENV);
-        return_value_pipe = get_pipe(TRAMPOLINE_RETURN_VALUE_PIPE_ENV);
+        arguments_pipe = get_pipe(_MCPI_TRAMPOLINE_ARGUMENTS_ENV);
+        return_value_pipe = get_pipe(_MCPI_TRAMPOLINE_RETURN_VALUE_ENV);
     }
     // Write Command
     const trampoline_pipe_arguments cmd = {
@@ -66,11 +66,14 @@ static uint32_t trampoline_pipe(const uint32_t id, const bool allow_early_return
 
 // Main Function
 uint32_t _raw_trampoline(const uint32_t id, const bool allow_early_return, const uint32_t length, const unsigned char *args) {
+    if (length > MAX_TRAMPOLINE_ARGS_SIZE) {
+        ERR("Command Too Big");
+    }
     // Configure Method
-    static bool use_syscall = getenv(TRAMPOLINE_ARGUMENTS_PIPE_ENV) == nullptr;
+    static bool use_syscall = getenv(MCPI_USE_PIPE_TRAMPOLINE_ENV) == nullptr;
     // Use Correct Method
     if (use_syscall) {
-        return trampoline_syscall(id, length, args);
+        return trampoline_syscall(id, args);
     } else {
         return trampoline_pipe(id, allow_early_return, length, args);
     }

@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cstring>
+#include <cstdlib>
 
 #include "../common/common.h"
 
@@ -34,11 +35,17 @@ struct copy_array {
 };
 template <>
 inline void _handle_trampoline_arg<copy_array>(unsigned char *&out, const copy_array &arg) {
-    *(uint32_t *) out = arg.size;
-    out += sizeof(uint32_t);
+    // Send Size
+    _handle_trampoline_arg(out, arg.size);
+    // Send Data
     if (arg.size > 0) {
-        memcpy(out, arg.data, arg.size);
-        out += arg.size;
+        static bool just_send_pointer = getenv(MCPI_USE_PIPE_TRAMPOLINE_ENV) == nullptr;
+        if (just_send_pointer) {
+            _handle_trampoline_arg(out, uint32_t(arg.data));
+        } else {
+            memcpy(out, arg.data, arg.size);
+            out += arg.size;
+        }
     }
 }
 // Variadic Templates

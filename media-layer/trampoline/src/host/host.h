@@ -1,5 +1,7 @@
 #pragma once
 
+#include <cstdlib>
+
 #include "../common/common.h"
 
 // Trampoline Function
@@ -38,12 +40,16 @@ struct TrampolineArguments {
         if (length != nullptr) {
             *length = size / sizeof(T);
         }
+        static bool just_read_pointer = getenv(MCPI_USE_PIPE_TRAMPOLINE_ENV) == nullptr;
         if (size == 0) {
             return nullptr;
+        } else if (just_read_pointer) {
+            return (const T *) (uintptr_t) (QEMU_GUEST_BASE + next<uint32_t>());
+        } else {
+            const T *ret = (const T *) raw_args;
+            raw_args += size;
+            return ret;
         }
-        const T *ret = (const T *) raw_args;
-        raw_args += size;
-        return ret;
     }
 
 private:

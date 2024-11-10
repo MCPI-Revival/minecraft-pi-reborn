@@ -201,25 +201,12 @@ CALL(17, media_glClear, void, (GLbitfield mask))
 
 CALL(18, media_glBufferData, void, (GLenum target, GLsizeiptr size, const void *data, GLenum usage))
 #ifdef MEDIA_LAYER_TRAMPOLINE_GUEST
-    static bool use_syscall = getenv(TRAMPOLINE_ARGUMENTS_PIPE_ENV) == nullptr;
-    if (use_syscall) {
-        trampoline(false, gl_state.bound_array_buffer, target, int32_t(size), uint32_t(data), usage);
-    } else {
-        trampoline(true, gl_state.bound_array_buffer, target, int32_t(size), copy_array(size, (unsigned char *) data), usage);
-    }
+    trampoline(true, gl_state.bound_array_buffer, target, int32_t(size), copy_array(size, (unsigned char *) data), usage);
 #else
     media_glBindBuffer(GL_ARRAY_BUFFER, args.next<GLuint>());
     GLenum target = args.next<GLenum>();
     int32_t size = args.next<int32_t>();
-#ifdef MCPI_RUNTIME_IS_QEMU
-    const unsigned char *data = nullptr;
-    uint32_t data_addr = args.next<uint32_t>();
-    if (data_addr != 0) {
-        data = (const unsigned char *) (uintptr_t) (QEMU_GUEST_BASE + data_addr);
-    }
-#else
     const unsigned char *data = args.next_arr<unsigned char>();
-#endif
     GLenum usage = args.next<GLenum>();
     func(target, size, data, usage);
     return 0;
@@ -798,24 +785,13 @@ CALL(67, media_glGenBuffers, void, (GLsizei n, GLuint *buffers))
 
 CALL(69, media_glBufferSubData, void, (GLenum target, GLintptr offset, GLsizeiptr size, const void *data))
 #ifdef MEDIA_LAYER_TRAMPOLINE_GUEST
-    static bool use_syscall = getenv(TRAMPOLINE_ARGUMENTS_PIPE_ENV) == nullptr;
-    if (use_syscall) {
-        trampoline(false, gl_state.bound_array_buffer, target, int32_t(offset), int32_t(size), uint32_t(data));
-    } else {
-        trampoline(true, gl_state.bound_array_buffer, target, int32_t(offset), copy_array(size, (unsigned char *) data));
-    }
+    trampoline(true, gl_state.bound_array_buffer, target, int32_t(offset), copy_array(size, (unsigned char *) data));
 #else
     media_glBindBuffer(GL_ARRAY_BUFFER, args.next<GLuint>());
     GLenum target = args.next<GLenum>();
     int32_t offset = args.next<int32_t>();
-#ifdef MCPI_RUNTIME_IS_QEMU
-    int32_t size = args.next<int32_t>();
-    uint32_t data_addr = args.next<uint32_t>();
-    const unsigned char *data = (const unsigned char *) (uintptr_t) (QEMU_GUEST_BASE + data_addr);
-#else
     uint32_t size;
     const unsigned char *data = args.next_arr<unsigned char>(&size);
-#endif
     func(target, offset, size, data);
     return 0;
 #endif

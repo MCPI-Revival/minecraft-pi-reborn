@@ -4,7 +4,6 @@
 #include <vector>
 
 #include <libreborn/libreborn.h>
-#include <trampoline/types.h>
 
 #include "util.h"
 #include "bootstrap.h"
@@ -61,7 +60,7 @@ void bootstrap(const options_t &options) {
     // Debug Information
     print_debug_information();
 
-    // Check Page Size (Not Needed When Using QEMU)
+    // Check Page Size
     long page_size = sysconf(_SC_PAGESIZE);
     if (page_size != REQUIRED_PAGE_SIZE) {
         CONDITIONAL_ERR(!options.skip_pagesize_check, "Invalid page size! A page size of %ld bytes is required, but the system size is %ld bytes.", (long) REQUIRED_PAGE_SIZE, page_size);
@@ -176,11 +175,6 @@ void bootstrap(const options_t &options) {
     // Use Extra If Needed
 #ifdef MCPI_BUILD_RUNTIME
     args.push_back("runtime");
-#endif
-    // Fix QEMU Bug
-#ifdef MCPI_RUNTIME_IS_QEMU
-    args.push_back("-B");
-    args.push_back(std::to_string(QEMU_GUEST_BASE));
 #endif
 
     // Specify MCPI Binary
