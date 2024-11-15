@@ -1,6 +1,6 @@
 # Symlink Function
 function(install_symlink target link)
-    get_filename_component(parent "${link}" DIRECTORY)
+    cmake_path(GET link PARENT_PATH parent)
     if(parent STREQUAL "")
         set(parent ".")
     endif()
@@ -13,7 +13,7 @@ endfunction()
 set(util_list_dir "${CMAKE_CURRENT_LIST_DIR}")
 function(embed_resource target file)
     # Get C Name
-    get_filename_component(name "${file}" NAME)
+    cmake_path(GET file FILENAME name)
     string(MAKE_C_IDENTIFIER "${name}" name)
     # Add Command
     add_custom_command(OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/${name}.c"

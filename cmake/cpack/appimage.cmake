@@ -1,4 +1,4 @@
-# Downlaod AppImage Runtime
+# Download AppImage Runtime
 set(RUNTIME_ARCH "unknown")
 if(CPACK_MCPI_ARCH STREQUAL "armhf")
     set(RUNTIME_ARCH "armhf")
@@ -16,7 +16,7 @@ file(DOWNLOAD
 list(GET DOWNLOAD_STATUS 0 STATUS_CODE)
 list(GET DOWNLOAD_STATUS 1 ERROR_MESSAGE)
 if(NOT STATUS_CODE EQUAL 0)
-    message(FATAL_ERROR "Unable To Downlopad AppImage Runtime: ${ERROR_MESSAGE}")
+    message(FATAL_ERROR "Unable To Download AppImage Runtime: ${ERROR_MESSAGE}")
 else()
     message(STATUS "Downloaded AppImage Runtime: ${RUNTIME}")
 endif()
@@ -41,11 +41,8 @@ execute_process(
         "${CPACK_TEMPORARY_DIRECTORY}"
         "${CPACK_PACKAGE_FILE_NAME}.AppImage"
     WORKING_DIRECTORY "${CPACK_PACKAGE_DIRECTORY}"
-    RESULT_VARIABLE APPIMAGETOOL_RESULT
+    COMMAND_ERROR_IS_FATAL ANY
 )
-if(NOT APPIMAGETOOL_RESULT EQUAL 0)
-    message(FATAL_ERROR "Unable Package AppImage")
-endif()
 
 # Rename ZSync File
 file(RENAME "${CPACK_PACKAGE_DIRECTORY}/${CPACK_PACKAGE_FILE_NAME}.AppImage.zsync" "${CPACK_PACKAGE_DIRECTORY}/${CPACK_PACKAGE_FILE_NAME_ZSYNC}.AppImage.zsync")

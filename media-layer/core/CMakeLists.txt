@@ -25,12 +25,14 @@ install(TARGETS media-layer-core-real DESTINATION "${MCPI_LIB_DIR}")
 # Link
 find_library(OPENAL_LIBRARY NAMES openal REQUIRED)
 target_link_libraries(media-layer-core-real
-    PUBLIC media-layer-headers
-    PUBLIC reborn-util
-    PRIVATE "${OPENAL_LIBRARY}"
-    PRIVATE m
-    PRIVATE glfw
-    PUBLIC GLESv1_CM
-    PRIVATE LIB_LIEF
-    PUBLIC dl
+    PUBLIC
+        media-layer-headers
+        reborn-util
+        GLESv1_CM
+        dl
+    PRIVATE
+        "${OPENAL_LIBRARY}"
+        m
+        glfw
+        LIB_LIEF
 )

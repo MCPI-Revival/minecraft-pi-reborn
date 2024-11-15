@@ -1,9 +1,7 @@
-cmake_minimum_required(VERSION 3.17.0)
+cmake_minimum_required(VERSION 3.24.0)
 
 # Avoid Warning About DOWNLOAD_EXTRACT_TIMESTAMP
-if(CMAKE_VERSION VERSION_GREATER_EQUAL 3.24.0)
-    cmake_policy(SET CMP0135 NEW)
-endif()
+cmake_policy(SET CMP0135 NEW)
 
 # Core Options
 include(cmake/options/core-options.cmake)

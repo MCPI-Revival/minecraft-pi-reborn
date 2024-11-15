@@ -52,7 +52,11 @@ if("${toolchain_dir}/bin/arm-none-linux-gnueabihf-gcc" IS_NEWER_THAN "${sysroot_
     if(NOT CMAKE_BUILD_TYPE STREQUAL "Debug")
         file(GLOB_RECURSE files LIST_DIRECTORIES FALSE "${sysroot_dir}/*")
         foreach(file IN LISTS files)
-            execute_process(COMMAND "${toolchain_dir}/bin/arm-none-linux-gnueabihf-strip" "${file}" RESULT_VARIABLE ret)
+            execute_process(
+                COMMAND "${toolchain_dir}/bin/arm-none-linux-gnueabihf-strip" "${file}"
+                RESULT_VARIABLE ret
+                ERROR_QUIET
+            )
             # Check Result
             if(NOT ret EQUAL 0)
                 # Delete Invalid Files
@@ -66,7 +70,7 @@ endif()
 function(install_arm_sysroot)
     file(GLOB_RECURSE files LIST_DIRECTORIES FALSE RELATIVE "${sysroot_dir}" "${sysroot_dir}/*")
     foreach(file IN LISTS files)
-        get_filename_component(parent "${file}" DIRECTORY)
+        cmake_path(GET file PARENT_PATH parent)
         install(PROGRAMS "${sysroot_dir}/${file}" DESTINATION "${MCPI_INSTALL_DIR}/sysroot/${parent}")
     endforeach()
 endfunction()

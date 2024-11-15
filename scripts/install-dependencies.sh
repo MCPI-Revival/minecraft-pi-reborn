@@ -9,6 +9,26 @@ if [ "$(id -u)" -eq 0 ]; then
     }
 fi
 
+# Setup Backports
+CODENAME="$(. /etc/os-release && echo "${VERSION_CODENAME}")"
+BACKPORTS=''
+if [ "${CODENAME}" = 'bullseye' ]; then
+    BACKPORTS="${CODENAME}-backports"
+    echo "deb http://deb.debian.org/debian ${BACKPORTS} main" | sudo tee "/etc/apt/sources.list.d/${BACKPORTS}.list" > /dev/null
+    BACKPORTS="/${BACKPORTS}"
+fi
+
+# Variables
+MODE="$1"
+ARCH="$(echo "$2" | tr '[:upper:]' '[:lower:]')"
+
+# Add ARM Repository
+sudo dpkg --add-architecture "${ARCH}"
+
+# Update APT
+sudo apt-get update
+sudo apt-get dist-upgrade -y
+
 # Run APT
 install_pkg() {
     sudo apt-get install --no-install-recommends -y "$@"
@@ -19,10 +39,11 @@ run_build() {
     install_pkg \
         `# Build System` \
         git \
-        cmake \
+        "cmake${BACKPORTS}" \
         ninja-build \
         python3 \
         python3-venv \
+        "python3-tomli${BACKPORTS}" \
         `# Host Dependencies Needed For Compile` \
         libwayland-bin \
         `# Compiler` \
@@ -83,17 +104,6 @@ run_example_mods() {
         g++-arm-linux-gnueabihf \
         gcc-arm-linux-gnueabihf
 }
-
-# Variables
-MODE="$1"
-ARCH="$(echo "$2" | tr '[:upper:]' '[:lower:]')"
-
-# Add ARM Repository
-sudo dpkg --add-architecture "${ARCH}"
-
-# Update APT
-sudo apt-get update
-sudo apt-get dist-upgrade -y
 
 # Install Packages
 "run_${MODE}" "${ARCH}"

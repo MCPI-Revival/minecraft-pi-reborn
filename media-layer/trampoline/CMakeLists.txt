@@ -14,7 +14,14 @@ if(BUILD_NATIVE_COMPONENTS)
 elseif(BUILD_ARM_COMPONENTS)
     # Guest Component
     add_library(media-layer-core SHARED src/guest/guest.cpp ${MEDIA_LAYER_TRAMPOLINE_SRC})
-    target_link_libraries(media-layer-core PUBLIC media-layer-headers PRIVATE reborn-util PRIVATE trampoline-headers PRIVATE rt)
+    target_link_libraries(media-layer-core
+        PUBLIC
+            media-layer-headers
+        PRIVATE
+            reborn-util
+            trampoline-headers
+            rt
+    )
     target_compile_definitions(media-layer-core PRIVATE -DMEDIA_LAYER_TRAMPOLINE_GUEST)
     # Install
     if(MCPI_USE_MEDIA_LAYER_TRAMPOLINE)

@@ -214,18 +214,18 @@ set(HEADER_OUTPUT_FILE "${HEADER_OUTPUT_DIR}/minecraft.h")
 
 # Generated Source Files
 set(SRC_OUTPUT_FILES "")
-foreach(FILE IN LISTS SRC)
-    get_filename_component(FILE_EXT "${FILE}" EXT)
-    if(FILE_EXT STREQUAL ".def")
-        get_filename_component(FILE "${FILE}" NAME_WE)
-        list(APPEND SRC_OUTPUT_FILES "${SRC_OUTPUT_DIR}/${FILE}.cpp")
+foreach(file IN LISTS SRC)
+    cmake_path(GET file EXTENSION file_ext)
+    if(file_ext STREQUAL ".def")
+        cmake_path(GET file STEM file)
+        list(APPEND SRC_OUTPUT_FILES "${SRC_OUTPUT_DIR}/${file}.cpp")
     endif()
 endforeach()
 
 # Generate
 set(INPUT_FILES "")
-foreach(FILE IN LISTS SRC)
-    list(APPEND INPUT_FILES "${CMAKE_CURRENT_SOURCE_DIR}/${FILE}")
+foreach(file IN LISTS SRC)
+    list(APPEND INPUT_FILES "${CMAKE_CURRENT_SOURCE_DIR}/${file}")
 endforeach()
 set(OUTPUT_FILES ${SRC_OUTPUT_FILES} "${HEADER_OUTPUT_FILE}")
 add_custom_command(
@@ -238,9 +238,6 @@ add_custom_command(
 
 # Build
 add_library(symbols SHARED ${OUTPUT_FILES})
-
-# Speed Up Compilation
-#target_precompile_headers(symbols PRIVATE "${HEADER_OUTPUT_FILE}")
 
 # Show In IDE
 add_custom_target(symbols-src
