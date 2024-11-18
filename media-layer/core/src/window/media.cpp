@@ -2,7 +2,7 @@
 #include <unistd.h>
 
 #include "media.h"
-#include "audio/engine.h"
+#include "../audio/engine.h"
 
 // Window
 GLFWwindow *glfw_window = nullptr;

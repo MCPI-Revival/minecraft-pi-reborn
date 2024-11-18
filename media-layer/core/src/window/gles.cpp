@@ -4,6 +4,8 @@
 
 #include <libreborn/libreborn.h>
 
+#include "media.h"
+
 // Load GL Function
 unsigned int media_context_id = 0;
 #define GL_FUNC(name, return_type, args) \
@@ -13,6 +15,9 @@ unsigned int media_context_id = 0;
         static unsigned int old_context = 0; \
         if (!func || old_context != media_context_id) { \
             old_context = media_context_id; \
+            if (glfw_window == nullptr) { \
+                IMPOSSIBLE(); \
+            } \
             func = (real_##name##_t) glfwGetProcAddress(#name); \
             if (!func) { \
                 ERR("Error Resolving OpenGL Function: " #name); \

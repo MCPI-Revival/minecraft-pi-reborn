@@ -4,7 +4,7 @@
 
 #include <libreborn/libreborn.h>
 
-#include "media.h"
+#include "window/media.h"
 
 // SDL Is Replaced With GLFW
 
@@ -22,7 +22,7 @@ int media_SDL_PollEvent(SDL_Event *event) {
 
     // Poll Event
     int ret;
-    if (queue.size() > 0) {
+    if (!queue.empty()) {
         *event = queue[0];
         queue.erase(queue.begin());
         ret = 1;

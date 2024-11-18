@@ -21,7 +21,6 @@ endif()
 
 # Add Core
 if(BUILD_MEDIA_LAYER_CORE)
-    add_subdirectory(gles)
     add_subdirectory(core)
 endif()
 

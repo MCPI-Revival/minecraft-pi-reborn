@@ -3,11 +3,12 @@ project(media-layer-core)
 # SDL Re-Implementation Using GLFW
 set(CORE_SRC
     src/base.cpp
-    src/media.cpp
-    src/cursor.cpp
-    src/util.cpp
-    src/events.cpp
-    src/offscreen.cpp
+    src/window/media.cpp
+    src/window/cursor.cpp
+    src/window/util.cpp
+    src/window/events.cpp
+    src/window/offscreen.cpp
+    src/window/gles.cpp
     src/audio/api.cpp
     src/audio/engine.cpp
     src/audio/file.cpp
@@ -28,7 +29,6 @@ target_link_libraries(media-layer-core-real
     PUBLIC
         media-layer-headers
         reborn-util
-        GLESv1_CM
         dl
     PRIVATE
         "${OPENAL_LIBRARY}"
