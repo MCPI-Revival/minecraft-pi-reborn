@@ -49,7 +49,7 @@ if("${toolchain_dir}/bin/arm-none-linux-gnueabihf-gcc" IS_NEWER_THAN "${sysroot_
     file(REMOVE_RECURSE "${sysroot_dir}/usr/lib/gconv")
 
     # Strip Files
-    if(NOT CMAKE_BUILD_TYPE STREQUAL "Debug")
+    if(NOT CMAKE_BUILD_TYPE MATCHES Debug)
         file(GLOB_RECURSE files LIST_DIRECTORIES FALSE "${sysroot_dir}/*")
         foreach(file IN LISTS files)
             execute_process(

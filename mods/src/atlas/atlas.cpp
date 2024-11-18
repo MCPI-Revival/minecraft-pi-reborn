@@ -10,9 +10,14 @@
 #include <mods/atlas/atlas.h>
 #include <mods/init/init.h>
 
+// Atlas Texture
+constexpr int atlas_texture_size = 2048; // Must Be Power Of Two
+
+// Atlas Dimensions
+constexpr int atlas_entry_size = 48;
+constexpr int atlas_size_entries = atlas_texture_size / atlas_entry_size;
+
 // Render Atlas
-#define ATLAS_SIZE 32
-#define ATLAS_ENTRY_SIZE 48
 static int get_atlas_key(Item *item, const int data) {
     const int id = item->id;
     const int icon = item->getIcon(data);
@@ -53,14 +58,15 @@ static void render_atlas(Textures *textures) {
             const int key = info.first;
             const int data = info.second;
             // Check Remaining Space (Leave Last Slot Empty)
-            if (x == (ATLAS_SIZE - 1) && y == (ATLAS_SIZE - 1)) {
+            constexpr int last_entry_pos = atlas_size_entries - 1;
+            if (x == last_entry_pos && y == last_entry_pos) {
                 WARN("Out Of gui_blocks Atlas Space!");
                 return;
             }
             // Position
             media_glPushMatrix();
-            media_glTranslatef(ATLAS_ENTRY_SIZE * x, ATLAS_ENTRY_SIZE * y, 0);
-            constexpr float scale = ATLAS_ENTRY_SIZE / 16.0f;
+            media_glTranslatef(atlas_entry_size * x, atlas_entry_size * y, 0);
+            constexpr float scale = atlas_entry_size / 16.0f;
             media_glScalef(scale, scale, 1);
             // Render
             ItemInstance obj = {
@@ -78,7 +84,7 @@ static void render_atlas(Textures *textures) {
             }
             // Advance To Next Slot
             x++;
-            if (x >= ATLAS_SIZE) {
+            if (x >= atlas_size_entries) {
                 x = 0;
                 y++;
             }
@@ -87,16 +93,15 @@ static void render_atlas(Textures *textures) {
 }
 static void generate_atlas(Minecraft *minecraft) {
     // Setup Offscreen Rendering
-    constexpr int atlas_size = ATLAS_SIZE * ATLAS_ENTRY_SIZE;
-    media_begin_offscreen_render(atlas_size, atlas_size);
+    media_begin_offscreen_render(atlas_texture_size, atlas_texture_size);
 
     // Setup OpenGL
     ((NinecraftApp *) minecraft)->initGLStates();
-    media_glViewport(0, 0, atlas_size, atlas_size);
+    media_glViewport(0, 0, atlas_texture_size, atlas_texture_size);
     media_glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     media_glMatrixMode(GL_PROJECTION);
     media_glLoadIdentity();
-    media_glOrthof(0, atlas_size, atlas_size, 0, 2000, 3000);
+    media_glOrthof(0, atlas_texture_size, atlas_texture_size, 0, 2000, 3000);
     media_glMatrixMode(GL_MODELVIEW);
     media_glLoadIdentity();
     media_glTranslatef(0, 0, -2000);
@@ -113,10 +118,10 @@ static void generate_atlas(Minecraft *minecraft) {
     textures->loadAndBindTexture("gui/gui_blocks.png");
     constexpr int icon_width = 28;
     constexpr int icon_height = 8;
-    minecraft->gui.blit(atlas_size - icon_width, atlas_size - icon_height, 242, 252, icon_width, icon_height, 14, 4);
+    minecraft->gui.blit(atlas_texture_size - icon_width, atlas_texture_size - icon_height, 242, 252, icon_width, icon_height, 14, 4);
 
     // Read Texture
-    int line_size = atlas_size * 4;
+    int line_size = atlas_texture_size * 4;
     {
         // Handle Alignment
         int alignment;
@@ -125,15 +130,15 @@ static void generate_atlas(Minecraft *minecraft) {
         line_size = ALIGN_UP(line_size, alignment);
     }
     Texture texture;
-    texture.width = atlas_size;
-    texture.height = atlas_size;
+    texture.width = atlas_texture_size;
+    texture.height = atlas_texture_size;
     texture.field3_0xc = 0;
     texture.field4_0x10 = true;
     texture.field5_0x11 = false;
     texture.field6_0x14 = 0;
     texture.field7_0x18 = -1;
-    texture.data = new unsigned char[atlas_size * line_size];
-    media_glReadPixels(0, 0, atlas_size, atlas_size, GL_RGBA, GL_UNSIGNED_BYTE, texture.data);
+    texture.data = new unsigned char[atlas_texture_size * line_size];
+    media_glReadPixels(0, 0, atlas_texture_size, atlas_texture_size, GL_RGBA, GL_UNSIGNED_BYTE, texture.data);
     for (int y = 0; y < (texture.height / 2); y++) {
         for (int x = 0; x < (texture.width * 4); x++) {
             unsigned char &a = texture.data[(y * line_size) + x];
@@ -173,10 +178,11 @@ static void ItemRenderer_renderGuiItem_two_injection(__attribute__((unused)) Ite
     }
     const std::pair<int, int> &pos = atlas_key_to_pos[key];
     // Convert To UV
-    float u0 = float(pos.first) / ATLAS_SIZE;
-    float u1 = float(pos.first + 1) / ATLAS_SIZE;
-    float v0 = float(pos.second) / ATLAS_SIZE;
-    float v1 = float(pos.second + 1) / ATLAS_SIZE;
+    constexpr float scale = float(atlas_texture_size) / atlas_entry_size;
+    float u0 = float(pos.first) / scale;
+    float u1 = float(pos.first + 1) / scale;
+    float v0 = float(pos.second) / scale;
+    float v1 = float(pos.second + 1) / scale;
     // Render
     textures->loadAndBindTexture("gui/gui_blocks.png");
     Tesselator &t = Tesselator::instance;
@@ -200,7 +206,7 @@ static int CropTile_getTexture2_injection(CropTile_getTexture2_t original, CropT
 
 // Fix Open Inventory Button
 static void Gui_renderToolBar_GuiComponent_blit_injection(GuiComponent *self, int x_dest, int y_dest, __attribute__((unused)) const int x_src, __attribute__((unused)) const int y_src, const int width_dest, const int height_dest, const int width_src, const int height_src) {
-    constexpr float size_scale = 2.0f / (ATLAS_SIZE * ATLAS_ENTRY_SIZE);
+    constexpr float size_scale = 2.0f / atlas_texture_size;
     constexpr float u1 = 1.0f;
     const float u0 = u1 - (float(width_src) * size_scale);
     constexpr float v1 = 1.0f;
@@ -221,7 +227,7 @@ void atlas_update_tile(Textures *textures, const int texture, const unsigned cha
         uint32_t atlas_id = textures->loadAndBindTexture("gui/gui_blocks.png");
         const Texture *atlas_data = textures->getTemporaryTextureData(atlas_id);
         constexpr int texture_size = 16;
-        constexpr int fake_atlas_size = (ATLAS_SIZE * texture_size);
+        constexpr float fake_atlas_size = atlas_texture_size * (float(texture_size) / atlas_entry_size);
         media_glTexSubImage2D_with_scaling(atlas_data, pos.first * texture_size, pos.second * texture_size, texture_size, texture_size, fake_atlas_size, fake_atlas_size, pixels);
     }
 }

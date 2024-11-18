@@ -75,14 +75,14 @@ static unsigned char *scale_texture(const unsigned char *src, const GLsizei old_
 }
 
 // Scale Animated Textures
-void media_glTexSubImage2D_with_scaling(const Texture *target, const GLint xoffset, const GLint yoffset, const GLsizei width, const GLsizei height, const GLsizei normal_texture_width, const GLsizei normal_texture_height, const void *pixels) {
+void media_glTexSubImage2D_with_scaling(const Texture *target, const GLint xoffset, const GLint yoffset, const GLsizei width, const GLsizei height, const GLfloat normal_texture_width, const GLfloat normal_texture_height, const void *pixels) {
     // Get Current Texture Size
     const GLsizei texture_width = target->width;
     const GLsizei texture_height = target->height;
 
     // Calculate Factor
-    const float width_factor = ((float) texture_width) / ((float) normal_texture_width);
-    const float height_factor = ((float) texture_height) / ((float) normal_texture_height);
+    const float width_factor = float(texture_width) / normal_texture_width;
+    const float height_factor = float(texture_height) / normal_texture_height;
 
     // Only Scale If Needed
     if (width_factor == 1.0f && height_factor == 1.0f) {

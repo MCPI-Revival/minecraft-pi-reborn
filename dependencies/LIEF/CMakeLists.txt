@@ -36,3 +36,12 @@ endif()
 
 # License
 install(FILES src/LICENSE DESTINATION "${MCPI_LEGAL_DIR}/LIEF")
+
+# Fix Flags
+function(fix_flags property)
+    get_target_property(flags LIB_LIEF "${property}")
+    list(REMOVE_ITEM flags "_GLIBCXX_USE_CXX11_ABI=1")
+    set_target_properties(LIB_LIEF PROPERTIES "${property}" "${flags}")
+endfunction()
+fix_flags(COMPILE_DEFINITIONS)
+fix_flags(INTERFACE_COMPILE_DEFINITIONS)
