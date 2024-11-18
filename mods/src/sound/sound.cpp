@@ -30,7 +30,7 @@ std::string _sound_get_source_file() {
         // Check If Sound Exists
         if (access(full_path.c_str(), F_OK) == -1) {
             // Fail
-            WARN("Audio Source File Doesn't Exist: %s", path.c_str());
+            WARN("Missing Audio Source File: %s", path.c_str());
             source = "";
             info_sound_data_state = "Missing";
         } else {

@@ -1,7 +1,5 @@
 #include <cstdio>
 #include <cstdlib>
-#include <cstring>
-#include <cstdarg>
 
 #include <unistd.h>
 #include <fcntl.h>
@@ -56,7 +54,7 @@ std::string override_get_path(std::string filename) {
 
     // Check For Override
     std::string new_path;
-    if (std::string(filename).rfind(data_prefix, 0) == 0) {
+    if (filename.starts_with(data_prefix)) {
         // Test Asset Folders
         for (int i = 0; !asset_folders[i].empty(); i++) {
             new_path = asset_folders[i] + '/' + &filename[data_prefix_length];
