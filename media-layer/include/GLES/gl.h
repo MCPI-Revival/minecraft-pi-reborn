@@ -100,9 +100,6 @@ extern "C" {
 #define GL_AMBIENT_AND_DIFFUSE 0x1602
 #define GL_LIGHT_MODEL_AMBIENT 0xb53
 #define GL_STREAM_DRAW 0x88e0
-#define GL_SAMPLES_PASSED 0x8914
-#define GL_QUERY_RESULT_AVAILABLE 0x8867
-#define GL_QUERY_RESULT 0x8866
 
 typedef float GLfloat;
 typedef float GLclampf;
@@ -179,11 +176,6 @@ void media_glNormalPointer(GLenum type, GLsizei stride, const void *pointer);
 void media_glLightfv(GLenum light, GLenum pname, const GLfloat *params);
 void media_glColorMaterial(GLenum face, GLenum mode);
 void media_glLightModelfv(GLenum pname, const GLfloat *params);
-void media_glGenQueries(GLsizei n, GLuint *ids);
-void media_glDeleteQueries(GLsizei n, const GLuint *ids);
-void media_glBeginQuery(GLenum target, GLuint id);
-void media_glEndQuery(GLenum target);
-void media_glGetQueryObjectuiv(GLuint id, GLenum pname, GLuint *params);
 
 extern unsigned int media_context_id;
 
