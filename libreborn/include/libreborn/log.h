@@ -1,11 +1,7 @@
 #pragma once
 
-#include <stdio.h>
-#include <stdlib.h>
-
-#ifdef __cplusplus
-extern "C" {
-#endif
+#include <cstdio>
+#include <cstdlib>
 
 // Log File
 int reborn_get_log_fd();
@@ -29,7 +25,3 @@ int reborn_get_debug_fd();
             WARN(__VA_ARGS__); \
         } \
     }
-
-#ifdef __cplusplus
-}
-#endif

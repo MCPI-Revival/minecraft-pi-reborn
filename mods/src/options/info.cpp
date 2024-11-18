@@ -161,10 +161,8 @@ static void position_info(Font *font, const int width, const int height) {
 void open_url(const std::string &url) {
     int return_code;
     const char *command[] = {"xdg-open", url.c_str(), nullptr};
-    char *output = run_command(command, &return_code, nullptr);
-    if (output != nullptr) {
-        free(output);
-    }
+    const std::vector<unsigned char> *output = run_command(command, &return_code);
+    delete output;
     if (!is_exit_status_success(return_code)) {
         WARN("Unable To Open URL: %s", url.c_str());
     }

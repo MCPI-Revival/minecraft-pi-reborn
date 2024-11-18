@@ -1,4 +1,5 @@
 #include <cmath>
+#include <cstdint>
 
 #include <libreborn/libreborn.h>
 #include <mods/extend/extend.h>

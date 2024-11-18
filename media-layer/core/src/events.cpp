@@ -164,15 +164,13 @@ static void codepoint_to_utf8(unsigned char *const buffer, const unsigned int co
 static void glfw_char(__attribute__((unused)) GLFWwindow *window, const unsigned int codepoint) {
     // Convert
     size_t str_size = 4 /* Maximum UTF-8 character size */ + 1 /* NULL-terminator */;
-    char str[str_size] = {};
-    codepoint_to_utf8((unsigned char *) str, codepoint);
-    char *cp437_str = to_cp437(str);
+    unsigned char str[str_size] = {};
+    codepoint_to_utf8(str, codepoint);
+    std::string cp437_str = to_cp437((const char *) str);
     // Send Event
-    for (int i = 0; cp437_str[i] != '\0'; i++) {
-        character_event(cp437_str[i]);
+    for (const char x : cp437_str) {
+        character_event(x);
     }
-    // Free
-    free(cp437_str);
 }
 
 // Convert Screen Coordinates To Pixels

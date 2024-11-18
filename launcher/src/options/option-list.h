@@ -1,6 +1,6 @@
 OPTION(debug, "debug", 'd', "Enable Debug Logging")
 OPTION(copy_sdk, "copy-sdk", -2, "Extract Modding SDK And Exit")
-OPTION(disable_crash_report, "disable-crash-report", -1, "Disable Crash Report Dialog")
+OPTION(disable_logger, "disable-logger", -1, "Disable Logger (And Crash Report Dialog)")
 OPTION(use_default, "default", -3, "Skip Client-Mode Configuration Dialogs")
 OPTION(no_cache, "no-cache", -4, "Disable Client-Mode Configuration Cache")
 OPTION(wipe_cache, "wipe-cache", -5, "Wipe Cached Client-Mode Configuration And Exit")

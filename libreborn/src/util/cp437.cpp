@@ -1,5 +1,4 @@
 #include <cstdint>
-#include <cstdlib>
 
 #include "utf8.h"
 
@@ -48,22 +47,22 @@ static uint32_t *get_cp437_characters_codepoint_map() {
     }
     return map;
 }
-char *to_cp437(const char *input) {
+std::string to_cp437(const std::string &input) {
     // Convert To UTF-32 For Easier Parsing
-    std::u32string utf32_str = to_utf32(input);
+    const std::u32string utf32_str = to_utf32(input);
 
     // Allocate String
     std::string cp437_str;
 
     // Handle Characters
     for (size_t i = 0; i < utf32_str.length(); i++) {
-        uint32_t codepoint = utf32_str[i];
+        const uint32_t codepoint = utf32_str[i];
         bool valid = false;
         for (int j = 0; j < CP437_CHARACTERS; j++) {
-            uint32_t test_codepoint = get_cp437_characters_codepoint_map()[j];
+            const uint32_t test_codepoint = get_cp437_characters_codepoint_map()[j];
             if (codepoint == test_codepoint) {
                 valid = true;
-                cp437_str += j;
+                cp437_str += char(j);
                 break;
             }
         }
@@ -73,19 +72,18 @@ char *to_cp437(const char *input) {
     }
 
     // Return
-    return strdup(cp437_str.c_str());
+    return cp437_str;
 }
-char *from_cp437(const char *raw_input) {
+std::string from_cp437(const std::string &input) {
     // Convert To UTF-32 For Easier Parsing
-    std::string input = raw_input;
     std::u32string utf32_str;
 
     // Handle Characters
     for (size_t i = 0; i < input.length(); i++) {
-        unsigned char c = (unsigned char) input[i];
-        utf32_str += get_cp437_characters_codepoint_map()[(uint32_t) c];
+        const unsigned char c = (unsigned char) input[i];
+        utf32_str += char32_t(get_cp437_characters_codepoint_map()[(uint32_t) c]);
     }
 
     // Convert To UTF-8
-    return strdup(to_utf8(utf32_str).c_str());
+    return to_utf8(utf32_str);
 }

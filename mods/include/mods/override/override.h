@@ -1,5 +1,7 @@
 #pragma once
 
+#include <string>
+
 extern "C" {
-char *override_get_path(const char *filename);
+std::string override_get_path(std::string filename);
 }

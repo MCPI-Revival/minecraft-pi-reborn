@@ -7,31 +7,34 @@
 #include <libreborn/env.h>
 
 // Safe Version Of pipe()
-void safe_pipe2(int pipefd[2], int flags) {
-    if (pipe2(pipefd, flags) != 0) {
+Pipe::Pipe(): read(-1), write(-1) {
+    int out[2];
+    if (pipe(out) != 0) {
         ERR("Unable To Create Pipe: %s", strerror(errno));
     }
+    const_cast<int &>(read) = out[0];
+    const_cast<int &>(write) = out[1];
 }
 
 // Check If Two Percentages Are Different Enough To Be Logged
 #define SIGNIFICANT_PROGRESS 5
-int is_progress_difference_significant(int32_t new_val, int32_t old_val) {
+bool is_progress_difference_significant(const int32_t new_val, const int32_t old_val) {
     if (new_val != old_val) {
         if (new_val == -1 || old_val == -1) {
-            return 1;
+            return true;
         } else if (new_val == 0 || new_val == 100) {
-            return 1;
+            return true;
         } else {
             return new_val - old_val >= SIGNIFICANT_PROGRESS;
         }
     } else {
-        return 0;
+        return false;
     }
 }
 
 // Lock File
 int lock_file(const char *file) {
-    int fd = open(file, O_WRONLY | O_CREAT, S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH);
+    const int fd = open(file, O_WRONLY | O_CREAT, S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH);
     if (fd == -1) {
         ERR("Unable To Open Lock File: %s: %s", file, strerror(errno));
     }
@@ -51,25 +54,25 @@ void unlock_file(const char *file, const int fd) {
 const char *reborn_get_version() {
     return MCPI_VERSION;
 }
-int reborn_is_headless() {
-    static int ret;
-    static int is_set = 0;
+bool reborn_is_headless() {
+    static bool ret;
+    static bool is_set = false;
     if (!is_set) {
         ret = reborn_is_server();
         if (getenv(_MCPI_FORCE_HEADLESS_ENV)) {
-            ret = 1;
+            ret = true;
         } else if (getenv(_MCPI_FORCE_NON_HEADLESS_ENV)) {
-            ret = 0;
+            ret = false;
         }
-        is_set = 1;
+        is_set = true;
     }
     return ret;
 }
-int reborn_is_server() {
+bool reborn_is_server() {
     static int ret;
     static int is_set = 0;
     if (!is_set) {
-        ret = getenv(_MCPI_SERVER_MODE_ENV) != NULL;
+        ret = getenv(_MCPI_SERVER_MODE_ENV) != nullptr;
         is_set = 1;
     }
     return ret;
@@ -84,7 +87,7 @@ void reborn_check_display() {
 
 // Home Subdirectory
 const char *get_home_subdirectory_for_game_data() {
-    if (getenv(MCPI_PROFILE_DIRECTORY_ENV) != NULL) {
+    if (getenv(MCPI_PROFILE_DIRECTORY_ENV) != nullptr) {
         // No Subdirectory When Using Custom Profile Directory
         return "";
     } else if (!reborn_is_server()) {
@@ -110,5 +113,13 @@ void ensure_directory(const char *path) {
     }
     if (!is_dir) {
         ERR("Not A Directory: %s", path);
+    }
+}
+
+// Write To FD
+void safe_write(const int fd, const void *buf, const size_t size) {
+    const ssize_t bytes_written = write(fd, buf, size);
+    if (bytes_written < 0) {
+        ERR("Unable To Write Data: %s", strerror(errno));
     }
 }

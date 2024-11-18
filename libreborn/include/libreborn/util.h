@@ -1,16 +1,17 @@
 #pragma once
 
 #include <unistd.h>
-#include <string.h>
-#include <errno.h>
+#include <cstring>
+#include <cerrno>
 #include <dlfcn.h>
+#include <array>
 
 #include "log.h"
 
 // Check Memory Allocation
 #define ALLOC_CHECK(obj) \
     { \
-        if (obj == NULL) { \
+        if ((obj) == nullptr) { \
             ERR("Memory Allocation Failed"); \
         } \
     }
@@ -41,23 +42,18 @@
         } \
         return func; \
     }
-#ifdef __cplusplus
-#define hooked_function_setup extern "C"
-#else
-#define hooked_function_setup
-#endif
 #define HOOK(name, return_type, args) \
     EXTERNAL_FUNC(name, return_type, args) \
-    hooked_function_setup __attribute__((__used__)) return_type name args
-
-#ifdef __cplusplus
-extern "C" {
-#endif
+    extern "C" __attribute__((__used__)) return_type name args
 
 // Safe Version Of pipe()
-void safe_pipe2(int pipefd[2], int flags);
+struct Pipe {
+    Pipe();
+    const int read;
+    const int write;
+};
 // Check If Two Percentages Are Different Enough To Be Logged
-int is_progress_difference_significant(int32_t new_val, int32_t old_val);
+bool is_progress_difference_significant(int32_t new_val, int32_t old_val);
 
 // Lock File
 int lock_file(const char *file);
@@ -65,8 +61,8 @@ void unlock_file(const char *file, int fd);
 
 // Access Configuration At Runtime
 const char *reborn_get_version();
-int reborn_is_headless();
-int reborn_is_server();
+bool reborn_is_headless();
+bool reborn_is_server();
 
 // Check $DISPLAY
 void reborn_check_display();
@@ -77,6 +73,5 @@ const char *get_home_subdirectory_for_game_data();
 // Make Sure Directory Exists
 void ensure_directory(const char *path);
 
-#ifdef __cplusplus
-}
-#endif
+// Safe write()
+void safe_write(int fd, const void *buf, size_t size);

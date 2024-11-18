@@ -6,12 +6,12 @@ configure_file(include/libreborn/config.h.in "${CMAKE_CURRENT_BINARY_DIR}/includ
 
 # Util
 add_library(reborn-util SHARED
-    src/util/exec.c
-    src/util/string.c
-    src/util/util.c
-    src/util/log.c
+    src/util/exec.cpp
+    src/util/string.cpp
+    src/util/util.cpp
+    src/util/log.cpp
     src/util/cp437.cpp
-    src/util/env.c
+    src/util/env.cpp
 )
 target_include_directories(
     reborn-util

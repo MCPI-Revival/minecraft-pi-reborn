@@ -24,30 +24,20 @@ std::string _sound_get_source_file() {
         // Resolve
 
         // Get Path
-        char *path = strdup(SOURCE_FILE_BASE);
-        ALLOC_CHECK(path);
-
-        // Handle Overrides
-        char *overridden_full_path = override_get_path(path);
-        if (overridden_full_path != nullptr) {
-            free(path);
-            path = overridden_full_path;
-        }
+        const std::string path = SOURCE_FILE_BASE;
+        const std::string full_path = override_get_path(path);
 
         // Check If Sound Exists
-        if (access(path, F_OK) == -1) {
+        if (access(full_path.c_str(), F_OK) == -1) {
             // Fail
-            WARN("Audio Source File Doesn't Exist: " SOURCE_FILE_BASE);
-            source.assign("");
+            WARN("Audio Source File Doesn't Exist: %s", path.c_str());
+            source = "";
             info_sound_data_state = "Missing";
         } else {
             // Set
-            source.assign(path);
+            source = full_path;
             info_sound_data_state = "Loaded";
         }
-
-        // Free
-        free(path);
 
         // Mark As Loaded
         source_loaded = true;

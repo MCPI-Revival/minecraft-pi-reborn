@@ -7,11 +7,11 @@
 #define CACHE_VERSION 0
 
 // Load Cache
-typedef struct {
+struct launcher_cache {
     std::string username;
     std::string render_distance;
     std::unordered_map<std::string, bool> feature_flags;
-} launcher_cache;
+};
 extern launcher_cache empty_cache;
 launcher_cache load_cache();
 

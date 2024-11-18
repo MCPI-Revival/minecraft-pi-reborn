@@ -9,7 +9,7 @@
 
 #include <libreborn/libreborn.h>
 
-#include "../util.h"
+#include "../util/util.h"
 #include "configuration.h"
 #include "cache.h"
 
@@ -83,18 +83,16 @@ static void run_command_and_set_env(const char *env_name, const char *command[])
         reborn_check_display();
         // Run
         int return_code;
-        char *output = run_command(command, &return_code, nullptr);
-        if (output != nullptr) {
-            // Trim
-            const size_t length = strlen(output);
-            if (output[length - 1] == '\n') {
-                output[length - 1] = '\0';
-            }
-            // Set
-            set_and_print_env(env_name, output);
-            // Free
-            free(output);
+        const std::vector<unsigned char> *output = run_command(command, &return_code);
+        std::string output_str = (const char *) output->data();
+        delete output;
+        // Trim
+        const std::string::size_type length = output_str.length();
+        if (length > 0 && output_str[length - 1] == '\n') {
+            output_str.pop_back();
         }
+        // Set
+        set_and_print_env(env_name, output_str.c_str());
         // Check Return Code
         if (!is_exit_status_success(return_code)) {
             // Launch Interrupted
@@ -161,7 +159,7 @@ void configure_client(const options_t &options) {
     if (options.use_default) {
         // Use Default Feature Flags
         set_env_if_unset(MCPI_FEATURE_FLAGS_ENV, [&cache]() {
-            std::string feature_flags = "";
+            std::string feature_flags;
             load_available_feature_flags([&feature_flags, &cache](const std::string &flag) {
                 bool value;
                 // Strip Default Value

@@ -1,10 +1,9 @@
 #pragma once
 
-// Patching Functions
-
-#if defined(REBORN_HAS_PATCH_CODE) && defined(__cplusplus)
-
 #include <string>
+
+// Patching Functions
+#if defined(REBORN_HAS_PATCH_CODE)
 
 // Init
 void reborn_init_patch();

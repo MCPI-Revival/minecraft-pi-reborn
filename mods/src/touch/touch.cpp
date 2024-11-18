@@ -1,3 +1,5 @@
+#include <cstdint>
+
 #include <libreborn/libreborn.h>
 
 #include <mods/feature/feature.h>

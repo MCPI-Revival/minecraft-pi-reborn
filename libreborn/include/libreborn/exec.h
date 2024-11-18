@@ -1,23 +1,21 @@
 #pragma once
 
-#include <unistd.h>
-#include <stdint.h>
-#include <errno.h>
-#include <string.h>
-#include <sys/wait.h>
-#include <fcntl.h>
-#include <signal.h>
+#include <string>
+#include <optional>
+#include <array>
+#include <vector>
+#include <functional>
 
-#include "log.h"
-#include "string.h"
-#include "util.h"
-
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-// Set Environmental Variable
-void set_and_print_env(const char *name, const char *value);
+// fork() With I/O
+struct Process {
+    static constexpr int fd_count = 3;
+    Process(pid_t pid_, std::array<int, fd_count> fds_);
+    [[nodiscard]] int close() const;
+    const pid_t pid;
+    const std::array<int, fd_count> fds;
+};
+std::optional<Process> fork_with_stdio();
+void poll_fds(const std::vector<int> &fds, const std::function<void(int, size_t, unsigned char *)> &on_data);
 
 // Safe execvpe()
 __attribute__((noreturn)) void safe_execvpe(const char *const argv[], const char *const envp[]);
@@ -26,12 +24,8 @@ __attribute__((noreturn)) void safe_execvpe(const char *const argv[], const char
 #define CHILD_PROCESS_TAG "(Child Process) "
 
 // Run Command And Get Output
-char *run_command(const char *const command[], int *exit_status, size_t *output_size);
+std::vector<unsigned char> *run_command(const char *const command[], int *exit_status);
 #define is_exit_status_success(status) (WIFEXITED(status) && WEXITSTATUS(status) == 0)
 
 // Get Exit Status String
-void get_exit_status_string(int status, char **out);
-
-#ifdef __cplusplus
-}
-#endif
+std::string get_exit_status_string(int status);

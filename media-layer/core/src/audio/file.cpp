@@ -14,13 +14,13 @@
 // Load Symbol From ELF File
 static void load_symbol(const char *source, const char *name, std::function<void(const unsigned char *, uint32_t)> callback) {
     static std::unordered_map<std::string, std::unique_ptr<LIEF::ELF::Binary>> sources = {};
-    std::string cpp_source = source;
-    if (sources.count(cpp_source) == 0) {
+    const std::string cpp_source = source;
+    if (!sources.contains(cpp_source)) {
         sources[cpp_source] = LIEF::ELF::Parser::parse(source);
     }
-    std::unique_ptr<LIEF::ELF::Binary> &binary = sources[cpp_source];
+    const std::unique_ptr<LIEF::ELF::Binary> &binary = sources[cpp_source];
     const LIEF::ELF::Symbol *symbol = binary->get_dynamic_symbol(name);
-    if (symbol != NULL) {
+    if (symbol != nullptr) {
         LIEF::span<const uint8_t> data = binary->get_content_from_virtual_address(symbol->value(), symbol->size(), LIEF::Binary::VA_TYPES::VA);
         callback(data.data(), data.size());
     } else {
@@ -73,8 +73,8 @@ static ALuint load_sound(const char *source, const char *name) {
         }
 
         // Load Data
-        int remaining_size = size - sizeof (audio_metadata);
-        int data_size = meta->channels * meta->frames * meta->frame_size;
+        const int remaining_size = size - sizeof (audio_metadata);
+        const int data_size = meta->channels * meta->frames * meta->frame_size;
         if (remaining_size < data_size) {
             WARN("Symbol Too Small To Contain Specified Audio Data: %s", name);
             return;

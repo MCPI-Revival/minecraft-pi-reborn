@@ -26,9 +26,8 @@ std::string chat_send_api_command(const Minecraft *minecraft, const std::string 
 
 // Send API Chat Command
 static void send_api_chat_command(const Minecraft *minecraft, const char *str) {
-    char *utf_str = from_cp437(str);
+    const std::string utf_str = from_cp437(str);
     const std::string command = std::string("chat.post(") + utf_str + ")\n";
-    free(utf_str);
     chat_send_api_command(minecraft, command);
 }
 
@@ -38,19 +37,13 @@ std::string _chat_get_prefix(const char *username) {
 }
 void chat_send_message_to_clients(ServerSideNetworkHandler *server_side_network_handler, const char *username, const char *message) {
     std::string full_message = _chat_get_prefix(username) + message;
-    char *raw_str = strdup(full_message.c_str());
-    ALLOC_CHECK(raw_str);
-    sanitize_string(raw_str, MAX_CHAT_MESSAGE_LENGTH, 0);
-    full_message = raw_str;
-    free(raw_str);
+    sanitize_string(full_message, MAX_CHAT_MESSAGE_LENGTH, false);
     server_side_network_handler->displayGameMessage(full_message);
 }
 // Handle Chat packet Send
 void chat_handle_packet_send(const Minecraft *minecraft, ChatPacket *packet) {
     // Convert To CP-437
-    char *cp437_str = to_cp437(packet->message.c_str());
-    packet->message = cp437_str;
-    free(cp437_str);
+    packet->message = to_cp437(packet->message);
     // Send
     RakNetInstance *rak_net_instance = minecraft->rak_net_instance;
     if (rak_net_instance->isServer()) {

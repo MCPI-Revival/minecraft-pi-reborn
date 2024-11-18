@@ -1,11 +1,10 @@
 #include <cstdlib>
 #include <libreborn/libreborn.h>
-#include <sys/stat.h>
 
-#include "bootstrap.h"
+#include "bootstrap/bootstrap.h"
 #include "options/parser.h"
-#include "crash-report.h"
-#include "util.h"
+#include "logger/logger.h"
+#include "util/util.h"
 #include "client/configuration.h"
 
 // Bind Options To Environmental Variable
@@ -45,7 +44,8 @@ static void setup_environment(const options_t &options) {
     }
 
     // Setup MCPI_HOME
-    if (const char *custom_profile_directory = getenv(MCPI_PROFILE_DIRECTORY_ENV); custom_profile_directory != nullptr) {
+    const char *custom_profile_directory = getenv(MCPI_PROFILE_DIRECTORY_ENV);
+    if (custom_profile_directory != nullptr) {
         // Custom Directory
         custom_profile_directory = realpath(custom_profile_directory, nullptr);
         ALLOC_CHECK(custom_profile_directory);
@@ -86,8 +86,8 @@ static void start_game(const options_t &options) {
     setvbuf(stdout, nullptr, _IONBF, 0);
 
     // Setup Crash Reporting
-    if (!options.disable_crash_report) {
-        setup_crash_report();
+    if (!options.disable_logger) {
+        setup_logger();
     }
 
     // Configure Client Options

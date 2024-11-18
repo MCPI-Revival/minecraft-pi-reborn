@@ -1,3 +1,5 @@
+#include <cstdint>
+
 #include <symbols/minecraft.h>
 #include <libreborn/libreborn.h>
 

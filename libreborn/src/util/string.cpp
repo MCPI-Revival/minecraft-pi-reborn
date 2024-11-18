@@ -1,14 +1,12 @@
 #include <libreborn/string.h>
 
-#include <string.h>
-
 // Sanitize String
-void sanitize_string(char *str, const int max_length, const int allow_newlines) {
+void sanitize_string(std::string &str, const int max_length, const bool allow_newlines) {
     // Store Message Length
-    size_t length = strlen(str);
+    size_t length = str.size();
     // Truncate Message
     if (max_length >= 0 && length > ((size_t) max_length)) {
-        str[max_length] = '\0';
+        str = str.substr(0, max_length);
         length = max_length;
     }
     // Loop Through Message
@@ -20,9 +18,4 @@ void sanitize_string(char *str, const int max_length, const int allow_newlines) 
             }
         }
     }
-}
-
-// Starts With
-int starts_with(const char *str, const char *prefix) {
-    return strncmp(prefix, str, strlen(prefix)) == 0;
 }

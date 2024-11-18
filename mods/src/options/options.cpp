@@ -44,10 +44,6 @@ static const char *get_username() {
     }
     return username;
 }
-static char *safe_username = nullptr;
-__attribute__((destructor)) static void _free_safe_username() {
-    free(safe_username);
-}
 
 static int render_distance;
 // Configure Options
@@ -162,8 +158,9 @@ void init_options() {
     if (strcmp(Strings::default_username, "StevePi") != 0) {
         ERR("Default Username Is Invalid");
     }
-    safe_username = to_cp437(username);
-    patch_address((void *) &Strings::default_username, (void *) safe_username);
+    std::string *safe_username = new std::string;
+    *safe_username = to_cp437(username);
+    patch_address((void *) &Strings::default_username, (void *) safe_username->c_str());
 
     // Disable Autojump By Default
     if (feature_has("Disable Autojump By Default", server_disabled)) {
@@ -210,7 +207,7 @@ void init_options() {
         // Replace String
         patch_address((void *) &Strings::feedback_vibration_options_txt_name, (void *) "gfx_ao");
         // Loading
-        const unsigned char offset = (unsigned char) offsetof(Options, ambient_occlusion);
+        constexpr unsigned char offset = (unsigned char) offsetof(Options, ambient_occlusion);
         unsigned char gfx_ao_loading_patch[4] = {offset, 0x10, 0x84, 0xe2}; // "add r1, r4, #OFFSET"
         patch((void *) 0x193b8, gfx_ao_loading_patch);
         // Saving
@@ -223,7 +220,7 @@ void init_options() {
         // Replace String
         patch_address((void *) &Strings::gfx_lowquality_options_txt_name, (void *) "gfx_anaglyph");
         // Loading
-        const unsigned char offset = (unsigned char) offsetof(Options, anaglyph_3d);
+        constexpr unsigned char offset = (unsigned char) offsetof(Options, anaglyph_3d);
         unsigned char gfx_anaglyph_loading_patch[4] = {offset, 0x10, 0x84, 0xe2}; // "add r1, r4, #OFFSET"
         patch((void *) 0x19400, gfx_anaglyph_loading_patch);
         // Disable Loading Side Effects

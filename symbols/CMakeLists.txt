@@ -253,9 +253,6 @@ target_include_directories(
     "$<INSTALL_INTERFACE:${MCPI_SDK_INCLUDE_DIR}/symbols>"
 )
 
-# Disable C++11 String ABI
-target_compile_definitions(symbols PUBLIC -D_GLIBCXX_USE_CXX11_ABI=0)
-
 # Install
 install(TARGETS symbols DESTINATION "${MCPI_LIB_DIR}")
 # SDK

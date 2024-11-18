@@ -34,13 +34,10 @@ static void LoginPacket_read_injection(LoginPacket_read_t original, LoginPacket 
     const RakNet_RakString_SharedString *shared_string = rak_string->sharedString;
     const char *c_str = shared_string->c_str;
     // Sanitize
-    char *new_username = strdup(c_str);
-    ALLOC_CHECK(new_username);
+    std::string new_username = c_str;
     sanitize_string(new_username, MAX_USERNAME_LENGTH, 0);
     // Set New Username
-    rak_string->Assign(new_username);
-    // Free
-    free(new_username);
+    rak_string->Assign(new_username.c_str());
 }
 
 // Fix RakNet::RakString Security Bug

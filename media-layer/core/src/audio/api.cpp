@@ -44,7 +44,7 @@ void _media_audio_delete_sources() {
 }
 
 // Update Listener
-void media_audio_update(float volume, float x, float y, float z, float yaw) {
+void media_audio_update(const float volume, const float x, const float y, const float z, const float yaw) {
     // Check
     if (_media_audio_is_loaded()) {
         // Update Listener Volume
@@ -56,8 +56,8 @@ void media_audio_update(float volume, float x, float y, float z, float yaw) {
         AL_ERROR_CHECK();
 
         // Update Listener Orientation
-        float radian_yaw = yaw * (M_PI / 180);
-        ALfloat orientation[] = {-sinf(radian_yaw), 0.0f, cosf(radian_yaw), 0.0f, 1.0f, 0.0f};
+        const float radian_yaw = float(yaw * (M_PI / 180));
+        const ALfloat orientation[] = {-sinf(radian_yaw), 0.0f, cosf(radian_yaw), 0.0f, 1.0f, 0.0f};
         alListenerfv(AL_ORIENTATION, orientation);
         AL_ERROR_CHECK();
 
@@ -101,11 +101,11 @@ void media_audio_play(const char *source, const char *name, float x, float y, fl
     // Check
     if (_media_audio_is_loaded()) {
         // Load Sound
-        ALuint buffer = _media_audio_get_buffer(source, name);
+        const ALuint buffer = _media_audio_get_buffer(source, name);
         if (volume > 0.0f && buffer) {
             // Get Source
             ALuint al_source;
-            if (idle_sources.size() > 0) {
+            if (!idle_sources.empty()) {
                 // Use Idle Source
                 al_source = idle_sources.back();
                 idle_sources.pop_back();
@@ -114,7 +114,7 @@ void media_audio_play(const char *source, const char *name, float x, float y, fl
                 alGenSources(1, &al_source);
                 // Special Out-Of-Memory Handling
                 {
-                    ALenum err = alGetError();
+                    const ALenum err = alGetError();
                     if (err == AL_OUT_OF_MEMORY) {
                         return;
                     } else {

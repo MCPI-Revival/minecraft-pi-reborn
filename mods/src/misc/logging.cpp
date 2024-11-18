@@ -10,10 +10,8 @@
 // Print Chat To Log
 static void Gui_addMessage_injection(Gui_addMessage_t original, Gui *gui, const std::string &text) {
     // Sanitize Message
-    char *new_message = strdup(text.c_str());
-    ALLOC_CHECK(new_message);
-    sanitize_string(new_message, -1, 1);
-    const std::string cpp_str = new_message;
+    std::string new_message = text;
+    sanitize_string(new_message, -1, true);
 
     // Process Message
     static bool recursing = false;
@@ -22,22 +20,18 @@ static void Gui_addMessage_injection(Gui_addMessage_t original, Gui *gui, const 
         recursing = true;
 
         // Print Log Message
-        char *safe_message = from_cp437(new_message);
-        fprintf(stderr, "[CHAT]: %s\n", safe_message);
-        free(safe_message);
+        std::string safe_message = from_cp437(new_message);
+        fprintf(stderr, "[CHAT]: %s\n", safe_message.c_str());
 
         // Call Original Method
-        original(gui, cpp_str);
+        original(gui, new_message);
 
         // End Recursing
         recursing = false;
     } else {
         // Call Original Method
-        original(gui, cpp_str);
+        original(gui, new_message);
     }
-
-    // Free
-    free(new_message);
 }
 
 // Print Progress Reports

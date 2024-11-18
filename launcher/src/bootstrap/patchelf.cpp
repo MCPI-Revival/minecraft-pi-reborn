@@ -9,7 +9,7 @@
 
 #include <libreborn/libreborn.h>
 
-#include "patchelf.h"
+#include "bootstrap.h"
 
 // Duplicate MCPI Executable Into /tmp
 static void duplicate_mcpi_executable(char *new_path) {
@@ -43,12 +43,10 @@ void patch_mcpi_elf_dependencies(const std::string &original_path, char *new_pat
     duplicate_mcpi_executable(new_path);
 
     // Load Binary
-    std::unique_ptr<LIEF::ELF::Binary> binary = LIEF::ELF::Parser::parse(original_path);
+    const std::unique_ptr<LIEF::ELF::Binary> binary = LIEF::ELF::Parser::parse(original_path);
 
     // Set Interpreter
-    if (!interpreter.empty()) {
-        binary->interpreter(interpreter);
-    }
+    binary->interpreter(interpreter);
 
     // Remove Existing Needed Libraries
     std::vector<std::string> to_remove;
@@ -95,4 +93,35 @@ void patch_mcpi_elf_dependencies(const std::string &original_path, char *new_pat
     if (chmod(new_path, S_IRUSR | S_IXUSR) != 0) {
         ERR("Unable To Set File Permissions: %s: %s", new_path, strerror(errno));
     }
+}
+
+// Linker
+std::string get_new_linker(const std::string &binary_directory) {
+    std::string linker = "/lib/ld-linux-armhf.so.3";
+#ifdef MCPI_USE_PREBUILT_ARMHF_TOOLCHAIN
+    linker = binary_directory + "/sysroot" + linker;
+#else
+    (void) binary_directory;
+#endif
+    return linker;
+}
+std::vector<std::string> get_ld_path(const std::string &binary_directory) {
+    std::vector<std::string> mcpi_ld_path = {
+        // ARM Sysroot
+#ifdef MCPI_USE_PREBUILT_ARMHF_TOOLCHAIN
+        "sysroot/lib",
+        "sysroot/lib/arm-linux-gnueabihf",
+        "sysroot/usr/lib",
+        "sysroot/usr/lib/arm-linux-gnueabihf",
+#endif
+        // Libraries
+        "lib/arm"
+    };
+    // Fix Paths
+    for (std::string &path : mcpi_ld_path) {
+        path.insert(0, 1, '/');
+        path.insert(0, binary_directory);
+    }
+    // Return
+    return mcpi_ld_path;
 }

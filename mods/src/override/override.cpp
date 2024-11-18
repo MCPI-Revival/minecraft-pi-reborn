@@ -12,18 +12,18 @@
 #include <mods/home/home.h>
 #include <mods/init/init.h>
 
-// Hook access
-HOOK(access, int, (const char *pathname, int mode)) {
-    char *new_path = override_get_path(pathname);
-    // Open File
-    const int ret = real_access()(new_path != nullptr ? new_path : pathname, mode);
-    // Free Data
-    if (new_path != nullptr) {
-        free(new_path);
+// Hook Functions
+#define HOOK_OPEN(name, return_type, mode_type) \
+    HOOK(name, return_type, (const char *filename, mode_type mode)) { \
+        const std::string new_path = override_get_path(filename); \
+        /* Open File */ \
+        return_type ret = real_##name()(!new_path.empty() ? new_path.c_str() : filename, mode); \
+        /* Return */ \
+        return ret; \
     }
-    // Return
-    return ret;
-}
+HOOK_OPEN(fopen, FILE *, const char *)
+HOOK_OPEN(fopen64, FILE *, const char *)
+HOOK_OPEN(access, int, int)
 
 // Get Override Folder
 static std::string get_override_directory() {
@@ -32,9 +32,9 @@ static std::string get_override_directory() {
 }
 
 // Get Override Path For File (If It Exists)
-char *override_get_path(const char *filename) {
+std::string override_get_path(std::string filename) {
     // Custom Skin
-    if (starts_with(filename, "data/images/$")) {
+    if (filename.starts_with("data/images/$")) {
         // Fallback Texture
         filename = "data/images/mob/char.png";
     }
@@ -42,12 +42,12 @@ char *override_get_path(const char *filename) {
     // Get Asset Override Path
     const std::string overrides = get_override_directory();
 
-    // Data Prefiix
+    // Data Prefix
     const std::string data_prefix = "data/";
-    int data_prefix_length = data_prefix.length();
+    const int data_prefix_length = data_prefix.length();
 
     // Folders To Check
-    std::string asset_folders[] = {
+    const std::string asset_folders[] = {
         overrides,
         getenv(_MCPI_REBORN_ASSETS_PATH_ENV),
         getenv(_MCPI_VANILLA_ASSETS_PATH_ENV),
@@ -72,39 +72,7 @@ char *override_get_path(const char *filename) {
     }
 
     // Return
-    if (new_path.empty()) {
-        return nullptr;
-    } else {
-        char *ret = strdup(new_path.c_str());
-        ALLOC_CHECK(ret);
-        return ret;
-    }
-}
-
-// Hook fopen
-HOOK(fopen, FILE *, (const char *filename, const char *mode)) {
-    char *new_path = override_get_path(filename);
-    // Open File
-    FILE *file = real_fopen()(new_path != nullptr ? new_path : filename, mode);
-    // Free Data
-    if (new_path != nullptr) {
-        free(new_path);
-    }
-    // Return File
-    return file;
-}
-
-// Hook fopen64
-HOOK(fopen64, FILE *, (const char *filename, const char *mode)) {
-    char *new_path = override_get_path(filename);
-    // Open File
-    FILE *file = real_fopen64()(new_path != nullptr ? new_path : filename, mode);
-    // Free Data
-    if (new_path != nullptr) {
-        free(new_path);
-    }
-    // Return File
-    return file;
+    return new_path;
 }
 
 // Init

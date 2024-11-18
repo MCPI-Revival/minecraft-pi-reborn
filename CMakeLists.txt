@@ -62,6 +62,13 @@ string(CONCAT COMPILE_FLAGS_SETUP
     # Skip RPath
     "set(CMAKE_SKIP_BUILD_RPATH TRUE)"
 )
+if(BUILD_ARM_COMPONENTS)
+    string(CONCAT COMPILE_FLAGS_SETUP
+        "${COMPILE_FLAGS_SETUP}\n"
+        # Disable C++11 String ABI
+        "add_compile_definitions(_GLIBCXX_USE_CXX11_ABI=0)"
+    )
+endif()
 cmake_language(EVAL CODE "${COMPILE_FLAGS_SETUP}")
 
 # Fast Math
@@ -79,7 +86,7 @@ if(CMAKE_C_COMPILER_ID STREQUAL "GNU")
     endif()
 endif()
 
-# Buld Dependencies
+# Build Dependencies
 add_subdirectory(dependencies)
 
 # Build libreborn
@@ -117,10 +124,10 @@ endif()
 if(BUILD_ARM_COMPONENTS)
     install(EXPORT sdk DESTINATION "${MCPI_SDK_DIR}" FILE "sdk-targets.cmake" EXPORT_LINK_INTERFACE_LIBRARIES)
     file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/sdk.cmake"
+        # Sanity Check
+        "${ARM_SANITY_CHECK}\n"
         # Compile Flags
         "${COMPILE_FLAGS_SETUP}\n"
-        # Snaity Check
-        "${ARM_SANITY_CHECK}\n"
         # Log
         "message(STATUS \"Using Reborn SDK v${MCPI_VERSION}\")\n"
         # Include Targets

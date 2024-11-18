@@ -57,9 +57,7 @@ static ServerPropertyTypes &get_property_types() {
 // Get World Name
 static std::string get_world_name() {
     const std::string name = get_server_properties().get_string(get_property_types().world_name);
-    char *safe_name_c = to_cp437(name.c_str());
-    std::string safe_name = safe_name_c;
-    free(safe_name_c);
+    std::string safe_name = to_cp437(name);
     return safe_name;
 }
 
@@ -116,11 +114,9 @@ static std::vector<Player *> get_players_in_level(Level *level) {
     return level->players;
 }
 // Get Player's Username
-static std::string get_player_username(Player *player) {
+static std::string get_player_username(const Player *player) {
     const std::string *username = &player->username;
-    char *safe_username_c = from_cp437(username->c_str());
-    std::string safe_username = safe_username_c;
-    free(safe_username_c);
+    std::string safe_username = from_cp437(*username);
     return safe_username;
 }
 // Get Level From Minecraft
@@ -307,12 +303,9 @@ std::vector<ServerCommand> *server_get_commands(Minecraft *minecraft, ServerSide
         .callback = [server_side_network_handler](const std::string &cmd) {
             // Format Message
             const std::string message = "[Server] " + cmd;
-            char *safe_message = to_cp437(message.c_str());
-            std::string cpp_string = safe_message;
+            std::string cpp_string = to_cp437(message);
             // Post Message To Chat
             server_side_network_handler->displayGameMessage(cpp_string);
-            // Free
-            free(safe_message);
         }
     });
     // List Players

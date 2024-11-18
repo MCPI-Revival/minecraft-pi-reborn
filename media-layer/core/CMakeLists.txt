@@ -9,7 +9,7 @@ set(CORE_SRC
     src/events.cpp
     src/offscreen.cpp
     src/audio/api.cpp
-    src/audio/engine.c
+    src/audio/engine.cpp
     src/audio/file.cpp
 )
 

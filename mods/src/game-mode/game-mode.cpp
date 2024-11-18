@@ -1,9 +1,12 @@
-#include "game-mode-internal.h"
+#include <cstdint>
+
 #include <mods/init/init.h>
 #include <mods/feature/feature.h>
 
 #include <libreborn/libreborn.h>
 #include <symbols/minecraft.h>
+
+#include "game-mode-internal.h"
 
 static int is_survival = -1;
 

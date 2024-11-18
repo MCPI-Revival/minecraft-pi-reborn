@@ -9,8 +9,8 @@
 #include "api.h"
 
 // Store Device
-static ALCdevice *device = NULL;
-static ALCcontext *context = NULL;
+static ALCdevice *device = nullptr;
+static ALCcontext *context = nullptr;
 
 // Store State
 static int is_loaded = 0;
@@ -21,14 +21,14 @@ int _media_audio_is_loaded() {
 // Init
 void _media_audio_init() {
     // Open Device
-    device = alcOpenDevice(NULL);
+    device = alcOpenDevice(nullptr);
     if (!device) {
         WARN("Unable To Load Audio Engine");
         return;
     }
 
     // Create Context
-    context = alcCreateContext(device, NULL);
+    context = alcCreateContext(device, nullptr);
     ALCenum err = alcGetError(device);
     if (err != ALC_NO_ERROR) {
         ERR("Unable To Open Audio Context: %s", alcGetString(device, err));
@@ -63,7 +63,7 @@ void _media_audio_cleanup() {
         _media_audio_delete_buffers();
 
         // Deselect Context
-        alcMakeContextCurrent(NULL);
+        alcMakeContextCurrent(nullptr);
         ALCenum err = alcGetError(device);
         if (err != ALC_NO_ERROR) {
             ERR("Unable To Deselect Audio Context: %s", alcGetString(device, err));

@@ -5,10 +5,8 @@
 // Simpler Version Of run_command()
 void run_simple_command(const char *const command[], const char *error) {
     int status = 0;
-    char *output = run_command(command, &status, nullptr);
-    if (output != nullptr) {
-        free(output);
-    }
+    const std::vector<unsigned char> *output = run_command(command, &status);
+    delete output;
     if (!is_exit_status_success(status)) {
         ERR("%s", error);
     }

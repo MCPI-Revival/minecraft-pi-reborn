@@ -2,12 +2,15 @@ project(launcher)
 
 # Launcher
 add_executable(launcher
-    src/bootstrap.cpp
-    src/patchelf.cpp
-    src/util.cpp
-    src/crash-report.cpp
-    src/sdk.cpp
-    src/mods.cpp
+    src/bootstrap/bootstrap.cpp
+    src/bootstrap/mods.cpp
+    src/bootstrap/assets.cpp
+    src/bootstrap/patchelf.cpp
+    src/bootstrap/debug.cpp
+    src/util/util.cpp
+    src/util/sdk.cpp
+    src/logger/logger.cpp
+    src/logger/crash-report.cpp
     src/options/parser.cpp
     src/main.cpp
     src/client/configuration.cpp
@@ -19,6 +22,8 @@ target_link_libraries(launcher reborn-util LIB_LIEF trampoline-headers)
 # RPath
 set_target_properties(launcher PROPERTIES INSTALL_RPATH "$ORIGIN/lib/native")
 target_link_options(launcher PRIVATE "LINKER:--disable-new-dtags")
+# Files
+target_compile_definitions(launcher PRIVATE _FILE_OFFSET_BITS=64)
 
 # Install
 install(TARGETS launcher DESTINATION "${MCPI_INSTALL_DIR}")
