@@ -21,21 +21,20 @@ setup_header_dirs(imgui
 find_package(OpenGL REQUIRED)
 target_link_libraries(imgui PUBLIC glfw OpenGL::GL)
 
+# Fonts
+embed_resource(imgui src/misc/fonts/Roboto-Medium.ttf)
+embed_resource(imgui src/misc/fonts/Cousine-Regular.ttf)
+
 # Patch
-function(run_patch)
-    execute_process(
-        COMMAND "patch" "-p1" "--quiet" ${ARGN}
-        WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/src"
-        INPUT_FILE "${CMAKE_CURRENT_SOURCE_DIR}/fix-hidpi.patch"
-        COMMAND_ERROR_IS_FATAL ANY
-    )
-endfunction()
-# https://stackoverflow.com/a/79041978
-run_patch("--batch" "--reverse")
-run_patch()
+execute_process(
+    COMMAND "patch" "-p1" "--forward" "--reject-file=-"
+    WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/src"
+    INPUT_FILE "${CMAKE_CURRENT_SOURCE_DIR}/fix-hidpi.patch"
+    OUTPUT_QUIET
+)
 
 # Install
 setup_library(imgui TRUE TRUE)
 
 # License
-install(FILES src/LICENSE.txt DESTINATION "${MCPI_LEGAL_DIR}/ImGui")
+install(FILES src/LICENSE.txt src/docs/FONTS.md DESTINATION "${MCPI_LEGAL_DIR}/ImGui")
