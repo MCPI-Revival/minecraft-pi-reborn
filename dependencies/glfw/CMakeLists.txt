@@ -21,7 +21,7 @@ add_subdirectory(src EXCLUDE_FROM_ALL)
 unset(MESSAGE_QUIET)
 
 # Install
-install(TARGETS glfw DESTINATION "${MCPI_LIB_DIR}")
+setup_library(glfw TRUE FALSE)
 
 # License
 install(FILES src/LICENSE.md DESTINATION "${MCPI_LEGAL_DIR}/glfw")

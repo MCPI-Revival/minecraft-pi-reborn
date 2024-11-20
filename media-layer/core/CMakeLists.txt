@@ -1,7 +1,7 @@
 project(media-layer-core)
 
-# SDL Re-Implementation Using GLFW
-set(CORE_SRC
+# Build
+add_library(media-layer-core-real SHARED
     src/base.cpp
     src/window/media.cpp
     src/window/cursor.cpp
@@ -14,14 +14,14 @@ set(CORE_SRC
     src/audio/file.cpp
 )
 
-# Build
-add_library(media-layer-core-real SHARED ${CORE_SRC}) # Dependencies Are Setup Later
+# Set Name
 set_target_properties(media-layer-core-real PROPERTIES OUTPUT_NAME "media-layer-core")
 if(BUILD_NATIVE_COMPONENTS)
     add_library(media-layer-core ALIAS media-layer-core-real)
 endif()
+
 # Install
-install(TARGETS media-layer-core-real DESTINATION "${MCPI_LIB_DIR}")
+setup_library(media-layer-core-real TRUE FALSE)
 
 # Link
 find_library(OPENAL_LIBRARY NAMES openal REQUIRED)

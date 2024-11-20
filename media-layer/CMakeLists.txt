@@ -2,22 +2,8 @@ project(media-layer)
 
 # Add Headers
 add_library(media-layer-headers INTERFACE)
-target_include_directories(
-    media-layer-headers
-    INTERFACE
-    "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>"
-    "$<INSTALL_INTERFACE:${MCPI_SDK_INCLUDE_DIR}/media-layer>"
-)
-# SDK
-if(BUILD_ARM_COMPONENTS)
-    install(TARGETS media-layer-headers EXPORT sdk DESTINATION "${MCPI_SDK_LIB_DIR}")
-    # Copy Headers
-    set(GLES_HEADERS "include/GLES")
-    install(
-        DIRECTORY "include/"
-        DESTINATION "${MCPI_SDK_INCLUDE_DIR}/media-layer"
-    )
-endif()
+setup_header_dirs(media-layer-headers "${CMAKE_CURRENT_SOURCE_DIR}/include")
+setup_library(media-layer-headers FALSE TRUE)
 
 # Add Core
 if(BUILD_MEDIA_LAYER_CORE)

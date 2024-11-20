@@ -231,7 +231,8 @@ set(OUTPUT_FILES ${SRC_OUTPUT_FILES} "${HEADER_OUTPUT_FILE}")
 add_custom_command(
     OUTPUT ${OUTPUT_FILES}
     DEPENDS ${INPUT_FILES}
-    COMMAND npm start --silent -- "${SRC_OUTPUT_DIR}" "${HEADER_OUTPUT_FILE}" ${INPUT_FILES}
+    COMMAND "npm"
+    ARGS "start" "--silent" "--" "${SRC_OUTPUT_DIR}" "${HEADER_OUTPUT_FILE}" ${INPUT_FILES}
     WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/../dependencies/symbol-processor/src"
     VERBATIM
 )
@@ -239,22 +240,8 @@ add_custom_command(
 # Build
 add_library(symbols SHARED ${OUTPUT_FILES})
 
-# Show In IDE
-add_custom_target(symbols-src
-    DEPENDS "${SRC_OUTPUT_FILE}" "${HEADER_OUTPUT_FILE}"
-    SOURCES ${RESOLVED_SRC}
-)
-
 # Include Directory
-target_include_directories(
-    symbols
-    PUBLIC
-    "$<BUILD_INTERFACE:${INCLUDE_OUTPUT_DIR}>"
-    "$<INSTALL_INTERFACE:${MCPI_SDK_INCLUDE_DIR}/symbols>"
-)
+setup_header_dirs(symbols "${INCLUDE_OUTPUT_DIR}")
 
 # Install
-install(TARGETS symbols DESTINATION "${MCPI_LIB_DIR}")
-# SDK
-install(TARGETS symbols EXPORT sdk DESTINATION "${MCPI_SDK_LIB_DIR}")
-install(DIRECTORY "${INCLUDE_OUTPUT_DIR}/" DESTINATION "${MCPI_SDK_INCLUDE_DIR}/symbols")
+setup_library(symbols TRUE TRUE)

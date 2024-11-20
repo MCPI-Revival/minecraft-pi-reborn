@@ -1,7 +1,7 @@
 project(mods)
 
-# Common Sources
-set(SRC
+# Build
+add_library(mods SHARED
     # compat
     src/compat/compat.cpp
     src/compat/egl.cpp
@@ -109,29 +109,30 @@ set(SRC
     src/shading/lighting.cpp
     src/shading/normals.cpp
 )
+
 # Install Splashes
 install(
     FILES "src/title-screen/splashes.txt"
     DESTINATION "${MCPI_INSTALL_DIR}/data"
 )
 
-# Build
-add_library(mods SHARED ${SRC})
+# Headers
+setup_header_dirs(mods "${CMAKE_CURRENT_SOURCE_DIR}/include")
 
 # Install
-install(TARGETS mods DESTINATION "${MCPI_INSTALL_DIR}/mods")
-# SDK
-install(TARGETS mods EXPORT sdk DESTINATION "${MCPI_SDK_LIB_DIR}")
+set(old_lib_dir "${MCPI_LIB_DIR}")
+set(MCPI_LIB_DIR "${MCPI_INSTALL_DIR}/mods")
+setup_library(mods TRUE TRUE)
+set(MCPI_LIB_DIR "${old_lib_dir}")
 
 # Dependencies
-target_link_libraries(mods symbols reborn-patch media-layer-core stb_image dl pthread)
-
-# Headers
-target_include_directories(
-    mods
+target_link_libraries(mods
     PUBLIC
-    "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>"
-    "$<INSTALL_INTERFACE:${MCPI_SDK_INCLUDE_DIR}/mods>"
+        symbols
+        reborn-patch
+        media-layer-core
+    PRIVATE
+        stb_image
+        dl
+        pthread
 )
-# SDK
-install(DIRECTORY "include/" DESTINATION "${MCPI_SDK_INCLUDE_DIR}/mods")

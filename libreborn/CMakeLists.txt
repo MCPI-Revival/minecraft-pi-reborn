@@ -13,22 +13,12 @@ add_library(reborn-util SHARED
     src/util/cp437.cpp
     src/util/env.cpp
 )
-target_include_directories(
-    reborn-util
-    PUBLIC
-    "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>"
-    "$<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/include>"
-    "$<INSTALL_INTERFACE:${MCPI_SDK_INCLUDE_DIR}/libreborn>"
-)
 target_link_libraries(reborn-util PRIVATE utf8cpp)
-# Install
-install(TARGETS reborn-util DESTINATION "${MCPI_LIB_DIR}")
-# SDK
-if(BUILD_ARM_COMPONENTS)
-    install(TARGETS reborn-util EXPORT sdk DESTINATION "${MCPI_SDK_LIB_DIR}")
-    install(DIRECTORY "include/" DESTINATION "${MCPI_SDK_INCLUDE_DIR}/libreborn")
-    install(DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/include/" DESTINATION "${MCPI_SDK_INCLUDE_DIR}/libreborn")
-endif()
+setup_header_dirs(reborn-util
+    "${CMAKE_CURRENT_SOURCE_DIR}/include"
+    "${CMAKE_CURRENT_BINARY_DIR}/include"
+)
+setup_library(reborn-util TRUE TRUE)
 
 # Patch
 if(BUILD_ARM_COMPONENTS)
@@ -39,11 +29,9 @@ if(BUILD_ARM_COMPONENTS)
         src/patch/instruction.cpp
     )
     target_link_libraries(reborn-patch dl pthread reborn-util)
-    target_compile_definitions(reborn-patch PUBLIC -DREBORN_HAS_PATCH_CODE)
+    target_compile_definitions(reborn-patch PUBLIC REBORN_HAS_PATCH_CODE)
     # Install
-    install(TARGETS reborn-patch DESTINATION "${MCPI_LIB_DIR}")
-    # SDK
-    install(TARGETS reborn-patch EXPORT sdk DESTINATION "${MCPI_SDK_LIB_DIR}")
+    setup_library(reborn-patch TRUE TRUE)
 endif()
 
 # Fake LibPNG To Satisfy Symbol Versioning Requirement
@@ -55,5 +43,5 @@ if(BUILD_ARM_COMPONENTS)
     )
     target_link_options(fake-libpng PRIVATE "LINKER:--version-script=${CMAKE_CURRENT_SOURCE_DIR}/src/fake-libpng/empty.vers")
     # Install
-    install(TARGETS fake-libpng DESTINATION "${MCPI_LIB_DIR}")
+    setup_library(fake-libpng TRUE FALSE)
 endif()

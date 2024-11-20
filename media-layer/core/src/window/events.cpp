@@ -183,13 +183,16 @@ static void convert_to_pixels(GLFWwindow *window, double *xpos, double *ypos) {
     int window_width;
     int window_height;
     glfwGetWindowSize(window, &window_width, &window_height);
+    if (window_width <= 0 || window_height <= 0) {
+        return;
+    }
     // Get Framebuffer Size
     int framebuffer_width;
     int framebuffer_height;
     glfwGetFramebufferSize(window, &framebuffer_width, &framebuffer_height);
     // Calculate Ratios
-    const double width_ratio = ((double) framebuffer_width) / ((double) window_width);
-    const double height_ratio = ((double) framebuffer_height) / ((double) window_height);
+    const double width_ratio = double(framebuffer_width) / double(window_width);
+    const double height_ratio = double(framebuffer_height) / double(window_height);
     // Multiply
     *xpos *= width_ratio;
     *ypos *= height_ratio;

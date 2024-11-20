@@ -29,10 +29,7 @@ add_subdirectory(src EXCLUDE_FROM_ALL)
 unset(MESSAGE_QUIET)
 
 # Install
-install(TARGETS LIB_LIEF DESTINATION "${MCPI_LIB_DIR}")
-if(BUILD_ARM_COMPONENTS)
-    install(TARGETS LIB_LIEF EXPORT sdk DESTINATION "${MCPI_SDK_LIB_DIR}")
-endif()
+setup_library(LIB_LIEF TRUE TRUE)
 
 # License
 install(FILES src/LICENSE DESTINATION "${MCPI_LEGAL_DIR}/LIEF")

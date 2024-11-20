@@ -10,7 +10,7 @@ if(BUILD_NATIVE_COMPONENTS)
     target_link_libraries(media-layer-trampoline reborn-util media-layer-core trampoline-headers)
     target_compile_definitions(media-layer-trampoline PRIVATE MEDIA_LAYER_TRAMPOLINE_HOST)
     # Install
-    install(TARGETS media-layer-trampoline DESTINATION "${MCPI_LIB_DIR}")
+    setup_library(media-layer-trampoline TRUE TRUE)
 elseif(BUILD_ARM_COMPONENTS)
     # Guest Component
     add_library(media-layer-core SHARED src/guest/guest.cpp ${MEDIA_LAYER_TRAMPOLINE_SRC})
@@ -24,8 +24,5 @@ elseif(BUILD_ARM_COMPONENTS)
     )
     target_compile_definitions(media-layer-core PRIVATE MEDIA_LAYER_TRAMPOLINE_GUEST)
     # Install
-    if(MCPI_USE_MEDIA_LAYER_TRAMPOLINE)
-        install(TARGETS media-layer-core DESTINATION "${MCPI_LIB_DIR}")
-    endif()
-    install(TARGETS media-layer-core EXPORT sdk DESTINATION "${MCPI_SDK_LIB_DIR}")
+    setup_library(media-layer-core "${MCPI_USE_MEDIA_LAYER_TRAMPOLINE}" TRUE)
 endif()
