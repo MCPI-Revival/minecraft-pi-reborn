@@ -19,12 +19,16 @@ endif()
 # Extra Runtime
 add_subdirectory(runtime)
 # GLFW
-if(BUILD_MEDIA_LAYER_CORE)
+if(BUILD_NATIVE_COMPONENTS OR BUILD_MEDIA_LAYER_CORE)
     add_subdirectory(glfw)
+endif()
+# ImGui
+if(BUILD_NATIVE_COMPONENTS)
+    add_subdirectory(imgui)
 endif()
 # UTF8-CPP
 add_subdirectory(utf8cpp)
-# Symbol Prcoessor
+# Symbol Processor
 if(BUILD_ARM_COMPONENTS)
     add_subdirectory(symbol-processor)
 endif()

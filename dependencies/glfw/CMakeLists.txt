@@ -24,4 +24,4 @@ unset(MESSAGE_QUIET)
 setup_library(glfw TRUE FALSE)
 
 # License
-install(FILES src/LICENSE.md DESTINATION "${MCPI_LEGAL_DIR}/glfw")
+install(FILES src/LICENSE.md DESTINATION "${MCPI_LEGAL_DIR}/GLFW")

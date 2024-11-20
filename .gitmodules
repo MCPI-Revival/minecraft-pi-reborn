@@ -23,3 +23,7 @@
 [submodule "dependencies/runtime/src"]
 	path = dependencies/runtime/src
 	url = https://gitea.thebrokenrail.com/minecraft-pi-reborn/runtime.git
+[submodule "dependencies/imgui/src"]
+	path = dependencies/imgui/src
+	url = https://github.com/ocornut/imgui.git
+	ignore = dirty
