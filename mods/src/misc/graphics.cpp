@@ -508,11 +508,6 @@ void _init_misc_graphics() {
         media_disable_vsync();
     }
 
-    // Force EGL
-    if (feature_has("Force EGL", server_disabled)) {
-        media_force_egl();
-    }
-
     // Properly Generate Buffers
     if (feature_has("Proper OpenGL Buffer Generation", server_enabled)) {
         overwrite_calls(Common_anGenBuffers, anGenBuffers_injection);

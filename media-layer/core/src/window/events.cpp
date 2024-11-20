@@ -179,23 +179,13 @@ static void convert_to_pixels(GLFWwindow *window, double *xpos, double *ypos) {
     if (media_SDL_WM_GrabInput(SDL_GRAB_QUERY) == SDL_GRAB_ON && raw_mouse_motion_enabled) {
         return;
     }
-    // Get Window Size
-    int window_width;
-    int window_height;
-    glfwGetWindowSize(window, &window_width, &window_height);
-    if (window_width <= 0 || window_height <= 0) {
-        return;
-    }
-    // Get Framebuffer Size
-    int framebuffer_width;
-    int framebuffer_height;
-    glfwGetFramebufferSize(window, &framebuffer_width, &framebuffer_height);
-    // Calculate Ratios
-    const double width_ratio = double(framebuffer_width) / double(window_width);
-    const double height_ratio = double(framebuffer_height) / double(window_height);
+    // Get Scale
+    float x_scale = 1;
+    float y_scale = 1;
+    get_glfw_scale(window, &x_scale, &y_scale);
     // Multiply
-    *xpos *= width_ratio;
-    *ypos *= height_ratio;
+    *xpos *= x_scale;
+    *ypos *= y_scale;
 }
 
 // Last Mouse Location

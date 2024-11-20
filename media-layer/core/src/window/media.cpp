@@ -7,11 +7,6 @@
 // Window
 GLFWwindow *glfw_window = nullptr;
 
-// Handle GLFW Error
-static void glfw_error(__attribute__((unused)) int error, const char *description) {
-    WARN("GLFW Error: %s", description);
-}
-
 // Disable V-Sync
 static bool disable_vsync = false;
 void media_disable_vsync() {
@@ -19,15 +14,6 @@ void media_disable_vsync() {
     if (glfw_window) {
         glfwSwapInterval(0);
     }
-}
-
-// Force EGL
-static int force_egl = 0;
-void media_force_egl() {
-    if (force_egl == -1) {
-        IMPOSSIBLE();
-    }
-    force_egl = 1;
 }
 
 // Init Media Layer
@@ -40,38 +26,19 @@ void media_SDL_WM_SetCaption(const char *title, __attribute__((unused)) const ch
     }
 
     // Init GLFW
-    reborn_check_display();
-    glfwSetErrorCallback(glfw_error);
-    if (!glfwInit()) {
-        ERR("Unable To Initialize GLFW");
-    }
+    init_glfw();
 
     // Create OpenGL Context
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 1);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 5);
-    // Use EGL
-    if (force_egl) {
-        glfwWindowHint(GLFW_CONTEXT_CREATION_API, GLFW_EGL_CONTEXT_API);
-    }
-    force_egl = -1;
     // Extra Settings
     glfwWindowHint(GLFW_AUTO_ICONIFY, GLFW_FALSE);
-    glfwWindowHint(GLFW_ALPHA_BITS, 0); // Fix Transparent Window On Wayland
-    // App ID
-    glfwWindowHintString(GLFW_X11_CLASS_NAME, MCPI_APP_ID);
-    glfwWindowHintString(GLFW_WAYLAND_APP_ID, MCPI_APP_ID);
 
     // Create Window
-    glfw_window = glfwCreateWindow(DEFAULT_WIDTH, DEFAULT_HEIGHT, title, nullptr, nullptr);
-    if (!glfw_window) {
-        ERR("Unable To Create GLFW Window");
-    }
+    glfw_window = create_glfw_window(title, DEFAULT_WIDTH, DEFAULT_HEIGHT);
 
     // Event Handlers
     _media_register_event_listeners();
-
-    // Make Window Context Current
-    glfwMakeContextCurrent(glfw_window);
 
     // Debug
     const glGetString_t glGetString = (glGetString_t) glfwGetProcAddress("glGetString");
@@ -93,12 +60,8 @@ void media_SDL_WM_SetCaption(const char *title, __attribute__((unused)) const ch
 // Cleanup Media Layer
 void media_cleanup() {
     if (glfw_window) {
-        // Ignore GLFW Errors During Termination
-        glfwSetErrorCallback(nullptr);
-
         // Terminate GLFW
-        glfwDestroyWindow(glfw_window);
-        glfwTerminate();
+        cleanup_glfw(glfw_window);
 
         // Cleanup OpenAL
         _media_audio_cleanup();

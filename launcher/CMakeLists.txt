@@ -13,12 +13,18 @@ add_executable(launcher
     src/logger/crash-report.cpp
     src/options/parser.cpp
     src/main.cpp
+    src/ui/frame.cpp
     src/client/configuration.cpp
     src/client/cache.cpp
     src/client/available-feature-flags # Show In IDE
 )
 embed_resource(launcher src/client/available-feature-flags)
-target_link_libraries(launcher reborn-util LIB_LIEF trampoline-headers)
+target_link_libraries(launcher
+    reborn-util
+    LIB_LIEF
+    imgui
+    trampoline-headers
+)
 # RPath
 set_target_properties(launcher PROPERTIES INSTALL_RPATH "$ORIGIN/lib/native")
 target_link_options(launcher PRIVATE "LINKER:--disable-new-dtags")

@@ -75,3 +75,8 @@ void ensure_directory(const char *path);
 
 // Safe write()
 void safe_write(int fd, const void *buf, size_t size);
+
+// embed_resource()
+#define EMBEDDED_RESOURCE(name) \
+    extern unsigned char name[]; \
+    extern size_t name##_len

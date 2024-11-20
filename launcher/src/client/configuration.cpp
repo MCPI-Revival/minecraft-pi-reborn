@@ -12,6 +12,7 @@
 #include "../util/util.h"
 #include "configuration.h"
 #include "cache.h"
+#include "../ui/frame.h"
 
 // Strip Feature Flag Default
 std::string strip_feature_flag_default(const std::string &flag, bool *default_ret) {
@@ -38,8 +39,7 @@ std::string strip_feature_flag_default(const std::string &flag, bool *default_re
 }
 
 // Load Available Feature Flags
-extern unsigned char available_feature_flags[];
-extern size_t available_feature_flags_len;
+EMBEDDED_RESOURCE(available_feature_flags);
 void load_available_feature_flags(const std::function<void(std::string)> &callback) {
     // Load Data
     const std::string data(available_feature_flags, available_feature_flags + available_feature_flags_len);
@@ -149,11 +149,26 @@ void handle_non_launch_client_only_commands(const options_t &options) {
     }
 }
 
+struct Test final : Frame {
+    Test(): Frame(DIALOG_TITLE, 640, 480) {}
+    int render() override {
+        ImGui::Button("Hello World!");
+        ImGui::PushFont(monospace);
+        ImGui::Button("Custom Font");
+        ImGui::PopFont();
+        return 0;
+    }
+};
+
 // Configure Client Options
 #define LIST_DIALOG_SIZE "400"
 void configure_client(const options_t &options) {
     // Load Cache
     launcher_cache cache = options.no_cache ? empty_cache : load_cache();
+
+    Test *test = new Test;
+    test->run();
+    delete test;
 
     // --default
     if (options.use_default) {

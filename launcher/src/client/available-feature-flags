@@ -45,7 +45,6 @@ FALSE Remove Forced GUI Lag (Can Break Joining Servers)
 TRUE Add Buckets
 TRUE Classic HUD
 TRUE Translucent Toolbar
-FALSE Force EGL
 TRUE Improved Classic Title Screen
 FALSE Disable Speed Bridging
 FALSE Disable Creative Mode Mining Delay

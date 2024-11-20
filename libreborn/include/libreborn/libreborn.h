@@ -7,3 +7,4 @@
 #include "string.h"
 #include "exec.h"
 #include "patch.h"
+#include "glfw.h"

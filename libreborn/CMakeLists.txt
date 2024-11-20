@@ -14,6 +14,10 @@ add_library(reborn-util SHARED
     src/util/env.cpp
 )
 target_link_libraries(reborn-util PRIVATE utf8cpp)
+if(TARGET glfw)
+    target_sources(reborn-util PRIVATE src/util/glfw.cpp)
+    target_link_libraries(reborn-util PRIVATE glfw)
+endif()
 setup_header_dirs(reborn-util
     "${CMAKE_CURRENT_SOURCE_DIR}/include"
     "${CMAKE_CURRENT_BINARY_DIR}/include"

@@ -1,10 +1,10 @@
 #pragma once
 
-#include <SDL/SDL.h>
-#include <libreborn/libreborn.h>
-
 #define GLFW_INCLUDE_NONE
 #include <GLFW/glfw3.h>
+
+#include <SDL/SDL.h>
+#include <libreborn/libreborn.h>
 
 #include <media-layer/core.h>
 

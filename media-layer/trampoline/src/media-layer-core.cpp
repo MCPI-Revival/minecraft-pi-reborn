@@ -165,15 +165,6 @@ CALL(64, media_set_raw_mouse_motion_enabled, void, (int enabled))
 #endif
 }
 
-CALL(66, media_force_egl, void, ())
-#ifdef MEDIA_LAYER_TRAMPOLINE_GUEST
-    trampoline(true);
-#else
-    func();
-    return 0;
-#endif
-}
-
 CALL(71, media_has_extension, int, (const char *name))
 #ifdef MEDIA_LAYER_TRAMPOLINE_GUEST
     return trampoline(false, copy_array(name));
