@@ -25,6 +25,13 @@ target_link_libraries(imgui PUBLIC glfw OpenGL::GL)
 embed_resource(imgui src/misc/fonts/Roboto-Medium.ttf)
 embed_resource(imgui src/misc/fonts/Cousine-Regular.ttf)
 
+# Configure
+target_compile_definitions(imgui PUBLIC
+    IMGUI_DISABLE_DEMO_WINDOWS
+    IMGUI_DISABLE_DEBUG_TOOLS
+    IMGUI_DISABLE_DEFAULT_FONT
+)
+
 # Patch
 execute_process(
     COMMAND "patch" "-p1" "--forward" "--reject-file=-"
