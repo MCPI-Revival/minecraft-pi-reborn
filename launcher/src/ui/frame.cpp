@@ -86,7 +86,7 @@ void Frame::setup_style(const float scale) {
     style.WindowBorderSize = 0;
     ImGui::StyleColorsDark(&style);
     style.ScaleAllSizes(scale);
-    // Colors
+    // Blend Colors
     static int target_colors[] = {
         ImGuiCol_FrameBg,
         ImGuiCol_FrameBgHovered,
@@ -121,4 +121,7 @@ void Frame::setup_style(const float scale) {
         ImVec4 &color = style.Colors[target_color];
         color = blend_with_primary(color);
     }
+    // Update Border Color
+    ImVec4 &border_color = style.Colors[ImGuiCol_Border];
+    border_color.z = border_color.x;
 }

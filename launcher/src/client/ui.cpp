@@ -33,7 +33,7 @@ int ConfigurationUI::render() {
     if (ImGui::BeginChild("General", ImVec2(0, -ImGui::GetFrameHeightWithSpacing() /* Leave Room For One Line */), ImGuiChildFlags_None, ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse)) {
         // Tabs
         if (ImGui::BeginTabBar("tab_bar", ImGuiTabBarFlags_None)) {
-            if (ImGui::BeginTabItem("Main", nullptr, ImGuiTabItemFlags_None)) {
+            if (ImGui::BeginTabItem("General", nullptr, ImGuiTabItemFlags_None)) {
                 // Main Tab
                 draw_main();
                 ImGui::EndTabItem();
@@ -48,6 +48,11 @@ int ConfigurationUI::render() {
     }
     ImGui::EndChild();
     // Bottom Row
+    if (ImGui::Button("Reset To Defaults")) {
+        state = State(empty_cache);
+    }
+    ImGui::SameLine();
+    // Right-Align Buttons
     const char *bottom_row_text[] = {"Quit", "Launch"};
     float width_needed = 0;
     for (const char *text : bottom_row_text) {
@@ -98,10 +103,6 @@ void ConfigurationUI::draw_advanced() const {
             if (ImGui::CollapsingHeader(label.c_str())) {
                 draw_category(category);
             }
-        }
-        ImGui::Spacing();
-        if (ImGui::Button("Reset All Settings")) {
-            state = State(empty_cache);
         }
     }
     ImGui::EndChild();
