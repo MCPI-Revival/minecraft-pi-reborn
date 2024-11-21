@@ -5,7 +5,10 @@
 #include "flags.h"
 
 // Flag
-static int next_id = 1;
+static int next_id;
+void FlagNode::reset_id_counter() {
+    next_id = 1;
+}
 FlagNode::FlagNode(const std::string &name_) {
     name = name_;
     value = false;

@@ -21,6 +21,7 @@ static unsigned int find_indent_level(std::string &str) {
     return count / INDENT;
 }
 Flags::Flags(const std::string &data) {
+    FlagNode::reset_id_counter();
     // Read Lines
     std::stringstream stream(data);
     std::string line;

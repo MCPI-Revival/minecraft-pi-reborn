@@ -120,7 +120,7 @@ __attribute__((noreturn)) void safe_execvpe(const char *const argv[], const char
         DEBUG("    %s", argv[i]);
     }
     // Run
-    int ret = execvpe(argv[0], (char *const *) argv, (char *const *) envp);
+    const int ret = execvpe(argv[0], (char *const *) argv, (char *const *) envp);
     if (ret == -1) {
         ERR("Unable To Execute Program: %s: %s", argv[0], strerror(errno));
     } else {
@@ -172,5 +172,17 @@ std::string get_exit_status_string(const int status) {
         return ": Signal: " + std::to_string(WTERMSIG(status)) + (WCOREDUMP(status) ? " (Core Dumped)" : "");
     } else {
         return "";
+    }
+}
+
+// Check Exit Status
+bool is_exit_status_success(const int status) {
+    if (WIFEXITED(status)) {
+        return WEXITSTATUS(status) == 0;
+    } else if (WIFSIGNALED(status)) {
+        const int signal_no = WTERMSIG(status);
+        return signal_no == SIGINT || signal_no == SIGTERM;
+    } else {
+        return false;
     }
 }

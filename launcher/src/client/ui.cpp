@@ -1,6 +1,7 @@
 #include <vector>
 
 #include "configuration.h"
+#include "cache.h"
 
 #include <imgui_stdlib.h>
 
@@ -29,7 +30,7 @@ ConfigurationUI::ConfigurationUI(State &state_):
 // Render
 int ConfigurationUI::render() {
     const ImGuiStyle &style = ImGui::GetStyle();
-    if (ImGui::BeginChild("Main", ImVec2(0, -ImGui::GetFrameHeightWithSpacing() /* Leave Room For One Line */), ImGuiChildFlags_None, ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse)) {
+    if (ImGui::BeginChild("General", ImVec2(0, -ImGui::GetFrameHeightWithSpacing() /* Leave Room For One Line */), ImGuiChildFlags_None, ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse)) {
         // Tabs
         if (ImGui::BeginTabBar("tab_bar", ImGuiTabBarFlags_None)) {
             if (ImGui::BeginTabItem("Main", nullptr, ImGuiTabItemFlags_None)) {
@@ -97,6 +98,10 @@ void ConfigurationUI::draw_advanced() const {
             if (ImGui::CollapsingHeader(label.c_str())) {
                 draw_category(category);
             }
+        }
+        ImGui::Spacing();
+        if (ImGui::Button("Reset All Settings")) {
+            state = State(empty_cache);
         }
     }
     ImGui::EndChild();

@@ -25,7 +25,7 @@ __attribute__((noreturn)) void safe_execvpe(const char *const argv[], const char
 
 // Run Command And Get Output
 std::vector<unsigned char> *run_command(const char *const command[], int *exit_status);
-#define is_exit_status_success(status) (WIFEXITED(status) && WEXITSTATUS(status) == 0)
+bool is_exit_status_success(int status);
 
 // Get Exit Status String
 std::string get_exit_status_string(int status);

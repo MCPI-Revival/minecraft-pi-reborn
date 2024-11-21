@@ -28,6 +28,7 @@ public:
     // Internal
     static bool handle_line_prefix(const std::string &prefix, std::string &line);
     static std::unordered_map<std::string, bool> flag_prefixes;
+    static void reset_id_counter();
 };
 
 // All Flags

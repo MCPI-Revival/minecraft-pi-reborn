@@ -2,9 +2,6 @@
 #include <cstring>
 #include <sys/wait.h>
 #include <sys/stat.h>
-#include <vector>
-#include <functional>
-#include <algorithm>
 
 #include <libreborn/libreborn.h>
 
