@@ -265,5 +265,5 @@ struct InfoScreen final : CustomScreen {
 
 // Create Screen
 Screen *_create_options_info_screen() {
-    return extend_struct<Screen, InfoScreen>();
+    return extend_struct<InfoScreen>();
 }

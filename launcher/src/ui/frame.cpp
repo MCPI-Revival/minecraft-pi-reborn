@@ -35,7 +35,6 @@ Frame::~Frame() {
 // Run Loop
 int Frame::run() {
     int ret = 0;
-    constexpr ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
     while (!glfwWindowShouldClose(window) && ret == 0) {
         glfwPollEvents();
         // Update Style
@@ -61,8 +60,6 @@ int Frame::run() {
         ImGui::End();
         // Render To OpenGL
         ImGui::Render();
-        glClearColor(clear_color.x * clear_color.w, clear_color.y * clear_color.w, clear_color.z * clear_color.w, clear_color.w);
-        glClear(GL_COLOR_BUFFER_BIT);
         ImGui_ImplOpenGL2_RenderDrawData(ImGui::GetDrawData());
         glfwSwapBuffers(window);
     }

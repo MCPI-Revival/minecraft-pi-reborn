@@ -78,6 +78,6 @@ void Frame::patch_colors(ImGuiStyle &style) {
     };
     for (const int target_color : target_colors_modify) {
         ImVec4 &color = style.Colors[target_color];
-        color.z = color.x;
+        color.y = color.z = color.x;
     }
 }

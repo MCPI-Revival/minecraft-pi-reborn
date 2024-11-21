@@ -41,7 +41,7 @@ template <typename Self, typename Data>
 Data *extend_get_data(Self *self) {
     return (Data *) (self + 1);
 }
-template <typename Self, typename Data>
+template <typename Data, typename Self = typename Data::_Self>
 auto extend_struct(auto&&... args) -> decltype(Self::allocate()) {
     constexpr size_t size = sizeof(Self) + sizeof(Data);
     Self *out = (Self *) ::operator new(size);
@@ -53,11 +53,12 @@ auto extend_struct(auto&&... args) -> decltype(Self::allocate()) {
 // Helpers
 #define CREATE_HELPER(name) \
     struct Custom##name { \
+        using _Self = name; \
         explicit Custom##name(auto&&... args): self(((name *) this) - 1) { \
             self->constructor(std::forward<decltype(args)>(args)...); \
             self->vtable = get_vtable(); \
         } \
-        name *const self; \
+        _Self *const self; \
         static name##_vtable *get_vtable(); \
     private: \
         static void setup_vtable(name##_vtable *vtable); \

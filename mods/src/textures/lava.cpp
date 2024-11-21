@@ -69,7 +69,7 @@ struct LavaTexture final : CustomDynamicTexture {
     }
 };
 static DynamicTexture *create_lava_texture() {
-    return extend_struct<DynamicTexture, LavaTexture>();
+    return extend_struct<LavaTexture>();
 }
 
 // LavaSideTexture
@@ -135,7 +135,7 @@ struct LavaSideTexture final : CustomDynamicTexture {
     }
 };
 static DynamicTexture *create_lava_side_texture() {
-    return extend_struct<DynamicTexture, LavaSideTexture>();
+    return extend_struct<LavaSideTexture>();
 }
 
 // FireTexture
@@ -195,7 +195,7 @@ struct FireTexture final : CustomDynamicTexture {
     }
 };
 static DynamicTexture *create_fire_texture(const int a2) {
-    return extend_struct<DynamicTexture, FireTexture>(a2);
+    return extend_struct<FireTexture>(a2);
 }
 
 // Add Textures

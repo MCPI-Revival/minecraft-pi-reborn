@@ -124,7 +124,7 @@ struct WelcomeScreen final : CustomScreen {
     }
 };
 static Screen *create_welcome_screen() {
-    return extend_struct<Screen, WelcomeScreen>();
+    return extend_struct<WelcomeScreen>();
 }
 
 // Show Welcome Screen
