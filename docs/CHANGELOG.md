@@ -76,8 +76,9 @@
   * `Force Survival Mode Inventory UI` (Disabled By Default)
   * `Force Survival Mode Inventory Behavior` (Disabled By Default)
   * `Maximize Creative Mode Inventory Stack Size` (Disabled By Default)
-* Rename `Disable Buggy Held Item Caching` Feature Flag To `Fix Held Item Caching`
-* Rename `Disable 'gui_blocks' Atlas` Feature Flag To `Regenerate "gui_blocks" Atlas`
+* Rename Feature Flags
+  * `Disable Buggy Held Item Caching` To `Fix Held Item Caching`
+  * `Disable 'gui_blocks' Atlas` To `Regenerate "gui_blocks" Atlas`
 * Add Milk Buckets
   * Included In The `Add Buckets` Feature Flag
 * Removed `Property Scale Animated Textures` Feature Flag

@@ -16,7 +16,8 @@ extern launcher_cache empty_cache;
 launcher_cache load_cache();
 
 // Save Cache
-void save_cache();
+struct State;
+void save_cache(const State &state);
 
 // Wipe Cache
 void wipe_cache();

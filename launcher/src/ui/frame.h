@@ -1,6 +1,7 @@
 #pragma once
 
 #include <imgui.h>
+#include <string>
 #include <GLFW/glfw3.h>
 
 // UI Frame

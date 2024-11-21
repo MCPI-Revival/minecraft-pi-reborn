@@ -8,8 +8,9 @@
 
 #include <libreborn/libreborn.h>
 
-#include "configuration.h"
 #include "cache.h"
+#include "configuration.h"
+#include "flags/flags.h"
 
 // Get Cache Path
 static std::string get_cache_path() {
@@ -37,7 +38,7 @@ launcher_cache load_cache() {
     std::ifstream stream(get_cache_path(), std::ios::in | std::ios::binary);
     if (!stream) {
         // Fail
-        struct stat s;
+        struct stat s = {};
         // No Warning If File Doesn't Exist
         if (stat(get_cache_path().c_str(), &s) == 0) {
             WARN("Unable To Open Launcher Cache For Loading");
@@ -49,14 +50,12 @@ launcher_cache load_cache() {
         // Check Version
         unsigned char cache_version;
         stream.read((char *) &cache_version, 1);
-        if (stream.eof() || cache_version != (unsigned char) CACHE_VERSION) {
-            // Fail
-            if (!stream.eof()) {
-                WARN("Invalid Launcher Cache Version (Expected: %i, Actual: %i)", (int) CACHE_VERSION, (int) cache_version);
-            } else {
-                WARN("Unable To Read Launcher Cache Version");
-            }
-            stream.close();
+        if (stream.eof()) {
+            // Unable To Read Version
+            WARN("Unable To Read Launcher Cache Version");
+        } else if (cache_version != (unsigned char) CACHE_VERSION) {
+            // Invalid Version
+            WARN("Invalid Launcher Cache Version (Expected: %i, Actual: %i)", CACHE_VERSION, (int) cache_version);
         } else {
             // Load Username And Render Distance
             launcher_cache cache;
@@ -66,16 +65,15 @@ launcher_cache load_cache() {
             // Load Feature Flags
             std::string flag;
             while (!stream.eof() && std::getline(stream, flag, '\0')) {
-                if (flag.length() > 0) {
-                    unsigned char is_enabled = 0;
-                    stream.read((char *) &is_enabled, 1);
-                    cache.feature_flags[flag] = is_enabled != (unsigned char) 0;
+                if (!flag.empty()) {
+                    bool is_enabled = false;
+                    stream.read((char *) &is_enabled, sizeof(bool));
+                    cache.feature_flags[flag] = is_enabled;
                 }
                 stream.peek();
             }
 
             // Finish
-            stream.close();
             if (!stream) {
                 // Fail
                 WARN("Failure While Loading Launcher Cache");
@@ -84,6 +82,9 @@ launcher_cache load_cache() {
                 ret = cache;
             }
         }
+
+        // Close
+        stream.close();
 
         // Unlock File
         unlock_file(get_cache_path().c_str(), lock_fd);
@@ -94,15 +95,10 @@ launcher_cache load_cache() {
 }
 
 // Save
-#define write_env_to_stream(stream, env) \
-    { \
-        const char *env_value = getenv(env); \
-        if (env == NULL) { \
-            IMPOSSIBLE(); \
-        } \
-        stream.write(env_value, strlen(env_value) + 1); \
-    }
-void save_cache() {
+static void write_env_to_stream(std::ofstream &stream, const std::string &value) {
+    stream.write(value.c_str(), int(value.size()) + 1);
+}
+void save_cache(const State &state) {
     // Log
     DEBUG("Saving Launcher Cache...");
 
@@ -116,41 +112,23 @@ void save_cache() {
         int lock_fd = lock_file(get_cache_path().c_str());
 
         // Save Cache Version
-        unsigned char cache_version = (unsigned char) CACHE_VERSION;
+        constexpr unsigned char cache_version = CACHE_VERSION;
         stream.write((const char *) &cache_version, 1);
 
         // Save Username And Render Distance
-        write_env_to_stream(stream, MCPI_USERNAME_ENV);
-        write_env_to_stream(stream, MCPI_RENDER_DISTANCE_ENV);
+        write_env_to_stream(stream, state.username);
+        write_env_to_stream(stream, state.render_distance);
 
         // Save Feature Flags
-        std::unordered_map<std::string, bool> flags;
-        load_available_feature_flags([&flags](std::string flag) {
-            std::string stripped_flag = strip_feature_flag_default(flag, nullptr);
-            flags[stripped_flag] = false;
-        });
-        {
-            const char *enabled_flags = getenv(MCPI_FEATURE_FLAGS_ENV);
-            if (enabled_flags == nullptr) {
-                IMPOSSIBLE();
-            }
-            std::istringstream enabled_flags_stream(enabled_flags);
-            std::string flag;
-            while (std::getline(enabled_flags_stream, flag, '|')) {
-                if (flag.length() > 0) {
-                    flags[flag] = true;
-                }
-            }
-        }
-        for (auto &it : flags) {
-            stream.write(it.first.c_str(), it.first.size() + 1);
-            unsigned char val = it.second ? (unsigned char) 1 : (unsigned char) 0;
-            stream.write((const char *) &val, 1);
+        const std::unordered_map<std::string, bool> flags_cache = state.flags.to_cache();
+        for (const std::pair<const std::string, bool> &it : flags_cache) {
+            stream.write(it.first.c_str(), int(it.first.size()) + 1);
+            stream.write((const char *) &it.second, sizeof(bool));
         }
 
         // Finish
         stream.close();
-        if (!stream.good()) {
+        if (!stream) {
             WARN("Failure While Saving Launcher Cache");
         }
 

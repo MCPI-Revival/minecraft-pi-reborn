@@ -35,7 +35,7 @@ static void LoginPacket_read_injection(LoginPacket_read_t original, LoginPacket 
     const char *c_str = shared_string->c_str;
     // Sanitize
     std::string new_username = c_str;
-    sanitize_string(new_username, MAX_USERNAME_LENGTH, 0);
+    sanitize_string(new_username, MAX_USERNAME_LENGTH, false);
     // Set New Username
     rak_string->Assign(new_username.c_str());
 }

@@ -1,3 +1,5 @@
+#include <cmath>
+
 #include "frame.h"
 
 #include <imgui_impl_glfw.h>
@@ -34,7 +36,7 @@ Frame::~Frame() {
 int Frame::run() {
     int ret = 0;
     constexpr ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
-    while (!glfwWindowShouldClose(window) || ret != 0) {
+    while (!glfwWindowShouldClose(window) && ret == 0) {
         glfwPollEvents();
         // Update Style
         static float last_scale = -1.0f;
@@ -53,7 +55,7 @@ int Frame::run() {
         int width, height;
         glfwGetFramebufferSize(window, &width, &height);
         ImGui::SetNextWindowSize({float(width), float(height)});
-        if (ImGui::Begin("###Main", nullptr, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoCollapse)) {
+        if (ImGui::Begin("###Frame", nullptr, ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoScrollWithMouse)) {
             ret = render();
         }
         ImGui::End();
@@ -76,8 +78,8 @@ void Frame::setup_style(const float scale) {
     io.Fonts->Clear();
     ImFontConfig font_cfg;
     font_cfg.FontDataOwnedByAtlas = false;
-    io.Fonts->AddFontFromMemoryTTF(Roboto_Medium_ttf, int(Roboto_Medium_ttf_len), 24.0f * scale, &font_cfg);
-    monospace = io.Fonts->AddFontFromMemoryTTF(Cousine_Regular_ttf, int(Cousine_Regular_ttf_len), 18.0f * scale, &font_cfg);
+    io.Fonts->AddFontFromMemoryTTF(Roboto_Medium_ttf, int(Roboto_Medium_ttf_len), std::floor(20.0f * scale), &font_cfg);
+    monospace = io.Fonts->AddFontFromMemoryTTF(Cousine_Regular_ttf, int(Cousine_Regular_ttf_len), std::floor(18.0f * scale), &font_cfg);
     // Style
     ImGuiStyle &style = ImGui::GetStyle();
     style = ImGuiStyle();

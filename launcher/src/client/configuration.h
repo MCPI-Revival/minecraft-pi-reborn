@@ -1,17 +1,38 @@
 #pragma once
 
 #include <string>
-#include <functional>
 
 #include "../options/parser.h"
+#include "cache.h"
+#include "flags/flags.h"
+#include "../ui/frame.h"
 
-// Defaults
+// Default Configuration
 #define DEFAULT_USERNAME "StevePi"
 #define DEFAULT_RENDER_DISTANCE "Short"
 
-// Feature Flags
-std::string strip_feature_flag_default(const std::string& flag, bool *default_ret);
-void load_available_feature_flags(const std::function<void(std::string)> &callback);
+// State
+struct State {
+    explicit State(const launcher_cache &cache);
+    // Methods
+    void update(bool save);
+    // Properties
+    std::string username;
+    std::string render_distance;
+    Flags flags;
+};
+
+// UI
+struct ConfigurationUI final : Frame {
+    explicit ConfigurationUI(State &state_);
+    int render() override;
+private:
+    void draw_main();
+    void draw_advanced() const;
+    static void draw_category(FlagNode &category);
+    State &state;
+    int render_distance_index;
+};
 
 // Handle Non-Launch Commands
 void handle_non_launch_client_only_commands(const options_t &options);

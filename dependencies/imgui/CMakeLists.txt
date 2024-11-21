@@ -11,12 +11,14 @@ add_library(imgui SHARED
     src/imgui_draw.cpp
     src/imgui_tables.cpp
     src/imgui_widgets.cpp
+    src/misc/cpp/imgui_stdlib.cpp
     src/backends/imgui_impl_glfw.cpp
     src/backends/imgui_impl_opengl2.cpp
 )
 setup_header_dirs(imgui
     "${CMAKE_CURRENT_SOURCE_DIR}/src"
     "${CMAKE_CURRENT_SOURCE_DIR}/src/backends"
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/misc/cpp"
 )
 find_package(OpenGL REQUIRED)
 target_link_libraries(imgui PUBLIC glfw OpenGL::GL)
