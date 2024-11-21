@@ -1,10 +1,5 @@
 #include "frame.h"
 
-// Clamp Function
-static float clamp(const float value, const float min = 0.0f, const float max = 1.0f) {
-    return std::max(min, std::min(value, max));
-}
-
 // Calculate Perceived Brightness Of Color
 // See: https://en.wikipedia.org/w/index.php?title=Relative_luminance&useskin=vector
 static float compute_luma(const ImVec4 &color) {
@@ -12,6 +7,9 @@ static float compute_luma(const ImVec4 &color) {
 }
 
 // Apply Luma To RGB
+static float clamp(const float value) {
+    return std::max(0.0f, std::min(value, 1.0f));
+}
 static ImVec4 apply_luma_to_color(const float target_luma, const ImVec4 &color) {
     const float current_luma = compute_luma(color);
     const float luma_ratio = (current_luma != 0) ? target_luma / current_luma : 0;
