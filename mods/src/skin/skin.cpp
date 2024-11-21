@@ -47,9 +47,9 @@ static std::string base64_encode(const std::string &data) {
 }
 
 // Change Texture For Player Entities
-static void Player_username_assign_injection(std::string *target, std::string *username) {
+static void Player_username_assign_injection(std::string *target, const std::string &username) {
     // Call Original Method
-    *target = *username;
+    *target = username;
 
     // Get Player
     Player *player = (Player *) (((unsigned char *) target) - offsetof(Player, username));
@@ -57,11 +57,11 @@ static void Player_username_assign_injection(std::string *target, std::string *u
     std::string *texture = &player->texture;
 
     // Set Texture
-    *texture = '$' + base64_encode(*username);
+    *texture = '$' + base64_encode(username);
 }
 static void Player_username_assign_injection_2(std::string *target, const char *username) {
-    std::string username_str = username;
-    Player_username_assign_injection(target, &username_str);
+    const std::string username_str = username;
+    Player_username_assign_injection(target, username_str);
 }
 
 // Change Texture For HUD
