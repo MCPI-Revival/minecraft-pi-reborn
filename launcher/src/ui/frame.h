@@ -19,4 +19,5 @@ private:
     // Internal
     float get_scale();
     void setup_style(float scale);
+    static ImVec4 blend_with_primary(const ImVec4 &color);
 };

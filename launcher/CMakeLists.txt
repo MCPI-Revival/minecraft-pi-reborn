@@ -14,6 +14,7 @@ add_executable(launcher
     src/options/parser.cpp
     src/main.cpp
     src/ui/frame.cpp
+    src/ui/color.cpp
     src/client/configuration.cpp
     src/client/cache.cpp
     src/client/ui.cpp
