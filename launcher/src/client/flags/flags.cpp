@@ -51,6 +51,16 @@ Flags::Flags(const std::string &data) {
     }
     // Sort
     root.sort();
+    // Check For Duplicates
+    std::unordered_set<std::string> seen;
+    root.for_each_const([&seen](const FlagNode &node) {
+        const std::string &name = node.name;
+        if (seen.contains(name)) {
+            ERR("Duplicate Feature Flag: %s", name.c_str());
+        } else {
+            seen.insert(name);
+        }
+    });
 }
 Flags::operator std::string() const {
     std::string out;

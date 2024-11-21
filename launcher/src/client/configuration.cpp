@@ -33,8 +33,11 @@ void State::update(const bool save) {
     update_from_env(MCPI_USERNAME_ENV, username, save);
     update_from_env(MCPI_RENDER_DISTANCE_ENV, render_distance, save);
 }
-
-#define DIALOG_TITLE "Launcher"
+bool State::operator==(const State &other) const {
+#define test(x) static_cast<std::string>(x) == static_cast<std::string>(other.x)
+    return test(username) && test(render_distance) && test(flags);
+#undef test
+}
 
 // Handle Non-Launch Commands
 void handle_non_launch_client_only_commands(const options_t &options) {

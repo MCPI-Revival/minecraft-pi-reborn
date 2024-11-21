@@ -17,7 +17,11 @@ static std::vector render_distances = {
 static constexpr int size = 400;
 ConfigurationUI::ConfigurationUI(State &state_):
     Frame("Launcher", size, size),
+    empty_state(empty_cache),
     state(state_) {
+    update_render_distance();
+}
+void ConfigurationUI::update_render_distance() {
     render_distance_index = 0;
     for (std::vector<std::string>::size_type i = 0; i < render_distances.size(); i++) {
         if (std::string(render_distances[i]) == state.render_distance) {
@@ -29,17 +33,16 @@ ConfigurationUI::ConfigurationUI(State &state_):
 
 // Render
 int ConfigurationUI::render() {
-    const ImGuiStyle &style = ImGui::GetStyle();
-    if (ImGui::BeginChild("General", ImVec2(0, -ImGui::GetFrameHeightWithSpacing() /* Leave Room For One Line */), ImGuiChildFlags_None, ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse)) {
+    if (ImGui::BeginChild("Main", ImVec2(0, -ImGui::GetFrameHeightWithSpacing() /* Leave Room For Bottom Row */), ImGuiChildFlags_None, ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse)) {
         // Tabs
-        if (ImGui::BeginTabBar("tab_bar", ImGuiTabBarFlags_None)) {
-            if (ImGui::BeginTabItem("General", nullptr, ImGuiTabItemFlags_None)) {
-                // Main Tab
+        if (ImGui::BeginTabBar("TabBar")) {
+            // Main Tab
+            if (ImGui::BeginTabItem("General")) {
                 draw_main();
                 ImGui::EndTabItem();
             }
-            if (ImGui::BeginTabItem("Advanced", nullptr, ImGuiTabItemFlags_None)) {
-                // Advanced Tab
+            // Advanced Tab
+            if (ImGui::BeginTabItem("Advanced")) {
                 draw_advanced();
                 ImGui::EndTabItem();
             }
@@ -48,11 +51,21 @@ int ConfigurationUI::render() {
     }
     ImGui::EndChild();
     // Bottom Row
+    return draw_bottom();
+}
+
+// Bottom Row
+int ConfigurationUI::draw_bottom() {
+    // Reset All Settings
+    ImGui::BeginDisabled(state == empty_state);
     if (ImGui::Button("Reset To Defaults")) {
-        state = State(empty_cache);
+        state = empty_state;
+        update_render_distance();
     }
+    ImGui::EndDisabled();
     ImGui::SameLine();
     // Right-Align Buttons
+    const ImGuiStyle &style = ImGui::GetStyle();
     const char *bottom_row_text[] = {"Quit", "Launch"};
     float width_needed = 0;
     for (const char *text : bottom_row_text) {
@@ -62,13 +75,14 @@ int ConfigurationUI::render() {
         width_needed += ImGui::CalcTextSize(text).x + style.FramePadding.x * 2.f;
     }
     ImGui::SetCursorPosX(ImGui::GetCursorPosX() + ImGui::GetContentRegionAvail().x - width_needed);
+    // Quit
     if (ImGui::Button(bottom_row_text[0])) {
-        // Quit
         return -1;
     }
+    ImGui::SetItemTooltip("Changes Will Not Be Saved!");
     ImGui::SameLine();
+    // Launch
     if (ImGui::Button(bottom_row_text[1])) {
-        // Launch
         return 1;
     }
     // Return
