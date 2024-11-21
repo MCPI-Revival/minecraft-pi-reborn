@@ -25,7 +25,7 @@ struct State {
 
 // UI
 struct ConfigurationUI final : Frame {
-    explicit ConfigurationUI(State &state_);
+    explicit ConfigurationUI(State &state_, bool &save_settings_);
     int render() override;
 private:
     void update_render_distance();
@@ -33,8 +33,10 @@ private:
     void draw_main();
     void draw_advanced() const;
     static void draw_category(FlagNode &category);
-    const State empty_state;
+    const State default_state;
+    const State original_state;
     State &state;
+    bool &save_settings;
     int render_distance_index;
 };
 

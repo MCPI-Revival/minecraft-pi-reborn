@@ -15,10 +15,12 @@ static std::vector render_distances = {
 
 // Construct
 static constexpr int size = 400;
-ConfigurationUI::ConfigurationUI(State &state_):
+ConfigurationUI::ConfigurationUI(State &state_, bool &save_settings_):
     Frame("Launcher", size, size),
-    empty_state(empty_cache),
-    state(state_) {
+    default_state(empty_cache),
+    original_state(state_),
+    state(state_),
+    save_settings(save_settings_) {
     update_render_distance();
 }
 void ConfigurationUI::update_render_distance() {
@@ -57,13 +59,21 @@ int ConfigurationUI::render() {
 // Bottom Row
 int ConfigurationUI::draw_bottom() {
     // Reset All Settings
-    ImGui::BeginDisabled(state == empty_state);
-    if (ImGui::Button("Reset To Defaults")) {
-        state = empty_state;
-        update_render_distance();
+    std::vector<std::tuple<const char *, const char *, const State *>> reset_options = {
+        {"Revert", "Last Saved", &original_state},
+        {"Reset", "Default", &default_state}
+    };
+    for (const std::tuple<const char *, const char *, const State *> &option : reset_options) {
+        const State &new_state = *std::get<2>(option);
+        ImGui::BeginDisabled(state == new_state);
+        if (ImGui::Button(std::get<0>(option))) {
+            state = new_state;
+            update_render_distance();
+        }
+        ImGui::SetItemTooltip("Use %s Settings", std::get<1>(option));
+        ImGui::EndDisabled();
+        ImGui::SameLine();
     }
-    ImGui::EndDisabled();
-    ImGui::SameLine();
     // Right-Align Buttons
     const ImGuiStyle &style = ImGui::GetStyle();
     const char *bottom_row_text[] = {"Quit", "Launch"};
@@ -104,6 +114,7 @@ void ConfigurationUI::draw_main() {
     ImGui::Combo(labels[1], &render_distance_index, render_distances.data(), int(render_distances.size()));
     state.render_distance = render_distances[render_distance_index];
     ImGui::PopItemWidth();
+    ImGui::Checkbox("Save Settings On Launch", &save_settings);
 }
 
 // Advanced Tab

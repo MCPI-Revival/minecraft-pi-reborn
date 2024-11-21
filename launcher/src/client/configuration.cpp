@@ -64,9 +64,10 @@ void configure_client(const options_t &options) {
     state.update(false);
 
     // --default
+    bool save_settings = !options.no_cache;
     if (!options.use_default) {
         // Show UI
-        ConfigurationUI *ui = new ConfigurationUI(state);
+        ConfigurationUI *ui = new ConfigurationUI(state, save_settings);
         const int ret = ui->run();
         delete ui;
         if (ret <= 0) {
@@ -75,7 +76,7 @@ void configure_client(const options_t &options) {
     }
 
     // Save Cache
-    if (!options.no_cache) {
+    if (save_settings) {
         save_cache(state);
     }
 
