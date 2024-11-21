@@ -86,42 +86,5 @@ void Frame::setup_style(const float scale) {
     style.WindowBorderSize = 0;
     ImGui::StyleColorsDark(&style);
     style.ScaleAllSizes(scale);
-    // Blend Colors
-    static int target_colors[] = {
-        ImGuiCol_FrameBg,
-        ImGuiCol_FrameBgHovered,
-        ImGuiCol_FrameBgActive,
-        ImGuiCol_TitleBgActive,
-        ImGuiCol_CheckMark,
-        ImGuiCol_SliderGrab,
-        ImGuiCol_SliderGrabActive,
-        ImGuiCol_Button,
-        ImGuiCol_ButtonHovered,
-        ImGuiCol_ButtonActive,
-        ImGuiCol_Header,
-        ImGuiCol_HeaderHovered,
-        ImGuiCol_HeaderActive,
-        ImGuiCol_Separator,
-        ImGuiCol_SeparatorHovered,
-        ImGuiCol_SeparatorActive,
-        ImGuiCol_ResizeGrip,
-        ImGuiCol_ResizeGripHovered,
-        ImGuiCol_ResizeGripActive,
-        ImGuiCol_TabHovered,
-        ImGuiCol_Tab,
-        ImGuiCol_TabSelected,
-        ImGuiCol_TabSelectedOverline,
-        ImGuiCol_TabDimmed,
-        ImGuiCol_TabDimmedSelected,
-        ImGuiCol_TextLink,
-        ImGuiCol_TextSelectedBg,
-        ImGuiCol_NavCursor
-    };
-    for (const int target_color : target_colors) {
-        ImVec4 &color = style.Colors[target_color];
-        color = blend_with_primary(color);
-    }
-    // Update Border Color
-    ImVec4 &border_color = style.Colors[ImGuiCol_Border];
-    border_color.z = border_color.x;
+    patch_colors(style);
 }

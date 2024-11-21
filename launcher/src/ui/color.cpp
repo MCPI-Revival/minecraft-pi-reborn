@@ -27,7 +27,57 @@ static ImVec4 blend_color(const ImVec4 &top, const ImVec4 &bottom) {
     out.w = bottom.w;
     return out;
 }
-ImVec4 Frame::blend_with_primary(const ImVec4 &color) {
+static ImVec4 blend_with_primary(const ImVec4 &color) {
     static constexpr ImVec4 primary_color = {1.0f, (69.0f / 255.0f), 0.0f, 1.0f};
     return blend_color(primary_color, color);
+}
+
+// Modify Colors
+void Frame::patch_colors(ImGuiStyle &style) {
+    // Blend Colors
+    static int target_colors_blend[] = {
+        ImGuiCol_FrameBg,
+        ImGuiCol_FrameBgHovered,
+        ImGuiCol_FrameBgActive,
+        ImGuiCol_TitleBgActive,
+        ImGuiCol_CheckMark,
+        ImGuiCol_SliderGrab,
+        ImGuiCol_SliderGrabActive,
+        ImGuiCol_Button,
+        ImGuiCol_ButtonHovered,
+        ImGuiCol_ButtonActive,
+        ImGuiCol_Header,
+        ImGuiCol_HeaderHovered,
+        ImGuiCol_HeaderActive,
+        ImGuiCol_SeparatorHovered,
+        ImGuiCol_SeparatorActive,
+        ImGuiCol_ResizeGrip,
+        ImGuiCol_ResizeGripHovered,
+        ImGuiCol_ResizeGripActive,
+        ImGuiCol_TabHovered,
+        ImGuiCol_Tab,
+        ImGuiCol_TabSelected,
+        ImGuiCol_TabSelectedOverline,
+        ImGuiCol_TabDimmed,
+        ImGuiCol_TabDimmedSelected,
+        ImGuiCol_TextLink,
+        ImGuiCol_TextSelectedBg,
+        ImGuiCol_NavCursor
+    };
+    for (const int target_color : target_colors_blend) {
+        ImVec4 &color = style.Colors[target_color];
+        color = blend_with_primary(color);
+    }
+    // Remove Blue Accent From Colors
+    static int target_colors_modify[] = {
+        ImGuiCol_Separator,
+        ImGuiCol_Border,
+        ImGuiCol_TableHeaderBg,
+        ImGuiCol_TableBorderStrong,
+        ImGuiCol_TableBorderLight
+    };
+    for (const int target_color : target_colors_modify) {
+        ImVec4 &color = style.Colors[target_color];
+        color.z = color.x;
+    }
 }
