@@ -546,12 +546,19 @@ void _init_misc_graphics() {
     }
 
     // Modify Entity Rendering
-    overwrite_call((void *) 0x606c0, (void *) EntityRenderDispatcher_render_EntityRenderer_render_injection);
+    bool hijack_entity_rendering = false;
     should_render_fire = feature_has("Render Fire In Third-Person", server_disabled);
+    if (should_render_fire) {
+        hijack_entity_rendering = true;
+    }
     should_render_shadows = feature_has("Render Entity Shadows", server_disabled);
     if (should_render_shadows) {
         overwrite_calls(EntityRenderDispatcher_assign, EntityRenderDispatcher_assign_injection);
         overwrite_calls(ArmorScreen_renderPlayer, ArmorScreen_renderPlayer_injection);
+        hijack_entity_rendering = true;
+    }
+    if (hijack_entity_rendering) {
+        overwrite_call((void *) 0x606c0, (void *) EntityRenderDispatcher_render_EntityRenderer_render_injection);
     }
 
     // Slightly Nicer Water Rendering

@@ -124,6 +124,8 @@ CATEGORY Bug Fixes
     TRUE Fix Switching Perspective While Sneaking
     TRUE Fix Crash When Generating Certain Seeds
     TRUE Fix Sugar Position In Hand
+    TRUE Fix Reloading Textures On Resize
+    TRUE Fix options.txt Loading/Saving
 CATEGORY Logging
     FALSE Log FPS
     TRUE Log Chat Messages
@@ -134,3 +136,4 @@ CATEGORY Miscellaneous
     TRUE Always Save Chest Tile Entities
     TRUE Screenshot Support
     TRUE Fix Camera Functionality
+    TRUE Update Default Options

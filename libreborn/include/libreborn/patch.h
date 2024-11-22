@@ -29,7 +29,7 @@ void *reborn_thunk_enabler(void *target, void *thunk);
 // Replace All Calls To start With target Within [to, from)
 void overwrite_calls_within_manual(void *from, void *to, void *start, void *target);
 template <typename T>
-void _overwrite_calls_within(void *from, void *to, T *start, typename T::ptr_type target) {
+void overwrite_calls_within(void *from, void *to, T *start, typename T::ptr_type target) {
     overwrite_calls_within_manual(from, to, (void *) start->get(), (void *) target);
 }
 

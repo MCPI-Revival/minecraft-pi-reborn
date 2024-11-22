@@ -164,12 +164,6 @@ void init_textures() {
     if (animated_water || animated_lava || animated_fire) {
         // Tick Dynamic Textures
         misc_run_on_tick(Minecraft_tick_injection);
-        // Disable Animated Water If Set
-        if (!animated_water) {
-            unsigned char disable_water_patch[4] = {0x00, 0xf0, 0x20, 0xe3}; // "nop"
-            patch((void *) 0x17094, disable_water_patch);
-            patch((void *) 0x170b4, disable_water_patch);
-        }
         // Animated Lava
         _init_textures_lava(animated_water, animated_lava, animated_fire);
     }
@@ -178,6 +172,8 @@ void init_textures() {
     overwrite_calls(AppPlatform_linux_loadTexture, AppPlatform_linux_loadTexture_injection);
 
     // Stop Reloading Textures On Resize
-    unsigned char texture_reset_patch[4] = {0x00, 0xf0, 0x20, 0xe3}; // "nop"
-    patch((void *) 0x126b4, texture_reset_patch);
+    if (feature_has("Fix Reloading Textures On Resize", server_disabled)) {
+        unsigned char texture_reset_patch[4] = {0x00, 0xf0, 0x20, 0xe3}; // "nop"
+        patch((void *) 0x126b4, texture_reset_patch);
+    }
 }

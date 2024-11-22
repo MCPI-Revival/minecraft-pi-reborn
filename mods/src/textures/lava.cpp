@@ -224,5 +224,9 @@ void _init_textures_lava(const bool animated_water_param, const bool animated_la
     animated_water = animated_water_param;
     animated_lava = animated_lava_param;
     animated_fire = animated_fire_param;
+    if (!animated_water) {
+        unsigned char disable_water_patch[4] = {0x00, 0xf0, 0x20, 0xe3}; // "nop"
+        patch((void *) 0x17094, disable_water_patch);
+    }
     overwrite_call((void *) 0x170b4, (void *) Textures_addDynamicTexture_injection);
 }

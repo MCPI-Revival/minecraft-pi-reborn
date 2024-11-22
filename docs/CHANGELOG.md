@@ -71,6 +71,9 @@
     * `Fix Camera Functionality`
     * `Property Scale Animated Textures`
     * `Enable Text Input`
+    * `Update Default Options`
+    * `Fix options.txt Loading/Saving`
+    * `Fix Reloading Textures On Resize`
 * Split Up `Remove Creative Mode Restrictions` Feature Flag
   * `Remove Creative Mode Restrictions` (Disabled By Default)
   * `Display Slot Count In Creative Mode` (Disabled By Default)

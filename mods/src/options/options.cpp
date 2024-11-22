@@ -2,6 +2,7 @@
 #include <string>
 #include <vector>
 #include <sstream>
+#include <fstream>
 
 #include <libreborn/patch.h>
 #include <libreborn/config.h>
@@ -40,15 +41,6 @@ static int get_render_distance() {
     }
 }
 
-// Get Custom Username
-static const char *get_username() {
-    const char *username = getenv(MCPI_USERNAME_ENV);
-    if (username == nullptr) {
-        username = "StevePi";
-    }
-    return username;
-}
-
 static int render_distance;
 // Configure Options
 Options *stored_options = nullptr;
@@ -59,9 +51,6 @@ static void Options_initDefaultValue_injection(Options_initDefaultValue_t origin
     // Default Graphics Settings
     options->fancy_graphics = true;
     options->ambient_occlusion = true;
-
-    // Store
-    stored_options = options;
 }
 static void Minecraft_init_injection(Minecraft_init_t original, Minecraft *minecraft) {
     // Call Original Method
@@ -72,6 +61,9 @@ static void Minecraft_init_injection(Minecraft_init_t original, Minecraft *minec
     options->split_controls = true;
     // Render Distance
     options->render_distance = render_distance;
+
+    // Store
+    stored_options = options;
 }
 
 // Smooth Lighting
@@ -89,9 +81,10 @@ static void Options_save_Options_addOptionToSaveOutput_injection(Options *option
     // Call Original Method
     options->addOptionToSaveOutput(data, option, value);
 
+    // Save Smooth Lighting
+    options->addOptionToSaveOutput(data, "gfx_ao", options->ambient_occlusion);
     // Save Fancy Graphics
     options->addOptionToSaveOutput(data, "gfx_fancygraphics", options->fancy_graphics);
-
     // Save 3D Anaglyph
     options->addOptionToSaveOutput(data, "gfx_anaglyph", options->anaglyph_3d);
 
@@ -100,34 +93,65 @@ static void Options_save_Options_addOptionToSaveOutput_injection(Options *option
     options_file->save(data);
 }
 
-// MCPI's OptionsFile::getOptionStrings is broken, this is the version in v0.7.0
-static std::vector<std::string> OptionsFile_getOptionStrings_injection(__attribute__((unused)) OptionsFile_getOptionStrings_t original, OptionsFile *options_file) {
+// MCPI's OptionsFile::getOptionStrings is broken, this is modified from the version in v0.7.0
+static std::vector<std::string> OptionsFile_getOptionStrings_v2(OptionsFile *options_file) {
     // Get options.txt Path
     const std::string path = options_file->options_txt_path;
     // Parse
     std::vector<std::string> ret;
-    FILE *stream = fopen(path.c_str(), "r");
-    if (stream != nullptr) {
-        char line[128];
-        while (fgets(line, 0x80, stream) != nullptr) {
-            const size_t sVar1 = strlen(line);
-            if (2 < sVar1) {
+    std::ifstream stream(path, std::ios::binary);
+    if (stream) {
+        std::string line;
+        while (std::getline(stream, line)) {
+            if (!line.empty()) {
                 std::stringstream string_stream(line);
-                while (true) {
-                    std::string data;
-                    std::getline(string_stream, data, ':');
-                    const int iVar2 = data.find_last_not_of(" \n\r\t");
-                    data.erase(iVar2 + 1);
-                    if (data.length() == 0) {
-                        break;
-                    }
-                    ret.push_back(data);
+                std::string part;
+                while (std::getline(string_stream, part, ':')) {
+                    ret.push_back(part);
                 }
             }
         }
-        fclose(stream);
+        stream.close();
     }
     return ret;
+}
+
+// Replacement Of Options::update
+static void Options_update_injection(__attribute__((unused)) Options_update_t original, Options *self) {
+    const std::vector<std::string> strings = OptionsFile_getOptionStrings_v2(&self->options_file);
+    for (std::vector<std::string>::size_type i = 0; i < strings.size(); i++) {
+        // Read
+        const std::string key = strings[i++];
+        if (i == strings.size()) {
+            // Missing Value
+            break;
+        }
+        const std::string value = strings[i];
+        if (key == "mp_server_visible_default") {
+            Options::readBool(value, self->server_visible);
+        } else if (key == "game_difficulty") {
+            int &difficulty = self->game_difficulty;
+            Options::readInt(value, difficulty);
+            constexpr int normal_difficulty = 2;
+            if (difficulty != 0 && difficulty != normal_difficulty) {
+                difficulty = normal_difficulty;
+            }
+        } else if (key == "ctrl_invertmouse") {
+            Options::readBool(value, self->invert_mouse);
+        } else if (key == "ctrl_islefthanded") {
+            Options::readBool(value, self->lefty);
+        } else if (key == "gfx_ao") {
+            Options::readBool(value, self->ambient_occlusion);
+        } else if (key == "gfx_fancygraphics") {
+            Options::readBool(value, self->fancy_graphics);
+        } else if (key == "gfx_anaglyph") {
+            Options::readBool(value, self->anaglyph_3d);
+        } else if (key == "ctrl_usetouchscreen" || key == "feedback_vibration") {
+            // Skip
+        } else {
+            WARN("Unknown Option: %s", key.c_str());
+        }
+    }
 }
 
 // Get New options.txt Path
@@ -153,17 +177,21 @@ void init_options() {
     DEBUG("Setting Render Distance: %i", render_distance);
 
     // Set Options
-    overwrite_calls(Options_initDefaultValue, Options_initDefaultValue_injection);
+    if (feature_has("Update Default Options", server_disabled)) {
+        overwrite_calls(Options_initDefaultValue, Options_initDefaultValue_injection);
+    }
     overwrite_calls(Minecraft_init, Minecraft_init_injection);
 
     // Change Username
-    const char *username = get_username();
-    DEBUG("Setting Username: %s", username);
-    if (strcmp(Strings::default_username, "StevePi") != 0) {
-        ERR("Default Username Is Invalid");
+    const char *username = getenv(MCPI_USERNAME_ENV);
+    if (username != nullptr) {
+        DEBUG("Setting Username: %s", username);
+        if (strcmp(Strings::default_username, "StevePi") != 0) {
+            ERR("Default Username Is Invalid");
+        }
+        static std::string safe_username = to_cp437(username);
+        patch_address((void *) &Strings::default_username, (void *) safe_username.c_str());
     }
-    static std::string safe_username = to_cp437(username);
-    patch_address((void *) &Strings::default_username, (void *) safe_username.c_str());
 
     // Disable Autojump By Default
     if (feature_has("Disable Autojump By Default", server_disabled)) {
@@ -181,54 +209,21 @@ void init_options() {
     // Smooth Lighting
     overwrite_calls(TileRenderer_tesselateBlockInWorld, TileRenderer_tesselateBlockInWorld_injection);
 
-    // NOP
-    unsigned char nop_patch[4] = {0x00, 0xf0, 0x20, 0xe3}; // "nop"
+    // options.txt
+    if (feature_has("Fix options.txt Loading/Saving", server_disabled)) {
+        // Actually Save options.txt
+        overwrite_call((void *) 0x197fc, (void *) Options_save_Options_addOptionToSaveOutput_injection);
+        // Fix options.txt Path
+        patch_address((void *) &Strings::options_txt_path, (void *) get_new_options_txt_path());
+        // When Loading, options.txt Should Be Opened In Read Mode
+        patch_address((void *) &Strings::options_txt_fopen_mode_when_loading, (void *) "r");
+        // Fix Loading
+        overwrite_calls(Options_update, Options_update_injection);
 
-    // Actually Save options.txt
-    overwrite_call((void *) 0x197fc, (void *) Options_save_Options_addOptionToSaveOutput_injection);
-    // Fix options.txt Path
-    patch_address((void *) &Strings::options_txt_path, (void *) get_new_options_txt_path());
-    // When Loading, options.txt Should Be Opened In Read Mode
-    patch_address((void *) &Strings::options_txt_fopen_mode_when_loading, (void *) "r");
-    // Fix OptionsFile::getOptionStrings
-    overwrite_calls(OptionsFile_getOptionStrings, OptionsFile_getOptionStrings_injection);
-
-    // Sensitivity Loading/Saving Is Broken, Disable It
-    patch((void *) 0x1931c, nop_patch);
-    patch((void *) 0x1973c, nop_patch);
-
-    // Unsplit Touch Controls Breaks Things, Never Load/Save It
-    unsigned char cmp_r0_r0_patch[4] = {0x00, 0x00, 0x50, 0xe1}; // "cmp r0, r0"
-    patch((void *) 0x19378, cmp_r0_r0_patch);
-    patch((void *) 0x197cc, nop_patch);
-
-    // Custom Username Is Loaded Manually, Disable Loading From options.txt
-    patch((void *) 0x192ac, nop_patch);
-
-    // Replace "feedback_vibration" Loading/Saving With "gfx_ao"
-    {
-        // Replace String
-        patch_address((void *) &Strings::feedback_vibration_options_txt_name, (void *) "gfx_ao");
-        // Loading
-        constexpr unsigned char offset = (unsigned char) offsetof(Options, ambient_occlusion);
-        unsigned char gfx_ao_loading_patch[4] = {offset, 0x10, 0x84, 0xe2}; // "add r1, r4, #OFFSET"
-        patch((void *) 0x193b8, gfx_ao_loading_patch);
-        // Saving
-        unsigned char gfx_ao_saving_patch[4] = {offset, 0x30, 0xd4, 0xe5}; // "ldrb r3, [r4, #OFFSET]"
-        patch((void *) 0x197f8, gfx_ao_saving_patch);
-    }
-
-    // Replace "gfx_lowquality" Loading With "gfx_anaglyph"
-    {
-        // Replace String
-        patch_address((void *) &Strings::gfx_lowquality_options_txt_name, (void *) "gfx_anaglyph");
-        // Loading
-        constexpr unsigned char offset = (unsigned char) offsetof(Options, anaglyph_3d);
-        unsigned char gfx_anaglyph_loading_patch[4] = {offset, 0x10, 0x84, 0xe2}; // "add r1, r4, #OFFSET"
-        patch((void *) 0x19400, gfx_anaglyph_loading_patch);
-        // Disable Loading Side Effects
-        patch((void *) 0x19414, nop_patch);
-        patch((void *) 0x1941c, nop_patch);
+        // Disable Saving Some Settings
+        unsigned char nop_patch[4] = {0x00, 0xf0, 0x20, 0xe3}; // "nop"
+        patch((void *) 0x1973c, nop_patch); // "ctrl_sensitivity"
+        patch((void *) 0x197cc, nop_patch); // "ctrl_usetouchjoypad"
     }
 
     // UI

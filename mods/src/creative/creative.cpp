@@ -95,9 +95,14 @@ static TileItem *Tile_initTiles_TileItem_injection(TileItem *tile_item, int32_t 
 }
 
 // Check Restriction Status
-static int is_restricted = 1;
-int creative_is_restricted() {
+static bool is_restricted = true;
+bool creative_is_restricted() {
     return is_restricted;
+}
+
+// Allow Creative Players To Drop Items
+static bool Gui_tickItemDrop_Minecraft_isCreativeMode_call_injection(__attribute__((unused)) Minecraft *minecraft) {
+    return false;
 }
 
 // Init
@@ -128,8 +133,16 @@ void init_creative() {
         patch((void *) 0x99010, nop_patch);
         // Allow Nether Reactor
         patch((void *) 0xc0290, nop_patch);
+        // Item Dropping
+        void *addr = (void *) 0x27800;
+        const void *func = extract_from_bl_instruction((unsigned char *) addr);
+        if (func == Minecraft_isCreativeMode->backup) {
+            overwrite_call(addr, (void *) Gui_tickItemDrop_Minecraft_isCreativeMode_call_injection);
+        } else {
+            // Handled By input/misc.cpp
+        }
         // Disable Other Restrictions
-        is_restricted = 0;
+        is_restricted = false;
     }
 
     // Inventory Behavior

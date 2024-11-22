@@ -1,5 +1,5 @@
 #pragma once
 
 extern "C" {
-int creative_is_restricted();
+bool creative_is_restricted();
 }

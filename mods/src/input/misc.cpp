@@ -9,9 +9,6 @@
 #include <mods/creative/creative.h>
 #include <mods/misc/misc.h>
 
-// Enable Miscellaneous Input Fixes
-static int enable_misc = 0;
-
 // Handle Back Button Presses
 static void _handle_back(Minecraft *minecraft) {
     // If Minecraft's Level property is initialized, but Minecraft's Player property is nullptr, then Minecraft::handleBack may crash.
@@ -50,7 +47,7 @@ static bool InBedScreen_handleBackEvent_injection(InBedScreen *screen, const boo
 // Block UI Interaction When Mouse Is Locked
 static bool Gui_tickItemDrop_Minecraft_isCreativeMode_call_injection(Minecraft *minecraft) {
     const bool is_in_game = minecraft->screen == nullptr || minecraft->screen->vtable == (Screen_vtable *) Touch_IngameBlockSelectionScreen_vtable::base;
-    if (!enable_misc || (media_SDL_WM_GrabInput(SDL_GRAB_QUERY) == SDL_GRAB_OFF && is_in_game)) {
+    if (media_SDL_WM_GrabInput(SDL_GRAB_QUERY) == SDL_GRAB_OFF && is_in_game) {
         // Call Original Method
         return creative_is_restricted() && minecraft->isCreativeMode();
     } else {
@@ -69,8 +66,7 @@ static void Gui_handleClick_injection(Gui_handleClick_t original, Gui *gui, cons
 
 // Init
 void _init_misc() {
-    enable_misc = feature_has("Miscellaneous Input Fixes", server_disabled);
-    if (enable_misc) {
+    if (feature_has("Miscellaneous Input Fixes", server_disabled)) {
         // Fix OptionsScreen Ignoring The Back Button
         patch_vtable(OptionsScreen_handleBackEvent, OptionsScreen_handleBackEvent_injection);
         // Fix "Sleeping Beauty" Bug
@@ -86,7 +82,7 @@ void _init_misc() {
                 return false;
             }
         });
+        // Disable Item Dropping Using The Cursor When Cursor Is Hidden
+        overwrite_call((void *) 0x27800, (void *) Gui_tickItemDrop_Minecraft_isCreativeMode_call_injection);
     }
-    // Disable Item Dropping Using The Cursor When Cursor Is Hidden
-    overwrite_call((void *) 0x27800, (void *) Gui_tickItemDrop_Minecraft_isCreativeMode_call_injection);
 }

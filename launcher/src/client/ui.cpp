@@ -116,6 +116,7 @@ static std::string get_label(const FlagNode &node) {
 }
 void ConfigurationUI::draw_advanced() const {
     if (ImGui::BeginChild("Features", ImVec2(0, 0), ImGuiChildFlags_Borders, ImGuiWindowFlags_HorizontalScrollbar)) {
+        // Categories
         for (FlagNode &category : state.flags.root.children) {
             std::string label = get_label(category);
             if (ImGui::CollapsingHeader(label.c_str())) {

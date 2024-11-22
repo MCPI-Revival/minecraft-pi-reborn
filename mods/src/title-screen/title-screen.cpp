@@ -183,16 +183,23 @@ void init_title_screen() {
     }
 
     // Better Scaling And Position
+    bool hijack_version_rendering = false;
     if (feature_has("Improved Classic Title Positioning", server_disabled)) {
         overwrite_call((void *) 0x3956c, (void *) StartMenuScreen_render_Textures_getTemporaryTextureData_injection_modern);
         overwrite_call((void *) 0x39528, (void *) StartMenuScreen_render_Screen_renderBackground_injection);
+        hijack_version_rendering = true;
         adjust_version_y = get_version_y;
     }
-    overwrite_call((void *) 0x39728, (void *) StartMenuScreen_render_GuiComponent_drawString_injection);
 
     // Add Splashes
     if (feature_has("Add Splashes", server_disabled)) {
+        hijack_version_rendering = true;
         _init_splashes();
+    }
+
+    // Adjust And Record Version String Rendering
+    if (hijack_version_rendering) {
+        overwrite_call((void *) 0x39728, (void *) StartMenuScreen_render_GuiComponent_drawString_injection);
     }
 
     // Init Welcome Screen
