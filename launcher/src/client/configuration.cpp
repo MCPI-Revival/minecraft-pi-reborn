@@ -1,8 +1,3 @@
-#include <sstream>
-#include <cstring>
-#include <sys/wait.h>
-#include <sys/stat.h>
-
 #include <libreborn/env.h>
 
 #include "../util/util.h"

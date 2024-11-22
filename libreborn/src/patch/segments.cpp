@@ -1,10 +1,11 @@
 #include <vector>
+#include <cstring>
 
 #include <elf.h>
 #include <dlfcn.h>
 #include <link.h>
 
-#include <libreborn/libreborn.h>
+#include <libreborn/patch.h>
 #include "patch-internal.h"
 
 // Track Segments

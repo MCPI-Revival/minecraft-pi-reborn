@@ -4,7 +4,10 @@
 #include <GLFW/glfw3.h>
 
 #include <SDL/SDL.h>
-#include <libreborn/libreborn.h>
+#include <libreborn/log.h>
+#include <libreborn/string.h>
+#include <libreborn/glfw.h>
+#include <libreborn/config.h>
 
 #include <media-layer/core.h>
 

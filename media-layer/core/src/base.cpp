@@ -2,8 +2,6 @@
 
 #include <SDL/SDL.h>
 
-#include <libreborn/libreborn.h>
-
 #include "window/media.h"
 
 // SDL Is Replaced With GLFW

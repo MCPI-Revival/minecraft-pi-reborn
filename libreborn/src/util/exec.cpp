@@ -4,6 +4,7 @@
 #include <sys/wait.h>
 #include <unistd.h>
 #include <sys/poll.h>
+#include <cstring>
 
 #include <libreborn/util.h>
 #include <libreborn/log.h>
@@ -133,6 +134,7 @@ __attribute__((noreturn)) void safe_execvpe(const char *const argv[], const char
 }
 
 // Run Command And Get Output
+#define CHILD_PROCESS_TAG "(Child Process) "
 std::vector<unsigned char> *run_command(const char *const command[], int *exit_status) {
     // Run
     const std::optional<Process> child = fork_with_stdio();

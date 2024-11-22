@@ -1,4 +1,4 @@
-#include <libreborn/libreborn.h>
+#include <libreborn/patch.h>
 #include "patch-internal.h"
 
 // Check Instruction

@@ -1,6 +1,5 @@
 #pragma once
 
-#include <cstring>
 #include <dlfcn.h>
 #include <string>
 
@@ -27,7 +26,7 @@
     })
 
 // Hook Library Function
-#define EXTERNAL_FUNC(name, return_type, args) \
+#define HOOK(name, return_type, args) \
     typedef return_type (*real_##name##_t)args; \
     __attribute__((__unused__)) static real_##name##_t real_##name() { \
         static real_##name##_t func = NULL; \
@@ -39,9 +38,7 @@
             } \
         } \
         return func; \
-    }
-#define HOOK(name, return_type, args) \
-    EXTERNAL_FUNC(name, return_type, args) \
+    } \
     extern "C" __attribute__((__used__)) return_type name args
 
 // Safe Version Of pipe()
@@ -50,17 +47,13 @@ struct Pipe {
     const int read;
     const int write;
 };
+
 // Check If Two Percentages Are Different Enough To Be Logged
 bool is_progress_difference_significant(int32_t new_val, int32_t old_val);
 
 // Lock File
 int lock_file(const char *file);
 void unlock_file(const char *file, int fd);
-
-// Access Configuration At Runtime
-const char *reborn_get_version();
-bool reborn_is_headless();
-bool reborn_is_server();
 
 // Check $DISPLAY
 void reborn_check_display();

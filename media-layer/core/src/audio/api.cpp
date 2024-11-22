@@ -4,11 +4,9 @@
 #include <AL/al.h>
 
 #include <media-layer/audio.h>
-#include <libreborn/libreborn.h>
+#include <libreborn/log.h>
 
-#include "file.h"
-#include "engine.h"
-#include "api.h"
+#include "audio.h"
 
 // Store Audio Sources
 static std::vector<ALuint> sources;
@@ -18,7 +16,6 @@ static std::vector<ALuint> sources;
 static std::vector<ALuint> idle_sources;
 
 // Error Checking
-#define AL_ERROR_CHECK() AL_ERROR_CHECK_MANUAL(alGetError())
 #define AL_ERROR_CHECK_MANUAL(val) \
     { \
         ALenum __err = val; \
@@ -26,6 +23,7 @@ static std::vector<ALuint> idle_sources;
             ERR("OpenAL Error: %s", alGetString(__err)); \
         } \
     }
+#define AL_ERROR_CHECK() AL_ERROR_CHECK_MANUAL(alGetError())
 
 // Delete Sources
 void _media_audio_delete_sources() {

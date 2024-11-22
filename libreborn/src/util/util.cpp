@@ -1,6 +1,7 @@
 #include <fcntl.h>
 #include <sys/file.h>
 #include <sys/stat.h>
+#include <cstring>
 
 #include <libreborn/util.h>
 #include <libreborn/config.h>
@@ -48,34 +49,6 @@ void unlock_file(const char *file, const int fd) {
         ERR("Unable To Unlock File: %s: %s", file, strerror(errno));
     }
     close(fd);
-}
-
-// Access Configuration At Runtime
-const char *reborn_get_version() {
-    return MCPI_VERSION;
-}
-bool reborn_is_headless() {
-    static bool ret;
-    static bool is_set = false;
-    if (!is_set) {
-        ret = reborn_is_server();
-        if (getenv(_MCPI_FORCE_HEADLESS_ENV)) {
-            ret = true;
-        } else if (getenv(_MCPI_FORCE_NON_HEADLESS_ENV)) {
-            ret = false;
-        }
-        is_set = true;
-    }
-    return ret;
-}
-bool reborn_is_server() {
-    static int ret;
-    static int is_set = 0;
-    if (!is_set) {
-        ret = getenv(_MCPI_SERVER_MODE_ENV) != nullptr;
-        is_set = 1;
-    }
-    return ret;
 }
 
 // Check $DISPLAY

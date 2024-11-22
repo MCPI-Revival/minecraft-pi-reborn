@@ -11,3 +11,8 @@
 #cmakedefine MCPI_SKIN_SERVER "@MCPI_SKIN_SERVER@"
 #cmakedefine MCPI_DISCORD_INVITE "@MCPI_DISCORD_INVITE@"
 #cmakedefine MCPI_DOCUMENTATION "@MCPI_DOCUMENTATION@"
+
+// Access Configuration At Runtime
+const char *reborn_get_version();
+bool reborn_is_headless();
+bool reborn_is_server();

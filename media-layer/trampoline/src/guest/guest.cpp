@@ -1,5 +1,5 @@
 #include <unistd.h>
-#include <libreborn/libreborn.h>
+#include <libreborn/log.h>
 #include <string>
 #include <sys/mman.h>
 

@@ -2,7 +2,7 @@
 #define GLFW_INCLUDE_NONE
 #include <GLFW/glfw3.h>
 
-#include <libreborn/libreborn.h>
+#include <libreborn/log.h>
 
 #include "media.h"
 

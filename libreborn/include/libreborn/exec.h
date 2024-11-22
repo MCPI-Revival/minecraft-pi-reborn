@@ -20,9 +20,6 @@ void poll_fds(const std::vector<int> &fds, const std::function<void(int, size_t,
 // Safe execvpe()
 __attribute__((noreturn)) void safe_execvpe(const char *const argv[], const char *const envp[]);
 
-// Debug Tag
-#define CHILD_PROCESS_TAG "(Child Process) "
-
 // Run Command And Get Output
 std::vector<unsigned char> *run_command(const char *const command[], int *exit_status);
 bool is_exit_status_success(int status);

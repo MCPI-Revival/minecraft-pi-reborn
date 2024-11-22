@@ -3,7 +3,7 @@
 
 #include <libreborn/log.h>
 #include <libreborn/env.h>
-#include <libreborn/util.h>
+#include <libreborn/config.h>
 #include <libreborn/exec.h>
 
 #include "../util/util.h"

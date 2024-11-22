@@ -6,10 +6,9 @@
 
 #include <LIEF/ELF.hpp>
 
-#include <libreborn/libreborn.h>
+#include <libreborn/log.h>
 
-#include "file.h"
-#include "engine.h"
+#include "audio.h"
 
 // Load Symbol From ELF File
 static void load_symbol(const char *source, const char *name, std::function<void(const unsigned char *, uint32_t)> callback) {
@@ -53,7 +52,7 @@ static ALuint load_sound(const char *source, const char *name) {
             WARN("Symbol Too Small To Contain Audio Metadata: %s", name);
             return;
         }
-        audio_metadata *meta = (audio_metadata *) symbol;
+        const audio_metadata *meta = (audio_metadata *) symbol;
 
         // Check Frame Size
         if (meta->frame_size != 1 && meta->frame_size != 2) {
@@ -73,7 +72,7 @@ static ALuint load_sound(const char *source, const char *name) {
         }
 
         // Load Data
-        const int remaining_size = size - sizeof (audio_metadata);
+        const int remaining_size = int(size - sizeof (audio_metadata));
         const int data_size = meta->channels * meta->frames * meta->frame_size;
         if (remaining_size < data_size) {
             WARN("Symbol Too Small To Contain Specified Audio Data: %s", name);
@@ -107,7 +106,7 @@ static std::unordered_map<std::string, ALuint> buffers;
 ALuint _media_audio_get_buffer(const char *source, const char *name) {
     // Check
     if (_media_audio_is_loaded()) {
-        if (buffers.count(name) > 0) {
+        if (buffers.contains(name)) {
             // Return
             return buffers[name];
         } else {

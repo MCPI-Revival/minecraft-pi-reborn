@@ -1,7 +1,8 @@
 #include <cstdint>
 
 #include <GLES/gl.h>
-#include <libreborn/libreborn.h>
+#include <libreborn/log.h>
+#include <libreborn/util.h>
 
 #include "common/common.h"
 

@@ -2,6 +2,7 @@
 
 #include <libreborn/env.h>
 #include <libreborn/util.h>
+#include <libreborn/config.h>
 
 #include "bootstrap/bootstrap.h"
 #include "options/parser.h"

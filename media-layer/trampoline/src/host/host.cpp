@@ -1,4 +1,4 @@
-#include <libreborn/libreborn.h>
+#include <libreborn/log.h>
 
 #include "host.h"
 

@@ -1,6 +1,8 @@
 #include <sys/mman.h>
+#include <cstring>
+#include <cerrno>
 
-#include <libreborn/libreborn.h>
+#include <libreborn/patch.h>
 #include "patch-internal.h"
 
 // Limit Amount Of overwrite_calls() Calls

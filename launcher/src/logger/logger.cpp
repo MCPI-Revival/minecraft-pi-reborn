@@ -4,7 +4,6 @@
 #include <cstdlib>
 #include <cstdio>
 #include <csignal>
-#include <sys/ioctl.h>
 #include <sys/stat.h>
 #include <ctime>
 #include <string>
@@ -13,6 +12,7 @@
 #include <libreborn/exec.h>
 #include <libreborn/log.h>
 #include <libreborn/util.h>
+#include <libreborn/config.h>
 
 #include "logger.h"
 

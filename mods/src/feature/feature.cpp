@@ -2,7 +2,7 @@
 #include <cstring>
 
 #include <libreborn/log.h>
-#include <libreborn/util.h>
+#include <libreborn/config.h>
 #include <libreborn/env.h>
 #include <libreborn/flags.h>
 

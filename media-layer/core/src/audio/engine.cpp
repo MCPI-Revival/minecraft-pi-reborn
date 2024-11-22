@@ -2,11 +2,9 @@
 #include <AL/alc.h>
 #include <AL/alext.h>
 
-#include <libreborn/libreborn.h>
+#include <libreborn/log.h>
 
-#include "engine.h"
-#include "file.h"
-#include "api.h"
+#include "audio.h"
 
 // Store Device
 static ALCdevice *device = nullptr;

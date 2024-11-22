@@ -6,7 +6,7 @@
 #include <cstdint>
 #include <cerrno>
 
-#include <libreborn/libreborn.h>
+#include <libreborn/patch.h>
 #include "patch-internal.h"
 
 // Overwrite Specific B(L) Instruction

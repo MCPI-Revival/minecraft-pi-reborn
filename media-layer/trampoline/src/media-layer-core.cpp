@@ -7,8 +7,6 @@
 
 #include "common/common.h"
 
-#include <libreborn/libreborn.h>
-
 // SDL Functions
 
 CALL(0, media_SDL_Init, int, (uint32_t flags))
