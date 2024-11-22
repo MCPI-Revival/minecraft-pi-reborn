@@ -62,7 +62,7 @@ run_build() {
         `# QEMU Dependencies` \
         "libglib2.0-dev:$1" \
         `# ImGui Dependencies` \
-        "libopengl-dev:$1" \
+        "libglvnd-dev:$1" \
         `# AppStream Verification` \
         appstream
 
