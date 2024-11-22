@@ -215,7 +215,6 @@ static AppPlatform_readAssetFile_return_value AppPlatform_readAssetFile_injectio
     // Read File
     const std::streamoff len = stream.tellg();
     char *buf = new char[len];
-    ALLOC_CHECK(buf);
     stream.seekg(0, std::ifstream::beg);
     stream.read(buf, len);
     stream.close();

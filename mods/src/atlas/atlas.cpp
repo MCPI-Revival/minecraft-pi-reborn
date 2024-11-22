@@ -130,7 +130,7 @@ static void generate_atlas(Minecraft *minecraft) {
         int alignment;
         media_glGetIntegerv(GL_PACK_ALIGNMENT, &alignment);
         // Round
-        line_size = ALIGN_UP(line_size, alignment);
+        line_size = align_up(line_size, alignment);
     }
     Texture texture;
     texture.width = atlas_texture_size;

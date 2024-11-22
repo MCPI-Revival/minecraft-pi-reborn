@@ -5,25 +5,8 @@
 
 #include "log.h"
 
-// Check Memory Allocation
-#define ALLOC_CHECK(obj) \
-    { \
-        if ((obj) == nullptr) { \
-            ERR("Memory Allocation Failed"); \
-        } \
-    }
-
 // Align Number
-#define ALIGN_UP(x, alignment) \
-    ({ \
-        int _align_x = (x); \
-        int _align_alignment = (alignment); \
-        int _align_diff = _align_x % _align_alignment; \
-        if (_align_diff > 0) { \
-            _align_x += (_align_alignment - _align_diff); \
-        } \
-        _align_x; \
-    })
+int align_up(int x, int alignment);
 
 // Hook Library Function
 #define HOOK(name, return_type, args) \

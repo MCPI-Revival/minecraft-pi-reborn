@@ -79,13 +79,12 @@ void screenshot_take(Gui *gui) {
         int alignment;
         media_glGetIntegerv(GL_PACK_ALIGNMENT, &alignment);
         // Round
-        line_size = ALIGN_UP(line_size, alignment);
+        line_size = align_up(line_size, alignment);
     }
     const int size = height * line_size;
 
     // Read Pixels
     unsigned char *pixels = new unsigned char[size];
-    ALLOC_CHECK(pixels);
     media_glReadPixels(x, y, width, height, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
 
     // Save Image

@@ -7,6 +7,15 @@
 #include <libreborn/config.h>
 #include <libreborn/env.h>
 
+// Align Number
+int align_up(int x, const int alignment) {
+    const int diff = x % alignment;
+    if (diff > 0) {
+        x += (alignment - diff);
+    }
+    return x;
+}
+
 // Safe Version Of pipe()
 Pipe::Pipe(): read(-1), write(-1) {
     int out[2];

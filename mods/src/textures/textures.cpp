@@ -51,7 +51,7 @@ static int get_line_size(const int width) {
         int alignment;
         media_glGetIntegerv(GL_UNPACK_ALIGNMENT, &alignment);
         // Round
-        line_size = ALIGN_UP(line_size, alignment);
+        line_size = align_up(line_size, alignment);
     }
     return line_size;
 }

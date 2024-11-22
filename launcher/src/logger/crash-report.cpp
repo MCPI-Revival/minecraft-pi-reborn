@@ -70,15 +70,21 @@ struct CrashReport final : Frame {
 };
 
 // Show Crash Report Dialog
+static void redirect_file(FILE *file, const char *mode) {
+    const FILE *ret = freopen("/dev/null", mode, file);
+    if (!ret) {
+        IMPOSSIBLE();
+    }
+}
 void show_report(const char *log_filename) {
     // Fork
     const pid_t pid = fork();
     if (pid == 0) {
         // Child
         setsid();
-        ALLOC_CHECK(freopen("/dev/null", "w", stdout));
-        ALLOC_CHECK(freopen("/dev/null", "w", stderr));
-        ALLOC_CHECK(freopen("/dev/null", "r", stdin));
+        redirect_file(stdout, "w");
+        redirect_file(stderr, "w");
+        redirect_file(stdin, "r");
         CrashReport ui(log_filename);
         ui.run();
         exit(EXIT_SUCCESS);

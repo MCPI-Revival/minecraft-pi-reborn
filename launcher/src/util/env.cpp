@@ -2,8 +2,8 @@
 
 #include "util.h"
 
+#include <libreborn/log.h>
 #include <libreborn/env.h>
-#include <libreborn/util.h>
 #include <libreborn/config.h>
 
 // $PATH
@@ -41,7 +41,9 @@ void setup_home() {
     } else {
         // Set Home To Current Directory, So World Data Is Stored There
         char *launch_directory = getcwd(nullptr, 0);
-        ALLOC_CHECK(launch_directory);
+        if (launch_directory == nullptr) {
+            IMPOSSIBLE();
+        }
         home = launch_directory;
         free(launch_directory);
     }

@@ -302,7 +302,7 @@ static int get_texture_size(const GLsizei width, const GLsizei height, const GLe
         int alignment;
         media_glGetIntegerv(is_upload ? GL_UNPACK_ALIGNMENT : GL_PACK_ALIGNMENT, &alignment);
         // Round
-        line_size = ALIGN_UP(line_size, alignment);
+        line_size = align_up(line_size, alignment);
     }
     // Return
     return line_size * height;
