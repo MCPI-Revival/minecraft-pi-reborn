@@ -10,7 +10,6 @@
 
 #include "cache.h"
 #include "configuration.h"
-#include "flags/flags.h"
 
 // Get Cache Path
 static std::string get_cache_path() {

@@ -19,11 +19,7 @@ add_executable(launcher
     src/client/configuration.cpp
     src/client/cache.cpp
     src/client/ui.cpp
-    src/client/flags/node.cpp
-    src/client/flags/flags.cpp
-    src/client/flags/available-feature-flags # Show In IDE
 )
-embed_resource(launcher src/client/flags/available-feature-flags)
 target_link_libraries(launcher
     reborn-util
     LIB_LIEF

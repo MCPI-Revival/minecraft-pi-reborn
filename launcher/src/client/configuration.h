@@ -4,8 +4,9 @@
 
 #include "../options/parser.h"
 #include "cache.h"
-#include "flags/flags.h"
 #include "../ui/frame.h"
+
+#include <libreborn/flags.h>
 
 // Default Configuration
 #define DEFAULT_USERNAME "StevePi"

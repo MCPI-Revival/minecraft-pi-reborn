@@ -1,7 +1,10 @@
-#include <stdlib.h>
-#include <string.h>
+#include <cstdlib>
+#include <cstring>
 
-#include <libreborn/libreborn.h>
+#include <libreborn/log.h>
+#include <libreborn/util.h>
+#include <libreborn/env.h>
+#include <libreborn/flags.h>
 
 #include <mods/feature/feature.h>
 
@@ -12,18 +15,24 @@ bool _feature_has(const char *name, const int server_default) {
         return server_default > 0;
     }
     // Get Value
-    char *env = getenv(MCPI_FEATURE_FLAGS_ENV);
-    char *features = strdup(env != nullptr ? env : "");
-    char *tok = strtok(features, "|");
-    bool ret = false;
-    while (tok != nullptr) {
-        if (strcmp(tok, name) == 0) {
-            ret = true;
-            break;
+    static Flags flags = Flags::get();
+    static bool loaded = false;
+    if (!loaded) {
+        const char *env = getenv(MCPI_FEATURE_FLAGS_ENV);
+        if (env) {
+            flags = env;
         }
-        tok = strtok(nullptr, "|");
+        loaded = true;
     }
-    free(features);
+    int ret = -1;
+    flags.root.for_each_const([&ret, &name](const FlagNode &flag) {
+        if (flag.name == std::string(name)) {
+            ret = flag.value;
+        }
+    });
+    if (ret == -1) {
+        ERR("Invalid Feature Flag: %s", name);
+    }
 
     // Log
     DEBUG("Feature: %s: %s", name, ret ? "Enabled" : "Disabled");

@@ -6,7 +6,7 @@
 #include <functional>
 
 // Seperator
-#define SEPERATOR_CHAR '|'
+#define FLAG_SEPERATOR_CHAR '|'
 
 // Flag
 struct FlagNode {

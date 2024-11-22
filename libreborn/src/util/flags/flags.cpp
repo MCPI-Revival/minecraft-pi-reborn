@@ -2,9 +2,9 @@
 #include <algorithm>
 #include <unordered_set>
 
-#include <libreborn/libreborn.h>
-
-#include "flags.h"
+#include <libreborn/log.h>
+#include <libreborn/flags.h>
+#include <libreborn/util.h>
 
 // All Flags
 static unsigned int find_indent_level(std::string &str) {
@@ -67,7 +67,7 @@ Flags::operator std::string() const {
     root.for_each_const([&out](const FlagNode &flag) {
         if (flag.value) {
             if (!out.empty()) {
-                out += SEPERATOR_CHAR;
+                out += FLAG_SEPERATOR_CHAR;
             }
             out += flag.name;
         }
@@ -79,7 +79,7 @@ Flags &Flags::operator=(const std::string &str) {
     std::unordered_set<std::string> to_enable;
     std::stringstream stream(str);
     std::string flag_name;
-    while (std::getline(stream, flag_name, SEPERATOR_CHAR)) {
+    while (std::getline(stream, flag_name, FLAG_SEPERATOR_CHAR)) {
         if (!flag_name.empty()) {
             to_enable.insert(flag_name);
         }

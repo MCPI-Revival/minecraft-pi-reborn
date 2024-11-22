@@ -1,8 +1,7 @@
 #include <algorithm>
 
-#include <libreborn/libreborn.h>
-
-#include "flags.h"
+#include <libreborn/log.h>
+#include <libreborn/flags.h>
 
 // Flag
 static int next_id;
@@ -75,7 +74,7 @@ void FlagNode::add_flag(std::string line) {
     if (!value_set) {
         ERR("Invalid Feature Flag Line: %s", line.c_str());
     }
-    if (line.rfind(SEPERATOR_CHAR, 0) != std::string::npos) {
+    if (line.rfind(FLAG_SEPERATOR_CHAR, 0) != std::string::npos) {
         ERR("Feature Flag Contains Invalid Character");
     }
     // Create
