@@ -1,6 +1,8 @@
 #include <fstream>
 
-#include <libreborn/libreborn.h>
+#include <libreborn/util.h>
+#include <libreborn/config.h>
+#include <libreborn/exec.h>
 
 #include "logger.h"
 #include "../ui/frame.h"

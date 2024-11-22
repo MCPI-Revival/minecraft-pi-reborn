@@ -1,4 +1,6 @@
-#include <libreborn/libreborn.h>
+#include <libreborn/log.h>
+#include <libreborn/util.h>
+#include <libreborn/config.h>
 
 #include "../bootstrap/bootstrap.h"
 #include "util.h"
@@ -14,12 +16,12 @@
     }
 
 // Copy SDK Into ~/.minecraft-pi
-#define HOME_SUBDIRECTORY_FOR_SDK (std::string(get_home_subdirectory_for_game_data()) + "/sdk")
+#define HOME_SUBDIRECTORY_FOR_SDK "/sdk"
 void copy_sdk(const std::string &binary_directory, const bool log_with_debug) {
     // Ensure SDK Directory
     std::string sdk_path;
     {
-        sdk_path = std::string(getenv(_MCPI_HOME_ENV)) + HOME_SUBDIRECTORY_FOR_SDK;
+        sdk_path = home_get() + HOME_SUBDIRECTORY_FOR_SDK;
         const char *const command[] = {"mkdir", "-p", sdk_path.c_str(), nullptr};
         run_simple_command(command, "Unable To Create SDK Directory");
     }

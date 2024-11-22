@@ -1,4 +1,5 @@
-#include <libreborn/libreborn.h>
+#include <libreborn/log.h>
+#include <libreborn/exec.h>
 
 #include "util.h"
 

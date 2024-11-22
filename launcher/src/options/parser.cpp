@@ -1,5 +1,7 @@
 #include <argp.h>
 
+#include <libreborn/config.h>
+#include <libreborn/env.h>
 #include <trampoline/types.h>
 #include "parser.h"
 

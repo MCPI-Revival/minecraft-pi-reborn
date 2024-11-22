@@ -6,7 +6,6 @@
 __attribute__((constructor)) static void init() {
     reborn_init_patch();
     thunk_enabler = reborn_thunk_enabler;
-    run_tests();
     init_version();
     init_compat();
     if (reborn_is_server()) {
@@ -38,7 +37,6 @@ __attribute__((constructor)) static void init() {
     init_chat();
     init_bucket();
     init_cake();
-    init_home();
     init_override();
     if (!reborn_is_server()) {
         init_benchmark();

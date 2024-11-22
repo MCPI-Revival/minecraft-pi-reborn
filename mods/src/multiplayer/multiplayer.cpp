@@ -6,7 +6,6 @@
 #include <symbols/minecraft.h>
 #include <libreborn/libreborn.h>
 
-#include <mods/home/home.h>
 #include <mods/init/init.h>
 #include <mods/feature/feature.h>
 

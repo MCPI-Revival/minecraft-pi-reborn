@@ -3,9 +3,11 @@
 #include <sys/stat.h>
 #include <unistd.h>
 
-#include <libreborn/libreborn.h>
+#include <libreborn/log.h>
+#include <libreborn/util.h>
 
 #include "bootstrap.h"
+#include "../util/util.h"
 
 // Get All Mods In Folder
 static void load(std::vector<std::string> &ld_preload, const std::string &folder, int recursion_limit = 128);
@@ -18,10 +20,8 @@ static void handle_file(std::vector<std::string> &ld_preload, const std::string 
         load(ld_preload, std::string(file) + '/', recursion_limit - 1);
     } else if (S_ISLNK(file_stat.st_mode)) {
         // Resolve Symlink
-        char *resolved_file = realpath(file.c_str(), nullptr);
-        ALLOC_CHECK(resolved_file);
+        const std::string resolved_file = safe_realpath(file);
         handle_file(ld_preload, resolved_file, recursion_limit);
-        free(resolved_file);
     } else if (S_ISREG(file_stat.st_mode)) {
         // Check If File Is Accessible
         const int result = access(file.c_str(), R_OK);
@@ -79,19 +79,13 @@ std::vector<std::string> bootstrap_mods(const std::string &binary_directory) {
     // Prepare
     std::vector<std::string> preload;
 
-    // ~/.minecraft-pi/mods
-    {
-        // Get Mods Folder
-        const std::string mods_folder = std::string(getenv(_MCPI_HOME_ENV)) + get_home_subdirectory_for_game_data() + SUBDIRECTORY_FOR_MODS;
-        // Load Mods From ./mods
-        load(preload, mods_folder);
-    }
-
-    // Built-In Mods
-    {
-        // Get Mods Folder
-        const std::string mods_folder = binary_directory + SUBDIRECTORY_FOR_MODS;
-        // Load Mods From ./mods
+    // Load
+    const std::vector folders = {
+        home_get(),
+        binary_directory
+    };
+    for (std::string mods_folder : folders) {
+        mods_folder += SUBDIRECTORY_FOR_MODS;
         load(preload, mods_folder);
     }
 

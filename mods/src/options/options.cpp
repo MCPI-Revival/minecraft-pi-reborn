@@ -8,7 +8,6 @@
 
 #include <mods/feature/feature.h>
 #include <mods/init/init.h>
-#include <mods/home/home.h>
 
 #include "options-internal.h"
 

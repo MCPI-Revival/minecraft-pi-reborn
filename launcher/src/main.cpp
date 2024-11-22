@@ -1,5 +1,7 @@
 #include <cstdlib>
-#include <libreborn/libreborn.h>
+
+#include <libreborn/env.h>
+#include <libreborn/util.h>
 
 #include "bootstrap/bootstrap.h"
 #include "options/parser.h"

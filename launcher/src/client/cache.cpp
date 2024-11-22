@@ -6,18 +6,15 @@
 #include <sys/stat.h>
 #include <unistd.h>
 
-#include <libreborn/libreborn.h>
+#include <libreborn/log.h>
+#include <libreborn/util.h>
 
 #include "cache.h"
 #include "configuration.h"
 
 // Get Cache Path
 static std::string get_cache_path() {
-    const char *home = getenv(_MCPI_HOME_ENV);
-    if (home == nullptr) {
-        IMPOSSIBLE();
-    }
-    return std::string(home) + get_home_subdirectory_for_game_data() + "/.launcher-cache";
+    return home_get() + "/.launcher-cache";
 }
 
 // Load

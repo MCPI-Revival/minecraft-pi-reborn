@@ -1,4 +1,6 @@
-#include <libreborn/libreborn.h>
+#include <libreborn/log.h>
+#include <libreborn/exec.h>
+#include <libreborn/config.h>
 
 #include "bootstrap.h"
 

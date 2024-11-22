@@ -33,6 +33,7 @@ add_library(mods SHARED
     src/misc/graphics.cpp
     src/misc/ui.cpp
     src/misc/tinting.cpp
+    src/misc/home.cpp
     # extend
     src/extend/Screen.cpp
     src/extend/DynamicTexture.cpp
@@ -44,15 +45,11 @@ add_library(mods SHARED
     src/bucket/bucket.cpp
     # cake
     src/cake/cake.cpp
-    # home
-    src/home/home.cpp
     # touch
     src/touch/touch.cpp
     # text-input-box
     src/text-input-box/TextInputBox.cpp
     src/text-input-box/TextInputScreen.cpp
-    # test
-    src/test/test.cpp
     # sound
     src/sound/sound.cpp
     src/sound/repository.cpp

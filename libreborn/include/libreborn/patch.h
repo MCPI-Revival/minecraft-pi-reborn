@@ -1,6 +1,6 @@
 #pragma once
 
-#include <string>
+#include "log.h"
 
 // Patching Functions
 #ifdef REBORN_HAS_PATCH_CODE

@@ -16,7 +16,6 @@
 
 #include <mods/server/server.h>
 #include <mods/init/init.h>
-#include <mods/home/home.h>
 #include <mods/compat/compat.h>
 #include <mods/misc/misc.h>
 #include <mods/game-mode/game-mode.h>

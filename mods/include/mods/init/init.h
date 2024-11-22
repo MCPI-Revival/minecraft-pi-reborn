@@ -1,7 +1,6 @@
 #pragma once
 
 extern "C" {
-void run_tests();
 void init_version();
 void init_compat();
 void init_server();
@@ -25,7 +24,6 @@ void init_options();
 void init_chat();
 void init_bucket();
 void init_cake();
-void init_home();
 void init_override();
 void init_screenshot();
 void init_f3();

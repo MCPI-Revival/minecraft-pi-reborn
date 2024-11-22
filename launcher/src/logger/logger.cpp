@@ -4,14 +4,15 @@
 #include <cstdlib>
 #include <cstdio>
 #include <csignal>
-#include <poll.h>
 #include <sys/ioctl.h>
 #include <sys/stat.h>
 #include <ctime>
 #include <string>
 #include <fcntl.h>
 
-#include <libreborn/libreborn.h>
+#include <libreborn/exec.h>
+#include <libreborn/log.h>
+#include <libreborn/util.h>
 
 #include "logger.h"
 
@@ -26,7 +27,7 @@ static void exit_handler(__attribute__((unused)) int signal) {
 static std::string log_filename;
 static int log_fd;
 std::string get_logs_folder() {
-    const std::string home = std::string(getenv(_MCPI_HOME_ENV)) + get_home_subdirectory_for_game_data();
+    const std::string home = home_get();
     ensure_directory(home.c_str());
     const std::string logs = home + "/logs";
     ensure_directory(logs.c_str());
@@ -34,8 +35,6 @@ std::string get_logs_folder() {
 }
 static void setup_log_file() {
     // Get Log Directory
-    const std::string home = std::string(getenv(_MCPI_HOME_ENV)) + get_home_subdirectory_for_game_data();
-    ensure_directory(home.c_str());
     const std::string logs = get_logs_folder();
 
     // Get Timestamp

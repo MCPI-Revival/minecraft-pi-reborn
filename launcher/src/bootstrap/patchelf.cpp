@@ -4,10 +4,8 @@
 
 #include <LIEF/ELF.hpp>
 
-#include <dlfcn.h>
-#include <link.h>
-
-#include <libreborn/libreborn.h>
+#include <libreborn/util.h>
+#include <libreborn/config.h>
 
 #include "bootstrap.h"
 

@@ -1,10 +1,8 @@
 #pragma once
 
-#include <unistd.h>
 #include <cstring>
-#include <cerrno>
 #include <dlfcn.h>
-#include <array>
+#include <string>
 
 #include "log.h"
 
@@ -80,3 +78,6 @@ void safe_write(int fd, const void *buf, size_t size);
 #define EMBEDDED_RESOURCE(name) \
     extern unsigned char name[]; \
     extern size_t name##_len
+
+// Profile Directory
+std::string home_get();

@@ -611,4 +611,5 @@ void init_misc() {
     _init_misc_logging();
     _init_misc_api();
     _init_misc_graphics();
+    _init_misc_home();
 }

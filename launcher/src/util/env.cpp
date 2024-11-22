@@ -1,6 +1,10 @@
+#include <cstring>
+
 #include "util.h"
 
-#include <libreborn/libreborn.h>
+#include <libreborn/env.h>
+#include <libreborn/util.h>
+#include <libreborn/config.h>
 
 // $PATH
 void setup_path() {

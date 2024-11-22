@@ -2,7 +2,6 @@
 #include <symbols/minecraft.h>
 #include <GLES/gl.h>
 
-#include <mods/home/home.h>
 #include <mods/touch/touch.h>
 #include <mods/misc/misc.h>
 #include <mods/options/info.h>

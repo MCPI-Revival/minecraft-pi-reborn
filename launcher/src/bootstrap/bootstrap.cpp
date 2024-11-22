@@ -1,7 +1,10 @@
 #include <string>
 #include <vector>
 
-#include <libreborn/libreborn.h>
+#include <libreborn/log.h>
+#include <libreborn/env.h>
+#include <libreborn/util.h>
+#include <libreborn/exec.h>
 
 #include "../util/util.h"
 #include "bootstrap.h"

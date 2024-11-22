@@ -7,7 +7,6 @@
 #include <libreborn/libreborn.h>
 
 #include <mods/override/override.h>
-#include <mods/home/home.h>
 #include <mods/init/init.h>
 
 // Hook Functions

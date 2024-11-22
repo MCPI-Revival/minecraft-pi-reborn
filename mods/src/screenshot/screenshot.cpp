@@ -14,7 +14,6 @@
 #include <symbols/minecraft.h>
 
 #include <mods/screenshot/screenshot.h>
-#include <mods/home/home.h>
 #include <mods/misc/misc.h>
 #include <mods/input/input.h>
 #include <mods/init/init.h>

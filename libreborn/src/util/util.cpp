@@ -123,3 +123,12 @@ void safe_write(const int fd, const void *buf, const size_t size) {
         ERR("Unable To Write Data: %s", strerror(errno));
     }
 }
+
+// Get MCPI Home Directory
+std::string home_get() {
+    const char *home = getenv(_MCPI_HOME_ENV);
+    if (home == nullptr) {
+        IMPOSSIBLE();
+    }
+    return std::string(home) + std::string(get_home_subdirectory_for_game_data());
+}

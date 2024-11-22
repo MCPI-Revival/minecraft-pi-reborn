@@ -3,7 +3,6 @@
 #include <libreborn/libreborn.h>
 #include <symbols/minecraft.h>
 
-#include <mods/home/home.h>
 #include <mods/touch/touch.h>
 #include <mods/options/info.h>
 #include <mods/misc/misc.h>

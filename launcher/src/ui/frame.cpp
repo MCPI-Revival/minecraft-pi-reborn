@@ -5,7 +5,9 @@
 #include <imgui_impl_glfw.h>
 #include <imgui_impl_opengl2.h>
 
-#include <libreborn/libreborn.h>
+#include <libreborn/log.h>
+#include <libreborn/glfw.h>
+#include <libreborn/util.h>
 
 // Init/Cleanup
 Frame::Frame(const char *title, const int width, const int height) {
