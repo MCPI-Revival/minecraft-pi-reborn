@@ -236,6 +236,16 @@ static void Minecraft_handleMouseDown_injection(Minecraft_handleMouseDown_t orig
     }
 }
 
+// Open Sign Screen
+static void LocalPlayer_openTextEdit_injection(__attribute__((unused)) LocalPlayer_openTextEdit_t original, LocalPlayer *local_player, TileEntity *sign) {
+    if (sign->type == 4) {
+        Minecraft *minecraft = local_player->minecraft;
+        TextEditScreen *screen = TextEditScreen::allocate();
+        screen = screen->constructor((SignTileEntity *) sign);
+        minecraft->setScreen((Screen *) screen);
+    }
+}
+
 // Init
 void _init_misc_ui() {
     // Food Overlay
@@ -326,5 +336,11 @@ void _init_misc_ui() {
         overwrite_calls(Screen_mouseReleased, Screen_mouseReleased_injection);
         overwrite_calls(Minecraft_grabMouse, Minecraft_grabMouse_injection);
         overwrite_calls(Minecraft_handleMouseDown, Minecraft_handleMouseDown_injection);
+    }
+
+    // Signs
+    if (feature_has("Enable Sign Screen", server_disabled)) {
+        // Fix Signs
+        overwrite_calls(LocalPlayer_openTextEdit, LocalPlayer_openTextEdit_injection);
     }
 }

@@ -8,7 +8,6 @@ void init_multiplayer();
 void init_benchmark();
 void init_sound();
 void init_input();
-void init_sign();
 void init_camera();
 void init_atlas();
 void init_title_screen();

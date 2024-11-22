@@ -18,7 +18,6 @@ __attribute__((constructor)) static void init() {
         init_shading();
     }
     init_input();
-    init_sign();
     init_camera();
     if (!reborn_is_headless()) {
         init_atlas();

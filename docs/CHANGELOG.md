@@ -70,6 +70,7 @@
     * `Screenshot Support`
     * `Fix Camera Functionality`
     * `Property Scale Animated Textures`
+    * `Enable Text Input`
 * Split Up `Remove Creative Mode Restrictions` Feature Flag
   * `Remove Creative Mode Restrictions` (Disabled By Default)
   * `Display Slot Count In Creative Mode` (Disabled By Default)
@@ -79,6 +80,7 @@
 * Rename Feature Flags
   * `Disable Buggy Held Item Caching` To `Fix Held Item Caching`
   * `Disable 'gui_blocks' Atlas` To `Regenerate "gui_blocks" Atlas`
+  * `Fix Sign Placement` To `Enable Sign Screen`
 * Add Milk Buckets
   * Included In The `Add Buckets` Feature Flag
 * Removed `Property Scale Animated Textures` Feature Flag

@@ -4,12 +4,12 @@ project(mods)
 add_library(mods SHARED
     # compat
     src/compat/compat.cpp
-    src/compat/egl.cpp
-    src/compat/x11.cpp
-    src/compat/bcm_host.cpp
+    src/compat/readdir.cpp
     src/compat/sdl.cpp
-    # readdir
-    src/readdir/readdir.cpp
+    src/compat/stubs/egl.cpp
+    src/compat/stubs/x11.cpp
+    src/compat/stubs/bcm_host.cpp
+    src/compat/stubs/sdl.cpp
     # feature
     src/feature/feature.cpp
     # version
@@ -63,8 +63,6 @@ add_library(mods SHARED
     src/input/misc.cpp
     src/input/drop.cpp
     src/input/keys.cpp
-    # sign
-    src/sign/sign.cpp
     # atlas
     src/atlas/atlas.cpp
     # title-screen

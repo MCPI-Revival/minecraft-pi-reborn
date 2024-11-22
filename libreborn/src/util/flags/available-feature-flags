@@ -26,6 +26,7 @@ CATEGORY User Interface
         TRUE Implement Create World Dialog
         TRUE Display Date In Select World Screen
         TRUE Add Welcome Screen
+        TRUE Enable Sign Screen
     CATEGORY HUD
         TRUE Classic HUD
         TRUE Translucent Toolbar
@@ -84,6 +85,7 @@ CATEGORY Input
     FALSE Disable Raw Mouse Motion (Not Recommended)
     FALSE Disable Speed Bridging
     FALSE Disable Creative Mode Mining Delay
+    TRUE Enable Text Input
 CATEGORY Multiplayer
     CATEGORY Chat
         TRUE Implement Chat
@@ -96,7 +98,6 @@ CATEGORY Gameplay
     TRUE Implement Death Messages
     TRUE Implement Game-Mode Switching
     FALSE Force Mob Spawning
-    TRUE Fix Sign Placement
     TRUE Add Buckets
     TRUE Load Custom Skins
     TRUE Add Cake

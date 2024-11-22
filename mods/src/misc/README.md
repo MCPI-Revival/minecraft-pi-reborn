@@ -6,4 +6,4 @@ This mod has several miscellaneous mods that are too small to be their own mod, 
 * Loading the bundled language file.
 * Printing chat messages to the log.
 * Implementing crafting remainders.
-* Correct the profile directory.
+* Correcting the profile directory.

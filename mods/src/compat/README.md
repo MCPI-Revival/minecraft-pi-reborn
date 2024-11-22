@@ -1,2 +1,2 @@
 # `compat` Mod
-This utility mod sends keyboard input to other mods. It also patches out all EGL and X11 calls.
+This utility mod ensures compatibility with the host system. This includes fixing events, handling signals, and patching out bad function calls.

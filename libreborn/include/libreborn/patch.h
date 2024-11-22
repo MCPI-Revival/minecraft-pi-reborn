@@ -3,7 +3,9 @@
 #include "log.h"
 
 // Patching Functions
-#ifdef REBORN_HAS_PATCH_CODE
+#ifndef REBORN_HAS_PATCH_CODE
+#error "Missing Patching Functions"
+#endif
 
 // Init
 void reborn_init_patch();
@@ -50,5 +52,3 @@ void patch_vtable(const T *start, typename T::ptr_type target) {
     }
     patch_address((void *) start->get_vtable_addr(), (void *) target);
 }
-
-#endif

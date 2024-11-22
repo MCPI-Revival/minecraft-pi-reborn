@@ -1,5 +1,5 @@
 #include <libreborn/patch.h>
-#include "compat-internal.h"
+#include "../compat-internal.h"
 
 // Do Nothing Function
 static void do_nothing() {
