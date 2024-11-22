@@ -88,6 +88,11 @@
   * `Disable Buggy Held Item Caching` To `Fix Held Item Caching`
   * `Disable 'gui_blocks' Atlas` To `Regenerate "gui_blocks" Atlas`
   * `Fix Sign Placement` To `Enable Sign Screen`
+  * `Force Touch GUI Inventory` To `Force Touch UI Inventory`
+  * `Full Touch GUI` To `Full Touch UI`
+  * `Force Touch GUI Button Behavior` To `Force Touch UI Button Behavior`
+  * `Remove Forced GUI Lag (Can Break Joining Servers)` To `Remove Forced UI Lag (Can Break Joining Servers)`
+  * `Hide Block Outline When GUI Is Hidden` To `Hide Block Outline When UI Is Hidden`
 * Add Milk Buckets
   * Included In The `Add Buckets` Feature Flag
 * Removed `Property Scale Animated Textures` Feature Flag

@@ -20,7 +20,7 @@ CATEGORY User Interface
         CATEGORY Options
             TRUE Fix Options Screen
             TRUE Add Reborn Info To Options
-        TRUE Force Touch GUI Inventory
+        TRUE Force Touch UI Inventory
         TRUE Fix Pause Menu
         TRUE Close Current Screen On Death
         TRUE Implement Create World Dialog
@@ -37,10 +37,10 @@ CATEGORY User Interface
     CATEGORY Text
         TRUE Load Language Files
         TRUE Add Missing Language Strings
-    FALSE Full Touch GUI
-    TRUE Force Touch GUI Button Behavior
+    FALSE Full Touch UI
+    TRUE Force Touch UI Button Behavior
     TRUE Improved Cursor Rendering
-    FALSE Remove Forced GUI Lag (Can Break Joining Servers)
+    FALSE Remove Forced UI Lag (Can Break Joining Servers)
     TRUE Improved Button Hover Behavior
     TRUE Classic Item Count UI
     TRUE Click Buttons On Mouse Down
@@ -55,7 +55,7 @@ CATEGORY Rendering
     CATEGORY Block Outline
         TRUE Show Block Outlines
         TRUE Replace Block Highlight With Outline
-        TRUE Hide Block Outline When GUI Is Hidden
+        TRUE Hide Block Outline When UI Is Hidden
     CATEGORY Block Tinting
         FALSE Add Biome Colors To Grass
         FALSE Disable Block Tinting

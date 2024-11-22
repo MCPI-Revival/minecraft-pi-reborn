@@ -527,7 +527,7 @@ void _init_misc_graphics() {
     }
 
     // Properly Hide Block Outline
-    if (feature_has("Hide Block Outline When GUI Is Hidden", server_disabled)) {
+    if (feature_has("Hide Block Outline When UI Is Hidden", server_disabled)) {
         overwrite_calls(LevelRenderer_renderHitSelect, [](LevelRenderer_renderHitSelect_t original, LevelRenderer *self, Player *player, const HitResult &hit_result, const int i, void *vp, const float f) {
             if (!self->minecraft->options.hide_gui) {
                 original(self, player, hit_result, i, vp, f);

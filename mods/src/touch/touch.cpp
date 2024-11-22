@@ -61,8 +61,8 @@ Button *touch_create_button(const int id, const std::string &text) {
 
 // Init
 void init_touch() {
-    touch_gui = feature_has("Full Touch GUI", server_disabled);
-    int touch_buttons = touch_gui;
+    touch_gui = feature_has("Full Touch UI", server_disabled);
+    bool touch_buttons = touch_gui;
     if (touch_gui) {
         // Main UI
         overwrite_calls(Minecraft_isTouchscreen, Minecraft_isTouchscreen_injection);
@@ -72,7 +72,7 @@ void init_touch() {
         patch((void *) 0x257b0, toolbar_patch);
     } else {
         // Force Touch Inventory
-        if (feature_has("Force Touch GUI Inventory", server_disabled)) {
+        if (feature_has("Force Touch UI Inventory", server_disabled)) {
             overwrite_call((void *) 0x2943c, (void *) operator_new_IngameBlockSelectionScreen_injection);
             overwrite_call((void *) 0x29444, (void *) Touch_IngameBlockSelectionScreen_constructor->get(true));
             // Make "Craft" And "Armor" Buttons Use Classic GUI Style (Button And TButton Have The Same Size)
@@ -81,8 +81,8 @@ void init_touch() {
         }
 
         // Force Touch Button Behavior
-        if (feature_has("Force Touch GUI Button Behavior", server_disabled)) {
-            touch_buttons = 1;
+        if (feature_has("Force Touch UI Button Behavior", server_disabled)) {
+            touch_buttons = true;
             overwrite_call((void *) 0x1baf4, (void *) Minecraft_isTouchscreen_injection);
             overwrite_call((void *) 0x1be40, (void *) Minecraft_isTouchscreen_injection);
             overwrite_call((void *) 0x1c470, (void *) Minecraft_isTouchscreen_injection);

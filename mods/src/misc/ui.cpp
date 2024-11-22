@@ -299,7 +299,7 @@ void _init_misc_ui() {
     }
 
     // Remove Forced GUI Lag
-    if (feature_has("Remove Forced GUI Lag (Can Break Joining Servers)", server_enabled)) {
+    if (feature_has("Remove Forced UI Lag (Can Break Joining Servers)", server_enabled)) {
         overwrite_calls(Common_sleepMs, nop<Common_sleepMs_t, int>);
     }
 
