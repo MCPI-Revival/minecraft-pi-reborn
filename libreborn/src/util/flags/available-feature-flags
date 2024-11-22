@@ -76,16 +76,14 @@ CATEGORY Textures
     TRUE Animated Lava
     TRUE Animated Fire
 CATEGORY Input
-    TRUE Fix Bow & Arrow
-    TRUE Fix Attacking
     TRUE Disable Autojump By Default
-    TRUE Miscellaneous Input Fixes
     TRUE Bind "Q" Key To Item Dropping
     TRUE Bind Common Toggleable Options To Function Keys
     FALSE Disable Raw Mouse Motion (Not Recommended)
     FALSE Disable Speed Bridging
     FALSE Disable Creative Mode Mining Delay
     TRUE Enable Text Input
+    TRUE Extend Supported Keycodes
 CATEGORY Multiplayer
     CATEGORY Chat
         TRUE Implement Chat
@@ -105,25 +103,33 @@ CATEGORY Gameplay
     TRUE Implement Sound Engine
     TRUE Generate Caves
 CATEGORY Bug Fixes
-    TRUE Fix Furnace Not Checking Item Auxiliary
-    TRUE Fix Held Item Caching
-    TRUE Fix Pigmen Burning In The Sun
-    TRUE Fix Carried Grass's Bottom Texture
-    TRUE Fix Screen Rendering When Hiding HUD
-    TRUE Fix Door Duplication
-    TRUE Fix Cobweb Lighting
-    TRUE Fix Sneaking Syncing
-    TRUE Fix Fire Immunity
-    TRUE Fix Fire Syncing
-    TRUE Fix Sunlight Not Properly Setting Mobs On Fire
-    TRUE Patch RakNet Security Bug
-    TRUE Prevent Unnecessary Server Pinging
-    TRUE Fix Furnace Screen Visual Bug
-    TRUE Fix Text Wrapping
-    TRUE Fix Transferring Durability When Using Items
-    TRUE Fix Switching Perspective While Sneaking
+    CATEGORY Visual
+        TRUE Fix Held Item Caching
+        TRUE Fix Cobweb Lighting
+        TRUE Fix Furnace Screen Visual Bug
+        TRUE Fix Text Wrapping
+        TRUE Fix Carried Grass's Bottom Texture
+        TRUE Fix Screen Rendering When Hiding HUD
+        TRUE Fix Sugar Position In Hand
+        TRUE Fix Switching Perspective While Sneaking
+    CATEGORY Network
+        TRUE Patch RakNet Security Bug
+        TRUE Prevent Unnecessary Server Pinging
+        TRUE Fix Fire Syncing
+        TRUE Fix Sneaking Syncing
+    CATEGORY Input
+        TRUE Fix Bow & Arrow
+        TRUE Fix Attacking
+        TRUE Fix Escape Key Handling
+        TRUE Stop Locked Mouse From Interacting With HUD
+    CATEGORY Gameplay
+        TRUE Fix Furnace Not Checking Item Auxiliary
+        TRUE Fix Pigmen Burning In The Sun
+        TRUE Fix Door Duplication
+        TRUE Fix Fire Immunity
+        TRUE Fix Sunlight Not Properly Setting Mobs On Fire
+        TRUE Fix Transferring Durability When Using Items
     TRUE Fix Crash When Generating Certain Seeds
-    TRUE Fix Sugar Position In Hand
     TRUE Fix Reloading Textures On Resize
     TRUE Fix options.txt Loading/Saving
 CATEGORY Logging

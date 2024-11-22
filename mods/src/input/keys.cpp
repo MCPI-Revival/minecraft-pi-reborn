@@ -1,6 +1,10 @@
 #include <mods/input/input.h>
+#include <mods/feature/feature.h>
+
 #include <symbols/minecraft.h>
+
 #include <libreborn/patch.h>
+
 #include <SDL/SDL.h>
 
 #include "input-internal.h"
@@ -20,5 +24,7 @@ static int32_t sdl_key_to_minecraft_key_injection(Common_sdl_key_to_minecraft_ke
 
 // Init
 void _init_keys() {
-    overwrite_calls(Common_sdl_key_to_minecraft_key, sdl_key_to_minecraft_key_injection);
+    if (feature_has("Extend Supported Keycodes", server_disabled)) {
+        overwrite_calls(Common_sdl_key_to_minecraft_key, sdl_key_to_minecraft_key_injection);
+    }
 }

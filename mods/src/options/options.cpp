@@ -210,7 +210,7 @@ void init_options() {
     overwrite_calls(TileRenderer_tesselateBlockInWorld, TileRenderer_tesselateBlockInWorld_injection);
 
     // options.txt
-    if (feature_has("Fix options.txt Loading/Saving", server_disabled)) {
+    if (feature_has("Fix options.txt Loading/Saving", server_enabled)) {
         // Actually Save options.txt
         overwrite_call((void *) 0x197fc, (void *) Options_save_Options_addOptionToSaveOutput_injection);
         // Fix options.txt Path

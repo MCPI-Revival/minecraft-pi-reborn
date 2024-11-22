@@ -52,6 +52,7 @@
     * `Increase Render Chunk Size` (Enabled By Default)
     * `Proper Entity Shading` (Enabled By Default)
     * `Fix Sugar Position In Hand` (Enabled By Default)
+    * `Fix Reloading Textures On Resize` (Enabled By Default)
   * Existing Functionality (All Enabled By Default)
     * `Fix Screen Rendering When Hiding HUD`
     * `Sanitize Usernames`
@@ -73,13 +74,16 @@
     * `Enable Text Input`
     * `Update Default Options`
     * `Fix options.txt Loading/Saving`
-    * `Fix Reloading Textures On Resize`
+    * `Extend Supported Keycodes`
 * Split Up `Remove Creative Mode Restrictions` Feature Flag
   * `Remove Creative Mode Restrictions` (Disabled By Default)
   * `Display Slot Count In Creative Mode` (Disabled By Default)
   * `Force Survival Mode Inventory UI` (Disabled By Default)
   * `Force Survival Mode Inventory Behavior` (Disabled By Default)
   * `Maximize Creative Mode Inventory Stack Size` (Disabled By Default)
+* Split Up `Miscellaneous Input Fixes` Feature Flag
+  * `Fix Escape Key Handling` (Enabled By Default)
+  * `Stop Locked Mouse From Interacting With HUD` (Enabled By Default)
 * Rename Feature Flags
   * `Disable Buggy Held Item Caching` To `Fix Held Item Caching`
   * `Disable 'gui_blocks' Atlas` To `Regenerate "gui_blocks" Atlas`

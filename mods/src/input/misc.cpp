@@ -66,14 +66,8 @@ static void Gui_handleClick_injection(Gui_handleClick_t original, Gui *gui, cons
 
 // Init
 void _init_misc() {
-    if (feature_has("Miscellaneous Input Fixes", server_disabled)) {
-        // Fix OptionsScreen Ignoring The Back Button
-        patch_vtable(OptionsScreen_handleBackEvent, OptionsScreen_handleBackEvent_injection);
-        // Fix "Sleeping Beauty" Bug
-        patch_vtable(InBedScreen_handleBackEvent, InBedScreen_handleBackEvent_injection);
-        // Disable Opening Inventory Using The Cursor When Cursor Is Hidden
-        overwrite_calls(Gui_handleClick, Gui_handleClick_injection);
-        // Proper Back Button Handling
+    // Proper Back Button Handling
+    if (feature_has("Fix Escape Key Handling", server_disabled)) {
         misc_run_on_key_press([](Minecraft *mc, const int key) {
             if (key == MC_KEY_ESCAPE) {
                 _handle_back(mc);
@@ -82,6 +76,15 @@ void _init_misc() {
                 return false;
             }
         });
+        // Fix OptionsScreen Ignoring The Back Button
+        patch_vtable(OptionsScreen_handleBackEvent, OptionsScreen_handleBackEvent_injection);
+        // Fix "Sleeping Beauty" Bug (https://discord.com/channels/740287937727561779/761048906242981948/1164426402318270474)
+        patch_vtable(InBedScreen_handleBackEvent, InBedScreen_handleBackEvent_injection);
+    }
+    // Fix UI When Mouse Is Locked
+    if (feature_has("Stop Locked Mouse From Interacting With HUD", server_disabled)) {
+        // Disable Opening Inventory Using The Cursor When Cursor Is Hidden
+        overwrite_calls(Gui_handleClick, Gui_handleClick_injection);
         // Disable Item Dropping Using The Cursor When Cursor Is Hidden
         overwrite_call((void *) 0x27800, (void *) Gui_tickItemDrop_Minecraft_isCreativeMode_call_injection);
     }
