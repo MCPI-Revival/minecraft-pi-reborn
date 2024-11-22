@@ -29,3 +29,6 @@ bool is_exit_status_success(int status);
 
 // Get Exit Status String
 std::string get_exit_status_string(int status);
+
+// Open URL
+void open_url(const std::string &url);

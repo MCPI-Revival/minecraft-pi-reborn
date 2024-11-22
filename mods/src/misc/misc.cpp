@@ -9,7 +9,6 @@
 #include <streambuf>
 
 #include <GLES/gl.h>
-#include <SDL/SDL.h>
 #include <media-layer/core.h>
 
 #include <libreborn/libreborn.h>
@@ -209,7 +208,7 @@ static AppPlatform_readAssetFile_return_value AppPlatform_readAssetFile_injectio
         return ret;
     }
     // Read File
-    std::streamoff len = stream.tellg();
+    const std::streamoff len = stream.tellg();
     char *buf = new char[len];
     ALLOC_CHECK(buf);
     stream.seekg(0, std::ifstream::beg);

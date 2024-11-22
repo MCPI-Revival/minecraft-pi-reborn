@@ -3,7 +3,6 @@
 #include <cerrno>
 #include <cstdlib>
 #include <cstdio>
-#include <cstdint>
 #include <csignal>
 #include <poll.h>
 #include <sys/ioctl.h>
@@ -26,12 +25,18 @@ static void exit_handler(__attribute__((unused)) int signal) {
 // Log File
 static std::string log_filename;
 static int log_fd;
-static void setup_log_file() {
-    // Get Log Directory
+std::string get_logs_folder() {
     const std::string home = std::string(getenv(_MCPI_HOME_ENV)) + get_home_subdirectory_for_game_data();
     ensure_directory(home.c_str());
     const std::string logs = home + "/logs";
     ensure_directory(logs.c_str());
+    return logs;
+}
+static void setup_log_file() {
+    // Get Log Directory
+    const std::string home = std::string(getenv(_MCPI_HOME_ENV)) + get_home_subdirectory_for_game_data();
+    ensure_directory(home.c_str());
+    const std::string logs = get_logs_folder();
 
     // Get Timestamp
     time_t raw_time;
@@ -129,7 +134,7 @@ void setup_logger() {
 
         // Close Log File
         close(log_fd);
-        unsetenv(_MCPI_LOG_FD_ENV);
+        reborn_set_log(-1);
 
         // Show Crash Log
         if (is_crash && !reborn_is_headless()) {

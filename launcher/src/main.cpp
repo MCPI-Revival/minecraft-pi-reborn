@@ -24,47 +24,11 @@ static void setup_environment(const options_t &options) {
     bind_to_env(_MCPI_FORCE_HEADLESS_ENV, options.force_headless);
     bind_to_env(_MCPI_FORCE_NON_HEADLESS_ENV, options.force_non_headless);
 
-    // GTK Dark Mode
-    set_and_print_env("GTK_THEME", "Adwaita:dark");
-
     // Configure PATH
-    {
-        // Get Binary Directory
-        const std::string binary_directory = get_binary_directory();
-        std::string new_path = binary_directory + "/bin";
-        // Add Existing PATH
-        {
-            const char *value = getenv("PATH");
-            if (value != nullptr && strlen(value) > 0) {
-                new_path += std::string(":") + value;
-            }
-        }
-        // Set And Free
-        set_and_print_env("PATH", new_path.c_str());
-    }
+    setup_path();
 
     // Setup MCPI_HOME
-    const char *custom_profile_directory = getenv(MCPI_PROFILE_DIRECTORY_ENV);
-    if (custom_profile_directory != nullptr) {
-        // Custom Directory
-        custom_profile_directory = realpath(custom_profile_directory, nullptr);
-        ALLOC_CHECK(custom_profile_directory);
-        set_and_print_env(_MCPI_HOME_ENV, custom_profile_directory);
-        free((void *) custom_profile_directory);
-    } else if (!reborn_is_server()) {
-        // Ensure $HOME
-        const char *home = getenv("HOME");
-        if (home == nullptr) {
-            ERR("$HOME Is Not Set");
-        }
-        set_and_print_env(_MCPI_HOME_ENV, home);
-    } else {
-        // Set Home To Current Directory, So World Data Is Stored There
-        char *launch_directory = getcwd(nullptr, 0);
-        ALLOC_CHECK(launch_directory);
-        set_and_print_env(_MCPI_HOME_ENV, launch_directory);
-        free(launch_directory);
-    }
+    setup_home();
     // Create If Needed
     const std::string minecraft_folder = std::string(getenv(_MCPI_HOME_ENV)) + get_home_subdirectory_for_game_data();
     ensure_directory(minecraft_folder.c_str());

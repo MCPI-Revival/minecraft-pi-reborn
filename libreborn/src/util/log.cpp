@@ -39,7 +39,7 @@ int reborn_get_log_fd() {
 void reborn_set_log(const int fd) {
     // Set Variable
     log_fd = -1;
-    set_and_print_env(_MCPI_LOG_FD_ENV, std::to_string(fd).c_str());
+    set_and_print_env(_MCPI_LOG_FD_ENV, fd >= 0 ? std::to_string(fd).c_str() : nullptr);
 }
 
 // Debug Logging

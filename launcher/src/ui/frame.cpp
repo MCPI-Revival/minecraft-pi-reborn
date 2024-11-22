@@ -12,8 +12,9 @@ Frame::Frame(const char *title, const int width, const int height) {
     // Create Window
     init_glfw();
     window = create_glfw_window(title, width, height);
-    // V-Sync
-    glfwSwapInterval(1);
+    // Disable V-Sync
+    // (On Wayland, This Fixes Issues With The Clipboard)
+    glfwSwapInterval(0);
     // Setup ImGui Context
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
@@ -26,9 +27,11 @@ Frame::Frame(const char *title, const int width, const int height) {
     ImGui_ImplOpenGL2_Init();
 }
 Frame::~Frame() {
+    // Shutdown ImGui
     ImGui_ImplOpenGL2_Shutdown();
     ImGui_ImplGlfw_Shutdown();
     ImGui::DestroyContext();
+    // Cleanup GLFW
     cleanup_glfw(window);
 }
 
@@ -84,4 +87,25 @@ void Frame::setup_style(const float scale) {
     ImGui::StyleColorsDark(&style);
     style.ScaleAllSizes(scale);
     patch_colors(style);
+}
+
+// Right-Aligned Buttons
+void Frame::draw_right_aligned_buttons(const std::vector<const char *> &buttons, const std::function<void(int, bool)> &callback) {
+    // Calculate Position
+    const ImGuiStyle &style = ImGui::GetStyle();
+    float width_needed = 0;
+    for (const char *text : buttons) {
+        if (width_needed > 0) {
+            width_needed += style.ItemSpacing.x;
+        }
+        width_needed += ImGui::CalcTextSize(text).x + style.FramePadding.x * 2.0f;
+    }
+    ImGui::SetCursorPosX(ImGui::GetCursorPosX() + ImGui::GetContentRegionAvail().x - width_needed);
+    // Draw
+    for (std::vector<const char *>::size_type id = 0; id < buttons.size(); id++) {
+        if (id > 0) {
+            ImGui::SameLine();
+        }
+        callback(int(id), ImGui::Button(buttons[id]));
+    }
 }

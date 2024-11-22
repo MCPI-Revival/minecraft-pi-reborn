@@ -38,29 +38,6 @@ static std::string extra_version_info =
     ;
 static std::string extra_version_info_full = !extra_version_info.empty() ? (" (" + extra_version_info + ")") : "";
 
-// Profile Directory
-static std::string profile_directory_suffix =
-#ifdef MCPI_IS_FLATPAK_BUILD
-    "/.var/app/" MCPI_APP_ID +
-#endif
-    std::string(get_home_subdirectory_for_game_data())
-    ;
-static std::string get_profile_directory_url() {
-    std::string directory;
-    if (getenv(MCPI_PROFILE_DIRECTORY_ENV) != nullptr) {
-        // Using Custom Directory
-        directory = home_get();
-    } else {
-        // Determine Proper Directory
-        const char *home = getenv("HOME");
-        if (home == nullptr) {
-            IMPOSSIBLE();
-        }
-        directory = home + profile_directory_suffix;
-    }
-    return std::string("file://") + directory;
-}
-
 // Info Data
 struct info_line {
     std::string (*get_text)();
@@ -80,7 +57,7 @@ static info_line info[] = {
         .get_text = []() {
             return std::string("Profile Directory");
         },
-        .button_url = get_profile_directory_url(),
+        .button_url = std::string("file://") + home_get(),
         .button_text = "Open"
     },
     {
@@ -154,17 +131,6 @@ static void position_info(Font *font, const int width, const int height) {
         positioned_info[i].button.y += info_y_offset;
         positioned_info[i].text.x += info_x_offset;
         positioned_info[i].text.y += info_y_offset;
-    }
-}
-
-// Open URL
-void open_url(const std::string &url) {
-    int return_code;
-    const char *command[] = {"xdg-open", url.c_str(), nullptr};
-    const std::vector<unsigned char> *output = run_command(command, &return_code);
-    delete output;
-    if (!is_exit_status_success(return_code)) {
-        WARN("Unable To Open URL: %s", url.c_str());
     }
 }
 

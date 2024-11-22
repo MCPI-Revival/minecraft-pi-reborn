@@ -9,6 +9,7 @@ add_executable(launcher
     src/bootstrap/debug.cpp
     src/util/util.cpp
     src/util/sdk.cpp
+    src/util/env.cpp
     src/logger/logger.cpp
     src/logger/crash-report.cpp
     src/options/parser.cpp

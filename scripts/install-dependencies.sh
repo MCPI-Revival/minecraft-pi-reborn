@@ -59,8 +59,7 @@ run_build() {
         "libxinerama-dev:$1" \
         "libxrandr-dev:$1" \
         "libxext-dev:$1" \
-        `# Zenity Dependencies` \
-        "libgtk-3-dev:$1" \
+        `# QEMU Dependencies` \
         "libglib2.0-dev:$1" \
         `# AppStream Verification` \
         appstream

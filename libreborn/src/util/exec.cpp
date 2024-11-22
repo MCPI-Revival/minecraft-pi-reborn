@@ -101,6 +101,10 @@ void poll_fds(const std::vector<int> &fds, const std::function<void(int, size_t,
                     on_data(int(i), size_t(bytes_read), buf);
                 } else {
                     // File Descriptor No Longer Accessible
+                    if (poll_fd.fd == STDIN_FILENO) {
+                        // This Shouldn't Happen
+                        IMPOSSIBLE();
+                    }
                     poll_fd.events = 0;
                     open_fds--;
                 }
@@ -184,5 +188,16 @@ bool is_exit_status_success(const int status) {
         return signal_no == SIGINT || signal_no == SIGTERM;
     } else {
         return false;
+    }
+}
+
+// Open URL
+void open_url(const std::string &url) {
+    int return_code;
+    const char *command[] = {"xdg-open", url.c_str(), nullptr};
+    const std::vector<unsigned char> *output = run_command(command, &return_code);
+    delete output;
+    if (!is_exit_status_success(return_code)) {
+        WARN("Unable To Open URL: %s", url.c_str());
     }
 }

@@ -75,28 +75,21 @@ int ConfigurationUI::draw_bottom() {
         ImGui::SameLine();
     }
     // Right-Align Buttons
-    const ImGuiStyle &style = ImGui::GetStyle();
-    const char *bottom_row_text[] = {"Quit", "Launch"};
-    float width_needed = 0;
-    for (const char *text : bottom_row_text) {
-        if (width_needed > 0) {
-            width_needed += style.ItemSpacing.x;
+    int ret = 0;
+    draw_right_aligned_buttons({"Quit", "Launch"}, [&ret](const int id, const bool was_clicked) {
+        if (id == 0) {
+            // Quit
+            if (was_clicked) {
+                ret = -1;
+            }
+            ImGui::SetItemTooltip("Changes Will Not Be Saved!");
+        } else if (was_clicked) {
+            // Launch
+            ret = 1;
         }
-        width_needed += ImGui::CalcTextSize(text).x + style.FramePadding.x * 2.f;
-    }
-    ImGui::SetCursorPosX(ImGui::GetCursorPosX() + ImGui::GetContentRegionAvail().x - width_needed);
-    // Quit
-    if (ImGui::Button(bottom_row_text[0])) {
-        return -1;
-    }
-    ImGui::SetItemTooltip("Changes Will Not Be Saved!");
-    ImGui::SameLine();
-    // Launch
-    if (ImGui::Button(bottom_row_text[1])) {
-        return 1;
-    }
+    });
     // Return
-    return 0;
+    return ret;
 }
 
 // Main Tab
