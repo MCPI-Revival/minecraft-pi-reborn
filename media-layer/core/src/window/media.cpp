@@ -33,6 +33,7 @@ void media_SDL_WM_SetCaption(const char *title, __attribute__((unused)) const ch
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 5);
     // Extra Settings
     glfwWindowHint(GLFW_AUTO_ICONIFY, GLFW_FALSE);
+    glfwWindowHint(GLFW_ALPHA_BITS, 0);
 
     // Create Window
     glfw_window = create_glfw_window(title, DEFAULT_WIDTH, DEFAULT_HEIGHT);

@@ -33,7 +33,7 @@ static void setup_environment(const options_t &options) {
     // Setup MCPI_HOME
     setup_home();
     // Create If Needed
-    const std::string minecraft_folder = std::string(getenv(_MCPI_HOME_ENV)) + get_home_subdirectory_for_game_data();
+    const std::string minecraft_folder = home_get();
     ensure_directory(minecraft_folder.c_str());
 }
 

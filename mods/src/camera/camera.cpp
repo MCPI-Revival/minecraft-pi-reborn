@@ -1,5 +1,8 @@
 #include <libreborn/patch.h>
+
 #include <symbols/minecraft.h>
+
+#include <GLES/gl.h>
 
 #include <mods/feature/feature.h>
 #include <mods/screenshot/screenshot.h>
@@ -20,6 +23,7 @@ static EntityRenderDispatcher *EntityRenderDispatcher_injection(EntityRenderDisp
     renderer->constructor();
     dispatcher->assign((unsigned char) 0x5, (EntityRenderer *) renderer);
 
+    // Return
     return dispatcher;
 }
 
@@ -49,19 +53,19 @@ static void TripodCameraRenderer_render_TileRenderer_tesselateCrossTexture_injec
 // Init
 void init_camera() {
     // Implement AppPlatform_linux::saveScreenshot So Cameras Work
-    if (feature_has("Fix Camera Functionality", server_disabled)) {
+    if (feature_has("Add Camera Functionality", server_disabled)) {
         overwrite_calls(AppPlatform_saveScreenshot, AppPlatform_saveScreenshot_injection);
     }
 
     // Fix Camera Rendering
-    if (feature_has("Fix Camera Rendering", server_disabled)) {
+    if (feature_has("Enable Camera Rendering", server_disabled)) {
         // Enable TripodCameraRenderer
         overwrite_calls(EntityRenderDispatcher_constructor, EntityRenderDispatcher_injection);
         // Display Smoke From TripodCamera Higher
         overwrite_call((void *) 0x87dc4, (void *) TripodCamera_tick_Level_addParticle_call_injection);
     }
     // Camera Legs
-    if (feature_has("Fix Camera Legs", server_disabled)) {
+    if (feature_has("Render Camera Legs", server_disabled)) {
         overwrite_call((void *) 0x659dc, (void *) TripodCameraRenderer_render_EntityRenderer_bindTexture_injection);
         overwrite_call((void *) 0x65a08, (void *) TripodCameraRenderer_render_TileRenderer_tesselateCrossTexture_injection);
     }

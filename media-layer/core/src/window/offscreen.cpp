@@ -14,6 +14,7 @@ void media_begin_offscreen_render(const int width, const int height) {
     glfwWindowHint(GLFW_ALPHA_BITS, 8);
     glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
     glfwWindowHint(GLFW_DECORATED, GLFW_FALSE);
+    glfwWindowHint(GLFW_ALPHA_BITS, 8);
     // Open Window
     offscreen_window = glfwCreateWindow(width, height, "Offscreen Rendering", nullptr, nullptr);
     if (!offscreen_window) {

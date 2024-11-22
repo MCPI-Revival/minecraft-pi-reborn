@@ -106,6 +106,13 @@ static void ArmorScreen_renderPlayer_glRotatef_injection(float angle, float x, f
     media_glRotatef(angle, x, y, z);
 }
 
+// Fix Camera
+static void TripodCameraRenderer_render_Tesselator_draw_injection(Tesselator *self) {
+    media_glDisable(GL_LIGHTING);
+    self->draw();
+    media_glEnable(GL_LIGHTING);
+}
+
 // Init
 void _init_lighting() {
     overwrite_calls(LevelRenderer_renderEntities, LevelRenderer_renderEntities_injection);
@@ -124,4 +131,5 @@ void _init_lighting() {
     overwrite_calls(MobRenderer_renderNameTag, MobRenderer_renderNameTag_injection);
     overwrite_calls(ArmorScreen_renderPlayer, ArmorScreen_renderPlayer_injection);
     overwrite_call((void *) 0x29d88, (void *) ArmorScreen_renderPlayer_glRotatef_injection);
+    overwrite_call((void *) 0x65a10, (void *) TripodCameraRenderer_render_Tesselator_draw_injection);
 }

@@ -50,8 +50,8 @@ CATEGORY Rendering
         TRUE Multidraw Rendering
         TRUE Increase Render Chunk Size
     CATEGORY Camera
-        TRUE Fix Camera Rendering
-        TRUE Fix Camera Legs
+        TRUE Enable Camera Rendering
+        TRUE Render Camera Legs
     CATEGORY Block Outline
         TRUE Show Block Outlines
         TRUE Replace Block Highlight With Outline
@@ -141,5 +141,5 @@ CATEGORY Miscellaneous
     TRUE Fullscreen Support
     TRUE Always Save Chest Tile Entities
     TRUE Screenshot Support
-    TRUE Fix Camera Functionality
+    TRUE Add Camera Functionality
     TRUE Update Default Options
