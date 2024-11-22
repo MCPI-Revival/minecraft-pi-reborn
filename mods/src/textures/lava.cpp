@@ -1,7 +1,7 @@
 #include <cmath>
 #include <cstdint>
 
-#include <libreborn/libreborn.h>
+#include <libreborn/patch.h>
 #include <mods/extend/extend.h>
 #include <symbols/minecraft.h>
 

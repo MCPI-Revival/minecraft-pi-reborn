@@ -1,6 +1,7 @@
-#include <libreborn/libreborn.h>
+#include <libreborn/patch.h>
+#include <libreborn/config.h>
+
 #include <mods/init/init.h>
-#include <media-layer/core.h>
 #include <symbols/minecraft.h>
 
 __attribute__((constructor)) static void init() {

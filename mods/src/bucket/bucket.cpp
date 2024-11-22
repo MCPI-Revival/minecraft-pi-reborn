@@ -1,4 +1,5 @@
-#include <libreborn/libreborn.h>
+#include <libreborn/patch.h>
+
 #include <symbols/minecraft.h>
 
 #include <mods/feature/feature.h>
@@ -22,7 +23,7 @@ static std::string BucketItem_getDescriptionId(__attribute__((unused)) FoodItem 
         return "item.bucket";
     }
 }
-static int32_t BucketItem_getIcon(__attribute__((unused)) FoodItem *item, int32_t auxiliary) {
+static int32_t BucketItem_getIcon(__attribute__((unused)) FoodItem *item, const int32_t auxiliary) {
     if (auxiliary == Tile::water->id) {
         return 75;
     } else if (auxiliary == Tile::lava->id) {
@@ -35,7 +36,7 @@ static int32_t BucketItem_getIcon(__attribute__((unused)) FoodItem *item, int32_
 }
 
 // Filling
-static bool fill_bucket(ItemInstance *item_instance, Player *player, int new_auxiliary) {
+static bool fill_bucket(ItemInstance *item_instance, const Player *player, const int new_auxiliary) {
     bool success = false;
     if (item_instance->count == 1) {
         item_instance->auxiliary = new_auxiliary;
@@ -57,7 +58,7 @@ static bool fill_bucket(ItemInstance *item_instance, Player *player, int new_aux
 
 
 // Use Bucket
-static int32_t BucketItem_useOn(__attribute__((unused)) FoodItem *item, ItemInstance *item_instance, Player *player, Level *level, int32_t x, int32_t y, int32_t z, int32_t hit_side, __attribute__((unused)) float hit_x, __attribute__((unused)) float hit_y, __attribute__((unused)) float hit_z) {
+static int32_t BucketItem_useOn(__attribute__((unused)) FoodItem *item, ItemInstance *item_instance, Player *player, Level *level, int32_t x, int32_t y, int32_t z, const int32_t hit_side, __attribute__((unused)) float hit_x, __attribute__((unused)) float hit_y, __attribute__((unused)) float hit_z) {
     if (item_instance->count < 1 || item_instance->auxiliary == 1) {
         return 0;
     } else if (item_instance->auxiliary == 0) {
@@ -188,7 +189,6 @@ CUSTOM_VTABLE(bucket, FoodItem) {
 static FoodItem *create_bucket(const int32_t id, int32_t texture_x, int32_t texture_y, std::string name) {
     // Construct
     FoodItem *item = FoodItem::allocate();
-    ALLOC_CHECK(item);
     Item_constructor->get(false)((Item *) item, id); // FoodItem's Constructor Was Inlined
 
     // Set VTable
@@ -237,7 +237,6 @@ bool Cow_interact_injection(Cow_interact_t original, Cow *self, Player *player) 
 // Creative Inventory
 static void inventory_add_item(FillingContainer *inventory, FoodItem *item, int32_t auxiliary) {
     ItemInstance *item_instance = new ItemInstance;
-    ALLOC_CHECK(item_instance);
     item_instance = item_instance->constructor_item_extra((Item *) item, 1, auxiliary);
     inventory->addItem(item_instance);
 }

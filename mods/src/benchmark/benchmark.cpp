@@ -1,6 +1,10 @@
 #include <ctime>
 
-#include <libreborn/libreborn.h>
+#include <libreborn/patch.h>
+#include <libreborn/util.h>
+#include <libreborn/env.h>
+#include <libreborn/config.h>
+
 #include <symbols/minecraft.h>
 
 #include <media-layer/core.h>
@@ -41,7 +45,6 @@ static void start_world(Minecraft *minecraft) {
 
     // Open ProgressScreen
     ProgressScreen *screen = ProgressScreen::allocate();
-    ALLOC_CHECK(screen);
     screen = screen->constructor();
     minecraft->setScreen((Screen *) screen);
 }

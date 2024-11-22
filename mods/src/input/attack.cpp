@@ -1,6 +1,7 @@
 #include <cstdint>
 
-#include <libreborn/libreborn.h>
+#include <libreborn/patch.h>
+
 #include <symbols/minecraft.h>
 
 #include <mods/feature/feature.h>

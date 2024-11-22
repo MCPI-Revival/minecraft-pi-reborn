@@ -1,6 +1,6 @@
 #include <cstdint>
 
-#include <libreborn/libreborn.h>
+#include <libreborn/patch.h>
 
 #include <mods/feature/feature.h>
 #include <mods/init/init.h>
@@ -48,7 +48,6 @@ int touch_gui = 0;
 template <typename T>
 static Button *create_button(int id, std::string text) {
     T *button = T::allocate();
-    ALLOC_CHECK(button);
     button->constructor(id, text);
     return (Button *) button;
 }

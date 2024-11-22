@@ -4,7 +4,8 @@
 #include <unistd.h>
 #include <fcntl.h>
 
-#include <libreborn/libreborn.h>
+#include <libreborn/util.h>
+#include <libreborn/env.h>
 
 #include <mods/override/override.h>
 #include <mods/init/init.h>

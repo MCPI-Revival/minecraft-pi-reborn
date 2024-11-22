@@ -2,7 +2,7 @@
 #include <cstdlib>
 #include <ctime>
 
-#include <libreborn/libreborn.h>
+#include <libreborn/log.h>
 #include <media-layer/audio.h>
 
 #include "sound-internal.h"

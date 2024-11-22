@@ -1,6 +1,5 @@
 #include "chat-internal.h"
 
-#include <libreborn/libreborn.h>
 #include <symbols/minecraft.h>
 
 #include <mods/chat/chat.h>

@@ -1,6 +1,9 @@
 #include <string>
 
-#include <libreborn/libreborn.h>
+#include <libreborn/patch.h>
+#include <libreborn/string.h>
+#include <libreborn/util.h>
+
 #include <symbols/minecraft.h>
 
 #include "misc-internal.h"

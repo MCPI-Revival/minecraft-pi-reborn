@@ -1,7 +1,8 @@
 #include <string>
 #include <cstdint>
 
-#include <libreborn/libreborn.h>
+#include <libreborn/patch.h>
+
 #include <symbols/minecraft.h>
 
 #include <mods/feature/feature.h>
@@ -98,7 +99,6 @@ static void OptionsScreen_init_injection(OptionsScreen_init_t original, OptionsS
 
     // Add Button
     Touch_TButton *button = Touch_TButton::allocate();
-    ALLOC_CHECK(button);
     std::string name = "Reborn";
     button->constructor(INFO_BUTTON_ID, name);
     self->rendered_buttons.push_back((Button *) button);

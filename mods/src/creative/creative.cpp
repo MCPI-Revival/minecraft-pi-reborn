@@ -1,4 +1,5 @@
-#include <libreborn/libreborn.h>
+#include <libreborn/patch.h>
+
 #include <symbols/minecraft.h>
 
 #include <mods/init/init.h>
@@ -9,13 +10,11 @@
 // Add Item To Inventory
 static void inventory_add_item(FillingContainer *inventory, Item *item) {
     ItemInstance *item_instance = new ItemInstance;
-    ALLOC_CHECK(item_instance);
     item_instance = item_instance->constructor_item(item);
     inventory->addItem(item_instance);
 }
 static void inventory_add_item(FillingContainer *inventory, Tile *item) {
     ItemInstance *item_instance = new ItemInstance;
-    ALLOC_CHECK(item_instance);
     item_instance = item_instance->constructor_tile(item);
     inventory->addItem(item_instance);
 }
@@ -34,7 +33,6 @@ static void Inventory_setupDefault_FillingContainer_addItem_call_injection(Filli
             continue;
         }
         ItemInstance *new_item_instance = new ItemInstance;
-        ALLOC_CHECK(new_item_instance);
         new_item_instance = new_item_instance->constructor_item_extra(Item::dye_powder, 1, i);
         filling_container->addItem(new_item_instance);
     }
@@ -59,7 +57,6 @@ static void Inventory_setupDefault_FillingContainer_addItem_call_injection(Filli
             continue;
         }
         ItemInstance *new_item_instance = new ItemInstance;
-        ALLOC_CHECK(new_item_instance);
         new_item_instance = new_item_instance->constructor_tile_extra(Tile::netherReactor, 1, i);
         filling_container->addItem(new_item_instance);
     }
@@ -70,14 +67,12 @@ static void Inventory_setupDefault_FillingContainer_addItem_call_injection(Filli
             continue;
         }
         ItemInstance *new_item_instance = new ItemInstance;
-        ALLOC_CHECK(new_item_instance);
         new_item_instance = new_item_instance->constructor_tile_extra(Tile::tallgrass, 1, i);
         filling_container->addItem(new_item_instance);
     }
     // Smooth Stone Slab
     {
         ItemInstance *new_item_instance = new ItemInstance;
-        ALLOC_CHECK(new_item_instance);
         new_item_instance = new_item_instance->constructor_tile_extra(Tile::stoneSlab, 1, 6);
         filling_container->addItem(new_item_instance);
     }

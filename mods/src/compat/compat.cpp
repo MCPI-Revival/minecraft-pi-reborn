@@ -3,11 +3,12 @@
 #include <cerrno>
 
 #include <mods/compat/compat.h>
-#include <mods/screenshot/screenshot.h>
 #include <mods/init/init.h>
 #include "compat-internal.h"
 
-#include <libreborn/libreborn.h>
+#include <libreborn/log.h>
+#include <libreborn/util.h>
+#include <libreborn/config.h>
 
 #include <SDL/SDL.h>
 #include <media-layer/core.h>

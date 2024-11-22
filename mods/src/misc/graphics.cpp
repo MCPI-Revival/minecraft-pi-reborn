@@ -1,6 +1,9 @@
 #include <cmath>
 
-#include <libreborn/libreborn.h>
+#include <libreborn/patch.h>
+#include <libreborn/config.h>
+#include <libreborn/env.h>
+
 #include <symbols/minecraft.h>
 
 #include <GLES/gl.h>

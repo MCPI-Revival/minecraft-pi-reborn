@@ -1,7 +1,7 @@
 #include <cstdint>
 
 #include <symbols/minecraft.h>
-#include <libreborn/libreborn.h>
+#include <libreborn/patch.h>
 
 #include "shading-internal.h"
 

@@ -1,6 +1,10 @@
 #include <fstream>
 
-#include <libreborn/libreborn.h>
+#include <libreborn/patch.h>
+#include <libreborn/config.h>
+#include <libreborn/util.h>
+#include <libreborn/exec.h>
+
 #include <symbols/minecraft.h>
 
 #include <mods/touch/touch.h>

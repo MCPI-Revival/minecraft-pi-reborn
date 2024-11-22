@@ -1,6 +1,6 @@
 #include <EGL/egl.h>
 
-#include <libreborn/libreborn.h>
+#include <libreborn/patch.h>
 #include <media-layer/core.h>
 #include "compat-internal.h"
 

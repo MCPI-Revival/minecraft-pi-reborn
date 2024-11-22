@@ -1,4 +1,4 @@
-#include <libreborn/libreborn.h>
+#include <libreborn/log.h>
 
 #include <mods/text-input-box/TextInputBox.h>
 #include <mods/input/input.h>

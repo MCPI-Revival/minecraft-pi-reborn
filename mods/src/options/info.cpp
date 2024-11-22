@@ -1,4 +1,8 @@
-#include <libreborn/libreborn.h>
+#include <libreborn/log.h>
+#include <libreborn/exec.h>
+#include <libreborn/config.h>
+#include <libreborn/util.h>
+
 #include <symbols/minecraft.h>
 #include <GLES/gl.h>
 

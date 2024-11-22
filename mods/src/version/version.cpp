@@ -1,4 +1,6 @@
-#include <libreborn/libreborn.h>
+#include <libreborn/patch.h>
+#include <libreborn/config.h>
+
 #include <symbols/minecraft.h>
 
 #include <mods/version/version.h>

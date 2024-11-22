@@ -1,6 +1,6 @@
 #include <mods/input/input.h>
 #include <symbols/minecraft.h>
-#include <libreborn/libreborn.h>
+#include <libreborn/patch.h>
 #include <SDL/SDL.h>
 
 #include "input-internal.h"

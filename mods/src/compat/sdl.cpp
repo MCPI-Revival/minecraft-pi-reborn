@@ -1,7 +1,7 @@
 #include <SDL/SDL.h>
 
 #include <media-layer/core.h>
-#include <libreborn/libreborn.h>
+#include <libreborn/patch.h>
 #include "compat-internal.h"
 
 // SDL Stub
@@ -19,7 +19,7 @@ static int SDL_GetWMInfo_injection(SDL_SysWMinfo *info) {
     SDL_SysWMinfo ret;
     ret.info.x11.lock_func = x11_nop;
     ret.info.x11.unlock_func = x11_nop;
-    ret.info.x11.display = NULL;
+    ret.info.x11.display = nullptr;
     ret.info.x11.window = 0;
     ret.info.x11.wmwindow = ret.info.x11.window;
     *info = ret;

@@ -1,7 +1,11 @@
 #include <pthread.h>
 #include <vector>
 
-#include <libreborn/libreborn.h>
+#include <libreborn/patch.h>
+#include <libreborn/env.h>
+#include <libreborn/exec.h>
+#include <libreborn/config.h>
+
 #include <symbols/minecraft.h>
 
 #include <GLES/gl.h>

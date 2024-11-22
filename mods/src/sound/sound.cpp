@@ -1,6 +1,6 @@
 #include <string>
 
-#include <libreborn/libreborn.h>
+#include <libreborn/patch.h>
 #include <symbols/minecraft.h>
 #include <media-layer/audio.h>
 

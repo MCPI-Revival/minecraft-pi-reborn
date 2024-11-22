@@ -2,14 +2,15 @@
 #include <cstdio>
 #include <unistd.h>
 #include <ctime>
-#include <cstring>
-#include <cerrno>
 #include <sys/stat.h>
 
 #include "stb_image.h"
 #include "stb_image_write.h"
 
-#include <libreborn/libreborn.h>
+#include <libreborn/log.h>
+#include <libreborn/util.h>
+#include <libreborn/config.h>
+
 #include <GLES/gl.h>
 #include <symbols/minecraft.h>
 

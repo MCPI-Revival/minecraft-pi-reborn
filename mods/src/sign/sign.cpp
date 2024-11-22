@@ -1,6 +1,7 @@
 #include <vector>
 
-#include <libreborn/libreborn.h>
+#include <libreborn/patch.h>
+
 #include <symbols/minecraft.h>
 
 #include <mods/init/init.h>
@@ -12,7 +13,6 @@ static void LocalPlayer_openTextEdit_injection(__attribute__((unused)) LocalPlay
     if (sign->type == 4) {
         Minecraft *minecraft = local_player->minecraft;
         TextEditScreen *screen = TextEditScreen::allocate();
-        ALLOC_CHECK(screen);
         screen = screen->constructor((SignTileEntity *) sign);
         minecraft->setScreen((Screen *) screen);
     }

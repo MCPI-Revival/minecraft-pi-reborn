@@ -1,4 +1,4 @@
-#include <libreborn/libreborn.h>
+#include <libreborn/patch.h>
 #include "compat-internal.h"
 
 // Do Nothing Function

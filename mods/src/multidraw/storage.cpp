@@ -2,8 +2,6 @@
 
 #include "storage.h"
 
-#include <libreborn/libreborn.h>
-
 // Setup
 #define DEFAULT_SIZE 16777216 // 16 MiB
 Storage::Storage(const int chunks) {

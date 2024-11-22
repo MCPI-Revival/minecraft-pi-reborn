@@ -1,10 +1,11 @@
 #include <cstdint>
 
+#include <libreborn/patch.h>
+
+#include <symbols/minecraft.h>
+
 #include <mods/init/init.h>
 #include <mods/feature/feature.h>
-
-#include <libreborn/libreborn.h>
-#include <symbols/minecraft.h>
 
 #include "game-mode-internal.h"
 
@@ -17,7 +18,7 @@ static void set_is_survival(const bool new_is_survival) {
     if (is_survival != new_is_survival) {
         DEBUG("Setting Game Mode: %s", new_is_survival ? "Survival" : "Creative");
 
-        // Correct Inventpry UI
+        // Correct Inventory UI
         unsigned char inventory_patch[4] = {(unsigned char) (new_is_survival ? 0x00 : 0x01), 0x30, 0xa0, 0xe3}; // "mov r3, #0x0" or "mov r3, #0x1"
         patch((void *) 0x16efc, inventory_patch);
 

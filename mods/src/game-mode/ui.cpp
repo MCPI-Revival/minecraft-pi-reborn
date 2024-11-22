@@ -1,9 +1,9 @@
 #include <string>
 #include <set>
-#include <utility>
 
 #include <symbols/minecraft.h>
-#include <libreborn/libreborn.h>
+
+#include <libreborn/patch.h>
 
 #include <mods/text-input-box/TextInputScreen.h>
 #include <mods/touch/touch.h>
@@ -213,7 +213,6 @@ static void create_world(Minecraft *minecraft, std::string name, const bool is_c
 
     // Open ProgressScreen
     ProgressScreen *screen = ProgressScreen::allocate();
-    ALLOC_CHECK(screen);
     screen = screen->constructor();
     minecraft->setScreen((Screen *) screen);
 }

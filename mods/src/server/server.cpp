@@ -11,7 +11,11 @@
 
 #include <SDL/SDL.h>
 
-#include <libreborn/libreborn.h>
+#include <libreborn/patch.h>
+#include <libreborn/env.h>
+#include <libreborn/string.h>
+#include <libreborn/util.h>
+
 #include <symbols/minecraft.h>
 
 #include <mods/server/server.h>
@@ -92,7 +96,6 @@ static void start_world(Minecraft *minecraft) {
 
     // Open ProgressScreen
     ProgressScreen *screen = ProgressScreen::allocate();
-    ALLOC_CHECK(screen);
     screen = screen->constructor();
     minecraft->setScreen((Screen *) screen);
 }

@@ -1,4 +1,3 @@
-#include <libreborn/libreborn.h>
 #include <symbols/minecraft.h>
 
 #include <mods/feature/feature.h>
@@ -45,7 +44,7 @@ static int Cake_getTexture3(__attribute__((unused)) Tile *tile, LevelSource *lev
 // Rendering
 static bool Cake_isSolidRender(__attribute__((unused)) Tile *tile) {
     // Stop it from turning other blocks invisable
-    return 0;
+    return false;
 }
 
 static int Cake_getRenderLayer(__attribute__((unused)) Tile *tile) {
@@ -70,7 +69,7 @@ static AABB *Cake_getAABB(Tile *tile, Level *level, int x, int y, int z) {
     // Get the size of the slices
     int data = level->getData(x, y, z);
     if (data >= 6) data = 0;
-    const float slice_size = (1.0 / 7.0) * (float) data;
+    const float slice_size = (1.0f / 7.0f) * (float) data;
 
     // Corner 1
     AABB *aabb = &tile->aabb;
@@ -79,9 +78,9 @@ static AABB *Cake_getAABB(Tile *tile, Level *level, int x, int y, int z) {
     aabb->z1 = (float) z + CAKE_LEN;
 
     // Corner 2
-    aabb->x2 = (float) x + (1.0 - CAKE_LEN);
-    aabb->y2 = (float) y + 0.5;
-    aabb->z2 = (float) z + (1.0 - CAKE_LEN) - slice_size;
+    aabb->x2 = (float) x + (1.0f - CAKE_LEN);
+    aabb->y2 = (float) y + 0.5f;
+    aabb->z2 = (float) z + (1.0f - CAKE_LEN) - slice_size;
 
     return aabb;
 }
@@ -91,7 +90,7 @@ static void Cake_updateShape(Tile *tile, LevelSource *level, int x, int y, int z
     int data = level->getData(x, y, z);
     if (data >= 6) data = 0;
     // Get slice amount
-    const float slice_size = (1.0 / 7.0) * (float) data;
+    const float slice_size = (1.0f / 7.0f) * (float) data;
     tile->setShape(
         CAKE_LEN,       0.0, CAKE_LEN,
         1.0 - CAKE_LEN, 0.5, (1.0 - CAKE_LEN) - slice_size
@@ -118,14 +117,12 @@ static int Cake_use(__attribute__((unused)) Tile *tile, Level *level, int x, int
 static void make_cake() {
     // Construct
     cake = Tile::allocate();
-    ALLOC_CHECK(cake);
     int texture = 122;
     cake->constructor(92, texture, Material::dirt);
     cake->texture = texture;
 
     // Set VTable
     cake->vtable = extend_dup_vtable(Tile_vtable::base);
-    ALLOC_CHECK(cake->vtable);
 
     // Set shape
     cake->setShape(
@@ -161,7 +158,6 @@ static void Tile_initTiles_injection() {
 // Add cake to creative inventory
 static void Inventory_setupDefault_FillingContainer_addItem_call_injection(FillingContainer *filling_container) {
     ItemInstance *cake_instance = new ItemInstance;
-    ALLOC_CHECK(cake_instance);
     cake_instance->count = 255;
     cake_instance->auxiliary = 0;
     cake_instance->id = 92;

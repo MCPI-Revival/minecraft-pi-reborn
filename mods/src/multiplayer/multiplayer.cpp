@@ -4,7 +4,9 @@
 #include <vector>
 
 #include <symbols/minecraft.h>
-#include <libreborn/libreborn.h>
+
+#include <libreborn/patch.h>
+#include <libreborn/util.h>
 
 #include <mods/init/init.h>
 #include <mods/feature/feature.h>

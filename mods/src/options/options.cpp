@@ -3,7 +3,12 @@
 #include <vector>
 #include <sstream>
 
-#include <libreborn/libreborn.h>
+#include <libreborn/patch.h>
+#include <libreborn/config.h>
+#include <libreborn/env.h>
+#include <libreborn/string.h>
+#include <libreborn/util.h>
+
 #include <symbols/minecraft.h>
 
 #include <mods/feature/feature.h>
@@ -157,9 +162,8 @@ void init_options() {
     if (strcmp(Strings::default_username, "StevePi") != 0) {
         ERR("Default Username Is Invalid");
     }
-    std::string *safe_username = new std::string;
-    *safe_username = to_cp437(username);
-    patch_address((void *) &Strings::default_username, (void *) safe_username->c_str());
+    static std::string safe_username = to_cp437(username);
+    patch_address((void *) &Strings::default_username, (void *) safe_username.c_str());
 
     // Disable Autojump By Default
     if (feature_has("Disable Autojump By Default", server_disabled)) {

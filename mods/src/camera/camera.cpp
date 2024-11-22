@@ -1,4 +1,4 @@
-#include <libreborn/libreborn.h>
+#include <libreborn/patch.h>
 #include <symbols/minecraft.h>
 
 #include <mods/feature/feature.h>
@@ -17,7 +17,6 @@ static EntityRenderDispatcher *EntityRenderDispatcher_injection(EntityRenderDisp
 
     // Register TripodCameraRenderer
     TripodCameraRenderer *renderer = TripodCameraRenderer::allocate();
-    ALLOC_CHECK(renderer);
     renderer->constructor();
     dispatcher->assign((unsigned char) 0x5, (EntityRenderer *) renderer);
 

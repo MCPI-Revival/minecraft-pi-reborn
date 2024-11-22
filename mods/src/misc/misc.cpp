@@ -11,7 +11,12 @@
 #include <GLES/gl.h>
 #include <media-layer/core.h>
 
-#include <libreborn/libreborn.h>
+#include <libreborn/patch.h>
+#include <libreborn/string.h>
+#include <libreborn/config.h>
+#include <libreborn/util.h>
+#include <libreborn/env.h>
+
 #include <symbols/minecraft.h>
 
 #include <mods/init/init.h>

@@ -1,4 +1,3 @@
-#include <libreborn/libreborn.h>
 #include <symbols/minecraft.h>
 
 #include "input-internal.h"
@@ -29,7 +28,6 @@ static void _handle_drop(Minecraft *minecraft) {
             if (inventory_item != nullptr && inventory_item->count > 0) {
                 // Copy
                 ItemInstance *dropped_item = new ItemInstance;
-                ALLOC_CHECK(dropped_item);
                 *dropped_item = *inventory_item;
 
                 // Update Inventory

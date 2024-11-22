@@ -1,7 +1,10 @@
 #include <GLES/gl.h>
 
 #include <symbols/minecraft.h>
-#include <libreborn/libreborn.h>
+
+#include <libreborn/patch.h>
+#include <libreborn/util.h>
+
 #include <media-layer/core.h>
 
 #include <mods/init/init.h>
