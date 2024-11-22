@@ -1,6 +1,9 @@
-// Headers
-#include <libreborn/libreborn.h>
+#include <libreborn/patch.h>
+#include <libreborn/util.h>
+#include <libreborn/string.h>
+
 #include <symbols/minecraft.h>
+
 #include <mods/chat/chat.h>
 #include <mods/misc/misc.h>
 #include <mods/server/server.h>
