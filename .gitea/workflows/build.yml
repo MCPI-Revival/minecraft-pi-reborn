@@ -64,7 +64,7 @@ jobs:
             run: ./scripts/install-dependencies.sh test ${{ matrix.arch }}
           # Download Artifact
           - name: Download Artifact
-            uses: christopherhx/gitea-download-artifact@v4
+            uses: actions/download-artifact@v3
             with:
                 name: ${{ matrix.arch }}
                 path: out
