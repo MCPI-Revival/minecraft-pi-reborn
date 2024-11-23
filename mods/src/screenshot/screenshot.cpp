@@ -1,8 +1,6 @@
 #include <cstdlib>
 #include <cstdio>
 #include <unistd.h>
-#include <ctime>
-#include <sys/stat.h>
 
 #include "stb_image.h"
 #include "stb_image_write.h"
@@ -45,17 +43,13 @@ void screenshot_take(Gui *gui) {
     }
 
     // Get Timestamp
-    time_t raw_time;
-    time(&raw_time);
-    const tm *time_info = localtime(&raw_time);
-    char time[512];
-    strftime(time, 512, "%Y-%m-%d_%H.%M.%S", time_info);
+    std::string time = format_time("%Y-%m-%d_%H.%M.%S");
 
     // Prevent Overwriting Screenshots
     int num = 0;
     std::string filename;
     do {
-        filename = std::string(time);
+        filename = time;
         if (num > 0) {
             filename += '-' + std::to_string(num);
         }

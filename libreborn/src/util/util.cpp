@@ -2,6 +2,7 @@
 #include <sys/file.h>
 #include <sys/stat.h>
 #include <cstring>
+#include <ctime>
 
 #include <libreborn/util.h>
 #include <libreborn/config.h>
@@ -113,4 +114,24 @@ std::string home_get() {
         IMPOSSIBLE();
     }
     return std::string(home) + std::string(get_home_subdirectory_for_game_data());
+}
+
+// Format Time
+static std::string _format_time(const char *fmt, const time_t raw_time) {
+    const tm *time_info = localtime(&raw_time);
+    if (time_info == nullptr) {
+        ERR("Unable To Determine Current Time: %s", strerror(errno));
+    }
+    char buf[512];
+    strftime(buf, sizeof(buf), fmt, time_info);
+    return std::string(buf);
+}
+std::string format_time(const char *fmt) {
+    time_t raw_time;
+    time(&raw_time);
+    return _format_time(fmt, raw_time);
+}
+std::string format_time(const char *fmt, const int time) {
+    // This Will Break In 2038
+    return _format_time(fmt, time);
 }

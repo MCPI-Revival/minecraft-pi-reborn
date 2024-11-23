@@ -1,7 +1,7 @@
 project(media-layer-core)
 
 # Build
-add_library(media-layer-core-real SHARED
+add_library(media-layer-core SHARED
     src/base.cpp
     src/window/media.cpp
     src/window/cursor.cpp
@@ -14,18 +14,12 @@ add_library(media-layer-core-real SHARED
     src/audio/file.cpp
 )
 
-# Set Name
-set_target_properties(media-layer-core-real PROPERTIES OUTPUT_NAME "media-layer-core")
-if(BUILD_NATIVE_COMPONENTS)
-    add_library(media-layer-core ALIAS media-layer-core-real)
-endif()
-
 # Install
-setup_library(media-layer-core-real TRUE FALSE)
+setup_library(media-layer-core TRUE TRUE)
 
 # Link
 find_library(OPENAL_LIBRARY NAMES openal REQUIRED)
-target_link_libraries(media-layer-core-real
+target_link_libraries(media-layer-core
     PUBLIC
         media-layer-headers
         reborn-util

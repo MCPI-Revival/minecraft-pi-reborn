@@ -57,3 +57,7 @@ void safe_write(int fd, const void *buf, size_t size);
 
 // Profile Directory
 std::string home_get();
+
+// Format Time
+std::string format_time(const char *fmt);
+std::string format_time(const char *fmt, int time);

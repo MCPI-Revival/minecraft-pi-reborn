@@ -60,7 +60,10 @@ string(CONCAT COMPILE_FLAGS_SETUP
     "set(CMAKE_CXX_STANDARD 20)\n"
 
     # Skip RPath
-    "set(CMAKE_SKIP_BUILD_RPATH TRUE)"
+    "set(CMAKE_SKIP_BUILD_RPATH TRUE)\n"
+
+    # Always Build Shared Libraries
+    "set(BUILD_SHARED_LIBS TRUE CACHE BOOL \"\" FORCE)"
 )
 if(BUILD_ARM_COMPONENTS)
     string(CONCAT COMPILE_FLAGS_SETUP
@@ -122,7 +125,7 @@ endif()
 
 # Install SDK
 if(BUILD_ARM_COMPONENTS)
-    install(EXPORT sdk DESTINATION "${MCPI_SDK_DIR}" FILE "sdk-targets.cmake" EXPORT_LINK_INTERFACE_LIBRARIES)
+    install(EXPORT sdk DESTINATION "${MCPI_SDK_DIR}" FILE "sdk-targets.cmake")
     file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/sdk.cmake"
         # Sanity Check
         "${ARM_SANITY_CHECK}\n"

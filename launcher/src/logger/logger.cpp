@@ -5,7 +5,6 @@
 #include <cstdio>
 #include <csignal>
 #include <sys/stat.h>
-#include <ctime>
 #include <string>
 #include <fcntl.h>
 
@@ -38,17 +37,13 @@ static void setup_log_file() {
     const std::string logs = get_logs_folder();
 
     // Get Timestamp
-    time_t raw_time;
-    time(&raw_time);
-    const tm *time_info = localtime(&raw_time);
-    char time[512];
-    strftime(time, 512, "%Y-%m-%d", time_info);
+    std::string time = format_time("%Y-%m-%d");
 
     // Get Log Filename
     std::string file;
     int num = 1;
     do {
-        file = std::string(time) + '-' + std::to_string(num) + ".log";
+        file = time + '-' + std::to_string(num) + ".log";
         log_filename = logs + '/' + file;
         num++;
     } while (access(log_filename.c_str(), F_OK) != -1);

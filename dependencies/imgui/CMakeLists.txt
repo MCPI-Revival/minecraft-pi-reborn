@@ -20,7 +20,7 @@ setup_header_dirs(imgui
     "${CMAKE_CURRENT_SOURCE_DIR}/src/backends"
     "${CMAKE_CURRENT_SOURCE_DIR}/src/misc/cpp"
 )
-find_package(OpenGL REQUIRED)
+find_package(OpenGL REQUIRED QUIET)
 target_link_libraries(imgui PUBLIC glfw OpenGL::GL)
 
 # Fonts

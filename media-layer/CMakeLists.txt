@@ -11,6 +11,6 @@ if(BUILD_MEDIA_LAYER_CORE)
 endif()
 
 # Add Trampoline
-if(MCPI_USE_MEDIA_LAYER_TRAMPOLINE OR BUILD_ARM_COMPONENTS)
+if(MCPI_USE_MEDIA_LAYER_TRAMPOLINE)
     add_subdirectory(trampoline)
 endif()

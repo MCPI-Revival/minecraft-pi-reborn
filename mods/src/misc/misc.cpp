@@ -46,7 +46,7 @@ static void LoginPacket_read_injection(LoginPacket_read_t original, LoginPacket 
 
 // Fix RakNet::RakString Security Bug
 //
-// RakNet::RakString's format constructor is often given unsanitized user input and is never used for formatting,
+// RakNet::RakString's format constructor is often given un-sanitized user input and is never used for formatting,
 // this is a massive security risk, allowing clients to run arbitrary format specifiers, this disables the
 // formatting functionality.
 RakNet_RakString_constructor_2_t RakNet_RakString_constructor_2 = (RakNet_RakString_constructor_2_t) 0xea5cc;
@@ -259,12 +259,7 @@ static ItemInstance *Item_getCraftingRemainingItem_injection(__attribute__((unus
 // Display Date In Select World Screen
 static std::string AppPlatform_linux_getDateString_injection(__attribute__((unused)) AppPlatform_linux *app_platform, const int time) {
     // From https://github.com/ReMinecraftPE/mcpe/blob/56e51027b1c2e67fe5a0e8a091cefe51d4d11926/platforms/sdl/base/AppPlatform_sdl_base.cpp#L68-L84
-    const time_t tt = time;
-    tm t = {};
-    gmtime_r(&tt, &t);
-    char buf[2048];
-    strftime(buf, sizeof buf, "%b %d %Y %H:%M:%S", &t);
-    return std::string(buf);
+    return format_time("%b %d %Y %H:%M:%S", time);
 }
 
 // Missing Strings
