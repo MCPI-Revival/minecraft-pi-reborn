@@ -20,7 +20,7 @@ add_subdirectory(src EXCLUDE_FROM_ALL)
 unset(MESSAGE_QUIET)
 
 # Install
-setup_library(glfw TRUE FALSE)
+setup_library(glfw TRUE TRUE)
 
 # License
 install(FILES src/LICENSE.md DESTINATION "${MCPI_LEGAL_DIR}/GLFW")
