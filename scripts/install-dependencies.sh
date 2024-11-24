@@ -61,8 +61,6 @@ run_build() {
         "libxext-dev:$1" \
         `# QEMU Dependencies` \
         "libglib2.0-dev:$1" \
-        `# ImGui Dependencies` \
-        "libglvnd-dev:$1" \
         `# AppStream Verification` \
         appstream
 

@@ -26,7 +26,7 @@ file(WRITE "${toolchain_dir}/toolchain.cmake"
     "set(CMAKE_SYSTEM_PROCESSOR \"arm\")\n"
     "set(CMAKE_FIND_ROOT_PATH_MODE_PROGRAM NEVER)\n"
 )
-set(MCPI_CMAKE_TOOLCHAIN_FILE "${toolchain_dir}/toolchain.cmake" CACHE FILEPATH "" FORCE)
+force_set(MCPI_CMAKE_TOOLCHAIN_FILE "${toolchain_dir}/toolchain.cmake" FILEPATH)
 
 # Build Sysroot
 set(sysroot_dir "${CMAKE_CURRENT_BINARY_DIR}/bundled-armhf-sysroot")

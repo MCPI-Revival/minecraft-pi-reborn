@@ -77,3 +77,9 @@ function(setup_library target should_install should_export)
         install(TARGETS "${target}" EXPORT sdk DESTINATION "${MCPI_SDK_LIB_DIR}")
     endif()
 endfunction()
+
+# Force Set Configuration Variable
+function(force_set name value type)
+    set("${name}" "${value}" CACHE "${type}" "" FORCE)
+    mark_as_advanced(FORCE "${name}")
+endfunction()

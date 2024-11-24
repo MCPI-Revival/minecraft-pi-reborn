@@ -20,8 +20,10 @@ setup_header_dirs(imgui
     "${CMAKE_CURRENT_SOURCE_DIR}/src/backends"
     "${CMAKE_CURRENT_SOURCE_DIR}/src/misc/cpp"
 )
-find_package(OpenGL REQUIRED QUIET)
-target_link_libraries(imgui PUBLIC glfw OpenGL::GL)
+
+# OpenGL
+add_subdirectory(glad)
+target_link_libraries(imgui PUBLIC glfw glad)
 
 # Fonts
 embed_resource(imgui src/misc/fonts/Roboto-Medium.ttf)
@@ -44,7 +46,7 @@ execute_process(
 )
 
 # Install
-setup_library(imgui TRUE TRUE)
+setup_library(imgui TRUE FALSE)
 
 # License
 install(FILES src/LICENSE.txt src/docs/FONTS.md DESTINATION "${MCPI_LEGAL_DIR}/ImGui")

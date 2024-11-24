@@ -8,7 +8,7 @@ include(cmake/options/core-options.cmake)
 
 # Build Mode
 if(NOT DEFINED CMAKE_BUILD_TYPE)
-    set(CMAKE_BUILD_TYPE "Release" CACHE STRING "" FORCE)
+    set(CMAKE_BUILD_TYPE "Release" CACHE STRING "Build Type" FORCE)
 endif()
 
 # Start Project

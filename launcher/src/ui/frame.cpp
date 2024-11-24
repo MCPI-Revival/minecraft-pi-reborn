@@ -13,10 +13,17 @@
 Frame::Frame(const char *title, const int width, const int height) {
     // Create Window
     init_glfw();
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 1);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 1);
     window = create_glfw_window(title, width, height);
+
+    // Load OpenGL
+    gladLoadGL(glfwGetProcAddress);
+
     // Disable V-Sync
     // (On Wayland, This Fixes Issues With The Clipboard)
     glfwSwapInterval(0);
+
     // Setup ImGui Context
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
@@ -24,6 +31,7 @@ Frame::Frame(const char *title, const int width, const int height) {
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
     io.IniFilename = nullptr;
     io.LogFilename = nullptr;
+
     // Setup Platform/Renderer Backends
     ImGui_ImplGlfw_InitForOpenGL(window, true);
     ImGui_ImplOpenGL2_Init();
