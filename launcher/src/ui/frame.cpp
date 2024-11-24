@@ -90,6 +90,7 @@ void Frame::setup_style(const float scale) {
     font_cfg.FontDataOwnedByAtlas = false;
     io.Fonts->AddFontFromMemoryTTF(Roboto_Medium_ttf, int(Roboto_Medium_ttf_len), std::floor(20.0f * scale), &font_cfg);
     monospace = io.Fonts->AddFontFromMemoryTTF(Cousine_Regular_ttf, int(Cousine_Regular_ttf_len), std::floor(18.0f * scale), &font_cfg);
+    ImGui_ImplOpenGL2_DestroyFontsTexture();
     // Style
     ImGuiStyle &style = ImGui::GetStyle();
     style = ImGuiStyle();

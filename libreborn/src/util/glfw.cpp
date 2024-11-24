@@ -46,23 +46,37 @@ void cleanup_glfw(GLFWwindow *window) {
 }
 
 // Framebuffer Scaling
-void get_glfw_scale(GLFWwindow *window, float *x_scale, float *y_scale) {
-    // Get Window Size
-    int window_width;
-    int window_height;
-    glfwGetWindowSize(window, &window_width, &window_height);
-    if (window_width <= 0 || window_height <= 0) {
-        return;
+void get_glfw_scale(GLFWwindow *window, float *x_scale_ptr, float *y_scale_ptr) {
+    // Output
+    float x_scale;
+    float y_scale;
+
+    // Default
+    x_scale = y_scale = 1.0f;
+
+    // Detect Platform
+    if (glfwGetPlatform() == GLFW_PLATFORM_X11) {
+        // X11 Has No Scaling
+    } else {
+        // Get Window Size
+        int window_width;
+        int window_height;
+        glfwGetWindowSize(window, &window_width, &window_height);
+        // Get Framebuffer Size
+        int framebuffer_width;
+        int framebuffer_height;
+        glfwGetFramebufferSize(window, &framebuffer_width, &framebuffer_height);
+
+        // Calculate
+        if (window_width > 0 && window_height > 0) {
+            x_scale = float(framebuffer_width) / float(window_width);
+            y_scale = float(framebuffer_height) / float(window_height);
+        }
     }
-    // Get Framebuffer Size
-    int framebuffer_width;
-    int framebuffer_height;
-    glfwGetFramebufferSize(window, &framebuffer_width, &framebuffer_height);
-    // Calculate Scale
-    if (x_scale) {
-        *x_scale = float(framebuffer_width) / float(window_width);
-    }
-    if (y_scale) {
-        *y_scale = float(framebuffer_height) / float(window_height);
-    }
+
+    // Return
+#define ret(x) if (x##_ptr) *x##_ptr = x
+    ret(x_scale);
+    ret(y_scale);
+#undef ret
 }
