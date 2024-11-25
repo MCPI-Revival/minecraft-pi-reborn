@@ -83,3 +83,9 @@ function(force_set name value type)
     set("${name}" "${value}" CACHE "${type}" "" FORCE)
     mark_as_advanced(FORCE "${name}")
 endfunction()
+
+# Make Directory
+function(set_and_mkdir name dir)
+    set("${name}" "${dir}" PARENT_SCOPE)
+    file(MAKE_DIRECTORY "${dir}")
+endfunction()

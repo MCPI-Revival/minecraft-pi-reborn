@@ -18,7 +18,9 @@ Frame::Frame(const char *title, const int width, const int height) {
     window = create_glfw_window(title, width, height);
 
     // Load OpenGL
-    gladLoadGL(glfwGetProcAddress);
+    if (!gladLoadGLLoader((GLADloadproc) glfwGetProcAddress)) {
+        ERR("Unable To Load GLAD");
+    }
 
     // Disable V-Sync
     // (On Wayland, This Fixes Issues With The Clipboard)

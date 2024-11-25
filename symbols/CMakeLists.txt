@@ -200,10 +200,6 @@ set(SRC
 )
 
 # Directories
-function(set_and_mkdir name dir)
-    set("${name}" "${dir}" PARENT_SCOPE)
-    file(MAKE_DIRECTORY "${dir}")
-endfunction()
 set_and_mkdir(GENERATED_DIR "${CMAKE_CURRENT_BINARY_DIR}/generated")
 set_and_mkdir(INCLUDE_OUTPUT_DIR "${GENERATED_DIR}/include")
 set_and_mkdir(HEADER_OUTPUT_DIR "${INCLUDE_OUTPUT_DIR}/symbols")
