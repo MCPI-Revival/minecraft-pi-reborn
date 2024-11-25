@@ -31,6 +31,13 @@ add_custom_command(
 
 # Build
 add_library(glad SHARED ${GLAD_SOURCES})
+target_compile_definitions(glad
+    PUBLIC GLAD_GLAPI_EXPORT
+    PRIVATE GLAD_GLAPI_EXPORT_BUILD
+)
+
+# Link
+target_link_libraries(glad PRIVATE dl)
 
 # Headers
 setup_header_dirs(glad
