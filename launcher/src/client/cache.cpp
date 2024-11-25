@@ -3,7 +3,6 @@
 #include <fstream>
 #include <unordered_map>
 #include <sstream>
-#include <sys/stat.h>
 #include <unistd.h>
 
 #include <libreborn/log.h>
@@ -18,25 +17,18 @@ static std::string get_cache_path() {
 }
 
 // Load
-launcher_cache empty_cache = {
-    .username = DEFAULT_USERNAME,
-    .render_distance = DEFAULT_RENDER_DISTANCE,
-    .feature_flags = {}
-};
-launcher_cache load_cache() {
+State load_cache() {
     // Log
     DEBUG("Loading Launcher Cache...");
 
     // Return Value
-    launcher_cache ret = empty_cache;
+    State ret;
 
     // Open File
     std::ifstream stream(get_cache_path(), std::ios::in | std::ios::binary);
     if (!stream) {
-        // Fail
-        struct stat s = {};
         // No Warning If File Doesn't Exist
-        if (stat(get_cache_path().c_str(), &s) == 0) {
+        if (errno != ENOENT) {
             WARN("Unable To Open Launcher Cache For Loading");
         }
     } else {
@@ -54,28 +46,29 @@ launcher_cache load_cache() {
             WARN("Invalid Launcher Cache Version (Expected: %i, Actual: %i)", CACHE_VERSION, (int) cache_version);
         } else {
             // Load Username And Render Distance
-            launcher_cache cache;
-            std::getline(stream, cache.username, '\0');
-            std::getline(stream, cache.render_distance, '\0');
+            State state;
+            std::getline(stream, state.username, '\0');
+            std::getline(stream, state.render_distance, '\0');
 
             // Load Feature Flags
+            std::unordered_map<std::string, bool> flags;
             std::string flag;
             while (!stream.eof() && std::getline(stream, flag, '\0')) {
                 if (!flag.empty()) {
                     bool is_enabled = false;
                     stream.read((char *) &is_enabled, sizeof(bool));
-                    cache.feature_flags[flag] = is_enabled;
+                    flags[flag] = is_enabled;
                 }
                 stream.peek();
             }
+            state.flags.from_cache(flags);
 
-            // Finish
+            // Check For Error
             if (!stream) {
-                // Fail
                 WARN("Failure While Loading Launcher Cache");
             } else {
                 // Success
-                ret = cache;
+                ret = state;
             }
         }
 

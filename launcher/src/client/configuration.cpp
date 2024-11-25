@@ -5,11 +5,10 @@
 #include "cache.h"
 
 // State
-State::State(const launcher_cache &cache): flags("") {
-    username = cache.username;
-    render_distance = cache.render_distance;
+State::State(): flags("") {
+    username = DEFAULT_USERNAME;
+    render_distance = DEFAULT_RENDER_DISTANCE;
     flags = Flags::get();
-    flags.from_cache(cache.feature_flags);
 }
 template <typename T>
 static void update_from_env(const char *env, T &value, const bool save) {
@@ -52,10 +51,12 @@ void handle_non_launch_client_only_commands(const options_t &options) {
 // Configure Client Options
 void configure_client(const options_t &options) {
     // Load Cache
-    const launcher_cache cache = options.no_cache ? empty_cache : load_cache();
+    State state;
+    if (!options.no_cache) {
+        state = load_cache();
+    }
 
-    // Setup State
-    State state(cache);
+    // Read From Environment
     state.update(false);
 
     // --default

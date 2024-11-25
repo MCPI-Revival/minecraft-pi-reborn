@@ -14,7 +14,7 @@
 
 // State
 struct State {
-    explicit State(const launcher_cache &cache);
+    State();
     // Methods
     void update(bool save);
     bool operator==(const State &other) const;
@@ -34,7 +34,6 @@ private:
     void draw_main();
     void draw_advanced() const;
     static void draw_category(FlagNode &category);
-    const State default_state;
     const State original_state;
     State &state;
     bool &save_settings;

@@ -1,7 +1,6 @@
 #include <vector>
 
 #include "configuration.h"
-#include "cache.h"
 
 #include <imgui_stdlib.h>
 
@@ -17,7 +16,6 @@ static std::vector render_distances = {
 static constexpr int size = 400;
 ConfigurationUI::ConfigurationUI(State &state_, bool &save_settings_):
     Frame("Launcher", size, size),
-    default_state(empty_cache),
     original_state(state_),
     state(state_),
     save_settings(save_settings_) {
@@ -59,9 +57,10 @@ int ConfigurationUI::render() {
 // Bottom Row
 int ConfigurationUI::draw_bottom() {
     // Reset All Settings
+    const State default_state;
     std::vector<std::tuple<const char *, const char *, const State *>> reset_options = {
         {"Revert", "Last Saved", &original_state},
-        {"Reset", "Default", &default_state}
+        {"Reset", "Default", &default_state},
     };
     for (const std::tuple<const char *, const char *, const State *> &option : reset_options) {
         const State &new_state = *std::get<2>(option);
