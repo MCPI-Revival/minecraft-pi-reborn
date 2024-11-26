@@ -99,7 +99,7 @@ static std::vector<std::string> OptionsFile_getOptionStrings_v2(OptionsFile *opt
     const std::string path = options_file->options_txt_path;
     // Parse
     std::vector<std::string> ret;
-    std::ifstream stream(path, std::ios::binary);
+    std::ifstream stream(path);
     if (stream) {
         std::string line;
         while (std::getline(stream, line)) {

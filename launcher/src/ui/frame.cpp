@@ -69,7 +69,7 @@ int Frame::run() {
         int width, height;
         glfwGetFramebufferSize(window, &width, &height);
         ImGui::SetNextWindowSize({float(width), float(height)});
-        if (ImGui::Begin("###Frame", nullptr, ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoScrollWithMouse)) {
+        if (ImGui::Begin("##Frame", nullptr, ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoScrollWithMouse)) {
             ret = render();
         }
         ImGui::End();
@@ -103,6 +103,10 @@ void Frame::setup_style(const float scale) {
 }
 
 // Right-Aligned Buttons
+float Frame::get_frame_width(const char *str) {
+    const ImGuiStyle &style = ImGui::GetStyle();
+    return ImGui::CalcTextSize(str).x + style.FramePadding.x * 2.0f;
+}
 void Frame::draw_right_aligned_buttons(const std::vector<const char *> &buttons, const std::function<void(int, bool)> &callback) {
     // Calculate Position
     const ImGuiStyle &style = ImGui::GetStyle();
@@ -111,7 +115,7 @@ void Frame::draw_right_aligned_buttons(const std::vector<const char *> &buttons,
         if (width_needed > 0) {
             width_needed += style.ItemSpacing.x;
         }
-        width_needed += ImGui::CalcTextSize(text).x + style.FramePadding.x * 2.0f;
+        width_needed += get_frame_width(text);
     }
     ImGui::SetCursorPosX(ImGui::GetCursorPosX() + ImGui::GetContentRegionAvail().x - width_needed);
     // Draw

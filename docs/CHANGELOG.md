@@ -107,6 +107,7 @@
 * `overwrite_calls` Now Scans VTables
 * Unify Server/Client Builds
 * Controller Support Removed
+* Brand New Launcher UI!
 
 **2.5.3**
 * Add `Replace Block Highlight With Outline` Feature Flag (Enabled By Default)

@@ -204,7 +204,7 @@ static void Player_stopUsingItem_injection(Player_stopUsingItem_t original, Play
 // Read Asset File
 static AppPlatform_readAssetFile_return_value AppPlatform_readAssetFile_injection(__attribute__((unused)) AppPlatform_readAssetFile_t original, __attribute__((unused)) AppPlatform *app_platform, const std::string &path) {
     // Open File
-    std::ifstream stream("data/" + path, std::ios_base::binary | std::ios_base::ate);
+    std::ifstream stream("data/" + path, std::ios::binary | std::ios::ate);
     if (!stream) {
         // Does Not Exist
         AppPlatform_readAssetFile_return_value ret;

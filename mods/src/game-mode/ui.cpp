@@ -4,6 +4,7 @@
 #include <symbols/minecraft.h>
 
 #include <libreborn/patch.h>
+#include <libreborn/util.h>
 
 #include <mods/text-input-box/TextInputScreen.h>
 #include <mods/touch/touch.h>
@@ -209,7 +210,7 @@ static void create_world(Minecraft *minecraft, std::string name, const bool is_c
     minecraft->selectLevel(folder, name, settings);
 
     // Multiplayer
-    minecraft->hostMultiplayer(19132);
+    minecraft->hostMultiplayer(DEFAULT_MULTIPLAYER_PORT);
 
     // Open ProgressScreen
     ProgressScreen *screen = ProgressScreen::allocate();

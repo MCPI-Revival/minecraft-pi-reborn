@@ -1,3 +1,5 @@
+#include <fstream>
+
 #include <mods/server/server_properties.h>
 
 std::vector<const ServerProperty *> &ServerProperty::get_all() {
@@ -6,7 +8,7 @@ std::vector<const ServerProperty *> &ServerProperty::get_all() {
 }
 
 static bool is_true(std::string const& val) {
-    return (val == "true" || val == "yes" || val == "1");
+    return val == "true" || val == "yes" || val == "1";
 }
 
 void ServerProperties::load(std::istream &stream) {

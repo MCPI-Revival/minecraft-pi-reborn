@@ -3,10 +3,10 @@
 #include <string>
 
 #include "../options/parser.h"
-#include "cache.h"
 #include "../ui/frame.h"
 
 #include <libreborn/flags.h>
+#include <libreborn/servers.h>
 
 // Default Configuration
 #define DEFAULT_USERNAME "StevePi"
@@ -29,15 +29,25 @@ struct ConfigurationUI final : Frame {
     explicit ConfigurationUI(State &state_, bool &save_settings_);
     int render() override;
 private:
-    void update_render_distance();
-    int draw_bottom();
-    void draw_main();
+    // Bottom Row
+    int get_render_distance_index() const;
+    int draw_bottom(bool hide_reset_revert) const;
+    // General
+    void draw_main() const;
+    // Advanced
     void draw_advanced() const;
     static void draw_category(FlagNode &category);
+    // Server List
+    bool are_servers_unsaved() const;
+    void draw_servers();
+    void draw_server_list();
+    // State
     const State original_state;
     State &state;
     bool &save_settings;
-    int render_distance_index;
+    // Server List
+    ServerList last_saved_servers;
+    ServerList servers;
 };
 
 // Handle Non-Launch Commands

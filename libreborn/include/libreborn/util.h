@@ -61,3 +61,7 @@ std::string home_get();
 // Format Time
 std::string format_time(const char *fmt);
 std::string format_time(const char *fmt, int time);
+
+// Default MCPI Port
+// This Macro DOES NOT Control MCPI
+#define DEFAULT_MULTIPLAYER_PORT 19132

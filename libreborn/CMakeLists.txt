@@ -16,6 +16,7 @@ add_library(reborn-util SHARED
     src/util/flags/node.cpp
     src/util/flags/flags.cpp
     src/util/flags/available-feature-flags # Show In IDE
+    src/util/servers.cpp
 )
 embed_resource(reborn-util src/util/flags/available-feature-flags)
 target_link_libraries(reborn-util PRIVATE utf8cpp)

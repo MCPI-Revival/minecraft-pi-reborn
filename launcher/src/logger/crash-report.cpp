@@ -11,7 +11,7 @@
 struct CrashReport final : Frame {
     explicit CrashReport(const char *filename): Frame("Crash Report", 640, 480) {
         // Open File
-        std::ifstream stream(filename, std::ios_base::binary | std::ios_base::ate);
+        std::ifstream stream(filename, std::ios::binary | std::ios::ate);
         if (stream) {
             // Read File
             const std::streamoff size = stream.tellg();
@@ -53,7 +53,7 @@ struct CrashReport final : Frame {
         // Right-Aligned
         int ret = 0;
         const std::string &log_ref = log;
-        draw_right_aligned_buttons({"Copy", "Quit"}, [&ret, &log_ref](const int id, const bool was_clicked) {
+        draw_right_aligned_buttons({"Copy", quit_text}, [&ret, &log_ref](const int id, const bool was_clicked) {
             if (was_clicked) {
                 if (id == 0) {
                     // Copy Log

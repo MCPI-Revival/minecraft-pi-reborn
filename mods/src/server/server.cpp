@@ -38,22 +38,21 @@ ServerProperties &get_server_properties() {
 }
 
 // Default Server Properties
-struct ServerPropertyTypes {
-    const ServerProperty message_of_the_day = ServerProperty("motd", "Minecraft Server", "Message Of The Day");
-    const ServerProperty show_minecon_badge = ServerProperty("show-minecon-badge", "false", "Show The MineCon Badge Next To MOTD In Server List");
-    const ServerProperty game_mode = ServerProperty("game-mode", "0", "Game Mode (0 = Survival, 1 = Creative)");
-    const ServerProperty port = ServerProperty("port", "19132", "Port");
-    const ServerProperty seed = ServerProperty("seed", "", "World Seed (Blank = Random Seed)");
-    const ServerProperty force_mob_spawning = ServerProperty("force-mob-spawning", "false", "Force Mob Spawning (false = Disabled, true = Enabled)");
-    const ServerProperty peaceful_mode = ServerProperty("peaceful-mode", "false", "Peaceful Mode (false = Disabled, true = Enabled)");
-    const ServerProperty world_name = ServerProperty("world-name", "world", "World To Select");
-    const ServerProperty max_players = ServerProperty("max-players", "4", "Maximum Player Count");
-    const ServerProperty enable_whitelist = ServerProperty("whitelist", "false", "Enable Whitelist");
-    const ServerProperty enable_death_messages = ServerProperty("death-messages", "true", "Enable Death Messages");
-    const ServerProperty enable_cave_generation = ServerProperty("generate-caves", "true", "Generate Caves");
-};
-static ServerPropertyTypes &get_property_types() {
-    static ServerPropertyTypes types;
+static auto &get_property_types() {
+    static struct {
+        const ServerProperty message_of_the_day = ServerProperty("motd", "Minecraft Server", "Message Of The Day");
+        const ServerProperty show_minecon_badge = ServerProperty("show-minecon-badge", "false", "Show The MineCon Badge Next To MOTD In Server List");
+        const ServerProperty game_mode = ServerProperty("game-mode", "0", "Game Mode (0 = Survival, 1 = Creative)");
+        const ServerProperty port = ServerProperty("port", std::to_string(DEFAULT_MULTIPLAYER_PORT), "Port");
+        const ServerProperty seed = ServerProperty("seed", "", "World Seed (Blank = Random Seed)");
+        const ServerProperty force_mob_spawning = ServerProperty("force-mob-spawning", "false", "Force Mob Spawning (false = Disabled, true = Enabled)");
+        const ServerProperty peaceful_mode = ServerProperty("peaceful-mode", "false", "Peaceful Mode (false = Disabled, true = Enabled)");
+        const ServerProperty world_name = ServerProperty("world-name", "world", "World To Select");
+        const ServerProperty max_players = ServerProperty("max-players", "4", "Maximum Player Count");
+        const ServerProperty enable_whitelist = ServerProperty("whitelist", "false", "Enable Whitelist");
+        const ServerProperty enable_death_messages = ServerProperty("death-messages", "true", "Enable Death Messages");
+        const ServerProperty enable_cave_generation = ServerProperty("generate-caves", "true", "Generate Caves");
+    } types;
     return types;
 }
 

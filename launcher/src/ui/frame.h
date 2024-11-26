@@ -19,7 +19,9 @@ struct Frame {
 protected:
     // API For Sub-Classes
     ImFont *monospace = nullptr;
+    static float get_frame_width(const char *str);
     static void draw_right_aligned_buttons(const std::vector<const char *> &buttons, const std::function<void(int, bool)> &callback);
+    static constexpr const char *quit_text = "Quit";
 private:
     // Properties
     GLFWwindow *window = nullptr;

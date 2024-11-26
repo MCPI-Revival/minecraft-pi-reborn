@@ -1,16 +1,15 @@
 #pragma once
 
 #include <string>
-#include <istream>
 #include <map>
 #include <vector>
 
 struct ServerProperty {
     static std::vector<const ServerProperty *> &get_all();
-    const char *const key;
-    const char *const def;
-    const char *const comment;
-    ServerProperty(const char *const key_, const char *const def_, const char *const comment_):
+    const std::string key;
+    const std::string def;
+    const std::string comment;
+    ServerProperty(const std::string &key_, const std::string &def_, const std::string &comment_):
         key(key_),
         def(def_),
         comment(comment_) {
