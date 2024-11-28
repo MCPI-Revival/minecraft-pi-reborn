@@ -16,9 +16,9 @@ static constexpr std::array render_distances = {
 };
 
 // Tooltips/Text
-static constexpr std::string revert_text = "Revert";
-static constexpr std::string revert_tooltip_text = "Last Saved";
-static constexpr std::string make_tooltip(const std::string &text, const std::string &type) {
+static const char *revert_text = "Revert";
+static const char *revert_tooltip_text = "Last Saved";
+static std::string make_tooltip(const std::string &text, const std::string &type) {
     return "Use " + text + ' ' + type;
 }
 
@@ -123,20 +123,35 @@ int ConfigurationUI::get_render_distance_index() const {
 }
 void ConfigurationUI::draw_main() const {
     const ImGuiStyle &style = ImGui::GetStyle();
-    const char *labels[] = {"Username", "Render Distance"};
+    const char *labels[] = {"Username", "Render Distance", "UI Scale"};
     // Calculate Label Size
     float label_size = 0;
     for (const char *label : labels) {
         label_size = std::max(label_size, ImGui::CalcTextSize(label).x + style.ItemInnerSpacing.x);
     }
     ImGui::PushItemWidth(-label_size);
-    // Options
+    // Username
     ImGui::InputText(labels[0], &state.username);
+    // Render Distance
     int render_distance_index = get_render_distance_index();
     if (ImGui::Combo(labels[1], &render_distance_index, render_distances.data(), int(render_distances.size()))) {
         state.render_distance = render_distances[render_distance_index];
     }
+    // UI Scale
+    std::string scale_format = "%i";
+    scale_format += 'x';
+    if (state.gui_scale <= AUTO_GUI_SCALE) {
+        scale_format = "Auto";
+    }
+    int gui_scale_int = int(state.gui_scale);
+    if (ImGui::SliderInt(labels[2], &gui_scale_int, 0, 8, scale_format.c_str())) {
+        state.gui_scale = float(gui_scale_int);
+        if (state.gui_scale < AUTO_GUI_SCALE) {
+            state.gui_scale = AUTO_GUI_SCALE;
+        }
+    }
     ImGui::PopItemWidth();
+    // Launcher Cache
     ImGui::Checkbox("Save Settings On Launch", &save_settings);
 }
 
@@ -193,7 +208,7 @@ void ConfigurationUI::draw_servers() {
     // Revert/Save
     int clicked_button = -1;
     ImGui::BeginDisabled(!are_servers_unsaved());
-    draw_right_aligned_buttons({revert_text.c_str(), "Save"}, [&clicked_button](const int id, const bool was_clicked) {
+    draw_right_aligned_buttons({revert_text, "Save"}, [&clicked_button](const int id, const bool was_clicked) {
         if (id == 0) {
             ImGui::SetItemTooltip("%s", make_tooltip(revert_tooltip_text, "Server List").c_str());
         }

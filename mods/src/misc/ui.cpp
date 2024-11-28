@@ -15,9 +15,8 @@
 // Heart Food Overlay
 static int heal_amount = 0, heal_amount_drawing = 0;
 static void Gui_renderHearts_injection(Gui_renderHearts_t original, Gui *gui) {
-    // Get heal_amount
+    // Calculate heal_amount
     heal_amount = heal_amount_drawing = 0;
-
     Inventory *inventory = gui->minecraft->player->inventory;
     const ItemInstance *held_ii = inventory->getSelected();
     if (held_ii) {
@@ -30,7 +29,7 @@ static void Gui_renderHearts_injection(Gui_renderHearts_t original, Gui *gui) {
         }
     }
 
-    // Call original
+    // Call Original Method
     original(gui);
 }
 #define PINK_HEART_FULL 70
@@ -306,13 +305,16 @@ void _init_misc_ui() {
     // Custom GUI Scale
     const char *gui_scale_str = getenv(MCPI_GUI_SCALE_ENV);
     if (gui_scale_str != nullptr) {
-        unsigned char nop_patch[4] = {0x00, 0xf0, 0x20, 0xe3}; // "nop"
-        patch((void *) 0x173e8, nop_patch);
-        patch((void *) 0x173f0, nop_patch);
-        const float gui_scale = strtof(gui_scale_str, nullptr);
-        uint32_t gui_scale_raw;
-        memcpy(&gui_scale_raw, &gui_scale, sizeof (gui_scale_raw));
-        patch_address((void *) 0x17520, (void *) gui_scale_raw);
+        float gui_scale;
+        env_value_to_obj(gui_scale, gui_scale_str);
+        if (gui_scale > 0) {
+            unsigned char nop_patch[4] = {0x00, 0xf0, 0x20, 0xe3}; // "nop"
+            patch((void *) 0x173e8, nop_patch);
+            patch((void *) 0x173f0, nop_patch);
+            uint32_t gui_scale_raw;
+            memcpy(&gui_scale_raw, &gui_scale, sizeof (gui_scale_raw));
+            patch_address((void *) 0x17520, (void *) gui_scale_raw);
+        }
     }
 
     // Don't Wrap Text On '\r' Or '\t' Because They Are Actual Characters In MCPI

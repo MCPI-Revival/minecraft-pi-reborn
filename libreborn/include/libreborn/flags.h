@@ -36,8 +36,9 @@ struct Flags {
     explicit Flags(const std::string &data);
     static Flags get();
     // To/From Strings
-    explicit operator std::string() const;
-    Flags &operator=(const std::string &str);
+    std::string to_string() const;
+    void from_string(const std::string &str);
+    bool operator==(const Flags &other) const;
     // To/From Cache
     [[nodiscard]] std::unordered_map<std::string, bool> to_cache() const;
     void from_cache(const std::unordered_map<std::string, bool> &cache);

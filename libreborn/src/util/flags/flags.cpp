@@ -62,7 +62,7 @@ Flags::Flags(const std::string &data) {
         }
     });
 }
-Flags::operator std::string() const {
+std::string Flags::to_string() const {
     std::string out;
     root.for_each_const([&out](const FlagNode &flag) {
         if (flag.value) {
@@ -74,7 +74,7 @@ Flags::operator std::string() const {
     });
     return out;
 }
-Flags &Flags::operator=(const std::string &str) {
+void Flags::from_string(const std::string &str) {
     // Find Flags To Enable
     std::unordered_set<std::string> to_enable;
     std::stringstream stream(str);
@@ -88,7 +88,9 @@ Flags &Flags::operator=(const std::string &str) {
     root.for_each([&to_enable](FlagNode &flag) {
         flag.value = to_enable.contains(flag.name);
     });
-    return *this;
+}
+bool Flags::operator==(const Flags &other) const {
+    return to_string() == other.to_string();
 }
 std::unordered_map<std::string, bool> Flags::to_cache() const {
     std::unordered_map<std::string, bool> out;

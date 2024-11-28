@@ -11,6 +11,7 @@
 // Default Configuration
 #define DEFAULT_USERNAME "StevePi"
 #define DEFAULT_RENDER_DISTANCE "Short"
+#define AUTO_GUI_SCALE 0
 
 // State
 struct State {
@@ -21,6 +22,7 @@ struct State {
     // Properties
     std::string username;
     std::string render_distance;
+    float gui_scale;
     Flags flags;
 };
 

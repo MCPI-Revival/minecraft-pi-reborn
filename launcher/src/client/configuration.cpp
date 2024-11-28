@@ -1,6 +1,7 @@
+#include <sstream>
+
 #include <libreborn/env.h>
 
-#include "../util/util.h"
 #include "configuration.h"
 #include "cache.h"
 
@@ -8,17 +9,17 @@
 State::State(): flags("") {
     username = DEFAULT_USERNAME;
     render_distance = DEFAULT_RENDER_DISTANCE;
+    gui_scale = AUTO_GUI_SCALE;
     flags = Flags::get();
 }
 template <typename T>
 static void update_from_env(const char *env, T &value, const bool save) {
     if (save) {
-        const std::string str = static_cast<std::string>(value);
-        set_and_print_env(env, str.c_str());
+        set_and_print_env(env, obj_to_env_value(value).c_str());
     } else {
         const char *env_value = getenv(env);
         if (env_value != nullptr) {
-            value = env_value;
+            env_value_to_obj(value, env_value);
         }
     }
 }
@@ -26,11 +27,14 @@ void State::update(const bool save) {
     update_from_env(MCPI_FEATURE_FLAGS_ENV, flags, save);
     update_from_env(MCPI_USERNAME_ENV, username, save);
     update_from_env(MCPI_RENDER_DISTANCE_ENV, render_distance, save);
+    update_from_env(MCPI_GUI_SCALE_ENV, gui_scale, save);
 }
 bool State::operator==(const State &other) const {
-#define test(x) static_cast<std::string>(x) == static_cast<std::string>(other.x)
-    return test(username) && test(render_distance) && test(flags);
-#undef test
+    std::ostringstream one;
+    write_cache(one, *this);
+    std::ostringstream two;
+    write_cache(two, other);
+    return one.str() == two.str();
 }
 
 // Handle Non-Launch Commands

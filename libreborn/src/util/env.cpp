@@ -1,6 +1,7 @@
 #include <libreborn/env.h>
 #include <libreborn/exec.h>
 #include <libreborn/log.h>
+#include <libreborn/flags.h>
 
 // Define Constants
 #define ENV(name, ...) const char *const name##_ENV = #name;
@@ -35,4 +36,24 @@ void set_and_print_env(const char *name, const char *value) {
 
     // Print New Value
     DEBUG("Set %s = %s", name, value != NULL ? value : "(unset)");
+}
+
+// Conversion
+std::string obj_to_env_value(const std::string &obj) {
+    return obj;
+}
+std::string obj_to_env_value(const float &obj) {
+    return std::to_string(obj);
+}
+std::string obj_to_env_value(const Flags &obj) {
+    return obj.to_string();
+}
+void env_value_to_obj(std::string &out, const char *value) {
+    out = value;
+}
+void env_value_to_obj(float &out, const char *value) {
+    out = strtof(value, nullptr);
+}
+void env_value_to_obj(Flags &out, const char *value) {
+    out.from_string(value);
 }

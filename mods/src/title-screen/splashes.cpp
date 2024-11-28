@@ -103,7 +103,7 @@ static bool draw_splash(StartMenuScreen *screen, const float y_factor, const boo
     const int text_width = screen->font->width(current_splash);
     float splash_width = float(text_width) * scale;
     if (splash_width > float(max_width)) {
-        const float multiplier = (float(max_width) / splash_width);
+        const float multiplier = float(max_width) / splash_width;
         scale *= multiplier;
         splash_width *= multiplier;
     }
