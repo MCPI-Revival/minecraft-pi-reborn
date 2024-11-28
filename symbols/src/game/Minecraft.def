@@ -17,6 +17,7 @@ method LevelStorageSource *getLevelSource() = 0x16e84;
 method void handleMouseDown(int param_1, bool can_destroy) = 0x1584c;
 method void handleBuildAction(uint *build_action_intention) = 0x15920;
 method void joinMultiplayer(const PingedCompatibleServer &server) = 0x165f4;
+method void setSize(int width, int height) = 0x173a4;
 
 virtual-method void update() = 0x24;
 virtual-method int handleBack(bool do_nothing) = 0x34;

@@ -3,6 +3,7 @@
 #include <sys/stat.h>
 #include <cstring>
 #include <ctime>
+#include <cmath>
 
 #include <libreborn/util.h>
 #include <libreborn/config.h>
@@ -134,4 +135,9 @@ std::string format_time(const char *fmt) {
 std::string format_time(const char *fmt, const int time) {
     // This Will Break In 2038
     return _format_time(fmt, time);
+}
+
+// Step
+float step_value(const float value, const float step) {
+    return std::round(value / step) * step;
 }

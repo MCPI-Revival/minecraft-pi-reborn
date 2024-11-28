@@ -1,7 +1,10 @@
 #include <libreborn/patch.h>
 #include <libreborn/env.h>
+#include <libreborn/util.h>
 
 #include <symbols/minecraft.h>
+
+#include <media-layer/core.h>
 
 #include <GLES/gl.h>
 #include <SDL/SDL.h>
@@ -245,6 +248,29 @@ static void LocalPlayer_openTextEdit_injection(__attribute__((unused)) LocalPlay
     }
 }
 
+// Better GUI Scaling
+static void set_gui_scale(const float new_scale) {
+    union {
+        float a;
+        void *b;
+    } pun = {};
+    pun.a = new_scale;
+    patch_address((void *) 0x17520, pun.b);
+}
+static float calculate_scale(const float value, const float default_value) {
+    constexpr float initial_scale = 2.5f;
+    const float scale = initial_scale * (value / default_value);
+    return step_value(scale);
+}
+static void Minecraft_setSize_injection(Minecraft_setSize_t original, Minecraft *self, const int width, const int height) {
+    // Calculate Scale
+    const float a = calculate_scale(float(width), DEFAULT_WIDTH);
+    const float b = calculate_scale(float(height), DEFAULT_HEIGHT);
+    set_gui_scale(std::min(a, b));
+    // Call Original Method
+    original(self, width, height);
+}
+
 // Init
 void _init_misc_ui() {
     // Food Overlay
@@ -303,18 +329,24 @@ void _init_misc_ui() {
     }
 
     // Custom GUI Scale
+    bool patch_gui_scaling = false;
     const char *gui_scale_str = getenv(MCPI_GUI_SCALE_ENV);
     if (gui_scale_str != nullptr) {
         float gui_scale;
         env_value_to_obj(gui_scale, gui_scale_str);
         if (gui_scale > 0) {
-            unsigned char nop_patch[4] = {0x00, 0xf0, 0x20, 0xe3}; // "nop"
-            patch((void *) 0x173e8, nop_patch);
-            patch((void *) 0x173f0, nop_patch);
-            uint32_t gui_scale_raw;
-            memcpy(&gui_scale_raw, &gui_scale, sizeof (gui_scale_raw));
-            patch_address((void *) 0x17520, (void *) gui_scale_raw);
+            patch_gui_scaling = true;
+            set_gui_scale(gui_scale);
         }
+    }
+    if (feature_has("Improved UI Scaling", server_disabled) && !patch_gui_scaling) {
+        overwrite_calls(Minecraft_setSize, Minecraft_setSize_injection);
+        patch_gui_scaling = true;
+    }
+    if (patch_gui_scaling) {
+        unsigned char nop_patch[4] = {0x00, 0xf0, 0x20, 0xe3}; // "nop"
+        patch((void *) 0x173e8, nop_patch);
+        patch((void *) 0x173f0, nop_patch);
     }
 
     // Don't Wrap Text On '\r' Or '\t' Because They Are Actual Characters In MCPI

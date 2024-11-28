@@ -53,6 +53,7 @@
     * `Proper Entity Shading` (Enabled By Default)
     * `Fix Sugar Position In Hand` (Enabled By Default)
     * `Fix Reloading Textures On Resize` (Enabled By Default)
+    * `Improved UI Scaling` (Enabled By Default)
   * Existing Functionality (All Enabled By Default)
     * `Fix Screen Rendering When Hiding HUD`
     * `Sanitize Usernames`
