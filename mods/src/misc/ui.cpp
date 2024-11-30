@@ -1,3 +1,5 @@
+#include <cmath>
+
 #include <libreborn/patch.h>
 #include <libreborn/env.h>
 #include <libreborn/util.h>
@@ -258,9 +260,16 @@ static void set_gui_scale(const float new_scale) {
     patch_address((void *) 0x17520, pun.b);
 }
 static float calculate_scale(const float value, const float default_value) {
-    constexpr float initial_scale = 2.5f;
-    const float scale = initial_scale * (value / default_value);
-    return step_value(scale);
+    // y = mx + b
+    const std::pair point_one = {default_value, 2.25f};
+    const std::pair point_two = {default_value * 2, 4.5f};
+    const float slope = (point_one.second - point_two.second) / (point_one.first - point_two.first);
+    const float intercept = point_one.second - (slope * point_one.first);
+    // Calculate
+    float scale = (slope * value) + intercept;
+    scale = std::round(scale);
+    scale = std::max(scale, 1.0f);
+    return scale;
 }
 static void Minecraft_setSize_injection(Minecraft_setSize_t original, Minecraft *self, const int width, const int height) {
     // Calculate Scale

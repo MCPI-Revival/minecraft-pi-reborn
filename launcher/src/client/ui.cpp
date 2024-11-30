@@ -139,16 +139,13 @@ void ConfigurationUI::draw_main() const {
         state.render_distance = render_distances[render_distance_index];
     }
     // UI Scale
-    const int precision = std::floor(state.gui_scale) == state.gui_scale ? 0 : 1;
-    std::string scale_format = "%." + std::to_string(precision) + "fx";
-    if (state.gui_scale <= AUTO_GUI_SCALE) {
+    int gui_scale_int = int(state.gui_scale); // Fractional GUI Scales Are Messy
+    std::string scale_format = "%ix";
+    if (gui_scale_int <= AUTO_GUI_SCALE) {
         scale_format = "Auto";
     }
-    char display_gui_scale[64];
-    sprintf(display_gui_scale, scale_format.c_str(), state.gui_scale);
-    float new_gui_scale = state.gui_scale;
-    if (ImGui::SliderFloat(labels[2], &new_gui_scale, 0, 8, display_gui_scale, ImGuiSliderFlags_NoRoundToFormat)) {
-        state.gui_scale = step_value(new_gui_scale);
+    if (ImGui::SliderInt(labels[2], &gui_scale_int, 0, 8, scale_format.c_str())) {
+        state.gui_scale = float(gui_scale_int);
         if (state.gui_scale < AUTO_GUI_SCALE) {
             state.gui_scale = AUTO_GUI_SCALE;
         }

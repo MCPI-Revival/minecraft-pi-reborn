@@ -65,6 +65,3 @@ std::string format_time(const char *fmt, int time);
 // Default MCPI Port
 // This Macro DOES NOT Control MCPI
 #define DEFAULT_MULTIPLAYER_PORT 19132
-
-// Step Value
-float step_value(float value, float step = 0.5f);

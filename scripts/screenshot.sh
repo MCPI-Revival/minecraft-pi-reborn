@@ -25,7 +25,7 @@ minecraft-pi-reborn --default --no-cache &
 PID="$!"
 
 # Screenshot
-sleep 2
+sleep 3
 gnome-screenshot --window --file=images/start.png
 
 # Kill
