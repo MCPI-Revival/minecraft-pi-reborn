@@ -52,14 +52,14 @@ static void start_game(const options_t &options) {
     // Disable stdout Buffering
     setvbuf(stdout, nullptr, _IONBF, 0);
 
-    // Setup Crash Reporting
-    if (!options.disable_logger) {
-        setup_logger();
-    }
-
     // Configure Client Options
     if (!reborn_is_server()) {
         configure_client(options);
+    }
+
+    // Start Logging
+    if (!options.disable_logger) {
+        setup_logger();
     }
 
     // Bootstrap
@@ -67,15 +67,15 @@ static void start_game(const options_t &options) {
 }
 
 // Main
-int main(int argc, char *argv[]) {
+int main(const int argc, char *argv[]) {
     // Parse Options
-    options_t options = parse_options(argc, argv);
+    const options_t options = parse_options(argc, argv);
 
     // Set Debug Tag
     reborn_debug_tag = "(Launcher) ";
 
     // Debug Logging
-    unsetenv(_MCPI_LOG_FD_ENV);
+    reborn_set_log(-1);
     bind_to_env(MCPI_DEBUG_ENV, options.debug);
 
     // Setup Environment

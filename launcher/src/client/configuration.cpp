@@ -56,21 +56,21 @@ void handle_non_launch_client_only_commands(const options_t &options) {
 void configure_client(const options_t &options) {
     // Load Cache
     State state;
-    if (!options.no_cache) {
+    bool save_settings = !options.no_cache;
+    if (save_settings) {
         state = load_cache();
     }
 
     // Read From Environment
     state.update(false);
 
-    // --default
-    bool save_settings = !options.no_cache;
+    // Show UI
     if (!options.use_default) {
-        // Show UI
         ConfigurationUI *ui = new ConfigurationUI(state, save_settings);
         const int ret = ui->run();
         delete ui;
         if (ret <= 0) {
+            // Cancel Launch
             exit(EXIT_SUCCESS);
         }
     }

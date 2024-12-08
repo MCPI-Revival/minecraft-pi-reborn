@@ -20,7 +20,7 @@ bool _feature_has(const char *name, const int server_default) {
     if (!loaded) {
         const char *env = getenv(MCPI_FEATURE_FLAGS_ENV);
         if (env) {
-            flags.from_string(env);
+            env_value_to_obj(flags, env);
         }
         loaded = true;
     }
