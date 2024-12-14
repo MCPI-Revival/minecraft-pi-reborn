@@ -2,9 +2,9 @@
 #include <vector>
 
 #include <libreborn/log.h>
-#include <libreborn/env.h>
+#include <libreborn/env/env.h>
 #include <libreborn/config.h>
-#include <libreborn/exec.h>
+#include <libreborn/util/exec.h>
 
 #include "../util/util.h"
 #include "bootstrap.h"

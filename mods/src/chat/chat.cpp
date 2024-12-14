@@ -1,5 +1,5 @@
 #include <libreborn/patch.h>
-#include <libreborn/string.h>
+#include <libreborn/util/string.h>
 
 #include <symbols/minecraft.h>
 

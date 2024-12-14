@@ -6,12 +6,12 @@
 #include <sys/poll.h>
 #include <cstring>
 
-#include <libreborn/util.h>
 #include <libreborn/log.h>
-#include <libreborn/exec.h>
+#include <libreborn/util/exec.h>
+#include <libreborn/util/io.h>
 
 // Fork
-Process::Process(const pid_t pid_, const std::array<int, 3> fds_): pid(pid_), fds(fds_) {}
+Process::Process(const pid_t pid_, const std::array<int, fd_count> &fds_): pid(pid_), fds(fds_) {}
 int Process::close() const {
     for (const int fd : fds) {
         ::close(fd);

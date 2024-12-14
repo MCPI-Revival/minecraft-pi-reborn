@@ -1,7 +1,7 @@
 #include <algorithm>
 
 #include <libreborn/log.h>
-#include <libreborn/flags.h>
+#include <libreborn/env/flags.h>
 
 // Flag
 static int next_id;

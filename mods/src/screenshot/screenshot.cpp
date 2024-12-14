@@ -6,7 +6,8 @@
 #include "stb_image_write.h"
 
 #include <libreborn/log.h>
-#include <libreborn/util.h>
+#include <libreborn/util/util.h>
+#include <libreborn/util/string.h>
 #include <libreborn/config.h>
 
 #include <GLES/gl.h>
@@ -43,7 +44,7 @@ void screenshot_take(Gui *gui) {
     }
 
     // Get Timestamp
-    std::string time = format_time("%Y-%m-%d_%H.%M.%S");
+    const std::string time = format_time("%Y-%m-%d_%H.%M.%S");
 
     // Prevent Overwriting Screenshots
     int num = 0;

@@ -4,7 +4,7 @@
 #include <symbols/minecraft.h>
 
 #include <libreborn/patch.h>
-#include <libreborn/util.h>
+#include <libreborn/util/util.h>
 
 #include <mods/text-input-box/TextInputScreen.h>
 #include <mods/touch/touch.h>

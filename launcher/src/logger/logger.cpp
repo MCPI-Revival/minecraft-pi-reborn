@@ -8,9 +8,11 @@
 #include <string>
 #include <fcntl.h>
 
-#include <libreborn/exec.h>
+#include <libreborn/util/exec.h>
 #include <libreborn/log.h>
-#include <libreborn/util.h>
+#include <libreborn/util/util.h>
+#include <libreborn/util/string.h>
+#include <libreborn/util/io.h>
 #include <libreborn/config.h>
 
 #include "logger.h"
@@ -37,7 +39,7 @@ static void setup_log_file() {
     const std::string logs = get_logs_folder();
 
     // Get Timestamp
-    std::string time = format_time("%Y-%m-%d");
+    const std::string time = format_time("%Y-%m-%d");
 
     // Get Log Filename
     std::string file;

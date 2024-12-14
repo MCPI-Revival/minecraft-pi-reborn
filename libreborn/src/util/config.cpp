@@ -1,7 +1,7 @@
 #include <cstdlib>
 
 #include <libreborn/config.h>
-#include <libreborn/env.h>
+#include <libreborn/env/env.h>
 
 // Access Configuration At Runtime
 const char *reborn_get_version() {

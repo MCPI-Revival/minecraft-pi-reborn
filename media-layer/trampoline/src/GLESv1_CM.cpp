@@ -2,7 +2,7 @@
 
 #include <GLES/gl.h>
 #include <libreborn/log.h>
-#include <libreborn/util.h>
+#include <libreborn/util/util.h>
 
 #include "common/common.h"
 

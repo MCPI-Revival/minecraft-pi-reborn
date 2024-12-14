@@ -5,7 +5,7 @@
 #include <cstring>
 
 #include <libreborn/log.h>
-#include <libreborn/util.h>
+#include <libreborn/util/util.h>
 
 #include "bootstrap.h"
 #include "../util/util.h"

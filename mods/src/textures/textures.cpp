@@ -5,7 +5,7 @@
 #include <GLES/gl.h>
 
 #include <libreborn/patch.h>
-#include <libreborn/util.h>
+#include <libreborn/util/util.h>
 #include <libreborn/config.h>
 
 #include <symbols/minecraft.h>

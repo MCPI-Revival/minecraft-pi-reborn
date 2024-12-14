@@ -12,10 +12,10 @@
 #include <media-layer/core.h>
 
 #include <libreborn/patch.h>
-#include <libreborn/string.h>
+#include <libreborn/util/string.h>
 #include <libreborn/config.h>
-#include <libreborn/util.h>
-#include <libreborn/env.h>
+#include <libreborn/util/util.h>
+#include <libreborn/env/env.h>
 
 #include <symbols/minecraft.h>
 

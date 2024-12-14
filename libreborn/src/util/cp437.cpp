@@ -2,7 +2,7 @@
 
 #include "utf8.h"
 
-#include <libreborn/string.h>
+#include <libreborn/util/string.h>
 
 // Conversion Functions
 static std::u32string to_utf32(const std::string &s) {

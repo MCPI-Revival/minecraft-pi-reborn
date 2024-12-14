@@ -2,12 +2,13 @@
 #include <sys/file.h>
 #include <sys/stat.h>
 #include <cstring>
-#include <ctime>
 #include <cmath>
 
-#include <libreborn/util.h>
+#include <libreborn/util/util.h>
+#include <libreborn/util/io.h>
 #include <libreborn/config.h>
-#include <libreborn/env.h>
+#include <libreborn/env/env.h>
+#include <libreborn/log.h>
 
 // Align Number
 int align_up(int x, const int alignment) {
@@ -102,6 +103,9 @@ void ensure_directory(const char *path) {
 
 // Write To FD
 void safe_write(const int fd, const void *buf, const size_t size) {
+    if (fd < 0) {
+        return;
+    }
     const ssize_t bytes_written = write(fd, buf, size);
     if (bytes_written < 0) {
         ERR("Unable To Write Data: %s", strerror(errno));
@@ -115,24 +119,4 @@ std::string home_get() {
         IMPOSSIBLE();
     }
     return std::string(home) + std::string(get_home_subdirectory_for_game_data());
-}
-
-// Format Time
-static std::string _format_time(const char *fmt, const time_t raw_time) {
-    const tm *time_info = localtime(&raw_time);
-    if (time_info == nullptr) {
-        ERR("Unable To Determine Current Time: %s", strerror(errno));
-    }
-    char buf[512];
-    strftime(buf, sizeof(buf), fmt, time_info);
-    return std::string(buf);
-}
-std::string format_time(const char *fmt) {
-    time_t raw_time;
-    time(&raw_time);
-    return _format_time(fmt, raw_time);
-}
-std::string format_time(const char *fmt, const int time) {
-    // This Will Break In 2038
-    return _format_time(fmt, time);
 }

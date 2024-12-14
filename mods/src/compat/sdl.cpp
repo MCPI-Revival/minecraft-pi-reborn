@@ -1,7 +1,7 @@
 #include <SDL/SDL.h>
 #include <media-layer/core.h>
 
-#include <libreborn/util.h>
+#include <libreborn/util/util.h>
 #include <libreborn/config.h>
 
 #include <symbols/minecraft.h>

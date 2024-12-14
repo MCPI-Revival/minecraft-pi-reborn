@@ -6,8 +6,8 @@
 #include <imgui_impl_opengl2.h>
 
 #include <libreborn/log.h>
-#include <libreborn/glfw.h>
-#include <libreborn/util.h>
+#include <libreborn/util/glfw.h>
+#include <libreborn/util/util.h>
 
 // Init/Cleanup
 Frame::Frame(const char *title, const int width, const int height) {

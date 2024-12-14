@@ -1,7 +1,7 @@
 #include <argp.h>
 
 #include <libreborn/config.h>
-#include <libreborn/env.h>
+#include <libreborn/env/env.h>
 #include <trampoline/types.h>
 
 #include "parser.h"
@@ -20,7 +20,7 @@ static argp_option options_data[] = {
 #undef OPTION
     {nullptr, 0, nullptr, 0, "Environmental Variables:", 0},
 #define ENV(name, doc) {#name, env_key--, nullptr, OPTION_DOC | OPTION_NO_USAGE | (is_env_var_internal(name##_ENV) ? OPTION_HIDDEN : 0), doc, 0},
-#include <libreborn/env-list.h>
+#include <libreborn/env/list.h>
 #ifdef MCPI_BUILD_RUNTIME
 #include <trampoline/env-list.h>
 #endif
@@ -34,7 +34,7 @@ static argp_option options_data[] = {
     case key: \
         options->name = true; \
         break;
-static error_t parse_opt(int key, __attribute__((unused)) char *arg, argp_state *state) {
+static error_t parse_opt(const int key, __attribute__((unused)) char *arg, argp_state *state) {
     options_t *options = (options_t *) state->input;
     switch (key) {
 #include "option-list.h"
@@ -45,7 +45,7 @@ static error_t parse_opt(int key, __attribute__((unused)) char *arg, argp_state 
 }
 #undef OPTION
 static argp argp = {options_data, parse_opt, nullptr, doc, nullptr, nullptr, nullptr};
-options_t parse_options(int argc, char *argv[]) {
+options_t parse_options(const int argc, char *argv[]) {
     options_t options = {};
     argp_parse(&argp, argc, argv, 0, nullptr, &options);
     return options;

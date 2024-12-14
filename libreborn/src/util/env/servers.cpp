@@ -2,13 +2,8 @@
 #include <sstream>
 #include <limits>
 
-#include <libreborn/servers.h>
-#include <libreborn/util.h>
-
-// File
-static std::string get_server_list_path() {
-    return home_get() + "/servers.txt";
-}
+#include <libreborn/env/servers.h>
+#include <libreborn/util/util.h>
 
 // Seperator
 #define PORT_SEPERATOR_CHAR ':'
@@ -22,27 +17,22 @@ ServerList::port_t ServerList::parse_port(const std::string &s) {
     }
     return static_cast<port_t>(port);
 }
-ServerList::ServerList() {
+void ServerList::load(const std::string &str) {
+    // Clear
+    entries.clear();
+
     // Open File
-    std::ifstream server_list_file(get_server_list_path());
-    if (!server_list_file) {
-        // File Does Not Exist
-        return;
-    }
+    std::stringstream server_list_file(str);
 
     // Iterate Lines
     std::string line;
     while (std::getline(server_list_file, line)) {
         // Check Line
         if (!line.empty()) {
-            // Skip Comments
-            if (line[0] == '#') {
-                continue;
-            }
             // Parse
             std::string address;
             std::string port_str;
-            size_t separator_pos = line.find_last_of(PORT_SEPERATOR_CHAR);
+            const size_t separator_pos = line.find_last_of(PORT_SEPERATOR_CHAR);
             if (separator_pos == std::string::npos) {
                 port_str = std::to_string(DEFAULT_MULTIPLAYER_PORT);
                 address = line;
@@ -54,29 +44,13 @@ ServerList::ServerList() {
             entries.emplace_back(address, parse_port(port_str));
         }
     }
-
-    // Close
-    server_list_file.close();
 }
 
 // Save
 std::string ServerList::to_string() const {
     std::stringstream out;
-    out << "# External Servers File\n";
     for (const Entry &entry : entries) {
         out << entry.first << PORT_SEPERATOR_CHAR << std::to_string(entry.second) << '\n';
     }
     return out.str();
-}
-void ServerList::save() const {
-    // Open File
-    std::ofstream file(get_server_list_path());
-    if (!file) {
-        // Failure
-        WARN("Unable To Save Server List");
-    }
-    // Write
-    file << to_string();
-    // Close
-    file.close();
 }

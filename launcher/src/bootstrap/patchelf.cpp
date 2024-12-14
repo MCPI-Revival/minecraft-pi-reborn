@@ -4,7 +4,7 @@
 
 #include <LIEF/ELF.hpp>
 
-#include <libreborn/util.h>
+#include <libreborn/util/util.h>
 #include <libreborn/config.h>
 
 #include "bootstrap.h"

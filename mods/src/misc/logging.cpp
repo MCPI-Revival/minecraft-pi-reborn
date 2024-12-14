@@ -1,8 +1,8 @@
 #include <string>
 
 #include <libreborn/patch.h>
-#include <libreborn/string.h>
-#include <libreborn/util.h>
+#include <libreborn/util/string.h>
+#include <libreborn/util/util.h>
 
 #include <symbols/minecraft.h>
 

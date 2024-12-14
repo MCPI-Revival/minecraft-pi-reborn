@@ -5,8 +5,8 @@
 #include "../options/parser.h"
 #include "../ui/frame.h"
 
-#include <libreborn/flags.h>
-#include <libreborn/servers.h>
+#include <libreborn/env/flags.h>
+#include <libreborn/env/servers.h>
 
 // Default Configuration
 #define DEFAULT_USERNAME "StevePi"
@@ -22,6 +22,7 @@ struct State {
     // Properties
     std::string username;
     std::string render_distance;
+    ServerList servers;
     float gui_scale;
     Flags flags;
 };
@@ -32,24 +33,20 @@ struct ConfigurationUI final : Frame {
     int render() override;
 private:
     // Bottom Row
-    int get_render_distance_index() const;
-    int draw_bottom(bool hide_reset_revert) const;
+    [[nodiscard]] int get_render_distance_index() const;
+    [[nodiscard]] int draw_bottom() const;
     // General
     void draw_main() const;
     // Advanced
     void draw_advanced() const;
     static void draw_category(FlagNode &category);
     // Server List
-    bool are_servers_unsaved() const;
-    void draw_servers();
-    void draw_server_list();
+    void draw_servers() const;
+    void draw_server_list() const;
     // State
     const State original_state;
     State &state;
     bool &save_settings;
-    // Server List
-    ServerList last_saved_servers;
-    ServerList servers;
 };
 
 // Handle Non-Launch Commands

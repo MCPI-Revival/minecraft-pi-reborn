@@ -3,8 +3,8 @@
 #include <unordered_set>
 
 #include <libreborn/log.h>
-#include <libreborn/flags.h>
-#include <libreborn/util.h>
+#include <libreborn/env/flags.h>
+#include <libreborn/util/util.h>
 
 // All Flags
 static unsigned int find_indent_level(std::string &str) {

@@ -1,8 +1,8 @@
 #define GLFW_INCLUDE_NONE
 #include <GLFW/glfw3.h>
 
-#include <libreborn/glfw.h>
-#include <libreborn/util.h>
+#include <libreborn/util/glfw.h>
+#include <libreborn/util/util.h>
 #include <libreborn/log.h>
 #include <libreborn/config.h>
 

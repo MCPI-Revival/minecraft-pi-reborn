@@ -5,8 +5,8 @@
 
 #include <SDL/SDL.h>
 #include <libreborn/log.h>
-#include <libreborn/string.h>
-#include <libreborn/glfw.h>
+#include <libreborn/util/string.h>
+#include <libreborn/util/glfw.h>
 #include <libreborn/config.h>
 
 #include <media-layer/core.h>

@@ -1,5 +1,6 @@
 #include <libreborn/log.h>
-#include <libreborn/util.h>
+#include <libreborn/util/util.h>
+#include <libreborn/util/io.h>
 #include <libreborn/config.h>
 
 #include "../bootstrap/bootstrap.h"

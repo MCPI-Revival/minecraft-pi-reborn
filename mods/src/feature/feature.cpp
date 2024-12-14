@@ -3,8 +3,8 @@
 
 #include <libreborn/log.h>
 #include <libreborn/config.h>
-#include <libreborn/env.h>
-#include <libreborn/flags.h>
+#include <libreborn/env/env.h>
+#include <libreborn/env/flags.h>
 
 #include <mods/feature/feature.h>
 

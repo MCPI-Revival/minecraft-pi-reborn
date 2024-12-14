@@ -9,7 +9,7 @@
 // fork() With I/O
 struct Process {
     static constexpr int fd_count = 3;
-    Process(pid_t pid_, std::array<int, fd_count> fds_);
+    Process(pid_t pid_, const std::array<int, fd_count> &fds_);
     [[nodiscard]] int close() const;
     const pid_t pid;
     const std::array<int, fd_count> fds;

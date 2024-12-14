@@ -2,6 +2,7 @@
 ENV(MCPI_FEATURE_FLAGS, "Client-Mode Feature Flags")
 ENV(MCPI_USERNAME, "Player Username")
 ENV(MCPI_RENDER_DISTANCE, "Render Distance")
+ENV(MCPI_SERVER_LIST, "Server List")
 // Game Assets
 ENV(_MCPI_REBORN_ASSETS_PATH, "")
 ENV(_MCPI_VANILLA_ASSETS_PATH, "")

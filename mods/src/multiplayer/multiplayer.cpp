@@ -5,7 +5,8 @@
 #include <symbols/minecraft.h>
 
 #include <libreborn/patch.h>
-#include <libreborn/servers.h>
+#include <libreborn/env/servers.h>
+#include <libreborn/env/env.h>
 
 #include <mods/init/init.h>
 #include <mods/feature/feature.h>
@@ -14,6 +15,14 @@
 static void iterate_servers(const std::function<void(const char *address, ServerList::port_t port)> &callback) {
     // Load
     static ServerList server_list;
+    static bool loaded = false;
+    if (!loaded) {
+        const char *str = getenv(MCPI_SERVER_LIST_ENV);
+        if (str != nullptr) {
+            env_value_to_obj(server_list, str);
+        }
+        loaded = true;
+    }
     // Loop
     for (const ServerList::Entry &entry : server_list.entries) {
         if (!entry.first.empty() && entry.second > 0) {

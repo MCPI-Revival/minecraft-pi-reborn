@@ -1,8 +1,7 @@
 #include <vector>
 #include <limits>
-#include <cmath>
 
-#include <libreborn/util.h>
+#include <libreborn/util/util.h>
 
 #include "configuration.h"
 
@@ -16,13 +15,6 @@ static constexpr std::array render_distances = {
     "Tiny"
 };
 
-// Tooltips/Text
-static const char *revert_text = "Revert";
-static const char *revert_tooltip_text = "Last Saved";
-static std::string make_tooltip(const std::string &text, const std::string &type) {
-    return "Use " + text + ' ' + type;
-}
-
 // Construct
 static constexpr int size = 400;
 ConfigurationUI::ConfigurationUI(State &state_, bool &save_settings_):
@@ -33,7 +25,6 @@ ConfigurationUI::ConfigurationUI(State &state_, bool &save_settings_):
 
 // Render
 int ConfigurationUI::render() {
-    bool on_servers_tab = false;
     if (ImGui::BeginChild("Main", ImVec2(0, -ImGui::GetFrameHeightWithSpacing() /* Leave Room For Bottom Row */), ImGuiChildFlags_None, ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse)) {
         // Tabs
         if (ImGui::BeginTabBar("TabBar")) {
@@ -48,63 +39,48 @@ int ConfigurationUI::render() {
                 ImGui::EndTabItem();
             }
             // Servers Tab
-            if (ImGui::BeginTabItem("Servers", nullptr, are_servers_unsaved() ? ImGuiTabItemFlags_UnsavedDocument : ImGuiTabItemFlags_None)) {
+            if (ImGui::BeginTabItem("Servers")) {
                 draw_servers();
                 ImGui::EndTabItem();
-                on_servers_tab = true;
             }
             ImGui::EndTabBar();
         }
     }
     ImGui::EndChild();
     // Bottom Row
-    return draw_bottom(on_servers_tab);
+    return draw_bottom();
 }
 
 // Bottom Row
-int ConfigurationUI::draw_bottom(const bool hide_reset_revert) const {
+int ConfigurationUI::draw_bottom() const {
     // Reset Settings
-    if (!hide_reset_revert) {
-        const State default_state;
-        constexpr const char *tooltip_type = "Settings";
-        std::vector<std::tuple<std::string, std::string, const State *>> reset_options = {
-            {revert_text, make_tooltip(revert_tooltip_text, tooltip_type), &original_state},
-            {"Reset", make_tooltip("Default", tooltip_type), &default_state},
-        };
-        for (const std::tuple<std::string, std::string, const State *> &option : reset_options) {
-            const State &new_state = *std::get<2>(option);
-            ImGui::BeginDisabled(state == new_state);
-            if (ImGui::Button(std::get<0>(option).c_str())) {
-                state = new_state;
-            }
-            ImGui::SetItemTooltip("%s", std::get<1>(option).c_str());
-            ImGui::EndDisabled();
-            ImGui::SameLine();
+    const State default_state;
+    std::vector<std::tuple<std::string, std::string, const State *>> reset_options = {
+        {"Revert", "Last Saved", &original_state},
+        {"Reset", "Default", &default_state},
+    };
+    for (const std::tuple<std::string, std::string, const State *> &option : reset_options) {
+        const State &new_state = *std::get<2>(option);
+        ImGui::BeginDisabled(state == new_state);
+        if (ImGui::Button(std::get<0>(option).c_str())) {
+            state = new_state;
         }
+        ImGui::SetItemTooltip("Use %s Settings", std::get<1>(option).c_str());
+        ImGui::EndDisabled();
+        ImGui::SameLine();
     }
     // Right-Align Buttons
     int ret = 0;
-    bool unsaved_servers = are_servers_unsaved();
-    draw_right_aligned_buttons({quit_text, "Launch"}, [&ret, unsaved_servers](const int id, const bool was_clicked) {
+    draw_right_aligned_buttons({quit_text, "Launch"}, [&ret](const int id, const bool was_clicked) {
         if (id == 0) {
             // Quit
             if (was_clicked) {
                 ret = -1;
             }
             ImGui::SetItemTooltip("Changes Will Not Be Saved!");
-            // Disable Launch if Server List Is Unsaved
-            if (unsaved_servers) {
-                ImGui::BeginDisabled();
-            }
-        } else if (id == 1) {
+        } else if (was_clicked) {
             // Launch
-            if (unsaved_servers) {
-                ImGui::SetItemTooltip("Server List Is Unsaved");
-                ImGui::EndDisabled();
-            }
-            if (was_clicked) {
-                ret = 1;
-            }
+            ret = 1;
         }
     });
     // Return
@@ -188,42 +164,23 @@ void ConfigurationUI::draw_category(FlagNode &category) {
 }
 
 // Servers
-bool ConfigurationUI::are_servers_unsaved() const {
-    return servers.to_string() != last_saved_servers.to_string();
-}
-void ConfigurationUI::draw_servers() {
-    // Add/Clear
+void ConfigurationUI::draw_servers() const {
+    // Add
     bool scroll_to_bottom = false;
     if (ImGui::Button("Add")) {
-        servers.entries.emplace_back("", DEFAULT_MULTIPLAYER_PORT);
+        state.servers.entries.emplace_back("", DEFAULT_MULTIPLAYER_PORT);
         scroll_to_bottom = true;
     }
     ImGui::SameLine();
-    ImGui::BeginDisabled(servers.entries.empty());
-    if (ImGui::Button("Clear")) {
-        servers.entries.clear();
-    }
-    ImGui::EndDisabled();
-    ImGui::SameLine();
-    // Revert/Save
-    int clicked_button = -1;
-    ImGui::BeginDisabled(!are_servers_unsaved());
-    draw_right_aligned_buttons({revert_text, "Save"}, [&clicked_button](const int id, const bool was_clicked) {
-        if (id == 0) {
-            ImGui::SetItemTooltip("%s", make_tooltip(revert_tooltip_text, "Server List").c_str());
-        }
-        if (was_clicked) {
-            clicked_button = id;
-        }
+    // Clear
+    bool should_clear = false;
+    ImGui::BeginDisabled(state.servers.entries.empty());
+    draw_right_aligned_buttons({"Clear"}, [&should_clear](__attribute__((unused)) const int id, const bool was_clicked) {
+        should_clear = was_clicked;
     });
     ImGui::EndDisabled();
-    if (clicked_button == 1) {
-        // Save
-        servers.save();
-        last_saved_servers = servers;
-    } else if (clicked_button == 0) {
-        // Revert To Last Saved Server List
-        servers = last_saved_servers;
+    if (should_clear) {
+        state.servers.entries.clear();
     }
     // List
     if (ImGui::BeginChild("ServerList", ImVec2(0, 0), ImGuiChildFlags_Borders)) {
@@ -234,9 +191,25 @@ void ConfigurationUI::draw_servers() {
     }
     ImGui::EndChild();
 }
-void ConfigurationUI::draw_server_list() {
-    for (std::vector<ServerList::Entry>::size_type i = 0; i < servers.entries.size(); ++i) {
-        ServerList::Entry &entry = servers.entries[i];
+static int server_list_address_filter(ImGuiInputTextCallbackData *data) {
+    // Lowercase
+    constexpr std::pair lower_alpha = {'a', 'z'};
+    constexpr std::pair upper_alpha = {'A', 'Z'};
+    ImWchar &x = data->EventChar;
+    if (x >= upper_alpha.first && x <= upper_alpha.second) {
+        x += lower_alpha.first - upper_alpha.first;
+    }
+    // Check Characters
+    return (x >= lower_alpha.first && x <= lower_alpha.second) || x == '.' ? 0 : 1;
+}
+static int server_list_port_filter(ImGuiInputTextCallbackData *data) {
+    // Only Allow Integers
+    const ImWchar &x = data->EventChar;
+    return x >= '0' && x <= '9' ? 0 : 1;
+}
+void ConfigurationUI::draw_server_list() const {
+    for (std::vector<ServerList::Entry>::size_type i = 0; i < state.servers.entries.size(); ++i) {
+        ServerList::Entry &entry = state.servers.entries[i];
 
         // Calculate Item Widths
         const ImGuiStyle &style = ImGui::GetStyle();
@@ -254,7 +227,7 @@ void ConfigurationUI::draw_server_list() {
 
         // Address
         ImGui::PushItemWidth(ImGui::GetContentRegionAvail().x - width_needed);
-        ImGui::InputTextWithHint((base_label + address_hint).c_str(), address_hint, &entry.first, ImGuiInputTextFlags_CharsNoBlank);
+        ImGui::InputTextWithHint((base_label + address_hint).c_str(), address_hint, &entry.first, ImGuiInputTextFlags_CallbackCharFilter, server_list_address_filter);
         ImGui::PopItemWidth();
 
         // Port
@@ -262,7 +235,7 @@ void ConfigurationUI::draw_server_list() {
         std::string port_str = port > 0 ? std::to_string(port) : "";
         ImGui::SameLine();
         ImGui::PushItemWidth(port_width);
-        if (ImGui::InputTextWithHint((base_label + port_hint).c_str(), port_hint, &port_str, ImGuiInputTextFlags_CharsDecimal | ImGuiInputTextFlags_NoHorizontalScroll)) {
+        if (ImGui::InputTextWithHint((base_label + port_hint).c_str(), port_hint, &port_str, ImGuiInputTextFlags_CallbackCharFilter | ImGuiInputTextFlags_NoHorizontalScroll, server_list_port_filter)) {
             port = ServerList::parse_port(port_str);
         }
         ImGui::PopItemWidth();
@@ -270,7 +243,7 @@ void ConfigurationUI::draw_server_list() {
         // Delete
         ImGui::SameLine();
         if (ImGui::Button((delete_text + base_label).c_str())) {
-            servers.entries.erase(servers.entries.begin() + int(i));
+            state.servers.entries.erase(state.servers.entries.begin() + int(i));
             i--;
         }
     }

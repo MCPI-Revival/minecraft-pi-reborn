@@ -2,8 +2,8 @@
 #include <vector>
 
 #include <libreborn/patch.h>
-#include <libreborn/env.h>
-#include <libreborn/exec.h>
+#include <libreborn/env/env.h>
+#include <libreborn/util/exec.h>
 #include <libreborn/config.h>
 
 #include <symbols/minecraft.h>

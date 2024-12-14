@@ -11,10 +11,9 @@ struct ServerList {
     typedef std::pair<std::string, port_t> Entry;
     // Load
     static port_t parse_port(const std::string &s);
-    ServerList();
+    void load(const std::string &str);
     // Save
-    std::string to_string() const;
-    void save() const;
+    [[nodiscard]] std::string to_string() const;
     // Entries
-    std::vector<Entry> entries{};
+    std::vector<Entry> entries;
 };

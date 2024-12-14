@@ -1,6 +1,6 @@
 #include <sstream>
 
-#include <libreborn/env.h>
+#include <libreborn/env/env.h>
 
 #include "configuration.h"
 #include "cache.h"
@@ -28,6 +28,7 @@ void State::update(const bool save) {
     update_from_env(MCPI_USERNAME_ENV, username, save);
     update_from_env(MCPI_RENDER_DISTANCE_ENV, render_distance, save);
     update_from_env(MCPI_GUI_SCALE_ENV, gui_scale, save);
+    update_from_env(MCPI_SERVER_LIST_ENV, servers, save);
 }
 bool State::operator==(const State &other) const {
     std::ostringstream one;

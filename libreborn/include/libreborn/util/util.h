@@ -3,7 +3,7 @@
 #include <dlfcn.h>
 #include <string>
 
-#include "log.h"
+#include "../log.h"
 
 // Align Number
 int align_up(int x, int alignment);
@@ -24,19 +24,8 @@ int align_up(int x, int alignment);
     } \
     extern "C" __attribute__((__used__)) return_type name args
 
-// Safe Version Of pipe()
-struct Pipe {
-    Pipe();
-    const int read;
-    const int write;
-};
-
 // Check If Two Percentages Are Different Enough To Be Logged
 bool is_progress_difference_significant(int32_t new_val, int32_t old_val);
-
-// Lock File
-int lock_file(const char *file);
-void unlock_file(const char *file, int fd);
 
 // Check $DISPLAY
 void reborn_check_display();
@@ -47,9 +36,6 @@ const char *get_home_subdirectory_for_game_data();
 // Make Sure Directory Exists
 void ensure_directory(const char *path);
 
-// Safe write()
-void safe_write(int fd, const void *buf, size_t size);
-
 // embed_resource()
 #define EMBEDDED_RESOURCE(name) \
     extern unsigned char name[]; \
@@ -57,10 +43,6 @@ void safe_write(int fd, const void *buf, size_t size);
 
 // Profile Directory
 std::string home_get();
-
-// Format Time
-std::string format_time(const char *fmt);
-std::string format_time(const char *fmt, int time);
 
 // Default MCPI Port
 // This Macro DOES NOT Control MCPI

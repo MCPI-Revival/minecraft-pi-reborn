@@ -1,7 +1,7 @@
 #include <libreborn/log.h>
-#include <libreborn/exec.h>
+#include <libreborn/util/exec.h>
 #include <libreborn/config.h>
-#include <libreborn/util.h>
+#include <libreborn/util/util.h>
 
 #include <symbols/minecraft.h>
 #include <GLES/gl.h>

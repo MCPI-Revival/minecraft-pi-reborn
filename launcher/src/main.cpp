@@ -1,7 +1,7 @@
 #include <cstdlib>
 
-#include <libreborn/env.h>
-#include <libreborn/util.h>
+#include <libreborn/env/env.h>
+#include <libreborn/util/util.h>
 #include <libreborn/config.h>
 
 #include "bootstrap/bootstrap.h"
