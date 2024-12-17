@@ -50,6 +50,7 @@ method bool getDirectSignal(int x, int y, int z, int direction) = 0xa5d2c;
 method bool canSeeSky(int x, int y, int z) = 0xa39b8;
 method bool isDay() = 0xa3d9c;
 method int getTopTile(int x, int z) = 0xa2cc8;
+method BiomeSource *getBiomeSource() = 0xa3c64;
 
 virtual-method void tick() = 0x28;
 virtual-method void updateSleepingPlayerList() = 0x2c;

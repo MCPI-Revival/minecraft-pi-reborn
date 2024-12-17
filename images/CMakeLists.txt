@@ -19,7 +19,7 @@ install(
     DESTINATION "${MCPI_INSTALL_DIR}/data/images/item"
 )
 install(
-    FILES "mojang/shadow.png" "mojang/vignette.png"
+    FILES "mojang/shadow.png" "mojang/vignette.png" "mojang/grasscolor.png"
     DESTINATION "${MCPI_INSTALL_DIR}/data/images/misc"
 )
 

@@ -1,42 +1,54 @@
-#include <libreborn/patch.h>
+#include <cstdint>
 
+#include <libreborn/patch.h>
 #include <symbols/minecraft.h>
 
 #include <mods/feature/feature.h>
+#include <mods/extend/extend.h>
 
 #include "misc-internal.h"
 
 // Change Grass Color
-static int32_t get_color(LevelSource *level_source, int32_t x, int32_t z) {
-    // Get Biome
-    const Biome *biome = level_source->getBiome(x, z);
-    if (biome == nullptr) {
-        return 0;
+static bool grass_colors_loaded = false;
+#define GRASS_COLORS_SIZE 256
+static uint32_t grass_colors[GRASS_COLORS_SIZE][GRASS_COLORS_SIZE];
+static void Minecraft_init_injection(Minecraft_init_t original, Minecraft *self) {
+    // Call Original Method
+    original(self);
+    // Load
+    const uint32_t id = self->textures->loadTexture("misc/grasscolor.png", true);
+    const Texture *data = self->textures->getTemporaryTextureData(id);
+    if (data == nullptr || data->width != GRASS_COLORS_SIZE || data->height != GRASS_COLORS_SIZE) {
+        return;
     }
-    // Return
-    return biome->color;
-}
-#define BIOME_BLEND_SIZE 7
-static int32_t GrassTile_getColor_injection(__attribute__((unused)) GrassTile_getColor_t original, __attribute__((unused)) GrassTile *tile, LevelSource *level_source, const int32_t x, __attribute__((unused)) int32_t y, const int32_t z) {
-    int r_sum = 0;
-    int g_sum = 0;
-    int b_sum = 0;
-    int color_sum = 0;
-    const int x_start = x - (BIOME_BLEND_SIZE / 2);
-    const int z_start = z - (BIOME_BLEND_SIZE / 2);
-    for (int x_offset = 0; x_offset < BIOME_BLEND_SIZE; x_offset++) {
-        for (int z_offset = 0; z_offset < BIOME_BLEND_SIZE; z_offset++) {
-            const int32_t color = get_color(level_source, x_start + x_offset, z_start + z_offset);
-            r_sum += (color >> 16) & 0xff;
-            g_sum += (color >> 8) & 0xff;
-            b_sum += color & 0xff;
-            color_sum++;
+    const uint32_t *texture = (uint32_t *) data->data;
+    // Copy
+    for (int y = 0; y < GRASS_COLORS_SIZE; y++) {
+        for (int x = 0; x < GRASS_COLORS_SIZE; x++) {
+            grass_colors[y][x] = texture[(y * GRASS_COLORS_SIZE) + x];
         }
     }
-    const int r_avg = r_sum / color_sum;
-    const int g_avg = g_sum / color_sum;
-    const int b_avg = b_sum / color_sum;
-    return (r_avg << 16) | (g_avg << 8) | b_avg;
+    grass_colors_loaded = true;
+}
+static int32_t GrassTile_getColor_injection(__attribute__((unused)) GrassTile_getColor_t original, __attribute__((unused)) GrassTile *tile, LevelSource *level_source, const int32_t x, __attribute__((unused)) int32_t y, const int32_t z) {
+    // Get Level
+    Level *level = ((Region *) level_source)->level;
+    // Find Biome Temperature
+    BiomeSource *biome_source = level->getBiomeSource();
+    biome_source->getBiomeBlock(x, z, 1, 1);
+    const float temperature = biome_source->temperature[0];
+    float downfall = biome_source->downfall[0];
+    // Get Grass Color
+    downfall *= temperature;
+    const int xx = (int) ((1 - temperature) * (GRASS_COLORS_SIZE - 1));
+    const int yy = (int) ((1 - downfall) * (GRASS_COLORS_SIZE - 1));
+    uint32_t color = grass_colors[yy][xx];
+    // Convert From ABGR To ARGB
+    const uint8_t b = (color >> 16) & 0xff;
+    const uint8_t g = (color >> 8)  & 0xff;
+    const uint8_t r = color & 0xff;
+    color = (r << 16) | (g << 8) | b;
+    return (int32_t) color;
 }
 static int32_t TallGrass_getColor_injection(TallGrass_getColor_t original, TallGrass *tile, LevelSource *level_source, const int32_t x, const int32_t y, const int32_t z) {
     const int32_t original_color = original(tile, level_source, x, y, z);
@@ -45,6 +57,32 @@ static int32_t TallGrass_getColor_injection(TallGrass_getColor_t original, TallG
     } else {
         return original_color;
     }
+}
+
+// Grass Side Tinting
+CUSTOM_VTABLE(grass_side, Tile) {
+    vtable->shouldRenderFace = [](Tile *self, LevelSource *level_source, const int x, const int y, const int z, const int face) {
+        return face != 0 && face != 1 && Tile_vtable::base->shouldRenderFace(self, level_source, x, y, z, face);
+    };
+    vtable->getColor = [](Tile *self, LevelSource *level_source, const int32_t x, const int32_t y, const int32_t z) {
+        return GrassTile_getColor_injection(nullptr, (GrassTile *) self, level_source, x, y, z);
+    };
+}
+static Tile *get_fake_grass_side_tile() {
+    static Tile *out = nullptr;
+    if (out == nullptr) {
+        out = Tile::allocate();
+        out->constructor(0, 38, Material::dirt);
+        out->vtable = get_grass_side_vtable();
+    }
+    return out;
+}
+static bool TileRenderer_tesselateBlockInWorld_injection(TileRenderer_tesselateBlockInWorld_t original, TileRenderer *self, Tile *tile, const int x, const int y, const int z) {
+    const bool ret = original(self, tile, x, y, z);
+    if (tile == Tile::grass && tile->getTexture3((LevelSource *) self->level, x, y, z, 2) == 3) {
+        original(self, get_fake_grass_side_tile(), x, y, z);
+    }
+    return ret;
 }
 
 // No Block Tinting
@@ -57,8 +95,14 @@ static int32_t Tile_getColor_injection(__attribute__((unused)) const std::functi
 void _init_misc_tinting() {
     // Change Grass Color
     if (feature_has("Add Biome Colors To Grass", server_disabled)) {
+        overwrite_calls(Minecraft_init, Minecraft_init_injection);
         overwrite_calls(GrassTile_getColor, GrassTile_getColor_injection);
         overwrite_calls(TallGrass_getColor, TallGrass_getColor_injection);
+        // Fancy Grass Side
+        // This Requires Alpha Testing On The Opaque Render-Layer, Which Could Hurt Performance
+        overwrite_calls(TileRenderer_tesselateBlockInWorld, TileRenderer_tesselateBlockInWorld_injection);
+        unsigned char nop_patch[4] = {0x00, 0xf0, 0x20, 0xe3}; // "nop"
+        patch((void *) 0x4a038, nop_patch);
     }
 
     // Disable Block Tinting

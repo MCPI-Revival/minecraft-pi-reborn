@@ -1,0 +1,5 @@
+extends LevelSource;
+
+vtable 0x10ff58;
+
+property Level *level = 0x10;

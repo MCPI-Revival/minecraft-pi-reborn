@@ -97,6 +97,8 @@ set(SRC
     src/level/DistanceChunkSorter.def
     src/level/renderer/Chunk.def
     src/level/LevelStorage.def
+    src/level/BiomeSource.def
+    src/level/Region.def
     src/item/ItemRenderer.def
     src/item/ItemInHandRenderer.def
     src/item/AuxDataTileItem.def

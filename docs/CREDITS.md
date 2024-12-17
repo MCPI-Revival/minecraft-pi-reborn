@@ -8,3 +8,4 @@
 | [RetDec](https://retdec.com) | Used For Decompiling Minecraft: Pi Edition |
 | [minecraft-linux/mcpelauncher-core](https://github.com/minecraft-linux/mcpelauncher-core/blob/6b5e17b5685a612143297ae4595bdd12327284f3/src/patch_utils.cpp#L42) | Original Function Overwrite Code |
 | [Hooking C Functions at Runtime - Thomas Finch](http://thomasfinch.me/blog/2015/07/24/Hooking-C-Functions-At-Runtime.html) | Original Patching Code |
+| [ReMinecraftPE](https://github.com/ReMinecraftPE/mcpe) | A Lot Of Decompiled Code |
