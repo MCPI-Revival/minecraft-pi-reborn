@@ -86,6 +86,6 @@ void _init_misc() {
         // Disable Opening Inventory Using The Cursor When Cursor Is Hidden
         overwrite_calls(Gui_handleClick, Gui_handleClick_injection);
         // Disable Item Dropping Using The Cursor When Cursor Is Hidden
-        overwrite_call((void *) 0x27800, (void *) Gui_tickItemDrop_Minecraft_isCreativeMode_call_injection);
+        overwrite_call((void *) 0x27800, Minecraft_isCreativeMode, Gui_tickItemDrop_Minecraft_isCreativeMode_call_injection);
     }
 }

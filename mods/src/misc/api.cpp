@@ -33,12 +33,15 @@ struct Callbacks {
 // Run Functions On Creative Inventory Setup
 SETUP_CALLBACK(creative_inventory_setup, FillingContainer *);
 // Handle Custom Creative Inventory Setup Behavior
-static void Inventory_setupDefault_FillingContainer_addItem_call_injection(FillingContainer *filling_container, ItemInstance *item_instance) {
+static int Inventory_setupDefault_FillingContainer_addItem_call_injection(FillingContainer *filling_container, ItemInstance *item_instance) {
     // Call Original Method
-    filling_container->addItem(item_instance);
+    const int ret = filling_container->addItem(item_instance);
 
     // Run Functions
     get_misc_creative_inventory_setup_functions().run(filling_container);
+
+    // Return
+    return ret;
 }
 
 // Track Frames
@@ -139,5 +142,5 @@ void misc_render_background(int color, const Minecraft *minecraft, const int x, 
 // Init
 void _init_misc_api() {
     // Handle Custom Creative Inventory Setup Behavior
-    overwrite_call((void *) 0x8e0fc, (void *) Inventory_setupDefault_FillingContainer_addItem_call_injection);
+    overwrite_call((void *) 0x8e0fc, FillingContainer_addItem, Inventory_setupDefault_FillingContainer_addItem_call_injection);
 }

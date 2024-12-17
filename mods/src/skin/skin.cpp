@@ -1,3 +1,5 @@
+#include <cstdint>
+
 #include <libreborn/patch.h>
 #include <symbols/minecraft.h>
 
@@ -65,7 +67,7 @@ static void Player_username_assign_injection_2(std::string *target, const char *
 }
 
 // Change Texture For HUD
-static int32_t Textures_loadAndBindTexture_injection(Textures *textures, __attribute__((unused)) std::string const& name) {
+static uint32_t Textures_loadAndBindTexture_injection(Textures *textures, __attribute__((unused)) std::string const& name) {
     // Change Texture
     static std::string new_texture;
     if (new_texture.length() == 0) {
@@ -82,14 +84,14 @@ void init_skin() {
     // Check Feature Flag
     if (feature_has("Load Custom Skins", server_disabled)) {
         // LocalPlayer
-        overwrite_call((void *) 0x44c28, (void *) Player_username_assign_injection);
+        overwrite_call_manual((void *) 0x44c28, (void *) Player_username_assign_injection);
         // RemotePlayer
-        overwrite_call((void *) 0x6ce58, (void *) Player_username_assign_injection_2);
+        overwrite_call_manual((void *) 0x6ce58, (void *) Player_username_assign_injection_2);
         // ServerPlayer
-        overwrite_call((void *) 0x7639c, (void *) Player_username_assign_injection_2);
+        overwrite_call_manual((void *) 0x7639c, (void *) Player_username_assign_injection_2);
 
         // HUD
-        overwrite_call((void *) 0x4c6d0, (void *) Textures_loadAndBindTexture_injection);
+        overwrite_call((void *) 0x4c6d0, Textures_loadAndBindTexture, Textures_loadAndBindTexture_injection);
 
         // Loader
         _init_skin_loader();

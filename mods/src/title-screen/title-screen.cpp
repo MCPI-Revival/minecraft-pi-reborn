@@ -42,7 +42,7 @@ static void StartMenuScreen_init_injection(StartMenuScreen_init_t original, Star
 
 // Add Functionality To Quit Button
 static void StartMenuScreen_buttonClicked_injection(StartMenuScreen_buttonClicked_t original, StartMenuScreen *screen, Button *button) {
-    Button *quit_button = &screen->create_button;
+    const Button *quit_button = &screen->create_button;
     if (button == quit_button) {
         // Quit
         compat_request_exit();
@@ -72,7 +72,7 @@ static float StartMenuScreen_render_Mth_min_injection(__attribute__((unused)) fl
 // Track Version Text Y
 int version_text_bottom;
 static int (*adjust_version_y)(const StartMenuScreen *) = nullptr;
-static void StartMenuScreen_render_GuiComponent_drawString_injection(GuiComponent *self, Font *font, const std::string &text, int x, int y, int color) {
+static void StartMenuScreen_render_GuiComponent_drawString_injection(GuiComponent *self, Font *font, const std::string &text, int x, int y, uint color) {
     // Adjust Position
     if (adjust_version_y) {
         y = adjust_version_y((StartMenuScreen *) self);
@@ -175,18 +175,18 @@ void init_title_screen() {
     // High-Resolution Title
     if (feature_has("Allow High-Resolution Title", server_disabled) || modern_logo) {
         // Touch
-        overwrite_call((void *) 0x3df2c, (void *) StartMenuScreen_render_Textures_getTemporaryTextureData_injection);
-        overwrite_call((void *) 0x3df98, (void *) StartMenuScreen_render_Mth_min_injection);
+        overwrite_call((void *) 0x3df2c, Textures_getTemporaryTextureData, StartMenuScreen_render_Textures_getTemporaryTextureData_injection);
+        overwrite_call((void *) 0x3df98, Mth_min, StartMenuScreen_render_Mth_min_injection);
         // Classic
-        overwrite_call((void *) 0x3956c, (void *) StartMenuScreen_render_Textures_getTemporaryTextureData_injection);
-        overwrite_call((void *) 0x395d8, (void *) StartMenuScreen_render_Mth_min_injection);
+        overwrite_call((void *) 0x3956c, Textures_getTemporaryTextureData, StartMenuScreen_render_Textures_getTemporaryTextureData_injection);
+        overwrite_call((void *) 0x395d8, Mth_min, StartMenuScreen_render_Mth_min_injection);
     }
 
     // Better Scaling And Position
     bool hijack_version_rendering = false;
     if (feature_has("Improved Classic Title Positioning", server_disabled)) {
-        overwrite_call((void *) 0x3956c, (void *) StartMenuScreen_render_Textures_getTemporaryTextureData_injection_modern);
-        overwrite_call((void *) 0x39528, (void *) StartMenuScreen_render_Screen_renderBackground_injection);
+        overwrite_call((void *) 0x3956c, Textures_getTemporaryTextureData, StartMenuScreen_render_Textures_getTemporaryTextureData_injection_modern);
+        overwrite_call((void *) 0x39528, StartMenuScreen_renderBackground, StartMenuScreen_render_Screen_renderBackground_injection);
         hijack_version_rendering = true;
         adjust_version_y = get_version_y;
     }
@@ -199,7 +199,7 @@ void init_title_screen() {
 
     // Adjust And Record Version String Rendering
     if (hijack_version_rendering) {
-        overwrite_call((void *) 0x39728, (void *) StartMenuScreen_render_GuiComponent_drawString_injection);
+        overwrite_call((void *) 0x39728, GuiComponent_drawString, StartMenuScreen_render_GuiComponent_drawString_injection);
     }
 
     // Init Welcome Screen

@@ -148,7 +148,7 @@ static void drawArrayVT_injection(const int buffer, const int vertices, int vert
 }
 
 // Add Vertex
-static void Tesselator_vertex_injection(const Tesselator *self, const float x, const float y, const float z) {
+static void Tesselator_vertex_injection(Tesselator *self, const float x, const float y, const float z) {
     CustomVertex &vertex = CustomTesselator::instance.vertices[CustomTesselator::instance.vertex_count++];
     vertex.pos = {
         (self->offset_x + x) * self->sx,
@@ -195,9 +195,9 @@ void _init_custom_tesselator() {
     overwrite_calls(Tesselator_init, Tesselator_init_injection);
     overwrite_calls(Tesselator_clear, Tesselator_clear_injection);
     overwrite_calls(Tesselator_begin, Tesselator_begin_injection);
-    overwrite_call((void *) Tesselator_end->backup, (void *) Tesselator_end_injection, true);
-    overwrite_call((void *) Tesselator_draw->backup, (void *) Tesselator_draw_injection, true);
-    overwrite_call((void *) Tesselator_vertex->backup, (void *) Tesselator_vertex_injection, true);
-    overwrite_call((void *) Tesselator_normal->backup, (void *) Tesselator_normal_injection, true);
-    overwrite_call((void *) Common_drawArrayVT->backup, (void *) drawArrayVT_injection, true);
+    overwrite_call((void *) Tesselator_end->backup, Tesselator_end, Tesselator_end_injection, true);
+    overwrite_call((void *) Tesselator_draw->backup, Tesselator_draw, Tesselator_draw_injection, true);
+    overwrite_call((void *) Tesselator_vertex->backup, Tesselator_vertex, Tesselator_vertex_injection, true);
+    overwrite_call((void *) Tesselator_normal->backup, Tesselator_normal, Tesselator_normal_injection, true);
+    overwrite_call((void *) Common_drawArrayVT->backup, Common_drawArrayVT, drawArrayVT_injection, true);
 }

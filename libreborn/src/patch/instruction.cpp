@@ -31,8 +31,8 @@ static void *extract_from_bl_instruction(unsigned char *from, const uint32_t ins
     // Compute Target Address
     return from + 8 + offset;
 }
-void *extract_from_bl_instruction(unsigned char *from) {
-    return extract_from_bl_instruction(from, *(uint32_t *) from);
+void *extract_from_bl_instruction(unsigned char *addr) {
+    return extract_from_bl_instruction(addr, *(uint32_t *) addr);
 }
 
 // Generate A BL Instruction

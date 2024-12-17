@@ -242,6 +242,6 @@ void init_atlas() {
         misc_run_on_init(generate_atlas);
         overwrite_calls(CropTile_getTexture2, CropTile_getTexture2_injection);
         overwrite_calls(ItemRenderer_renderGuiItem_two, ItemRenderer_renderGuiItem_two_injection);
-        overwrite_call((void *) 0x26f50, (void *) Gui_renderToolBar_GuiComponent_blit_injection);
+        overwrite_call((void *) 0x26f50, GuiComponent_blit, Gui_renderToolBar_GuiComponent_blit_injection);
     }
 }

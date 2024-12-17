@@ -37,7 +37,7 @@ static void SDL_Quit_injection() {
 // Patch SDL Calls
 void _patch_sdl_calls() {
     // Disable SDL Calls
-    overwrite_call((void *) 0xe020, (void *) SDL_SetVideoMode_injection);
-    overwrite_call((void *) 0x13284, (void *) SDL_GetWMInfo_injection);
-    overwrite_call((void *) 0x12410, (void *) SDL_Quit_injection);
+    overwrite_call_manual((void *) 0xe020, (void *) SDL_SetVideoMode_injection);
+    overwrite_call_manual((void *) 0x13284, (void *) SDL_GetWMInfo_injection);
+    overwrite_call_manual((void *) 0x12410, (void *) SDL_Quit_injection);
 }

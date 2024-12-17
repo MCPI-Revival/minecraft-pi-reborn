@@ -131,7 +131,7 @@ static Screen *create_welcome_screen() {
 }
 
 // Show Welcome Screen
-static void NinecraftApp_init_ScreenChooser_setScreen_injection(ScreenChooser *self, int id) {
+static void NinecraftApp_init_ScreenChooser_setScreen_injection(ScreenChooser *self, uint id) {
     if (should_show_welcome()) {
         // Show Welcome Screen
         self->minecraft->setScreen(create_welcome_screen());
@@ -144,5 +144,5 @@ static void NinecraftApp_init_ScreenChooser_setScreen_injection(ScreenChooser *s
 // Init
 void _init_welcome() {
     // Hijack Start Screen
-    overwrite_call((void *) 0x14a34, (void *) NinecraftApp_init_ScreenChooser_setScreen_injection);
+    overwrite_call((void *) 0x14a34, ScreenChooser_setScreen, NinecraftApp_init_ScreenChooser_setScreen_injection);
 }

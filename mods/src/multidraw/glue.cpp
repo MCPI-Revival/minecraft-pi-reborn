@@ -139,8 +139,8 @@ void LevelRenderer_renderSameAsLast(LevelRenderer *self, const float delta) {
 void init_multidraw() {
     // Setup
     if (feature_has("Multidraw Rendering", server_disabled)) {
-        overwrite_call((void *) 0x4e51c, (void *) setup_multidraw);
-        overwrite_call((void *) 0x4e6f8, (void *) setup_multidraw);
+        overwrite_call_manual((void *) 0x4e51c, (void *) setup_multidraw);
+        overwrite_call_manual((void *) 0x4e6f8, (void *) setup_multidraw);
         overwrite_calls(LevelRenderer_renderChunks, LevelRenderer_renderChunks_injection);
         unsigned char nop_patch[4] = {0x00, 0xf0, 0x20, 0xe3}; // "nop"
         patch((void *) 0x479fc, nop_patch);

@@ -3,6 +3,7 @@
 #include <limits>
 
 #include <libreborn/env/servers.h>
+#include <libreborn/env/flags.h>
 #include <libreborn/util/util.h>
 
 // Seperator
@@ -26,7 +27,7 @@ void ServerList::load(const std::string &str) {
 
     // Iterate Lines
     std::string line;
-    while (std::getline(server_list_file, line)) {
+    while (std::getline(server_list_file, line, FLAG_SEPERATOR_CHAR)) {
         // Check Line
         if (!line.empty()) {
             // Parse
@@ -50,7 +51,7 @@ void ServerList::load(const std::string &str) {
 std::string ServerList::to_string() const {
     std::stringstream out;
     for (const Entry &entry : entries) {
-        out << entry.first << PORT_SEPERATOR_CHAR << std::to_string(entry.second) << '\n';
+        out << entry.first << PORT_SEPERATOR_CHAR << std::to_string(entry.second) << FLAG_SEPERATOR_CHAR;
     }
     return out.str();
 }

@@ -11,7 +11,7 @@
 
 // Fix Initial Option Button Rendering
 // The calling function doesn't exist in MCPE v0.6.1, so its name is unknown.
-static OptionButton *OptionsPane_unknown_toggle_creating_function_OptionButton_injection(OptionButton *option_button, Options_Option *option) {
+static OptionButton *OptionsPane_unknown_toggle_creating_function_OptionButton_injection(OptionButton *option_button, const Options_Option *option) {
     // Call Original Method
     OptionButton *ret = option_button->constructor(option);
 
@@ -162,7 +162,7 @@ void _init_options_ui() {
     unsigned char nop_patch[4] = {0x00, 0xf0, 0x20, 0xe3}; // "nop"
     if (feature_has("Fix Options Screen", server_disabled)) {
         // Fix Initial Option Button Rendering
-        overwrite_call((void *) 0x24510, (void *) OptionsPane_unknown_toggle_creating_function_OptionButton_injection);
+        overwrite_call((void *) 0x24510, OptionButton_constructor, OptionsPane_unknown_toggle_creating_function_OptionButton_injection);
 
         // "Gui Scale" slider is broken, so disable it.
         patch((void *) 0x35a10, nop_patch);
@@ -180,7 +180,7 @@ void _init_options_ui() {
         overwrite_calls(Options_getBooleanValue, Options_getBooleanValue_injection);
 
         // Fix Difficulty When Toggling
-        overwrite_call((void *) 0x1cd00, (void *) OptionButton_toggle_Options_save_injection);
+        overwrite_call((void *) 0x1cd00, Options_save, OptionButton_toggle_Options_save_injection);
     }
 
     // Info Button

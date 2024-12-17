@@ -165,7 +165,7 @@ static void RandomLevelSource_buildSurface_injection(RandomLevelSource_buildSurf
 }
 
 // Disable Hostile AI In Creative Mode
-static Entity *PathfinderMob_findAttackTarget_injection(PathfinderMob *mob) {
+static Entity *PathfinderMob_updateAi_PathfinderMob_findAttackTarget_injection(PathfinderMob *mob) {
     // Call Original Method
     Entity *target = mob->findAttackTarget();
 
@@ -456,7 +456,7 @@ void init_misc() {
 
     // Print Error Message If RakNet Startup Fails
     if (feature_has("Log RakNet Startup Errors", server_enabled)) {
-        overwrite_call((void *) 0x73778, (void *) RakNetInstance_host_RakNet_RakPeer_Startup_injection);
+        overwrite_call((void *) 0x73778, RakNet_RakPeer_Startup, RakNetInstance_host_RakNet_RakPeer_Startup_injection);
     }
 
     // Fix Furnace Not Checking Item Auxiliary When Inserting New Item
@@ -483,7 +483,7 @@ void init_misc() {
 
     // Disable Hostile AI In Creative Mode
     if (feature_has("Disable Hostile AI In Creative Mode", server_enabled)) {
-        overwrite_call((void *) 0x83b8c, (void *) PathfinderMob_findAttackTarget_injection);
+        overwrite_call((void *) 0x83b8c, PathfinderMob_findAttackTarget, PathfinderMob_updateAi_PathfinderMob_findAttackTarget_injection);
     }
 
     // Send The Full Level, Not Only Changed Chunks
@@ -507,7 +507,7 @@ void init_misc() {
 
     // Implement Crafting Remainders
     if (feature_has("Implement Crafting Remainders", server_enabled)) {
-        overwrite_call((void *) 0x2e230, (void *) PaneCraftingScreen_craftSelectedItem_PaneCraftingScreen_recheckRecipes_injection);
+        overwrite_call((void *) 0x2e230, PaneCraftingScreen_recheckRecipes, PaneCraftingScreen_craftSelectedItem_PaneCraftingScreen_recheckRecipes_injection);
         overwrite_calls(Item_getCraftingRemainingItem, Item_getCraftingRemainingItem_injection);
     }
 
@@ -532,31 +532,31 @@ void init_misc() {
     if (feature_has("Add Missing Language Strings", server_disabled)) {
         misc_run_on_language_setup(Language_injection);
         // Water/Lava Language Strings
-        overwrite_call((void *) 0xc3b54, (void *) Tile_initTiles_std_string_constructor);
-        overwrite_call((void *) 0xc3c7c, (void *) Tile_initTiles_std_string_constructor);
+        overwrite_call_manual((void *) 0xc3b54, (void *) Tile_initTiles_std_string_constructor);
+        overwrite_call_manual((void *) 0xc3c7c, (void *) Tile_initTiles_std_string_constructor);
         // Carried Tile Language Strings
         patch_address((void *) 0xc6674, (void *) "grassCarried");
         patch_address((void *) 0xc6684, (void *) "leavesCarried");
         // Invisible Bedrock Language String
-        overwrite_call((void *) 0xc5f04, (void *) Tile_initTiles_Tile_init_invBedrock_injection);
+        overwrite_call((void *) 0xc5f04, Tile_init, Tile_initTiles_Tile_init_invBedrock_injection);
     }
 
     // Prevent Pigmen From Burning In The Sun
     if (feature_has("Fix Pigmen Burning In The Sun", server_enabled)) {
         fix_pigmen_burning = true;
-        overwrite_call((void *) 0x89a1c, (void *) Zombie_aiStep_getBrightness_injection);
+        overwrite_call((void *) 0x89a1c, Entity_getBrightness, Zombie_aiStep_getBrightness_injection);
     }
 
     // Fix Door Duplication
     if (feature_has("Fix Door Duplication", server_enabled)) {
         unsigned char nop_patch[4] = {0x00, 0xf0, 0x20, 0xe3}; // "nop"
         patch((void *) 0xbe230, nop_patch);
-        overwrite_call((void *) 0xbe110, (void *) DoorTile_neighborChanged_Tile_spawnResources_injection);
+        overwrite_call((void *) 0xbe110, DoorTile_spawnResources, DoorTile_neighborChanged_Tile_spawnResources_injection);
     }
 
     // Fix Cobweb Lighting
     if (feature_has("Fix Cobweb Lighting", server_enabled)) {
-        overwrite_call((void *) 0xc444c, (void *) Tile_initTiles_WebTile_setLightBlock_injection);
+        overwrite_call((void *) 0xc444c, Tile_setLightBlock, Tile_initTiles_WebTile_setLightBlock_injection);
     }
 
     // Fix Fire Immunity
@@ -589,12 +589,12 @@ void init_misc() {
 
     // Rare Segfault
     if (feature_has("Fix Crash When Generating Certain Seeds", server_enabled)) {
-        overwrite_call((void *) 0xb198c, (void *) Dimension_isValidSpawn_Level_getTopTile_injection);
+        overwrite_call((void *) 0xb198c, Level_getTopTile, Dimension_isValidSpawn_Level_getTopTile_injection);
     }
 
     // Fix Sugar Rendering
     if (feature_has("Fix Sugar Position In Hand", server_disabled)) {
-        overwrite_call((void *) 0x976f8, (void *) Item_initItems_Item_handEquipped_injection);
+        overwrite_call((void *) 0x976f8, Item_handEquipped, Item_initItems_Item_handEquipped_injection);
     }
 
     // Disable overwrite_calls() After Minecraft::init

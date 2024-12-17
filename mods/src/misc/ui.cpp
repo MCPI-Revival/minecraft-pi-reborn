@@ -39,31 +39,31 @@ static void Gui_renderHearts_injection(Gui_renderHearts_t original, Gui *gui) {
 }
 #define PINK_HEART_FULL 70
 #define PINK_HEART_HALF 79
-static void Gui_renderHearts_GuiComponent_blit_overlay_empty_injection(Gui *gui, const int32_t x1, const int32_t y1, const int32_t x2, const int32_t y2, const int32_t w1, const int32_t h1, const int32_t w2, const int32_t h2) {
+static void Gui_renderHearts_GuiComponent_blit_overlay_empty_injection(GuiComponent *gui, const int32_t x1, const int32_t y1, const int32_t x2, const int32_t y2, const int32_t w1, const int32_t h1, const int32_t w2, const int32_t h2) {
     // Call Original Method
-    get_blit_with_classic_hud_offset()((GuiComponent *) gui, x1, y1, x2, y2, w1, h1, w2, h2);
+    get_blit_with_classic_hud_offset()(gui, x1, y1, x2, y2, w1, h1, w2, h2);
     // Render The Overlay
     if (heal_amount_drawing == 1) {
         // Half Heart
-        get_blit_with_classic_hud_offset()((GuiComponent *) gui, x1, y1, PINK_HEART_HALF, 0, w1, h1, w2, h2);
+        get_blit_with_classic_hud_offset()(gui, x1, y1, PINK_HEART_HALF, 0, w1, h1, w2, h2);
         heal_amount_drawing = 0;
     } else if (heal_amount_drawing > 0) {
         // Full Heart
-        get_blit_with_classic_hud_offset()((GuiComponent *) gui, x1, y1, PINK_HEART_FULL, 0, w1, h1, w2, h2);
+        get_blit_with_classic_hud_offset()(gui, x1, y1, PINK_HEART_FULL, 0, w1, h1, w2, h2);
         heal_amount_drawing -= 2;
     }
 }
-static void Gui_renderHearts_GuiComponent_blit_overlay_hearts_injection(Gui *gui, const int32_t x1, const int32_t y1, const int32_t x2, const int32_t y2, const int32_t w1, const int32_t h1, const int32_t w2, const int32_t h2) {
+static void Gui_renderHearts_GuiComponent_blit_overlay_hearts_injection(GuiComponent *gui, const int32_t x1, const int32_t y1, const int32_t x2, const int32_t y2, const int32_t w1, const int32_t h1, const int32_t w2, const int32_t h2) {
     // Offset the overlay
     if (x2 == 52) {
         heal_amount_drawing += 2;
     } else if (x2 == 61 && heal_amount) {
         // Half heart, flipped
-        get_blit_with_classic_hud_offset()((GuiComponent *) gui, x1, y1, PINK_HEART_FULL, 0, w1, h1, w2, h2);
+        get_blit_with_classic_hud_offset()(gui, x1, y1, PINK_HEART_FULL, 0, w1, h1, w2, h2);
         heal_amount_drawing += 1;
     }
     // Call Original Method
-    get_blit_with_classic_hud_offset()((GuiComponent *) gui, x1, y1, x2, y2, w1, h1, w2, h2);
+    get_blit_with_classic_hud_offset()(gui, x1, y1, x2, y2, w1, h1, w2, h2);
     heal_amount_drawing = std::min(heal_amount_drawing, heal_amount);
 }
 
@@ -285,8 +285,8 @@ void _init_misc_ui() {
     // Food Overlay
     if (feature_has("Food Overlay", server_disabled)) {
         overwrite_calls(Gui_renderHearts, Gui_renderHearts_injection);
-        overwrite_call((void *) 0x266f8, (void *) Gui_renderHearts_GuiComponent_blit_overlay_empty_injection);
-        overwrite_call((void *) 0x267c8, (void *) Gui_renderHearts_GuiComponent_blit_overlay_hearts_injection);
+        overwrite_call((void *) 0x266f8, GuiComponent_blit, Gui_renderHearts_GuiComponent_blit_overlay_empty_injection);
+        overwrite_call((void *) 0x267c8, GuiComponent_blit, Gui_renderHearts_GuiComponent_blit_overlay_hearts_injection);
     }
 
     // Render Selected Item Text + Hide Chat Messages
@@ -299,7 +299,7 @@ void _init_misc_ui() {
     // Translucent Toolbar
     if (feature_has("Translucent Toolbar", server_disabled)) {
         overwrite_calls(Gui_renderToolBar, Gui_renderToolBar_injection);
-        overwrite_call((void *) 0x26c5c, (void *) Gui_renderToolBar_glColor4f_injection);
+        overwrite_call_manual((void *) 0x26c5c, (void *) Gui_renderToolBar_glColor4f_injection);
     }
 
     // Fix Screen Rendering When GUI is Hidden
@@ -358,9 +358,15 @@ void _init_misc_ui() {
         patch((void *) 0x173f0, nop_patch);
     }
 
-    // Don't Wrap Text On '\r' Or '\t' Because They Are Actual Characters In MCPI
-    if (feature_has("Fix Text Wrapping", server_disabled)) {
+    // Text Bugs
+    if (feature_has("Text Rendering Fixes", server_disabled)) {
+        // Don't Wrap Text On '\r' Or '\t' Because They Are Actual Characters In MCPI
         patch_address(&Strings::text_wrapping_delimiter, (void *) " \n");
+        // Fix Width Of "Masculine Ordinal Indicator"
+        unsigned char nop_patch[4] = {0x00, 0xf0, 0x20, 0xe3}; // "nop"
+        patch((void *) 0x24d6c, nop_patch);
+        patch((void *) 0x24d70, nop_patch);
+        patch((void *) 0x24d74, nop_patch);
     }
 
     // Fix Invalid ItemInHandRenderer Texture Cache

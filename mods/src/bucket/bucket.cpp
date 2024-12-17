@@ -359,7 +359,7 @@ void init_bucket() {
         // Creative Inventory
         misc_run_on_creative_inventory_setup(Inventory_setupDefault_FillingContainer_addItem_call_injection);
         // Make Liquids Selectable
-        overwrite_call((void *) 0x7f5b0, (void *) Mob_pick_Level_clip_injection);
+        overwrite_call((void *) 0x7f5b0, Level_clip, Mob_pick_Level_clip_injection);
         misc_run_on_tick(handle_tick);
         // Prevent Breaking Liquid
         overwrite_calls(Minecraft_handleMouseDown, Minecraft_handleMouseDown_injection);
@@ -367,7 +367,7 @@ void init_bucket() {
         misc_run_on_recipes_setup(Recipes_injection);
         // Custom Furnace Fuel
         overwrite_calls(FurnaceTileEntity_getBurnDuration, FurnaceTileEntity_getBurnDuration_injection);
-        overwrite_call((void *) 0xd351c, (void *) FurnaceTileEntity_tick_ItemInstance_setNull_injection);
+        overwrite_call((void *) 0xd351c, ItemInstance_setNull, FurnaceTileEntity_tick_ItemInstance_setNull_injection);
         // Language for milk
         misc_run_on_language_setup(Language_injection);
     }

@@ -212,7 +212,7 @@ void init_options() {
     // options.txt
     if (feature_has("Fix options.txt Loading/Saving", server_enabled)) {
         // Actually Save options.txt
-        overwrite_call((void *) 0x197fc, (void *) Options_save_Options_addOptionToSaveOutput_injection);
+        overwrite_call((void *) 0x197fc, Options_addOptionToSaveOutput, Options_save_Options_addOptionToSaveOutput_injection);
         // Fix options.txt Path
         patch_address((void *) &Strings::options_txt_path, (void *) get_new_options_txt_path());
         // When Loading, options.txt Should Be Opened In Read Mode

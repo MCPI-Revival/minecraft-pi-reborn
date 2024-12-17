@@ -108,7 +108,7 @@ CATEGORY Bug Fixes
         TRUE Fix Held Item Caching
         TRUE Fix Cobweb Lighting
         TRUE Fix Furnace Screen Visual Bug
-        TRUE Fix Text Wrapping
+        TRUE Text Rendering Fixes
         TRUE Fix Carried Grass's Bottom Texture
         TRUE Fix Screen Rendering When Hiding HUD
         TRUE Fix Sugar Position In Hand

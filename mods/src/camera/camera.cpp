@@ -37,7 +37,7 @@ static void TripodCamera_tick_Level_addParticle_call_injection(Level *level, con
 static void TripodCameraRenderer_render_EntityRenderer_bindTexture_injection(EntityRenderer *self, __attribute__((unused)) const std::string &file) {
     self->bindTexture("item/camera.png");
 }
-static void TripodCameraRenderer_render_TileRenderer_tesselateCrossTexture_injection() {
+static void TripodCameraRenderer_render_TileRenderer_tesselateCrossTexture_injection(__attribute__((unused)) TileRenderer *self, __attribute__((unused)) Tile *tile, __attribute__((unused)) int data, __attribute__((unused)) float x, __attribute__((unused)) float y, __attribute__((unused)) float z) {
     Tesselator *t = &Tesselator::instance;
     for (const float a : {-1.f, 1.f}) {
         for (const float b : {-1.f, 1.f}) {
@@ -62,11 +62,11 @@ void init_camera() {
         // Enable TripodCameraRenderer
         overwrite_calls(EntityRenderDispatcher_constructor, EntityRenderDispatcher_injection);
         // Display Smoke From TripodCamera Higher
-        overwrite_call((void *) 0x87dc4, (void *) TripodCamera_tick_Level_addParticle_call_injection);
+        overwrite_call((void *) 0x87dc4, Level_addParticle, TripodCamera_tick_Level_addParticle_call_injection);
     }
     // Camera Legs
     if (feature_has("Render Camera Legs", server_disabled)) {
-        overwrite_call((void *) 0x659dc, (void *) TripodCameraRenderer_render_EntityRenderer_bindTexture_injection);
-        overwrite_call((void *) 0x65a08, (void *) TripodCameraRenderer_render_TileRenderer_tesselateCrossTexture_injection);
+        overwrite_call((void *) 0x659dc, EntityRenderer_bindTexture, TripodCameraRenderer_render_EntityRenderer_bindTexture_injection);
+        overwrite_call((void *) 0x65a08, TileRenderer_tesselateCrossTexture, TripodCameraRenderer_render_TileRenderer_tesselateCrossTexture_injection);
     }
 }

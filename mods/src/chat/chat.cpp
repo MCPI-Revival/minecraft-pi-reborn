@@ -56,10 +56,10 @@ void chat_handle_packet_send(const Minecraft *minecraft, ChatPacket *packet) {
 }
 
 // Manually Send (And Loopback) ChatPacket
-static void CommandServer_parse_CommandServer_dispatchPacket_injection(const CommandServer *command_server, Packet *packet) {
+static void CommandServer_parse_CommandServer_dispatchPacket_injection(CommandServer *command_server, Packet &packet) {
     const Minecraft *minecraft = command_server->minecraft;
     if (minecraft != nullptr) {
-        chat_handle_packet_send(minecraft, (ChatPacket *) packet);
+        chat_handle_packet_send(minecraft, (ChatPacket *) &packet);
     }
 }
 
@@ -95,7 +95,7 @@ void init_chat() {
         unsigned char disable_chat_packet_loopback_patch[4] = {0x00, 0xf0, 0x20, 0xe3}; // "nop"
         patch((void *) 0x6b490, disable_chat_packet_loopback_patch);
         // Manually Send (And Loopback) ChatPacket
-        overwrite_call((void *) 0x6b518, (void *) CommandServer_parse_CommandServer_dispatchPacket_injection);
+        overwrite_call((void *) 0x6b518, CommandServer_dispatchPacket, CommandServer_parse_CommandServer_dispatchPacket_injection);
         // Re-Broadcast ChatPacket
         patch_vtable(ServerSideNetworkHandler_handle_ChatPacket, ServerSideNetworkHandler_handle_ChatPacket_injection);
         // Init UI

@@ -87,7 +87,7 @@ struct SplashLine {
 
 // Add Splashes
 static std::string current_splash;
-static bool draw_splash(StartMenuScreen *screen, const float y_factor, const bool allow_bad_y_factor) {
+static bool draw_splash(const StartMenuScreen *screen, const float y_factor, const bool allow_bad_y_factor) {
     // Position
     const SplashLine line(screen, y_factor);
     const float x = line.origin_x();
@@ -121,9 +121,8 @@ static bool draw_splash(StartMenuScreen *screen, const float y_factor, const boo
     media_glScalef(scale, scale, 1);
     media_glTranslatef(-text_width / 2.0f, 0, 0);
     // Render
-    float y_offset = float(-line_height) / 2.0f;
-    y_offset += 1; // Make It Look Vertically Centered
-    screen->drawString(screen->font, current_splash, 0, y_offset, 0xffff00);
+    float y_offset = -float(line_height - 1) / 2.0f;
+    screen->font->drawShadow(current_splash, 0, y_offset, 0xffff00);
     // Finish
     media_glPopMatrix();
     return true;

@@ -32,7 +32,7 @@ static void PolygonQuad_render_injection(PolygonQuad_render_t original, PolygonQ
     template <int nx, int ny, int nz> \
     static void add_normal_before_##name(uint32_t addr) { \
         std::remove_pointer_t<decltype(type##_##name)>::ptr_type func = type##_##name##_injection<nx, ny, nz>; \
-        overwrite_call((void *) addr, (void *) func); \
+        overwrite_call((void *) addr, type##_##name, func); \
     }
 add_normal_before(Tesselator, vertexUV)
 add_normal_before(Tesselator, vertex)

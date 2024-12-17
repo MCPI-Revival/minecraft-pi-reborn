@@ -1,4 +1,5 @@
 #include <cmath>
+#include <algorithm>
 
 #include <libreborn/patch.h>
 #include <libreborn/config.h>
@@ -337,7 +338,7 @@ static void PlayerRenderer_render_injection(PlayerRenderer *model_renderer, Enti
 }
 
 // 3D Chests
-static int32_t Tile_getRenderShape_injection(Tile *tile) {
+static int32_t TileRenderer_tesselateInWorld_Tile_getRenderShape_injection(Tile *tile) {
     if (tile == Tile::chest) {
         // Don't Render "Simple" Chest Model
         return -1;
@@ -357,7 +358,7 @@ static ChestTileEntity *ChestTileEntity_injection(ChestTileEntity_constructor_t 
     return tile_entity;
 }
 static bool is_rendering_chest = false;
-static void ModelPart_render_injection(ModelPart *model_part, float scale) {
+static void ChestRenderer_render_ModelPart_render_injection(ModelPart *model_part, float scale) {
     // Start
     is_rendering_chest = true;
 
@@ -367,7 +368,7 @@ static void ModelPart_render_injection(ModelPart *model_part, float scale) {
     // Stop
     is_rendering_chest = false;
 }
-static void Tesselator_vertexUV_injection(Tesselator *self, const float x, const float y, const float z, const float u, float v) {
+static void PolygonQuad_render_Tesselator_vertexUV_injection(Tesselator *self, const float x, const float y, const float z, const float u, float v) {
     // Fix Chest Texture
     if (is_rendering_chest) {
         v /= 2;
@@ -523,7 +524,7 @@ void _init_misc_graphics() {
         });
         unsigned char fix_outline_patch[4] = {0x00, 0xf0, 0x20, 0xe3}; // "nop"
         patch((void *) 0x4d830, fix_outline_patch);
-        overwrite_call((void *) 0x4d764, (void *) LevelRenderer_render_AABB_glColor4f_injection);
+        overwrite_call_manual((void *) 0x4d764, (void *) LevelRenderer_render_AABB_glColor4f_injection);
     }
 
     // Properly Hide Block Outline
@@ -558,13 +559,13 @@ void _init_misc_graphics() {
         hijack_entity_rendering = true;
     }
     if (hijack_entity_rendering) {
-        overwrite_call((void *) 0x606c0, (void *) EntityRenderDispatcher_render_EntityRenderer_render_injection);
+        overwrite_call((void *) 0x606c0, EntityRenderer_render, EntityRenderDispatcher_render_EntityRenderer_render_injection);
     }
 
     // Slightly Nicer Water Rendering
     if (feature_has("Improved Water Rendering", server_disabled)) {
-        overwrite_call((void *) 0x49ed4, (void *) GameRenderer_render_glColorMask_injection);
-        overwrite_call((void *) 0x4a18c, (void *) GameRenderer_render_LevelRenderer_render_injection);
+        overwrite_call_manual((void *) 0x49ed4, (void *) GameRenderer_render_glColorMask_injection);
+        overwrite_call((void *) 0x4a18c, LevelRenderer_render, GameRenderer_render_LevelRenderer_render_injection);
         unsigned char nop_patch[4] = {0x00, 0xf0, 0x20, 0xe3}; // "nop"
         patch((void *) 0x4a12c, nop_patch);
     }
@@ -581,12 +582,12 @@ void _init_misc_graphics() {
 
     // 3D Chests
     if (feature_has("3D Chest Model", server_disabled)) {
-        overwrite_call((void *) 0x5e830, (void *) Tile_getRenderShape_injection);
+        overwrite_call((void *) 0x5e830, Tile_getRenderShape, TileRenderer_tesselateInWorld_Tile_getRenderShape_injection);
         overwrite_calls(ChestTileEntity_constructor, ChestTileEntity_injection);
-        overwrite_call((void *) 0x6655c, (void *) ModelPart_render_injection);
-        overwrite_call((void *) 0x66568, (void *) ModelPart_render_injection);
-        overwrite_call((void *) 0x66574, (void *) ModelPart_render_injection);
-        overwrite_call((void *) 0x4278c, (void *) Tesselator_vertexUV_injection);
+        overwrite_call((void *) 0x6655c, ModelPart_render, ChestRenderer_render_ModelPart_render_injection);
+        overwrite_call((void *) 0x66568, ModelPart_render, ChestRenderer_render_ModelPart_render_injection);
+        overwrite_call((void *) 0x66574, ModelPart_render, ChestRenderer_render_ModelPart_render_injection);
+        overwrite_call((void *) 0x4278c, Tesselator_vertexUV, PolygonQuad_render_Tesselator_vertexUV_injection);
         unsigned char chest_model_patch[4] = {0x13, 0x20, 0xa0, 0xe3}; // "mov r2, #0x13"
         patch((void *) 0x66fc8, chest_model_patch);
         unsigned char chest_color_patch[4] = {0x00, 0xf0, 0x20, 0xe3}; // "nop"
@@ -603,7 +604,7 @@ void _init_misc_graphics() {
     // 3D Dropped Items
     if (feature_has("3D Dropped Items", server_disabled)) {
         overwrite_calls(ItemRenderer_render, ItemRenderer_render_injection);
-        overwrite_call((void *) 0x4bf34, (void *) ItemInHandRenderer_renderItem_glTranslatef_injection);
+        overwrite_call_manual((void *) 0x4bf34, (void *) ItemInHandRenderer_renderItem_glTranslatef_injection);
     }
 
     // Vignette

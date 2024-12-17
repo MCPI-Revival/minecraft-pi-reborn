@@ -202,7 +202,7 @@ static DynamicTexture *create_fire_texture(const int a2) {
 static bool animated_water = false;
 static bool animated_lava = false;
 static bool animated_fire = false;
-static void Textures_addDynamicTexture_injection(Textures *textures, DynamicTexture *dynamic_texture) {
+static void Minecraft_init_Textures_addDynamicTexture_injection(Textures *textures, DynamicTexture *dynamic_texture) {
     // Call Original Method
     if (animated_water) {
         textures->addDynamicTexture(dynamic_texture);
@@ -228,5 +228,5 @@ void _init_textures_lava(const bool animated_water_param, const bool animated_la
         unsigned char disable_water_patch[4] = {0x00, 0xf0, 0x20, 0xe3}; // "nop"
         patch((void *) 0x17094, disable_water_patch);
     }
-    overwrite_call((void *) 0x170b4, (void *) Textures_addDynamicTexture_injection);
+    overwrite_call((void *) 0x170b4, Textures_addDynamicTexture, Minecraft_init_Textures_addDynamicTexture_injection);
 }

@@ -9,7 +9,7 @@ FetchContent_Declare(
     minecraft-pi
     URL "${CMAKE_CURRENT_SOURCE_DIR}/minecraft-pi-0.1.1.tar.gz"
 )
-FetchContent_Populate(minecraft-pi)
+FetchContent_MakeAvailable(minecraft-pi)
 
 # Install
 install(

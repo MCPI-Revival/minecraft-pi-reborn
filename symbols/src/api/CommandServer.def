@@ -1,4 +1,5 @@
 method std::string parse(ConnectedClient &client, const std::string &command) = 0x6aa8c;
+method void dispatchPacket(Packet &packet) = 0x6a548;
 
 property Minecraft *minecraft = 0x18;
 property OffsetPosTranslator pos_translator = 0x1c;

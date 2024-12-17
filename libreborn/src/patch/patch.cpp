@@ -21,9 +21,9 @@ static void _overwrite_call_internal(void *start, void *target, const bool use_b
     // Increment Code Block Position
     increment_code_block();
 }
-void overwrite_call(void *start, void *target, const bool force_b_instruction) {
-    const bool use_b_instruction = force_b_instruction || ((unsigned char *) start)[3] == B_INSTRUCTION;
-    _overwrite_call_internal(start, target, use_b_instruction);
+void overwrite_call_manual(void *addr, void *new_target, const bool force_b_instruction) {
+    const bool use_b_instruction = force_b_instruction || ((unsigned char *) addr)[3] == B_INSTRUCTION;
+    _overwrite_call_internal(addr, new_target, use_b_instruction);
 }
 
 // .rodata Information
@@ -51,7 +51,7 @@ static int _patch_vtables(void *target, void *replacement) {
 #undef scan_vtables
 
 // Patch Calls Within Range
-static int _overwrite_calls_within_internal(void *from, void *to, void *target, void *replacement) {
+static int _overwrite_calls_within_internal(void *from, void *to, const void *target, void *replacement) {
     int found = 0;
     for (uintptr_t i = (uintptr_t) from; i < (uintptr_t) to; i = i + 4) {
         unsigned char *addr = (unsigned char *) i;
@@ -77,14 +77,14 @@ static int _overwrite_calls_within_internal(void *from, void *to, void *target, 
 #define TEXT_END 0x1020c0
 // Overwrite All B(L) Intrusctions That Target The Specified Address
 #define NO_CALLSITE_ERROR() ERR("Unable To Find Callsites")
-void *overwrite_calls_manual(void *start, void *target, const bool allow_no_callsites) {
+void *overwrite_calls_manual(void *target, void *replacement, const bool allow_no_callsites) {
     // Add New Target To Code Block
-    void *code_block = update_code_block(target);
+    void *code_block = update_code_block(replacement);
 
     // Patch Code
-    int found = _overwrite_calls_within_internal((void *) TEXT_START, (void *) TEXT_END, start, code_block);
+    int found = _overwrite_calls_within_internal((void *) TEXT_START, (void *) TEXT_END, target, code_block);
     // Patch VTables
-    found += _patch_vtables(start, code_block);
+    found += _patch_vtables(target, code_block);
 
     // Increment Code Block Position
     increment_code_block();
@@ -97,7 +97,7 @@ void *overwrite_calls_manual(void *start, void *target, const bool allow_no_call
     // Return
     return code_block;
 }
-void overwrite_calls_within_manual(void *from /* inclusive */, void *to /* exclusive */, void *target, void *replacement) {
+void overwrite_calls_within_manual(void *from /* inclusive */, void *to /* exclusive */, const void *target, void *replacement) {
     // Add New Target To Code Block
     void *code_block = update_code_block(replacement);
 
@@ -123,13 +123,13 @@ static void safe_mprotect(void *addr, const size_t len, const int prot) {
         ERR("Unable To Set Permissions: %p: %s", addr, strerror(errno));
     }
 }
-void patch(void *start, unsigned char patch[4]) {
-    if (((uint32_t) start) % 4 != 0) {
-        ERR("Invalid Address: %p", start);
+void patch(void *addr, unsigned char patch[4]) {
+    if (uint32_t(addr) % 4 != 0) {
+        ERR("Invalid Address: %p", addr);
     }
 
     // Get Current Permissions
-    segment_data &segment_data = get_data_for_addr(start);
+    const segment_data &segment_data = get_data_for_addr(addr);
     int prot = PROT_READ;
     if (segment_data.is_executable) {
         prot |= PROT_EXEC;
@@ -139,25 +139,25 @@ void patch(void *start, unsigned char patch[4]) {
     }
 
     // Allow Writing To Code Memory
-    const uint32_t size = 4;
-    safe_mprotect(start, size, prot | PROT_WRITE);
+    constexpr uint32_t size = 4;
+    safe_mprotect(addr, size, prot | PROT_WRITE);
 
     // Patch
-    unsigned char *data = (unsigned char *) start;
+    unsigned char *data = (unsigned char *) addr;
     memcpy(data, patch, 4);
 
     // Reset Code Memory Permissions
-    safe_mprotect(start, size, prot);
+    safe_mprotect(addr, size, prot);
 
     // Clear ARM Instruction Cache
-    __clear_cache(start, (void *) (((uintptr_t) start) + size));
+    __clear_cache(addr, (void *) (((uintptr_t) addr) + size));
 }
 
 // Patch Address
-void patch_address(void *start, void *target) {
-    uint32_t addr = (uint32_t) target;
-    unsigned char *patch_data = (unsigned char *) &addr;
-    patch(start, patch_data);
+void patch_address(void *addr, void *target) {
+    uint32_t target_addr = (uint32_t) target;
+    unsigned char *patch_data = (unsigned char *) &target_addr;
+    patch(addr, patch_data);
 }
 
 // Thunks

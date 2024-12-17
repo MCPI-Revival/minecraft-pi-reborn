@@ -116,20 +116,20 @@ static void TripodCameraRenderer_render_Tesselator_draw_injection(Tesselator *se
 // Init
 void _init_lighting() {
     overwrite_calls(LevelRenderer_renderEntities, LevelRenderer_renderEntities_injection);
-    overwrite_call((void *) 0x4c04c, (void *) ItemInHandRenderer_render_glPopMatrix_injection);
+    overwrite_call_manual((void *) 0x4c04c, (void *) ItemInHandRenderer_render_glPopMatrix_injection);
     overwrite_calls(ItemInHandRenderer_render, ItemInHandRenderer_render_injection);
-    overwrite_call((void *) 0x4bedc, (void *) enable_rescale_normal);
-    overwrite_call((void *) 0x4bf70, (void *) disable_rescale_normal);
+    overwrite_call_manual((void *) 0x4bedc, (void *) enable_rescale_normal);
+    overwrite_call_manual((void *) 0x4bf70, (void *) disable_rescale_normal);
     overwrite_calls(ItemRenderer_render, EntityRenderer_render_injection<ItemRenderer>);
     overwrite_calls(ArrowRenderer_render, EntityRenderer_render_injection<ArrowRenderer>);
     overwrite_calls(ItemSpriteRenderer_render, EntityRenderer_render_injection<ItemSpriteRenderer>);
     overwrite_calls(PaintingRenderer_render, EntityRenderer_render_injection<PaintingRenderer>);
-    overwrite_call((void *) 0x641ec, (void *) enable_rescale_normal);
-    overwrite_call((void *) 0x647a0, (void *) disable_rescale_normal);
-    overwrite_call((void *) 0x62b08, (void *) FallingTileRenderer_render_TileRenderer_renderBlock_injection);
-    overwrite_call((void *) 0x65754, (void *) TntRenderer_render_TileRenderer_renderTile_injection);
+    overwrite_call_manual((void *) 0x641ec, (void *) enable_rescale_normal);
+    overwrite_call_manual((void *) 0x647a0, (void *) disable_rescale_normal);
+    overwrite_call((void *) 0x62b08, TileRenderer_renderBlock, FallingTileRenderer_render_TileRenderer_renderBlock_injection);
+    overwrite_call((void *) 0x65754, TileRenderer_renderTile, TntRenderer_render_TileRenderer_renderTile_injection);
     overwrite_calls(MobRenderer_renderNameTag, MobRenderer_renderNameTag_injection);
     overwrite_calls(ArmorScreen_renderPlayer, ArmorScreen_renderPlayer_injection);
-    overwrite_call((void *) 0x29d88, (void *) ArmorScreen_renderPlayer_glRotatef_injection);
-    overwrite_call((void *) 0x65a10, (void *) TripodCameraRenderer_render_Tesselator_draw_injection);
+    overwrite_call_manual((void *) 0x29d88, (void *) ArmorScreen_renderPlayer_glRotatef_injection);
+    overwrite_call((void *) 0x65a10, Tesselator_draw, TripodCameraRenderer_render_Tesselator_draw_injection);
 }

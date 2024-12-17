@@ -54,6 +54,7 @@
     * `Fix Sugar Position In Hand` (Enabled By Default)
     * `Fix Reloading Textures On Resize` (Enabled By Default)
     * `Improved UI Scaling` (Enabled By Default)
+    * `Text Rendering Fixes` (Enabled By Default)
   * Existing Functionality (All Enabled By Default)
     * `Fix Screen Rendering When Hiding HUD`
     * `Sanitize Usernames`
@@ -62,7 +63,6 @@
     * `Prevent Unnecessary Server Pinging`
     * `Proper OpenGL Buffer Generation`
     * `Fix Furnace Screen Visual Bug`
-    * `Fix Text Wrapping`
     * `Fullscreen Support`
     * `Always Save Chest Tile Entities`
     * `Fix Transferring Durability When Using Items`

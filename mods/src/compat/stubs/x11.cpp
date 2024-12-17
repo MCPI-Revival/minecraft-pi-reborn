@@ -24,6 +24,6 @@ static int XGetWindowAttributes_injection(__attribute__((unused)) void *display,
 // Patch X11 Calls
 void _patch_x11_calls() {
     // Disable X11 Calls
-    overwrite_call((void *) 0x132a4, (void *) XGetWindowAttributes_injection); // XGetWindowAttributes
-    overwrite_call((void *) 0x132d4, (void *) XTranslateCoordinates_injection); // XTranslateCoordinates
+    overwrite_call_manual((void *) 0x132a4, (void *) XGetWindowAttributes_injection); // XGetWindowAttributes
+    overwrite_call_manual((void *) 0x132d4, (void *) XTranslateCoordinates_injection); // XTranslateCoordinates
 }

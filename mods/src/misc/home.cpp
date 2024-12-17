@@ -16,7 +16,7 @@ void _init_misc_home() {
     // Store Data In ~/.minecraft-pi Instead Of ~/.minecraft
     patch_address(&Strings::default_path, (void *) get_home_subdirectory_for_game_data());
     // Use MCPI_HOME Instead Of $HOME
-    overwrite_call((void *) 0xe0e4, (void *) getenv_HOME);
+    overwrite_call_manual((void *) 0xe0e4, (void *) getenv_HOME);
 
     // The override code resolves assets manually,
     // making changing directory redundant.

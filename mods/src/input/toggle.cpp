@@ -105,6 +105,6 @@ void _init_toggle() {
         overwrite_calls(ParticleEngine_render, ParticleEngine_render_injection);
     }
     if (feature_has("Hide Crosshair In Third-Person", server_disabled)) {
-        overwrite_call((void *) 0x261b8, (void *) Gui_renderProgressIndicator_GuiComponent_blit_injection);
+        overwrite_call((void *) 0x261b8, GuiComponent_blit, Gui_renderProgressIndicator_GuiComponent_blit_injection);
     }
 }

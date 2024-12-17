@@ -581,7 +581,7 @@ static void server_init() {
     }
 
     // Log IPs
-    overwrite_call((void *) 0x75e54, (void *) ServerSideNetworkHandler_onReady_ClientGeneration_ServerSideNetworkHandler_popPendingPlayer_injection);
+    overwrite_call((void *) 0x75e54, ServerSideNetworkHandler_popPendingPlayer, ServerSideNetworkHandler_onReady_ClientGeneration_ServerSideNetworkHandler_popPendingPlayer_injection);
 
     // Start Reading STDIN
     pthread_create(&read_stdin_thread_obj, nullptr, read_stdin_thread, nullptr);

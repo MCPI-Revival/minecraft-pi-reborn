@@ -29,8 +29,8 @@ static void Gui_renderHearts_GuiComponent_blit_hearts_injection(GuiComponent *co
 std::remove_reference_t<GuiComponent_blit_t> get_blit_with_classic_hud_offset() {
     return use_classic_hud ? Gui_renderHearts_GuiComponent_blit_hearts_injection : GuiComponent_blit->get(false);
 }
-static void Gui_renderHearts_GuiComponent_blit_armor_injection(Gui *component, int32_t x_dest, int32_t y_dest, int32_t x_src, int32_t y_src, int32_t width_dest, int32_t height_dest, int32_t width_src, int32_t height_src) {
-    const Minecraft *minecraft = component->minecraft;
+static void Gui_renderHearts_GuiComponent_blit_armor_injection(GuiComponent *component, int32_t x_dest, int32_t y_dest, int32_t x_src, int32_t y_src, int32_t width_dest, int32_t height_dest, int32_t width_src, int32_t height_src) {
+    const Minecraft *minecraft = ((Gui *) component)->minecraft;
     x_dest -= DEFAULT_HUD_PADDING + HUD_ELEMENT_WIDTH;
     const float width = float(minecraft->screen_width) * Gui::InvGuiScale;
     const float height = float(minecraft->screen_height) * Gui::InvGuiScale;
@@ -40,8 +40,8 @@ static void Gui_renderHearts_GuiComponent_blit_armor_injection(Gui *component, i
     // Call Original Method
     component->blit(x_dest, y_dest, x_src, y_src, width_dest, height_dest, width_src, height_src);
 }
-static void Gui_renderBubbles_GuiComponent_blit_injection(Gui *component, int32_t x_dest, int32_t y_dest, int32_t x_src, int32_t y_src, int32_t width_dest, int32_t height_dest, int32_t width_src, int32_t height_src) {
-    const Minecraft *minecraft = component->minecraft;
+static void Gui_renderBubbles_GuiComponent_blit_injection(GuiComponent *component, int32_t x_dest, int32_t y_dest, int32_t x_src, int32_t y_src, int32_t width_dest, int32_t height_dest, int32_t width_src, int32_t height_src) {
+    const Minecraft *minecraft = ((Gui *) component)->minecraft;
     x_dest -= DEFAULT_HUD_PADDING;
     const float width = float(minecraft->screen_width) * Gui::InvGuiScale;
     const float height = float(minecraft->screen_height) * Gui::InvGuiScale;
@@ -110,7 +110,7 @@ static void Gui_renderSlotText_Font_draw_injection(Font *self, const char *raw_s
         color = 0xffffffff;
     }
     // Call
-    (*func)->get(false)(self, string, x, y, color);
+    (*func)->get(false)(self, string.c_str(), x, y, color);
 }
 
 // Init
@@ -118,11 +118,11 @@ void init_classic_ui() {
     // Classic HUD
     if (feature_has("Classic HUD", server_disabled)) {
         use_classic_hud = true;
-        overwrite_call((void *) 0x26758, (void *) Gui_renderHearts_GuiComponent_blit_hearts_injection);
-        overwrite_call((void *) 0x2656c, (void *) Gui_renderHearts_GuiComponent_blit_armor_injection);
-        overwrite_call((void *) 0x268c4, (void *) Gui_renderBubbles_GuiComponent_blit_injection);
-        overwrite_call((void *) 0x266f8, (void *) Gui_renderHearts_GuiComponent_blit_hearts_injection);
-        overwrite_call((void *) 0x267c8, (void *) Gui_renderHearts_GuiComponent_blit_hearts_injection);
+        overwrite_call((void *) 0x26758, GuiComponent_blit, Gui_renderHearts_GuiComponent_blit_hearts_injection);
+        overwrite_call((void *) 0x2656c, GuiComponent_blit, Gui_renderHearts_GuiComponent_blit_armor_injection);
+        overwrite_call((void *) 0x268c4, GuiComponent_blit, Gui_renderBubbles_GuiComponent_blit_injection);
+        overwrite_call((void *) 0x266f8, GuiComponent_blit, Gui_renderHearts_GuiComponent_blit_hearts_injection);
+        overwrite_call((void *) 0x267c8, GuiComponent_blit, Gui_renderHearts_GuiComponent_blit_hearts_injection);
     }
 
     // Classic Slot Count Location
@@ -131,12 +131,12 @@ void init_classic_ui() {
         patch((void *) 0x27074, nop_patch);
         patch((void *) 0x33984, nop_patch);
         patch((void *) 0x1e424, nop_patch);
-        overwrite_call((void *) 0x1e4b8, (void *) Gui_renderSlotText_injection_inventory);
-        overwrite_call((void *) 0x27100, (void *) Gui_renderSlotText_injection_toolbar);
-        overwrite_call((void *) 0x339b4, (void *) Gui_renderSlotText_injection_classic_inventory);
-        overwrite_call((void *) 0x2b268, (void *) Gui_renderSlotText_injection_furnace);
-        overwrite_call((void *) 0x320c4, (void *) Gui_renderSlotText_injection_furnace);
-        overwrite_call((void *) 0x25e84, (void *) Gui_renderSlotText_Font_draw_injection<&Font_draw>);
-        overwrite_call((void *) 0x25e74, (void *) Gui_renderSlotText_Font_draw_injection<&Font_drawShadow>);
+        overwrite_call((void *) 0x1e4b8, Gui_renderSlotText, Gui_renderSlotText_injection_inventory);
+        overwrite_call((void *) 0x27100, Gui_renderSlotText, Gui_renderSlotText_injection_toolbar);
+        overwrite_call((void *) 0x339b4, Gui_renderSlotText, Gui_renderSlotText_injection_classic_inventory);
+        overwrite_call((void *) 0x2b268, Gui_renderSlotText, Gui_renderSlotText_injection_furnace);
+        overwrite_call((void *) 0x320c4, Gui_renderSlotText, Gui_renderSlotText_injection_furnace);
+        overwrite_call((void *) 0x25e84, Font_draw_raw, Gui_renderSlotText_Font_draw_injection<&Font_draw_raw>);
+        overwrite_call((void *) 0x25e74, Font_drawShadow_raw, Gui_renderSlotText_Font_draw_injection<&Font_drawShadow_raw>);
     }
 }

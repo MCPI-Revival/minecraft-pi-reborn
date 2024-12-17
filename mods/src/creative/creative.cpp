@@ -118,7 +118,7 @@ void init_creative() {
             unsigned char size_patch[4] = {sizeof(AuxDataTileItem), 0x00, 0xa0, 0xe3}; // "mov r0, #AUX_DATA_TILE_ITEM_SIZE"
             patch((void *) 0xc6f64, size_patch);
             // Hook Constructor
-            overwrite_call((void *) 0xc6f74, (void *) Tile_initTiles_TileItem_injection);
+            overwrite_call((void *) 0xc6f74, TileItem_constructor, Tile_initTiles_TileItem_injection);
         }
     }
 
@@ -137,7 +137,7 @@ void init_creative() {
         void *addr = (void *) 0x27800;
         const void *func = extract_from_bl_instruction((unsigned char *) addr);
         if (func == Minecraft_isCreativeMode->backup) {
-            overwrite_call(addr, (void *) Gui_tickItemDrop_Minecraft_isCreativeMode_call_injection);
+            overwrite_call(addr, Minecraft_isCreativeMode, Gui_tickItemDrop_Minecraft_isCreativeMode_call_injection);
         } else {
             // Handled By input/misc.cpp
         }
