@@ -114,8 +114,11 @@ static bool draw_splash(const StartMenuScreen *screen, const float y_factor, con
     media_glRotatef(SplashLine::angle, 0.0f, 0.0f, 1.0f);
     // Oscillate
     const float timeMS = float(Common::getTimeMs() % 1000) / 1000.0f;
-    const float oscillation = (scale / SplashLine::max_scale) * 0.1f;
-    scale = scale - Mth::abs(oscillation * Mth::sin(2.0f * float(M_PI) * timeMS));
+    const float time = 4.0f * float(M_PI) * timeMS;
+    float oscillation = 0.1f;
+    oscillation /= 2.0f;
+    oscillation = 1.0f + (oscillation * Mth::cos(time)) - oscillation;
+    scale *= oscillation;
     // Scale
     media_glTranslatef(splash_width / 2.0f, 0, 0);
     media_glScalef(scale, scale, 1);

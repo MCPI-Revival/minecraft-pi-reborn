@@ -40,6 +40,8 @@ GLFWwindow *create_glfw_window(const char *title, const int width, const int hei
 void cleanup_glfw(GLFWwindow *window) {
     // Ignore GLFW Errors During Termination
     glfwSetErrorCallback(nullptr);
+    // Workaround Segmentation Fault On NVIDIA
+    glfwPollEvents();
     // Terminate GLFW
     glfwDestroyWindow(window);
     glfwTerminate();

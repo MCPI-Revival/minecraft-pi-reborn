@@ -62,7 +62,7 @@ static int32_t TallGrass_getColor_injection(TallGrass_getColor_t original, TallG
 // Grass Side Tinting
 CUSTOM_VTABLE(grass_side, Tile) {
     vtable->shouldRenderFace = [](Tile *self, LevelSource *level_source, const int x, const int y, const int z, const int face) {
-        return face != 0 && face != 1 && Tile_vtable::base->shouldRenderFace(self, level_source, x, y, z, face);
+        return face > 1 && Tile_vtable::base->shouldRenderFace(self, level_source, x, y, z, face);
     };
     vtable->getColor = [](Tile *self, LevelSource *level_source, const int32_t x, const int32_t y, const int32_t z) {
         return GrassTile_getColor_injection(nullptr, (GrassTile *) self, level_source, x, y, z);
