@@ -165,6 +165,7 @@ set(SRC
     src/tile/EntityTile.def
     src/tile/Bush.def
     src/tile/CropTile.def
+    src/tile/ChestTile.def
     src/misc/Strings.def
     src/misc/I18n.def
     src/misc/SimpleFoodData.def

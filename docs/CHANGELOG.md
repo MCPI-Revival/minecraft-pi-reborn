@@ -55,6 +55,8 @@
     * `Fix Reloading Textures On Resize` (Enabled By Default)
     * `Improved UI Scaling` (Enabled By Default)
     * `Text Rendering Fixes` (Enabled By Default)
+    * `Close Editor When Sign Is Destroyed` (Enabled By Default)
+    * `Remove Chest Placement Restrictions` (Enabled By Default)
   * Existing Functionality (All Enabled By Default)
     * `Fix Screen Rendering When Hiding HUD`
     * `Sanitize Usernames`

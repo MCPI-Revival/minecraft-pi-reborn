@@ -1,0 +1,3 @@
+extends EntityTile;
+
+vtable 0x110ea8;

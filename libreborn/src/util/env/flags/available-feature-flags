@@ -22,7 +22,6 @@ CATEGORY User Interface
             TRUE Add Reborn Info To Options
         TRUE Force Touch UI Inventory
         TRUE Fix Pause Menu
-        TRUE Close Current Screen On Death
         TRUE Implement Create World Dialog
         TRUE Display Date In Select World Screen
         TRUE Add Welcome Screen
@@ -130,7 +129,10 @@ CATEGORY Bug Fixes
         TRUE Fix Fire Immunity
         TRUE Fix Sunlight Not Properly Setting Mobs On Fire
         TRUE Fix Transferring Durability When Using Items
-    TRUE Fix Crash When Generating Certain Seeds
+    CATEGORY Crashes
+        TRUE Fix Crash When Generating Certain Seeds
+        TRUE Close Editor When Sign Is Destroyed
+        TRUE Close Current Screen On Death
     TRUE Fix Reloading Textures On Resize
     TRUE Fix options.txt Loading/Saving
 CATEGORY Logging
@@ -144,3 +146,4 @@ CATEGORY Miscellaneous
     TRUE Screenshot Support
     TRUE Add Camera Functionality
     TRUE Update Default Options
+    TRUE Remove Chest Placement Restrictions

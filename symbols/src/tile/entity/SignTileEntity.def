@@ -1,1 +1,3 @@
+vtable 0x115d08;
+
 extends TileEntity;

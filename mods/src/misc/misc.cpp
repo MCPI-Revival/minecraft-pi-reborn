@@ -442,6 +442,32 @@ static Item *Item_initItems_Item_handEquipped_injection(Item *self) {
     return self;
 }
 
+// Chest Placement
+static bool ChestTile_mayPlace_injection(__attribute__((unused)) ChestTile_mayPlace_t original, __attribute__((unused)) ChestTile *self, __attribute__((unused)) Level *level, __attribute__((unused)) int x, __attribute__((unused)) int y, __attribute__((unused)) int z, __attribute__((unused)) uchar face) {
+    return true;
+}
+
+// Fix Sign Crash
+static TextEditScreen *current_sign_screen = nullptr;
+static void Minecraft_setScreen_injection(Minecraft_setScreen_t original, Minecraft *self, Screen *screen) {
+    // Call Original Method
+    original(self, screen);
+    // Track
+    current_sign_screen = nullptr;
+    if (screen != nullptr && screen->vtable == (Screen_vtable *) TextEditScreen_vtable::base) {
+        current_sign_screen = (TextEditScreen *) screen;
+    }
+}
+static SignTileEntity *SignTileEntity_destructor_injection(SignTileEntity_destructor_complete_t original, SignTileEntity *self) {
+    // Close Screen
+    if (current_sign_screen != nullptr && current_sign_screen->sign == self) {
+        current_sign_screen->sign = nullptr;
+        current_sign_screen->minecraft->setScreen(nullptr);
+    }
+    // Call Original Method
+    return original(self);
+}
+
 // Init
 void init_misc() {
     // Sanitize Username
@@ -595,6 +621,19 @@ void init_misc() {
     // Fix Sugar Rendering
     if (feature_has("Fix Sugar Position In Hand", server_disabled)) {
         overwrite_call((void *) 0x976f8, Item_handEquipped, Item_initItems_Item_handEquipped_injection);
+    }
+
+    // Chest Placement
+    if (feature_has("Remove Chest Placement Restrictions", server_enabled)) {
+        overwrite_calls(ChestTile_mayPlace, ChestTile_mayPlace_injection);
+        unsigned char skip_neighbor_check_patch[4] = {0x01, 0x30, 0xa0, 0xe3}; // "mov r3, #0x1"
+        patch((void *) 0xcfaf8, skip_neighbor_check_patch);
+    }
+
+    // Fix TextEditScreen Crashing After Sign Is Destroyed
+    if (feature_has("Close Editor When Sign Is Destroyed", server_disabled)) {
+        overwrite_calls(Minecraft_setScreen, Minecraft_setScreen_injection);
+        overwrite_calls(SignTileEntity_destructor_complete, SignTileEntity_destructor_injection);
     }
 
     // Disable overwrite_calls() After Minecraft::init
