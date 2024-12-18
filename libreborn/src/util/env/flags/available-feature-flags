@@ -135,6 +135,7 @@ CATEGORY Bug Fixes
         TRUE Close Current Screen On Death
     TRUE Fix Reloading Textures On Resize
     TRUE Fix options.txt Loading/Saving
+    TRUE Fix Hanging When No Valid Spawn Point Exists
 CATEGORY Logging
     FALSE Log FPS
     TRUE Log Chat Messages

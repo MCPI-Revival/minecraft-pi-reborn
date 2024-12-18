@@ -468,6 +468,31 @@ static SignTileEntity *SignTileEntity_destructor_injection(SignTileEntity_destru
     return original(self);
 }
 
+// Fix Spawn Point Hanging
+static constexpr int allowed_spawn_point_tries = 10000;
+static constexpr int not_finding_spawn_point = -1;
+static int spawn_point_tries = not_finding_spawn_point;
+static void Level_setInitialSpawn_or_validateSpawn_injection(Level_setInitialSpawn_t original, Level *self) {
+    spawn_point_tries = allowed_spawn_point_tries;
+    original(self);
+    spawn_point_tries = not_finding_spawn_point;
+}
+static int Level_getTopTile_injection(Level_getTopTile_t original, Level *self, int x, int z) {
+    bool actually_check = true;
+    if (spawn_point_tries == 0) {
+        // Give Up Searching
+        actually_check = false;
+    } else if (spawn_point_tries > 0) {
+        // Count Down
+        spawn_point_tries--;
+    }
+    if (actually_check) {
+        return original(self, x, z);
+    } else {
+        return Tile::bedrock->id;
+    }
+}
+
 // Init
 void init_misc() {
     // Sanitize Username
@@ -634,6 +659,13 @@ void init_misc() {
     if (feature_has("Close Editor When Sign Is Destroyed", server_disabled)) {
         overwrite_calls(Minecraft_setScreen, Minecraft_setScreen_injection);
         overwrite_calls(SignTileEntity_destructor_complete, SignTileEntity_destructor_injection);
+    }
+
+    // Fix Hanging When Spawning
+    if (feature_has("Fix Hanging When No Valid Spawn Point Exists", server_enabled)) {
+        overwrite_calls(Level_setInitialSpawn, Level_setInitialSpawn_or_validateSpawn_injection);
+        overwrite_calls(Level_validateSpawn, Level_setInitialSpawn_or_validateSpawn_injection);
+        overwrite_calls(Level_getTopTile, Level_getTopTile_injection);
     }
 
     // Disable overwrite_calls() After Minecraft::init
