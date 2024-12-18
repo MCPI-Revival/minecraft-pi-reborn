@@ -49,6 +49,7 @@ CATEGORY Rendering
         TRUE Optimized Chunk Sorting
         TRUE Multidraw Rendering
         TRUE Increase Render Chunk Size
+        TRUE Batch Font Rendering
     CATEGORY Camera
         TRUE Enable Camera Rendering
         TRUE Render Camera Legs

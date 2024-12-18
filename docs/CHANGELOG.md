@@ -58,6 +58,7 @@
     * `Close Editor When Sign Is Destroyed` (Enabled By Default)
     * `Remove Chest Placement Restrictions` (Enabled By Default)
     * `Fix Hanging When No Valid Spawn Point Exists` (Enabled By Default)
+    * `Batch Font Rendering` (Enabled By Default)
   * Existing Functionality (All Enabled By Default)
     * `Fix Screen Rendering When Hiding HUD`
     * `Sanitize Usernames`
