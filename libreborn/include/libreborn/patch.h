@@ -21,9 +21,9 @@ void overwrite_call(void *addr, __attribute__((unused)) T *target_type, typename
 void *overwrite_calls_manual(void *target, void *replacement, bool allow_no_callsites = false);
 template <typename T>
 void overwrite_calls(T *target, typename T::overwrite_type replacement) {
-    DEBUG("Overwriting Method: %s", target->name);
+    DEBUG("Overwriting Method: %s", target->name.c_str());
     if (!target->overwrite(replacement)) {
-        ERR("Unable To Overwrite Method!");
+        ERR("Unable To Overwrite Method! Use patch_vtable() Instead!");
     }
 }
 
@@ -47,10 +47,10 @@ void patch(void *addr, unsigned char patch[4]);
 void patch_address(void *addr, void *target);
 
 // Patch VTable Entry
-// This does not affect subclasses.
+// IMPORTANT NOTE: This does not affect subclasses.
 template <typename T>
 void patch_vtable(const T *target, typename T::ptr_type replacement) {
-    DEBUG("Patching VTable: %s", target->name);
+    DEBUG("Patching VTable: %s", target->name.c_str());
     if (target->enabled) {
         WARN("Use overwrite_calls() Instead!");
     }
