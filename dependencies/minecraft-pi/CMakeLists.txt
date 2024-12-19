@@ -5,8 +5,7 @@ include(FetchContent)
 ## Minecraft: Pi Edition
 
 # Download
-FetchContent_Declare(
-    minecraft-pi
+FetchContent_Declare(minecraft-pi
     URL "${CMAKE_CURRENT_SOURCE_DIR}/minecraft-pi-0.1.1.tar.gz"
 )
 FetchContent_MakeAvailable(minecraft-pi)

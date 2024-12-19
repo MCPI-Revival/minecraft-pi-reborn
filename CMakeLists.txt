@@ -20,14 +20,13 @@ include(cmake/util/util.cmake)
 # Sanity Checks
 string(CONCAT ARM_SANITY_CHECK
     "include(CheckSymbolExists)\n"
-    "check_symbol_exists(\"__arm__\" \"\" IS_ARM_TARGETING)"
+    "check_symbol_exists(\"__arm__\" \"\" IS_ARM_TARGETING)\n"
 )
 if(BUILD_ARM_COMPONENTS)
-    string(CONCAT ARM_SANITY_CHECK
-        "${ARM_SANITY_CHECK}\n"
+    string(APPEND ARM_SANITY_CHECK
         "if(NOT IS_ARM_TARGETING)\n"
         "    message(FATAL_ERROR \"ARM-Targeting Compiler Required\")\n"
-        "endif()"
+        "endif()\n"
     )
 endif()
 cmake_language(EVAL CODE "${ARM_SANITY_CHECK}")
@@ -63,13 +62,12 @@ string(CONCAT COMPILE_FLAGS_SETUP
     "set(CMAKE_SKIP_BUILD_RPATH TRUE)\n"
 
     # Always Build Shared Libraries
-    "set(BUILD_SHARED_LIBS TRUE CACHE BOOL \"\" FORCE)"
+    "set(BUILD_SHARED_LIBS TRUE CACHE BOOL \"\" FORCE)\n"
 )
 if(BUILD_ARM_COMPONENTS)
-    string(CONCAT COMPILE_FLAGS_SETUP
-        "${COMPILE_FLAGS_SETUP}\n"
+    string(APPEND COMPILE_FLAGS_SETUP
         # Disable C++11 String ABI
-        "add_compile_definitions(_GLIBCXX_USE_CXX11_ABI=0)"
+        "add_compile_definitions(_GLIBCXX_USE_CXX11_ABI=0)\n"
     )
 endif()
 cmake_language(EVAL CODE "${COMPILE_FLAGS_SETUP}")
@@ -128,15 +126,32 @@ if(BUILD_ARM_COMPONENTS)
     install(EXPORT sdk DESTINATION "${MCPI_SDK_DIR}" FILE "sdk-targets.cmake")
     file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/sdk.cmake"
         # Sanity Check
-        "${ARM_SANITY_CHECK}\n"
+        "${ARM_SANITY_CHECK}"
         # Compile Flags
-        "${COMPILE_FLAGS_SETUP}\n"
+        "${COMPILE_FLAGS_SETUP}"
         # Log
         "message(STATUS \"Using Reborn SDK v${MCPI_VERSION}\")\n"
         # Include Targets
         "include(\"\${CMAKE_CURRENT_LIST_DIR}/sdk-targets.cmake\")\n"
     )
     install(FILES "${CMAKE_CURRENT_BINARY_DIR}/sdk.cmake" DESTINATION "${MCPI_SDK_DIR}")
+    # Calculate Hash Of SDK
+    string(CONCAT SDK_HASH_SCRIPT
+        # Prepare
+        "set(dir \"\$ENV{DESTDIR}\${CMAKE_INSTALL_PREFIX}/${MCPI_SDK_DIR}\")\n"
+        "set(out \"\${dir}/.hash\")\n"
+        # Calculate Hashes
+        "set(content \"\")\n"
+        "file(GLOB_RECURSE files LIST_DIRECTORIES FALSE \"\${dir}/*\")\n"
+        "foreach(file IN LISTS files)\n"
+        "    file(SHA256 \"\${file}\" hash)\n"
+        "    cmake_path(RELATIVE_PATH file BASE_DIRECTORY \"\${dir}\")\n"
+        "    string(APPEND content \"\${hash} \${file}\\n\")\n"
+        "endforeach()\n"
+        # Write File
+        "file(WRITE \"\${out}\" \"\${content}\")\n"
+    )
+    install(CODE "${SDK_HASH_SCRIPT}")
 endif()
 
 # Packaging
