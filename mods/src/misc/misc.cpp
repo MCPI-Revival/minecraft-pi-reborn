@@ -83,24 +83,24 @@ static RakNet_StartupResult RakNetInstance_host_RakNet_RakPeer_Startup_injection
 }
 
 // Fix Furnace Not Checking Item Auxiliary When Inserting New Item
-static int32_t FurnaceScreen_handleAddItem_injection(FurnaceScreen_handleAddItem_t original, FurnaceScreen *furnace_screen, int32_t slot, const ItemInstance *item) {
+static bool FurnaceScreen_handleAddItem_injection(FurnaceScreen_handleAddItem_t original, FurnaceScreen *furnace_screen, int32_t slot, const ItemInstance *item) {
     // Get Existing Item
     FurnaceTileEntity *tile_entity = furnace_screen->tile_entity;
     const ItemInstance *existing_item = tile_entity->getItem(slot);
 
     // Check Item
-    int valid;
+    bool valid;
     if (item->id == existing_item->id && item->auxiliary == existing_item->auxiliary) {
         // Item Matches, Is Valid
-        valid = 1;
+        valid = true;
     } else {
         // Item Doesn't Match, Check If Existing Item Is Empty
         if ((existing_item->id | existing_item->count | existing_item->auxiliary) == 0) {
             // Existing Item Is Empty, Is Valid
-            valid = 1;
+            valid = true;
         } else {
             // Existing Item Isn't Empty, Isn't Valid
-            valid = 0;
+            valid = false;
         }
     }
 
@@ -110,8 +110,11 @@ static int32_t FurnaceScreen_handleAddItem_injection(FurnaceScreen_handleAddItem
         return original(furnace_screen, slot, item);
     } else {
         // Invalid
-        return 0;
+        return false;
     }
+}
+static bool FurnaceScreen_moveOver_FillingContainer_removeResource_two_injection(FillingContainer *self, const ItemInstance &item) {
+    return self->removeResource_one(item, true) == 0;
 }
 
 // Get Real Selected Slot
@@ -513,6 +516,7 @@ void init_misc() {
     // Fix Furnace Not Checking Item Auxiliary When Inserting New Item
     if (feature_has("Fix Furnace Not Checking Item Auxiliary", server_disabled)) {
         overwrite_calls(FurnaceScreen_handleAddItem, FurnaceScreen_handleAddItem_injection);
+        overwrite_call((void *) 0x32580, FillingContainer_removeResource_two, FurnaceScreen_moveOver_FillingContainer_removeResource_two_injection);
     }
 
     // Disable Speed Bridging

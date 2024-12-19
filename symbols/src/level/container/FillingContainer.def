@@ -11,6 +11,9 @@ method bool linkEmptySlot(int slot) = 0x92590;
 method int getFreeSlot() = 0x91ffc;
 method int getSlot(int id) = 0x91ce0;
 method int linkSlot(int linked_slot, int unlinked_slot, bool push_aside) = 0x92188;
+method int removeResource_one(const ItemInstance &item, bool check_aux) = 0x923ac;
+method bool removeResource_two(const ItemInstance &item) = 0x9247c;
+method bool removeResource_three(int param_1) = 0x92088;
 
 virtual-method bool add(ItemInstance *item_instance) = 0x30;
 
