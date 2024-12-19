@@ -2,6 +2,7 @@
 
 #include <libreborn/patch.h>
 #include <symbols/minecraft.h>
+#include <GLES/gl.h>
 
 #include <mods/feature/feature.h>
 #include <mods/extend/extend.h>
@@ -101,8 +102,7 @@ void _init_misc_tinting() {
         // Fancy Grass Side
         // This Requires Alpha Testing On The Opaque Render-Layer, Which Could Hurt Performance
         overwrite_calls(TileRenderer_tesselateBlockInWorld, TileRenderer_tesselateBlockInWorld_injection);
-        unsigned char nop_patch[4] = {0x00, 0xf0, 0x20, 0xe3}; // "nop"
-        patch((void *) 0x4a038, nop_patch);
+        overwrite_call_manual((void *) 0x4a038, (void *) media_glEnable);
     }
 
     // Disable Block Tinting

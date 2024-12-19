@@ -282,18 +282,42 @@ static void Minecraft_setSize_injection(Minecraft_setSize_t original, Minecraft 
 
 // Batch Font Rendering
 template <typename... Args>
-static void Font_draw_injection(const std::function<void(Args...)> &original, Args... args) {
+static void Font_draw_injection(const std::function<void(Font *, Args...)> &original, Font *self, Args... args) {
     Tesselator &t = Tesselator::instance;
     const bool was_already_overridden = t.void_begin_end;
     if (!was_already_overridden) {
         t.begin(GL_QUADS);
         t.voidBeginAndEndCalls(true);
     }
-    original(std::forward<Args>(args)...);
+    original(self, std::forward<Args>(args)...);
     if (!was_already_overridden) {
         t.voidBeginAndEndCalls(false);
         t.draw();
     }
+}
+
+// Screen Overlay
+static void ItemInHandRenderer_renderScreenEffect_injection(__attribute__((unused)) ItemInHandRenderer_renderScreenEffect_t original, ItemInHandRenderer *self, float param_1) {
+    media_glDisable(GL_ALPHA_TEST);
+    const Minecraft *mc = self->minecraft;
+    LocalPlayer *player = mc->player;
+    mc->textures->loadAndBindTexture("terrain.png");
+    if (player->isInWall()) {
+        int x = Mth::floor(player->x);
+        int y = Mth::floor(player->y);
+        int z = Mth::floor(player->z);
+        const int id = mc->level->getTile(x, y, z);
+        Tile *tile = Tile::tiles[id];
+        if (tile != nullptr) {
+            media_glClear(GL_DEPTH_BUFFER_BIT);
+            self->renderTex(param_1, tile->getTexture1(2));
+        }
+    }
+    if (player->isOnFire()) {
+        media_glClear(GL_DEPTH_BUFFER_BIT);
+        self->renderFire(param_1);
+    }
+    media_glEnable(GL_ALPHA_TEST);
 }
 
 // Init
@@ -411,8 +435,13 @@ void _init_misc_ui() {
 
     // Batch Font Rendering
     if (feature_has("Batch Font Rendering", server_disabled)) {
-        overwrite_calls(Font_drawSlow, Font_draw_injection<Font *, const char *, float, float, unsigned int, bool>);
-        overwrite_calls(Font_drawShadow, Font_draw_injection<Font *, const std::string &, float, float, unsigned int>);
-        overwrite_calls(Font_drawShadow_raw, Font_draw_injection<Font *, const char *, float, float, unsigned int>);
+        overwrite_calls(Font_drawSlow, Font_draw_injection<const char *, float, float, unsigned int, bool>);
+        overwrite_calls(Font_drawShadow, Font_draw_injection<const std::string &, float, float, unsigned int>);
+        overwrite_calls(Font_drawShadow_raw, Font_draw_injection<const char *, float, float, unsigned int>);
+    }
+
+    // Fix Screen Overlays
+    if (feature_has("Fix Held Item Poking Through Screen Overlay", server_disabled)) {
+        overwrite_calls(ItemInHandRenderer_renderScreenEffect, ItemInHandRenderer_renderScreenEffect_injection);
     }
 }

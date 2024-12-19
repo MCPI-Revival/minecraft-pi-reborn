@@ -14,7 +14,7 @@ virtual-method void setShape(float x1, float y1, float z1, float x2, float y2, f
 virtual-method void updateShape(LevelSource *level, int x, int y, int z) = 0x14;
 virtual-method void updateDefaultShape() = 0x18;
 virtual-method float getBrightness(LevelSource *level, int x, int y, int z) = 0x20;
-virtual-method int getTexture1() = 0x28;
+virtual-method int getTexture1(int face) = 0x28;
 virtual-method int getTexture2(int face, int data) = 0x2c;
 virtual-method int getTexture3(LevelSource *level, int x, int y, int z, int face) = 0x30;
 virtual-method AABB *getAABB(Level *level, int x, int y, int z) = 0x34;

@@ -23,6 +23,7 @@ virtual-method bool isOnFire() = 0x90;
 virtual-method void baseTick() = 0x38;
 virtual-method bool isSneaking() = 0x88;
 virtual-method float getShadowHeightOffs() = 0x60;
+virtual-method bool isInWall() = 0x48;
 
 property float x = 0x4;
 property float y = 0x8;

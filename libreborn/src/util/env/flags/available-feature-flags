@@ -57,9 +57,6 @@ CATEGORY Rendering
         TRUE Show Block Outlines
         TRUE Replace Block Highlight With Outline
         TRUE Hide Block Outline When UI Is Hidden
-    CATEGORY Block Tinting
-        FALSE Add Biome Colors To Grass
-        FALSE Disable Block Tinting
     TRUE Display Nametags By Default
     TRUE Disable V-Sync
     TRUE 3D Chest Model
@@ -72,6 +69,9 @@ CATEGORY Rendering
     TRUE Render Vignette
     TRUE Proper Entity Shading
 CATEGORY Textures
+    CATEGORY Tinting
+        FALSE Add Biome Colors To Grass
+        FALSE Disable Block Tinting
     TRUE Regenerate "gui_blocks" Atlas
     TRUE Animated Water
     TRUE Animated Lava
@@ -113,6 +113,7 @@ CATEGORY Bug Fixes
         TRUE Fix Screen Rendering When Hiding HUD
         TRUE Fix Sugar Position In Hand
         TRUE Fix Switching Perspective While Sneaking
+        TRUE Fix Held Item Poking Through Screen Overlay
     CATEGORY Network
         TRUE Patch RakNet Security Bug
         TRUE Prevent Unnecessary Server Pinging

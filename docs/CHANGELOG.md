@@ -59,6 +59,8 @@
     * `Remove Chest Placement Restrictions` (Enabled By Default)
     * `Fix Hanging When No Valid Spawn Point Exists` (Enabled By Default)
     * `Batch Font Rendering` (Enabled By Default)
+    * `Fix Furnace Screen Visual Bug` (Enabled By Default)
+    * `Fix Held Item Poking Through Screen Overlay` (Enabled By Default)
   * Existing Functionality (All Enabled By Default)
     * `Fix Screen Rendering When Hiding HUD`
     * `Sanitize Usernames`
@@ -66,7 +68,6 @@
     * `Log RakNet Startup Errors`
     * `Prevent Unnecessary Server Pinging`
     * `Proper OpenGL Buffer Generation`
-    * `Fix Furnace Screen Visual Bug`
     * `Fullscreen Support`
     * `Always Save Chest Tile Entities`
     * `Fix Transferring Durability When Using Items`
