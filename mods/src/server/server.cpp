@@ -105,8 +105,10 @@ static bool is_whitelist() {
 }
 // Get Path Of Blacklist (Or Whitelist) File
 static std::string get_blacklist_file() {
-    std::string file(home_get());
-    file.append(is_whitelist() ? "/whitelist.txt" : "/blacklist.txt");
+    std::string file = home_get();
+    file += '/';
+    file += is_whitelist() ? "whitelist" : "blacklist";
+    file += ".txt";
     return file;
 }
 
@@ -418,20 +420,16 @@ static bool is_ip_in_blacklist(const char *ip) {
         ips.clear();
         // Check banned-ips.txt
         const std::string blacklist_file_path = get_blacklist_file();
-        std::ifstream blacklist_file(blacklist_file_path);
+        std::ifstream blacklist_file(blacklist_file_path, std::ios::binary);
         if (blacklist_file) {
-            if (blacklist_file.good()) {
-                std::string line;
-                while (std::getline(blacklist_file, line)) {
-                    // Check Line
-                    if (line.length() > 0 && line[0] != '#') {
-                        ips.push_back(line);
-                    }
+            std::string line;
+            while (std::getline(blacklist_file, line)) {
+                // Check Line
+                if (line.length() > 0 && line[0] != '#') {
+                    ips.push_back(line);
                 }
             }
-            if (blacklist_file.is_open()) {
-                blacklist_file.close();
-            }
+            blacklist_file.close();
         } else {
             ERR("Unable To Read Blacklist/Whitelist");
         }
@@ -523,10 +521,10 @@ static void server_init() {
     // Open Properties File
     std::string file(home_get());
     file.append("/server.properties");
-    std::ifstream properties_file(file);
+    std::ifstream properties_file(file, std::ios::binary);
 
     // Check Properties File
-    if (!properties_file.good()) {
+    if (!properties_file) {
         // Write Defaults
         std::ofstream properties_file_output(file);
         get_property_types();
@@ -536,12 +534,12 @@ static void server_init() {
         }
         properties_file_output.close();
         // Re-Open File
-        properties_file = std::ifstream(file);
+        properties_file = std::ifstream(file, std::ios::binary);
     }
 
     // Check Properties File
-    if (!properties_file.is_open()) {
-        ERR("Unable To Open %s", file.c_str());
+    if (!properties_file) {
+        ERR("Unable To Read Server Properties");
     }
     // Load Properties
     get_server_properties().load(properties_file);
@@ -550,15 +548,11 @@ static void server_init() {
 
     // Create Empty Blacklist/Whitelist File
     std::string blacklist_file_path = get_blacklist_file();
-    std::ifstream blacklist_file(blacklist_file_path);
-    if (!blacklist_file.good()) {
+    if (access(blacklist_file_path.c_str(), F_OK) != 0) {
         // Write Default
         std::ofstream blacklist_output(blacklist_file_path);
         blacklist_output << "# Blacklist/Whitelist; Each Line Is One IP Address\n";
         blacklist_output.close();
-    }
-    if (blacklist_file.is_open()) {
-        blacklist_file.close();
     }
     // Load Blacklist/Whitelist
     is_ip_in_blacklist(nullptr);

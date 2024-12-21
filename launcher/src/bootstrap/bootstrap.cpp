@@ -30,7 +30,7 @@ void bootstrap(const options_t &options) {
 
     // Copy SDK
     if (!reborn_is_server()) {
-        copy_sdk(binary_directory, true);
+        copy_sdk(binary_directory, false);
     }
 
     // Resolve Binary Path

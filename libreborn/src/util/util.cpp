@@ -86,11 +86,14 @@ const char *get_home_subdirectory_for_game_data() {
 
 // Make Sure Directory Exists
 void ensure_directory(const char *path) {
+    if (path[0] == '\0') {
+        return;
+    }
     int ret = mkdir(path, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
     if (ret != 0 && errno != EEXIST) {
-        ERR("Unable To Create Directory: %s", strerror(errno));
+        ERR("Unable To Create Directory: %s: %s", path, strerror(errno));
     }
-    int is_dir = 0;
+    bool is_dir = false;
     struct stat obj = {};
     ret = stat(path, &obj);
     if (ret == 0) {

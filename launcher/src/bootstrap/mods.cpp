@@ -42,36 +42,15 @@ static void load(std::vector<std::string> &ld_preload, const std::string &folder
     if (recursion_limit <= 0) {
         ERR("Reached Recursion Limit While Loading Mods");
     }
-    // Open Folder
+    // Make Directory
     ensure_directory(folder.c_str());
-    DIR *dp = opendir(folder.c_str());
-    if (dp == nullptr) {
-        // Unable To Open Folder
-        ERR("Error Opening Directory: %s: %s", folder.c_str(), strerror(errno));
-    }
-    // Loop Through Folder
-    while (true) {
-        errno = 0;
-        const dirent *entry = readdir(dp);
-        if (entry != nullptr) {
-            // Block Pseudo-Directories
-            if (strcmp(entry->d_name, ".") == 0 || strcmp(entry->d_name, "..") == 0) {
-                continue;
-            }
-            // Get Full Name
-            std::string name = folder + entry->d_name;
-            // Handle
-            handle_file(ld_preload, name, recursion_limit);
-        } else if (errno != 0) {
-            // Error Reading Contents Of Folder
-            ERR("Error Reading Directory: %s: %s", folder.c_str(), strerror(errno));
-        } else {
-            // Done!
-            break;
-        }
-    }
-    // Close Folder
-    closedir(dp);
+    // Read
+    read_directory(folder, [&folder, &ld_preload, &recursion_limit](const dirent *entry) {
+        // Get Full Name
+        const std::string name = folder + entry->d_name;
+        // Handle
+        handle_file(ld_preload, name, recursion_limit);
+    });
 }
 
 // Bootstrap Mods

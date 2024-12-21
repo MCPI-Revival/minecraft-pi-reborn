@@ -1,17 +1,10 @@
+#include <dirent.h>
+#include <cstring>
+
 #include <libreborn/log.h>
 #include <libreborn/util/exec.h>
 
 #include "util.h"
-
-// Simpler Version Of run_command()
-void run_simple_command(const char *const command[], const char *error) {
-    int status = 0;
-    const std::vector<unsigned char> *output = run_command(command, &status);
-    delete output;
-    if (!is_exit_status_success(status)) {
-        ERR("%s", error);
-    }
-}
 
 // Chop Off Last Component
 void chop_last_component(std::string &str) {
@@ -39,4 +32,29 @@ std::string get_binary_directory() {
     chop_last_component(exe);
     // Return
     return exe;
+}
+
+// Read Directory
+bool read_directory(const std::string &path, const std::function<void(const dirent *)> &callback, const bool allow_nonexistent_dir) {
+    // Open Directory
+    DIR *dp = opendir(path.c_str());
+    if (dp == nullptr) {
+        if (allow_nonexistent_dir) {
+            return false;
+        }
+        ERR("Unable To Open Directory: %s: %s", path.c_str(), strerror(errno));
+    }
+    // Read
+    const dirent *entry;
+    while ((entry = readdir(dp)) != nullptr) {
+        // Block Pseudo-Directories
+        if (strcmp(entry->d_name, ".") == 0 || strcmp(entry->d_name, "..") == 0) {
+            continue;
+        }
+        // Run
+        callback(entry);
+    }
+    // Close
+    closedir(dp);
+    return true;
 }

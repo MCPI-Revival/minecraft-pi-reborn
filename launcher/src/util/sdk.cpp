@@ -1,61 +1,166 @@
+#include <optional>
+#include <fstream>
+#include <sstream>
+#include <sys/stat.h>
+#include <dirent.h>
+#include <cstring>
+
 #include <libreborn/log.h>
 #include <libreborn/util/util.h>
 #include <libreborn/util/io.h>
 #include <libreborn/config.h>
 
-#include "../bootstrap/bootstrap.h"
 #include "util.h"
+
+// Utility Functions
+static constexpr char path_separator = '/';
+static void make_directory(std::string path /* Must Be Absolute */) {
+    path += path_separator;
+    std::stringstream stream(path);
+    path = "";
+    std::string path_segment;
+    while (std::getline(stream, path_segment, path_separator)) {
+        path += path_segment;
+        ensure_directory(path.c_str());
+        path += path_separator;
+    }
+}
+static void delete_recursively(const std::string &path, const bool allow_nonexistent_dir) {
+    // Loop Through Children
+    const bool success = read_directory(path, [&path](const dirent *entry) {
+        // Handle
+        const std::string child = path + path_separator + entry->d_name;
+        if (entry->d_type == DT_DIR) {
+            delete_recursively(child, false);
+        } else if (unlink(child.c_str()) != 0) {
+            ERR("Unable To Delete File: %s: %s", child.c_str(), strerror(errno));
+        }
+    }, allow_nonexistent_dir);
+    // Delete
+    if (success && rmdir(path.c_str()) != 0) {
+        ERR("Unable To Delete Directory: %s: %s", path.c_str(), strerror(errno));
+    }
+}
+static void copy_file(const std::string &src, const std::string &dst) {
+    std::ifstream in(src, std::ios::binary);
+    if (!in) {
+        ERR("Unable To Open Source File: %s", src.c_str());
+    }
+    std::ofstream out(dst, std::ios::binary);
+    if (!out) {
+        ERR("Unable To Create Destination File: %s", dst.c_str());
+    }
+    out << in.rdbuf();
+    out.close();
+    in.close();
+}
+static void copy_directory(const std::string &src, const std::string &dst) {
+    read_directory(src, [&src, &dst](const dirent *entry) {
+        const std::string name = path_separator + std::string(entry->d_name);
+        const std::string in = src + name;
+        const std::string out = dst + name;
+        if (entry->d_type == DT_DIR) {
+            ensure_directory(out.c_str());
+            copy_directory(in, out);
+        } else {
+            copy_file(in, out);
+        }
+    });
+}
+
+// Path
+static std::string get_sdk_root(const std::string &home) {
+    return home + path_separator + "sdk";
+}
+static std::string get_sdk_path_home() {
+    return get_sdk_root(home_get()) + path_separator + MCPI_SDK_DIR;
+}
+static std::string get_sdk_path_bundled(const std::string &binary_directory) {
+    return get_sdk_root(binary_directory);
+}
+
+// Test Whether SDK Should Be Copied
+static std::optional<std::string> get_sdk_hash(const std::string &sdk) {
+    const std::string path = sdk + path_separator + ".hash";
+    // Open File
+    std::ifstream stream(path, std::ios::binary | std::ios::ate);
+    if (stream) {
+        std::string hash;
+        // Read File
+        const std::streamoff size = stream.tellg();
+        stream.seekg(0, std::ifstream::beg);
+        hash.resize(size);
+        stream.read(hash.data(), size);
+        // Close File
+        stream.close();
+        // Return
+        return hash;
+    } else {
+        // Unable To Read
+        return std::nullopt;
+    }
+}
+static bool should_copy_sdk(const std::string &binary_directory) {
+    // Read Hashes
+    const std::optional<std::string> home_hash = get_sdk_hash(get_sdk_path_home());
+    if (!home_hash.has_value()) {
+        return true;
+    }
+    const std::optional<std::string> bundled_hash = get_sdk_hash(get_sdk_path_bundled(binary_directory));
+    if (!home_hash.has_value()) {
+        IMPOSSIBLE();
+    }
+    const bool should_copy = home_hash.value() != bundled_hash.value();
+    if (!should_copy) {
+        DEBUG("Skipped Unnecessary SDK Copy");
+    }
+    return should_copy;
+}
 
 // Log
 #define LOG(is_debug, ...) \
-    { \
-        if (is_debug) { \
+    ({ \
+        if ((is_debug)) { \
             DEBUG(__VA_ARGS__); \
         } else { \
             INFO(__VA_ARGS__); \
         } \
-    }
+    })
 
 // Copy SDK Into ~/.minecraft-pi
-#define HOME_SUBDIRECTORY_FOR_SDK "/sdk"
-void copy_sdk(const std::string &binary_directory, const bool log_with_debug) {
-    // Ensure SDK Directory
-    std::string sdk_path;
-    {
-        sdk_path = home_get() + HOME_SUBDIRECTORY_FOR_SDK;
-        const char *const command[] = {"mkdir", "-p", sdk_path.c_str(), nullptr};
-        run_simple_command(command, "Unable To Create SDK Directory");
+static void do_copy_sdk(const std::string &binary_directory, const bool force) {
+    // Check If Copy Is Needed
+    bool should_copy = force;
+    if (!should_copy) {
+        should_copy = should_copy_sdk(binary_directory);
+    }
+    if (!should_copy) {
+        return;
     }
 
-    // Lock File
-    const std::string lock_file_path = sdk_path + "/.lock";
-    const int lock_file_fd = lock_file(lock_file_path.c_str());
+    // Get Paths
+    const std::string src_sdk = get_sdk_path_bundled(binary_directory);
+    const std::string dst_sdk = get_sdk_path_home();
 
-    // Output Directory
-    const std::string output = sdk_path + "/" MCPI_SDK_DIR;
-    // Source Directory
-    const std::string source = binary_directory + "/sdk/.";
+    // Create Output Directory
+    delete_recursively(dst_sdk, true);
+    make_directory(dst_sdk);
 
-    // Clean
-    {
-        const char *const command[] = {"rm", "-rf", output.c_str(), nullptr};
-        run_simple_command(command, "Unable To Clean SDK Output Directory");
-    }
-
-    // Make Directory
-    {
-        const char *const command[] = {"mkdir", "-p", output.c_str(), nullptr};
-        run_simple_command(command, "Unable To Create SDK Output Directory");
-    }
-
-    // Copy
-    {
-        const char *const command[] = {"cp", "-ar", source.c_str(), output.c_str(), nullptr};
-        run_simple_command(command, "Unable To Copy SDK");
-    }
+    // Copy Directory
+    copy_directory(src_sdk, dst_sdk);
 
     // Log
-    LOG(log_with_debug, "Copied SDK To: %s", output.c_str());
+    LOG(!force, "Copied SDK To: %s", dst_sdk.c_str());
+}
+void copy_sdk(const std::string &binary_directory, const bool force) {
+    // Lock File
+    const std::string root = get_sdk_root(home_get());
+    ensure_directory(root.c_str());
+    const std::string lock_file_path = root + path_separator + ".lock";
+    const int lock_file_fd = lock_file(lock_file_path.c_str());
+
+    // Do
+    do_copy_sdk(binary_directory, force);
 
     // Unlock File
     unlock_file(lock_file_path.c_str(), lock_file_fd);

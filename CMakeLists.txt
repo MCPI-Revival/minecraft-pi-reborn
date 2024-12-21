@@ -40,7 +40,7 @@ include(cmake/options/paths.cmake)
 # Required Compile Flags
 string(CONCAT COMPILE_FLAGS_SETUP
     # Optimizations
-    "if(CMAKE_BUILD_TYPE STREQUAL \"Release\")\n"
+    "if(CMAKE_BUILD_TYPE MATCHES Release)\n"
     "    add_compile_options(-O3)\n"
     "    add_link_options(-s)\n"
     "else()\n"
@@ -169,27 +169,34 @@ if(BUILD_NATIVE_COMPONENTS)
     list(APPEND ARM_OPTIONS "-DCMAKE_INSTALL_PREFIX:PATH=<INSTALL_DIR>")
     if(NOT MCPI_USE_PREBUILT_ARMHF_TOOLCHAIN)
         if(DEFINED CMAKE_TOOLCHAIN_FILE)
-            list(APPEND ARM_OPTIONS "-DCMAKE_TOOLCHAIN_FILE:FILEPATH=${CMAKE_TOOLCHAIN_FILE}")
+            set(ARM_TOOLCHAIN "${CMAKE_TOOLCHAIN_FILE}")
         endif()
     else()
-        list(APPEND ARM_OPTIONS "-DCMAKE_TOOLCHAIN_FILE:FILEPATH=${MCPI_CMAKE_TOOLCHAIN_FILE}")
+        set(ARM_TOOLCHAIN "${MCPI_CMAKE_TOOLCHAIN_FILE}")
+    endif()
+    if(DEFINED ARM_TOOLCHAIN)
+        list(APPEND ARM_OPTIONS "-DCMAKE_TOOLCHAIN_FILE:FILEPATH=${ARM_TOOLCHAIN}")
     endif()
     list(APPEND ARM_OPTIONS "-DCMAKE_BUILD_TYPE:STRING=${CMAKE_BUILD_TYPE}")
     # Build
     ExternalProject_Add(arm-components
+        # Source Directory
         DOWNLOAD_COMMAND ""
         SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}"
+        # Pass Arguments To CMake
         CMAKE_CACHE_ARGS ${ARM_OPTIONS}
+        # Install
         INSTALL_COMMAND
             "${CMAKE_COMMAND}" "-E"
             "rm" "-rf" "<INSTALL_DIR>/${MCPI_INSTALL_DIR}"
         COMMAND
-            "${CMAKE_COMMAND}" "-E" "env"
-            "DESTDIR="
+            "${CMAKE_COMMAND}" "-E" "env"  "DESTDIR="
             "${CMAKE_COMMAND}" "--install" "<BINARY_DIR>"
+        # Use Terminal
         USES_TERMINAL_CONFIGURE TRUE
         USES_TERMINAL_BUILD TRUE
         USES_TERMINAL_INSTALL TRUE
+        # Always Build
         BUILD_ALWAYS TRUE
     )
     # Install
