@@ -38,14 +38,11 @@ include(cmake/options/extra-options.cmake)
 include(cmake/options/paths.cmake)
 
 # Required Compile Flags
+set(RELEASE_MODE_GENERATOR "\$<CONFIG:Release>")
 string(CONCAT COMPILE_FLAGS_SETUP
     # Optimizations
-    "if(CMAKE_BUILD_TYPE MATCHES Release)\n"
-    "    add_compile_options(-O3)\n"
-    "    add_link_options(-s)\n"
-    "else()\n"
-    "    add_compile_options(-g)\n"
-    "endif()\n"
+    "add_compile_options(\"\$<IF:${RELEASE_MODE_GENERATOR},-O3,-g>\")\n"
+    "add_link_options(\"\$<${RELEASE_MODE_GENERATOR}:-s>\")\n"
 
     # PIC
     "set(CMAKE_POSITION_INDEPENDENT_CODE TRUE)\n"

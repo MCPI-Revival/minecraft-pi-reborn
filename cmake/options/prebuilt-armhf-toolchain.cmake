@@ -32,46 +32,57 @@ force_set(MCPI_CMAKE_TOOLCHAIN_FILE "${toolchain_dir}/toolchain.cmake" FILEPATH)
 
 # Build Sysroot
 set(sysroot_dir "${CMAKE_CURRENT_BINARY_DIR}/bundled-armhf-sysroot")
+set(sysroot_dir_debug "${sysroot_dir}/debug")
+set(sysroot_dir_release "${sysroot_dir}/release")
 if("${toolchain_dir}/bin/${target}-gcc" IS_NEWER_THAN "${sysroot_dir}")
     # Create Directory
     file(REMOVE_RECURSE "${sysroot_dir}")
-    file(MAKE_DIRECTORY "${sysroot_dir}")
+    file(MAKE_DIRECTORY "${sysroot_dir_debug}")
+    file(MAKE_DIRECTORY "${sysroot_dir_release}")
 
     # Copy Files From Toolchain
     file(
         COPY "${toolchain_dir}/${target}/libc/"
-        DESTINATION "${sysroot_dir}"
+        DESTINATION "${sysroot_dir_debug}"
         USE_SOURCE_PERMISSIONS
         FILES_MATCHING
         PATTERN "*.so*"
     )
 
     # Delete Unneeded Files
-    file(REMOVE_RECURSE "${sysroot_dir}/usr/lib/audit")
-    file(REMOVE_RECURSE "${sysroot_dir}/usr/lib/gconv")
+    file(REMOVE_RECURSE "${sysroot_dir_debug}/usr/lib/audit")
+    file(REMOVE_RECURSE "${sysroot_dir_debug}/usr/lib/gconv")
 
     # Strip Files
-    if(NOT CMAKE_BUILD_TYPE MATCHES Debug)
-        file(GLOB_RECURSE files LIST_DIRECTORIES FALSE "${sysroot_dir}/*")
-        foreach(file IN LISTS files)
-            execute_process(
-                COMMAND "${toolchain_dir}/bin/${target}-strip" "${file}"
-                RESULT_VARIABLE ret
-                ERROR_QUIET
-            )
-            # Delete Invalid Files
-            if(NOT ret EQUAL 0)
-                file(REMOVE "${file}")
-            endif()
-        endforeach()
-    endif()
+    file(COPY "${sysroot_dir_debug}/." DESTINATION "${sysroot_dir_release}")
+    file(GLOB_RECURSE files LIST_DIRECTORIES FALSE "${sysroot_dir_release}/*")
+    foreach(file IN LISTS files)
+        execute_process(
+            COMMAND "${toolchain_dir}/bin/${target}-strip" "${file}"
+            RESULT_VARIABLE ret
+            ERROR_QUIET
+        )
+        # Delete Invalid Files
+        if(NOT ret EQUAL 0)
+            file(REMOVE "${file}")
+        endif()
+    endforeach()
 endif()
 
 # Install Sysroot (Skipping Empty Directories)
-function(install_arm_sysroot)
-    file(GLOB_RECURSE files LIST_DIRECTORIES FALSE RELATIVE "${sysroot_dir}" "${sysroot_dir}/*")
+function(install_arm_sysroot_config config)
+    set(dir "${sysroot_dir_${config}}")
+    file(GLOB_RECURSE files LIST_DIRECTORIES FALSE RELATIVE "${dir}" "${dir}/*")
     foreach(file IN LISTS files)
         cmake_path(GET file PARENT_PATH parent)
-        install(PROGRAMS "${sysroot_dir}/${file}" DESTINATION "${MCPI_INSTALL_DIR}/sysroot/${parent}")
+        install(
+            PROGRAMS "${dir}/${file}"
+            DESTINATION "${MCPI_INSTALL_DIR}/sysroot/${parent}"
+            CONFIGURATIONS "${config}"
+        )
     endforeach()
+endfunction()
+function(install_arm_sysroot)
+    install_arm_sysroot_config(debug)
+    install_arm_sysroot_config(release)
 endfunction()
