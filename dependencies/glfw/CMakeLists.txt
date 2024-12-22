@@ -16,7 +16,7 @@ force_set(GLFW_BUILD_X11 TRUE BOOL)
 force_set(GLFW_BUILD_WAYLAND TRUE BOOL)
 force_set(GLFW_LIBRARY_TYPE "SHARED" STRING)
 set(MESSAGE_QUIET TRUE)
-add_subdirectory(src EXCLUDE_FROM_ALL)
+add_subdirectory(src EXCLUDE_FROM_ALL SYSTEM)
 unset(MESSAGE_QUIET)
 
 # Install

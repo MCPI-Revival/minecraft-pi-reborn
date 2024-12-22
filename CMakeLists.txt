@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.24.0)
+cmake_minimum_required(VERSION 3.25.0)
 
 # Avoid Warning About DOWNLOAD_EXTRACT_TIMESTAMP
 cmake_policy(SET CMP0135 NEW)
@@ -6,16 +6,23 @@ cmake_policy(SET CMP0135 NEW)
 # Core Options
 include(cmake/options/core-options.cmake)
 
+# Utility Functions
+include(cmake/util/util.cmake)
+
 # Build Mode
-if(NOT DEFINED CMAKE_BUILD_TYPE)
-    set(CMAKE_BUILD_TYPE "Release" CACHE STRING "Build Type" FORCE)
+get_property(IS_MULTI_CONFIG GLOBAL PROPERTY GENERATOR_IS_MULTI_CONFIG)
+if(IS_MULTI_CONFIG)
+    force_set(CMAKE_CONFIGURATION_TYPES "Release;Debug" STRING)
+    set(FORCE_BUILD_TYPE "")
+elseif(NOT DEFINED CMAKE_BUILD_TYPE)
+    set(FORCE_BUILD_TYPE "Release")
+endif()
+if(DEFINED FORCE_BUILD_TYPE)
+    force_set(CMAKE_BUILD_TYPE "${FORCE_BUILD_TYPE}" STRING)
 endif()
 
 # Start Project
 project(minecraft-pi-reborn)
-
-# Utility Functions
-include(cmake/util/util.cmake)
 
 # Sanity Checks
 string(CONCAT ARM_SANITY_CHECK
@@ -174,21 +181,24 @@ if(BUILD_NATIVE_COMPONENTS)
     if(DEFINED ARM_TOOLCHAIN)
         list(APPEND ARM_OPTIONS "-DCMAKE_TOOLCHAIN_FILE:FILEPATH=${ARM_TOOLCHAIN}")
     endif()
-    list(APPEND ARM_OPTIONS "-DCMAKE_BUILD_TYPE:STRING=${CMAKE_BUILD_TYPE}")
     # Build
     ExternalProject_Add(arm-components
         # Source Directory
         DOWNLOAD_COMMAND ""
         SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}"
-        # Pass Arguments To CMake
+        # Configure
         CMAKE_CACHE_ARGS ${ARM_OPTIONS}
+        CMAKE_GENERATOR "Ninja Multi-Config"
+        # Build
+        BUILD_COMMAND
+            "${CMAKE_COMMAND}" "--build" "<BINARY_DIR>" "--config" "$<CONFIG>"
         # Install
         INSTALL_COMMAND
             "${CMAKE_COMMAND}" "-E"
             "rm" "-rf" "<INSTALL_DIR>/${MCPI_INSTALL_DIR}"
         COMMAND
             "${CMAKE_COMMAND}" "-E" "env"  "DESTDIR="
-            "${CMAKE_COMMAND}" "--install" "<BINARY_DIR>"
+            "${CMAKE_COMMAND}" "--install" "<BINARY_DIR>" "--config" "$<CONFIG>"
         # Use Terminal
         USES_TERMINAL_CONFIGURE TRUE
         USES_TERMINAL_BUILD TRUE

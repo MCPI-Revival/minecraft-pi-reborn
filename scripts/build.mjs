@@ -20,7 +20,10 @@ function info(message) {
 // Enums
 function Enum(values) {
     for (const value of values) {
-        this[value] = {name: value.toLowerCase()};
+        this[value] = {
+            prettyName: value,
+            name: value.toLowerCase()
+        };
     }
 }
 Enum.prototype.get = function (name) {
@@ -53,6 +56,10 @@ const Architectures = wrap(new Enum([
     'ARMHF',
     'Host'
 ]));
+const Configurations = wrap(new Enum([
+    'Release',
+    'Debug'
+]));
 
 // Folders
 const __filename = url.fileURLToPath(import.meta.url);
@@ -63,19 +70,21 @@ let out = path.join(root, 'out');
 
 // Positional Arguments
 let argIndex = 2; // Skip First Two Arguments
-function readArg(from, type) {
-    // Check Argument Count
-    if (argIndex >= process.argv.length) {
+function parseArg(arg, from, type) {
+    // Check Argument
+    if (arg === undefined) {
         err('Expecting ' + type);
     }
     // Read Argument
-    const arg = process.argv[argIndex++];
     const value = from.get(arg);
     if (value === null) {
         err(`Invalid ${type}: ${arg}`);
     }
     // Return
     return value;
+}
+function readArg(...args) {
+    return parseArg(process.argv[argIndex++], ...args);
 }
 // Type Of Packaging
 const packageType = readArg(PackageTypes, 'Package Type');
@@ -92,17 +101,19 @@ const options = new Map();
 // Other Arguments
 let clean = false;
 let install = false;
+let config = Configurations.Release;
 for (; argIndex < process.argv.length; argIndex++) {
     const arg = process.argv[argIndex];
-    if (arg.startsWith('-D')) {
+    const cmakeArgPrefix = '-D';
+    if (arg.startsWith(cmakeArgPrefix)) {
         // Pass Build Option To CMake
-        let parsedArg = arg.substring(2);
-        const split = parsedArg.indexOf('=');
-        if (split === -1) {
+        let parsedArg = arg.substring(cmakeArgPrefix.length);
+        const parts = parsedArg.split('=');
+        if (parts.length !== 2) {
             err('Unable To Parse Build Option: ' + arg);
         }
-        const name = parsedArg.substring(0, split);
-        const value = parsedArg.substring(split + 1);
+        const name = parts[0];
+        const value = parts[1];
         if (!/^[a-zA-Z_]+$/.test(name) || name.length === 0) {
             err('Invalid Build Option Name: ' + name);
         }
@@ -116,7 +127,11 @@ for (; argIndex < process.argv.length; argIndex++) {
             err('AppImages Cannot Be Installed');
         }
         install = true;
+    } else if (arg === '--config') {
+        // Set Configuration
+        config = parseArg(process.argv[++argIndex], Configurations, 'Configuration');
     } else {
+        // Invalid
         err('Invalid Argument: ' + arg);
     }
 }
@@ -169,24 +184,25 @@ function run(command) {
         err(e);
     }
 }
-const cmake = ['cmake', '-GNinja'];
+const configure = ['cmake', '-GNinja Multi-Config'];
 options.forEach((value, key, map) => {
-    cmake.push(`-D${key}=${value}`);
+    configure.push(`-D${key}=${value}`);
 });
-cmake.push(root);
-run(cmake);
+configure.push(root);
+run(configure);
 
 // Build
-run(['cmake', '--build', '.']);
+const configArg = ['--config', config.prettyName];
+run(['cmake', '--build', '.', ...configArg/*, '-v'/*, '--', '-n', '-j1', '-j1'*/]);
 
 // Package
 if (packageType !== PackageTypes.AppImage) {
     if (!install) {
         process.env.DESTDIR = out;
     }
-    run(['cmake', '--install', '.']);
+    run(['cmake', '--install', '.', ...configArg]);
 } else {
-    run(['cmake', '--build', '.', '--target', 'package']);
+    run(['cmake', '--build', '.', '--target', 'package', ...configArg]);
     // Copy Generated Files
     const files = fs.readdirSync(build);
     for (const file of files) {

@@ -24,7 +24,7 @@ force_set(LIEF_VDEX FALSE BOOL)
 
 # Download
 set(MESSAGE_QUIET TRUE)
-add_subdirectory(src EXCLUDE_FROM_ALL)
+add_subdirectory(src EXCLUDE_FROM_ALL SYSTEM)
 unset(MESSAGE_QUIET)
 
 # Install
