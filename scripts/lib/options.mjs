@@ -36,7 +36,7 @@ function formatFlag(name) {
     return '--' + name;
 }
 function formatOptionalArg(arg) {
-    return '[' + arg + '] ';;
+    return '[' + arg + '] ';
 }
 export function parseOptions(positionalArgs, flags, customHandler) {
     // Usage Text
@@ -52,7 +52,9 @@ export function parseOptions(positionalArgs, flags, customHandler) {
     for (const flag of flags) {
         usage += formatOptionalArg(formatFlag(flag));
     }
-    usage += formatOptionalArg(customHandler(null));
+    if (customHandler) {
+        usage += formatOptionalArg(customHandler(null));
+    }
     usage = usage.trim();
 
     // Copy Arguments
@@ -81,7 +83,7 @@ export function parseOptions(positionalArgs, flags, customHandler) {
 
     // Unknown Arguments
     for (const arg of args) {
-        if (!customHandler(arg)) {
+        if (!customHandler || !customHandler(arg)) {
             fail(usage);
         }
     }

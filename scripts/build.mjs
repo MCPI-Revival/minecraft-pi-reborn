@@ -1,16 +1,8 @@
 #!/usr/bin/env node
 import * as path from 'node:path';
-import * as url from 'node:url';
 import * as fs from 'node:fs';
-import { info, err, run } from './lib/util.mjs';
+import { info, err, run, createDir, getScriptsDir } from './lib/util.mjs';
 import { parseOptions, Enum, Architectures } from './lib/options.mjs';
-
-// Enums
-const PackageTypes = new Enum([
-    'None',
-    'AppImage',
-    'Flatpak'
-]);
 
 // CMake Options
 const cmakeArgPrefix = '-D';
@@ -41,6 +33,11 @@ function parseCMakeOption(arg) {
 }
 
 // Options
+const PackageTypes = new Enum([
+    'None',
+    'AppImage',
+    'Flatpak'
+]);
 const options = parseOptions([
     ['packageType', PackageTypes],
     ['architecture', Architectures]
@@ -59,8 +56,7 @@ if (options.packageType === PackageTypes.AppImage && options.install) {
 }
 
 // Folders
-const __filename = url.fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+const __dirname = getScriptsDir();
 const root = path.join(__dirname, '..');
 let build = path.join(root, 'build');
 let out = path.join(root, 'out');
@@ -97,12 +93,6 @@ if (options.architecture !== Architectures.Host) {
 }
 
 // Make Build Directory
-function createDir(dir, clean) {
-    if (clean) {
-        fs.rmSync(dir, {recursive: true, force: true});
-    }
-    fs.mkdirSync(dir, {recursive: true});
-}
 createDir(build, options.clean);
 if (!options.install) {
     createDir(out, !useOutRoot);

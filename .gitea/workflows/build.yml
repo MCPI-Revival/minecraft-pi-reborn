@@ -28,7 +28,7 @@ jobs:
                 submodules: true
           # Dependencies
           - name: Install Dependencies
-            run: ./scripts/install-dependencies.sh build ${{ matrix.arch }}
+            run: ./scripts/install-dependencies.mjs build ${{ matrix.arch }}
           # Build
           - name: Build
             run: ./scripts/build.mjs appimage ${{ matrix.arch }}
@@ -61,7 +61,7 @@ jobs:
                 submodules: false
           # Dependencies
           - name: Install Dependencies
-            run: ./scripts/install-dependencies.sh test ${{ matrix.arch }}
+            run: ./scripts/install-dependencies.mjs test ${{ matrix.arch }}
           # Download Artifact
           - name: Download Artifact
             uses: actions/download-artifact@v3
@@ -84,7 +84,7 @@ jobs:
                 submodules: false
           # Dependencies
           - name: Install Dependencies
-            run: ./scripts/install-dependencies.sh example_mods amd64
+            run: ./scripts/install-dependencies.mjs sdk amd64
           # SDK
           - name: Download SDK
             uses: actions/download-artifact@v3
