@@ -49,7 +49,15 @@ export function getDebianVersion() {
 
 // Make File Executable
 export function makeExecutable(path) {
-    fs.chmodSync(path, 0o755);
+    fs.chmodSync(path,
+        fs.constants.S_IRUSR |
+        fs.constants.S_IWUSR |
+        fs.constants.S_IXUSR |
+        fs.constants.S_IRGRP |
+        fs.constants.S_IXGRP |
+        fs.constants.S_IROTH |
+        fs.constants.S_IXOTH
+    );
 }
 
 // Get Scripts Directory

@@ -8,7 +8,8 @@ enum UpdateStatus {
     CHECKING,
     UP_TO_DATE,
     DOWNLOADING,
-    RESTART_NEEDED
+    RESTART_NEEDED,
+    ERROR
 };
 
 // Updater

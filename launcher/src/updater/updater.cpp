@@ -20,6 +20,7 @@ std::string Updater::get_status() const {
         case CHECKING: return "Checking...";
         case UP_TO_DATE: return "Up-To-Date";
         case DOWNLOADING: return "Downloading...";
+        case ERROR: return "Error";
         default: return "";
     }
 }
@@ -33,6 +34,7 @@ static void *update_thread(void *data) {
 void Updater::start() {
     switch (status) {
         case NOT_STARTED: {
+            status = CHECKING;
             pthread_t thread;
             pthread_create(&thread, nullptr, update_thread, this);
             break;

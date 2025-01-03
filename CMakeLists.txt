@@ -76,6 +76,9 @@ if(BUILD_ARM_COMPONENTS)
 endif()
 cmake_language(EVAL CODE "${COMPILE_FLAGS_SETUP}")
 
+# Build Dependencies
+add_subdirectory(dependencies)
+
 # Fast Math
 add_compile_options(-ffast-math)
 
@@ -90,9 +93,6 @@ if(CMAKE_C_COMPILER_ID STREQUAL "GNU")
         add_compile_options(-Wno-array-bounds -Wno-stringop-overread)
     endif()
 endif()
-
-# Build Dependencies
-add_subdirectory(dependencies)
 
 # Build libreborn
 add_subdirectory(libreborn)

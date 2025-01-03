@@ -291,10 +291,12 @@ void ConfigurationUI::draw_about() {
     Updater *updater = Updater::instance;
     if (updater) {
         ImGui::Separator();
+        ImGui::BeginDisabled(!updater->can_start());
         draw_right_aligned_buttons({updater->get_status().c_str()}, [&updater](__attribute__((unused)) int id, const bool was_clicked) {
             if (was_clicked) {
                 updater->start();
             }
         }, true);
+        ImGui::EndDisabled();
     }
 }

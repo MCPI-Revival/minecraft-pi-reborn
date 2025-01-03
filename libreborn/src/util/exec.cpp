@@ -142,7 +142,7 @@ std::vector<unsigned char> *run_command(const char *const command[], int *exit_s
         // Child Process
         reborn_debug_tag = CHILD_PROCESS_TAG;
         // Run
-        safe_execvpe(command, (const char *const *) environ);
+        safe_execvpe(command, environ);
     } else {
         // Read stdout
         std::vector<unsigned char> *output = new std::vector<unsigned char>;
