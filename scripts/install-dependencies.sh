@@ -61,19 +61,19 @@ run_build() {
         "libxext-dev:$1" \
         `# QEMU Dependencies` \
         "libglib2.0-dev:$1" \
-        `# AppStream Verification` \
-        appstream
+        `# AppImage` \
+        appstream \
+        zsync
 
     # Install appimagetool
     sudo rm -rf /opt/squashfs-root /opt/appimagetool /usr/local/bin/appimagetool
     case "$(dpkg --print-architecture)" in
         'armhf') APPIMAGE_ARCH='armhf';;
         'arm64') APPIMAGE_ARCH='aarch64';;
-        'i386') APPIMAGE_ARCH='i686';;
         'amd64') APPIMAGE_ARCH='x86_64';;
     esac
     sudo mkdir -p /opt
-    sudo wget -O /opt/appimagetool "https://github.com/AppImage/AppImageKit/releases/download/continuous/appimagetool-${APPIMAGE_ARCH}.AppImage"
+    sudo wget -O /opt/appimagetool "https://github.com/AppImage/appimagetool/releases/download/continuous/appimagetool-${APPIMAGE_ARCH}.AppImage"
     sudo chmod +x /opt/appimagetool
     # Workaround AppImage Issues With Docker
     sudo ./scripts/fix-appimage-for-docker.sh /opt/appimagetool
@@ -83,7 +83,8 @@ run_build() {
     sudo rm -f ./appimagetool
     # Link
     sudo mv ./squashfs-root ./appimagetool
-    sudo ln -s /opt/appimagetool/AppRun /usr/local/bin/appimagetool
+    printf '#!/bin/sh\nexec /opt/appimagetool/AppRun "$@"\n' | sudo tee /usr/local/bin/appimagetool > /dev/null
+    sudo chmod +x /usr/local/bin/appimagetool
 }
 
 # Test Dependencies

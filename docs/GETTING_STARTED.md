@@ -27,7 +27,7 @@ The AppImage requires Debian Bullseye or higher. This is equivalent to Ubuntu 20
 
 It also requires some additional packages. To install them, run:
 ```sh
-sudo apt install -y libfuse2 libopenal1 libglib2.0-0
+sudo apt install -y libopenal1 libglib2.0-0
 ```
 </details>
 

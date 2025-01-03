@@ -9,7 +9,7 @@ elseif(CPACK_MCPI_ARCH STREQUAL "amd64")
 endif()
 set(RUNTIME "${CPACK_TOPLEVEL_DIRECTORY}/runtime")
 file(DOWNLOAD
-    "https://github.com/AppImage/AppImageKit/releases/download/continuous/runtime-${RUNTIME_ARCH}"
+    "https://github.com/AppImage/type2-runtime/releases/download/continuous/runtime-${RUNTIME_ARCH}"
     "${RUNTIME}"
     STATUS DOWNLOAD_STATUS
 )
@@ -34,10 +34,11 @@ execute_process(
     COMMAND
         "${CMAKE_COMMAND}" "-E" "env"
         "ARCH=${APPIMAGE_ARCH}"
+        "VERSION=${CPACK_MCPI_VERSION}"
         "appimagetool"
         "--updateinformation" "zsync|${CPACK_MCPI_REPO}/releases/download/latest/${CPACK_PACKAGE_FILE_NAME_ZSYNC}${CPACK_MCPI_APPIMAGE_ZSYNC_EXT}"
         "--runtime-file" "${RUNTIME}"
-        "--comp" "xz"
+        "--comp" "zstd"
         "${CPACK_TEMPORARY_DIRECTORY}"
         "${CPACK_PACKAGE_FILE_NAME}${CPACK_MCPI_APPIMAGE_EXT}"
     WORKING_DIRECTORY "${CPACK_PACKAGE_DIRECTORY}"
