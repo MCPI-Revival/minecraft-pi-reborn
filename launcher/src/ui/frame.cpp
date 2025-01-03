@@ -107,7 +107,7 @@ float Frame::get_frame_width(const char *str) {
     const ImGuiStyle &style = ImGui::GetStyle();
     return ImGui::CalcTextSize(str).x + style.FramePadding.x * 2.0f;
 }
-void Frame::draw_right_aligned_buttons(const std::vector<const char *> &buttons, const std::function<void(int, bool)> &callback) {
+void Frame::draw_right_aligned_buttons(const std::vector<const char *> &buttons, const std::function<void(int, bool)> &callback, const bool should_actually_center) {
     // Calculate Position
     const ImGuiStyle &style = ImGui::GetStyle();
     float width_needed = 0;
@@ -117,7 +117,14 @@ void Frame::draw_right_aligned_buttons(const std::vector<const char *> &buttons,
         }
         width_needed += get_frame_width(text);
     }
-    ImGui::SetCursorPosX(ImGui::GetCursorPosX() + ImGui::GetContentRegionAvail().x - width_needed);
+    float cursor_pos;
+    if (should_actually_center) {
+        cursor_pos = ImGui::GetWindowSize().x - width_needed;
+        cursor_pos /= 2.0f;
+    } else {
+        cursor_pos = ImGui::GetCursorPosX() + ImGui::GetContentRegionAvail().x - width_needed;
+    }
+    ImGui::SetCursorPosX(cursor_pos);
     // Draw
     for (std::vector<const char *>::size_type id = 0; id < buttons.size(); id++) {
         if (id > 0) {

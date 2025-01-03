@@ -35,17 +35,17 @@ execute_process(
         "${CMAKE_COMMAND}" "-E" "env"
         "ARCH=${APPIMAGE_ARCH}"
         "appimagetool"
-        "--updateinformation" "zsync|https://gitea.thebrokenrail.com/minecraft-pi-reborn/minecraft-pi-reborn/releases/download/latest/${CPACK_PACKAGE_FILE_NAME_ZSYNC}.AppImage.zsync"
+        "--updateinformation" "zsync|${CPACK_MCPI_REPO}/releases/download/latest/${CPACK_PACKAGE_FILE_NAME_ZSYNC}${CPACK_MCPI_APPIMAGE_ZSYNC_EXT}"
         "--runtime-file" "${RUNTIME}"
         "--comp" "xz"
         "${CPACK_TEMPORARY_DIRECTORY}"
-        "${CPACK_PACKAGE_FILE_NAME}.AppImage"
+        "${CPACK_PACKAGE_FILE_NAME}${CPACK_MCPI_APPIMAGE_EXT}"
     WORKING_DIRECTORY "${CPACK_PACKAGE_DIRECTORY}"
     COMMAND_ERROR_IS_FATAL ANY
 )
 
 # Rename ZSync File
-file(RENAME "${CPACK_PACKAGE_DIRECTORY}/${CPACK_PACKAGE_FILE_NAME}.AppImage.zsync" "${CPACK_PACKAGE_DIRECTORY}/${CPACK_PACKAGE_FILE_NAME_ZSYNC}.AppImage.zsync")
+file(RENAME "${CPACK_PACKAGE_DIRECTORY}/${CPACK_PACKAGE_FILE_NAME}${CPACK_MCPI_APPIMAGE_ZSYNC_EXT}" "${CPACK_PACKAGE_DIRECTORY}/${CPACK_PACKAGE_FILE_NAME_ZSYNC}${CPACK_MCPI_APPIMAGE_ZSYNC_EXT}")
 
 # Summary Message
 function(check_file name)
@@ -55,5 +55,5 @@ function(check_file name)
         message(FATAL_ERROR "Missing File: ${name}")
     endif()
 endfunction()
-check_file("${CPACK_PACKAGE_FILE_NAME}.AppImage")
-check_file("${CPACK_PACKAGE_FILE_NAME_ZSYNC}.AppImage.zsync")
+check_file("${CPACK_PACKAGE_FILE_NAME}${CPACK_MCPI_APPIMAGE_EXT}")
+check_file("${CPACK_PACKAGE_FILE_NAME_ZSYNC}${CPACK_MCPI_APPIMAGE_ZSYNC_EXT}")

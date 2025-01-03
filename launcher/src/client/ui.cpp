@@ -1,9 +1,13 @@
 #include <vector>
 #include <limits>
+#include <ranges>
 
 #include <libreborn/util/util.h>
+#include <libreborn/config.h>
+#include <libreborn/util/exec.h>
 
 #include "configuration.h"
+#include "../updater/updater.h"
 
 #include <imgui_stdlib.h>
 
@@ -41,6 +45,11 @@ int ConfigurationUI::render() {
             // Servers Tab
             if (ImGui::BeginTabItem("Servers")) {
                 draw_servers();
+                ImGui::EndTabItem();
+            }
+            // About Tab
+            if (ImGui::BeginTabItem("About")) {
+                draw_about();
                 ImGui::EndTabItem();
             }
             ImGui::EndTabBar();
@@ -246,5 +255,46 @@ void ConfigurationUI::draw_server_list() const {
             state.servers.entries.erase(state.servers.entries.begin() + int(i));
             i--;
         }
+    }
+}
+
+// About
+void ConfigurationUI::draw_centered_text(const std::string &str) {
+    const float width = ImGui::GetWindowSize().x;
+    const float text_width = ImGui::CalcTextSize(str.c_str()).x;
+    ImGui::SetCursorPosX((width - text_width) / 2.0f);
+    ImGui::Text("%s", str.c_str());
+}
+void ConfigurationUI::draw_links(const std::vector<std::pair<std::string, std::string>> &links) {
+    std::vector<const char *> buttons;
+    for (const std::string &text : links | std::views::keys) {
+        buttons.push_back(text.c_str());
+    }
+    draw_right_aligned_buttons(buttons, [&links](const int id, const bool was_clicked) {
+        if (was_clicked) {
+            open_url(links[id].second);
+        }
+    }, true);
+}
+void ConfigurationUI::draw_about() {
+    // Text
+    draw_centered_text("By " MCPI_AUTHOR);
+    draw_centered_text("Version " MCPI_VERSION);
+    // Links
+    ImGui::Separator();
+    draw_links({
+        {"Home", MCPI_REPO},
+        {"Changelog", MCPI_DOCS_CHANGELOG},
+        {"Credits", MCPI_DOCS "CREDITS.md"}
+    });
+    // Updater
+    Updater *updater = Updater::instance;
+    if (updater) {
+        ImGui::Separator();
+        draw_right_aligned_buttons({updater->get_status().c_str()}, [&updater](__attribute__((unused)) int id, const bool was_clicked) {
+            if (was_clicked) {
+                updater->start();
+            }
+        }, true);
     }
 }

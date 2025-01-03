@@ -30,16 +30,9 @@ void print_debug_information() {
     DEBUG("Reborn Version: v%s", MCPI_VERSION);
 
     // Architecture
-    const char *arch =
-#ifdef __x86_64__
-        "AMD64"
-#elif defined(__aarch64__)
-        "ARM64"
-#elif defined(__arm__)
-        "ARM32"
-#else
-        "Unknown"
-#endif
-        ;
-    DEBUG("Reborn Target Architecture: %s", arch);
+    std::string arch = MCPI_ARCH;
+    for (char &c : arch) {
+        c = char(std::toupper(c));
+    }
+    DEBUG("Reborn Target Architecture: %s", arch.c_str());
 }

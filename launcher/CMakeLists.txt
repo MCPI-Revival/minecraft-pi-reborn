@@ -19,6 +19,7 @@ add_executable(launcher
     src/client/configuration.cpp
     src/client/cache.cpp
     src/client/ui.cpp
+    src/updater/updater.cpp
 )
 target_link_libraries(launcher
     reborn-util
@@ -34,7 +35,7 @@ target_compile_definitions(launcher PRIVATE _FILE_OFFSET_BITS=64)
 
 # Install
 install(TARGETS launcher DESTINATION "${MCPI_INSTALL_DIR}")
-install_symlink("../${MCPI_INSTALL_DIR}/launcher" "bin/${MCPI_VARIANT_NAME}")
+install_symlink("../${MCPI_INSTALL_DIR}/launcher" "bin/${MCPI_APP_NAME}")
 
 # Install Desktop Entry
 file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/launcher.desktop"
@@ -42,7 +43,7 @@ file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/launcher.desktop"
     "Name=${MCPI_APP_TITLE}\n"
     "Comment=Fun with Blocks\n"
     "Icon=${MCPI_APP_ID}\n"
-    "Exec=${MCPI_VARIANT_NAME}\n"
+    "Exec=${MCPI_APP_NAME}\n"
     "Type=Application\n"
     "Categories=Game;\n"
 )
@@ -69,13 +70,13 @@ file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/appstream.xml"
     "        <p>Minecraft: Pi Edition Modding Project.</p>\n"
     "        <p>NOTE: This is not verified by, affiliated with, or supported by Mojang or Microsoft.</p>\n"
     "    </description>\n"
-    "    <url type=\"homepage\">https://gitea.thebrokenrail.com/TheBrokenRail/minecraft-pi-reborn</url>\n"
+    "    <url type=\"homepage\">${MCPI_REPO}</url>\n"
     "    <launchable type=\"desktop-id\">${MCPI_APP_ID}.desktop</launchable>\n"
     "    <provides>\n"
-    "        <id>com.thebrokenrail.MCPIRebornClient.desktop</id>\n"
+    "        <id>${MCPI_APP_ID}.desktop</id>\n"
     "    </provides>\n"
     "    <project_license>LicenseRef-proprietary</project_license>\n"
-    "    <developer_name>TheBrokenRail &amp; Mojang AB</developer_name>\n"
+    "    <developer_name>${MCPI_AUTHOR} &amp; Mojang AB</developer_name>\n"
     "    <content_rating type=\"oars-1.0\">\n"
     "        <content_attribute id=\"violence-cartoon\">moderate</content_attribute>\n"
     "        <content_attribute id=\"violence-fantasy\">none</content_attribute>\n"
@@ -103,7 +104,7 @@ file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/appstream.xml"
     "    </releases>\n"
     "    <screenshots>\n"
     "        <screenshot type=\"default\">\n"
-    "            <image>https://gitea.thebrokenrail.com/TheBrokenRail/minecraft-pi-reborn/raw/branch/master/images/start.png</image>\n"
+    "            <image>${MCPI_REPO}/raw/branch/master/images/start.png</image>\n"
     "        </screenshot>\n"
     "    </screenshots>\n"
     "</component>\n"
@@ -116,6 +117,8 @@ install(
 
 # AppImage
 if(MCPI_IS_APPIMAGE_BUILD)
-    install_symlink("bin/${MCPI_VARIANT_NAME}" "AppRun")
+    install_symlink("bin/${MCPI_APP_NAME}" "AppRun")
     install_symlink("${MCPI_SHARE_DIR}/applications/${MCPI_APP_ID}.desktop" "${MCPI_APP_ID}.desktop")
+    # Updater
+    target_sources(launcher PRIVATE src/updater/appimage.cpp)
 endif()

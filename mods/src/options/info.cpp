@@ -1,14 +1,11 @@
-#include <libreborn/log.h>
 #include <libreborn/util/exec.h>
 #include <libreborn/config.h>
 #include <libreborn/util/util.h>
 
 #include <symbols/minecraft.h>
-#include <GLES/gl.h>
 
 #include <mods/touch/touch.h>
 #include <mods/misc/misc.h>
-#include <mods/options/info.h>
 #include <mods/extend/extend.h>
 
 #include "options-internal.h"
@@ -53,7 +50,7 @@ static info_line info[] = {
         .get_text = []() {
             return std::string("Version: v") + reborn_get_version() + extra_version_info_full;
         },
-        .button_url = MCPI_DOCUMENTATION CHANGELOG_FILE,
+        .button_url = MCPI_DOCS_CHANGELOG,
         .button_text = "Changelog"
     },
     {
@@ -67,7 +64,7 @@ static info_line info[] = {
         .get_text = []() {
             return std::string("Sound Data: ") + info_sound_data_state;
         },
-        .button_url = MCPI_DOCUMENTATION "GETTING_STARTED.md#sound",
+        .button_url = MCPI_DOCS_GETTING_STARTED "#sound",
         .button_text = "More Info"
     },
 };

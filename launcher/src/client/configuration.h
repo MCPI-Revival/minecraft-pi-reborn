@@ -43,6 +43,10 @@ private:
     // Server List
     void draw_servers() const;
     void draw_server_list() const;
+    // About
+    static void draw_centered_text(const std::string &str);
+    static void draw_links(const std::vector<std::pair<std::string, std::string>> &links);
+    static void draw_about();
     // State
     const State original_state;
     State &state;

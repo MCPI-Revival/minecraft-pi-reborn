@@ -8,7 +8,6 @@
 #include <symbols/minecraft.h>
 
 #include <mods/touch/touch.h>
-#include <mods/options/info.h>
 #include <mods/misc/misc.h>
 #include <mods/extend/extend.h>
 
@@ -115,9 +114,9 @@ struct WelcomeScreen final : CustomScreen {
     // Handle Button Click
     void buttonClicked(Button *button) override {
         if (button == getting_started) {
-            open_url(MCPI_DOCUMENTATION "GETTING_STARTED.md");
+            open_url(MCPI_DOCS_GETTING_STARTED);
         } else if (button == changelog) {
-            open_url(MCPI_DOCUMENTATION CHANGELOG_FILE);
+            open_url(MCPI_DOCS_CHANGELOG);
         } else if (button == proceed) {
             mark_welcome_as_shown();
             self->minecraft->screen_chooser.setScreen(1);
