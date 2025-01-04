@@ -4,9 +4,6 @@
 
 #include "../common/common.h"
 
-// Trampoline Function
-extern "C" std::remove_pointer_t<trampoline_t> trampoline;
-
 // Macro
 typedef uint32_t handler_t(trampoline_writer_t writer, const unsigned char *args);
 __attribute__((visibility("internal"))) void _add_handler(unsigned char id, handler_t *handler);

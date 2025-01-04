@@ -2,13 +2,6 @@ project(runtime)
 
 ## Extra Runtime
 
-# QEMU
-set(QEMU_VERSION "9.1.1")
-force_set(RUNTIME_QEMU_ARCHIVE "${CMAKE_CURRENT_SOURCE_DIR}/../../archives/qemu-${QEMU_VERSION}.tar.xz" FILEPATH)
-if(NOT BUILD_NATIVE_COMPONENTS)
-    force_set(TRAMPOLINE_HEADERS_ONLY TRUE BOOL)
-endif()
-
 # Build
 add_subdirectory(src)
 
