@@ -26,6 +26,7 @@ target_link_libraries(launcher
     LIB_LIEF
     imgui
     trampoline-headers
+    pthread
 )
 # RPath
 set_target_properties(launcher PROPERTIES INSTALL_RPATH "$ORIGIN/lib/native")
@@ -46,8 +47,6 @@ file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/launcher.desktop"
     "Exec=${MCPI_APP_NAME}\n"
     "Type=Application\n"
     "Categories=Game;\n"
-)
-file(APPEND "${CMAKE_CURRENT_BINARY_DIR}/launcher.desktop"
     "Terminal=false\n"
     "StartupNotify=false\n"
     "StartupWMClass=${MCPI_APP_ID}\n"
