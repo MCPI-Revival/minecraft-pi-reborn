@@ -63,7 +63,7 @@ void bootstrap(const options_t &options) {
     // Arguments
     const std::vector<std::string> args {
 #ifdef MCPI_BUILD_RUNTIME
-        "runtime",
+         binary_directory + "/lib/native/runtime",
 #endif
         new_mcpi_exe_path
     };

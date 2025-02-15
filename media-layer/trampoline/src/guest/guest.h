@@ -2,6 +2,9 @@
 
 #include <cstring>
 #include <cstdlib>
+#include <utility>
+
+#include <libreborn/log.h>
 
 #include "../common/common.h"
 
@@ -36,7 +39,7 @@ inline void _handle_trampoline_arg<copy_array>(unsigned char *&out, const copy_a
     _handle_trampoline_arg(out, arg.size);
     // Send Data
     if (arg.size > 0) {
-        static bool just_send_pointer = getenv(MCPI_USE_PIPE_TRAMPOLINE_ENV) == nullptr;
+        static bool just_send_pointer = !is_trampoline_pipe_based();
         if (just_send_pointer) {
             _handle_trampoline_arg(out, uint32_t(arg.data));
         } else {
@@ -49,19 +52,26 @@ inline void _handle_trampoline_arg<copy_array>(unsigned char *&out, const copy_a
 __attribute__((unused)) static void _add_to_trampoline_args(__attribute__((unused)) unsigned char *&out) {
 }
 template <typename T, typename... Args>
-void _add_to_trampoline_args(unsigned char *&out, const T &first, const Args... args) {
+void _add_to_trampoline_args(unsigned char *&out, const T &first, Args&&... args) {
     _handle_trampoline_arg(out, first);
-    _add_to_trampoline_args(out, args...);
+    _add_to_trampoline_args(out, std::forward<Args>(args)...);
 }
 
 // Main Trampoline Function
 template <typename... Args>
-unsigned int _trampoline(const unsigned int id, const bool allow_early_return, Args... args) {
+unsigned int _trampoline(const unsigned int id, const bool allow_early_return, Args&&... args) {
+    // Create Arguments
     static unsigned char out[MAX_TRAMPOLINE_ARGS_SIZE];
     unsigned char *end = out;
-    _add_to_trampoline_args(end, args...);
+    _add_to_trampoline_args(end, std::forward<Args>(args)...);
     const uint32_t length = end - out;
-    return raw_trampoline(id, allow_early_return, length, out);
+    // Call
+    uint32_t ret = 0;
+    const uint32_t err = raw_trampoline(id, allow_early_return ? nullptr : &ret, length, out);
+    if (err != 0) {
+        ERR("Trampoline Error: %u", err);
+    }
+    return ret;
 }
 #define trampoline(...) _trampoline(_id, ##__VA_ARGS__)
 

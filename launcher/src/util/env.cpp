@@ -6,20 +6,6 @@
 #include <libreborn/env/env.h>
 #include <libreborn/config.h>
 
-// $PATH
-void setup_path() {
-    // Get Binary Directory
-    const std::string binary_directory = get_binary_directory();
-    std::string new_path = binary_directory + "/bin";
-    // Add Existing PATH
-    const char *value = getenv("PATH");
-    if (value != nullptr && strlen(value) > 0) {
-        new_path += std::string(":") + value;
-    }
-    // Set And Free
-    set_and_print_env("PATH", new_path.c_str());
-}
-
 // Profile Directory
 void setup_home() {
     const char *custom_profile_directory = getenv(MCPI_PROFILE_DIRECTORY_ENV);
