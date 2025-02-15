@@ -23,12 +23,12 @@ struct copy_array {
         if (arr == nullptr) {
             length = 0;
         }
-        this->size = length * sizeof(T);
-        this->data = arr;
+        size = length * sizeof(T);
+        data = arr;
     }
     explicit copy_array(const char *str) {
-        this->size = str != nullptr ? (strlen(str) + 1) : 0;
-        this->data = str;
+        size = str != nullptr ? (strlen(str) + 1) : 0;
+        data = str;
     }
     uint32_t size;
     const void *data;

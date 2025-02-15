@@ -18,11 +18,13 @@ __attribute__((visibility("internal"))) void _add_handler(unsigned char id, hand
 
 // Arguments
 struct TrampolineArguments {
+    // Constructor
     explicit TrampolineArguments(const unsigned char *args) {
-        this->raw_args = args;
-        this->position = 0;
+        raw_args = args;
+        position = 0;
     }
 
+    // Read Next Value
     template <typename T>
     T next() {
         block_pointer(T);
@@ -30,6 +32,7 @@ struct TrampolineArguments {
         raw_args += sizeof(T);
         return ret;
     }
+    // Read Next Array
     template <typename T>
     const T *next_arr(uint32_t *length = nullptr) {
         block_pointer(T);
@@ -37,7 +40,7 @@ struct TrampolineArguments {
         if (length != nullptr) {
             *length = size / sizeof(T);
         }
-        static bool just_read_pointer = getenv(MCPI_USE_PIPE_TRAMPOLINE_ENV) == nullptr;
+        static bool just_read_pointer = !is_trampoline_pipe_based();
         if (size == 0) {
             return nullptr;
         } else if (just_read_pointer) {
