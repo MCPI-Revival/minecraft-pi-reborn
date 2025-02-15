@@ -161,7 +161,7 @@ void ConfigurationUI::draw_category(FlagNode &category) {
         const std::string label = get_label_for_flag_node(child);
         if (!child.children.empty()) {
             // Sub-Category
-            if (ImGui::TreeNode(label.c_str())) {
+            if (ImGui::TreeNodeEx(label.c_str(), ImGuiTreeNodeFlags_SpanAvailWidth)) {
                 draw_category(child);
                 ImGui::TreePop();
             }
