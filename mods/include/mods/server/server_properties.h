@@ -12,18 +12,17 @@ struct ServerProperty {
     ServerProperty(const std::string &key_, const std::string &def_, const std::string &comment_):
         key(key_),
         def(def_),
-        comment(comment_) {
+        comment(comment_)
+    {
         get_all().push_back(this);
     }
 };
 
-class ServerProperties {
-    std::map<std::string, std::string> properties;
-
-public:
+struct ServerProperties {
     void load(std::istream &stream);
-
     [[nodiscard]] std::string get_string(const ServerProperty &property) const;
     [[nodiscard]] int get_int(const ServerProperty &property) const;
     [[nodiscard]] bool get_bool(const ServerProperty &property) const;
+private:
+    std::map<std::string, std::string> properties;
 };

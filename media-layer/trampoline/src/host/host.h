@@ -26,9 +26,9 @@ struct TrampolineArguments {
 
     // Read Next Value
     template <typename T>
-    T next() {
+    const T &next() {
         block_pointer(T);
-        T ret = *(const T *) raw_args;
+        const T &ret = *(const T *) raw_args;
         raw_args += sizeof(T);
         return ret;
     }

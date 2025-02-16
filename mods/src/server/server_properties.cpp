@@ -7,14 +7,10 @@ std::vector<const ServerProperty *> &ServerProperty::get_all() {
     return out;
 }
 
-static bool is_true(std::string const& val) {
-    return val == "true" || val == "yes" || val == "1";
-}
-
 void ServerProperties::load(std::istream &stream) {
     std::string line;
     while (std::getline(stream, line)) {
-        if (line.length() > 0) {
+        if (!line.empty()) {
             if (line[0] == '#') {
                 continue;
             }
@@ -32,9 +28,16 @@ std::string ServerProperties::get_string(const ServerProperty &property) const {
 }
 
 int ServerProperties::get_int(const ServerProperty &property) const {
-    return std::stoi(get_string(property));
+    try {
+        return std::stoi(get_string(property));
+    } catch (...) {
+        return std::stoi(property.def);
+    }
 }
 
+static bool is_true(const std::string &val) {
+    return val == "true" || val == "yes" || val == "1";
+}
 bool ServerProperties::get_bool(const ServerProperty &property) const {
     return is_true(get_string(property));
 }

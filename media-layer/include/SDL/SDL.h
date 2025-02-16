@@ -13,7 +13,7 @@ extern "C" {
 
 int media_SDL_Init(uint32_t flags);
 int media_SDL_PollEvent(SDL_Event *event);
-int media_SDL_PushEvent(SDL_Event *event);
+int media_SDL_PushEvent(const SDL_Event *event);
 void media_SDL_WM_SetCaption(const char *title, const char *icon);
 
 typedef enum {

@@ -29,11 +29,11 @@ CALL(1, media_SDL_PollEvent, int, (SDL_Event *event))
 #endif
 }
 
-CALL(2, media_SDL_PushEvent, int, (SDL_Event *event))
+CALL(2, media_SDL_PushEvent, int, (const SDL_Event *event))
 #ifdef MEDIA_LAYER_TRAMPOLINE_GUEST
     return trampoline(false, *event);
 #else
-    SDL_Event event = args.next<SDL_Event>();
+    const SDL_Event &event = args.next<SDL_Event>();
     return func(&event);
 #endif
 }

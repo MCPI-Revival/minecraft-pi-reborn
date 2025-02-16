@@ -30,7 +30,7 @@ int media_SDL_PollEvent(SDL_Event *event) {
     return ret;
 }
 
-int media_SDL_PushEvent(SDL_Event *event) {
+int media_SDL_PushEvent(const SDL_Event *event) {
     queue.push_back(*event);
     return 1;
 }

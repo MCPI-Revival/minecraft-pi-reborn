@@ -65,16 +65,19 @@ struct gl_state_t {
             }
         }
     }
+    [[nodiscard]] bool get_array_enabled_const(const GLenum array) const {
+        return const_cast<gl_state_t *>(this)->get_array_enabled(array);
+    }
 #ifndef MEDIA_LAYER_TRAMPOLINE_GUEST
-    void send_array_to_driver(const GLenum array) {
-        const bool state = get_array_enabled(array);
+    void send_array_to_driver(const GLenum array) const {
+        const bool state = get_array_enabled_const(array);
         if (state) {
             media_glEnableClientState(array);
         } else {
             media_glDisableClientState(array);
         }
     }
-    void send_to_driver() {
+    void send_to_driver() const {
         send_array_to_driver(GL_VERTEX_ARRAY);
         send_array_to_driver(GL_COLOR_ARRAY);
         send_array_to_driver(GL_TEXTURE_COORD_ARRAY);
@@ -121,7 +124,7 @@ void _media_restore_gl_state() {
 #define CALL_GL_POINTER(unique_id, name) \
     CALL(unique_id, name, unused, ()) \
         media_glBindBuffer(GL_ARRAY_BUFFER, args.next<GLuint>()); \
-        gl_array_details_t state = args.next<gl_array_details_t>(); \
+        const gl_array_details_t &state = args.next<gl_array_details_t>(); \
         func(state.size, state.type, state.stride, (const void *) uintptr_t(state.pointer)); \
         return 0; \
     }
@@ -153,7 +156,7 @@ CALL(15, media_glDrawArrays, void, (GLenum mode, GLint first, GLsizei count))
 #ifdef MEDIA_LAYER_TRAMPOLINE_GUEST
     trampoline(true, gl_state, mode, first, count);
 #else
-    gl_state_t gl_state = args.next<gl_state_t>();
+    const gl_state_t &gl_state = args.next<gl_state_t>();
     gl_state.send_to_driver();
     GLenum mode = args.next<GLenum>();
     GLint first = args.next<GLint>();
@@ -167,7 +170,7 @@ CALL(70, media_glMultiDrawArrays, void, (GLenum mode, const GLint *first, const 
 #ifdef MEDIA_LAYER_TRAMPOLINE_GUEST
     trampoline(true, gl_state, mode, copy_array(drawcount, first), copy_array(drawcount, count));
 #else
-    gl_state_t gl_state = args.next<gl_state_t>();
+    const gl_state_t &gl_state = args.next<gl_state_t>();
     gl_state.send_to_driver();
     GLenum mode = args.next<GLenum>();
     uint32_t drawcount;
@@ -578,7 +581,7 @@ CALL(47, media_glAlphaFunc, void, (GLenum func, GLclampf ref))
 }
 
 #ifdef MEDIA_LAYER_TRAMPOLINE_HOST
-static int get_glGetFloatv_params_size(GLenum pname) {
+static int get_glGetFloatv_params_size(const GLenum pname) {
     switch (pname) {
         case GL_MODELVIEW_MATRIX:
         case GL_PROJECTION_MATRIX: {
@@ -588,7 +591,7 @@ static int get_glGetFloatv_params_size(GLenum pname) {
             return 2;
         }
         default: {
-            ERR("Unsupported media_glGetFloatv Property: %u", pname);
+            ERR("Unsupported glGetFloatv Property: %u", pname);
         }
     }
 }
@@ -598,7 +601,7 @@ CALL(48, media_glGetFloatv, void, (GLenum pname, GLfloat *params))
     trampoline(false, pname, uint32_t(params));
 #else
     GLenum pname = args.next<GLenum>();
-    int size = get_glGetFloatv_params_size(pname);
+    const int size = get_glGetFloatv_params_size(pname);
     GLfloat *params = new GLfloat[size];
     func(pname, params);
     writer(args.next<uint32_t>(), params, size * sizeof(GLfloat));
@@ -718,7 +721,7 @@ CALL(58, media_glIsEnabled, GLboolean, (GLenum cap))
 }
 
 #ifdef MEDIA_LAYER_TRAMPOLINE_HOST
-static int get_glGetIntegerv_params_size(GLenum pname) {
+static int get_glGetIntegerv_params_size(const GLenum pname) {
     switch (pname) {
         case GL_TEXTURE_BINDING_2D:
         case GL_PACK_ALIGNMENT:
@@ -729,7 +732,7 @@ static int get_glGetIntegerv_params_size(GLenum pname) {
             return 4;
         }
         default: {
-            ERR("Unsupported media_glGetIntegerv Property: %u", pname);
+            ERR("Unsupported glGetIntegerv Property: %u", pname);
         }
     }
 }
@@ -743,7 +746,7 @@ CALL(61, media_glGetIntegerv, void, (GLenum pname, GLint *params))
     trampoline(false, pname, uint32_t(params));
 #else
     GLenum pname = args.next<GLenum>();
-    int size = get_glGetIntegerv_params_size(pname);
+    const int size = get_glGetIntegerv_params_size(pname);
     GLint *params = new GLint[size];
     func(pname, params);
     writer(args.next<uint32_t>(), params, size * sizeof(GLint));
@@ -810,7 +813,7 @@ CALL(72, media_glNormalPointer, void, (GLenum type, GLsizei stride, const void *
     }
 #else
     media_glBindBuffer(GL_ARRAY_BUFFER, args.next<GLuint>());
-    gl_array_details_t state = args.next<gl_array_details_t>();
+    const gl_array_details_t &state = args.next<gl_array_details_t>();
     func(state.type, state.stride, (const void *) uintptr_t(state.pointer));
     return 0;
 #endif
