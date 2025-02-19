@@ -114,8 +114,11 @@ jobs:
           - example-mods
         name: Release
         runs-on: ubuntu-latest
-        container: node:lts-bullseye
         steps:
+          - name: Checkout Repository
+            uses: actions/checkout@v4
+            with:
+                submodules: false
           # Dependencies
           - name: Install Go
             uses: actions/setup-go@v5
@@ -126,11 +129,15 @@ jobs:
             uses: actions/download-artifact@v3
             with:
                 path: out
+          # Get Changelog
+          - name: Get Changelog
+            id: release-info
+            run: ./scripts/get-changelog.mjs >> "${GITHUB_OUTPUT}"
           # Create Release
           - name: Create Release
             uses: https://gitea.com/actions/release-action@main
             with:
                 files: ./out/*/*.AppImage*
                 api_key: ${{ secrets.RELEASE_TOKEN }}
-                title: v${{ github.ref_name }}
-                body: '[View Changelog](https://gitea.thebrokenrail.com/minecraft-pi-reborn/minecraft-pi-reborn/src/branch/master/docs/CHANGELOG.md)'
+                title: v${{ steps.release-info.outputs.version }}
+                body: ${{ steps.release-info.outputs.changelog }}
