@@ -34,6 +34,7 @@ add_library(mods SHARED
     src/misc/ui.cpp
     src/misc/tinting.cpp
     src/misc/home.cpp
+    src/misc/base64.cpp
     # extend
     src/extend/Screen.cpp
     src/extend/DynamicTexture.cpp
@@ -98,6 +99,8 @@ add_library(mods SHARED
     src/multidraw/storage.cpp
     # classic-ui
     src/classic-ui/classic-ui.cpp
+    # api
+    src/api/api.cpp
     # shading
     src/shading/init.cpp
     src/shading/tesselator.cpp

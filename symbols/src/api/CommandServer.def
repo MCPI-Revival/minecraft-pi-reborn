@@ -1,5 +1,11 @@
 method std::string parse(ConnectedClient &client, const std::string &command) = 0x6aa8c;
 method void dispatchPacket(Packet &packet) = 0x6a548;
+static-method bool setSocketBlocking(int fd, bool param_1) = 0x6a2d4;
+method bool _updateClient(ConnectedClient &client) = 0x6ba6c;
 
 property Minecraft *minecraft = 0x18;
 property OffsetPosTranslator pos_translator = 0x1c;
+
+static-property std::string Fail = 0x137dbc;
+static-property std::string Ok = 0x138a08;
+static-property std::string NullString = 0x137db8;

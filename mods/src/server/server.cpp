@@ -116,12 +116,6 @@ static std::string get_blacklist_file() {
 static std::vector<Player *> get_players_in_level(Level *level) {
     return level->players;
 }
-// Get Player's Username
-static std::string get_player_username(const Player *player) {
-    const std::string *username = &player->username;
-    std::string safe_username = from_cp437(*username);
-    return safe_username;
-}
 // Get Level From Minecraft
 static Level *get_level(const Minecraft *minecraft) {
     return minecraft->level;
@@ -135,7 +129,7 @@ static void find_players(Minecraft *minecraft, const std::string &target_usernam
     bool found_player = false;
     for (Player *player : players) {
         // Iterate Players
-        std::string username = get_player_username(player);
+        std::string username = misc_get_player_username_utf(player);
         if (all_players || username == target_username) {
             // Run Callback
             callback(minecraft, username, player);

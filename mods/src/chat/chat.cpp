@@ -7,6 +7,7 @@
 #include <mods/feature/feature.h>
 #include "chat-internal.h"
 #include <mods/chat/chat.h>
+#include <mods/api/api.h>
 
 // Send UTF-8 API Command
 std::string chat_send_api_command(const Minecraft *minecraft, const std::string &str) {
@@ -33,10 +34,18 @@ static void send_api_chat_command(const Minecraft *minecraft, const char *str) {
 std::string _chat_get_prefix(const char *username) {
     return std::string("<") + username + "> ";
 }
-void chat_send_message_to_clients(ServerSideNetworkHandler *server_side_network_handler, const char *username, const char *message) {
+static bool is_sending = false;
+bool chat_is_sending() {
+    return is_sending;
+}
+void chat_send_message_to_clients(ServerSideNetworkHandler *server_side_network_handler, const Player *sender, const char *message) {
+    is_sending = true;
+    api_add_chat_event(sender, message);
+    const char *username = ((Player *) sender)->username.c_str();
     std::string full_message = _chat_get_prefix(username) + message;
     sanitize_string(full_message, MAX_CHAT_MESSAGE_LENGTH, false);
     server_side_network_handler->displayGameMessage(full_message);
+    is_sending = false;
 }
 // Handle Chat packet Send
 void chat_handle_packet_send(const Minecraft *minecraft, ChatPacket *packet) {
@@ -48,7 +57,7 @@ void chat_handle_packet_send(const Minecraft *minecraft, ChatPacket *packet) {
         // Hosting Multiplayer
         const char *message = packet->message.c_str();
         ServerSideNetworkHandler *server_side_network_handler = (ServerSideNetworkHandler *) minecraft->network_handler;
-        chat_send_message_to_clients(server_side_network_handler, Strings::default_username, (char *) message);
+        chat_send_message_to_clients(server_side_network_handler, (Player *) minecraft->player, message);
     } else {
         // Client
         rak_net_instance->send(*(Packet *) packet);
@@ -67,9 +76,8 @@ static void CommandServer_parse_CommandServer_dispatchPacket_injection(CommandSe
 static void ServerSideNetworkHandler_handle_ChatPacket_injection(ServerSideNetworkHandler *server_side_network_handler, const RakNet_RakNetGUID &rak_net_guid, ChatPacket *chat_packet) {
     const Player *player = server_side_network_handler->getPlayer(rak_net_guid);
     if (player != nullptr) {
-        const char *username = player->username.c_str();
         const char *message = chat_packet->message.c_str();
-        chat_send_message_to_clients(server_side_network_handler, username, message);
+        chat_send_message_to_clients(server_side_network_handler, player, message);
     }
 }
 

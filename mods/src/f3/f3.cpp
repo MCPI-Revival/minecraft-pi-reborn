@@ -134,7 +134,7 @@ static std::vector<std::string> get_debug_info_right(const Minecraft *minecraft)
             z = entity->z;
             type = "Entity";
             const int type_id = entity->getEntityTypeId();
-            type_info.push_back(format_type(type_id, "")); // TODO: Specify name when RJ PR is merged
+            type_info.push_back(format_type(type_id, misc_get_entity_type_name(entity).first));
             type_info.push_back("ID: " + std::to_string(entity->id));
             if (entity->isMob()) {
                 Mob *mob = (Mob *) entity;

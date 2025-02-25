@@ -10,6 +10,9 @@ virtual-method bool shouldSave() = 0x8;
 virtual-method void load(CompoundTag *tag) = 0xc;
 virtual-method bool save(CompoundTag *tag) = 0x10;
 virtual-method void tick() = 0x14;
+virtual-method Packet *getUpdatePacket() = 0x20;
+
+method void setChanged() = 0xd23a4;
 
 property Level *level = 0x4;
 property int x = 0x8;

@@ -1,6 +1,6 @@
 size 0x14;
 
-property int entityId = 0x0;
+property int owner_id = 0x0;
 property int x = 0x4;
 property int y = 0x8;
 property int z = 0xc;

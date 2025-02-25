@@ -2,6 +2,7 @@
 
 #include <libreborn/patch.h>
 #include <libreborn/util/util.h>
+#include <libreborn/util/string.h>
 
 #include <symbols/minecraft.h>
 #include <GLES/gl.h>
@@ -128,15 +129,93 @@ void misc_render_background(int color, const Minecraft *minecraft, const int x, 
     Tesselator *t = &Tesselator::instance;
     t->begin(GL_QUADS);
     t->color(color, color, color, 255);
-    float x1 = x;
-    float x2 = x + width;
-    float y1 = y;
-    float y2 = y + height;
+    float x1 = float(x);
+    float x2 = x1 + float(width);
+    float y1 = float(y);
+    float y2 = y1 + float(height);
     t->vertexUV(x1, y2, 0.0f, x1 / 32.0f, y2 / 32.0f);
     t->vertexUV(x2, y2, 0.0f, x2 / 32.0f, y2 / 32.0f);
     t->vertexUV(x2, y1, 0.0f, x2 / 32.0f, y1 / 32.0f);
     t->vertexUV(x1, y1, 0.0f, x1 / 32.0f, y1 / 32.0f);
     t->draw();
+}
+
+// Entity Names
+static std::pair<std::string, std::string> format_entity_name(const std::string &friendly_name) {
+    std::string api_name = friendly_name;
+    for (char &c : api_name) {
+        c = c == ' ' ? '_' : std::toupper(c);
+    }
+    return {friendly_name, api_name};
+}
+std::pair<std::string, std::string> misc_get_entity_type_name(Entity *entity) {
+    if (entity) {
+        if (entity->isPlayer()) {
+            // Player
+            return format_entity_name("Player");
+        } else {
+            const EntityType type = static_cast<EntityType>(entity->getEntityTypeId());
+            if (misc_get_entity_type_names().contains(type)) {
+                // Normal Entity
+                return misc_get_entity_type_names()[type];
+            } else if (type == EntityType::UNKNOWN) {
+                // Special Entity
+                static std::unordered_map<void *, std::string> vtable_to_name = {
+                    {(void *) Particle_vtable::base, "Particle"},
+                    {(void *) TripodCamera_vtable::base, "Tripod Camera"},
+                    {(void *) CameraEntity_vtable::base, "API Camera"}
+                };
+                void *vtable = entity->vtable;
+                if (vtable_to_name.contains(vtable)) {
+                    return format_entity_name(vtable_to_name[vtable]);
+                }
+            }
+        }
+    }
+    // Invalid
+    return format_entity_name("Unknown");
+}
+std::string misc_get_entity_name(Entity *entity) {
+    if (entity && entity->isPlayer()) {
+        return ((Player *) entity)->username;
+    } else {
+        return misc_get_entity_type_name(entity).first;
+    }
+}
+std::map<EntityType, std::pair<std::string, std::string>> &misc_get_entity_type_names() {
+    static std::map<EntityType, std::pair<std::string, std::string>> names = {
+        {EntityType::CHICKEN, format_entity_name("Chicken")},
+        {EntityType::COW, format_entity_name("Cow")},
+        {EntityType::PIG, format_entity_name("Pig")},
+        {EntityType::SHEEP, format_entity_name("Sheep")},
+        {EntityType::ZOMBIE, format_entity_name("Zombie")},
+        {EntityType::CREEPER, format_entity_name("Creeper")},
+        {EntityType::SKELETON, format_entity_name("Skeleton")},
+        {EntityType::SPIDER, format_entity_name("Spider")},
+        {EntityType::ZOMBIE_PIGMAN, {"Zombie Pigman", "PIG_ZOMBIE"}},
+        {EntityType::DROPPED_ITEM, format_entity_name("Dropped Item")},
+        {EntityType::PRIMED_TNT, format_entity_name("Primed TNT")},
+        {EntityType::FALLING_SAND, format_entity_name("Falling Block")},
+        {EntityType::PAINTING, format_entity_name("Painting")},
+        {EntityType::ARROW, format_entity_name("Arrow")},
+        {EntityType::THROWN_SNOWBALL, format_entity_name("Snowball")},
+        {EntityType::THROWN_EGG, format_entity_name("Egg")}
+    };
+    return names;
+}
+
+// Spawn Entities
+Entity *misc_make_entity_from_id(Level *level, const int id) {
+    if (id < 0x40) {
+        return (Entity *) MobFactory::CreateMob(id, level);
+    } else {
+        return EntityFactory::CreateEntity(id, level);
+    }
+}
+
+// Username In Unicode
+std::string misc_get_player_username_utf(const Player *player) {
+    return from_cp437(player->username);
 }
 
 // Init

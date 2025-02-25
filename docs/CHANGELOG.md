@@ -61,6 +61,7 @@
     * `Batch Font Rendering` (Enabled By Default)
     * `Fix Furnace Screen Visual Bug` (Enabled By Default)
     * `Fix Held Item Poking Through Screen Overlay` (Enabled By Default)
+    * `Implement RaspberryJuice API` (Enabled By Default)
   * Existing Functionality (All Enabled By Default)
     * `Fix Screen Rendering When Hiding HUD`
     * `Sanitize Usernames`

@@ -6,38 +6,38 @@
 
 #include <mods/init/init.h>
 #include <mods/feature/feature.h>
+#include <mods/misc/misc.h>
 
 // Death Messages
-static const char *monster_names[] = {"Zombie", "Creeper", "Skeleton", "Spider", "Zombie Pigman"};
 std::string get_death_message(Player *player, Entity *cause, const bool was_shot = false) {
     // Prepare Death Message
     std::string message = player->username;
     if (cause) {
-        // Entity cause
+        // Entity Cause
         const int type_id = cause->getEntityTypeId();
-        int aux = cause->getAuxData();
+        const int aux = cause->getAuxData();
         const bool is_player = cause->isPlayer();
         if (cause->getCreatureBaseType() != 0 || is_player) {
-            // Killed by a creature
+            // Killed By A Creature
             if (was_shot) {
                 message += " was shot by ";
             } else {
                 message += " was killed by ";
             }
             if (is_player) {
-                // Killed by a player
+                // Killed By A Player
                 message += ((Player *) cause)->username;
-            } else if (32 <= type_id && type_id <= 36) {
-                // Normal monster
-                message += "a ";
-                message += monster_names[type_id - 32];
             } else {
-                // Unknown creature
-                message += "a mysterious beast";
+                // Normal Creature
+                std::string type = misc_get_entity_type_name(cause).first;
+                if (type.empty()) {
+                    type = "mysterious beast";
+                }
+                message += "a " + type;
             }
             return message;
         } else if (aux) {
-            // Killed by a throwable with owner
+            // Killed By A Throwable With Owner
             Level *level = player->level;
             Entity *shooter = level->getEntity(aux);
             return get_death_message(player, shooter, true);
@@ -49,19 +49,20 @@ std::string get_death_message(Player *player, Entity *cause, const bool was_shot
             return message + " admired too much art";
         }
     }
-
+    // Miscellaneous Causes
     if (was_shot) {
-        // Throwable with invalid owner
+        // Throwable With Invalid Owner
         return message + " was shot under mysterious circumstances";
     } else if (cause) {
-        // Unknown entity
+        // Unknown Entity
         return message + " was killed";
     } else {
-        // Anything else
+        // Anything Else
         return message + " has died";
     }
 }
 
+// Track If A Mob Is Being Hurt
 static bool is_hurt = false;
 static bool Mob_hurt_injection(Mob_hurt_t original, Mob *mob, Entity *source, const int dmg) {
     is_hurt = true;
@@ -91,7 +92,7 @@ static void Player_die_injection(const std::function<void(ParentSelf *, Entity *
 template <typename OriginalSelf, typename Self>
 static void Player_actuallyHurt_injection(const std::function<void(OriginalSelf *, int)> &original, Self *player, int32_t damage) {
     // Store Old Health
-    int32_t old_health = player->health;
+    const int32_t old_health = player->health;
 
     // Call Original Method
     original((OriginalSelf *) player, damage);
