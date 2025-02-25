@@ -1,3 +1,5 @@
 vtable 0x115d08;
 
 extends TileEntity;
+
+property std::string lines[4] = 0x30;

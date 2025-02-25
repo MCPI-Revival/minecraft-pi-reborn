@@ -1,0 +1,7 @@
+size 0x20;
+
+extends ICreator;
+vtable 0x1a0dc;
+
+property EventList_TileEvent tileEvents = 0x4;
+property int tick = 0x1c;

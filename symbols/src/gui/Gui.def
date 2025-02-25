@@ -18,6 +18,7 @@ method void renderDebugInfo() = 0x26958;
 method void renderProgressIndicator(bool is_touch, int width, int height, float a) = 0x26098;
 method void renderVignette(float param_1, int width, int height) = 0x25b0c;
 
+property std::vector<GuiMessage> messages = 0x18;
 property Minecraft *minecraft = 0x9f4;
 property float selected_item_text_timer = 0x9fc;
 property int flashing_slot = 0xa2c;

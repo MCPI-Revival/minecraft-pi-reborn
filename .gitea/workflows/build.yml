@@ -20,7 +20,7 @@ jobs:
                   - ARMHF
         name: Build
         runs-on: ubuntu-latest
-        container: node:lts-bullseye
+        container: node:lts-bullseye # Minimum Supported OS
         steps:
           - name: Checkout Repository
             uses: actions/checkout@v4
@@ -53,7 +53,6 @@ jobs:
                   - ARMHF
         name: Test
         runs-on: ${{ startsWith(matrix.arch, 'ARM') && 'raspberry-pi' || 'ubuntu-latest' }}
-        container: node:lts-bullseye
         steps:
           - name: Checkout Repository
             uses: actions/checkout@v4
@@ -76,7 +75,6 @@ jobs:
         needs: build
         name: Build Example Mods
         runs-on: ubuntu-latest
-        container: node:lts-bullseye
         steps:
           - name: Checkout Repository
             uses: actions/checkout@v4
@@ -84,7 +82,7 @@ jobs:
                 submodules: false
           # Dependencies
           - name: Install Dependencies
-            run: ./scripts/install-dependencies.mjs sdk amd64
+            run: ./scripts/install-dependencies.mjs sdk host
           # SDK
           - name: Download SDK
             uses: actions/download-artifact@v3

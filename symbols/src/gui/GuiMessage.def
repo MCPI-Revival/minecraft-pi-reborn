@@ -1,0 +1,6 @@
+size 0x8;
+
+property std::string message = 0x0;
+property int time = 0x4;
+
+mark-as-simple;

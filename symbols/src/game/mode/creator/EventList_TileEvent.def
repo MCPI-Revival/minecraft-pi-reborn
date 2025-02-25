@@ -1,0 +1,8 @@
+size 0x18;
+
+property int at = 0x0;
+property int len = 0x4;
+property int cap = 0x8;
+property std::vector<EventList_Item> events = 0xc;
+
+mark-as-simple;

@@ -66,7 +66,7 @@ static std::string get_world_name() {
 // Create/Start World
 static void start_world(Minecraft *minecraft) {
     // Get World Name
-    std::string world_name = get_world_name();
+    const std::string world_name = get_world_name();
 
     // Log
     INFO("Loading World: %s", world_name.c_str());
@@ -133,9 +133,8 @@ static void find_players(Minecraft *minecraft, const std::string &target_usernam
     Level *level = get_level(minecraft);
     const std::vector<Player *> players = get_players_in_level(level);
     bool found_player = false;
-    for (std::size_t i = 0; i < players.size(); i++) {
+    for (Player *player : players) {
         // Iterate Players
-        Player *player = players[i];
         std::string username = get_player_username(player);
         if (all_players || username == target_username) {
             // Run Callback
@@ -342,14 +341,14 @@ std::vector<ServerCommand> *server_get_commands(Minecraft *minecraft, ServerSide
         .comment = "Print This Message",
         .callback = [commands](__attribute__((unused)) const std::string &cmd) {
             INFO("All Commands:");
-            int max_lhs_length = 0;
-            for (ServerCommand command : *commands) {
-                const int lhs_length = command.get_lhs_help().length();
+            std::string::size_type max_lhs_length = 0;
+            for (const ServerCommand &command : *commands) {
+                const std::string::size_type lhs_length = command.get_lhs_help().length();
                 if (lhs_length > max_lhs_length) {
                     max_lhs_length = lhs_length;
                 }
             }
-            for (ServerCommand command : *commands) {
+            for (const ServerCommand &command : *commands) {
                 INFO("%s", command.get_full_help(max_lhs_length).c_str());
             }
         }
@@ -368,10 +367,10 @@ static void handle_commands(Minecraft *minecraft) {
         ServerSideNetworkHandler *server_side_network_handler = get_server_side_network_handler(minecraft);
         if (server_side_network_handler != nullptr) {
             // Generate Command List
-            std::vector<ServerCommand> *commands = server_get_commands(minecraft, server_side_network_handler);
+            const std::vector<ServerCommand> *commands = server_get_commands(minecraft, server_side_network_handler);
             // Run
             bool success = false;
-            for (ServerCommand command : *commands) {
+            for (const ServerCommand &command : *commands) {
                 const bool valid = command.has_args() ? data.rfind(command.name, 0) == 0 : data == command.name;
                 if (valid) {
                     command.callback(data.substr(command.name.length()));
@@ -425,7 +424,7 @@ static bool is_ip_in_blacklist(const char *ip) {
             std::string line;
             while (std::getline(blacklist_file, line)) {
                 // Check Line
-                if (line.length() > 0 && line[0] != '#') {
+                if (!line.empty() && line[0] != '#') {
                     ips.push_back(line);
                 }
             }

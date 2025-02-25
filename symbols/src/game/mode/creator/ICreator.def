@@ -1,0 +1,3 @@
+vtable 0x102ca8;
+
+virtual-method EventList_TileEvent &getTileEvents() = 0x8;

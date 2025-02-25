@@ -1,3 +1,10 @@
 extends Entity;
 
+vtable 0x10db20;
+
 property bool is_critical = 0xd8;
+property int hit_x = 0xdc;
+property int hit_y = 0xe0;
+property int hit_z = 0xe4;
+property bool grounded = 0xf0;
+property int flight_time = 0xf8;

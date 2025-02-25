@@ -1,0 +1,6 @@
+size 0x18;
+
+property int tick = 0x0;
+property TileEvent item = 0x4;
+
+mark-as-simple;

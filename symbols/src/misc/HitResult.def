@@ -1,5 +1,7 @@
 size 0x28;
 
+constructor (Entity *entity) = 0xd3a98;
+
 property int type = 0x0;
 property int x = 0x4;
 property int y = 0x8;

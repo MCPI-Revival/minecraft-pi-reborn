@@ -1,5 +1,8 @@
 extends GameMode;
 
 size 0x1c;
+vtable 0x102d00;
 
 constructor (Minecraft *minecraft) = 0x1a044;
+
+property Creator *creator = 0x4;

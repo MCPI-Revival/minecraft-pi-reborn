@@ -42,7 +42,7 @@ static void Minecraft_setIsCreativeMode_injection(Minecraft_setIsCreativeMode_t 
 }
 
 // Disable CreatorMode-Specific API Features (Polling Block Hits) In SurvivalMode, This Is Preferable To Crashing
-static unsigned char *Minecraft_getCreator_injection(Minecraft_getCreator_t original, Minecraft *minecraft) {
+static ICreator *Minecraft_getCreator_injection(Minecraft_getCreator_t original, Minecraft *minecraft) {
     if (is_survival) {
         // SurvivalMode, Return nullptr
         return nullptr;

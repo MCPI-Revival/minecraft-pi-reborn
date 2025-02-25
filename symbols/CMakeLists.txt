@@ -9,6 +9,11 @@ set(SRC
     src/game/mode/GameMode.def
     src/game/mode/CreatorMode.def
     src/game/mode/SurvivalMode.def
+    src/game/mode/creator/Creator.def
+    src/game/mode/creator/EventList_Item.def
+    src/game/mode/creator/EventList_TileEvent.def
+    src/game/mode/creator/ICreator.def
+    src/game/mode/creator/TileEvent.def
     src/game/NinecraftApp.def
     src/game/GameRenderer.def
     src/network/RakNetInstance.def
@@ -66,6 +71,7 @@ set(SRC
     src/entity/ArrowRenderer.def
     src/entity/PaintingRenderer.def
     src/entity/Throwable.def
+    src/entity/Particle.def
     src/level/container/FillingContainer.def
     src/level/container/Container.def
     src/level/container/ContainerMenu.def
@@ -137,6 +143,7 @@ set(SRC
     src/gui/components/GuiComponent.def
     src/gui/components/Button.def
     src/gui/Gui.def
+    src/gui/GuiMessage.def
     src/gui/components/IntRectangle.def
     src/gui/components/RectangleArea.def
     src/gui/components/ScrollingPane.def

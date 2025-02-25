@@ -13,7 +13,7 @@ std::string chat_send_api_command(const Minecraft *minecraft, const std::string 
     ConnectedClient client;
     client.sock = -1;
     client.str = "";
-    client.time = 0;
+    client.lastBlockHitPoll = 0;
     CommandServer *command_server = minecraft->command_server;
     if (command_server != nullptr) {
         return command_server->parse(client, str);
