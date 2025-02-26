@@ -71,7 +71,7 @@ static void disable_rescale_normal() {
     media_glDisable(GL_RESCALE_NORMAL);
 }
 template <typename Self>
-static void EntityRenderer_render_injection(const std::function<void(Self *, Entity *, float, float, float, float, float)> &original, Self *self, Entity *entity, float x, float y, float z, float rot, float a) {
+static void EntityRenderer_render_injection(const std::function<void(Self *, Entity *, float, float, float, float, float)> &original, Self *self, Entity *entity, const float x, const float y, const float z, const float rot, const float a) {
     media_glEnable(GL_RESCALE_NORMAL);
     original(self, entity, x, y, z, rot, a);
     media_glDisable(GL_RESCALE_NORMAL);
@@ -101,7 +101,7 @@ static void ArmorScreen_renderPlayer_injection(ArmorScreen_renderPlayer_t origin
     original(self, param_1, param_2);
     lighting_turn_off();
 }
-static void ArmorScreen_renderPlayer_glRotatef_injection(float angle, float x, float y, float z) {
+static void ArmorScreen_renderPlayer_glRotatef_injection(const float angle, const float x, const float y, const float z) {
     lighting_turn_on();
     media_glRotatef(angle, x, y, z);
 }
@@ -113,6 +113,13 @@ static void TripodCameraRenderer_render_Tesselator_draw_injection(Tesselator *se
     media_glEnable(GL_LIGHTING);
 }
 
+// Fix Arrow
+static void ArrowRenderer_render_injection(ArrowRenderer_render_t original, ArrowRenderer *self, Entity *entity, const float x, const float y, const float z, const float rot, const float a) {
+    media_glDisable(GL_LIGHTING);
+    original(self, entity, x, y, z, rot, a);
+    media_glEnable(GL_LIGHTING);
+}
+
 // Init
 void _init_lighting() {
     overwrite_calls(LevelRenderer_renderEntities, LevelRenderer_renderEntities_injection);
@@ -121,7 +128,7 @@ void _init_lighting() {
     overwrite_call_manual((void *) 0x4bedc, (void *) enable_rescale_normal);
     overwrite_call_manual((void *) 0x4bf70, (void *) disable_rescale_normal);
     overwrite_calls(ItemRenderer_render, EntityRenderer_render_injection<ItemRenderer>);
-    overwrite_calls(ArrowRenderer_render, EntityRenderer_render_injection<ArrowRenderer>);
+    overwrite_calls(ArrowRenderer_render, ArrowRenderer_render_injection);
     overwrite_calls(ItemSpriteRenderer_render, EntityRenderer_render_injection<ItemSpriteRenderer>);
     overwrite_calls(PaintingRenderer_render, EntityRenderer_render_injection<PaintingRenderer>);
     overwrite_call_manual((void *) 0x641ec, (void *) enable_rescale_normal);

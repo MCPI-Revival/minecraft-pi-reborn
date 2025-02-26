@@ -84,10 +84,6 @@ void _init_normals() {
     add_normal_before_getTexture2<0, 0, 1>(0x5e6a0);
     add_normal_before_getTexture2<-1, 0, 0>(0x5e6d0);
     add_normal_before_getTexture2<1, 0, 0>(0x5e700);
-    // ArrowRenderer::render
-    add_normal_before_vertexUV<1, 0, 0>(0x60184);
-    add_normal_before_vertexUV<-1, 0, 0>(0x601f4);
-    add_normal_before_vertexUV<0, 0, 1>(0x60288);
     // ItemRenderer::render
     add_normal_before_vertexUV<0, 1, 0>(0x63394);
     // ItemSpriteRenderer::render
