@@ -1,10 +1,7 @@
 #include <cmath>
 #include <string>
 #include <algorithm>
-#include <vector>
-#include <unordered_map>
 #include <optional>
-#include <ranges>
 #include <sstream>
 
 #include <libreborn/log.h>
@@ -16,28 +13,25 @@
 #include <mods/api/api.h>
 #include <mods/init/init.h>
 #include <mods/misc/misc.h>
-#include <mods/chat/chat.h>
 #include <mods/feature/feature.h>
 
-// Compatibility Mode
-static bool compat_mode = true;
+#include "internal.h"
 
-// Argument Separator
-static constexpr char arg_separator = ',';
-static constexpr char list_separator = '|';
+// Compatibility Mode
+bool api_compat_mode = true;
 
 // Read String Input
 static std::string get_input(std::string message) {
     // Decode
-    if (!compat_mode) {
+    if (!api_compat_mode) {
         message = misc_base64_decode(message);
     }
     // Convert To CP-437
     return to_cp437(message);
 }
 // Output String
-static std::string get_output(std::string message, const bool replace_comma = false) {
-    if (compat_mode) {
+std::string api_get_output(std::string message, const bool replace_comma) {
+    if (api_compat_mode) {
         // Output In Plaintext For RJ Compatibility
         std::ranges::replace(message, list_separator, '\\');
         if (replace_comma) {
@@ -51,7 +45,7 @@ static std::string get_output(std::string message, const bool replace_comma = fa
 }
 
 // Join Strings Into Output
-static std::string join_outputs(const std::vector<std::string> &pieces, const char separator = arg_separator) {
+std::string api_join_outputs(const std::vector<std::string> &pieces, const char separator) {
     // Join
     std::string out;
     for (std::string piece : pieces) {
@@ -78,40 +72,40 @@ static std::string join_outputs(const std::vector<std::string> &pieces, const ch
 // Get Blocks In Region
 static std::string get_blocks(CommandServer *server, const Vec3 &start, const Vec3 &end) {
     // Start Coordinate
-    int startx = int(start.x);
-    int starty = int(start.y);
-    int startz = int(start.z);
+    int start_x = int(start.x);
+    int start_y = int(start.y);
+    int start_z = int(start.z);
     // End Coordinate
-    int endx = int(end.x);
-    int endy = int(end.y);
-    int endz = int(end.z);
+    int end_x = int(end.x);
+    int end_y = int(end.y);
+    int end_z = int(end.z);
 
     // Apply Offset
-    server->pos_translator.from(startx, starty, startz);
-    server->pos_translator.from(endx, endy, endz);
+    server->pos_translator.from(start_x, start_y, start_z);
+    server->pos_translator.from(end_x, end_y, end_z);
 
     // Swap If Needed
-    if (endx < startx) {
-        std::swap(startx, endx);
+    if (end_x < start_x) {
+        std::swap(start_x, end_x);
     }
-    if (endy < starty) {
-        std::swap(starty, endy);
+    if (end_y < start_y) {
+        std::swap(start_y, end_y);
     }
-    if (endz < startz) {
-        std::swap(startz, endz);
+    if (end_z < start_z) {
+        std::swap(start_z, end_z);
     }
 
     // Get
     std::vector<std::string> ret;
-    for (int x = startx; x <= endx; x++) {
-        for (int y = starty; y <= endy; y++) {
-            for (int z = startz; z <= endz; z++) {
+    for (int x = start_x; x <= end_x; x++) {
+        for (int y = start_y; y <= end_y; y++) {
+            for (int z = start_z; z <= end_z; z++) {
                 ret.push_back(std::to_string(server->minecraft->level->getTile(x, y, z)));
             }
         }
     }
     // Return
-    return join_outputs(ret);
+    return api_join_outputs(ret);
 }
 
 // Set Entity Rotation From XYZ
@@ -142,7 +136,7 @@ static Vec3 get_dir(const Entity *entity) {
 }
 
 // Entity Types
-std::unordered_map<int, EntityType> modern_entity_id_mapping = {
+static std::unordered_map<int, EntityType> modern_entity_id_mapping = {
     {93, EntityType::CHICKEN},
     {92, EntityType::COW},
     {90, EntityType::PIG},
@@ -160,14 +154,14 @@ std::unordered_map<int, EntityType> modern_entity_id_mapping = {
     {7, EntityType::THROWN_EGG},
     {9, EntityType::PAINTING}
 };
-static void convert_to_rj_entity_type(int &type) {
+void api_convert_to_rj_entity_type(int &type) {
     for (const std::pair<const int, EntityType> &pair : modern_entity_id_mapping) {
         if (static_cast<int>(pair.second) == type) {
             type = pair.first;
         }
     }
 }
-static void convert_to_mcpi_entity_type(int &type) {
+void api_convert_to_mcpi_entity_type(int &type) {
     if (modern_entity_id_mapping.contains(type)) {
         type = static_cast<int>(modern_entity_id_mapping[type]);
     }
@@ -182,17 +176,17 @@ static std::string get_entity_message(CommandServer *server, Entity *entity) {
     server->pos_translator.to(x, y, z);
     // Fix Type ID
     int type = entity->getEntityTypeId();
-    if (compat_mode) {
-        convert_to_rj_entity_type(type);
+    if (api_compat_mode) {
+        api_convert_to_rj_entity_type(type);
     }
     // Return
-    return join_outputs({
+    return api_join_outputs({
         // ID
         std::to_string(entity->id),
         // Type
         std::to_string(type),
         // Name
-        get_output(misc_get_entity_type_name(entity).second, true),
+        api_get_output(misc_get_entity_type_name(entity).second, true),
         // X
         std::to_string(x),
         // Y
@@ -213,156 +207,7 @@ static float distance_between(const Entity *e1, const Entity *e2) {
     return std::sqrt(dx * dx + dy * dy + dz * dz);
 }
 
-// Projectile Event
-static constexpr int no_entity_id = -1;
-struct ProjectileHitEvent {
-    int x;
-    int y;
-    int z;
-    int owner_id;
-    int target_id;
-};
-static std::string event_to_string(CommandServer *server, const ProjectileHitEvent &e) {
-    // Offset Position
-    float nx = float(e.x);
-    float ny = float(e.y);
-    float nz = float(e.z);
-    server->pos_translator.to(nx, ny, nz);
-    // Get Outputs
-    std::vector pieces = {
-        // Position
-        std::to_string(int(nx)),
-        std::to_string(int(ny)),
-        std::to_string(int(nz))
-    };
-    // Needed For Compatibility
-    if (compat_mode) {
-        pieces.push_back("1");
-    }
-    // Owner
-    Level *level = server->minecraft->level;
-    std::string owner;
-    if (compat_mode) {
-        owner = get_output(misc_get_entity_name(level->getEntity(e.owner_id)), true);
-    } else {
-        owner = std::to_string(e.owner_id);
-    }
-    pieces.push_back(owner);
-    // Target
-    std::string target;
-    if (e.target_id != no_entity_id) {
-        if (compat_mode) {
-            target = get_output(misc_get_entity_name(level->getEntity(e.target_id)), true);
-        } else {
-            target = std::to_string(e.target_id);
-        }
-    }
-    pieces.push_back(target);
-    // Return
-    return join_outputs(pieces);
-}
-
-// Chat Message Event
-struct ChatEvent {
-    std::string message;
-    int owner_id;
-};
-static std::string event_to_string(__attribute__((unused)) CommandServer *server, const ChatEvent &e) {
-    return join_outputs({
-        std::to_string(e.owner_id),
-        get_output(e.message, true),
-    });
-}
-
-// Block Hit Event
-static std::string event_to_string(CommandServer *server, const TileEvent &e) {
-    // Offset Coordinates
-    float x = float(e.x);
-    float y = float(e.y);
-    float z = float(e.z);
-    server->pos_translator.to(x, y, z);
-    // Output
-    return join_outputs({
-        // Position
-        std::to_string(int(x)),
-        std::to_string(int(y)),
-        std::to_string(int(z)),
-        // Face
-        std::to_string(e.face),
-        // Entity ID
-        std::to_string(e.owner_id)
-    });
-}
-
-// Track Event Queues Per Client
-struct ExtraClientData {
-    std::vector<ProjectileHitEvent> projectile_events;
-    std::vector<ChatEvent> chat_events;
-    std::vector<TileEvent> block_hit_events;
-};
-static std::unordered_map<int, ExtraClientData> extra_client_data;
-static bool CommandServer__updateAccept_setSocketBlocking_injection(const int fd, const bool param_1) {
-    // Client Was Created
-    INFO("Client Connected: %i", fd);
-    extra_client_data[fd] = ExtraClientData();
-    return CommandServer::setSocketBlocking(fd, param_1);
-}
-static bool CommandServer__updateClient_injection(CommandServer__updateClient_t original, CommandServer *self, ConnectedClient &client) {
-    const bool ret = original(self, client);
-    if (!ret) {
-        // Client Disconnected
-        INFO("Client Disconnected: %i", client.sock);
-        extra_client_data.erase(client.sock);
-    }
-    return ret;
-}
-
-// Clear All Events
-static void clear_events(const ConnectedClient &client) {
-    ExtraClientData &data = extra_client_data[client.sock];
-    if (!compat_mode) {
-        // Match RJ Bug
-        data.projectile_events.clear();
-    }
-    data.chat_events.clear();
-    data.block_hit_events.clear();
-}
-
-// Clear Events Produced By Given Entity
-template <typename T>
-static void clear_events(std::vector<T> &data, const int id) {
-    std::ranges::remove_if(data, [&id](const T &e) {
-        return id == e.owner_id;
-    });
-}
-static void clear_events(const ConnectedClient &client, const int id) {
-    ExtraClientData &data = extra_client_data[client.sock];
-    clear_events(data.block_hit_events, id);
-    clear_events(data.chat_events, id);
-    clear_events(data.projectile_events, id);
-}
-
-// Get Events In Queue
-template <typename T>
-static std::string get_events(CommandServer *server, std::vector<T> &queue, const std::optional<int> id) {
-    std::vector<std::string> out;
-    typename std::vector<T>::iterator it = queue.begin();
-    while (it != queue.end()) {
-        const T &e = *it;
-        if (id.has_value() && id.value() != e.owner_id) {
-            // Skip Event
-            ++it;
-            continue;
-        }
-        // Output
-        out.push_back(event_to_string(server, e));
-        // Erase
-        it = queue.erase(it);
-    }
-    return join_outputs(out, list_separator);
-}
-
-// Map RJ Entity IDs To MCPI IDs
+// Parse API Commands
 static const std::string player_namespace = "player.";
 #define API_WARN(format, ...) WARN("API: %s: " format, cmd.c_str(), ##__VA_ARGS__)
 #define ENTITY_NOT_FOUND API_WARN("Entity Not Found: %i", id)
@@ -430,12 +275,12 @@ std::string CommandServer_parse_injection(CommandServer_parse_t old, CommandServ
             ENTITY_NOT_FOUND;
             return CommandServer::NullString;
         } else {
-            return get_output(misc_get_entity_name(entity)) + '\n';
+            return api_get_output(misc_get_entity_name(entity), false) + '\n';
         }
     } else if (cmd == "world.getEntities") {
         next_int(type);
-        if (compat_mode) {
-            convert_to_mcpi_entity_type(type);
+        if (api_compat_mode) {
+            api_convert_to_mcpi_entity_type(type);
         }
         std::vector<std::string> result;
         for (Entity *entity : server->minecraft->level->entities) {
@@ -444,7 +289,7 @@ std::string CommandServer_parse_injection(CommandServer_parse_t old, CommandServ
                 result.push_back(get_entity_message(server, entity));
             }
         }
-        return join_outputs(result, list_separator);
+        return api_join_outputs(result, list_separator);
     } else if (cmd == "world.removeEntity") {
         next_int(id);
         Entity *entity = server->minecraft->level->getEntity(id);
@@ -456,8 +301,8 @@ std::string CommandServer_parse_injection(CommandServer_parse_t old, CommandServ
         return std::to_string(result) + '\n';
     } else if (cmd == "world.removeEntities") {
         next_int(type);
-        if (compat_mode) {
-            convert_to_mcpi_entity_type(type);
+        if (api_compat_mode) {
+            api_convert_to_mcpi_entity_type(type);
         }
         int removed = 0;
         for (Entity *entity : server->minecraft->level->entities) {
@@ -471,20 +316,20 @@ std::string CommandServer_parse_injection(CommandServer_parse_t old, CommandServ
         }
         return std::to_string(removed) + '\n';
     } else if (cmd == "events.chat.posts") {
-        return get_events(server, extra_client_data[client.sock].chat_events, std::nullopt);
+        return api_get_chat_events(server, client, std::nullopt);
     } else if (cmd == "entity.events.chat.posts") {
         next_int(id);
-        return get_events(server, extra_client_data[client.sock].chat_events, id);
+        return api_get_chat_events(server, client, id);
     } else if (cmd == "events.block.hits") {
-        return get_events(server, extra_client_data[client.sock].block_hit_events, std::nullopt);
+        return api_get_block_hit_events(server, client, std::nullopt);
     } else if (cmd == "entity.events.block.hits") {
         next_int(id);
-        return get_events(server, extra_client_data[client.sock].block_hit_events, id);
+        return api_get_block_hit_events(server, client, id);
     } else if (cmd == "events.projectile.hits") {
-        return get_events(server, extra_client_data[client.sock].projectile_events, std::nullopt);
+        return api_get_projectile_events(server, client, std::nullopt);
     } else if (cmd == "entity.events.projectile.hits") {
         next_int(id);
-        return get_events(server, extra_client_data[client.sock].projectile_events, id);
+        return api_get_projectile_events(server, client, id);
     } else if (cmd == "entity.setDirection") {
         next_int(id);
         next_float(x);
@@ -505,7 +350,7 @@ std::string CommandServer_parse_injection(CommandServer_parse_t old, CommandServ
             return CommandServer::Fail;
         } else {
             Vec3 vec = get_dir(entity);
-            return join_outputs({std::to_string(vec.x), std::to_string(vec.y), std::to_string(vec.z)});
+            return api_join_outputs({std::to_string(vec.x), std::to_string(vec.y), std::to_string(vec.z)});
         }
     } else if (cmd == "entity.setRotation") {
         next_int(id);
@@ -563,7 +408,7 @@ std::string CommandServer_parse_injection(CommandServer_parse_t old, CommandServ
                 result.push_back(get_entity_message(server, entity));
             }
         }
-        return join_outputs(result, list_separator);
+        return api_join_outputs(result, list_separator);
     } else if (cmd == "entity.removeEntities") {
         // Parse
         next_int(id);
@@ -603,7 +448,7 @@ std::string CommandServer_parse_injection(CommandServer_parse_t old, CommandServ
 #define next_sign_line(i) \
     next_string(line_##i, false); \
     if (line_##i##_present) { \
-        sign->lines[i] = line_##i; \
+        sign->lines[i] = get_input(line_##i); \
     } \
     (void) 0
         next_sign_line(0);
@@ -626,8 +471,8 @@ std::string CommandServer_parse_injection(CommandServer_parse_t old, CommandServ
         x -= server->pos_translator.x;
         y -= server->pos_translator.y;
         z -= server->pos_translator.z;
-        if (compat_mode) {
-            convert_to_mcpi_entity_type(type);
+        if (api_compat_mode) {
+            api_convert_to_mcpi_entity_type(type);
         }
         // Spawn
         Entity *entity = misc_make_entity_from_id(server->minecraft->level, type);
@@ -639,14 +484,14 @@ std::string CommandServer_parse_injection(CommandServer_parse_t old, CommandServ
         return std::to_string(entity->id) + '\n';
     } else if (cmd == "world.getEntityTypes") {
         std::vector<std::string> result;
-        for (const std::pair<const EntityType, std::pair<std::string, std::string>> &i: misc_get_entity_type_names()) {
+        for (const std::pair<const EntityType, std::pair<std::string, std::string>> &i : misc_get_entity_type_names()) {
             int id = static_cast<int>(i.first);
-            if (compat_mode) {
-                convert_to_rj_entity_type(id);
+            if (api_compat_mode) {
+                api_convert_to_rj_entity_type(id);
             }
-            result.push_back(join_outputs({std::to_string(id), i.second.second}));
+            result.push_back(api_join_outputs({std::to_string(id), api_get_output(i.second.second, true)}));
         }
-        return join_outputs(result, list_separator);
+        return api_join_outputs(result, list_separator);
     } else if (cmd == "entity.setAbsPos") {
         next_int(id);
         next_float(x);
@@ -666,19 +511,19 @@ std::string CommandServer_parse_injection(CommandServer_parse_t old, CommandServ
             ENTITY_NOT_FOUND;
             return CommandServer::Fail;
         }
-        return join_outputs({std::to_string(entity->x), std::to_string(entity->y), std::to_string(entity->z)});
+        return api_join_outputs({std::to_string(entity->x), std::to_string(entity->y), std::to_string(entity->z)});
     } else if (cmd == "entity.events.clear") {
         next_int(id);
-        clear_events(client, id);
+        api_clear_events(client, id);
         return CommandServer::NullString;
     } else if (cmd == "events.clear") {
-        clear_events(client);
+        api_clear_events(client);
         return CommandServer::NullString;
     } else if (cmd == "reborn.disableCompatMode") {
-        compat_mode = false;
+        api_compat_mode = false;
         return std::string(reborn_get_version()) + '\n';
     } else if (cmd == "reborn.enableCompatMode") {
-        compat_mode = true;
+        api_compat_mode = true;
         return CommandServer::NullString;
     } else {
         // Call Original Method
@@ -686,113 +531,10 @@ std::string CommandServer_parse_injection(CommandServer_parse_t old, CommandServ
     }
 }
 
-// Push Event To Queue
-template <typename T>
-static void push_event(std::vector<T> ExtraClientData::*ptr, const T e) {
-    for (ExtraClientData &data : extra_client_data | std::views::values) {
-        (data.*ptr).push_back(e);
-    }
-}
-
-// Arrow Hits
-static void on_projectile_hit(Entity *shooter, const int x, const int y, const int z, const Entity *target) {
-    if (shooter && shooter->isPlayer()) {
-        push_event(&ExtraClientData::projectile_events, {
-            .x = x,
-            .y = y,
-            .z = z,
-            .owner_id = shooter->id,
-            .target_id = target ? target->id : no_entity_id
-        });
-    }
-}
-static void on_projectile_hit(Entity *shooter, const Entity *target) {
-    on_projectile_hit(shooter, int(target->x), int(target->y), int(target->z), target);
-}
-static Entity *current_shooter = nullptr;
-static void Arrow_tick_injection(Arrow_tick_t original, Arrow *self) {
-    current_shooter = self->level->getEntity(self->getAuxData());
-    original(self);
-}
-static bool Arrow_tick_Entity_hurt_injection(Entity *self, __attribute__((unused)) Entity *cause, int damage) {
-    on_projectile_hit(current_shooter, self);
-    // Call Original Method
-    return self->hurt(cause, damage);
-}
-static int Arrow_tick_Level_getTile_injection(Level *self, int x, int y, int z) {
-    on_projectile_hit(current_shooter, x, y, z, nullptr);
-    // Call Original Method
-    return self->getTile(x, y, z);
-}
-
-// Throwable Hits
-static void Throwable_tick_Throwable_onHit_injection(Throwable *self, HitResult *res) {
-    if (res != nullptr && res->type != 2) {
-        Entity *thrower = self->level->getEntity(self->getAuxData());
-        if (res->type == 1 && res->entity) {
-            on_projectile_hit(thrower, res->entity);
-        } else {
-            on_projectile_hit(thrower, res->x, res->y, res->z, nullptr);
-        }
-    }
-    // Call Original Method
-    self->onHit(res);
-}
-
-// Chat Events
-static void Gui_addMessage_injection(Gui_addMessage_t original, Gui *gui, const std::string &text) {
-    static bool recursing = false;
-    if (recursing) {
-        original(gui, text);
-    } else {
-        if (!chat_is_sending()) {
-            api_add_chat_event(nullptr, text);
-        }
-        recursing = true;
-        original(gui, text);
-        recursing = false;
-    }
-}
-static bool enabled = false;
-void api_add_chat_event(const Player *sender, const std::string &message) {
-    if (!enabled || (!sender && compat_mode)) {
-        return;
-    }
-    push_event(&ExtraClientData::chat_events, {message, sender ? sender->id : no_entity_id});
-}
-
-// Block Hit Events
-static bool GameMode_useItemOn_injection(GameMode_useItemOn_t original, GameMode *self, Player *player, Level *level, ItemInstance *item, const int x, const int y, const int z, const int param_1, const Vec3 &param_2) {
-    // Add Event
-    if (item && item->id == Item::sword_iron->id) {
-        push_event(&ExtraClientData::block_hit_events, {
-            .owner_id = player->id,
-            .x = x,
-            .y = y,
-            .z = z,
-            .face = param_1
-        });
-    }
-    // Call Original Method
-    return original(self, player, level, item, x, y, z, param_1, param_2);
-}
-static bool CreatorMode_useItemOn_injection(__attribute__((unused)) CreatorMode_useItemOn_t original, CreatorMode *self, Player *player, Level *level, ItemInstance *item, const int x, const int y, const int z, const int param_1, const Vec3 &param_2) {
-    return GameMode_useItemOn->get(false)((GameMode *) self, player, level, item, x, y, z, param_1, param_2);
-}
-
 // Init
 void init_api() {
     if (feature_has("Implement RaspberryJuice API", server_enabled)) {
-        enabled = true;
         overwrite_calls(CommandServer_parse, CommandServer_parse_injection);
-        overwrite_calls(Arrow_tick, Arrow_tick_injection);
-        overwrite_call((void *) 0x8b28c, Entity_hurt, Arrow_tick_Entity_hurt_injection);
-        overwrite_call((void *) 0x8b388, Level_getTile, Arrow_tick_Level_getTile_injection);
-        overwrite_call((void *) 0x8c5a4, Throwable_onHit, Throwable_tick_Throwable_onHit_injection);
-        overwrite_calls(Gui_addMessage, Gui_addMessage_injection);
-        overwrite_call((void *) 0x6bd78, CommandServer_setSocketBlocking, CommandServer__updateAccept_setSocketBlocking_injection);
-        overwrite_calls(CommandServer__updateClient, CommandServer__updateClient_injection);
-        overwrite_calls(GameMode_useItemOn, GameMode_useItemOn_injection);
-        overwrite_calls(CreatorMode_useItemOn, CreatorMode_useItemOn_injection);
+        _init_api_events();
     }
 }

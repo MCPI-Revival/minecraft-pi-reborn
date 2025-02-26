@@ -101,6 +101,7 @@ add_library(mods SHARED
     src/classic-ui/classic-ui.cpp
     # api
     src/api/api.cpp
+    src/api/events.cpp
     # shading
     src/shading/init.cpp
     src/shading/tesselator.cpp
