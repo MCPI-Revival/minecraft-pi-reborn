@@ -242,7 +242,10 @@ void api_add_chat_event(const Player *sender, const std::string &message) {
     if (!enabled || (!sender && api_compat_mode)) {
         return;
     }
-    push_event(&ExtraClientData::chat_events, {message, sender ? sender->id : no_entity_id});
+    push_event(&ExtraClientData::chat_events, {
+        message,
+        sender ? sender->id : no_entity_id
+    });
 }
 
 // Block Hit Events

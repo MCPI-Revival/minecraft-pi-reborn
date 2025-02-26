@@ -31,6 +31,9 @@ static std::string get_input(std::string message) {
 }
 // Output String
 std::string api_get_output(std::string message, const bool replace_comma) {
+    // Convert To Unicode
+    message = from_cp437(message);
+    // Escape Characters
     if (api_compat_mode) {
         // Output In Plaintext For RJ Compatibility
         std::ranges::replace(message, list_separator, '\\');
@@ -38,10 +41,11 @@ std::string api_get_output(std::string message, const bool replace_comma) {
             std::ranges::replace(message, arg_separator, '.');
         }
     } else {
+        // Encode
         message = misc_base64_encode(message);
     }
-    // Convert To Unicode
-    return from_cp437(message);
+    // Return
+    return message;
 }
 
 // Join Strings Into Output
@@ -213,8 +217,7 @@ static const std::string player_namespace = "player.";
 #define ENTITY_NOT_FOUND API_WARN("Entity Not Found: %i", id)
 #define next_string(out, required) \
     std::string out; \
-    const bool out##_present = !std::getline(args, out, arg_separator).fail(); \
-    if (!out##_present && (required)) { \
+    if (!std::getline(args, out, arg_separator) && (required)) { \
         return CommandServer::Fail; \
     } \
     (void) 0
@@ -307,11 +310,9 @@ std::string CommandServer_parse_injection(CommandServer_parse_t old, CommandServ
         int removed = 0;
         for (Entity *entity : server->minecraft->level->entities) {
             int i = entity->getEntityTypeId();
-            if (i > 0) {
-                if (type == no_entity_id || i == type) {
-                    entity->remove();
-                    removed++;
-                }
+            if (i > 0 && (type == no_entity_id || i == type)) {
+                entity->remove();
+                removed++;
             }
         }
         return std::to_string(removed) + '\n';
@@ -447,9 +448,7 @@ std::string CommandServer_parse_injection(CommandServer_parse_t old, CommandServ
         }
 #define next_sign_line(i) \
     next_string(line_##i, false); \
-    if (line_##i##_present) { \
-        sign->lines[i] = get_input(line_##i); \
-    } \
+    sign->lines[i] = get_input(line_##i); \
     (void) 0
         next_sign_line(0);
         next_sign_line(1);
