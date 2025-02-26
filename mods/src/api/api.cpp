@@ -325,6 +325,20 @@ std::string CommandServer_parse_injection(CommandServer_parse_t old, CommandServ
         } else {
             return api_get_output(misc_get_entity_name(entity), false) + '\n';
         }
+    } else if (cmd == "entity.getType") {
+        // Parse
+        next_int(id);
+        // Return
+        Entity *entity = server->minecraft->level->getEntity(id);
+        if (entity == nullptr) {
+            return CommandServer::NullString;
+        } else {
+            int type = entity->getEntityTypeId();
+            if (api_compat_mode) {
+                api_convert_to_rj_entity_type(type);
+            }
+            return std::to_string(type) + '\n';
+        }
     } else if (cmd == "world.getEntities") {
         // Parse
         next_int(type);
