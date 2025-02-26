@@ -4,7 +4,6 @@
 #include <optional>
 #include <sstream>
 
-#include <libreborn/log.h>
 #include <libreborn/util/string.h>
 #include <libreborn/patch.h>
 #include <libreborn/config.h>
@@ -89,15 +88,15 @@ static std::string get_blocks(CommandServer *server, const Vec3 &start, const Ve
     server->pos_translator.from(end_x, end_y, end_z);
 
     // Swap If Needed
-    if (end_x < start_x) {
-        std::swap(start_x, end_x);
-    }
-    if (end_y < start_y) {
-        std::swap(start_y, end_y);
-    }
-    if (end_z < start_z) {
-        std::swap(start_z, end_z);
-    }
+#define swap_if_needed(axis) \
+    if (end_##axis < start_##axis) { \
+        std::swap(start_##axis, end_##axis); \
+    } \
+    (void) 0
+    swap_if_needed(x);
+    swap_if_needed(y);
+    swap_if_needed(z);
+#undef swap_if_needed
 
     // Get
     std::vector<std::string> ret;
@@ -110,6 +109,42 @@ static std::string get_blocks(CommandServer *server, const Vec3 &start, const Ve
     }
     // Return
     return api_join_outputs(ret, arg_separator);
+}
+
+// Properly Teleport Players
+static void update_player_position(const Entity *entity) {
+    if (entity->vtable == (Entity_vtable *) ServerPlayer_vtable::base) {
+        const ServerPlayer *player = (ServerPlayer *) entity;
+        MovePlayerPacket *packet = MovePlayerPacket::allocate();
+        ((Packet *) packet)->constructor();
+        packet->vtable = MovePlayerPacket_vtable::base;
+        packet->x = player->x;
+        packet->y = player->y - player->height_offset;
+        packet->z = player->z;
+        packet->yaw = player->yaw;
+        packet->pitch = player->pitch;
+        packet->entity_id = player->id;
+        player->minecraft->rak_net_instance->send(*(Packet *) packet);
+        packet->destructor_deleting();
+    }
+}
+static void Entity_moveTo_injection(Entity *self, const float x, const float y, const float z, const float yaw, const float pitch) {
+    self->moveTo(x, y, z, yaw, pitch);
+    update_player_position(self);
+}
+static void ClientSideNetworkHandler_handle_MovePlayerPacket_injection(ClientSideNetworkHandler_handle_MovePlayerPacket_t original, ClientSideNetworkHandler *self, const RakNet_RakNetGUID &rak_net_guid, MovePlayerPacket *packet) {
+    if (self->level) {
+        Entity *entity = self->level->getEntity(packet->entity_id);
+        if (entity) {
+            if (entity == (Entity *) self->minecraft->player) {
+                // Just Teleport
+                entity->moveTo(packet->x, packet->y, packet->z, packet->yaw, packet->pitch);
+            } else {
+                // Call Original Method
+                original(self, rak_net_guid, packet);
+            }
+        }
+    }
 }
 
 // Set Entity Rotation From XYZ
@@ -128,6 +163,7 @@ static void set_dir(Entity *entity, const float x, const float y, const float z)
     entity->yaw = std::fmod(std::atan2(-x, z), _2PI) * factor;
     const float xz = std::sqrt(x * x + z * z);
     entity->pitch = std::atan(-y / xz) * factor;
+    update_player_position(entity);
 }
 // Convert Entity Rotation To XYZ
 static Vec3 get_dir(const Entity *entity) {
@@ -173,31 +209,28 @@ void api_convert_to_mcpi_entity_type(int &type) {
 
 // Convert Entity To String
 static std::string get_entity_message(CommandServer *server, Entity *entity) {
-    // Offset Position
-    float x = entity->x;
-    float y = entity->y - entity->height_offset;
-    float z = entity->z;
-    server->pos_translator.to(x, y, z);
-    // Fix Type ID
+    std::vector<std::string> pieces;
+    // ID
+    pieces.push_back(std::to_string(entity->id));
+    // Type
     int type = entity->getEntityTypeId();
     if (api_compat_mode) {
         api_convert_to_rj_entity_type(type);
     }
+    pieces.push_back(std::to_string(type));
+    if (api_compat_mode) {
+        pieces.push_back(api_get_output(misc_get_entity_type_name(entity).second, true));
+    }
+    // XYZ
+    float x = entity->x;
+    float y = entity->y - entity->height_offset;
+    float z = entity->z;
+    server->pos_translator.to(x, y, z);
+    pieces.push_back(std::to_string(x));
+    pieces.push_back(std::to_string(y));
+    pieces.push_back(std::to_string(z));
     // Return
-    return api_join_outputs({
-        // ID
-        std::to_string(entity->id),
-        // Type
-        std::to_string(type),
-        // Name
-        api_get_output(misc_get_entity_type_name(entity).second, true),
-        // X
-        std::to_string(x),
-        // Y
-        std::to_string(y),
-        // X
-        std::to_string(z)
-    }, arg_separator);
+    return api_join_outputs(pieces, arg_separator);
 }
 
 // Calculate Distance Between Entities
@@ -223,8 +256,6 @@ static SignTileEntity *get_sign(const CommandServer *server, const int x, const 
 
 // Parse API Commands
 static const std::string player_namespace = "player.";
-#define API_WARN(format, ...) WARN("API: %s: " format, cmd.c_str(), ##__VA_ARGS__)
-#define ENTITY_NOT_FOUND API_WARN("Entity Not Found: %i", id)
 #define next_string(out, required) \
     std::string out; \
     if (!std::getline(args, out, arg_separator) && (required)) { \
@@ -263,6 +294,7 @@ std::string CommandServer_parse_injection(CommandServer_parse_t old, CommandServ
     // And Now The Big If-Else Chain
     std::stringstream args(args_str);
     if (cmd == "world.getBlocks") {
+        // Parse
         next_int(x0);
         next_int(y0);
         next_int(z0);
@@ -272,29 +304,34 @@ std::string CommandServer_parse_injection(CommandServer_parse_t old, CommandServ
         // Get The Blocks
         return get_blocks(server, Vec3{(float) x0, (float) y0, (float) z0}, Vec3{(float) x1, (float) y1, (float) z1});
     } else if (cmd == "world.getPlayerId") {
+        // Parse
         next_string(input, true);
+        // Search
         std::string username = get_input(input);
         for (Player *player : server->minecraft->level->players) {
             if (misc_get_player_username_utf(player) == username) {
+                // Found
                 return std::to_string(player->id) + "\n";
             }
         }
-        API_WARN("Player Not Found: %s", username.c_str());
         return CommandServer::Fail;
     } else if (cmd == "entity.getName") {
+        // Parse
         next_int(id);
+        // Return
         Entity *entity = server->minecraft->level->getEntity(id);
         if (entity == nullptr) {
-            ENTITY_NOT_FOUND;
             return CommandServer::NullString;
         } else {
             return api_get_output(misc_get_entity_name(entity), false) + '\n';
         }
     } else if (cmd == "world.getEntities") {
+        // Parse
         next_int(type);
         if (api_compat_mode) {
             api_convert_to_mcpi_entity_type(type);
         }
+        // Search
         std::vector<std::string> result;
         for (Entity *entity : server->minecraft->level->entities) {
             int i = entity->getEntityTypeId();
@@ -304,7 +341,9 @@ std::string CommandServer_parse_injection(CommandServer_parse_t old, CommandServ
         }
         return api_join_outputs(result, list_separator);
     } else if (cmd == "world.removeEntity") {
+        // Parse
         next_int(id);
+        // Remove
         Entity *entity = server->minecraft->level->getEntity(id);
         int result = 0;
         if (entity != nullptr && !entity->isPlayer()) {
@@ -313,10 +352,12 @@ std::string CommandServer_parse_injection(CommandServer_parse_t old, CommandServ
         }
         return std::to_string(result) + '\n';
     } else if (cmd == "world.removeEntities") {
+        // Parse
         next_int(type);
         if (api_compat_mode) {
             api_convert_to_mcpi_entity_type(type);
         }
+        // Remove
         int removed = 0;
         for (Entity *entity : server->minecraft->level->entities) {
             int i = entity->getEntityTypeId();
@@ -342,61 +383,66 @@ std::string CommandServer_parse_injection(CommandServer_parse_t old, CommandServ
         next_int(id);
         return api_get_projectile_events(server, client, id);
     } else if (cmd == "entity.setDirection") {
+        // Parse
         next_int(id);
         next_float(x);
         next_float(y);
         next_float(z);
+        // Set
         Entity *entity = server->minecraft->level->getEntity(id);
-        if (entity == nullptr) {
-            ENTITY_NOT_FOUND;
-        } else {
+        if (entity != nullptr) {
             set_dir(entity, x, y, z);
         }
         return CommandServer::NullString;
     } else if (cmd == "entity.getDirection") {
+        // Parse
         next_int(id);
+        // Get
         Entity *entity = server->minecraft->level->getEntity(id);
         if (entity == nullptr) {
-            ENTITY_NOT_FOUND;
             return CommandServer::Fail;
         } else {
             Vec3 vec = get_dir(entity);
             return api_join_outputs({std::to_string(vec.x), std::to_string(vec.y), std::to_string(vec.z)}, arg_separator);
         }
     } else if (cmd == "entity.setRotation") {
+        // Parse
         next_int(id);
         next_float(yaw);
+        // Set
         Entity *entity = server->minecraft->level->getEntity(id);
-        if (entity == nullptr) {
-            ENTITY_NOT_FOUND;
-        } else {
+        if (entity != nullptr) {
             entity->yaw = yaw;
+            update_player_position(entity);
         }
         return CommandServer::NullString;
     } else if (cmd == "entity.setPitch") {
+        // Parse
         next_int(id);
         next_float(pitch);
+        // Set
         Entity *entity = server->minecraft->level->getEntity(id);
-        if (entity == nullptr) {
-            ENTITY_NOT_FOUND;
-        } else {
+        if (entity != nullptr) {
             entity->pitch = pitch;
+            update_player_position(entity);
         }
         return CommandServer::NullString;
     } else if (cmd == "entity.getRotation") {
+        // Parse
         next_int(id);
+        // Get
         Entity *entity = server->minecraft->level->getEntity(id);
         if (entity == nullptr) {
-            ENTITY_NOT_FOUND;
             return CommandServer::Fail;
         } else {
             return std::to_string(entity->yaw) + '\n';
         }
     } else if (cmd == "entity.getPitch") {
+        // Parse
         next_int(id);
+        // Get
         Entity *entity = server->minecraft->level->getEntity(id);
         if (entity == nullptr) {
-            ENTITY_NOT_FOUND;
             return CommandServer::Fail;
         } else {
             return std::to_string(entity->pitch) + '\n';
@@ -408,7 +454,6 @@ std::string CommandServer_parse_injection(CommandServer_parse_t old, CommandServ
         next_int(type);
         Entity *src = server->minecraft->level->getEntity(id);
         if (src == nullptr) {
-            ENTITY_NOT_FOUND;
             return CommandServer::Fail;
         }
         // Run
@@ -427,7 +472,6 @@ std::string CommandServer_parse_injection(CommandServer_parse_t old, CommandServ
         next_int(type);
         Entity *src = server->minecraft->level->getEntity(id);
         if (src == nullptr) {
-            ENTITY_NOT_FOUND;
             return CommandServer::Fail;
         }
         // Run
@@ -508,6 +552,7 @@ sign->lines[i] = get_input(line_##i); \
         server->minecraft->level->addEntity(entity);
         return std::to_string(entity->id) + '\n';
     } else if (cmd == "world.getEntityTypes") {
+        // Get All Valid Entity Types
         std::vector<std::string> result;
         for (const std::pair<const EntityType, std::pair<std::string, std::string>> &i : misc_get_entity_type_names()) {
             int id = static_cast<int>(i.first);
@@ -518,25 +563,27 @@ sign->lines[i] = get_input(line_##i); \
         }
         return api_join_outputs(result, list_separator);
     } else if (cmd == "entity.setAbsPos") {
+        // Parse
         next_int(id);
         next_float(x);
         next_float(y);
         next_float(z);
+        // Set
         Entity *entity = server->minecraft->level->getEntity(id);
         if (entity == nullptr) {
-            ENTITY_NOT_FOUND;
             return CommandServer::Fail;
         }
-        entity->moveTo(x, y, z, entity->yaw, entity->pitch);
+        Entity_moveTo_injection(entity, x, y, z, entity->yaw, entity->pitch);
         return CommandServer::NullString;
     } else if (cmd == "entity.getAbsPos") {
+        // Parse
         next_int(id);
+        // Get
         Entity *entity = server->minecraft->level->getEntity(id);
         if (entity == nullptr) {
-            ENTITY_NOT_FOUND;
             return CommandServer::Fail;
         }
-        return api_join_outputs({std::to_string(entity->x), std::to_string(entity->y), std::to_string(entity->z)}, arg_separator);
+        return api_join_outputs({std::to_string(entity->x), std::to_string(entity->y - entity->height_offset), std::to_string(entity->z)}, arg_separator);
     } else if (cmd == "entity.events.clear") {
         next_int(id);
         api_clear_events(client, id);
@@ -561,5 +608,8 @@ void init_api() {
     if (feature_has("Implement RaspberryJuice API", server_enabled)) {
         overwrite_calls(CommandServer_parse, CommandServer_parse_injection);
         _init_api_events();
+        // Fix Teleporting Players
+        overwrite_calls(ClientSideNetworkHandler_handle_MovePlayerPacket, ClientSideNetworkHandler_handle_MovePlayerPacket_injection);
+        overwrite_call((void *) 0x6b6e8, Entity_moveTo, Entity_moveTo_injection);
     }
 }

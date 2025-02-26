@@ -113,13 +113,14 @@ static bool CommandServer__updateClient_injection(CommandServer__updateClient_t 
     return ret;
 }
 static void CommandServer__close_injection(CommandServer__close_t original, CommandServer *self) {
+    // Server Shutdown
     extra_client_data.clear();
     original(self);
 }
 
 // Clear All Events
 void api_clear_events(const ConnectedClient &client) {
-    ExtraClientData &data = extra_client_data[client.sock];
+    ExtraClientData &data = extra_client_data.at(client.sock);
     if (!api_compat_mode) {
         // Match RJ Bug
         data.projectile_events.clear();
@@ -131,12 +132,12 @@ void api_clear_events(const ConnectedClient &client) {
 // Clear Events Produced By Given Entity
 template <typename T>
 static void clear_events(std::vector<T> &data, const int id) {
-    std::ranges::remove_if(data, [&id](const T &e) {
+    data.erase(std::remove_if(data.begin(), data.end(), [&id](const T &e) {
         return id == e.owner_id;
-    });
+    }), data.end());
 }
 void api_clear_events(const ConnectedClient &client, const int id) {
-    ExtraClientData &data = extra_client_data[client.sock];
+    ExtraClientData &data = extra_client_data.at(client.sock);
     clear_events(data.block_hit_events, id);
     clear_events(data.chat_events, id);
     clear_events(data.projectile_events, id);
@@ -163,7 +164,7 @@ static std::string get_events(CommandServer *server, std::vector<T> &queue, cons
 }
 #define create_get_events(name) \
     std::string api_get_##name##_events(CommandServer *server, const ConnectedClient &client, const std::optional<int> id) { \
-        return get_events(server, extra_client_data[client.sock].name##_events, id); \
+        return get_events(server, extra_client_data.at(client.sock).name##_events, id); \
     }
 create_get_events(projectile)
 create_get_events(chat)
@@ -270,14 +271,18 @@ static bool CreatorMode_useItemOn_injection(__attribute__((unused)) CreatorMode_
 // Init
 void _init_api_events() {
     enabled = true;
+    // Track Projectile Hits
     overwrite_calls(Arrow_tick, Arrow_tick_injection);
     overwrite_call((void *) 0x8b28c, Entity_hurt, Arrow_tick_Entity_hurt_injection);
     overwrite_call((void *) 0x8b388, Level_getTile, Arrow_tick_Level_getTile_injection);
     overwrite_call((void *) 0x8c5a4, Throwable_onHit, Throwable_tick_Throwable_onHit_injection);
+    // Track GUI Messages
     overwrite_calls(Gui_addMessage, Gui_addMessage_injection);
+    // Track Connected Clients
     overwrite_call((void *) 0x6bd78, CommandServer_setSocketBlocking, CommandServer__updateAccept_setSocketBlocking_injection);
     overwrite_calls(CommandServer__updateClient, CommandServer__updateClient_injection);
     overwrite_calls(CommandServer__close, CommandServer__close_injection);
+    // Track Block Hits
     overwrite_calls(GameMode_useItemOn, GameMode_useItemOn_injection);
     overwrite_calls(CreatorMode_useItemOn, CreatorMode_useItemOn_injection);
 }

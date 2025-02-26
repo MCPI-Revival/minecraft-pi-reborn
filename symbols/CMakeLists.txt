@@ -27,6 +27,7 @@ set(SRC
     src/network/raknet/RakNet_RakPeer.def
     src/network/raknet/RakNet_BitStream.def
     src/network/ServerSideNetworkHandler.def
+    src/network/ClientSideNetworkHandler.def
     src/network/packet/LoginPacket.def
     src/network/packet/PlayerEquipmentPacket.def
     src/network/packet/SignUpdatePacket.def
@@ -34,6 +35,7 @@ set(SRC
     src/network/packet/StartGamePacket.def
     src/network/packet/ChatPacket.def
     src/network/packet/PlayerActionPacket.def
+    src/network/packet/MovePlayerPacket.def
     src/entity/EntityFactory.def
     src/entity/PrimedTnt.def
     src/entity/CameraEntity.def

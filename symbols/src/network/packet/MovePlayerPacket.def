@@ -1,0 +1,11 @@
+extends Packet;
+
+size 0x24;
+vtable 0x105e50;
+
+property int entity_id = 0xc;
+property float x = 0x10;
+property float y = 0x14;
+property float z = 0x18;
+property float pitch = 0x1c;
+property float yaw = 0x20;

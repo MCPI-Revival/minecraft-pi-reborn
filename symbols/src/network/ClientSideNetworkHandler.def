@@ -1,0 +1,6 @@
+extends NetEventCallback;
+
+vtable 0x108eb8;
+
+property Minecraft *minecraft = 0x4;
+property Level *level = 0x8;

@@ -374,11 +374,12 @@ static void LocalPlayer_tick_injection(LocalPlayer_tick_t original, LocalPlayer 
         if (real != synced) {
             // Send To Server
             PlayerActionPacket *packet = PlayerActionPacket::allocate();
-            Packet_constructor->get(false)((Packet *) packet);
+            ((Packet *) packet)->constructor();
             packet->vtable = PlayerActionPacket_vtable::base;
             packet->entity_id = self->id;
             packet->action = real ? PLAYER_ACTION_START_SNEAKING : PLAYER_ACTION_STOP_SNEAKING;
             self->minecraft->rak_net_instance->send(*(Packet *) packet);
+            packet->destructor_deleting();
         }
     }
 }
