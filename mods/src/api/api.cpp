@@ -1,11 +1,11 @@
 #include <cmath>
 #include <string>
-#include <fstream>
 #include <algorithm>
 #include <vector>
 #include <unordered_map>
 #include <optional>
 #include <ranges>
+#include <sstream>
 
 #include <libreborn/log.h>
 #include <libreborn/util/string.h>
@@ -214,13 +214,13 @@ static float distance_between(const Entity *e1, const Entity *e2) {
 }
 
 // Projectile Event
+static constexpr int no_entity_id = -1;
 struct ProjectileHitEvent {
     int x;
     int y;
     int z;
-    std::string owner = "";
-    int owner_id = 0;
-    int target_id = 0;
+    int owner_id;
+    int target_id;
 };
 static std::string event_to_string(CommandServer *server, const ProjectileHitEvent &e) {
     // Offset Position
@@ -240,20 +240,32 @@ static std::string event_to_string(CommandServer *server, const ProjectileHitEve
         pieces.push_back("1");
     }
     // Owner
+    Level *level = server->minecraft->level;
+    std::string owner;
     if (compat_mode) {
-        pieces.push_back(get_output(e.owner, true));
+        owner = get_output(misc_get_entity_name(level->getEntity(e.owner_id)), true);
     } else {
-        pieces.push_back(std::to_string(e.owner_id));
-        pieces.push_back(std::to_string(e.target_id));
+        owner = std::to_string(e.owner_id);
     }
+    pieces.push_back(owner);
+    // Target
+    std::string target;
+    if (e.target_id != no_entity_id) {
+        if (compat_mode) {
+            target = get_output(misc_get_entity_name(level->getEntity(e.target_id)), true);
+        } else {
+            target = std::to_string(e.target_id);
+        }
+    }
+    pieces.push_back(target);
     // Return
     return join_outputs(pieces);
 }
 
 // Chat Message Event
 struct ChatEvent {
-    std::string message = "";
-    int owner_id = 0;
+    std::string message;
+    int owner_id;
 };
 static std::string event_to_string(__attribute__((unused)) CommandServer *server, const ChatEvent &e) {
     return join_outputs({
@@ -291,6 +303,7 @@ struct ExtraClientData {
 static std::unordered_map<int, ExtraClientData> extra_client_data;
 static bool CommandServer__updateAccept_setSocketBlocking_injection(const int fd, const bool param_1) {
     // Client Was Created
+    INFO("Client Connected: %i", fd);
     extra_client_data[fd] = ExtraClientData();
     return CommandServer::setSocketBlocking(fd, param_1);
 }
@@ -298,6 +311,7 @@ static bool CommandServer__updateClient_injection(CommandServer__updateClient_t 
     const bool ret = original(self, client);
     if (!ret) {
         // Client Disconnected
+        INFO("Client Disconnected: %i", client.sock);
         extra_client_data.erase(client.sock);
     }
     return ret;
@@ -349,53 +363,68 @@ static std::string get_events(CommandServer *server, std::vector<T> &queue, cons
 }
 
 // Map RJ Entity IDs To MCPI IDs
-static constexpr int no_entity_id = -1;
 static const std::string player_namespace = "player.";
 #define API_WARN(format, ...) WARN("API: %s: " format, cmd.c_str(), ##__VA_ARGS__)
 #define ENTITY_NOT_FOUND API_WARN("Entity Not Found: %i", id)
+#define next_string(out, required) \
+    std::string out; \
+    const bool out##_present = !std::getline(args, out, arg_separator).fail(); \
+    if (!out##_present && (required)) { \
+        return CommandServer::Fail; \
+    } \
+    (void) 0
+#define next_number(out, type, func) \
+    next_string(out##_str, true); \
+    type out; \
+    try { \
+        out = func(out##_str); \
+    } catch (...) { \
+        return CommandServer::Fail; \
+    } \
+    (void) 0
+#define next_int(out) next_number(out, int, std::stoi)
+#define next_float(out) next_number(out, float, std::stof)
 std::string CommandServer_parse_injection(CommandServer_parse_t old, CommandServer *server, ConnectedClient &client, const std::string &command) {
-    size_t arg_start = command.find("(");
+    size_t arg_start = command.find('(');
     if (arg_start == std::string::npos) {
         return CommandServer::Fail;
     }
     std::string cmd = command.substr(0, arg_start);
-    // rfind() So ) In Input Does Not Break
-    size_t cmd_end = command.rfind(")");
+    size_t cmd_end = command.rfind(')');
     if (cmd_end == std::string::npos) {
         return CommandServer::Fail;
     }
-    std::string args = command.substr(arg_start + 1, cmd_end - arg_start - 1);
+    std::string args_str = command.substr(arg_start + 1, cmd_end - arg_start - 1);
 
     // Redirect Player Namespace To The Entity One
-    if (server->minecraft->player != nullptr) {
-        if (cmd.starts_with(player_namespace) && cmd != "player.setting") {
-            cmd = "entity." + cmd.substr(player_namespace.size());
-            args = std::to_string(server->minecraft->player->id) + arg_separator + args;
-        }
+    if (server->minecraft->player != nullptr && cmd.starts_with(player_namespace) && cmd != "player.setting") {
+        cmd = "entity." + cmd.substr(player_namespace.size());
+        args_str = std::to_string(server->minecraft->player->id) + arg_separator + args_str;
     }
 
     // And Now The Big If-Else Chain
+    std::stringstream args(args_str);
     if (cmd == "world.getBlocks") {
-        int x0, y0, z0, x1, y1, z1;
-        if (sscanf(args.c_str(), "%d,%d,%d,%d,%d,%d", &x0, &y0, &z0, &x1, &y1, &z1) != 6) {
-            return CommandServer::Fail;
-        }
+        next_int(x0);
+        next_int(y0);
+        next_int(z0);
+        next_int(x1);
+        next_int(y1);
+        next_int(z1);
         // Get The Blocks
         return get_blocks(server, Vec3{(float) x0, (float) y0, (float) z0}, Vec3{(float) x1, (float) y1, (float) z1});
     } else if (cmd == "world.getPlayerId") {
-        std::string username = get_input(args);
+        next_string(input, true);
+        std::string username = get_input(input);
         for (Player *player : server->minecraft->level->players) {
             if (misc_get_player_username_utf(player) == username) {
                 return std::to_string(player->id) + "\n";
             }
         }
-        API_WARN("Player Not Found: %s", args.c_str());
+        API_WARN("Player Not Found: %s", username.c_str());
         return CommandServer::Fail;
     } else if (cmd == "entity.getName") {
-        int id;
-        if (sscanf(args.c_str(), "%d", &id) != 1) {
-            return CommandServer::Fail;
-        }
+        next_int(id);
         Entity *entity = server->minecraft->level->getEntity(id);
         if (entity == nullptr) {
             ENTITY_NOT_FOUND;
@@ -404,10 +433,7 @@ std::string CommandServer_parse_injection(CommandServer_parse_t old, CommandServ
             return get_output(misc_get_entity_name(entity)) + '\n';
         }
     } else if (cmd == "world.getEntities") {
-        int type;
-        if (sscanf(args.c_str(), "%d", &type) != 1) {
-            return CommandServer::Fail;
-        }
+        next_int(type);
         if (compat_mode) {
             convert_to_mcpi_entity_type(type);
         }
@@ -420,10 +446,7 @@ std::string CommandServer_parse_injection(CommandServer_parse_t old, CommandServ
         }
         return join_outputs(result, list_separator);
     } else if (cmd == "world.removeEntity") {
-        int id;
-        if (sscanf(args.c_str(), "%d", &id) != 1) {
-            return CommandServer::Fail;
-        }
+        next_int(id);
         Entity *entity = server->minecraft->level->getEntity(id);
         int result = 0;
         if (entity != nullptr && !entity->isPlayer()) {
@@ -432,10 +455,7 @@ std::string CommandServer_parse_injection(CommandServer_parse_t old, CommandServ
         }
         return std::to_string(result) + '\n';
     } else if (cmd == "world.removeEntities") {
-        int type;
-        if (sscanf(args.c_str(), "%d", &type) != 1) {
-            return CommandServer::Fail;
-        }
+        next_int(type);
         if (compat_mode) {
             convert_to_mcpi_entity_type(type);
         }
@@ -453,33 +473,23 @@ std::string CommandServer_parse_injection(CommandServer_parse_t old, CommandServ
     } else if (cmd == "events.chat.posts") {
         return get_events(server, extra_client_data[client.sock].chat_events, std::nullopt);
     } else if (cmd == "entity.events.chat.posts") {
-        int id;
-        if (sscanf(args.c_str(), "%d", &id) != 1) {
-            return CommandServer::Fail;
-        }
+        next_int(id);
         return get_events(server, extra_client_data[client.sock].chat_events, id);
     } else if (cmd == "events.block.hits") {
         return get_events(server, extra_client_data[client.sock].block_hit_events, std::nullopt);
     } else if (cmd == "entity.events.block.hits") {
-        int id;
-        if (sscanf(args.c_str(), "%d", &id) != 1) {
-            return CommandServer::Fail;
-        }
+        next_int(id);
         return get_events(server, extra_client_data[client.sock].block_hit_events, id);
     } else if (cmd == "events.projectile.hits") {
         return get_events(server, extra_client_data[client.sock].projectile_events, std::nullopt);
     } else if (cmd == "entity.events.projectile.hits") {
-        int id;
-        if (sscanf(args.c_str(), "%d", &id) != 1) {
-            return CommandServer::Fail;
-        }
+        next_int(id);
         return get_events(server, extra_client_data[client.sock].projectile_events, id);
     } else if (cmd == "entity.setDirection") {
-        int id;
-        float x, y, z;
-        if (sscanf(args.c_str(), "%d,%f,%f,%f", &id, &x, &y, &z) != 4) {
-            return CommandServer::Fail;
-        }
+        next_int(id);
+        next_float(x);
+        next_float(y);
+        next_float(z);
         Entity *entity = server->minecraft->level->getEntity(id);
         if (entity == nullptr) {
             ENTITY_NOT_FOUND;
@@ -488,10 +498,7 @@ std::string CommandServer_parse_injection(CommandServer_parse_t old, CommandServ
         }
         return CommandServer::NullString;
     } else if (cmd == "entity.getDirection") {
-        int id;
-        if (sscanf(args.c_str(), "%d", &id) != 1) {
-            return CommandServer::Fail;
-        }
+        next_int(id);
         Entity *entity = server->minecraft->level->getEntity(id);
         if (entity == nullptr) {
             ENTITY_NOT_FOUND;
@@ -501,11 +508,8 @@ std::string CommandServer_parse_injection(CommandServer_parse_t old, CommandServ
             return join_outputs({std::to_string(vec.x), std::to_string(vec.y), std::to_string(vec.z)});
         }
     } else if (cmd == "entity.setRotation") {
-        int id;
-        float yaw;
-        if (sscanf(args.c_str(), "%d,%f", &id, &yaw) != 2) {
-            return CommandServer::Fail;
-        }
+        next_int(id);
+        next_float(yaw);
         Entity *entity = server->minecraft->level->getEntity(id);
         if (entity == nullptr) {
             ENTITY_NOT_FOUND;
@@ -514,11 +518,8 @@ std::string CommandServer_parse_injection(CommandServer_parse_t old, CommandServ
         }
         return CommandServer::NullString;
     } else if (cmd == "entity.setPitch") {
-        int id;
-        float pitch;
-        if (sscanf(args.c_str(), "%d,%f", &id, &pitch) != 2) {
-            return CommandServer::Fail;
-        }
+        next_int(id);
+        next_float(pitch);
         Entity *entity = server->minecraft->level->getEntity(id);
         if (entity == nullptr) {
             ENTITY_NOT_FOUND;
@@ -527,10 +528,7 @@ std::string CommandServer_parse_injection(CommandServer_parse_t old, CommandServ
         }
         return CommandServer::NullString;
     } else if (cmd == "entity.getRotation") {
-        int id;
-        if (sscanf(args.c_str(), "%d", &id) != 1) {
-            return CommandServer::Fail;
-        }
+        next_int(id);
         Entity *entity = server->minecraft->level->getEntity(id);
         if (entity == nullptr) {
             ENTITY_NOT_FOUND;
@@ -539,10 +537,7 @@ std::string CommandServer_parse_injection(CommandServer_parse_t old, CommandServ
             return std::to_string(entity->yaw) + '\n';
         }
     } else if (cmd == "entity.getPitch") {
-        int id;
-        if (sscanf(args.c_str(), "%d", &id) != 1) {
-            return CommandServer::Fail;
-        }
+        next_int(id);
         Entity *entity = server->minecraft->level->getEntity(id);
         if (entity == nullptr) {
             ENTITY_NOT_FOUND;
@@ -552,11 +547,9 @@ std::string CommandServer_parse_injection(CommandServer_parse_t old, CommandServ
         }
     } else if (cmd == "entity.getEntities") {
         // Parse
-        int dist, type;
-        int id = 0;
-        if (sscanf(args.c_str(), "%d,%d,%d", &id, &dist, &type) != 3) {
-            return CommandServer::Fail;
-        }
+        next_int(id);
+        next_int(dist);
+        next_int(type);
         Entity *src = server->minecraft->level->getEntity(id);
         if (src == nullptr) {
             ENTITY_NOT_FOUND;
@@ -573,11 +566,9 @@ std::string CommandServer_parse_injection(CommandServer_parse_t old, CommandServ
         return join_outputs(result, list_separator);
     } else if (cmd == "entity.removeEntities") {
         // Parse
-        int dist, type;
-        int id = 0;
-        if (sscanf(args.c_str(), "%d,%d,%d", &id, &dist, &type) != 3) {
-            return CommandServer::Fail;
-        }
+        next_int(id);
+        next_int(dist);
+        next_int(type);
         Entity *src = server->minecraft->level->getEntity(id);
         if (src == nullptr) {
             ENTITY_NOT_FOUND;
@@ -595,32 +586,31 @@ std::string CommandServer_parse_injection(CommandServer_parse_t old, CommandServ
         return std::to_string(removed) + '\n';
     } else if (cmd == "world.setSign") {
         // Parse
-        int x, y, z, id, data;
-        char l1[100], l2[100], l3[100], l4[100];
-        int ret = sscanf(args.c_str(), "%d,%d,%d,%d,%d,%99[^,],%99[^,],%99[^,],%99s", &x, &y, &z, &id, &data, l1, l2, l3, l4);
-        constexpr int minimal_arg_count = 5;
-        constexpr int line_count = 4;
-        if (ret < minimal_arg_count || ret > (minimal_arg_count + line_count)) {
-            return CommandServer::Fail;
-        }
+        next_int(x);
+        next_int(y);
+        next_int(z);
+        next_int(id);
+        next_int(data);
         // Translate
         server->pos_translator.from(x, y, z);
         // Set Block
         server->minecraft->level->setTileAndData(x, y, z, id, data);
         // Set Sign Data
-        if (ret == minimal_arg_count) {
-            return CommandServer::NullString;
-        }
         SignTileEntity *sign = (SignTileEntity *) server->minecraft->level->getTileEntity(x, y, z);
         if (sign == nullptr || sign->type != 4) {
             return CommandServer::NullString;
         }
-        char *lines[line_count] = {l1, l2, l3, l4};
-        for (int i = 0; i < line_count; i++) {
-            if (ret > (i + minimal_arg_count)) {
-                sign->lines[i] = get_input(lines[i]);
-            }
-        }
+#define next_sign_line(i) \
+    next_string(line_##i, false); \
+    if (line_##i##_present) { \
+        sign->lines[i] = line_##i; \
+    } \
+    (void) 0
+        next_sign_line(0);
+        next_sign_line(1);
+        next_sign_line(2);
+        next_sign_line(3);
+#undef next_sign_line
         // Send Update Packet
         sign->setChanged();
         Packet *packet = sign->getUpdatePacket();
@@ -628,20 +618,19 @@ std::string CommandServer_parse_injection(CommandServer_parse_t old, CommandServ
         return CommandServer::NullString;
     } else if (cmd == "world.spawnEntity") {
         // Parse
-        float x, y, z;
-        int id;
-        if (sscanf(args.c_str(), "%f,%f,%f,%d", &x, &y, &z, &id) != 4) {
-            return CommandServer::Fail;
-        }
+        next_float(x);
+        next_float(y);
+        next_float(z);
+        next_int(type);
         // Translate
         x -= server->pos_translator.x;
         y -= server->pos_translator.y;
         z -= server->pos_translator.z;
         if (compat_mode) {
-            convert_to_mcpi_entity_type(id);
+            convert_to_mcpi_entity_type(type);
         }
         // Spawn
-        Entity *entity = misc_make_entity_from_id(server->minecraft->level, id);
+        Entity *entity = misc_make_entity_from_id(server->minecraft->level, type);
         if (entity == nullptr) {
             return CommandServer::Fail;
         }
@@ -659,11 +648,10 @@ std::string CommandServer_parse_injection(CommandServer_parse_t old, CommandServ
         }
         return join_outputs(result, list_separator);
     } else if (cmd == "entity.setAbsPos") {
-        int id;
-        float x, y, z;
-        if (sscanf(args.c_str(), "%d,%f,%f,%f", &id, &x, &y, &z) != 4) {
-            return CommandServer::Fail;
-        }
+        next_int(id);
+        next_float(x);
+        next_float(y);
+        next_float(z);
         Entity *entity = server->minecraft->level->getEntity(id);
         if (entity == nullptr) {
             ENTITY_NOT_FOUND;
@@ -672,10 +660,7 @@ std::string CommandServer_parse_injection(CommandServer_parse_t old, CommandServ
         entity->moveTo(x, y, z, entity->yaw, entity->pitch);
         return CommandServer::NullString;
     } else if (cmd == "entity.getAbsPos") {
-        int id;
-        if (sscanf(args.c_str(), "%d", &id) != 1) {
-            return CommandServer::Fail;
-        }
+        next_int(id);
         Entity *entity = server->minecraft->level->getEntity(id);
         if (entity == nullptr) {
             ENTITY_NOT_FOUND;
@@ -683,10 +668,7 @@ std::string CommandServer_parse_injection(CommandServer_parse_t old, CommandServ
         }
         return join_outputs({std::to_string(entity->x), std::to_string(entity->y), std::to_string(entity->z)});
     } else if (cmd == "entity.events.clear") {
-        int id;
-        if (sscanf(args.c_str(), "%d", &id) != 1) {
-            return CommandServer::Fail;
-        }
+        next_int(id);
         clear_events(client, id);
         return CommandServer::NullString;
     } else if (cmd == "events.clear") {
@@ -712,77 +694,48 @@ static void push_event(std::vector<T> ExtraClientData::*ptr, const T e) {
     }
 }
 
-// Arrow Entity Hit
-static Entity *shooter = nullptr;
-static HitResult *Arrow_tick_HitResult_constructor_injection(HitResult *self, Entity *target) {
-    // Original
-    self->constructor(target);
-    // Add event
+// Arrow Hits
+static void on_projectile_hit(Entity *shooter, const int x, const int y, const int z, const Entity *target) {
     if (shooter && shooter->isPlayer()) {
         push_event(&ExtraClientData::projectile_events, {
-            .x = (int) target->x,
-            .y = (int) target->y,
-            .z = (int) target->z,
-            .owner = ((Player *) shooter)->username,
+            .x = x,
+            .y = y,
+            .z = z,
             .owner_id = shooter->id,
-            .target_id = target->id
+            .target_id = target ? target->id : no_entity_id
         });
     }
-    return self;
 }
-
-// Arrow block hit
-static void Arrow_tick_injection(Arrow_tick_t old, Arrow *self) {
-    const int oldFlightTime = self->flight_time;
-    shooter = self->level->getEntity(self->getAuxData());
-    old(self);
-    if (!self->pending_removal && self->grounded && oldFlightTime != self->flight_time) {
-        if (shooter && shooter->isPlayer()) {
-            // Hit! Get the data
-            push_event(&ExtraClientData::projectile_events, {
-                .x = self->hit_x,
-                .y = self->hit_y,
-                .z = self->hit_z,
-                .owner = ((Player *) shooter)->username,
-                .owner_id = shooter->id,
-                .target_id = 0
-            });
-        }
-    }
+static void on_projectile_hit(Entity *shooter, const Entity *target) {
+    on_projectile_hit(shooter, int(target->x), int(target->y), int(target->z), target);
+}
+static Entity *current_shooter = nullptr;
+static void Arrow_tick_injection(Arrow_tick_t original, Arrow *self) {
+    current_shooter = self->level->getEntity(self->getAuxData());
+    original(self);
+}
+static bool Arrow_tick_Entity_hurt_injection(Entity *self, __attribute__((unused)) Entity *cause, int damage) {
+    on_projectile_hit(current_shooter, self);
+    // Call Original Method
+    return self->hurt(cause, damage);
+}
+static int Arrow_tick_Level_getTile_injection(Level *self, int x, int y, int z) {
+    on_projectile_hit(current_shooter, x, y, z, nullptr);
+    // Call Original Method
+    return self->getTile(x, y, z);
 }
 
 // Throwable Hits
 static void Throwable_tick_Throwable_onHit_injection(Throwable *self, HitResult *res) {
-    if (res == nullptr || res->type == 2) {
-        return self->onHit(res);
+    if (res != nullptr && res->type != 2) {
+        Entity *thrower = self->level->getEntity(self->getAuxData());
+        if (res->type == 1 && res->entity) {
+            on_projectile_hit(thrower, res->entity);
+        } else {
+            on_projectile_hit(thrower, res->x, res->y, res->z, nullptr);
+        }
     }
-    Entity *thrower = self->level->getEntity(self->getAuxData());
-    if (thrower == nullptr || !thrower->isPlayer()) {
-        return self->onHit(res);
-    }
-    ProjectileHitEvent event;
-    if (res->type == 1 && res->entity) {
-        // Entity
-        event = {
-            .x = (int) res->exact.x,
-            .y = (int) res->exact.y,
-            .z = (int) res->exact.z,
-            .owner = ((Player *) thrower)->username,
-            .owner_id = thrower->id,
-            .target_id = res->entity->id
-        };
-    } else {
-        // Tile
-        event = {
-            .x = res->x,
-            .y = res->y,
-            .z = res->z,
-            .owner = ((Player *) thrower)->username,
-            .owner_id = thrower->id,
-            .target_id = 0
-        };
-    }
-    push_event(&ExtraClientData::projectile_events, event);
+    // Call Original Method
     self->onHit(res);
 }
 
@@ -805,7 +758,26 @@ void api_add_chat_event(const Player *sender, const std::string &message) {
     if (!enabled || (!sender && compat_mode)) {
         return;
     }
-    push_event(&ExtraClientData::chat_events, ChatEvent{message, sender ? sender->id : no_entity_id});
+    push_event(&ExtraClientData::chat_events, {message, sender ? sender->id : no_entity_id});
+}
+
+// Block Hit Events
+static bool GameMode_useItemOn_injection(GameMode_useItemOn_t original, GameMode *self, Player *player, Level *level, ItemInstance *item, const int x, const int y, const int z, const int param_1, const Vec3 &param_2) {
+    // Add Event
+    if (item && item->id == Item::sword_iron->id) {
+        push_event(&ExtraClientData::block_hit_events, {
+            .owner_id = player->id,
+            .x = x,
+            .y = y,
+            .z = z,
+            .face = param_1
+        });
+    }
+    // Call Original Method
+    return original(self, player, level, item, x, y, z, param_1, param_2);
+}
+static bool CreatorMode_useItemOn_injection(__attribute__((unused)) CreatorMode_useItemOn_t original, CreatorMode *self, Player *player, Level *level, ItemInstance *item, const int x, const int y, const int z, const int param_1, const Vec3 &param_2) {
+    return GameMode_useItemOn->get(false)((GameMode *) self, player, level, item, x, y, z, param_1, param_2);
 }
 
 // Init
@@ -814,10 +786,13 @@ void init_api() {
         enabled = true;
         overwrite_calls(CommandServer_parse, CommandServer_parse_injection);
         overwrite_calls(Arrow_tick, Arrow_tick_injection);
-        overwrite_call((void *) 0x8b1e8, HitResult_constructor, Arrow_tick_HitResult_constructor_injection);
+        overwrite_call((void *) 0x8b28c, Entity_hurt, Arrow_tick_Entity_hurt_injection);
+        overwrite_call((void *) 0x8b388, Level_getTile, Arrow_tick_Level_getTile_injection);
         overwrite_call((void *) 0x8c5a4, Throwable_onHit, Throwable_tick_Throwable_onHit_injection);
         overwrite_calls(Gui_addMessage, Gui_addMessage_injection);
         overwrite_call((void *) 0x6bd78, CommandServer_setSocketBlocking, CommandServer__updateAccept_setSocketBlocking_injection);
         overwrite_calls(CommandServer__updateClient, CommandServer__updateClient_injection);
+        overwrite_calls(GameMode_useItemOn, GameMode_useItemOn_injection);
+        overwrite_calls(CreatorMode_useItemOn, CreatorMode_useItemOn_injection);
     }
 }

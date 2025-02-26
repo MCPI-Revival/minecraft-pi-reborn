@@ -49,3 +49,4 @@ static-property Item *egg = 0x17bbd0;
 static-property Item *dye_powder = 0x17bbe0;
 static-property Item *camera = 0x17bc14;
 static-property Item *bow = 0x17ba78;
+static-property Item *sword_iron = 0x17ba8c;
