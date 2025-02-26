@@ -84,8 +84,8 @@ static std::string get_blocks(CommandServer *server, const Vec3 &start, const Ve
     int end_z = int(end.z);
 
     // Apply Offset
-    server->pos_translator.from(start_x, start_y, start_z);
-    server->pos_translator.from(end_x, end_y, end_z);
+    server->pos_translator.from_int(start_x, start_y, start_z);
+    server->pos_translator.from_int(end_x, end_y, end_z);
 
     // Swap If Needed
 #define swap_if_needed(axis) \
@@ -225,7 +225,7 @@ static std::string get_entity_message(CommandServer *server, Entity *entity) {
     float x = entity->x;
     float y = entity->y - entity->height_offset;
     float z = entity->z;
-    server->pos_translator.to(x, y, z);
+    server->pos_translator.to_float(x, y, z);
     pieces.push_back(std::to_string(x));
     pieces.push_back(std::to_string(y));
     pieces.push_back(std::to_string(z));
@@ -508,7 +508,7 @@ std::string CommandServer_parse_injection(CommandServer_parse_t old, CommandServ
         next_int(id);
         next_int(data);
         // Translate
-        server->pos_translator.from(x, y, z);
+        server->pos_translator.from_int(x, y, z);
         // Set Block
         server->minecraft->level->setTileAndData(x, y, z, id, data);
         // Set Sign Data
@@ -535,7 +535,7 @@ sign->lines[i] = get_input(line_##i); \
         next_int(y);
         next_int(z);
         // Translate
-        server->pos_translator.from(x, y, z);
+        server->pos_translator.from_int(x, y, z);
         // Read
         SignTileEntity *sign = get_sign(server, x, y, z);
         if (sign == nullptr) {
@@ -553,9 +553,7 @@ sign->lines[i] = get_input(line_##i); \
         next_float(z);
         next_int(type);
         // Translate
-        x -= server->pos_translator.x;
-        y -= server->pos_translator.y;
-        z -= server->pos_translator.z;
+        server->pos_translator.from_float(x, y, z);
         if (api_compat_mode) {
             api_convert_to_mcpi_entity_type(type);
         }

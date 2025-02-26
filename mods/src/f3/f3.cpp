@@ -52,7 +52,7 @@ static std::vector<std::string> get_debug_info_left(const Minecraft *minecraft) 
         float x = minecraft->player->x;
         float y = minecraft->player->y - minecraft->player->height_offset;
         float z = minecraft->player->z;
-        minecraft->command_server->pos_translator.to(x, y, z);
+        minecraft->command_server->pos_translator.to_float(x, y, z);
         info.push_back("X: " + to_string_with_precision(x, debug_precision));
         info.push_back("Y: " + to_string_with_precision(y, debug_precision));
         info.push_back("Z: " + to_string_with_precision(z, debug_precision));
@@ -142,7 +142,7 @@ static std::vector<std::string> get_debug_info_right(const Minecraft *minecraft)
             }
             xyz_precision = debug_precision;
         }
-        minecraft->command_server->pos_translator.to(x, y, z);
+        minecraft->command_server->pos_translator.to_float(x, y, z);
         info.push_back("");
         info.push_back("Target X: " + to_string_with_precision(x, xyz_precision));
         info.push_back("Target Y: " + to_string_with_precision(y, xyz_precision));

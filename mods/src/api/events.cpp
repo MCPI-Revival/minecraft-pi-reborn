@@ -22,10 +22,10 @@ struct ProjectileHitEvent {
 };
 static std::string event_to_string(CommandServer *server, const ProjectileHitEvent &e) {
     // Offset Position
-    float nx = float(e.x);
-    float ny = float(e.y);
-    float nz = float(e.z);
-    server->pos_translator.to(nx, ny, nz);
+    int nx = e.x;
+    int ny = e.y;
+    int nz = e.z;
+    server->pos_translator.to_int(nx, ny, nz);
     // Get Outputs
     std::vector pieces = {
         // Position
@@ -75,16 +75,16 @@ static std::string event_to_string(__attribute__((unused)) CommandServer *server
 // Block Hit Event
 static std::string event_to_string(CommandServer *server, const TileEvent &e) {
     // Offset Coordinates
-    float x = float(e.x);
-    float y = float(e.y);
-    float z = float(e.z);
-    server->pos_translator.to(x, y, z);
+    int x = e.x;
+    int y = e.y;
+    int z = e.z;
+    server->pos_translator.to_int(x, y, z);
     // Output
     return api_join_outputs({
         // Position
-        std::to_string(int(x)),
-        std::to_string(int(y)),
-        std::to_string(int(z)),
+        std::to_string(x),
+        std::to_string(y),
+        std::to_string(z),
         // Face
         std::to_string(e.face),
         // Entity ID
