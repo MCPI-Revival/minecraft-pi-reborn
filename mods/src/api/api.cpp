@@ -254,6 +254,12 @@ static SignTileEntity *get_sign(const CommandServer *server, const int x, const 
     }
 }
 
+// Check If Entity Is Selected
+static bool is_entity_selected(Entity *entity, const int target_type) {
+    const int type = entity->getEntityTypeId();
+    return type > 0 && (target_type == no_entity_id || target_type == type);
+}
+
 // Parse API Commands
 static const std::string player_namespace = "player.";
 #define next_string(out, required) \
@@ -348,8 +354,7 @@ std::string CommandServer_parse_injection(CommandServer_parse_t old, CommandServ
         // Search
         std::vector<std::string> result;
         for (Entity *entity : server->minecraft->level->entities) {
-            int i = entity->getEntityTypeId();
-            if (i > 0 && (type == no_entity_id || i == type)) {
+            if (is_entity_selected(entity, type)) {
                 result.push_back(get_entity_message(server, entity));
             }
         }
@@ -374,8 +379,7 @@ std::string CommandServer_parse_injection(CommandServer_parse_t old, CommandServ
         // Remove
         int removed = 0;
         for (Entity *entity : server->minecraft->level->entities) {
-            int i = entity->getEntityTypeId();
-            if (i > 0 && (type == no_entity_id || i == type)) {
+            if (is_entity_selected(entity, type)) {
                 entity->remove();
                 removed++;
             }
@@ -473,8 +477,7 @@ std::string CommandServer_parse_injection(CommandServer_parse_t old, CommandServ
         // Run
         std::vector<std::string> result;
         for (Entity *entity : server->minecraft->level->entities) {
-            int i = entity->getEntityTypeId();
-            if (i > 0 && (type == no_entity_id || i == type) && distance_between(src, entity) < dist) {
+            if (is_entity_selected(entity, type) && distance_between(src, entity) < dist) {
                 result.push_back(get_entity_message(server, entity));
             }
         }
@@ -491,8 +494,7 @@ std::string CommandServer_parse_injection(CommandServer_parse_t old, CommandServ
         // Run
         int removed = 0;
         for (Entity *entity : server->minecraft->level->entities) {
-            int i = entity->getEntityTypeId();
-            if (i > 0 && (type == no_entity_id || i == type) && distance_between(src, entity) < dist) {
+            if (is_entity_selected(entity, type) && distance_between(src, entity) < dist) {
                 entity->remove();
                 removed++;
             }
