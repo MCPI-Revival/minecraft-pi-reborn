@@ -32,7 +32,7 @@ jobs:
           # Dependencies
           - name: Install CMake
             run: |
-                echo 'deb http://deb.debian.org/debian buster-backports main' > /etc/apt/sources.list.d/backports.list
+                echo 'deb http://archive.debian.org/debian buster-backports main' > /etc/apt/sources.list.d/backports.list
                 apt-get update
                 apt-get install --no-install-recommends -y -t buster-backports cmake
           - name: Install Dependencies
@@ -64,7 +64,7 @@ jobs:
           # Dependencies
           - name: Install CMake
             run: |
-                echo 'deb http://deb.debian.org/debian buster-backports main' > /etc/apt/sources.list.d/backports.list
+                echo 'deb http://archive.debian.org/debian buster-backports main' > /etc/apt/sources.list.d/backports.list
                 apt-get update
                 apt-get install --no-install-recommends -y -t buster-backports cmake
           - name: Install Dependencies
@@ -83,6 +83,10 @@ jobs:
         runs-on: ubuntu-latest
         container: node:16-buster
         steps:
+          - name: Checkout Repository
+            uses: actions/checkout@v4
+            with:
+                submodules: false
           # Dependencies
           - name: Install Go
             uses: actions/setup-go@v4
@@ -93,11 +97,15 @@ jobs:
             uses: actions/download-artifact@v3
             with:
                 path: out
+          # Get Changelog
+          - name: Get Changelog
+            id: release-info
+            run: ./scripts/get-changelog.mjs >> "${GITHUB_OUTPUT}"
           # Create Release
           - name: Create Release
             uses: https://gitea.com/actions/release-action@main
             with:
-                files: ./out     
+                files: ./out
                 api_key: ${{ secrets.RELEASE_TOKEN }}
-                title: v${{ github.ref_name }}
-                body: "[View Changelog](https://gitea.thebrokenrail.com/minecraft-pi-reborn/minecraft-pi-reborn/src/branch/master/docs/CHANGELOG.md)"
+                title: v${{ steps.release-info.outputs.version }}
+                body: ${{ steps.release-info.outputs.changelog }}

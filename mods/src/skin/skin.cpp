@@ -1,3 +1,6 @@
+#include <string>
+#include <vector>
+
 #include <libreborn/libreborn.h>
 #include <symbols/minecraft.h>
 
@@ -5,45 +8,32 @@
 #include <mods/feature/feature.h>
 #include "skin-internal.h"
 
-// Base64 Encode (https://gist.github.com/tomykaira/f0fd86b6c73063283afe550bc5d77594)
-static std::string base64_encode(const std::string data) {
-    static constexpr char encoding_table[] = {
-        'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H',
-        'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P',
-        'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X',
-        'Y', 'Z', 'a', 'b', 'c', 'd', 'e', 'f',
-        'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n',
-        'o', 'p', 'q', 'r', 's', 't', 'u', 'v',
-        'w', 'x', 'y', 'z', '0', '1', '2', '3',
-        '4', '5', '6', '7', '8', '9', '+', '/'
-    };
-
-    size_t in_len = data.size();
-    size_t out_len = 4 * ((in_len + 2) / 3);
-    std::string ret(out_len, '\0');
-    size_t i;
-    char *p = const_cast<char*>(ret.c_str());
-
-    for (i = 0; i < in_len - 2; i += 3) {
-        *p++ = encoding_table[(data[i] >> 2) & 0x3f];
-        *p++ = encoding_table[((data[i] & 0x3) << 4) | ((int) (data[i + 1] & 0xf0) >> 4)];
-        *p++ = encoding_table[((data[i + 1] & 0xf) << 2) | ((int) (data[i + 2] & 0xc0) >> 6)];
-        *p++ = encoding_table[data[i + 2] & 0x3f];
-    }
-    if (i < in_len) {
-        *p++ = encoding_table[(data[i] >> 2) & 0x3f];
-        if (i == (in_len - 1)) {
-            *p++ = encoding_table[((data[i] & 0x3) << 4)];
-            *p++ = '=';
+// Base64-URL Encode/Decode (https://stackoverflow.com/a/57314480)
+static constexpr char base64_url_alphabet[] = {
+    'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M',
+    'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z',
+    'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm',
+    'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z',
+    '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '-', '_'
+};
+static std::string base64_encode(const std::string &data) {
+    std::string out;
+    int val = 0;
+    int valb = -6;
+    const size_t len = data.length();
+    for (unsigned int i = 0; i < len; i++) {
+        const unsigned char c = data[i];
+        val = (val << 8) + c;
+        valb += 8;
+        while (valb >= 0) {
+            out.push_back(base64_url_alphabet[(val >> valb) & 0x3f]);
+            valb -= 6;
         }
-        else {
-            *p++ = encoding_table[((data[i] & 0x3) << 4) | ((int) (data[i + 1] & 0xf0) >> 4)];
-            *p++ = encoding_table[((data[i + 1] & 0xf) << 2)];
-        }
-        *p++ = '=';
     }
-
-    return ret;
+    if (valb > -6) {
+        out.push_back(base64_url_alphabet[((val << 8) >> (valb + 8)) & 0x3f]);
+    }
+    return out;
 }
 
 // Change Texture For Player Entities

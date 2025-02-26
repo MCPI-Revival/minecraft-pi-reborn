@@ -1,5 +1,8 @@
 # Changelog
 
+**2.5.4**
+* Use Base64-URL Encoding When Accessing The Skin Server
+
 **2.5.3**
 * Add ``Replace Block Highlight With Outline`` Feature Flag (Enabled By Default)
   * By Default, The Outline Width Is Set Using The GUI Scale
