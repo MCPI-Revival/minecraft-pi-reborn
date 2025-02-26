@@ -6,7 +6,7 @@
 
 #include <symbols/minecraft.h>
 
-#include "misc-internal.h"
+#include "internal.h"
 #include <mods/misc/misc.h>
 #include <mods/feature/feature.h>
 

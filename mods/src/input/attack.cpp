@@ -5,7 +5,7 @@
 #include <symbols/minecraft.h>
 
 #include <mods/feature/feature.h>
-#include "input-internal.h"
+#include "internal.h"
 
 // Add Attacking To MouseBuildInput
 #define REMOVE_ATTACK_BAI 0xa

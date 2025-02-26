@@ -2,7 +2,7 @@
 
 #include <libreborn/patch.h>
 #include <media-layer/core.h>
-#include "../compat-internal.h"
+#include "../internal.h"
 
 // Functions That Have Their Return Values Used
 static EGLSurface eglCreateWindowSurface_injection(__attribute__((unused)) EGLDisplay display, __attribute__((unused)) EGLConfig config, __attribute__((unused)) NativeWindowType native_window, __attribute__((unused)) EGLint const *attrib_list) {

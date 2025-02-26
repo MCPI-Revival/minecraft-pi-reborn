@@ -4,7 +4,7 @@
 
 #include <symbols/minecraft.h>
 
-#include "misc-internal.h"
+#include "internal.h"
 
 // Use MCPI_HOME
 static const char *getenv_HOME(__attribute__((unused)) const char *env) {

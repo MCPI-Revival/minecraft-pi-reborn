@@ -5,7 +5,7 @@
 #include <libreborn/log.h>
 #include <media-layer/audio.h>
 
-#include "sound-internal.h"
+#include "internal.h"
 #include <mods/sound/sound.h>
 
 // Sound Repository Extracted From MCPE 0.6.1 APK

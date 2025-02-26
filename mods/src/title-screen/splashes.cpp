@@ -9,7 +9,7 @@
 #include <mods/misc/misc.h>
 #include <mods/title-screen/title-screen.h>
 
-#include "title-screen-internal.h"
+#include "internal.h"
 
 // Load
 void title_screen_load_splashes(std::vector<std::string> &splashes) {

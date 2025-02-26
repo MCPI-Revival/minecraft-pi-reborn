@@ -8,7 +8,7 @@
 #include <GLES/gl.h>
 
 #include <mods/misc/misc.h>
-#include "misc-internal.h"
+#include "internal.h"
 
 // Callbacks
 template <typename... Args>

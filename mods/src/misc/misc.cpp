@@ -24,7 +24,7 @@
 #include <mods/input/input.h>
 #include <mods/misc/misc.h>
 
-#include "misc-internal.h"
+#include "internal.h"
 
 // Sanitize Username
 #define MAX_USERNAME_LENGTH 16

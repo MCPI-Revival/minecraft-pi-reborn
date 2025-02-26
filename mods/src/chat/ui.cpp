@@ -1,4 +1,4 @@
-#include "chat-internal.h"
+#include "internal.h"
 
 #include <symbols/minecraft.h>
 

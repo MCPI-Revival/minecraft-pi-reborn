@@ -1,4 +1,4 @@
-#include "extend-internal.h"
+#include "internal.h"
 
 // VTable
 SETUP_VTABLE(DynamicTexture)

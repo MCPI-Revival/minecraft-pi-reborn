@@ -8,7 +8,7 @@
 #include <mods/misc/misc.h>
 #include <mods/extend/extend.h>
 
-#include "options-internal.h"
+#include "internal.h"
 
 // Button IDs
 #define DISCORD_ID 0

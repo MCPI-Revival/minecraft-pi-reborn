@@ -3,7 +3,7 @@
 #include <symbols/minecraft.h>
 
 #include <mods/feature/feature.h>
-#include "input-internal.h"
+#include "internal.h"
 #include <mods/input/input.h>
 
 // Store Right-Click Status

@@ -8,7 +8,7 @@
 #include <symbols/minecraft.h>
 
 #include <mods/multidraw/multidraw.h>
-#include "shading-internal.h"
+#include "internal.h"
 
 // Structures
 struct UV {

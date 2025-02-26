@@ -11,7 +11,7 @@
 #include <mods/title-screen/title-screen.h>
 #include <mods/misc/misc.h>
 
-#include "title-screen-internal.h"
+#include "internal.h"
 
 // Improved Title Screen Background
 template <typename Self>

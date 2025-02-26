@@ -7,7 +7,7 @@
 
 #include <mods/feature/feature.h>
 
-#include "options-internal.h"
+#include "internal.h"
 
 // Fix Initial Option Button Rendering
 // The calling function doesn't exist in MCPE v0.6.1, so its name is unknown.

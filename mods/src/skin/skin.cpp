@@ -6,7 +6,7 @@
 #include <mods/init/init.h>
 #include <mods/feature/feature.h>
 #include <mods/misc/misc.h>
-#include "skin-internal.h"
+#include "internal.h"
 
 // Change Texture For Player Entities
 static std::string get_skin_texture_path(const std::string &username) {

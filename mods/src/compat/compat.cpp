@@ -4,7 +4,7 @@
 #include <mods/compat/compat.h>
 #include <mods/init/init.h>
 
-#include "compat-internal.h"
+#include "internal.h"
 
 // Exit Handler
 static void exit_handler(__attribute__((unused)) int data) {

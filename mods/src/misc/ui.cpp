@@ -15,7 +15,7 @@
 #include <mods/classic-ui/classic-ui.h>
 #include <mods/misc/misc.h>
 
-#include "misc-internal.h"
+#include "internal.h"
 
 // Heart Food Overlay
 static int heal_amount = 0, heal_amount_drawing = 0;

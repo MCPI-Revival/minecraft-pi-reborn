@@ -1,4 +1,4 @@
-#include "extend-internal.h"
+#include "internal.h"
 
 // Easily Create Custom Screens
 void CustomScreen::init() {

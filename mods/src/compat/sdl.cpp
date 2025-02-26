@@ -10,7 +10,7 @@
 #include <mods/input/input.h>
 #include <mods/feature/feature.h>
 
-#include "compat-internal.h"
+#include "internal.h"
 
 // Custom Title
 HOOK(media_SDL_WM_SetCaption, void, (__attribute__((unused)) const char *title, const char *icon)) {

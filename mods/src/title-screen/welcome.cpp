@@ -11,7 +11,7 @@
 #include <mods/misc/misc.h>
 #include <mods/extend/extend.h>
 
-#include "title-screen-internal.h"
+#include "internal.h"
 
 // Constants
 static std::string line1 = "Welcome to " MCPI_APP_TITLE " v" MCPI_VERSION "!";

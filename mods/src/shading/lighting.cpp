@@ -2,7 +2,7 @@
 #include <symbols/minecraft.h>
 #include <libreborn/patch.h>
 
-#include "shading-internal.h"
+#include "internal.h"
 
 // OpenGL Lighting
 static float *get_buffer(const float a, const float b, const float c, const float d) {

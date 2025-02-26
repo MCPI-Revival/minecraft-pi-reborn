@@ -12,7 +12,7 @@
 
 #include <mods/misc/misc.h>
 #include <mods/textures/textures.h>
-#include "skin-internal.h"
+#include "internal.h"
 
 #include "stb_image.h"
 

@@ -10,7 +10,7 @@
 #include <mods/touch/touch.h>
 #include <mods/misc/misc.h>
 #include <mods/game-mode/game-mode.h>
-#include "game-mode-internal.h"
+#include "internal.h"
 
 // Strings
 #define GAME_MODE_STR(mode) ("Game Mode: " mode)

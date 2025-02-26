@@ -13,7 +13,7 @@
 #include <mods/feature/feature.h>
 #include <mods/multidraw/multidraw.h>
 
-#include "misc-internal.h"
+#include "internal.h"
 
 // Properly Generate Buffers
 static void anGenBuffers_injection(__attribute__((unused)) Common_anGenBuffers_t original, const int32_t count, uint32_t *buffers) {

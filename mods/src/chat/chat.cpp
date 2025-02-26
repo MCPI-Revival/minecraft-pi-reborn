@@ -5,7 +5,7 @@
 
 #include <mods/init/init.h>
 #include <mods/feature/feature.h>
-#include "chat-internal.h"
+#include "internal.h"
 #include <mods/chat/chat.h>
 #include <mods/api/api.h>
 

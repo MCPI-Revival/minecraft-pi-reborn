@@ -3,7 +3,7 @@
 #include <symbols/minecraft.h>
 #include <libreborn/patch.h>
 
-#include "shading-internal.h"
+#include "internal.h"
 
 // PolygonQuad
 Vec3 vector_to(const Vec3 &a, const Vec3 &b) {

@@ -4,7 +4,7 @@
 #include <symbols/minecraft.h>
 #include <media-layer/audio.h>
 
-#include "sound-internal.h"
+#include "internal.h"
 #include <mods/feature/feature.h>
 #include <mods/override/override.h>
 #include <mods/init/init.h>

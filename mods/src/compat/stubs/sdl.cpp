@@ -2,7 +2,7 @@
 
 #include <media-layer/core.h>
 #include <libreborn/patch.h>
-#include "../compat-internal.h"
+#include "../internal.h"
 
 // SDL Stub
 static void *SDL_SetVideoMode_injection(__attribute__((unused)) int width, __attribute__((unused)) int height, __attribute__((unused)) int bpp, __attribute__((unused)) uint32_t flags) {

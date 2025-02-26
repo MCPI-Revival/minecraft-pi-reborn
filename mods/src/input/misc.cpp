@@ -3,7 +3,7 @@
 #include <symbols/minecraft.h>
 #include <SDL/SDL.h>
 
-#include "input-internal.h"
+#include "internal.h"
 #include <mods/input/input.h>
 #include <mods/feature/feature.h>
 #include <mods/creative/creative.h>

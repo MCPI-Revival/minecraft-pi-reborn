@@ -15,7 +15,7 @@
 #include <mods/feature/feature.h>
 #include <mods/init/init.h>
 
-#include "options-internal.h"
+#include "internal.h"
 
 // Force Mob Spawning
 static bool LevelData_getSpawnMobs_injection(__attribute__((unused)) LevelData_getSpawnMobs_t original, __attribute__((unused)) LevelData *level_data) {

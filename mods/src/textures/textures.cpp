@@ -15,7 +15,7 @@
 #include <mods/textures/textures.h>
 #include <mods/atlas/atlas.h>
 #include <mods/init/init.h>
-#include "textures-internal.h"
+#include "internal.h"
 
 #include "stb_image.h"
 

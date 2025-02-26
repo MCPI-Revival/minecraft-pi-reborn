@@ -5,7 +5,7 @@
 #include <mods/extend/extend.h>
 #include <symbols/minecraft.h>
 
-#include "textures-internal.h"
+#include "internal.h"
 
 // Lava texture code was originally decompiled by @iProgramMC as part of ReMinecraftPE.
 // See: https://github.com/ReMinecraftPE/mcpe

@@ -7,7 +7,7 @@
 #include <mods/feature/feature.h>
 #include <mods/extend/extend.h>
 
-#include "misc-internal.h"
+#include "internal.h"
 
 // Change Grass Color
 static bool grass_colors_loaded = false;

@@ -7,7 +7,7 @@
 #include <mods/init/init.h>
 #include <mods/feature/feature.h>
 
-#include "game-mode-internal.h"
+#include "internal.h"
 
 static int is_survival = -1;
 

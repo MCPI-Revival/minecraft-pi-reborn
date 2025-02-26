@@ -7,7 +7,7 @@
 
 #include <SDL/SDL.h>
 
-#include "input-internal.h"
+#include "internal.h"
 
 // Translator
 static int32_t sdl_key_to_minecraft_key_injection(Common_sdl_key_to_minecraft_key_t original, const int32_t sdl_key) {

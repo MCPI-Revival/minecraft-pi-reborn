@@ -2,7 +2,7 @@
 
 #include <mods/feature/feature.h>
 #include <mods/init/init.h>
-#include "input-internal.h"
+#include "internal.h"
 #include <mods/input/input.h>
 
 // Init
