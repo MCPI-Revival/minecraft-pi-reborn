@@ -5,4 +5,5 @@
 * [View Terminology](TERMINOLOGY.md)
 * [View In-Game Controls](CONTROLS.md)
 * [View Custom Skins](CUSTOM_SKINS.md)
+* [View API](API.md)
 * [View Changelog](CHANGELOG.md)
