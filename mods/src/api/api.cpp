@@ -109,7 +109,7 @@ static std::string get_blocks(CommandServer *server, const Vec3 &start, const Ve
         }
     }
     // Return
-    return api_join_outputs(ret);
+    return api_join_outputs(ret, arg_separator);
 }
 
 // Set Entity Rotation From XYZ
@@ -197,7 +197,7 @@ static std::string get_entity_message(CommandServer *server, Entity *entity) {
         std::to_string(y),
         // X
         std::to_string(z)
-    });
+    }, arg_separator);
 }
 
 // Calculate Distance Between Entities
@@ -209,6 +209,16 @@ static float distance_between(const Entity *e1, const Entity *e2) {
     const float dy = e2->y - e1->y;
     const float dz = e2->z - e1->z;
     return std::sqrt(dx * dx + dy * dy + dz * dz);
+}
+
+// Get Sign Tile Entity
+static SignTileEntity *get_sign(const CommandServer *server, const int x, const int y, const int z) {
+    TileEntity *sign = server->minecraft->level->getTileEntity(x, y, z);
+    if (sign != nullptr && sign->type == 4) {
+        return (SignTileEntity *) sign;
+    } else {
+        return nullptr;
+    }
 }
 
 // Parse API Commands
@@ -351,7 +361,7 @@ std::string CommandServer_parse_injection(CommandServer_parse_t old, CommandServ
             return CommandServer::Fail;
         } else {
             Vec3 vec = get_dir(entity);
-            return api_join_outputs({std::to_string(vec.x), std::to_string(vec.y), std::to_string(vec.z)});
+            return api_join_outputs({std::to_string(vec.x), std::to_string(vec.y), std::to_string(vec.z)}, arg_separator);
         }
     } else if (cmd == "entity.setRotation") {
         next_int(id);
@@ -442,24 +452,40 @@ std::string CommandServer_parse_injection(CommandServer_parse_t old, CommandServ
         // Set Block
         server->minecraft->level->setTileAndData(x, y, z, id, data);
         // Set Sign Data
-        SignTileEntity *sign = (SignTileEntity *) server->minecraft->level->getTileEntity(x, y, z);
-        if (sign == nullptr || sign->type != 4) {
-            return CommandServer::NullString;
-        }
+        SignTileEntity *sign = get_sign(server, x, y, z);
+        if (sign != nullptr) {
 #define next_sign_line(i) \
-    next_string(line_##i, false); \
-    sign->lines[i] = get_input(line_##i); \
-    (void) 0
-        next_sign_line(0);
-        next_sign_line(1);
-        next_sign_line(2);
-        next_sign_line(3);
+next_string(line_##i, false); \
+sign->lines[i] = get_input(line_##i); \
+(void) 0
+            next_sign_line(0);
+            next_sign_line(1);
+            next_sign_line(2);
+            next_sign_line(3);
 #undef next_sign_line
-        // Send Update Packet
-        sign->setChanged();
-        Packet *packet = sign->getUpdatePacket();
-        server->minecraft->rak_net_instance->send(*packet);
+            // Send Update Packet
+            sign->setChanged();
+            Packet *packet = sign->getUpdatePacket();
+            server->minecraft->rak_net_instance->send(*packet);
+        }
         return CommandServer::NullString;
+    } else if (cmd == "world.getSign") {
+        // Parse
+        next_int(x);
+        next_int(y);
+        next_int(z);
+        // Translate
+        server->pos_translator.from(x, y, z);
+        // Read
+        SignTileEntity *sign = get_sign(server, x, y, z);
+        if (sign == nullptr) {
+            return CommandServer::Fail;
+        }
+        std::vector<std::string> pieces;
+        for (const std::string &line : sign->lines) {
+            pieces.push_back(api_get_output(line, false));
+        }
+        return api_join_outputs(pieces, list_separator);
     } else if (cmd == "world.spawnEntity") {
         // Parse
         next_float(x);
@@ -488,7 +514,7 @@ std::string CommandServer_parse_injection(CommandServer_parse_t old, CommandServ
             if (api_compat_mode) {
                 api_convert_to_rj_entity_type(id);
             }
-            result.push_back(api_join_outputs({std::to_string(id), api_get_output(i.second.second, true)}));
+            result.push_back(api_join_outputs({std::to_string(id), api_get_output(i.second.second, true)}, arg_separator));
         }
         return api_join_outputs(result, list_separator);
     } else if (cmd == "entity.setAbsPos") {
@@ -510,7 +536,7 @@ std::string CommandServer_parse_injection(CommandServer_parse_t old, CommandServ
             ENTITY_NOT_FOUND;
             return CommandServer::Fail;
         }
-        return api_join_outputs({std::to_string(entity->x), std::to_string(entity->y), std::to_string(entity->z)});
+        return api_join_outputs({std::to_string(entity->x), std::to_string(entity->y), std::to_string(entity->z)}, arg_separator);
     } else if (cmd == "entity.events.clear") {
         next_int(id);
         api_clear_events(client, id);

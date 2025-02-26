@@ -48,16 +48,16 @@ static std::string event_to_string(CommandServer *server, const ProjectileHitEve
     pieces.push_back(owner);
     // Target
     std::string target;
-    if (!api_compat_mode || e.target_id != no_entity_id) {
-        if (api_compat_mode) {
+    if (api_compat_mode) {
+        if (e.target_id != no_entity_id) {
             target = api_get_output(misc_get_entity_name(level->getEntity(e.target_id)), true);
-        } else {
-            target = std::to_string(e.target_id);
         }
+    } else {
+        target = std::to_string(e.target_id);
     }
     pieces.push_back(target);
     // Return
-    return api_join_outputs(pieces);
+    return api_join_outputs(pieces, arg_separator);
 }
 
 // Chat Message Event
@@ -69,7 +69,7 @@ static std::string event_to_string(__attribute__((unused)) CommandServer *server
     return api_join_outputs({
         std::to_string(e.owner_id),
         api_get_output(e.message, true),
-    });
+    }, arg_separator);
 }
 
 // Block Hit Event
@@ -89,7 +89,7 @@ static std::string event_to_string(CommandServer *server, const TileEvent &e) {
         std::to_string(e.face),
         // Entity ID
         std::to_string(e.owner_id)
-    });
+    }, arg_separator);
 }
 
 // Track Event Queues Per Client
