@@ -91,6 +91,7 @@ set(SRC
     src/level/ChunkStorage.def
     src/level/LightLayer.def
     src/level/Level.def
+    src/level/LevelListener.def
     src/level/renderer/LevelRenderer.def
     src/level/LevelStorageSource.def
     src/level/renderer/ParticleEngine.def

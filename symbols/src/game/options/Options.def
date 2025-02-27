@@ -24,3 +24,4 @@ property bool server_visible = 0x104;
 property std::string username = 0x100;
 property bool invert_mouse = 0xc;
 property bool lefty = 0x1a;
+property Minecraft *minecraft = 0xe4;

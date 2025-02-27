@@ -13,3 +13,4 @@ method Texture *getTemporaryTextureData(uint id) = 0x53168;
 property bool blur = 0x39;
 property std::vector<DynamicTexture *> dynamic_textures = 0x40;
 property uint current_texture = 0x3c;
+property Options *options = 0x30;

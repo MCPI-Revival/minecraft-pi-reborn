@@ -62,6 +62,8 @@
     * `Fix Furnace Screen Visual Bug` (Enabled By Default)
     * `Fix Held Item Poking Through Screen Overlay` (Enabled By Default)
     * `Implement RaspberryJuice API` (Enabled By Default)
+    * `Fix HUD When Spectating Other Players` (Enabled By Default)
+    * `Fix Crash When Spectated Entity Is Removed` (Enabled By Default)
   * Existing Functionality (All Enabled By Default)
     * `Fix Screen Rendering When Hiding HUD`
     * `Sanitize Usernames`

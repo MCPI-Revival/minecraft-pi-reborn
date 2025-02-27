@@ -30,11 +30,12 @@ static void Player_username_assign_injection_2(std::string *target, const char *
 }
 
 // Change Texture For HUD
-static uint32_t ItemInHandRenderer_render_Textures_loadAndBindTexture_injection(Textures *textures, __attribute__((unused)) std::string const& name) {
+static uint32_t ItemInHandRenderer_render_Textures_loadAndBindTexture_injection(Textures *textures, const std::string &name) {
     // Change Texture
-    static std::string new_texture;
-    if (new_texture.length() == 0) {
-        new_texture = get_skin_texture_path(Strings::default_username);
+    std::string new_texture = name;
+    Mob *camera = textures->options->minecraft->camera;
+    if (camera && camera->isPlayer()) {
+        new_texture = camera->texture;
     }
 
     // Call Original Method

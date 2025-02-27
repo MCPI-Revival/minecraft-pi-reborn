@@ -1,3 +1,5 @@
+extends LevelListener;
+
 vtable 0x107438;
 
 constructor (Minecraft *minecraft) = 0x4e5f8;

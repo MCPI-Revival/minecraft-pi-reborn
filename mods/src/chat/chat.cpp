@@ -47,7 +47,7 @@ void chat_send_message_to_clients(ServerSideNetworkHandler *server_side_network_
     server_side_network_handler->displayGameMessage(full_message);
     is_sending = false;
 }
-// Handle Chat packet Send
+// Handle Chat Packet Send
 void chat_handle_packet_send(const Minecraft *minecraft, ChatPacket *packet) {
     // Convert To CP-437
     packet->message = to_cp437(packet->message);

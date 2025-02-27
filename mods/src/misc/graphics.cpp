@@ -481,7 +481,7 @@ static void Gui_renderProgressIndicator_injection(Gui_renderProgressIndicator_t 
     // Render
     media_glEnable(GL_BLEND);
     self->minecraft->textures->blur = true;
-    self->renderVignette(self->minecraft->player->getBrightness(a), width, height);
+    self->renderVignette(self->minecraft->camera->getBrightness(a), width, height);
     self->minecraft->textures->blur = false;
     media_glDisable(GL_BLEND);
     // Call Original Method

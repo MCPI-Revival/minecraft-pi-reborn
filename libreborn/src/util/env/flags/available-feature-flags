@@ -135,6 +135,9 @@ CATEGORY Bug Fixes
         TRUE Fix Crash When Generating Certain Seeds
         TRUE Close Editor When Sign Is Destroyed
         TRUE Close Current Screen On Death
+    CATEGORY API
+        TRUE Fix HUD When Spectating Other Players
+        TRUE Fix Crash When Spectated Entity Is Removed
     TRUE Fix Reloading Textures On Resize
     TRUE Fix options.txt Loading/Saving
     TRUE Fix Hanging When No Valid Spawn Point Exists

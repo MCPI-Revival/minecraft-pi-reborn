@@ -49,11 +49,11 @@ static void revert_rotation(Entity *entity) {
     }
 }
 static bool is_front_facing = false;
-static LocalPlayer *stored_player = nullptr;
+static Entity *stored_player = nullptr;
 static void GameRenderer_setupCamera_injection(GameRenderer_setupCamera_t original, GameRenderer *game_renderer, const float param_1, const int param_2) {
     // Get Objects
-    Minecraft *minecraft = game_renderer->minecraft;
-    stored_player = minecraft->player;
+    const Minecraft *minecraft = game_renderer->minecraft;
+    stored_player = (Entity *) minecraft->camera;
 
     // Check If In Third-Person
     const Options *options = &minecraft->options;
@@ -61,7 +61,7 @@ static void GameRenderer_setupCamera_injection(GameRenderer_setupCamera_t origin
 
     // Invert Rotation
     if (is_front_facing) {
-        invert_rotation((Entity *) stored_player);
+        invert_rotation(stored_player);
     }
 
     // Call Original Method
@@ -69,21 +69,21 @@ static void GameRenderer_setupCamera_injection(GameRenderer_setupCamera_t origin
 
     // Revert
     if (is_front_facing) {
-        revert_rotation((Entity *) stored_player);
+        revert_rotation(stored_player);
     }
 }
 static void ParticleEngine_render_injection(ParticleEngine_render_t original, ParticleEngine *particle_engine, Entity *entity, const float param_2) {
     // Invert Rotation
-    if (is_front_facing && (Entity *) stored_player == entity) {
-        invert_rotation((Entity *) stored_player);
+    if (is_front_facing && stored_player == entity) {
+        invert_rotation(stored_player);
     }
 
     // Call Original Method
     original(particle_engine, entity, param_2);
 
     // Revert
-    if (is_front_facing && (Entity *) stored_player == entity) {
-        revert_rotation((Entity *) stored_player);
+    if (is_front_facing && stored_player == entity) {
+        revert_rotation(stored_player);
     }
 }
 

@@ -292,7 +292,7 @@ std::string CommandServer_parse_injection(CommandServer_parse_t old, CommandServ
     std::string args_str = command.substr(arg_start + 1, cmd_end - arg_start - 1);
 
     // Redirect Player Namespace To The Entity One
-    if (server->minecraft->player != nullptr && cmd.starts_with(player_namespace) && cmd != "player.setting") {
+    if (server->minecraft->player != nullptr && cmd.starts_with(player_namespace) && cmd != (player_namespace + "setting")) {
         cmd = "entity." + cmd.substr(player_namespace.size());
         args_str = std::to_string(server->minecraft->player->id) + arg_separator + args_str;
     }
@@ -617,6 +617,33 @@ sign->lines[i] = get_input(line_##i); \
     }
 }
 
+// Fix HUD Spectating Other Players
+template <typename... Args>
+static void ItemInHandRenderer_render_injection(const std::function<void(ItemInHandRenderer *, Args...)> &original, ItemInHandRenderer *self, Args... args) {
+    // "Fix" Current Player
+    LocalPlayer *&player = self->minecraft->player;
+    LocalPlayer *old_player = player;
+    Mob *camera = self->minecraft->camera;
+    if (camera && camera->isPlayer()) {
+        player = (LocalPlayer *) camera;
+    }
+    // Call Original Method
+    original(self, std::forward<Args>(args)...);
+    // Revert "Fix"
+    player = old_player;
+}
+
+// Fix Crash When Camera Entity Is Removed
+static void LevelRenderer_entityRemoved_injection(LevelRenderer *self, Entity *entity) {
+    // Call Original Method
+    LevelListener_entityRemoved->get(false)((LevelListener *) self, entity);
+    // Fix Camera
+    Minecraft *minecraft = self->minecraft;
+    if ((Entity *) minecraft->camera == entity) {
+        minecraft->camera = (Mob *) minecraft->player;
+    }
+}
+
 // Init
 void init_api() {
     if (feature_has("Implement RaspberryJuice API", server_enabled)) {
@@ -625,5 +652,14 @@ void init_api() {
         // Fix Teleporting Players
         overwrite_calls(ClientSideNetworkHandler_handle_MovePlayerPacket, ClientSideNetworkHandler_handle_MovePlayerPacket_injection);
         overwrite_call((void *) 0x6b6e8, Entity_moveTo, Entity_moveTo_injection);
+    }
+    // Bug Fixes
+    if (feature_has("Fix HUD When Spectating Other Players", server_enabled)) {
+        overwrite_calls(ItemInHandRenderer_render, ItemInHandRenderer_render_injection<float>);
+        overwrite_calls(ItemInHandRenderer_renderScreenEffect, ItemInHandRenderer_render_injection<float>);
+        overwrite_calls(ItemInHandRenderer_tick, ItemInHandRenderer_render_injection<>);
+    }
+    if (feature_has("Fix Crash When Spectated Entity Is Removed", server_enabled)) {
+        patch_vtable(LevelRenderer_entityRemoved, LevelRenderer_entityRemoved_injection);
     }
 }

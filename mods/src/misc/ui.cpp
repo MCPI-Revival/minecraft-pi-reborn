@@ -300,22 +300,24 @@ static void Font_draw_injection(const std::function<void(Font *, Args...)> &orig
 static void ItemInHandRenderer_renderScreenEffect_injection(__attribute__((unused)) ItemInHandRenderer_renderScreenEffect_t original, ItemInHandRenderer *self, float param_1) {
     media_glDisable(GL_ALPHA_TEST);
     const Minecraft *mc = self->minecraft;
-    LocalPlayer *player = mc->player;
-    mc->textures->loadAndBindTexture("terrain.png");
-    if (player->isInWall()) {
-        int x = Mth::floor(player->x);
-        int y = Mth::floor(player->y);
-        int z = Mth::floor(player->z);
-        const int id = mc->level->getTile(x, y, z);
-        Tile *tile = Tile::tiles[id];
-        if (tile != nullptr) {
-            media_glClear(GL_DEPTH_BUFFER_BIT);
-            self->renderTex(param_1, tile->getTexture1(2));
+    Mob *player = mc->camera;
+    if (player->isPlayer()) {
+        mc->textures->loadAndBindTexture("terrain.png");
+        if (player->isInWall()) {
+            int x = Mth::floor(player->x);
+            int y = Mth::floor(player->y);
+            int z = Mth::floor(player->z);
+            const int id = mc->level->getTile(x, y, z);
+            Tile *tile = Tile::tiles[id];
+            if (tile != nullptr) {
+                media_glClear(GL_DEPTH_BUFFER_BIT);
+                self->renderTex(param_1, tile->getTexture1(2));
+            }
         }
-    }
-    if (player->isOnFire()) {
-        media_glClear(GL_DEPTH_BUFFER_BIT);
-        self->renderFire(param_1);
+        if (player->isOnFire()) {
+            media_glClear(GL_DEPTH_BUFFER_BIT);
+            self->renderFire(param_1);
+        }
     }
     media_glEnable(GL_ALPHA_TEST);
 }
