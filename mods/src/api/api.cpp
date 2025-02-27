@@ -103,12 +103,17 @@ static std::string get_blocks(CommandServer *server, const Vec3 &start, const Ve
     for (int x = start_x; x <= end_x; x++) {
         for (int y = start_y; y <= end_y; y++) {
             for (int z = start_z; z <= end_z; z++) {
-                ret.push_back(std::to_string(server->minecraft->level->getTile(x, y, z)));
+                std::vector<std::string> pieces;
+                pieces.push_back(std::to_string(server->minecraft->level->getTile(x, y, z)));
+                if (!api_compat_mode) {
+                    pieces.push_back(std::to_string(server->minecraft->level->getData(x, y, z)));
+                }
+                ret.push_back(api_join_outputs(pieces, arg_separator));
             }
         }
     }
     // Return
-    return api_join_outputs(ret, arg_separator);
+    return api_join_outputs(ret, api_compat_mode ? arg_separator : list_separator);
 }
 
 // Properly Teleport Players
