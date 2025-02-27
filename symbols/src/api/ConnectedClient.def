@@ -1,6 +1,6 @@
 size 0xc;
 
-property uint sock = 0x0;
+property int sock = 0x0;
 property std::string str = 0x4;
 property int lastBlockHitPoll = 0x8;
 

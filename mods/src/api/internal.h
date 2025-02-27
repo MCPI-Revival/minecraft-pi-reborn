@@ -27,3 +27,5 @@ __attribute__((visibility("internal"))) void api_clear_events(const ConnectedCli
 __attribute__((visibility("internal"))) std::string api_get_projectile_events(CommandServer *server, const ConnectedClient &client, std::optional<int> id);
 __attribute__((visibility("internal"))) std::string api_get_chat_events(CommandServer *server, const ConnectedClient &client, std::optional<int> id);
 __attribute__((visibility("internal"))) std::string api_get_block_hit_events(CommandServer *server, const ConnectedClient &client, std::optional<int> id);
+
+__attribute__((visibility("internal"))) extern bool api_suppress_chat_events;

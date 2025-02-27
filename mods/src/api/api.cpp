@@ -514,7 +514,10 @@ sign->lines[i] = api_get_input(line_##i); \
         return CommandServer::NullString;
     } else {
         // Call Original Method
-        return old(server, client, command);
+        api_suppress_chat_events = client.sock >= 0; // Suppress If Real API Client
+        std::string ret = old(server, client, command);
+        api_suppress_chat_events = false;
+        return ret;
     }
 }
 

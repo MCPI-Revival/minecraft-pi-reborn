@@ -235,9 +235,19 @@ static void Gui_addMessage_injection(Gui_addMessage_t original, Gui *gui, const 
         recursing = false;
     }
 }
+bool api_suppress_chat_events = false;
 static bool enabled = false;
 void api_add_chat_event(const Player *sender, const std::string &message) {
-    if (!enabled || (!sender && api_compat_mode)) {
+    if (!enabled) {
+        // Extended API Is Disabled
+        return;
+    }
+    if (!sender && api_compat_mode) {
+        // Non-Chat Message Are Only Supported In Non-Compatability Mode
+        return;
+    }
+    if (api_suppress_chat_events) {
+        // Do Not Record Messages Sent By The API
         return;
     }
     push_event(&ExtraClientData::chat_events, {
