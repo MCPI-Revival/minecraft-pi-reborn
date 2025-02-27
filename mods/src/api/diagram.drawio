@@ -1,0 +1,82 @@
+<mxfile host="app.diagrams.net" agent="Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/127.0.0.0 Safari/537.36" version="24.7.16">
+  <diagram name="Page-1" id="jwWo0YrG7pLoplSde7jo">
+    <mxGraphModel dx="1114" dy="579" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" background="#000000" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="uj48QsM38hnUiDGvlzeM-1" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#66FF66;strokeColor=#FFFFFF;strokeWidth=2;" parent="1" vertex="1">
+          <mxGeometry x="10" y="170" width="470" height="330" as="geometry" />
+        </mxCell>
+        <mxCell id="uj48QsM38hnUiDGvlzeM-3" value="" style="shape=flexArrow;endArrow=classic;html=1;rounded=0;strokeColor=none;fillColor=#FFFFFF;" parent="1" edge="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="410" y="296" as="sourcePoint" />
+            <mxPoint x="410" y="256" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="uj48QsM38hnUiDGvlzeM-6" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#66FF66;strokeColor=#FFFFFF;strokeWidth=2;" parent="1" vertex="1">
+          <mxGeometry x="30" y="190" width="430" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="uj48QsM38hnUiDGvlzeM-8" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FF9933;strokeColor=#FFFFFF;strokeWidth=2;" parent="1" vertex="1">
+          <mxGeometry x="30" y="302" width="430" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="uj48QsM38hnUiDGvlzeM-12" value="CommandServer_parse_injection" style="text;strokeColor=none;fillColor=none;html=1;fontSize=24;fontStyle=1;verticalAlign=middle;align=center;" parent="1" vertex="1">
+          <mxGeometry x="190" y="312" width="100" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="uj48QsM38hnUiDGvlzeM-15" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#66FF66;strokeColor=#FFFFFF;strokeWidth=2;" parent="1" vertex="1">
+          <mxGeometry x="30" y="414" width="430" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="uj48QsM38hnUiDGvlzeM-16" value="CommandServer::tick" style="text;strokeColor=none;fillColor=none;html=1;fontSize=24;fontStyle=1;verticalAlign=middle;align=center;" parent="1" vertex="1">
+          <mxGeometry x="190" y="200" width="100" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="uj48QsM38hnUiDGvlzeM-17" value="" style="shape=flexArrow;endArrow=classic;html=1;rounded=0;strokeColor=none;fillColor=#FFFFFF;" parent="1" edge="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="410" y="407" as="sourcePoint" />
+            <mxPoint x="410" y="367" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="uj48QsM38hnUiDGvlzeM-19" value="" style="shape=flexArrow;endArrow=classic;html=1;rounded=0;strokeColor=none;fillColor=#FFFFFF;" parent="1" edge="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="85" y="256" as="sourcePoint" />
+            <mxPoint x="85" y="296" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="uj48QsM38hnUiDGvlzeM-20" value="" style="shape=flexArrow;endArrow=classic;html=1;rounded=0;strokeColor=none;fillColor=#FFFFFF;" parent="1" edge="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="86" y="370" as="sourcePoint" />
+            <mxPoint x="86" y="410" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="uj48QsM38hnUiDGvlzeM-25" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#007FFF;strokeColor=#FFFFFF;strokeWidth=2;" parent="1" vertex="1">
+          <mxGeometry x="10" y="10" width="470" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="uj48QsM38hnUiDGvlzeM-26" value="&lt;blockquote style=&quot;line-height: 10%; font-size: 11px;&quot;&gt;&lt;font style=&quot;font-size: 11px;&quot;&gt;Reborn&#39;s injection hands it off to the&amp;nbsp;original&lt;/font&gt;&lt;/blockquote&gt;&lt;div style=&quot;line-height: 10%; font-size: 11px;&quot;&gt;&lt;font style=&quot;font-size: 11px;&quot;&gt;CommandServer::parse for the normal commands.&lt;/font&gt;&lt;/div&gt;" style="text;strokeColor=none;fillColor=none;html=1;fontSize=11;fontStyle=1;verticalAlign=middle;align=center;" parent="1" vertex="1">
+          <mxGeometry x="220" y="340" width="60" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="uj48QsM38hnUiDGvlzeM-27" value="&lt;blockquote style=&quot;line-height: 10%; font-size: 11px;&quot;&gt;Reborn injects into CommandServer::parse&lt;/blockquote&gt;&lt;blockquote style=&quot;line-height: 10%; font-size: 11px;&quot;&gt;and checks if the command is non-standard,&lt;/blockquote&gt;&lt;blockquote style=&quot;line-height: 10%; font-size: 11px;&quot;&gt;if it is, Reborn runs it and returns the result.&lt;/blockquote&gt;" style="text;strokeColor=none;fillColor=none;html=1;fontSize=11;fontStyle=1;verticalAlign=middle;align=center;" parent="1" vertex="1">
+          <mxGeometry x="220" y="230" width="60" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="uj48QsM38hnUiDGvlzeM-11" value="CommandServer::parse" style="text;strokeColor=none;fillColor=none;html=1;fontSize=24;fontStyle=1;verticalAlign=middle;align=center;" parent="1" vertex="1">
+          <mxGeometry x="190" y="420" width="100" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="uj48QsM38hnUiDGvlzeM-31" value="" style="shape=flexArrow;endArrow=classic;html=1;rounded=0;strokeColor=none;fillColor=#FFFFFF;" parent="1" edge="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="410" y="160" as="sourcePoint" />
+            <mxPoint x="409" y="80" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="uj48QsM38hnUiDGvlzeM-32" value="" style="shape=flexArrow;endArrow=classic;html=1;rounded=0;strokeColor=none;fillColor=#FFFFFF;" parent="1" edge="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="85" y="80" as="sourcePoint" />
+            <mxPoint x="85" y="160" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="uj48QsM38hnUiDGvlzeM-33" value="&lt;blockquote style=&quot;line-height: 10%; font-size: 11px;&quot;&gt;All commands are sent over a&lt;/blockquote&gt;&lt;blockquote style=&quot;line-height: 10%; font-size: 11px;&quot;&gt;TCP socket from the&amp;nbsp;&lt;span style=&quot;background-color: initial;&quot;&gt;user to&amp;nbsp;&lt;/span&gt;&lt;span style=&quot;background-color: initial;&quot;&gt;MCPI&lt;/span&gt;&lt;/blockquote&gt;&lt;blockquote style=&quot;line-height: 10%; font-size: 11px;&quot;&gt;This is often on port&amp;nbsp;4711.&lt;/blockquote&gt;&lt;blockquote style=&quot;line-height: 10%; font-size: 11px;&quot;&gt;This means many languages&amp;nbsp;&lt;/blockquote&gt;&lt;blockquote style=&quot;line-height: 10%; font-size: 11px;&quot;&gt;can use the API, not just&lt;/blockquote&gt;&lt;blockquote style=&quot;line-height: 10%; font-size: 11px;&quot;&gt;Python and Java.&lt;/blockquote&gt;" style="text;strokeColor=none;fillColor=none;html=1;fontSize=11;fontStyle=1;verticalAlign=middle;align=center;" parent="1" vertex="1">
+          <mxGeometry x="210" y="77" width="60" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="uj48QsM38hnUiDGvlzeM-35" value="Whatever MCPI API you want!" style="text;strokeColor=none;fillColor=none;html=1;fontSize=24;fontStyle=1;verticalAlign=middle;align=center;" parent="1" vertex="1">
+          <mxGeometry x="190" y="20" width="100" height="40" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
