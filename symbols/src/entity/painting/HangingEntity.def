@@ -1,3 +1,6 @@
 extends Entity;
 
 vtable 0x10aba8;
+
+method void setPosition(int x, int y, int z) = 0x7e888;
+method void setDir(int direction) = 0x7e950;

@@ -82,6 +82,7 @@ static std::unordered_map<int, EntityType> modern_entity_id_mapping = {
     {7, EntityType::THROWN_EGG},
     {9, EntityType::PAINTING}
 };
+static constexpr int unknown_entity_type_id = static_cast<int>(EntityType::UNKNOWN);
 void api_convert_to_outside_entity_type(int &type) {
     if (!api_compat_mode) {
         return;
@@ -90,9 +91,10 @@ void api_convert_to_outside_entity_type(int &type) {
     for (const std::pair<const int, EntityType> &pair : modern_entity_id_mapping) {
         if (static_cast<int>(pair.second) == type) {
             type = pair.first;
-            break;
+            return;
         }
     }
+    type = unknown_entity_type_id;;
 }
 void api_convert_to_mcpi_entity_type(int &type) {
     if (!api_compat_mode) {
@@ -101,5 +103,7 @@ void api_convert_to_mcpi_entity_type(int &type) {
     // Convert To Native Entity Type
     if (modern_entity_id_mapping.contains(type)) {
         type = static_cast<int>(modern_entity_id_mapping[type]);
+    } else {
+        type = unknown_entity_type_id;;
     }
 }

@@ -30,6 +30,14 @@ static void send_api_chat_command(const Minecraft *minecraft, const char *str) {
     chat_send_api_command(minecraft, command);
 }
 
+// Track "Real" API Clients
+static bool is_real_api_client;
+static std::string CommandServer_parse_injection(CommandServer_parse_t original, CommandServer *self, ConnectedClient &client, const std::string &input) {
+    is_real_api_client = client.sock >= 0;
+    // Call Original Method
+    return original(self, client, input);
+}
+
 // Send Message To Players
 std::string _chat_get_prefix(const char *username) {
     return std::string("<") + username + "> ";
@@ -57,7 +65,11 @@ void chat_handle_packet_send(const Minecraft *minecraft, ChatPacket *packet) {
         // Hosting Multiplayer
         const char *message = packet->message.c_str();
         ServerSideNetworkHandler *server_side_network_handler = (ServerSideNetworkHandler *) minecraft->network_handler;
-        chat_send_message_to_clients(server_side_network_handler, (Player *) minecraft->player, message);
+        if (is_real_api_client) {
+            server_side_network_handler->displayGameMessage(packet->message);
+        } else {
+            chat_send_message_to_clients(server_side_network_handler, (Player *) minecraft->player, message);
+        }
     } else {
         // Client
         rak_net_instance->send(*(Packet *) packet);
@@ -103,6 +115,7 @@ void init_chat() {
         unsigned char disable_chat_packet_loopback_patch[4] = {0x00, 0xf0, 0x20, 0xe3}; // "nop"
         patch((void *) 0x6b490, disable_chat_packet_loopback_patch);
         // Manually Send (And Loopback) ChatPacket
+        overwrite_calls(CommandServer_parse, CommandServer_parse_injection);
         overwrite_call((void *) 0x6b518, CommandServer_dispatchPacket, CommandServer_parse_CommandServer_dispatchPacket_injection);
         // Re-Broadcast ChatPacket
         patch_vtable(ServerSideNetworkHandler_handle_ChatPacket, ServerSideNetworkHandler_handle_ChatPacket_injection);

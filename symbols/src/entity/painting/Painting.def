@@ -2,4 +2,7 @@ extends HangingEntity;
 
 vtable 0x10b0b0;
 
+method void setRandomMotive(int direction) = 0x83420;
+
+static-property Motive **default_motive = 0x836d0;
 property Motive *motive = 0xe4;

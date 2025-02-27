@@ -35,7 +35,7 @@ By default, MCPI-Reborn runs in a "compatibility mode." This makes it completely
 * `world.getBlockWithData(x,y,z)`
   * Description: Retrieve the block ID and data value at the specified location.
   * Output: `block_id,data`
-* `world.setBlocks(x0,y0,z0,x1,y1,x1,block_id[,data])`
+* `world.setBlocks(x0,y0,z0,x1,y1,z1,block_id[,data])`
   * Description: Fill the given region with the specified block.
 * `world.getHeight(x,z)`
   * Description: Get the last (from the top-down) non-solid block's Y-coordinate at the given location.
@@ -80,7 +80,7 @@ By default, MCPI-Reborn runs in a "compatibility mode." This makes it completely
   * Output: List of `x,y,z,face,entity_id`
 
 ### RaspberryJuice
-* `world.getBlocks(x0,y0,z0,x1,y1,x1)`
+* `world.getBlocks(x0,y0,z0,x1,y1,z1)`
   * Description: Retrieve the blocks in the specified region.
   * Output: List of <code>block_id<ins>,data</ins></code>
     * In compatibility mode, this list is delimited with commas (`,`).
@@ -102,7 +102,7 @@ By default, MCPI-Reborn runs in a "compatibility mode." This makes it completely
 * `entity.removeEntities(entity_id,distance,entity_type_id)`
   * Description: Remove all entities of the specified type[^1][^2] within the given distance of the provided entity.
   * Output: See above.
-* `world.spawnEntity(x,y,x,entity_type_id)`
+* <code>world.spawnEntity(<ins>:</ins>x<ins>:</ins>,<ins>:</ins>y<ins>:</ins>,<ins>:</ins>z<ins>:</ins>,entity_type_id)</code>
   * Description: Spawn the specified entity at the given position.
   * Output: `entity_id`
 * `world.getEntityTypes()`

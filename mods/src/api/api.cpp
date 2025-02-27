@@ -299,6 +299,7 @@ static std::string CommandServer_parse_injection(CommandServer_parse_t original,
         if (src == nullptr) {
             return CommandServer::Fail;
         }
+        api_convert_to_mcpi_entity_type(type);
         // Run
         std::vector<std::string> result;
         for (Entity *entity : server->minecraft->level->entities) {
@@ -316,6 +317,7 @@ static std::string CommandServer_parse_injection(CommandServer_parse_t original,
         if (src == nullptr) {
             return CommandServer::Fail;
         }
+        api_convert_to_mcpi_entity_type(type);
         // Run
         int removed = 0;
         for (Entity *entity : server->minecraft->level->entities) {
@@ -333,14 +335,17 @@ static std::string CommandServer_parse_injection(CommandServer_parse_t original,
         next_int(type);
         // Translate
         server->pos_translator.from_float(x, y, z);
+        if (api_compat_mode) {
+            x = float(int(x));
+            y = float(int(y));
+            z = float(int(z));
+        }
         api_convert_to_mcpi_entity_type(type);
         // Spawn
-        Entity *entity = misc_make_entity_from_id(server->minecraft->level, type);
+        Entity *entity = misc_make_entity_from_id(server->minecraft->level, type, x, y, z);
         if (entity == nullptr) {
             return CommandServer::Fail;
         }
-        entity->moveTo(x, y, z, 0, 0);
-        server->minecraft->level->addEntity(entity);
         return std::to_string(entity->id) + '\n';
     } else if (cmd == "world.getEntityTypes") {
         // Get All Valid Entity Types

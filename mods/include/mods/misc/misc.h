@@ -57,7 +57,7 @@ std::map<EntityType, std::pair<std::string, std::string>> &misc_get_entity_type_
 std::pair<std::string, std::string> misc_get_entity_type_name(Entity *entity);
 std::string misc_get_entity_name(Entity *entity);
 
-Entity *misc_make_entity_from_id(Level *level, int id);
+Entity *misc_make_entity_from_id(Level *level, int id, float x, float y, float z);
 
 std::string misc_base64_encode(const std::string &data);
 std::string misc_base64_decode(const std::string &input);

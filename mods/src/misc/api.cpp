@@ -205,24 +205,61 @@ std::map<EntityType, std::pair<std::string, std::string>> &misc_get_entity_type_
 }
 
 // Spawn Entities
-Entity *misc_make_entity_from_id(Level *level, const int id) {
+static bool painting_direction_is_valid;
+static void Painting_setRandomMotive_HangingEntity_setDir_injection(HangingEntity *self, const int direction) {
+    Painting *painting = (Painting *) self;
+    painting_direction_is_valid = painting->motive != nullptr;
+    if (!painting_direction_is_valid) {
+        painting->motive = *Painting::default_motive;
+    }
+    // Call Original Method
+    self->setDir(direction);
+}
+Entity *misc_make_entity_from_id(Level *level, const int id, const float x, const float y, const float z) {
+    // Create
+    Entity *entity;
     if (id < static_cast<int>(EntityType::DROPPED_ITEM)) {
-        // Spwn Mob
-        return (Entity *) MobFactory::CreateMob(id, level);
+        // Mob
+        entity = (Entity *) MobFactory::CreateMob(id, level);
     } else {
-        // Spawn Entity
-        Entity *entity = EntityFactory::CreateEntity(id, level);
+        // Entity
+        entity = EntityFactory::CreateEntity(id, level);
+    }
+    // Setup
+    if (entity) {
+        // Position
+        entity->moveTo(x, y, z, 0, 0);
+        // Adjust
         switch (id) {
             case static_cast<int>(EntityType::PAINTING): {
-                // Fix Crash
-                ((Painting *) entity)->motive = Motive::DefaultImage;
+                // Find Valid Direction
+                Painting *painting = (Painting *) entity;
+                const std::vector<std::pair<int, std::pair<int, int>>> directions = {
+                    {1, {-1, 0}}, // West
+                    {0, {0, 1}}, // South
+                    {3, {1, 0}}, // East
+                    {2, {0, -1}} // North
+                };
+                for (const std::pair<int, std::pair<int, int>> &info : directions) {
+                    // Select Motive
+                    int direction = info.first;
+                    int new_x = int(x) - info.second.first;
+                    int new_y = int(y);
+                    int new_z = int(z) - info.second.second;
+                    painting->setPosition(new_x, new_y, new_z);
+                    painting->setRandomMotive(direction);
+                    // Check
+                    if (painting_direction_is_valid) {
+                        break;
+                    }
+                }
                 break;
             }
             case static_cast<int>(EntityType::FALLING_SAND): {
-                // Sensible Default
-                FallingTile *sand = (FallingTile *) entity;
-                sand->tile_id = Tile::sand->id;
-                sand->time = 1;
+                // Use Current Tile
+                FallingTile *tile = (FallingTile *) entity;
+                tile->tile_id = level->getTile(int(x), int(y), int(z));
+                tile->data = level->getData(int(x), int(y), int(z));
                 break;
             }
             case static_cast<int>(EntityType::DROPPED_ITEM): {
@@ -231,8 +268,11 @@ Entity *misc_make_entity_from_id(Level *level, const int id) {
                 break;
             }
         }
-        return entity;
+        // Add To World
+        level->addEntity(entity);
     }
+    // Return
+    return entity;
 }
 
 // Username In Unicode
@@ -244,4 +284,8 @@ std::string misc_get_player_username_utf(const Player *player) {
 void _init_misc_api() {
     // Handle Custom Creative Inventory Setup Behavior
     overwrite_call((void *) 0x8e0fc, FillingContainer_addItem, Inventory_setupDefault_FillingContainer_addItem_call_injection);
+    // Easy Way To Check Painting Orientation
+    unsigned char set_null_as_motive_patch[4] = {0x00, 0x30, 0xa0, 0x03}; // "moveq r3, #0x0"
+    patch((void *) 0x834e0, set_null_as_motive_patch);
+    overwrite_call((void *) 0x8367c, HangingEntity_setDir, Painting_setRandomMotive_HangingEntity_setDir_injection);
 }
