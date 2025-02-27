@@ -1,0 +1,3 @@
+extends Entity;
+
+vtable 0x10aba8;

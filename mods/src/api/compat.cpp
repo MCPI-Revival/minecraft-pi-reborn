@@ -90,6 +90,7 @@ void api_convert_to_outside_entity_type(int &type) {
     for (const std::pair<const int, EntityType> &pair : modern_entity_id_mapping) {
         if (static_cast<int>(pair.second) == type) {
             type = pair.first;
+            break;
         }
     }
 }

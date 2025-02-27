@@ -206,10 +206,32 @@ std::map<EntityType, std::pair<std::string, std::string>> &misc_get_entity_type_
 
 // Spawn Entities
 Entity *misc_make_entity_from_id(Level *level, const int id) {
-    if (id < 0x40) {
+    if (id < static_cast<int>(EntityType::DROPPED_ITEM)) {
+        // Spwn Mob
         return (Entity *) MobFactory::CreateMob(id, level);
     } else {
-        return EntityFactory::CreateEntity(id, level);
+        // Spawn Entity
+        Entity *entity = EntityFactory::CreateEntity(id, level);
+        switch (id) {
+            case static_cast<int>(EntityType::PAINTING): {
+                // Fix Crash
+                ((Painting *) entity)->motive = Motive::DefaultImage;
+                break;
+            }
+            case static_cast<int>(EntityType::FALLING_SAND): {
+                // Sensible Default
+                FallingTile *sand = (FallingTile *) entity;
+                sand->tile_id = Tile::sand->id;
+                sand->time = 1;
+                break;
+            }
+            case static_cast<int>(EntityType::DROPPED_ITEM): {
+                // Sensible Default
+                ((ItemEntity *) entity)->item.constructor_item(Item::sword_iron);
+                break;
+            }
+        }
+        return entity;
     }
 }
 

@@ -189,7 +189,7 @@ static const std::string player_namespace = "player.";
     (void) 0
 #define next_int(out) next_number(out, int, std::stoi)
 #define next_float(out) next_number(out, float, std::stof)
-std::string CommandServer_parse_injection(CommandServer_parse_t old, CommandServer *server, ConnectedClient &client, const std::string &command) {
+static std::string CommandServer_parse_injection(CommandServer_parse_t original, CommandServer *server, ConnectedClient &client, const std::string &command) {
     // Parse Command
     size_t arg_start = command.find('(');
     if (arg_start == std::string::npos) {
@@ -515,7 +515,7 @@ sign->lines[i] = api_get_input(line_##i); \
     } else {
         // Call Original Method
         api_suppress_chat_events = client.sock >= 0; // Suppress If Real API Client
-        std::string ret = old(server, client, command);
+        std::string ret = original(server, client, command);
         api_suppress_chat_events = false;
         return ret;
     }

@@ -71,9 +71,13 @@ set(SRC
     src/entity/ItemEntity.def
     src/entity/Arrow.def
     src/entity/ArrowRenderer.def
-    src/entity/PaintingRenderer.def
     src/entity/Throwable.def
     src/entity/Particle.def
+    src/entity/painting/Painting.def
+    src/entity/painting/PaintingRenderer.def
+    src/entity/painting/HangingEntity.def
+    src/entity/painting/Motive.def
+    src/entity/FallingTile.def
     src/level/container/FillingContainer.def
     src/level/container/Container.def
     src/level/container/ContainerMenu.def

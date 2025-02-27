@@ -1,0 +1,5 @@
+extends HangingEntity;
+
+vtable 0x10b0b0;
+
+property Motive *motive = 0xe4;

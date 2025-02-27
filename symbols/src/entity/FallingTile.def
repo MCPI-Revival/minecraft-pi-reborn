@@ -1,0 +1,7 @@
+extends Entity;
+
+vtable 0x10c460;
+
+property int tile_id = 0xd0;
+property int data = 0xd4;
+property int time = 0xd8;
