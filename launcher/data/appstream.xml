@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component type="desktop">
+    <id>${MCPI_APP_ID}</id>
+    <name>${MCPI_APP_TITLE}</name>
+    <metadata_license>CC0-1.0</metadata_license>
+    <summary>Fun with Blocks</summary>
+    <description>
+        <p>Minecraft: Pi Edition Modding Project.</p>
+        <p>NOTE: This is not verified by, affiliated with, or supported by Mojang or Microsoft.</p>
+    </description>
+    <url type="homepage">${MCPI_REPO}</url>
+    <launchable type="desktop-id">${MCPI_APP_ID}.desktop</launchable>
+    <provides>
+        <id>${MCPI_APP_ID}.desktop</id>
+    </provides>
+    <project_license>LicenseRef-proprietary</project_license>
+    <developer_name>${MCPI_AUTHOR} &amp; Mojang AB</developer_name>
+    <content_rating type="oars-1.0">
+        <content_attribute id="violence-cartoon">moderate</content_attribute>
+        <content_attribute id="violence-fantasy">none</content_attribute>
+        <content_attribute id="violence-realistic">none</content_attribute>
+        <content_attribute id="violence-bloodshed">none</content_attribute>
+        <content_attribute id="violence-sexual">none</content_attribute>
+        <content_attribute id="drugs-alcohol">none</content_attribute>
+        <content_attribute id="drugs-narcotics">none</content_attribute>
+        <content_attribute id="drugs-tobacco">none</content_attribute>
+        <content_attribute id="sex-nudity">none</content_attribute>
+        <content_attribute id="sex-themes">none</content_attribute>
+        <content_attribute id="language-profanity">none</content_attribute>
+        <content_attribute id="language-humor">none</content_attribute>
+        <content_attribute id="language-discrimination">none</content_attribute>
+        <content_attribute id="social-chat">intense</content_attribute>
+        <content_attribute id="social-info">none</content_attribute>
+        <content_attribute id="social-audio">none</content_attribute>
+        <content_attribute id="social-location">none</content_attribute>
+        <content_attribute id="social-contacts">none</content_attribute>
+        <content_attribute id="money-purchasing">none</content_attribute>
+        <content_attribute id="money-gambling">none</content_attribute>
+    </content_rating>
+    <releases>
+        <release version="${MCPI_VERSION}" date="${MCPI_VERSION_DATE}" />
+    </releases>
+    <screenshots>
+        <screenshot type="default">
+            <image>${MCPI_REPO}/raw/branch/master/images/start.png</image>
+        </screenshot>
+    </screenshots>
+</component>

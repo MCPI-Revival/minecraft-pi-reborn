@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 import * as path from 'node:path';
 import * as fs from 'node:fs';
-import { err, run, makeExecutable, getDebianVersion, getScriptsDir, info } from './lib/util.mjs';
+import { err, run, makeExecutable, getDebianVersion, getScriptsDir, info, doesPackageExist } from './lib/util.mjs';
 import { parseOptions, Enum, Architectures } from './lib/options.mjs';
 
 // Check System
@@ -125,11 +125,16 @@ handlers.set(Modes.Build, function () {
 
 // Testing Dependencies
 handlers.set(Modes.Test, function () {
+    let glib = 'libglib2.0-0';
+    const newerGlib = glib + 't64';
+    if (doesPackageExist(newerGlib)) {
+        glib = newerGlib;
+    }
     addPackageForHost(
         'libc6',
         'libstdc++6',
         'libopenal1',
-        'libglib2.0-0'
+        glib
     );
 });
 

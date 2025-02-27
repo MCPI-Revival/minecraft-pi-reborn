@@ -25,6 +25,15 @@ export function run(command) {
         err(e);
     }
 }
+export function doesPackageExist(name) {
+    try {
+        info('Checking If Package Exists: ' + name);
+        child_process.execFileSync('apt-cache', ['show', name], {stdio: 'ignore'});
+        return true;
+    } catch (e) {
+        return false;
+    }
+}
 
 // Create Directory
 export function createDir(dir, clean) {
