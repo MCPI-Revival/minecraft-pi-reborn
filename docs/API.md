@@ -21,7 +21,8 @@ By default, MCPI-Reborn runs in a "compatibility mode." This makes it completely
 ## Commands
 * Commands are formatted like `<command>(<args>)` and may return a response. The response `Fail` indicates an error.
 * All commands are responses end with a newline.
-* Arguments surrounded by square brackets (`[]`) are optional.
+* Arguments surrounded by square brackets (for instance `[abc]`) are optional.
+* Numbers surrounded by colons (for instance `:a:`) are floating-point, all other numbers are integers.
 * Lists are delimited by `|`. For instance: `A|B|C`.
 * Unless otherwise noted, all `player.*(...)` commands are equivalent to `entity.*(local_player_id,...)`.
 
@@ -40,15 +41,15 @@ By default, MCPI-Reborn runs in a "compatibility mode." This makes it completely
   * Description: Get the last (from the top-down) non-solid block's Y-coordinate at the given location.
   * Output: `max_y`
 * `entity.setTile(entity_id,x,y,z)`
-  * Description: Move the specified entity to the given integer position.
+  * Description: Move the specified entity to the given position.
+* `entity.setPos(entity_id,:x:,:y:,:z:)`
+  * Description: Same as above.
 * `entity.getTile(entity_id)`
-  * Description: Retrieve the given entity's position as integers.
+  * Description: Retrieve the given entity's position.
   * Output: `x,y,z`
-* `entity.setPos(entity_id,x,y,z)`
-  * Description: Move the specified entity to the given floating-point position.
 * `entity.getPos(entity_id)`
-  * Description: Retrieve the given entity's position as floating-points.
-  * Output: `x,y,z`
+  * Description: Same as above.
+  * Output: `:x:,:y:,:z:`
 * `chat.post(message)`
   * Description: Post the specified message to chat.
 * `camera.mode.setFixed()`
@@ -57,8 +58,8 @@ By default, MCPI-Reborn runs in a "compatibility mode." This makes it completely
   * Description: Set the camera to normal mode. The camera will be the specified entity (or the local player if none is provided).
 * `camera.mode.setFollow([entity_id])`
   * Description: Set the camera to follow mode. The camera will follow the specified entity (or the local player if none is provided).
-* `camera.setPos(x,y,z)`
-  * Description: Move the camera to the given floating-point position.
+* `camera.setPos(:x:,:y:,:z:)`
+  * Description: Move the camera to the given position. The XZ-coordinates are automatically offset by `0.5`.
 * `world.getPlayerIds()`
   * Description: Retrieve the entity IDs of all players.
   * Output: List of `entity_id`
@@ -76,7 +77,7 @@ By default, MCPI-Reborn runs in a "compatibility mode." This makes it completely
   * Note: On RaspberryJuice, this *does not* clear projectile events. This behavior is maintained only in compatibility mode.
 * `events.block.hits()`
   * Description: Retrieve all queued block hit events.
-  * Output: List of `block_x,block_y,block_z,block_face,entity_id`
+  * Output: List of `x,y,z,face,entity_id`
 
 ### RaspberryJuice
 
@@ -89,6 +90,6 @@ By default, MCPI-Reborn runs in a "compatibility mode." This makes it completely
 * `world.getSign(x,y,z)`
   * Description: Retrieve the text of the given sign.
   * Output: List of `{line}`
-* `entity.getType(id)`
+* `entity.getType(entity_id)`
   * Description: Check the type of the given entity.
-  * Output: `entity_id`
+  * Output: `entity_type`
