@@ -13,7 +13,7 @@ It is typically hosted on port `4711`, but this can be configured.
 ## Compatibility Mode
 By default, MCPI-Reborn runs in a "compatibility mode." This makes it completely compatible with RaspberryJuice, but limits functionality.
 
-* **Bold** text only applies to the compatibility mode.
+* <b>Bold</b> text only applies to the compatibility mode.
 * <ins>Underlined</ins> text only applies when it is disabled.
 * Text enclosed in curly braces (for instance `{text}`) is meant to be [Base64-URL](https://base64.guru/standards/base64url)-encoded when the compatibility mode is disabled.
 * In compatibility mode, entity type IDs are automatically translated to/from their [MC Java equivalents](https://mcreator.net/wiki/entity-ids#toc-index-2).
@@ -106,7 +106,7 @@ By default, MCPI-Reborn runs in a "compatibility mode." This makes it completely
   * Description: Spawn the specified entity at the given position.
   * Output: `entity_id`
 * `world.getEntityTypes()`
-  * Description: Retrieve all supported entity types.
+  * Description: Retrieve all known entity types.
   * Output: List of `entity_type_id,entity_type_name`
 * `world.setSign(x,y,z,id,data[,{line_1}][,{line_2}][,{line_3}][,{line_4}])`
   * Description: Set the specified block at the given location. If the block is a sign, then also set its contents.
@@ -128,10 +128,10 @@ By default, MCPI-Reborn runs in a "compatibility mode." This makes it completely
 * `entity.getPitch(entity_id)`
   * Description: Retrieve the specified entity's pitch.
   * Output: `:pitch:`
-* `entity.setAbsPos(entity_id,:x:,:y:,:z:)`
-  * Description: Move the specified entity to the given absolute[^2] position.
-* `entity.getAbsPos(entity_id)`
-  * Description: Retrieve the given entity's absolute[^2] position.
+* `entity.setAbsPos(entity_id,:x:,:y:,:z:)`[^2]
+  * Description: Move the specified entity to the given absolute[^3] position.
+* `entity.getAbsPos(entity_id)`[^2]
+  * Description: Retrieve the given entity's absolute[^3] position.
   * Output: `:x:,:y:,:z:`
 * `entity.events.block.hits(entity_id)`
   * Description: Retrieve all queued block hit events produced by the specified entity.
@@ -167,4 +167,5 @@ By default, MCPI-Reborn runs in a "compatibility mode." This makes it completely
   * Output: `entity_type_id`
 
 [^1]: If the ID is `-1`, it will match all entities.
-[^2]: The API normally applies an offset to all coordinates, these commands use the raw data.
+[^2]: RaspberryJuice only implements the `player.*` versions of these commands.
+[^3]: The API normally applies an offset to all coordinates, these commands use the raw data.
