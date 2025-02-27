@@ -29,9 +29,9 @@ static std::string event_to_string(CommandServer *server, const ProjectileHitEve
     // Get Outputs
     std::vector pieces = {
         // Position
-        std::to_string(int(nx)),
-        std::to_string(int(ny)),
-        std::to_string(int(nz))
+        std::to_string(nx),
+        std::to_string(ny),
+        std::to_string(nz)
     };
     // Needed For Compatibility
     if (api_compat_mode) {

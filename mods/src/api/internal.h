@@ -9,7 +9,7 @@ static constexpr char list_separator = '|';
 __attribute__((visibility("internal"))) std::string api_get_output(std::string message, bool replace_comma);
 __attribute__((visibility("internal"))) std::string api_join_outputs(const std::vector<std::string> &pieces, char separator);
 
-__attribute__((visibility("internal"))) void api_convert_to_rj_entity_type(int &type);
+__attribute__((visibility("internal"))) void api_convert_to_outside_entity_type(int &type);
 __attribute__((visibility("internal"))) void api_convert_to_mcpi_entity_type(int &type);
 
 __attribute__((visibility("internal"))) void _init_api_events();
