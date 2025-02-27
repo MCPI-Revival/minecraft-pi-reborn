@@ -93,7 +93,7 @@ if(NOT MCPI_HEADLESS_MODE)
     file(APPEND "${CMAKE_CURRENT_BINARY_DIR}/appstream.xml"
         "    <screenshots>\n"
         "        <screenshot type=\"default\">\n"
-        "            <image>https://gitea.thebrokenrail.com/minecraft-pi-reborn/minecraft-pi-reborn/raw/branch/master/images/start.png</image>\n"
+        "            <image>https://gitea.thebrokenrail.com/minecraft-pi-reborn/minecraft-pi-reborn/raw/tag/2.5.4/images/start.png</image>\n"
         "        </screenshot>\n"
         "    </screenshots>\n"
     )
