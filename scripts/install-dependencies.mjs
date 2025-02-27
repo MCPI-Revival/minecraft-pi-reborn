@@ -50,10 +50,13 @@ function addPackageForBuild(...arr) {
     // The machine the package is built on.
     packages.push(...arr);
 }
+function getPackageForHost(name) {
+    return name + archSuffix;
+}
 function addPackageForHost(...arr) {
     // The machine the package is built for.
     for (const name of arr) {
-        packages.push(name + archSuffix);
+        packages.push(getPackageForHost(name));
     }
 }
 
@@ -127,7 +130,7 @@ handlers.set(Modes.Build, function () {
 handlers.set(Modes.Test, function () {
     let glib = 'libglib2.0-0';
     const newerGlib = glib + 't64';
-    if (doesPackageExist(newerGlib)) {
+    if (doesPackageExist(getPackageForHost(newerGlib))) {
         glib = newerGlib;
     }
     addPackageForHost(
