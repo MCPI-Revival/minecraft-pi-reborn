@@ -1,10 +1,7 @@
-#include <vector>
 #include <algorithm>
 #include <ranges>
-#include <optional>
 
 #include <libreborn/patch.h>
-#include <symbols/minecraft.h>
 
 #include <mods/misc/misc.h>
 #include <mods/chat/chat.h>

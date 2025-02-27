@@ -1,13 +1,8 @@
 #include <cmath>
-#include <string>
-#include <algorithm>
-#include <optional>
 #include <sstream>
 
-#include <libreborn/util/string.h>
 #include <libreborn/patch.h>
 #include <libreborn/config.h>
-#include <symbols/minecraft.h>
 
 #include <mods/api/api.h>
 #include <mods/init/init.h>
@@ -15,62 +10,6 @@
 #include <mods/feature/feature.h>
 
 #include "internal.h"
-
-// Compatibility Mode
-bool api_compat_mode = true;
-
-// Read String Input
-static std::string get_input(std::string message) {
-    // Decode
-    if (!api_compat_mode) {
-        message = misc_base64_decode(message);
-    }
-    // Convert To CP-437
-    return to_cp437(message);
-}
-// Output String
-std::string api_get_output(std::string message, const bool replace_comma) {
-    // Convert To Unicode
-    message = from_cp437(message);
-    // Escape Characters
-    if (api_compat_mode) {
-        // Output In Plaintext For RJ Compatibility
-        std::ranges::replace(message, list_separator, '\\');
-        if (replace_comma) {
-            std::ranges::replace(message, arg_separator, '.');
-        }
-    } else {
-        // Encode
-        message = misc_base64_encode(message);
-    }
-    // Return
-    return message;
-}
-
-// Join Strings Into Output
-std::string api_join_outputs(const std::vector<std::string> &pieces, const char separator) {
-    // Join
-    std::string out;
-    for (std::string piece : pieces) {
-        // Check
-        if (piece.find(separator) != std::string::npos) {
-            // This Should Be Escapes
-            IMPOSSIBLE();
-        }
-        // Remove Trailing Newline
-        if (!piece.empty() && piece.back() == '\n') {
-            piece.pop_back();
-        }
-        // Add
-        out += piece + separator;
-    }
-    // Remove Hanging Comma
-    if (!out.empty()) {
-        out.pop_back();
-    }
-    // Return
-    return out + '\n';
-}
 
 // Get Blocks In Region
 static std::string get_blocks(CommandServer *server, const Vec3 &start, const Vec3 &end) {
@@ -180,46 +119,6 @@ static Vec3 get_dir(const Entity *entity) {
     return Vec3{x, y, z};
 }
 
-// Entity Types
-static std::unordered_map<int, EntityType> modern_entity_id_mapping = {
-    {93, EntityType::CHICKEN},
-    {92, EntityType::COW},
-    {90, EntityType::PIG},
-    {91, EntityType::SHEEP},
-    {54, EntityType::ZOMBIE},
-    {50, EntityType::CREEPER},
-    {51, EntityType::SKELETON},
-    {52, EntityType::SPIDER},
-    {57, EntityType::ZOMBIE_PIGMAN},
-    {1, EntityType::DROPPED_ITEM},
-    {20, EntityType::PRIMED_TNT},
-    {21, EntityType::FALLING_SAND},
-    {10, EntityType::ARROW},
-    {11, EntityType::THROWN_SNOWBALL},
-    {7, EntityType::THROWN_EGG},
-    {9, EntityType::PAINTING}
-};
-void api_convert_to_outside_entity_type(int &type) {
-    if (!api_compat_mode) {
-        return;
-    }
-    // Convert To RJ-Compatible Entity Type
-    for (const std::pair<const int, EntityType> &pair : modern_entity_id_mapping) {
-        if (static_cast<int>(pair.second) == type) {
-            type = pair.first;
-        }
-    }
-}
-void api_convert_to_mcpi_entity_type(int &type) {
-    if (!api_compat_mode) {
-        return;
-    }
-    // Convert To Native Entity Type
-    if (modern_entity_id_mapping.contains(type)) {
-        type = static_cast<int>(modern_entity_id_mapping[type]);
-    }
-}
-
 // Convert Entity To String
 static std::string get_entity_message(CommandServer *server, Entity *entity) {
     std::vector<std::string> pieces;
@@ -252,7 +151,7 @@ static float distance_between(const Entity *e1, const Entity *e2) {
     const float dx = e2->x - e1->x;
     const float dy = e2->y - e1->y;
     const float dz = e2->z - e1->z;
-    return std::sqrt(dx * dx + dy * dy + dz * dz);
+    return std::sqrt((dx * dx) + (dy * dy) + (dz * dz));
 }
 
 // Get Sign Tile Entity
@@ -291,6 +190,7 @@ static const std::string player_namespace = "player.";
 #define next_int(out) next_number(out, int, std::stoi)
 #define next_float(out) next_number(out, float, std::stof)
 std::string CommandServer_parse_injection(CommandServer_parse_t old, CommandServer *server, ConnectedClient &client, const std::string &command) {
+    // Parse Command
     size_t arg_start = command.find('(');
     if (arg_start == std::string::npos) {
         return CommandServer::Fail;
@@ -324,7 +224,7 @@ std::string CommandServer_parse_injection(CommandServer_parse_t old, CommandServ
         // Parse
         next_string(input, true);
         // Search
-        std::string username = get_input(input);
+        std::string username = api_get_input(input);
         for (Player *player : server->minecraft->level->players) {
             if (misc_get_player_username_utf(player) == username) {
                 // Found
@@ -402,7 +302,7 @@ std::string CommandServer_parse_injection(CommandServer_parse_t old, CommandServ
         // Run
         std::vector<std::string> result;
         for (Entity *entity : server->minecraft->level->entities) {
-            if (is_entity_selected(entity, type) && distance_between(src, entity) < dist) {
+            if (is_entity_selected(entity, type) && distance_between(src, entity) <= dist) {
                 result.push_back(get_entity_message(server, entity));
             }
         }
@@ -419,7 +319,7 @@ std::string CommandServer_parse_injection(CommandServer_parse_t old, CommandServ
         // Run
         int removed = 0;
         for (Entity *entity : server->minecraft->level->entities) {
-            if (is_entity_selected(entity, type) && distance_between(src, entity) < dist) {
+            if (is_entity_selected(entity, type) && distance_between(src, entity) <= dist) {
                 entity->remove();
                 removed++;
             }
@@ -554,7 +454,7 @@ std::string CommandServer_parse_injection(CommandServer_parse_t old, CommandServ
         if (sign != nullptr) {
 #define next_sign_line(i) \
 next_string(line_##i, false); \
-sign->lines[i] = get_input(line_##i); \
+sign->lines[i] = api_get_input(line_##i); \
 (void) 0
             next_sign_line(0);
             next_sign_line(1);

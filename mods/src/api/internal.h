@@ -1,11 +1,18 @@
 #pragma once
 
+#include <string>
+#include <vector>
+#include <optional>
+
+#include <symbols/minecraft.h>
+
 __attribute__((visibility("internal"))) extern bool api_compat_mode;
 
 static constexpr int no_entity_id = -1;
-static constexpr char arg_separator = ',';
-static constexpr char list_separator = '|';
+static constexpr char arg_separator = ','; // Used For Arguments And Tuples
+static constexpr char list_separator = '|'; // Used For Lists
 
+__attribute__((visibility("internal"))) std::string api_get_input(std::string message);
 __attribute__((visibility("internal"))) std::string api_get_output(std::string message, bool replace_comma);
 __attribute__((visibility("internal"))) std::string api_join_outputs(const std::vector<std::string> &pieces, char separator);
 

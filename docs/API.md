@@ -16,7 +16,7 @@ By default, MCPI-Reborn runs in a "compatibility mode." This makes it completely
 * <b>Bold</b> text only applies to the compatibility mode.
 * <ins>Underlined</ins> text only applies when it is disabled.
 * Text enclosed in curly braces (for instance `{text}`) is meant to be [Base64-URL](https://base64.guru/standards/base64url)-encoded when the compatibility mode is disabled.
-* In compatibility mode, entity type IDs are automatically translated to/from their [MC Java equivalents](https://mcreator.net/wiki/entity-ids#toc-index-2).
+* In the compatibility mode, entity type IDs are automatically translated to/from their [MC Java equivalents](https://mcreator.net/wiki/entity-ids#toc-index-2).
 
 ## Commands
 * Commands are formatted like `<command>(<args>)` and may return a response. The response `Fail` indicates an error.
@@ -88,30 +88,30 @@ By default, MCPI-Reborn runs in a "compatibility mode." This makes it completely
   * Description: Retrieve the entity ID of the specified player.
   * Output: `entity_id`
 * `world.getEntities(entity_type_id)`
-  * Description: Retrieve all entities of the specified type[^1].
+  * Description: Retrieve all entities of the specified type[^1][^2].
   * Output: List <code>entity_id,entity_type_id<b>,entity_type_name</b>,:x:,:y:,:z:</code>
 * `entity.getEntities(entity_id,distance,entity_type_id)`
-  * Description: Retrieve all entities of the specified type[^1] within the given distance of the provided entity.
+  * Description: Retrieve all entities of the specified type[^1][^2] within the given distance of the provided entity.
   * Output: See above.
 * `world.removeEntity(entity_id)`
-  * Description: Remove the specified entity.
+  * Description: Remove the specified entity[^1].
   * Output: `number_of_entities_removed`
 * `world.removeEntities(entity_type_id)`
-  * Description: Remove all entities of the specified type[^1].
+  * Description: Remove all entities of the specified type[^1][^2].
   * Output: See above.
 * `entity.removeEntities(entity_id,distance,entity_type_id)`
-  * Description: Remove all entities of the specified type[^1] within the given distance of the provided entity.
+  * Description: Remove all entities of the specified type[^1][^2] within the given distance of the provided entity.
   * Output: See above.
 * `world.spawnEntity(x,y,x,entity_type_id)`
   * Description: Spawn the specified entity at the given position.
   * Output: `entity_id`
 * `world.getEntityTypes()`
-  * Description: Retrieve all known entity types.
+  * Description: Retrieve all spawnable entity types.
   * Output: List of `entity_type_id,entity_type_name`
 * `world.setSign(x,y,z,id,data[,{line_1}][,{line_2}][,{line_3}][,{line_4}])`
   * Description: Set the specified block at the given location. If the block is a sign, then also set its contents.
 * `entity.getName(entity_id)`
-  * Description: Retrieve the name of the specified entity.
+  * Description: Retrieve the name of the specified entity. For players, this will be their username.
   * Output: `{entity_name}`
 * `entity.setDirection(entity_id,:x:,:y:,:z:)`
   * Description: Set the specified entity's rotation using a unit vector.
@@ -128,10 +128,10 @@ By default, MCPI-Reborn runs in a "compatibility mode." This makes it completely
 * `entity.getPitch(entity_id)`
   * Description: Retrieve the specified entity's pitch.
   * Output: `:pitch:`
-* `entity.setAbsPos(entity_id,:x:,:y:,:z:)`[^2]
-  * Description: Move the specified entity to the given absolute[^3] position.
-* `entity.getAbsPos(entity_id)`[^2]
-  * Description: Retrieve the given entity's absolute[^3] position.
+* `entity.setAbsPos(entity_id,:x:,:y:,:z:)`[^3]
+  * Description: Move the specified entity to the given absolute[^4] position.
+* `entity.getAbsPos(entity_id)`[^3]
+  * Description: Retrieve the given entity's absolute[^4] position.
   * Output: `:x:,:y:,:z:`
 * `entity.events.block.hits(entity_id)`
   * Description: Retrieve all queued block hit events produced by the specified entity.
@@ -163,9 +163,10 @@ By default, MCPI-Reborn runs in a "compatibility mode." This makes it completely
   * Description: Retrieve the text of the given sign.
   * Output: List of `{line}`
 * `entity.getType(entity_id)`
-  * Description: Check the type of the given entity.
+  * Description: Check the type of the given entity. For special entities like players, this will be `0`.
   * Output: `entity_type_id`
 
-[^1]: If the ID is `-1`, it will match all entities.
-[^2]: RaspberryJuice only implements the `player.*` versions of these commands.
-[^3]: The API normally applies an offset to all coordinates, these commands use the raw data.
+[^1]: These commands will never match players.
+[^2]: If the ID is `-1`, it will match all entities.
+[^3]: RaspberryJuice only implements the `player.*` versions of these commands.
+[^4]: The API normally applies an offset to all coordinates, these commands use the raw data.
