@@ -64,7 +64,8 @@
     * `Implement RaspberryJuice API` (Enabled By Default)
     * `Fix HUD When Spectating Other Players` (Enabled By Default)
     * `Fix Crash When Spectated Entity Is Removed` (Enabled By Default)
-    * `Fix Torch Placement` (Enabled)
+    * `Fix Torch Placement` (Enabled By Default)
+    * `Fix Eggs Spawning Abnormally Healthy Chickens` (Enabled By Default)
   * Existing Functionality (All Enabled By Default)
     * `Fix Screen Rendering When Hiding HUD`
     * `Sanitize Usernames`

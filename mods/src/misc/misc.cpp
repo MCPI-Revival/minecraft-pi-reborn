@@ -398,7 +398,7 @@ static void ServerSideNetworkHandler_handle_PlayerActionPacket_injection(ServerS
 }
 
 // Make Mobs Actually Catch On Fire
-static void set_on_fire(Mob *mob, const int seconds) {
+void misc_set_on_fire(Mob *mob, const int seconds) {
     const int value = seconds * 20;
     if (value > mob->fire_timer) {
         mob->fire_timer = value;
@@ -413,7 +413,7 @@ static void Monster_aiStep_injection(__attribute__((unused)) const std::function
         if (brightness > 0.5f) {
             Random *random = &self->random;
             if (level->canSeeSky(Mth::floor(self->x), Mth::floor(self->y), Mth::floor(self->z)) && random->nextFloat() * 3.5f < (brightness - 0.4f)) {
-                set_on_fire((Mob *) self, 8);
+                misc_set_on_fire((Mob *) self, 8);
             }
         }
     }
@@ -499,11 +499,24 @@ static int Level_getTopTile_injection(Level_getTopTile_t original, Level *self, 
 
 // Fix Torch Placement
 static bool TileItem_useOn_Level_setTileAndData_injection(Level *self, const int x, const int y, const int z, const int tile, const int data) {
+    // Call Original Method
     const bool ret = self->setTileAndData(x, y, z, tile, data);
-    if (tile == Tile::torch->id) {
+    // Force Correct Data
+    if (ret && tile == Tile::torch->id) {
         self->setData(x, y, z, data);
     }
+    // Return
     return ret;
+}
+
+// Fix Egg Behavior
+static void ThrownEgg_onHit_Chicken_moveTo_injection(Chicken *self, const float x, const float y, const float z, const float yaw, const float pitch) {
+    // Call Original Method
+    self->moveTo(x, y, z, yaw, pitch);
+    // Fix Health
+    self->health = self->getMaxHealth();
+    // Fix Age
+    self->setAge(-24000);
 }
 
 // Init
@@ -685,6 +698,11 @@ void init_misc() {
     // Fix Torch Placement
     if (feature_has("Fix Torch Placement", server_enabled)) {
         overwrite_call((void *) 0xcb784, Level_setTileAndData, TileItem_useOn_Level_setTileAndData_injection);
+    }
+
+    // Fix Egg Behavior
+    if (feature_has("Fix Eggs Spawning Abnormally Healthy Chickens", server_enabled)) {
+        overwrite_call((void *) 0x7de0c, Chicken_moveTo, ThrownEgg_onHit_Chicken_moveTo_injection);
     }
 
     // Disable overwrite_calls() After Minecraft::init

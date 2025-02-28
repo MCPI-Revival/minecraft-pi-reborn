@@ -15,6 +15,8 @@ typedef RakNet_RakString *(*RakNet_RakString_constructor_2_t)(RakNet_RakString *
 extern RakNet_RakString_constructor_2_t RakNet_RakString_constructor_2;
 }
 
+void misc_set_on_fire(Mob *mob, int seconds);
+
 void misc_run_on_init(const std::function<void(Minecraft *)> &func);
 void misc_run_on_update(const std::function<void(Minecraft *)> &func);
 void misc_run_on_tick(const std::function<void(Minecraft *)> &func);

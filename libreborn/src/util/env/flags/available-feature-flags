@@ -132,6 +132,7 @@ CATEGORY Bug Fixes
         TRUE Fix Sunlight Not Properly Setting Mobs On Fire
         TRUE Fix Transferring Durability When Using Items
         TRUE Fix Torch Placement
+        TRUE Fix Eggs Spawning Abnormally Healthy Chickens
     CATEGORY Crashes
         TRUE Fix Crash When Generating Certain Seeds
         TRUE Close Editor When Sign Is Destroyed
