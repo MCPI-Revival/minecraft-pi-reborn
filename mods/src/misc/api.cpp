@@ -205,16 +205,6 @@ std::map<EntityType, std::pair<std::string, std::string>> &misc_get_entity_type_
 }
 
 // Spawn Entities
-static bool painting_direction_is_valid;
-static void Painting_setRandomMotive_HangingEntity_setDir_injection(HangingEntity *self, const int direction) {
-    Painting *painting = (Painting *) self;
-    painting_direction_is_valid = painting->motive != nullptr;
-    if (!painting_direction_is_valid) {
-        painting->motive = *Painting::default_motive;
-    }
-    // Call Original Method
-    self->setDir(direction);
-}
 Entity *misc_make_entity_from_id(Level *level, const int id, const float x, const float y, const float z) {
     // Create
     Entity *entity;
@@ -249,7 +239,7 @@ Entity *misc_make_entity_from_id(Level *level, const int id, const float x, cons
                     painting->setPosition(new_x, new_y, new_z);
                     painting->setRandomMotive(direction);
                     // Check
-                    if (painting_direction_is_valid) {
+                    if (painting->survives()) {
                         break;
                     }
                 }
@@ -284,8 +274,4 @@ std::string misc_get_player_username_utf(const Player *player) {
 void _init_misc_api() {
     // Handle Custom Creative Inventory Setup Behavior
     overwrite_call((void *) 0x8e0fc, FillingContainer_addItem, Inventory_setupDefault_FillingContainer_addItem_call_injection);
-    // Easy Way To Check Painting Orientation
-    unsigned char set_null_as_motive_patch[4] = {0x00, 0x30, 0xa0, 0x03}; // "moveq r3, #0x0"
-    patch((void *) 0x834e0, set_null_as_motive_patch);
-    overwrite_call((void *) 0x8367c, HangingEntity_setDir, Painting_setRandomMotive_HangingEntity_setDir_injection);
 }
