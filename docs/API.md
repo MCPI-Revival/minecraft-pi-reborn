@@ -107,7 +107,7 @@ By default, MCPI-Reborn runs in a "compatibility mode." This makes it completely
   * Output: `entity_id`
 * `world.getEntityTypes()`
   * Description: Retrieve all spawnable entity types.
-  * Output: List of `entity_type_id,entity_type_name`
+  * Output: List of `entity_type_id,{entity_type_name}`
 * `world.setSign(x,y,z,id,data[,{line_1}][,{line_2}][,{line_3}][,{line_4}])`
   * Description: Set the specified block at the given location. If the block is a sign, then also set its contents.
 * `entity.getName(entity_id)`
