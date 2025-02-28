@@ -497,6 +497,15 @@ static int Level_getTopTile_injection(Level_getTopTile_t original, Level *self, 
     }
 }
 
+// Fix Torch Placement
+static bool TileItem_useOn_Level_setTileAndData_injection(Level *self, const int x, const int y, const int z, const int tile, const int data) {
+    const bool ret = self->setTileAndData(x, y, z, tile, data);
+    if (tile == Tile::torch->id) {
+        self->setData(x, y, z, data);
+    }
+    return ret;
+}
+
 // Init
 void init_misc() {
     // Sanitize Username
@@ -671,6 +680,11 @@ void init_misc() {
         overwrite_calls(Level_setInitialSpawn, Level_setInitialSpawn_or_validateSpawn_injection);
         overwrite_calls(Level_validateSpawn, Level_setInitialSpawn_or_validateSpawn_injection);
         overwrite_calls(Level_getTopTile, Level_getTopTile_injection);
+    }
+
+    // Fix Torch Placement
+    if (feature_has("Fix Torch Placement", server_enabled)) {
+        overwrite_call((void *) 0xcb784, Level_setTileAndData, TileItem_useOn_Level_setTileAndData_injection);
     }
 
     // Disable overwrite_calls() After Minecraft::init

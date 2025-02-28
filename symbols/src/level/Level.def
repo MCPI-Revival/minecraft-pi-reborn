@@ -3,12 +3,12 @@ extends LevelSource;
 vtable 0x10fcf0;
 
 method void saveLevelData() = 0xa2e94;
-method void setTile(int x, int y, int z, int id) = 0xa3904;
-method void setTileNoUpdate(int x, int y, int z, int id) = 0xa342c;
+method bool setTile(int x, int y, int z, int id) = 0xa3904;
+method bool setTileNoUpdate(int x, int y, int z, int id) = 0xa342c;
 method void setData(int x, int y, int z, int data) = 0xa394c;
-method void setDataNoUpdate(int x, int y, int z, int data) = 0xa3480;
-method void setTileAndData(int x, int y, int z, int id, int data) = 0xa38b4;
-method void setTileAndDataNoUpdate(int x, int y, int z, int id, int data) = 0xa33d0;
+method bool setDataNoUpdate(int x, int y, int z, int data) = 0xa3480;
+method bool setTileAndData(int x, int y, int z, int id, int data) = 0xa38b4;
+method bool setTileAndDataNoUpdate(int x, int y, int z, int id, int data) = 0xa33d0;
 // Calls setTileDirty and updateNearbyTiles
 method void tileUpdated(int x, int y, int z, int id) = 0xa387c;
 method void setTileDirty(int x, int y, int z) = 0xa3508;

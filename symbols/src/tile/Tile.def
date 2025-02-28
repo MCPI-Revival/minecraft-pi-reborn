@@ -98,6 +98,7 @@ static-property Tile *tallgrass = 0x181d0c;
 static-property Tile *stoneSlab = 0x181b44;
 static-property Tile *fire = 0x181de0;
 static-property Tile *sand = 0x181b20;
+static-property Tile *torch = 0x181d58;
 
 // "Carried" Tiles
 static-property Tile *leaves_carried = 0x181dd8;
