@@ -86,6 +86,7 @@ By default, MCPI-Reborn runs in a "compatibility mode." This makes it completely
     * In compatibility mode, this list is delimited with commas (`,`).
 * `world.getPlayerId({username})`
   * Description: Retrieve the entity ID of the specified player.
+  * Note: MCPI usernames are *not* unique. This command will only return the first player found.
   * Output: `entity_id`
 * `world.getEntities(entity_type_id)`
   * Description: Retrieve all entities of the specified type[^1][^2].

@@ -498,15 +498,8 @@ static int Level_getTopTile_injection(Level_getTopTile_t original, Level *self, 
 }
 
 // Fix Torch Placement
-static bool TileItem_useOn_Level_setTileAndData_injection(Level *self, const int x, const int y, const int z, const int tile, const int data) {
-    // Call Original Method
-    const bool ret = self->setTileAndData(x, y, z, tile, data);
-    // Force Correct Data
-    if (ret && tile == Tile::torch->id) {
-        self->setData(x, y, z, data);
-    }
-    // Return
-    return ret;
+static void TorchTile_onPlace_injection(__attribute__((unused)) TorchTile_onPlace_t original, TorchTile *self, Level *level, const int x, const int y, const int z) {
+    Tile_onPlace->get(false)((Tile *) self, level, x, y, z);
 }
 
 // Fix Egg Behavior
@@ -697,7 +690,7 @@ void init_misc() {
 
     // Fix Torch Placement
     if (feature_has("Fix Torch Placement", server_enabled)) {
-        overwrite_call((void *) 0xcb784, Level_setTileAndData, TileItem_useOn_Level_setTileAndData_injection);
+        overwrite_calls(TorchTile_onPlace, TorchTile_onPlace_injection);
     }
 
     // Fix Egg Behavior
