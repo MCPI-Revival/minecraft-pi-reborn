@@ -511,10 +511,18 @@ sign->lines[i] = api_get_input(line_##i); \
             return CommandServer::Fail;
         }
         return api_join_outputs({std::to_string(entity->x), std::to_string(entity->y - entity->height_offset), std::to_string(entity->z)}, arg_separator);
+    } else if (cmd == "world.getSeed") {
+        // Get Seed
+        return std::to_string(server->minecraft->level->data.seed) + '\n';
+    } else if (cmd == "world.getGameMode") {
+        // Get Game Mode
+        return std::to_string(server->minecraft->isCreativeMode()) + '\n';
     } else if (cmd == "reborn.disableCompatMode") {
+        // Disable Compatibility Mode
         api_compat_mode = false;
         return std::string(reborn_get_version()) + '\n';
     } else if (cmd == "reborn.enableCompatMode") {
+        // Re-Enable Compatibility Mode
         api_compat_mode = true;
         return CommandServer::NullString;
     } else {

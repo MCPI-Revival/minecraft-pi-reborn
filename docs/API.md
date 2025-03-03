@@ -163,6 +163,12 @@ By default, MCPI-Reborn runs in a "compatibility mode." This makes it completely
 * `world.getSign(x,y,z)`
   * Description: Retrieve the text of the given sign.
   * Output: List of `{line}`
+* `world.getSeed()`
+  * Description: Retrieve the seed of the loaded world.
+  * Output: `seed`
+* `world.getGameMode()`
+  * Description: Retrieve the game-mode of the loaded world.
+  * Output: `game_mode`
 * `entity.getType(entity_id)`
   * Description: Check the type of the given entity. For special entities like players, this will be `0`.
   * Output: `entity_type_id`
