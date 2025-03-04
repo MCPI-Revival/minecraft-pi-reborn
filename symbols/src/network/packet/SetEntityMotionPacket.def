@@ -1,0 +1,9 @@
+extends Packet;
+
+size 0x1c;
+vtable 0x109498;
+
+property int entity_id = 0xc;
+property float velocity_x = 0x10;
+property float velocity_y = 0x14;
+property float velocity_z = 0x18;

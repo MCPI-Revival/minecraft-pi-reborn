@@ -13,10 +13,10 @@
 
 // Render Distances
 static constexpr std::array render_distances = {
-    "Far",
-    "Normal",
+    "Tiny",
     "Short",
-    "Tiny"
+    "Normal",
+    "Far"
 };
 
 // Construct
@@ -120,7 +120,7 @@ void ConfigurationUI::draw_main() const {
     ImGui::InputText(labels[0], &state.username);
     // Render Distance
     int render_distance_index = get_render_distance_index();
-    if (ImGui::Combo(labels[1], &render_distance_index, render_distances.data(), int(render_distances.size()))) {
+    if (ImGui::SliderInt(labels[1], &render_distance_index, 0, int(render_distances.size()) - 1, state.render_distance.c_str(), ImGuiSliderFlags_NoInput | ImGuiSliderFlags_AlwaysClamp)) {
         state.render_distance = render_distances[render_distance_index];
     }
     // UI Scale
@@ -129,7 +129,7 @@ void ConfigurationUI::draw_main() const {
     if (gui_scale_int <= AUTO_GUI_SCALE) {
         scale_format = "Automatic";
     }
-    if (ImGui::SliderInt(labels[2], &gui_scale_int, 0, 8, scale_format.c_str())) {
+    if (ImGui::SliderInt(labels[2], &gui_scale_int, 0, MAX_GUI_SCALE, scale_format.c_str())) {
         state.gui_scale = float(gui_scale_int);
         if (state.gui_scale < AUTO_GUI_SCALE) {
             state.gui_scale = AUTO_GUI_SCALE;

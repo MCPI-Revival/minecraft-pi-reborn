@@ -67,3 +67,4 @@ property Dimension *dimension = 0x74;
 property bool no_update = 0x70;
 property ChunkSource *chunk_source = 0xa5c;
 property LevelData data = 0xa64;
+property RakNetInstance *rak_net_instance = 0x78;

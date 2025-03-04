@@ -3,9 +3,11 @@ method void dispatchPacket(Packet &packet) = 0x6a548;
 static-method bool setSocketBlocking(int fd, bool param_1) = 0x6a2d4;
 method bool _updateClient(ConnectedClient &client) = 0x6ba6c;
 method void _close() = 0x6a314;
+method void *destructor(int unknown) = 0x6a6a0;
 
 property Minecraft *minecraft = 0x18;
 property OffsetPosTranslator pos_translator = 0x1c;
+property std::vector<ConnectedClient> clients = 0x40;
 
 static-property std::string Fail = 0x137dbc;
 static-property std::string Ok = 0x138a08;

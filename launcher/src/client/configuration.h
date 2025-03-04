@@ -12,6 +12,7 @@
 #define DEFAULT_USERNAME "StevePi"
 #define DEFAULT_RENDER_DISTANCE "Short"
 #define AUTO_GUI_SCALE 0
+#define MAX_GUI_SCALE 8
 
 // State
 struct State {

@@ -36,6 +36,7 @@ set(SRC
     src/network/packet/ChatPacket.def
     src/network/packet/PlayerActionPacket.def
     src/network/packet/MovePlayerPacket.def
+    src/network/packet/SetEntityMotionPacket.def
     src/entity/EntityFactory.def
     src/entity/PrimedTnt.def
     src/entity/CameraEntity.def

@@ -561,6 +561,27 @@ static void LevelRenderer_entityRemoved_injection(LevelRenderer *self, Entity *e
     }
 }
 
+// Close Sockets
+static void CommandServer__close_injection(CommandServer__close_t original, CommandServer *self) {
+    // Close
+    for (const ConnectedClient &client : self->clients) {
+        close(client.sock);
+    }
+    self->clients.clear();
+    // Call Original Method
+    original(self);
+}
+static void Minecraft_leaveGame_injection(Minecraft_leaveGame_t original, Minecraft *self, const bool save_remote_level) {
+    // Destroy Server
+    CommandServer *&server = self->command_server;
+    if (server) {
+        server->destructor(0);
+        server = nullptr;
+    }
+    // Call Original Method
+    original(self, save_remote_level);
+}
+
 // Init
 void init_api() {
     if (feature_has("Implement RaspberryJuice API", server_enabled)) {
@@ -578,5 +599,9 @@ void init_api() {
     }
     if (feature_has("Fix Crash When Spectated Entity Is Removed", server_enabled)) {
         patch_vtable(LevelRenderer_entityRemoved, LevelRenderer_entityRemoved_injection);
+    }
+    if (feature_has("Correctly Close API Sockets", server_enabled)) {
+        overwrite_calls(CommandServer__close, CommandServer__close_injection);
+        overwrite_calls(Minecraft_leaveGame, Minecraft_leaveGame_injection);
     }
 }
