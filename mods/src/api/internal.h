@@ -21,11 +21,6 @@ __attribute__((visibility("internal"))) void api_convert_to_mcpi_entity_type(int
 
 __attribute__((visibility("internal"))) void _init_api_events();
 
-__attribute__((visibility("internal"))) void api_clear_events(const ConnectedClient &client);
-__attribute__((visibility("internal"))) void api_clear_events(const ConnectedClient &client, int id);
-
-__attribute__((visibility("internal"))) std::string api_get_projectile_events(CommandServer *server, const ConnectedClient &client, std::optional<int> id);
-__attribute__((visibility("internal"))) std::string api_get_chat_events(CommandServer *server, const ConnectedClient &client, std::optional<int> id);
-__attribute__((visibility("internal"))) std::string api_get_block_hit_events(CommandServer *server, const ConnectedClient &client, std::optional<int> id);
+__attribute__((visibility("internal"))) std::string api_handle_event_command(CommandServer *server, const ConnectedClient &client, const std::string &cmd, std::optional<int> id);
 
 __attribute__((visibility("internal"))) extern bool api_suppress_chat_events;

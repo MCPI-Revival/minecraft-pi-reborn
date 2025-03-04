@@ -116,7 +116,7 @@ static void CommandServer__close_injection(CommandServer__close_t original, Comm
 }
 
 // Clear All Events
-void api_clear_events(const ConnectedClient &client) {
+static void clear_events(const ConnectedClient &client) {
     ExtraClientData &data = extra_client_data.at(client.sock);
     if (!api_compat_mode) {
         // Match RJ Bug
@@ -128,16 +128,16 @@ void api_clear_events(const ConnectedClient &client) {
 
 // Clear Events Produced By Given Entity
 template <typename T>
-static void clear_events(std::vector<T> &data, const int id) {
+static void _clear_events(std::vector<T> &data, const int id) {
     data.erase(std::remove_if(data.begin(), data.end(), [&id](const T &e) {
         return id == e.owner_id;
     }), data.end());
 }
-void api_clear_events(const ConnectedClient &client, const int id) {
+static void clear_events(const ConnectedClient &client, const int id) {
     ExtraClientData &data = extra_client_data.at(client.sock);
-    clear_events(data.block_hit_events, id);
-    clear_events(data.chat_events, id);
-    clear_events(data.projectile_events, id);
+    _clear_events(data.block_hit_events, id);
+    _clear_events(data.chat_events, id);
+    _clear_events(data.projectile_events, id);
 }
 
 // Get Events In Queue
@@ -160,7 +160,7 @@ static std::string get_events(CommandServer *server, std::vector<T> &queue, cons
     return api_join_outputs(out, list_separator);
 }
 #define create_get_events(name) \
-    std::string api_get_##name##_events(CommandServer *server, const ConnectedClient &client, const std::optional<int> id) { \
+    static std::string get_##name##_events(CommandServer *server, const ConnectedClient &client, const std::optional<int> id) { \
         return get_events(server, extra_client_data.at(client.sock).name##_events, id); \
     }
 create_get_events(projectile)
@@ -292,4 +292,29 @@ void _init_api_events() {
     // Track Block Hits
     overwrite_calls(GameMode_useItemOn, GameMode_useItemOn_injection);
     overwrite_calls(CreatorMode_useItemOn, CreatorMode_useItemOn_injection);
+}
+
+// Handle Commands
+std::string api_handle_event_command(CommandServer *server, const ConnectedClient &client, const std::string &cmd, std::optional<int> id) {
+    if (cmd == "clear") {
+        // Clear Events
+        if (id.has_value()) {
+            clear_events(client, id.value());
+        } else {
+            clear_events(client);
+        }
+        return CommandServer::NullString;
+    } else if (cmd == "chat.posts") {
+        // Chat Events
+        return get_chat_events(server, client, id);
+    } else if (cmd == "block.hits") {
+        // Chat Events
+        return get_block_hit_events(server, client, id);
+    } else if (cmd == "projectile.hits") {
+        // Chat Events
+        return get_projectile_events(server, client, id);
+    } else {
+        // Invalid Command
+        return CommandServer::Fail;
+    }
 }

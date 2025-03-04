@@ -11,6 +11,9 @@
 
 #include "internal.h"
 
+// Force Semicolon After Calling Function Macro
+#define force_semicolon() (void) 0
+
 // Get Blocks In Region
 static std::string get_blocks(CommandServer *server, const Vec3 &start, const Vec3 &end) {
     // Start Coordinate
@@ -31,7 +34,7 @@ static std::string get_blocks(CommandServer *server, const Vec3 &start, const Ve
     if (end_##axis < start_##axis) { \
         std::swap(start_##axis, end_##axis); \
     } \
-    (void) 0
+    force_semicolon()
     swap_if_needed(x);
     swap_if_needed(y);
     swap_if_needed(z);
@@ -146,7 +149,7 @@ static std::string get_entity_message(CommandServer *server, Entity *entity) {
 // Calculate Distance Between Entities
 static float distance_between(const Entity *e1, const Entity *e2) {
     if (e1 == nullptr || e2 == nullptr) {
-        return 0;
+        return -1;
     }
     const float dx = e2->x - e1->x;
     const float dy = e2->y - e1->y;
@@ -170,14 +173,14 @@ static bool is_entity_selected(Entity *entity, const int target_type) {
     return type > 0 && (target_type == no_entity_id || target_type == type);
 }
 
-// Parse API Commands
-static const std::string player_namespace = "player.";
+// Read Arguments
 #define next_string(out, required) \
     std::string out; \
-    if (!std::getline(args, out, arg_separator) && (required)) { \
+    const bool out##_missing = !std::getline(args, out, arg_separator); \
+    if (out##_missing && (required)) { \
         return CommandServer::Fail; \
     } \
-    (void) 0
+    force_semicolon()
 #define next_number(out, type, func) \
     next_string(out##_str, true); \
     type out; \
@@ -186,9 +189,29 @@ static const std::string player_namespace = "player.";
     } catch (...) { \
         return CommandServer::Fail; \
     } \
-    (void) 0
+    force_semicolon()
 #define next_int(out) next_number(out, int, std::stoi)
 #define next_float(out) next_number(out, float, std::stof)
+// Parse API Commands
+#define package_str(name) (#name ".")
+static bool _package(std::string &cmd, const std::string &package) {
+    if (cmd.starts_with(package)) {
+        cmd = cmd.substr(package.size());
+        return true;
+    } else {
+        return false;
+    }
+}
+#define package(name) if (_package(cmd, package_str(name)))
+#define command(name) if (cmd == #name)
+#define passthrough(name) \
+    command(name) { \
+        api_suppress_chat_events = client.sock >= 0; /* Suppress If Real API Client */ \
+        std::string ret = original(server, client, command); \
+        api_suppress_chat_events = false; \
+        return ret; \
+    } \
+    force_semicolon()
 static std::string CommandServer_parse_injection(CommandServer_parse_t original, CommandServer *server, ConnectedClient &client, const std::string &command) {
     // Parse Command
     size_t arg_start = command.find('(');
@@ -202,336 +225,409 @@ static std::string CommandServer_parse_injection(CommandServer_parse_t original,
     }
     std::string args_str = command.substr(arg_start + 1, cmd_end - arg_start - 1);
 
-    // Redirect Player Namespace To The Entity One
-    if (server->minecraft->player != nullptr && cmd.starts_with(player_namespace) && cmd != (player_namespace + "setting")) {
-        cmd = "entity." + cmd.substr(player_namespace.size());
-        args_str = std::to_string(server->minecraft->player->id) + arg_separator + args_str;
+    // Redirect Player Package To Entity
+    package(player) {
+        // The One Exception
+        passthrough(setting);
+        // Redirect All Other Commands
+        LocalPlayer *player = server->minecraft->player;
+        if (player) {
+            cmd = package_str(entity) + cmd;
+            args_str = std::to_string(player->id) + arg_separator + args_str;
+        } else {
+            return CommandServer::Fail;
+        }
     }
 
-    // And Now The Big If-Else Chain
+    // Read Arguments
     std::stringstream args(args_str);
-    if (cmd == "world.getBlocks") {
-        // Parse
-        next_int(x0);
-        next_int(y0);
-        next_int(z0);
-        next_int(x1);
-        next_int(y1);
-        next_int(z1);
-        // Get The Blocks
-        return get_blocks(server, Vec3{(float) x0, (float) y0, (float) z0}, Vec3{(float) x1, (float) y1, (float) z1});
-    } else if (cmd == "world.getPlayerId") {
-        // Parse
-        next_string(input, true);
-        // Search
-        std::string username = api_get_input(input);
-        for (Player *player : server->minecraft->level->players) {
-            if (misc_get_player_username_utf(player) == username) {
-                // Found
-                return std::to_string(player->id) + "\n";
-            }
+
+    // Manipulate The Level
+    package(world) {
+        // Vanilla Commands
+        passthrough(setBlock);
+        passthrough(getBlock);
+        passthrough(getBlockWithData);
+        passthrough(setBlocks);
+        passthrough(getHeight);
+        passthrough(getPlayerIds);
+        passthrough(checkpoint.save);
+        passthrough(checkpoint.restore);
+        passthrough(setting);
+
+        // Get Region Of Tiles
+        command(getBlocks) {
+            // Parse
+            next_int(x0);
+            next_int(y0);
+            next_int(z0);
+            next_int(x1);
+            next_int(y1);
+            next_int(z1);
+            // Get The Blocks
+            return get_blocks(server, Vec3{(float) x0, (float) y0, (float) z0}, Vec3{(float) x1, (float) y1, (float) z1});
         }
-        return CommandServer::Fail;
-    } else if (cmd == "entity.getName") {
-        // Parse
-        next_int(id);
-        // Return
-        Entity *entity = server->minecraft->level->getEntity(id);
-        if (entity == nullptr) {
+
+        // Get Player With Username
+        command(getPlayerId) {
+            // Parse
+            next_string(input, true);
+            // Search
+            std::string username = api_get_input(input);
+            for (Player *player : server->minecraft->level->players) {
+                if (misc_get_player_username_utf(player) == username) {
+                    // Found
+                    return std::to_string(player->id) + "\n";
+                }
+            }
+            return CommandServer::Fail;
+        }
+
+        // Get/Remove Entities
+        command(getEntities) {
+            // Parse
+            next_int(type);
+            api_convert_to_mcpi_entity_type(type);
+            // Search
+            std::vector<std::string> result;
+            for (Entity *entity : server->minecraft->level->entities) {
+                if (is_entity_selected(entity, type)) {
+                    result.push_back(get_entity_message(server, entity));
+                }
+            }
+            return api_join_outputs(result, list_separator);
+        }
+        command(removeEntity) {
+            // Parse
+            next_int(id);
+            // Remove
+            Entity *entity = server->minecraft->level->getEntity(id);
+            int result = 0;
+            if (entity != nullptr && !entity->isPlayer()) {
+                entity->remove();
+                result++;
+            }
+            return std::to_string(result) + '\n';
+        }
+        command(removeEntities) {
+            // Parse
+            next_int(type);
+            api_convert_to_mcpi_entity_type(type);
+            // Remove
+            int removed = 0;
+            for (Entity *entity : server->minecraft->level->entities) {
+                if (is_entity_selected(entity, type)) {
+                    entity->remove();
+                    removed++;
+                }
+            }
+            return std::to_string(removed) + '\n';
+        }
+
+        // Spawn Entity
+        command(spawnEntity) {
+            // Parse
+            next_float(x);
+            next_float(y);
+            next_float(z);
+            next_int(type);
+            // Translate
+            server->pos_translator.from_float(x, y, z);
+            if (api_compat_mode) {
+                // RJ Only Accepted Integers
+                x = float(int(x));
+                y = float(int(y));
+                z = float(int(z));
+            }
+            api_convert_to_mcpi_entity_type(type);
+            // Spawn
+            Entity *entity = misc_make_entity_from_id(server->minecraft->level, type, x, y, z);
+            if (entity == nullptr) {
+                return CommandServer::Fail;
+            }
+            return std::to_string(entity->id) + '\n';
+        }
+
+        // Get All Valid Entity Types
+        command(getEntityTypes) {
+            std::vector<std::string> result;
+            for (const std::pair<const EntityType, std::pair<std::string, std::string>> &i : misc_get_entity_type_names()) {
+                int id = static_cast<int>(i.first);
+                api_convert_to_outside_entity_type(id);
+                result.push_back(api_join_outputs({std::to_string(id), api_get_output(i.second.second, true)}, arg_separator));
+            }
+            return api_join_outputs(result, list_separator);
+        }
+
+        // Signs
+        command(setSign) {
+            // Parse
+            next_int(x);
+            next_int(y);
+            next_int(z);
+            next_int(id);
+            next_int(data);
+            // Translate
+            server->pos_translator.from_int(x, y, z);
+            // Set Block
+            server->minecraft->level->setTileAndData(x, y, z, id, data);
+            // Set Sign Data
+            SignTileEntity *sign = get_sign(server, x, y, z);
+            if (sign != nullptr) {
+#define next_sign_line(i) \
+    next_string(line_##i, false); \
+    if (!api_compat_mode || !line_##i##_missing) { \
+        sign->lines[i] = api_get_input(line_##i); \
+    } \
+    force_semicolon()
+                next_sign_line(0);
+                next_sign_line(1);
+                next_sign_line(2);
+                next_sign_line(3);
+#undef next_sign_line
+                // Send Update Packet
+                sign->setChanged();
+                Packet *packet = sign->getUpdatePacket();
+                server->minecraft->rak_net_instance->send(*packet);
+            }
             return CommandServer::NullString;
-        } else {
+        }
+        command(getSign) {
+            // Parse
+            next_int(x);
+            next_int(y);
+            next_int(z);
+            // Translate
+            server->pos_translator.from_int(x, y, z);
+            // Read
+            SignTileEntity *sign = get_sign(server, x, y, z);
+            if (sign == nullptr) {
+                return CommandServer::Fail;
+            }
+            std::vector<std::string> pieces;
+            for (const std::string &line : sign->lines) {
+                pieces.push_back(api_get_output(line, false));
+            }
+            return api_join_outputs(pieces, list_separator);
+        }
+
+        // Level Information
+        command(getSeed) {
+            return std::to_string(server->minecraft->level->data.seed) + '\n';
+        }
+        command(getGameMode) {
+            return std::to_string(server->minecraft->isCreativeMode()) + '\n';
+        }
+    }
+
+    // Manipulate An Individual Entity
+    package(entity) {
+        // Vanilla Commands
+        passthrough(setTile);
+        passthrough(getTile);
+        passthrough(setPos);
+        passthrough(getPos);
+
+        // Common Code For New Commands
+        next_int(id);
+#define _get_entity() Entity *entity = server->minecraft->level->getEntity(id)
+#define get_entity(ret_on_invalid) \
+    _get_entity(); \
+    if (entity == nullptr) { \
+        /* set* Commands Usually Return Null */ \
+        /* get* Commands Usually Return Fail */ \
+        return CommandServer::ret_on_invalid; \
+    } \
+    force_semicolon()
+
+        // Name/Type/ID
+        command(getName) {
+            get_entity(NullString); // Matching RJ Behavior, Even Though It is Dumb
             return api_get_output(misc_get_entity_name(entity), false) + '\n';
         }
-    } else if (cmd == "entity.getType") {
-        // Parse
-        next_int(id);
-        // Return
-        Entity *entity = server->minecraft->level->getEntity(id);
-        if (entity == nullptr) {
-            return CommandServer::NullString;
-        } else {
+        command(getType) {
+            get_entity(Fail);
             int type = entity->getEntityTypeId();
             api_convert_to_outside_entity_type(type);
             return std::to_string(type) + '\n';
         }
-    } else if (cmd == "world.getEntities") {
-        // Parse
-        next_int(type);
-        api_convert_to_mcpi_entity_type(type);
-        // Search
-        std::vector<std::string> result;
-        for (Entity *entity : server->minecraft->level->entities) {
-            if (is_entity_selected(entity, type)) {
-                result.push_back(get_entity_message(server, entity));
+        command(getId) {
+            // Parse
+            get_entity(Fail);
+            // Check If Entity Exists
+            return std::to_string(entity->id) + '\n'; // I Promise This Is Useful
+        }
+
+        // Get/Remove Nearby Entities
+        package(getEntities) {
+            // Parse
+            _get_entity(); // Matching RJ Behavior, Even Though It is Dumb
+            next_int(dist);
+            next_int(type);
+            api_convert_to_mcpi_entity_type(type);
+            // Run
+            std::vector<std::string> result;
+            for (Entity *other : server->minecraft->level->entities) {
+                if (is_entity_selected(other, type) && distance_between(entity, other) <= dist) {
+                    result.push_back(get_entity_message(server, other));
+                }
             }
+            return api_join_outputs(result, list_separator);
         }
-        return api_join_outputs(result, list_separator);
-    } else if (cmd == "world.removeEntity") {
-        // Parse
-        next_int(id);
-        // Remove
-        Entity *entity = server->minecraft->level->getEntity(id);
-        int result = 0;
-        if (entity != nullptr && !entity->isPlayer()) {
-            entity->remove();
-            result++;
-        }
-        return std::to_string(result) + '\n';
-    } else if (cmd == "world.removeEntities") {
-        // Parse
-        next_int(type);
-        api_convert_to_mcpi_entity_type(type);
-        // Remove
-        int removed = 0;
-        for (Entity *entity : server->minecraft->level->entities) {
-            if (is_entity_selected(entity, type)) {
-                entity->remove();
-                removed++;
+        command(removeEntities) {
+            // Parse
+            _get_entity(); // Matching RJ Behavior, Even Though It is Dumb
+            next_int(dist);
+            next_int(type);
+            api_convert_to_mcpi_entity_type(type);
+            // Run
+            int removed = 0;
+            for (Entity *other : server->minecraft->level->entities) {
+                if (is_entity_selected(other, type) && distance_between(entity, other) <= dist) {
+                    other->remove();
+                    removed++;
+                }
             }
+            return std::to_string(removed) + '\n';
         }
-        return std::to_string(removed) + '\n';
-    } else if (cmd == "entity.getEntities") {
-        // Parse
-        next_int(id);
-        next_int(dist);
-        next_int(type);
-        Entity *src = server->minecraft->level->getEntity(id);
-        if (src == nullptr) {
-            return CommandServer::Fail;
-        }
-        api_convert_to_mcpi_entity_type(type);
-        // Run
-        std::vector<std::string> result;
-        for (Entity *entity : server->minecraft->level->entities) {
-            if (is_entity_selected(entity, type) && distance_between(src, entity) <= dist) {
-                result.push_back(get_entity_message(server, entity));
-            }
-        }
-        return api_join_outputs(result, list_separator);
-    } else if (cmd == "entity.removeEntities") {
-        // Parse
-        next_int(id);
-        next_int(dist);
-        next_int(type);
-        Entity *src = server->minecraft->level->getEntity(id);
-        if (src == nullptr) {
-            return CommandServer::Fail;
-        }
-        api_convert_to_mcpi_entity_type(type);
-        // Run
-        int removed = 0;
-        for (Entity *entity : server->minecraft->level->entities) {
-            if (is_entity_selected(entity, type) && distance_between(src, entity) <= dist) {
-                entity->remove();
-                removed++;
-            }
-        }
-        return std::to_string(removed) + '\n';
-    } else if (cmd == "world.spawnEntity") {
-        // Parse
-        next_float(x);
-        next_float(y);
-        next_float(z);
-        next_int(type);
-        // Translate
-        server->pos_translator.from_float(x, y, z);
-        if (api_compat_mode) {
-            x = float(int(x));
-            y = float(int(y));
-            z = float(int(z));
-        }
-        api_convert_to_mcpi_entity_type(type);
-        // Spawn
-        Entity *entity = misc_make_entity_from_id(server->minecraft->level, type, x, y, z);
-        if (entity == nullptr) {
-            return CommandServer::Fail;
-        }
-        return std::to_string(entity->id) + '\n';
-    } else if (cmd == "world.getEntityTypes") {
-        // Get All Valid Entity Types
-        std::vector<std::string> result;
-        for (const std::pair<const EntityType, std::pair<std::string, std::string>> &i : misc_get_entity_type_names()) {
-            int id = static_cast<int>(i.first);
-            api_convert_to_outside_entity_type(id);
-            result.push_back(api_join_outputs({std::to_string(id), api_get_output(i.second.second, true)}, arg_separator));
-        }
-        return api_join_outputs(result, list_separator);
-    } else if (cmd == "events.chat.posts") {
-        return api_get_chat_events(server, client, std::nullopt);
-    } else if (cmd == "entity.events.chat.posts") {
-        next_int(id);
-        return api_get_chat_events(server, client, id);
-    } else if (cmd == "events.block.hits") {
-        return api_get_block_hit_events(server, client, std::nullopt);
-    } else if (cmd == "entity.events.block.hits") {
-        next_int(id);
-        return api_get_block_hit_events(server, client, id);
-    } else if (cmd == "events.projectile.hits") {
-        return api_get_projectile_events(server, client, std::nullopt);
-    } else if (cmd == "entity.events.projectile.hits") {
-        next_int(id);
-        return api_get_projectile_events(server, client, id);
-    } else if (cmd == "entity.events.clear") {
-        next_int(id);
-        api_clear_events(client, id);
-        return CommandServer::NullString;
-    } else if (cmd == "events.clear") {
-        api_clear_events(client);
-        return CommandServer::NullString;
-    } else if (cmd == "entity.setDirection") {
-        // Parse
-        next_int(id);
-        next_float(x);
-        next_float(y);
-        next_float(z);
-        // Set
-        Entity *entity = server->minecraft->level->getEntity(id);
-        if (entity != nullptr) {
+
+        // Get/Set Rotation
+        command(setDirection) {
+            // Parse
+            get_entity(NullString);
+            next_float(x);
+            next_float(y);
+            next_float(z);
+            // Set
             set_dir(entity, x, y, z);
+            return CommandServer::NullString;
         }
-        return CommandServer::NullString;
-    } else if (cmd == "entity.getDirection") {
-        // Parse
-        next_int(id);
-        // Get
-        Entity *entity = server->minecraft->level->getEntity(id);
-        if (entity == nullptr) {
-            return CommandServer::Fail;
-        } else {
+        command(getDirection) {
+            // Parse
+            get_entity(Fail);
+            // Get
             Vec3 vec = get_dir(entity);
             return api_join_outputs({std::to_string(vec.x), std::to_string(vec.y), std::to_string(vec.z)}, arg_separator);
         }
-    } else if (cmd == "entity.setRotation") {
-        // Parse
-        next_int(id);
-        next_float(yaw);
-        // Set
-        Entity *entity = server->minecraft->level->getEntity(id);
-        if (entity != nullptr) {
+        command(setRotation) {
+            // Parse
+            get_entity(NullString);
+            next_float(yaw);
+            // Set
             entity->yaw = yaw;
             update_player_position(entity);
+            return CommandServer::NullString;
         }
-        return CommandServer::NullString;
-    } else if (cmd == "entity.setPitch") {
-        // Parse
-        next_int(id);
-        next_float(pitch);
-        // Set
-        Entity *entity = server->minecraft->level->getEntity(id);
-        if (entity != nullptr) {
-            entity->pitch = pitch;
-            update_player_position(entity);
-        }
-        return CommandServer::NullString;
-    } else if (cmd == "entity.getRotation") {
-        // Parse
-        next_int(id);
-        // Get
-        Entity *entity = server->minecraft->level->getEntity(id);
-        if (entity == nullptr) {
-            return CommandServer::Fail;
-        } else {
+        command(getRotation) {
+            // Parse
+            get_entity(Fail);
+            // Get
             return std::to_string(entity->yaw) + '\n';
         }
-    } else if (cmd == "entity.getPitch") {
-        // Parse
-        next_int(id);
-        // Get
-        Entity *entity = server->minecraft->level->getEntity(id);
-        if (entity == nullptr) {
-            return CommandServer::Fail;
-        } else {
+        command(setPitch) {
+            // Parse
+            get_entity(NullString);
+            next_float(pitch);
+            // Set
+            entity->pitch = pitch;
+            update_player_position(entity);
+            return CommandServer::NullString;
+        }
+        command(getPitch) {
+            // Parse
+            get_entity(Fail);
+            // Get
             return std::to_string(entity->pitch) + '\n';
         }
-    } else if (cmd == "world.setSign") {
-        // Parse
-        next_int(x);
-        next_int(y);
-        next_int(z);
-        next_int(id);
-        next_int(data);
-        // Translate
-        server->pos_translator.from_int(x, y, z);
-        // Set Block
-        server->minecraft->level->setTileAndData(x, y, z, id, data);
-        // Set Sign Data
-        SignTileEntity *sign = get_sign(server, x, y, z);
-        if (sign != nullptr) {
-#define next_sign_line(i) \
-next_string(line_##i, false); \
-sign->lines[i] = api_get_input(line_##i); \
-(void) 0
-            next_sign_line(0);
-            next_sign_line(1);
-            next_sign_line(2);
-            next_sign_line(3);
-#undef next_sign_line
-            // Send Update Packet
-            sign->setChanged();
-            Packet *packet = sign->getUpdatePacket();
-            server->minecraft->rak_net_instance->send(*packet);
+
+        // Get/Set Absolute Position
+        command(setAbsPos) {
+            // Parse
+            get_entity(NullString);
+            next_float(x);
+            next_float(y);
+            next_float(z);
+            // Set
+            Entity_moveTo_injection(entity, x, y, z, entity->yaw, entity->pitch);
+            return CommandServer::NullString;
         }
-        return CommandServer::NullString;
-    } else if (cmd == "world.getSign") {
-        // Parse
-        next_int(x);
-        next_int(y);
-        next_int(z);
-        // Translate
-        server->pos_translator.from_int(x, y, z);
-        // Read
-        SignTileEntity *sign = get_sign(server, x, y, z);
-        if (sign == nullptr) {
-            return CommandServer::Fail;
+        command(getAbsPos) {
+            // Parse
+            get_entity(Fail);
+            // Get
+            return api_join_outputs({std::to_string(entity->x), std::to_string(entity->y - entity->height_offset), std::to_string(entity->z)}, arg_separator);
         }
-        std::vector<std::string> pieces;
-        for (const std::string &line : sign->lines) {
-            pieces.push_back(api_get_output(line, false));
+
+        // Get/Set Velocity
+        command(setVelocity) {
+            // Get Entity
+            get_entity(NullString);
+            // Set Velocity
+            SetEntityMotionPacket *packet = SetEntityMotionPacket::allocate();
+            ((Packet *) packet)->constructor();
+            packet->vtable = SetEntityMotionPacket_vtable::base;
+            packet->entity_id = id;
+#define next_component(axis) \
+    next_float(axis); \
+    entity->velocity_##axis = packet->velocity_##axis = axis
+            next_component(x);
+            next_component(y);
+            next_component(z);
+#undef next_component
+            // Send Packet
+            entity->level->rak_net_instance->send(*(Packet *) packet);
+            packet->destructor_deleting();
+            return CommandServer::NullString;
         }
-        return api_join_outputs(pieces, list_separator);
-    } else if (cmd == "entity.setAbsPos") {
-        // Parse
-        next_int(id);
-        next_float(x);
-        next_float(y);
-        next_float(z);
-        // Set
-        Entity *entity = server->minecraft->level->getEntity(id);
-        if (entity == nullptr) {
-            return CommandServer::Fail;
+        command(getVelocity) {
+            // Parse
+            get_entity(Fail);
+            // Get
+            return api_join_outputs({std::to_string(entity->velocity_x), std::to_string(entity->velocity_y), std::to_string(entity->velocity_z)}, arg_separator);
         }
-        Entity_moveTo_injection(entity, x, y, z, entity->yaw, entity->pitch);
-        return CommandServer::NullString;
-    } else if (cmd == "entity.getAbsPos") {
-        // Parse
-        next_int(id);
-        // Get
-        Entity *entity = server->minecraft->level->getEntity(id);
-        if (entity == nullptr) {
-            return CommandServer::Fail;
+#undef get_entity
+#undef _get_entity
+
+        // Handle Events
+        package(events) {
+            return api_handle_event_command(server, client, cmd, id);
         }
-        return api_join_outputs({std::to_string(entity->x), std::to_string(entity->y - entity->height_offset), std::to_string(entity->z)}, arg_separator);
-    } else if (cmd == "world.getSeed") {
-        // Get Seed
-        return std::to_string(server->minecraft->level->data.seed) + '\n';
-    } else if (cmd == "world.getGameMode") {
-        // Get Game Mode
-        return std::to_string(server->minecraft->isCreativeMode()) + '\n';
-    } else if (cmd == "reborn.disableCompatMode") {
-        // Disable Compatibility Mode
-        api_compat_mode = false;
-        return std::string(reborn_get_version()) + '\n';
-    } else if (cmd == "reborn.enableCompatMode") {
-        // Re-Enable Compatibility Mode
-        api_compat_mode = true;
-        return CommandServer::NullString;
-    } else {
-        // Call Original Method
-        api_suppress_chat_events = client.sock >= 0; // Suppress If Real API Client
-        std::string ret = original(server, client, command);
-        api_suppress_chat_events = false;
-        return ret;
     }
+
+    // Chat
+    package(chat) {
+        passthrough(post);
+    }
+
+    // Manipulate The Camera
+    package(camera) {
+        passthrough(mode.setFixed);
+        passthrough(mode.setNormal);
+        passthrough(mode.setFollow);
+        passthrough(setPos);
+    }
+
+    // Handle Events
+    package(events) {
+        return api_handle_event_command(server, client, cmd, std::nullopt);
+    }
+
+    // Compatibility Mode
+    package(reborn) {
+        // Disable Compatibility Mode
+        command(disableCompatMode) {
+            api_compat_mode = false;
+            return std::string(reborn_get_version()) + '\n';
+        }
+        // Re-Enable Compatibility Mode
+        command(enableCompatMode) {
+            api_compat_mode = true;
+            return CommandServer::NullString;
+        }
+    }
+
+    // Invalid Command
+    return CommandServer::Fail;
 }
 
 // Fix HUD Spectating Other Players

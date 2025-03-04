@@ -111,6 +111,7 @@ By default, MCPI-Reborn runs in a "compatibility mode." This makes it completely
   * Output: List of `entity_type_id,{entity_type_name}`
 * `world.setSign(x,y,z,id,data[,{line_1}][,{line_2}][,{line_3}][,{line_4}])`
   * Description: Set the specified block at the given location. If the block is a sign, then also set its contents.
+  * Note: In the compatibility mode, if a sign already exists, then any lines not included in the command will be left as-is instead of reset.
 * `entity.getName(entity_id)`
   * Description: Retrieve the name of the specified entity. For players, this will be their username.
   * Output: `{entity_name}`
@@ -172,6 +173,15 @@ By default, MCPI-Reborn runs in a "compatibility mode." This makes it completely
 * `entity.getType(entity_id)`
   * Description: Check the type of the given entity. For special entities like players, this will be `0`.
   * Output: `entity_type_id`
+* `entity.setVelocity(entity_id,:veclocity_x:,:veclocity_y:,:veclocity_z:)`
+  * Description: Set the specified entity's velocity.
+* `entity.getVelocity(entity_id)`
+  * Description: Retrieve the specified entity's velocity.
+  * Output: `:veclocity_x:,:veclocity_y:,:veclocity_z:`
+* `entity.getId(entity_id)`
+  * Description: Retrieve the specified entity's ID.
+  * Note: Only the `player.getId()` version of this command is useful.
+  * Output: `entity_id`
 
 [^1]: These commands will never match players.
 [^2]: If the ID is `-1`, it will match all entities.
