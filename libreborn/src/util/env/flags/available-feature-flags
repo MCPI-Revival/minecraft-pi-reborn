@@ -39,7 +39,7 @@ CATEGORY User Interface
     FALSE Full Touch UI
     TRUE Force Touch UI Button Behavior
     TRUE Improved Cursor Rendering
-    FALSE Remove Forced UI Lag (Can Break Joining Servers)
+    TRUE Remove Forced UI Lag
     TRUE Improved Button Hover Behavior
     TRUE Classic Item Count UI
     TRUE Click Buttons On Mouse Down

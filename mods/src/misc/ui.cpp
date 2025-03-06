@@ -205,6 +205,17 @@ static void PauseScreen_init_injection(PauseScreen_init_t original, PauseScreen 
     }
 }
 
+// Fix Joining Servers Without Forced UI Lag
+static bool GameRenderer_render_Minecraft_isLevelGenerated_injection(Minecraft *self) {
+    if (self->level_renderer->level != self->level) {
+        // Not Setup Yet
+        return false;
+    } else {
+        // Call Original Method
+        return self->isLevelGenerated();
+    }
+}
+
 // Click Buttons On Mouse Down
 static void Screen_mouseClicked_injection(__attribute__((unused)) Screen_mouseClicked_t original, Screen *self,  int x, int y, const int param_1) {
     if (param_1 == 1) {
@@ -375,8 +386,9 @@ void _init_misc_ui() {
     }
 
     // Remove Forced GUI Lag
-    if (feature_has("Remove Forced UI Lag (Can Break Joining Servers)", server_enabled)) {
+    if (feature_has("Remove Forced UI Lag", server_enabled)) {
         overwrite_calls(Common_sleepMs, nop<Common_sleepMs_t, int>);
+        overwrite_call((void *) 0x4a51c, Minecraft_isLevelGenerated, GameRenderer_render_Minecraft_isLevelGenerated_injection);
     }
 
     // Custom GUI Scale

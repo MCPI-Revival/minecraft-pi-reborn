@@ -104,7 +104,7 @@
   * `Force Touch GUI Inventory` To `Force Touch UI Inventory`
   * `Full Touch GUI` To `Full Touch UI`
   * `Force Touch GUI Button Behavior` To `Force Touch UI Button Behavior`
-  * `Remove Forced GUI Lag (Can Break Joining Servers)` To `Remove Forced UI Lag (Can Break Joining Servers)`
+  * `Remove Forced GUI Lag (Can Break Joining Servers)` To `Remove Forced UI Lag`
   * `Hide Block Outline When GUI Is Hidden` To `Hide Block Outline When UI Is Hidden`
   * `Fix Camera Functionality` To `Add Camera Functionality`
   * `Fix Camera Rendering` To `Enable Camera Rendering`

@@ -19,3 +19,4 @@ property RenderList render_list = 0x34;
 property Chunk **chunks = 0x98;
 property bool occlusion_check = 0xb8;
 property int num_buffers = 0xd0;
+property Level *level = 0x84;
