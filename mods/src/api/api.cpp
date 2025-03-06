@@ -42,6 +42,8 @@ static std::string get_blocks(CommandServer *server, const Vec3 &start, const Ve
 
     // Get
     std::vector<std::string> ret;
+    const size_t expected_size = (end_x - start_x + 1) * (end_y - start_y + 1) * (end_z - start_z + 1);
+    ret.reserve(expected_size);
     for (int x = start_x; x <= end_x; x++) {
         for (int y = start_y; y <= end_y; y++) {
             for (int z = start_z; z <= end_z; z++) {
@@ -54,44 +56,11 @@ static std::string get_blocks(CommandServer *server, const Vec3 &start, const Ve
             }
         }
     }
+    if (ret.size() != expected_size) {
+        IMPOSSIBLE();
+    }
     // Return
     return api_join_outputs(ret, api_compat_mode ? arg_separator : list_separator);
-}
-
-// Properly Teleport Players
-static void update_player_position(const Entity *entity) {
-    if (entity->vtable == (Entity_vtable *) ServerPlayer_vtable::base) {
-        const ServerPlayer *player = (ServerPlayer *) entity;
-        MovePlayerPacket *packet = MovePlayerPacket::allocate();
-        ((Packet *) packet)->constructor();
-        packet->vtable = MovePlayerPacket_vtable::base;
-        packet->x = player->x;
-        packet->y = player->y - player->height_offset;
-        packet->z = player->z;
-        packet->yaw = player->yaw;
-        packet->pitch = player->pitch;
-        packet->entity_id = player->id;
-        player->minecraft->rak_net_instance->send(*(Packet *) packet);
-        packet->destructor_deleting();
-    }
-}
-static void Entity_moveTo_injection(Entity *self, const float x, const float y, const float z, const float yaw, const float pitch) {
-    self->moveTo(x, y, z, yaw, pitch);
-    update_player_position(self);
-}
-static void ClientSideNetworkHandler_handle_MovePlayerPacket_injection(ClientSideNetworkHandler_handle_MovePlayerPacket_t original, ClientSideNetworkHandler *self, const RakNet_RakNetGUID &rak_net_guid, MovePlayerPacket *packet) {
-    if (self->level) {
-        Entity *entity = self->level->getEntity(packet->entity_id);
-        if (entity) {
-            if (entity == (Entity *) self->minecraft->player) {
-                // Just Teleport
-                entity->moveTo(packet->x, packet->y, packet->z, packet->yaw, packet->pitch);
-            } else {
-                // Call Original Method
-                original(self, rak_net_guid, packet);
-            }
-        }
-    }
 }
 
 // Set Entity Rotation From XYZ
@@ -110,7 +79,7 @@ static void set_dir(Entity *entity, const float x, const float y, const float z)
     entity->yaw = std::fmod(std::atan2(-x, z), _2PI) * factor;
     const float xz = std::sqrt(x * x + z * z);
     entity->pitch = std::atan(-y / xz) * factor;
-    update_player_position(entity);
+    api_update_entity_position(entity);
 }
 // Convert Entity Rotation To XYZ
 static Vec3 get_dir(const Entity *entity) {
@@ -194,7 +163,7 @@ static bool is_entity_selected(Entity *entity, const int target_type) {
 #define next_float(out) next_number(out, float, std::stof)
 // Parse API Commands
 #define package_str(name) (#name ".")
-static bool _package(std::string &cmd, const std::string &package) {
+static bool _package(std::string_view &cmd, const std::string &package) {
     if (cmd.starts_with(package)) {
         cmd = cmd.substr(package.size());
         return true;
@@ -214,33 +183,38 @@ static bool _package(std::string &cmd, const std::string &package) {
     force_semicolon()
 static std::string CommandServer_parse_injection(CommandServer_parse_t original, CommandServer *server, ConnectedClient &client, const std::string &command) {
     // Parse Command
-    size_t arg_start = command.find('(');
+    std::string_view command_view = command;
+    size_t arg_start = command_view.find('(');
     if (arg_start == std::string::npos) {
         return CommandServer::Fail;
     }
-    std::string cmd = command.substr(0, arg_start);
-    size_t cmd_end = command.rfind(')');
+    std::string_view cmd = command_view.substr(0, arg_start);
+    size_t cmd_end = command_view.rfind(')');
     if (cmd_end == std::string::npos) {
         return CommandServer::Fail;
     }
-    std::string args_str = command.substr(arg_start + 1, cmd_end - arg_start - 1);
+    std::string_view args_str = command_view.substr(arg_start + 1, cmd_end - arg_start - 1);
 
     // Redirect Player Package To Entity
+    std::string _new_cmd;
+    std::string _new_args_str;
     package(player) {
         // The One Exception
         passthrough(setting);
         // Redirect All Other Commands
         LocalPlayer *player = server->minecraft->player;
         if (player) {
-            cmd = package_str(entity) + cmd;
-            args_str = std::to_string(player->id) + arg_separator + args_str;
+            _new_cmd = package_str(entity) + std::string(cmd);
+            cmd = _new_cmd;
+            _new_args_str = std::to_string(player->id) + arg_separator + std::string(args_str);
+            args_str = _new_args_str;
         } else {
             return CommandServer::Fail;
         }
     }
 
     // Read Arguments
-    std::stringstream args(args_str);
+    std::stringstream args(args_str.data());
 
     // Manipulate The Level
     package(world) {
@@ -459,7 +433,7 @@ static std::string CommandServer_parse_injection(CommandServer_parse_t original,
         }
 
         // Get/Remove Nearby Entities
-        package(getEntities) {
+        command(getEntities) {
             // Parse
             _get_entity(); // Matching RJ Behavior, Even Though It is Dumb
             next_int(dist);
@@ -515,7 +489,7 @@ static std::string CommandServer_parse_injection(CommandServer_parse_t original,
             next_float(yaw);
             // Set
             entity->yaw = yaw;
-            update_player_position(entity);
+            api_update_entity_position(entity);
             return CommandServer::NullString;
         }
         command(getRotation) {
@@ -530,7 +504,7 @@ static std::string CommandServer_parse_injection(CommandServer_parse_t original,
             next_float(pitch);
             // Set
             entity->pitch = pitch;
-            update_player_position(entity);
+            api_update_entity_position(entity);
             return CommandServer::NullString;
         }
         command(getPitch) {
@@ -548,7 +522,8 @@ static std::string CommandServer_parse_injection(CommandServer_parse_t original,
             next_float(y);
             next_float(z);
             // Set
-            Entity_moveTo_injection(entity, x, y, z, entity->yaw, entity->pitch);
+            entity->moveTo(x, y, z, entity->yaw, entity->pitch);
+            api_update_entity_position(entity);
             return CommandServer::NullString;
         }
         command(getAbsPos) {
@@ -630,74 +605,13 @@ static std::string CommandServer_parse_injection(CommandServer_parse_t original,
     return CommandServer::Fail;
 }
 
-// Fix HUD Spectating Other Players
-template <typename... Args>
-static void ItemInHandRenderer_render_injection(const std::function<void(ItemInHandRenderer *, Args...)> &original, ItemInHandRenderer *self, Args... args) {
-    // "Fix" Current Player
-    LocalPlayer *&player = self->minecraft->player;
-    LocalPlayer *old_player = player;
-    Mob *camera = self->minecraft->camera;
-    if (camera && camera->isPlayer()) {
-        player = (LocalPlayer *) camera;
-    }
-    // Call Original Method
-    original(self, std::forward<Args>(args)...);
-    // Revert "Fix"
-    player = old_player;
-}
-
-// Fix Crash When Camera Entity Is Removed
-static void LevelRenderer_entityRemoved_injection(LevelRenderer *self, Entity *entity) {
-    // Call Original Method
-    LevelListener_entityRemoved->get(false)((LevelListener *) self, entity);
-    // Fix Camera
-    Minecraft *minecraft = self->minecraft;
-    if ((Entity *) minecraft->camera == entity) {
-        minecraft->camera = (Mob *) minecraft->player;
-    }
-}
-
-// Close Sockets
-static void CommandServer__close_injection(CommandServer__close_t original, CommandServer *self) {
-    // Close
-    for (const ConnectedClient &client : self->clients) {
-        close(client.sock);
-    }
-    self->clients.clear();
-    // Call Original Method
-    original(self);
-}
-static void Minecraft_leaveGame_injection(Minecraft_leaveGame_t original, Minecraft *self, const bool save_remote_level) {
-    // Destroy Server
-    CommandServer *&server = self->command_server;
-    if (server) {
-        server->destructor(0);
-        server = nullptr;
-    }
-    // Call Original Method
-    original(self, save_remote_level);
-}
-
 // Init
 void init_api() {
     if (feature_has("Implement RaspberryJuice API", server_enabled)) {
         overwrite_calls(CommandServer_parse, CommandServer_parse_injection);
         _init_api_events();
-        // Fix Teleporting Players
-        overwrite_calls(ClientSideNetworkHandler_handle_MovePlayerPacket, ClientSideNetworkHandler_handle_MovePlayerPacket_injection);
-        overwrite_call((void *) 0x6b6e8, Entity_moveTo, Entity_moveTo_injection);
     }
-    // Bug Fixes
-    if (feature_has("Fix HUD When Spectating Other Players", server_enabled)) {
-        overwrite_calls(ItemInHandRenderer_render, ItemInHandRenderer_render_injection<float>);
-        overwrite_calls(ItemInHandRenderer_renderScreenEffect, ItemInHandRenderer_render_injection<float>);
-        overwrite_calls(ItemInHandRenderer_tick, ItemInHandRenderer_render_injection<>);
-    }
-    if (feature_has("Fix Crash When Spectated Entity Is Removed", server_enabled)) {
-        patch_vtable(LevelRenderer_entityRemoved, LevelRenderer_entityRemoved_injection);
-    }
-    if (feature_has("Correctly Close API Sockets", server_enabled)) {
-        overwrite_calls(CommandServer__close, CommandServer__close_injection);
-        overwrite_calls(Minecraft_leaveGame, Minecraft_leaveGame_injection);
-    }
+    // Miscellaneous Changes
+    _init_api_socket();
+    _init_api_misc();
 }

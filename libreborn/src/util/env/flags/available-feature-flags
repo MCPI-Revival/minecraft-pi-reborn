@@ -141,6 +141,7 @@ CATEGORY Bug Fixes
         TRUE Fix HUD When Spectating Other Players
         TRUE Fix Crash When Spectated Entity Is Removed
         TRUE Correctly Close API Sockets
+        TRUE Fix Moving Players With The API In Multiplayer
     TRUE Fix Reloading Textures On Resize
     TRUE Fix options.txt Loading/Saving
     TRUE Fix Hanging When No Valid Spawn Point Exists
@@ -150,10 +151,12 @@ CATEGORY Logging
     TRUE Log Game Status
     TRUE Log RakNet Startup Errors
 CATEGORY Miscellaneous
+    CATEGORY API
+        TRUE Implement RaspberryJuice API
+        TRUE Optimized API Sockets
     TRUE Fullscreen Support
     TRUE Always Save Chest Tile Entities
     TRUE Screenshot Support
     TRUE Add Camera Functionality
     TRUE Update Default Options
     TRUE Remove Chest Placement Restrictions
-    TRUE Implement RaspberryJuice API

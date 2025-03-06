@@ -74,7 +74,7 @@ By default, MCPI-Reborn runs in a "compatibility mode." This makes it completely
   * Description: Move the camera to the given position. The XZ-coordinates are automatically offset by `0.5`.
 * `events.clear()`
   * Description: Clear all queued events.
-  * Note: On RaspberryJuice, this *does not* clear projectile events. This behavior is maintained only in compatibility mode.
+  * Note: On RaspberryJuice, this *does not* clear projectile events. This behavior is maintained only in the compatibility mode.
 * `events.block.hits()`
   * Description: Retrieve all queued block hit events.
   * Output: List of `x,y,z,face,entity_id`

@@ -103,6 +103,8 @@ add_library(mods SHARED
     src/api/api.cpp
     src/api/events.cpp
     src/api/compat.cpp
+    src/api/misc.cpp
+    src/api/socket.cpp
     # shading
     src/shading/init.cpp
     src/shading/tesselator.cpp

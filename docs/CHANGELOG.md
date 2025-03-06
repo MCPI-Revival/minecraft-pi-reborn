@@ -67,6 +67,7 @@
     * `Fix Torch Placement` (Enabled By Default)
     * `Fix Eggs Spawning Abnormally Healthy Chickens` (Enabled By Default)
     * `Correctly Close API Sockets` (Enabled By Default)
+    * `Optimized API Sockets` (Enabled By Default)
   * Existing Functionality (All Enabled By Default)
     * `Fix Screen Rendering When Hiding HUD`
     * `Sanitize Usernames`
