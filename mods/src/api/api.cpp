@@ -142,6 +142,23 @@ static bool is_entity_selected(Entity *entity, const int target_type) {
     return type > 0 && (target_type == no_entity_id || target_type == type);
 }
 
+// Get Selected Item
+static ItemInstance *get_selected_item(Entity *entity) {
+    ItemInstance *item = nullptr;
+    if (entity->isMob()) {
+        // Mob/Player
+        item = ((Mob *) entity)->getCarriedItem();
+        if (!item) {
+            static ItemInstance air = {0, 0, 0};
+            item = &air;
+        }
+    } else if (entity->getEntityTypeId() == static_cast<int>(EntityType::DROPPED_ITEM)) {
+        // Dropped Item
+        item = &((ItemEntity *) entity)->item;
+    }
+    return item;
+}
+
 // Read Arguments
 #define next_string(out, required) \
     std::string out; \
@@ -214,7 +231,7 @@ static std::string CommandServer_parse_injection(CommandServer_parse_t original,
     }
 
     // Read Arguments
-    std::stringstream args(args_str.data());
+    std::istringstream args(std::string(args_str), std::ios::in);
 
     // Manipulate The Level
     package(world) {
@@ -249,9 +266,9 @@ static std::string CommandServer_parse_injection(CommandServer_parse_t original,
             // Search
             std::string username = api_get_input(input);
             for (Player *player : server->minecraft->level->players) {
-                if (misc_get_player_username_utf(player) == username) {
+                if (player->username == username) {
                     // Found
-                    return std::to_string(player->id) + "\n";
+                    return std::to_string(player->id) + '\n';
                 }
             }
             return CommandServer::Fail;
@@ -341,10 +358,16 @@ static std::string CommandServer_parse_injection(CommandServer_parse_t original,
                 .auxiliary = data
             };
             // Spawn
-            ItemEntity *entity = ItemEntity::allocate();
-            entity->constructor(server->minecraft->level, x, y, z, item);
-            entity->velocity_x = entity->velocity_y = entity->velocity_z = 0;
-            entity->moveTo(x, y, z, 0, 0);
+            ItemEntity *entity = (ItemEntity *) misc_make_entity_from_id(
+                server->minecraft->level,
+                static_cast<int>(EntityType::DROPPED_ITEM),
+                x, y, z,
+                false
+            );
+            if (!entity) {
+                return CommandServer::Fail;
+            }
+            entity->item = item;
             server->minecraft->level->addEntity((Entity *) entity);
             return std::to_string(entity->id) + '\n';
         }
@@ -593,18 +616,7 @@ static std::string CommandServer_parse_injection(CommandServer_parse_t original,
             // Parse
             get_entity(Fail);
             // Get Item
-            ItemInstance air = {0, 0, 0};
-            ItemInstance *item = nullptr;
-            if (entity->isMob()) {
-                // Mob/Player
-                item = ((Mob *) entity)->getCarriedItem();
-                if (!item) {
-                    item = &air;
-                }
-            } else if (entity->getEntityTypeId() == static_cast<int>(EntityType::DROPPED_ITEM)) {
-                // Dropped Item
-                item = &((ItemEntity *) entity)->item;
-            }
+            ItemInstance *item = get_selected_item(entity);
             if (!item) {
                 // Entity Does Not Carry Items
                 return CommandServer::Fail;

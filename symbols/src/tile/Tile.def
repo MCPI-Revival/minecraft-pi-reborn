@@ -99,6 +99,7 @@ static-property Tile *stoneSlab = 0x181b44;
 static-property Tile *fire = 0x181de0;
 static-property Tile *sand = 0x181b20;
 static-property Tile *torch = 0x181d58;
+static-property Tile *rock = 0x181c90;
 
 // "Carried" Tiles
 static-property Tile *leaves_carried = 0x181dd8;

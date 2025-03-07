@@ -205,7 +205,7 @@ std::map<EntityType, std::pair<std::string, std::string>> &misc_get_entity_type_
 }
 
 // Spawn Entities
-Entity *misc_make_entity_from_id(Level *level, const int id, const float x, const float y, const float z) {
+Entity *misc_make_entity_from_id(Level *level, const int id, const float x, const float y, const float z, const bool add_to_level) {
     // Create
     Entity *entity;
     if (id < static_cast<int>(EntityType::DROPPED_ITEM)) {
@@ -254,12 +254,16 @@ Entity *misc_make_entity_from_id(Level *level, const int id, const float x, cons
             }
             case static_cast<int>(EntityType::DROPPED_ITEM): {
                 // Sensible Default
-                ((ItemEntity *) entity)->item.constructor_item(Item::sword_iron);
+                ItemEntity *item = (ItemEntity *) entity;
+                item->item.constructor_tile(Tile::rock);
+                item->pickup_delay = 10;
                 break;
             }
         }
         // Add To World
-        level->addEntity(entity);
+        if (add_to_level) {
+            level->addEntity(entity);
+        }
     }
     // Return
     return entity;
