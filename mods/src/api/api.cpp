@@ -321,6 +321,33 @@ static std::string CommandServer_parse_injection(CommandServer_parse_t original,
             }
             return std::to_string(entity->id) + '\n';
         }
+        command(spawnItem) {
+            // Parse
+            next_float(x);
+            next_float(y);
+            next_float(z);
+            next_int(item_id);
+            next_int(count);
+            next_int(data);
+            // Translate
+            server->pos_translator.from_float(x, y, z);
+            // Check Item Type
+            if (count <= 0 || !Item::items[item_id]) {
+                return CommandServer::Fail;
+            }
+            ItemInstance item = {
+                .count = count,
+                .id = item_id,
+                .auxiliary = data
+            };
+            // Spawn
+            ItemEntity *entity = ItemEntity::allocate();
+            entity->constructor(server->minecraft->level, x, y, z, item);
+            entity->velocity_x = entity->velocity_y = entity->velocity_z = 0;
+            entity->moveTo(x, y, z, 0, 0);
+            server->minecraft->level->addEntity((Entity *) entity);
+            return std::to_string(entity->id) + '\n';
+        }
 
         // Get All Valid Entity Types
         command(getEntityTypes) {
@@ -559,6 +586,35 @@ static std::string CommandServer_parse_injection(CommandServer_parse_t original,
             get_entity(Fail);
             // Get
             return api_join_outputs({std::to_string(entity->velocity_x), std::to_string(entity->velocity_y), std::to_string(entity->velocity_z)}, arg_separator);
+        }
+
+        // Selected Item
+        command(getSelectedItem) {
+            // Parse
+            get_entity(Fail);
+            // Get Item
+            ItemInstance air = {0, 0, 0};
+            ItemInstance *item = nullptr;
+            if (entity->isMob()) {
+                // Mob/Player
+                item = ((Mob *) entity)->getCarriedItem();
+                if (!item) {
+                    item = &air;
+                }
+            } else if (entity->getEntityTypeId() == static_cast<int>(EntityType::DROPPED_ITEM)) {
+                // Dropped Item
+                item = &((ItemEntity *) entity)->item;
+            }
+            if (!item) {
+                // Entity Does Not Carry Items
+                return CommandServer::Fail;
+            }
+            // Return
+            return api_join_outputs({
+                std::to_string(item->id),
+                std::to_string(item->count),
+                std::to_string(item->auxiliary)
+            }, arg_separator);
         }
 #undef get_entity
 #undef _get_entity
