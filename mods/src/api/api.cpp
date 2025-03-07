@@ -440,7 +440,7 @@ static std::string CommandServer_parse_injection(CommandServer_parse_t original,
             return std::to_string(server->minecraft->level->data.seed) + '\n';
         }
         command(getGameMode) {
-            return std::to_string(server->minecraft->isCreativeMode()) + '\n';
+            return std::to_string(server->minecraft->level->data.game_type) + '\n';
         }
     }
 

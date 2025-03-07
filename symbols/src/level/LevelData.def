@@ -4,3 +4,4 @@ method bool getSpawnMobs() = 0xbabec;
 
 property int time = 0x68;
 property int seed = 0x58;
+property int game_type = 0x7c;
