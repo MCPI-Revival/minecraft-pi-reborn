@@ -1,7 +1,5 @@
 #pragma once
 
-#include <symbols/minecraft.h>
-
 // Custom Screen
 CREATE_HELPER(Screen)
     // Functions

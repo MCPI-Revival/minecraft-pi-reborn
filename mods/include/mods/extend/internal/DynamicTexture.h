@@ -1,8 +1,6 @@
 #pragma once
 
-#include <symbols/minecraft.h>
-
-// Custom Screen
+// Custom Animated Texture
 CREATE_HELPER(DynamicTexture)
     // Functions
     virtual void tick() = 0;

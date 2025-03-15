@@ -3,6 +3,8 @@
 #include <cstring>
 #include <utility>
 
+#include <symbols/minecraft.h>
+
 // Duplicate VTable
 template <typename T>
 T *extend_dup_vtable(T *vtable) {
@@ -65,6 +67,8 @@ auto extend_struct(auto&&... args) -> decltype(Self::allocate()) {
     protected: \
         virtual ~Custom##name() = default; \
     public:
-#include "Screen.h"
-#include "DynamicTexture.h"
+#include "internal/Screen.h"
+#include "internal/DynamicTexture.h"
+#include "internal/Item.h"
+#include "internal/Tile.h"
 #undef CREATE_HELPER
