@@ -55,8 +55,9 @@ auto extend_struct(auto&&... args) -> decltype(Self::allocate()) {
 // Helpers
 #define CREATE_HELPER(name) \
     struct Custom##name { \
+        __PREVENT_COPY(Custom##name); \
         using _Self = name; \
-        explicit Custom##name(auto&&... args): self(((name *) this) - 1) { \
+        Custom##name(auto&&... args): self(((name *) this) - 1) { \
             self->constructor(std::forward<decltype(args)>(args)...); \
             self->vtable = get_vtable(); \
         } \
