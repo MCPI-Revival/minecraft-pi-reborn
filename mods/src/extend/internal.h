@@ -4,22 +4,21 @@
 
 // VTable Patching
 #define PATCH_VTABLE(name) \
-    vtable->name = [](_Self *self, auto... args) { \
-        return extend_get_data<_Self, _Data>(self)->name(std::forward<decltype(args)>(args)...); \
+    vtable->name = [](_Data::_Self *self, auto... args) { \
+        return extend_get_data<_Data::_Self, _Data>(self)->name(std::forward<decltype(args)>(args)...); \
     }
-#define _PATCH_VTABLE_DESTRUCTOR(name, type) \
-    vtable->type = [](_Self *self) { \
-        extend_get_data<_Self, _Data>(self)->~_Data(); \
-        return name##_vtable::base->type(self); \
+#define _PATCH_VTABLE_DESTRUCTOR(type) \
+    vtable->type = [](_Data::_Self *self) { \
+        extend_get_data<_Data::_Self, _Data>(self)->~_Data(); \
+        return _Data::_VTable::base->type(self); \
     }
 #define _PATCH_VTABLE_DESTRUCTORS(name) \
-    _PATCH_VTABLE_DESTRUCTOR(name, destructor_complete); \
-    _PATCH_VTABLE_DESTRUCTOR(name, destructor_deleting)
+    _PATCH_VTABLE_DESTRUCTOR(destructor_complete); \
+    _PATCH_VTABLE_DESTRUCTOR(destructor_deleting)
 #define SETUP_VTABLE(name) \
-    name##_vtable *Custom##name::get_vtable() { \
-        return extend_get_vtable<name##_vtable, setup_vtable>(); \
-    } \
-    typedef name _Self; \
     typedef Custom##name _Data; \
-    void Custom##name::setup_vtable(name##_vtable *vtable) { \
-        _PATCH_VTABLE_DESTRUCTORS(name);
+    _Data::_VTable *Custom##name::get_vtable() { \
+        return extend_get_vtable<_Data::_VTable, setup_vtable>(); \
+    } \
+    void _Data::setup_vtable(_Data::_VTable *vtable) { \
+        _PATCH_VTABLE_DESTRUCTORS();

@@ -55,16 +55,18 @@ auto extend_struct(auto&&... args) -> decltype(Self::allocate()) {
 // Helpers
 #define CREATE_HELPER(name) \
     struct Custom##name { \
+        typedef name _Self; \
+        typedef name##_vtable _VTable; \
+        _Self *const self; \
         __PREVENT_COPY(Custom##name); \
-        using _Self = name; \
-        Custom##name(auto&&... args): self(((name *) this) - 1) { \
-            self->constructor(std::forward<decltype(args)>(args)...); \
+        template <typename... Args> \
+        Custom##name(Args&&... args): self(((_Self *) this) - 1) { \
+            self->constructor(std::forward<Args>(args)...); \
             self->vtable = get_vtable(); \
         } \
-        _Self *const self; \
-        static name##_vtable *get_vtable(); \
+        static _VTable *get_vtable(); \
     private: \
-        static void setup_vtable(name##_vtable *vtable); \
+        static void setup_vtable(_VTable *vtable); \
     protected: \
         virtual ~Custom##name() = default; \
     public:
