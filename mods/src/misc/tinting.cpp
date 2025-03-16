@@ -1,5 +1,3 @@
-#include <cstdint>
-
 #include <libreborn/patch.h>
 #include <symbols/minecraft.h>
 #include <GLES/gl.h>
@@ -61,26 +59,25 @@ static int32_t TallGrass_getColor_injection(TallGrass_getColor_t original, TallG
 }
 
 // Grass Side Tinting
-CUSTOM_VTABLE(grass_side, Tile) {
-    vtable->shouldRenderFace = [](Tile *self, LevelSource *level_source, const int x, const int y, const int z, const int face) {
+struct GrassSideTile final : CustomTile {
+    GrassSideTile(const int id, const int texture, const Material *material) : CustomTile(id, texture, material) {}
+    bool shouldRenderFace(LevelSource *level_source, const int x, const int y, const int z, const int face) override {
         return face > 1 && Tile_vtable::base->shouldRenderFace(self, level_source, x, y, z, face);
-    };
-    vtable->getColor = [](Tile *self, LevelSource *level_source, const int32_t x, const int32_t y, const int32_t z) {
+    }
+    int getColor(LevelSource *level_source, const int x, const int y, const int z) override {
         return GrassTile_getColor_injection(nullptr, (GrassTile *) self, level_source, x, y, z);
-    };
-}
+    }
+};
 static Tile *get_fake_grass_side_tile() {
     static Tile *out = nullptr;
     if (out == nullptr) {
-        out = Tile::allocate();
-        out->constructor(0, 38, Material::dirt);
-        out->vtable = get_grass_side_vtable();
+        out = extend_struct<GrassSideTile>(0, 38, Material::dirt);
     }
     return out;
 }
 static bool TileRenderer_tesselateBlockInWorld_injection(TileRenderer_tesselateBlockInWorld_t original, TileRenderer *self, Tile *tile, const int x, const int y, const int z) {
     const bool ret = original(self, tile, x, y, z);
-    if (tile == Tile::grass && tile->getTexture3((LevelSource *) self->level, x, y, z, 2) == 3) {
+    if (tile == Tile::grass && tile->getTexture3(self->level, x, y, z, 2) == 3) {
         original(self, get_fake_grass_side_tile(), x, y, z);
     }
     return ret;

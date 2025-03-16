@@ -5,11 +5,11 @@
 // VTable Patching
 #define PATCH_VTABLE(name) \
     vtable->name = [](_Data::_Self *self, auto... args) { \
-        return extend_get_data<_Data::_Self, _Data>(self)->name(std::forward<decltype(args)>(args)...); \
+        return extend_get_data<_Data>(self)->name(std::forward<decltype(args)>(args)...); \
     }
 #define _PATCH_VTABLE_DESTRUCTOR(type) \
     vtable->type = [](_Data::_Self *self) { \
-        extend_get_data<_Data::_Self, _Data>(self)->~_Data(); \
+        extend_get_data<_Data>(self)->~_Data(); \
         return _Data::_VTable::base->type(self); \
     }
 #define _PATCH_VTABLE_DESTRUCTORS(name) \

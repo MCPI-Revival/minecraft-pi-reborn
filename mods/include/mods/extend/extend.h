@@ -39,15 +39,15 @@ T *extend_get_vtable() {
     static void setup_##name##_vtable(parent##_vtable *vtable)
 
 // Extend MCPI Classes
-template <typename Self, typename Data>
-Data *extend_get_data(Self *self) {
+template <typename Data>
+Data *extend_get_data(typename Data::_Self *self) {
     return (Data *) (self + 1);
 }
 template <typename Data, typename Self = typename Data::_Self>
 auto extend_struct(auto&&... args) -> decltype(Self::allocate()) {
     constexpr size_t size = sizeof(Self) + sizeof(Data);
     Self *out = (Self *) ::operator new(size);
-    Data *data = extend_get_data<Self, Data>(out);
+    Data *data = extend_get_data<Data>(out);
     new (data) Data(std::forward<decltype(args)>(args)...);
     return out;
 }
@@ -60,7 +60,7 @@ auto extend_struct(auto&&... args) -> decltype(Self::allocate()) {
         _Self *const self; \
         __PREVENT_COPY(Custom##name); \
         template <typename... Args> \
-        Custom##name(Args&&... args): self(((_Self *) this) - 1) { \
+        explicit Custom##name(Args&&... args): self(((_Self *) this) - 1) { \
             self->constructor(std::forward<Args>(args)...); \
             self->vtable = get_vtable(); \
         } \
