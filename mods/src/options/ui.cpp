@@ -2,10 +2,12 @@
 #include <cstdint>
 
 #include <libreborn/patch.h>
+#include <libreborn/util/exec.h>
 
 #include <symbols/minecraft.h>
 
 #include <mods/feature/feature.h>
+#include <mods/options/options.h>
 
 #include "internal.h"
 
@@ -156,6 +158,17 @@ static void OptionsScreen_removed_injection(OptionsScreen_removed_t original, Op
     original(self);
 }
 
+// Show Documentation About Sound Data
+static void OptionButton_toggle_injection(OptionButton_toggle_t original, OptionButton *self, Options *options) {
+    if (self->option == &Options_Option::SOUND && info_sound_data_state != info_sound_data_loaded) {
+        // Open
+        open_url(SOUND_DOC_URL);
+    } else {
+        // Call Original Method
+        original(self, options);
+    }
+}
+
 // Init
 void _init_options_ui() {
     // Fix Options Screen
@@ -181,6 +194,9 @@ void _init_options_ui() {
 
         // Fix Difficulty When Toggling
         overwrite_call((void *) 0x1cd00, Options_save, OptionButton_toggle_Options_save_injection);
+
+        // Show Documentation When User Attempts To Enable Sound Despite Missing Data
+        overwrite_calls(OptionButton_toggle, OptionButton_toggle_injection);
     }
 
     // Info Button

@@ -8,10 +8,10 @@
 #include <mods/feature/feature.h>
 #include <mods/override/override.h>
 #include <mods/init/init.h>
+#include <mods/options/options.h>
 
 // Resolve Source File Path
 #define SOURCE_FILE_BASE "data/libminecraftpe.so"
-extern std::string info_sound_data_state;
 std::string _sound_get_source_file() {
     static bool source_loaded = false;
     static std::string source;
@@ -36,7 +36,7 @@ std::string _sound_get_source_file() {
         } else {
             // Set
             source = full_path;
-            info_sound_data_state = "Loaded";
+            info_sound_data_state = info_sound_data_loaded;
         }
 
         // Mark As Loaded

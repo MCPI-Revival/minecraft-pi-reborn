@@ -1,5 +1,4 @@
 #include <libreborn/util/exec.h>
-#include <libreborn/config.h>
 #include <libreborn/util/util.h>
 
 #include <symbols/minecraft.h>
@@ -64,7 +63,7 @@ static info_line info[] = {
         .get_text = []() {
             return std::string("Sound Data: ") + info_sound_data_state;
         },
-        .button_url = MCPI_DOCS_GETTING_STARTED "#sound",
+        .button_url = SOUND_DOC_URL,
         .button_text = "More Info"
     },
 };

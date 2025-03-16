@@ -8,6 +8,7 @@
 #include <mods/touch/touch.h>
 #include <mods/input/input.h>
 
+// Store History
 static std::vector<std::string> &get_history() {
     static std::vector<std::string> history = {};
     return history;

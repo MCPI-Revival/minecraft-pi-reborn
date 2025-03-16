@@ -5,7 +5,6 @@
 #include <fstream>
 
 #include <libreborn/patch.h>
-#include <libreborn/config.h>
 #include <libreborn/env/env.h>
 #include <libreborn/util/string.h>
 #include <libreborn/util/util.h>
@@ -14,6 +13,7 @@
 
 #include <mods/feature/feature.h>
 #include <mods/init/init.h>
+#include <mods/options/options.h>
 
 #include "internal.h"
 
@@ -51,6 +51,10 @@ static void Options_initDefaultValue_injection(Options_initDefaultValue_t origin
     // Default Graphics Settings
     options->fancy_graphics = true;
     options->ambient_occlusion = true;
+    // Mute If Sound Data Is Missing
+    if (info_sound_data_state != info_sound_data_loaded) {
+        options->sound = 0;
+    }
 }
 static void Minecraft_init_injection(Minecraft_init_t original, Minecraft *minecraft) {
     // Call Original Method

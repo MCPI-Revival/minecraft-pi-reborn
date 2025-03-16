@@ -3,3 +3,4 @@ static-property Options_Option AMBIENT_OCCLUSION = 0x136c38;
 static-property Options_Option ANAGLYPH = 0x136c08;
 static-property Options_Option DIFFICULTY = 0x136c20;
 static-property Options_Option SERVER_VISIBLE = 0x136c68;
+static-property Options_Option SOUND = 0x136bcc;

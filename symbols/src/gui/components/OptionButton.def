@@ -3,5 +3,6 @@ extends ImageButton;
 constructor (const Options_Option *option) = 0x1c968;
 
 method void updateImage(Options *options) = 0x1ca58;
+method void toggle(Options *options) = 0x1cb08;
 
 property Options_Option *option = 0x54;
