@@ -127,8 +127,10 @@ struct Cake final : CustomTile {
     }
 };
 static Tile *cake = nullptr;
+static TilePlanterItem *cake_item = nullptr;
 
 // Makes The Cakes
+static constexpr const char *cake_description = "cake";
 static void make_cake() {
     // Construct
     cake = extend_struct<Cake>(92, 122, Material::dirt);
@@ -138,7 +140,7 @@ static void make_cake() {
 
     // Init
     cake->init();
-    cake->setDescriptionId("cake");
+    cake->setDescriptionId(cake_description);
     cake->setDestroyTime(1.0f);
     cake->setExplodeable(20.0f);
     cake->category = 4;
@@ -146,13 +148,22 @@ static void make_cake() {
 static void Tile_initTiles_injection() {
     make_cake();
 }
+static void Item_initTiles_injection() {
+    // Create Item
+    cake_item = TilePlanterItem::allocate();
+    ((Item *) cake_item)->constructor(98);
+    cake_item->vtable = TilePlanterItem_vtable::base;
+    cake_item->tile_id = cake->id;
+    cake_item->setIcon(13, 1);
+    cake_item->setDescriptionId(cake_description);
+}
 
 // Add Cake To Creative Inventory
 static void Inventory_setupDefault_FillingContainer_addItem_call_injection(FillingContainer *filling_container) {
     ItemInstance *cake_instance = new ItemInstance;
     cake_instance->count = 255;
     cake_instance->auxiliary = 0;
-    cake_instance->id = 92;
+    cake_instance->id = cake_item->id;
     filling_container->addItem(cake_instance);
 }
 
@@ -203,9 +214,9 @@ static void Recipes_injection(Recipes *recipes) {
         .letter = 'm'
     };
     // Cake
-    ItemInstance cake_item = {
+    ItemInstance cake_item_obj = {
         .count = 1,
-        .id = 92,
+        .id = cake_item->id,
         .auxiliary = 0
     };
     // Add
@@ -213,7 +224,7 @@ static void Recipes_injection(Recipes *recipes) {
     std::string line2 = "ses";
     std::string line3 = "www";
     std::vector ingredients = {milk, sugar, wheat, eggs};
-    recipes->addShapedRecipe_3(cake_item, line1, line2, line3, ingredients);
+    recipes->addShapedRecipe_3(cake_item_obj, line1, line2, line3, ingredients);
 }
 
 // Init
@@ -221,6 +232,7 @@ void init_cake() {
     // Add Cakes
     if (feature_has("Add Cake", server_enabled)) {
         misc_run_on_tiles_setup(Tile_initTiles_injection);
+        misc_run_on_items_setup(Item_initTiles_injection);
         misc_run_on_creative_inventory_setup(Inventory_setupDefault_FillingContainer_addItem_call_injection);
         if (buckets_enabled) {
             // The recipe needs milk buckets
