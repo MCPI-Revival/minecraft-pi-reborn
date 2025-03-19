@@ -100,7 +100,8 @@ if (!options.install) {
 
 // Use Build Tools
 const buildTools = getBuildToolsBin();
-const hasBuildTools = fs.existsSync(buildTools);
+const makeTool = 'make';
+const hasBuildTools = fs.existsSync(path.join(buildTools, makeTool));
 if (hasBuildTools) {
     function prependEnv(env, value) {
         const old = process.env[env];
@@ -121,11 +122,10 @@ configure.push('-S', root, '-B', build);
 run(configure);
 
 // Build
-const config = options.debug ? 'Debug' : 'Release';
-const configArg = ['--config', config];
+const configArg = ['--config', options.debug ? 'Debug' : 'Release'];
 if (hasBuildTools) {
-    fs.writeFileSync(path.join(build, 'Makefile'), `.PHONY: all\nall:\n\t+@ninja -f build-${config}.ninja\n`);
-    run(['make', '-C', build, getParallelFlag(), '--jobserver-style=fifo']);
+    fs.writeFileSync(path.join(build, 'Makefile'), `.PHONY: all\nall:\n\t+@cmake --build . ${configArg.join(' ')}\n`);
+    run([makeTool, '-C', build, getParallelFlag(), '--jobserver-style=fifo']);
 } else {
     run(['cmake', '--build', build, getParallelFlag(), ...configArg]);
 }
