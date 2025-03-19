@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 import * as path from 'node:path';
 import * as fs from 'node:fs';
-import { err, run, makeExecutable, getDebianVersion, getScriptsDir, info, doesPackageExist } from './lib/util.mjs';
+import { err, run, getDebianVersion, info, doesPackageExist, getBuildToolsDir, createDir, getBuildToolsBin, getParallelFlag } from './lib/util.mjs';
 import { parseOptions, Enum, Architectures } from './lib/options.mjs';
 
 // Check System
@@ -47,17 +47,25 @@ run(['apt-get', 'dist-upgrade', '-y']);
 // Install Packages
 const packages = [];
 function addPackageForBuild(...arr) {
-    // The machine the package is built on.
+    // This will install packages thet match
+    // the build machine's architecture.
+    // This is usually used for build tools.
     packages.push(...arr);
 }
 function getPackageForHost(name) {
     return name + archSuffix;
 }
 function addPackageForHost(...arr) {
-    // The machine the package is built for.
+    // This will install packages thet match
+    // the host machine's architecture.
+    // This is usually used for libraries.
     for (const name of arr) {
         packages.push(getPackageForHost(name));
     }
+}
+function installPackages() {
+    // Install Queued Packages
+    run(['apt-get', 'install', '--no-install-recommends', '-y', ...packages]);
 }
 
 // Build Dependencies
@@ -67,7 +75,9 @@ handlers.set(Modes.Build, function () {
     addPackageForBuild(
         'git',
         'cmake' + backportsSuffix,
-        'ninja-build'
+        // For Build Tools
+        'make',
+        're2c'
     );
 
     // Compiler
@@ -107,23 +117,21 @@ handlers.set(Modes.Build, function () {
         'zsync'
     );
 
-    // Download AppImageTool
-    function getAppImageArch() {
-        switch (process.arch) {
-            case 'x64': return 'x86_64';
-            case 'arm64': return 'aarch64';
-            case 'arm': return 'armhf';
-            default: err('Unsupported Build Architecture');
-        }
-    }
-    let appimagetool = '/opt/appimagetool';
-    run(['wget', '-O', appimagetool, `https://github.com/AppImage/appimagetool/releases/download/continuous/appimagetool-${getAppImageArch()}.AppImage`]);
-    makeExecutable(appimagetool);
-    run([getScriptsDir() + '/fix-appimage-for-docker.sh', appimagetool]);
-    const script = `#!/bin/sh\nexec ${appimagetool} --appimage-extract-and-run "$@"\n`;
-    appimagetool = '/usr/local/bin/' + path.basename(appimagetool);
-    fs.writeFileSync(appimagetool, script);
-    makeExecutable(appimagetool);
+    // Install Packages
+    installPackages();
+
+    // Build Tools
+    const buildToolsDir = getBuildToolsDir();
+    const buildDir = path.join(buildToolsDir, 'build');
+    createDir(buildDir, false);
+    run([
+        'cmake',
+        '-DCMAKE_BUILD_TYPE=Release',
+        '-DCMAKE_INSTALL_PREFIX=' + getBuildToolsBin(),
+        '-S', buildToolsDir, '-B', buildDir
+    ]);
+    run(['cmake', '--build', buildDir, getParallelFlag()]);
+    run(['cmake', '--install', buildDir]);
 });
 
 // Testing Dependencies
@@ -139,6 +147,7 @@ handlers.set(Modes.Test, function () {
         'libopenal1',
         glib
     );
+    installPackages();
 });
 
 // SDK Usage Dependencies
@@ -149,10 +158,8 @@ handlers.set(Modes.SDK, function () {
         'g++-arm-linux-gnueabihf',
         'gcc-arm-linux-gnueabihf'
     );
+    installPackages();
 });
 
 // Run
 handlers.get(options.mode)();
-
-// Install Packages
-run(['apt-get', 'install', '--no-install-recommends', '-y', ...packages]);

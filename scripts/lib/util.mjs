@@ -2,6 +2,7 @@ import * as child_process from 'node:child_process';
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 import * as url from 'node:url';
+import * as os from 'node:os';
 
 // Logging
 const EXIT_FAILURE = 1;
@@ -56,22 +57,24 @@ export function getDebianVersion() {
     return 'unknown';
 }
 
-// Make File Executable
-export function makeExecutable(path) {
-    fs.chmodSync(path,
-        fs.constants.S_IRUSR |
-        fs.constants.S_IWUSR |
-        fs.constants.S_IXUSR |
-        fs.constants.S_IRGRP |
-        fs.constants.S_IXGRP |
-        fs.constants.S_IROTH |
-        fs.constants.S_IXOTH
-    );
-}
-
 // Get Scripts Directory
 export function getScriptsDir() {
     const __filename = url.fileURLToPath(import.meta.url);
     const __dirname = path.dirname(__filename);
     return path.join(__dirname, '..');
+}
+
+// Custom Build Tools
+export function getBuildToolsDir() {
+    return path.join(getScriptsDir(), '..', 'tools');
+}
+export function getBuildToolsBin() {
+    const dir = path.join(getBuildToolsDir(), 'bin');
+    createDir(dir, false);
+    return dir;
+}
+
+// Get '-jX' Flag For Build Tools
+export function getParallelFlag() {
+    return '-j' + os.cpus().length;
 }

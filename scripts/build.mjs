@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 import * as path from 'node:path';
 import * as fs from 'node:fs';
-import { info, err, run, createDir, getScriptsDir } from './lib/util.mjs';
+import { info, err, run, createDir, getScriptsDir, getBuildToolsBin, getParallelFlag } from './lib/util.mjs';
 import { parseOptions, Enum, Architectures } from './lib/options.mjs';
 
 // CMake Options
@@ -98,6 +98,20 @@ if (!options.install) {
     createDir(out, !useOutRoot);
 }
 
+// Use Build Tools
+const buildTools = getBuildToolsBin();
+const hasBuildTools = fs.existsSync(buildTools);
+if (hasBuildTools) {
+    function prependEnv(env, value) {
+        const old = process.env[env];
+        if (old) {
+            value += ':' + old;
+        }
+        process.env[env] = value;
+    }
+    prependEnv('PATH', getBuildToolsBin());
+}
+
 // Run CMake
 const configure = ['cmake', '-GNinja Multi-Config'];
 cmakeOptions.forEach((value, key) => {
@@ -107,8 +121,14 @@ configure.push('-S', root, '-B', build);
 run(configure);
 
 // Build
-const configArg = ['--config', options.debug ? 'Debug' : 'Release'];
-run(['cmake', '--build', build, ...configArg]);
+const config = options.debug ? 'Debug' : 'Release';
+const configArg = ['--config', config];
+if (hasBuildTools) {
+    fs.writeFileSync(path.join(build, 'Makefile'), `.PHONY: all\nall:\n\t+@ninja -f build-${config}.ninja\n`);
+    run(['make', '-C', build, getParallelFlag(), '--jobserver-style=fifo']);
+} else {
+    run(['cmake', '--build', build, getParallelFlag(), ...configArg]);
+}
 
 // Package
 if (options.packageType !== PackageTypes.AppImage) {

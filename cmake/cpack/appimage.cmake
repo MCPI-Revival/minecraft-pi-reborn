@@ -1,3 +1,6 @@
+# Utility Functions
+include("${CMAKE_CURRENT_LIST_DIR}/../util/util.cmake")
+
 # Download AppImage Runtime
 set(RUNTIME_ARCH "unknown")
 if(CPACK_MCPI_ARCH STREQUAL "armhf")
@@ -8,18 +11,11 @@ elseif(CPACK_MCPI_ARCH STREQUAL "amd64")
     set(RUNTIME_ARCH "x86_64")
 endif()
 set(RUNTIME "${CPACK_TOPLEVEL_DIRECTORY}/runtime")
-file(DOWNLOAD
+safe_download(
+    "AppImage Runtime"
     "https://github.com/AppImage/type2-runtime/releases/download/continuous/runtime-${RUNTIME_ARCH}"
     "${RUNTIME}"
-    STATUS DOWNLOAD_STATUS
 )
-list(GET DOWNLOAD_STATUS 0 STATUS_CODE)
-list(GET DOWNLOAD_STATUS 1 ERROR_MESSAGE)
-if(NOT STATUS_CODE EQUAL 0)
-    message(FATAL_ERROR "Unable To Download AppImage Runtime: ${ERROR_MESSAGE}")
-else()
-    message(STATUS "Downloaded AppImage Runtime: ${RUNTIME}")
-endif()
 
 # Package
 set(APPIMAGE_ARCH "unknown")
