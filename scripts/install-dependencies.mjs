@@ -81,8 +81,8 @@ handlers.set(Modes.Build, function () {
         // For Building AppStream
         'meson' + backportsSuffix,
         'libyaml-dev',
-        'libxmlb-dev',
         'liblzma-dev',
+        'libzstd-dev',
         'libcurl4-openssl-dev',
         'libglib2.0-dev',
         'gperf'

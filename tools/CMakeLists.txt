@@ -62,14 +62,12 @@ ExternalProject_Add(appstream
     # Configure
     CONFIGURE_COMMAND
         "meson" "setup"
-        "--reconfigure"
         "--prefix=<INSTALL_DIR>"
         "--buildtype=release"
         "--default-library=static"
         "-Dsystemd=false"
         "-Dstemming=false"
         "-Dgir=false"
-        "-Dzstd-support=false"
         "<BINARY_DIR>" "<SOURCE_DIR>"
     CONFIGURE_HANDLED_BY_BUILD TRUE
     USES_TERMINAL_CONFIGURE TRUE
