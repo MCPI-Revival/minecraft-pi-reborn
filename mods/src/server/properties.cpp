@@ -1,12 +1,14 @@
 #include <fstream>
 
-#include <mods/server/server_properties.h>
+#include <mods/server/properties.h>
 
+// Get All Possible Properties
 std::vector<const ServerProperty *> &ServerProperty::get_all() {
     static std::vector<const ServerProperty *> out;
     return out;
 }
 
+// Load File
 void ServerProperties::load(std::istream &stream) {
     std::string line;
     while (std::getline(stream, line)) {
@@ -23,10 +25,10 @@ void ServerProperties::load(std::istream &stream) {
     }
 }
 
+// Get Value
 std::string ServerProperties::get_string(const ServerProperty &property) const {
     return properties.contains(property.key) ? properties.at(property.key) : property.def;
 }
-
 int ServerProperties::get_int(const ServerProperty &property) const {
     try {
         return std::stoi(get_string(property));
@@ -34,7 +36,6 @@ int ServerProperties::get_int(const ServerProperty &property) const {
         return std::stoi(property.def);
     }
 }
-
 static bool is_true(const std::string &val) {
     return val == "true" || val == "yes" || val == "1";
 }

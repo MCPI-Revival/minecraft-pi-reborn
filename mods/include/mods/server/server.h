@@ -2,7 +2,7 @@
 
 #include <symbols/minecraft.h>
 
-#include "server_properties.h"
+#include "properties.h"
 
 struct ServerCommand {
     const std::string name;

@@ -86,7 +86,8 @@ add_library(mods SHARED
     src/fps/fps.cpp
     # server
     src/server/server.cpp
-    src/server/server_properties.cpp
+    src/server/commands.cpp
+    src/server/properties.cpp
     # multiplayer
     src/multiplayer/multiplayer.cpp
     # benchmark

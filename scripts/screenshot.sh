@@ -2,6 +2,9 @@
 
 set -e
 
+# Change Directory
+cd "$(dirname "$0")/../"
+
 # Setup
 export XDG_SESSION_TYPE=x11
 unset MCPI_GUI_SCALE
