@@ -79,12 +79,12 @@ handlers.set(Modes.Build, function () {
         'ninja-build',
         're2c',
         // For Building AppStream
+        'meson' + backportsSuffix,
         'libyaml-dev',
         'libxmlb-dev',
         'liblzma-dev',
         'libcurl4-openssl-dev',
         'libglib2.0-dev',
-        'meson',
         'gperf'
     );
 
