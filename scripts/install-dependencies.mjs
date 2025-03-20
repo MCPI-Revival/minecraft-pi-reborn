@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 import * as path from 'node:path';
 import * as fs from 'node:fs';
-import { err, run, getDebianVersion, info, doesPackageExist, getBuildToolsDir, createDir, getBuildToolsBin, getParallelFlag } from './lib/util.mjs';
+import { err, run, getDebianVersion, info, doesPackageExist, getBuildToolsDir, createDir } from './lib/util.mjs';
 import { parseOptions, Enum, Architectures } from './lib/options.mjs';
 
 // Check System
@@ -75,9 +75,17 @@ handlers.set(Modes.Build, function () {
     addPackageForBuild(
         'git',
         'cmake' + backportsSuffix,
-        // For Build Tools
-        'make',
-        're2c'
+        // For Building Ninja
+        'ninja-build',
+        're2c',
+        // For Building AppStream
+        'libyaml-dev',
+        'libxmlb-dev',
+        'liblzma-dev',
+        'libcurl4-openssl-dev',
+        'libglib2.0-dev',
+        'meson',
+        'gperf'
     );
 
     // Compiler
@@ -112,10 +120,7 @@ handlers.set(Modes.Build, function () {
     addPackageForHost('libglib2.0-dev');
 
     // AppImage Dependencies
-    addPackageForBuild(
-        'appstream',
-        'zsync'
-    );
+    addPackageForBuild('zsync');
 
     // Install Packages
     installPackages();
@@ -126,11 +131,10 @@ handlers.set(Modes.Build, function () {
     createDir(buildDir, false);
     run([
         'cmake',
-        '-DCMAKE_BUILD_TYPE=Release',
-        '-DCMAKE_INSTALL_PREFIX=' + getBuildToolsBin(),
+        '-GNinja',
         '-S', buildToolsDir, '-B', buildDir
     ]);
-    run(['cmake', '--build', buildDir, getParallelFlag()]);
+    run(['cmake', '--build', buildDir]);
     run(['cmake', '--install', buildDir]);
 });
 

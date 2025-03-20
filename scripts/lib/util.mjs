@@ -2,7 +2,6 @@ import * as child_process from 'node:child_process';
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 import * as url from 'node:url';
-import * as os from 'node:os';
 
 // Logging
 const EXIT_FAILURE = 1;
@@ -72,9 +71,4 @@ export function getBuildToolsBin() {
     const dir = path.join(getBuildToolsDir(), 'bin');
     createDir(dir, false);
     return dir;
-}
-
-// Get '-jX' Flag For Build Tools
-export function getParallelFlag() {
-    return '-j' + os.cpus().length;
 }

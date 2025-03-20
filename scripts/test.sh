@@ -19,7 +19,7 @@ fi
 # Make Test Directory
 TEST_WORKING_DIR="$(pwd)/.testing-tmp"
 rm -rf "${TEST_WORKING_DIR}"
-mkdir -p "${TEST_WORKING_DIR}"
+mkdir "${TEST_WORKING_DIR}"
 ROOT="$(pwd)"
 cd "${TEST_WORKING_DIR}"
 
@@ -34,7 +34,7 @@ if [ "${MODE}" = "server" ]; then
     ./tmp.AppImage --appimage-extract-and-run --server --only-generate
 else
     # Client Test
-    export HOME="${TEST_WORKING_DIR}"
+    export MCPI_PROFILE_DIRECTORY="${TEST_WORKING_DIR}"
     ./tmp.AppImage --appimage-extract-and-run --default --no-cache --benchmark --force-headless
 fi
 

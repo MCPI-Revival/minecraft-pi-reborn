@@ -5,9 +5,38 @@ set -e
 # Setup
 export XDG_SESSION_TYPE=x11
 unset MCPI_GUI_SCALE
-export PATH="$(pwd)/out/host/usr/bin:${PATH}"
+unset MCPI_USERNAME
+export PATH="$(pwd)/out/none/host/usr/bin:${PATH}"
 
-# Setup Feature Flags
+# Game Directory
+export MCPI_PROFILE_DIRECTORY="$(pwd)/.testing-tmp"
+rm -rf "${MCPI_PROFILE_DIRECTORY}"
+mkdir "${MCPI_PROFILE_DIRECTORY}"
+
+# Take Screenshot
+screenshot() {
+    # Arguments
+    IMAGE="images/screenshots/$1.png"
+    TIMER="$2"
+    shift 2
+
+    # Run
+    minecraft-pi-reborn "$@" &
+    PID="$!"
+
+    # Screenshot
+    sleep "${TIMER}"
+    gnome-screenshot --window "--file=${IMAGE}"
+
+    # Kill
+    kill "${PID}"
+    wait "${PID}" || :
+}
+
+# Launcher
+screenshot launcher 0.5
+
+# Start Screen
 export MCPI_FEATURE_FLAGS="$(
     # Get All Feature Flags
     minecraft-pi-reborn --print-available-feature-flags |
@@ -19,15 +48,4 @@ export MCPI_FEATURE_FLAGS="$(
     # Format
     tr '\n' '|'
 )"
-
-# Run
-minecraft-pi-reborn --default --no-cache &
-PID="$!"
-
-# Screenshot
-sleep 3
-gnome-screenshot --window --file=images/start.png
-
-# Kill
-kill "${PID}"
-wait "${PID}"
+screenshot start 3 --default

@@ -189,6 +189,7 @@ if(BUILD_NATIVE_COMPONENTS)
         # Configure
         CMAKE_CACHE_ARGS ${ARM_OPTIONS}
         CMAKE_GENERATOR "Ninja Multi-Config"
+        CONFIGURE_HANDLED_BY_BUILD TRUE
         # Build
         BUILD_COMMAND
             "${CMAKE_COMMAND}" "--build" "<BINARY_DIR>" "--config" "$<CONFIG>"

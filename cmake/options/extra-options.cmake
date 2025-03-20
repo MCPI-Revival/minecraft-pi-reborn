@@ -29,9 +29,13 @@ else()
     set(BUILD_MEDIA_LAYER_CORE "${BUILD_ARM_COMPONENTS}")
 endif()
 
+# Author
+mcpi_option(AUTHOR "Author" STRING "TheBrokenRail")
+mcpi_option(AUTHOR_ID "Author ID" STRING "com.thebrokenrail")
+
 # App Information
 mcpi_option(APP_NAME "App Name" STRING "minecraft-pi-reborn")
-mcpi_option(APP_ID "App ID" STRING "com.thebrokenrail.MCPIReborn")
+mcpi_option(APP_ID "App ID" STRING "${MCPI_AUTHOR_ID}.MCPIReborn")
 mcpi_option(APP_TITLE "App Title" STRING "Minecraft: Pi Edition: Reborn")
 
 # Skin Server
@@ -48,9 +52,6 @@ set_property(
 )
 file(STRINGS "${CMAKE_CURRENT_LIST_DIR}/../../VERSION" MCPI_VERSION)
 file(TIMESTAMP "${CMAKE_CURRENT_LIST_DIR}/../../VERSION" MCPI_VERSION_DATE "%Y-%m-%d" UTC)
-
-# Author
-mcpi_option(AUTHOR "Author" STRING "TheBrokenRail")
 
 # Homepage
 mcpi_option(REPO_HOST "Repository Host" STRING "https://gitea.thebrokenrail.com")

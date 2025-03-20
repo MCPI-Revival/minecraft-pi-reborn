@@ -1,5 +1,5 @@
 <p align="center">
-    <img alt="Start Screen" src="images/start.png">
+    <img alt="Start Screen" src="images/screenshots/start.png">
 </p>
 
 <p align="center">

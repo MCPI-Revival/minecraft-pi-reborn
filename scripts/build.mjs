@@ -1,7 +1,8 @@
 #!/usr/bin/env node
 import * as path from 'node:path';
 import * as fs from 'node:fs';
-import { info, err, run, createDir, getScriptsDir, getBuildToolsBin, getParallelFlag } from './lib/util.mjs';
+import * as os from 'node:os';
+import { info, err, run, createDir, getScriptsDir, getBuildToolsBin } from './lib/util.mjs';
 import { parseOptions, Enum, Architectures } from './lib/options.mjs';
 
 // CMake Options
@@ -100,9 +101,9 @@ if (!options.install) {
 
 // Use Build Tools
 const buildTools = getBuildToolsBin();
-const makeTool = 'make';
-const hasBuildTools = fs.existsSync(path.join(buildTools, makeTool));
-if (hasBuildTools) {
+const jobserver = 'jobserver_pool.py';
+const supportsJobserver = fs.existsSync(path.join(buildTools, jobserver));
+if (supportsJobserver) {
     function prependEnv(env, value) {
         const old = process.env[env];
         if (old) {
@@ -123,12 +124,11 @@ run(configure);
 
 // Build
 const configArg = ['--config', options.debug ? 'Debug' : 'Release'];
-if (hasBuildTools) {
-    fs.writeFileSync(path.join(build, 'Makefile'), `.PHONY: all\nall:\n\t+@cmake --build . ${configArg.join(' ')}\n`);
-    run([makeTool, '-C', build, getParallelFlag(), '--jobserver-style=fifo']);
-} else {
-    run(['cmake', '--build', build, getParallelFlag(), ...configArg]);
+const buildCommand = ['cmake', '--build', build, ...configArg];
+if (supportsJobserver) {
+    buildCommand.unshift(jobserver, '--fifo', path.join(os.tmpdir(), '.jobserver-' + process.pid));
 }
+run(buildCommand);
 
 // Package
 if (options.packageType !== PackageTypes.AppImage) {
