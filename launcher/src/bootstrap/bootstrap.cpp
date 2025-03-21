@@ -11,18 +11,10 @@
 
 #define MCPI_BINARY "minecraft-pi"
 
-#define REQUIRED_PAGE_SIZE 4096
-
 // Bootstrap
-void bootstrap(const options_t &options) {
+void bootstrap() {
     // Debug Information
     print_debug_information();
-
-    // Check Page Size
-    const long page_size = sysconf(_SC_PAGESIZE);
-    if (page_size != REQUIRED_PAGE_SIZE) {
-        CONDITIONAL_ERR(!options.skip_pagesize_check, "Invalid page size! A page size of %ld bytes is required, but the system size is %ld bytes.", (long) REQUIRED_PAGE_SIZE, page_size);
-    }
 
     // Get Binary Directory
     const std::string binary_directory = get_binary_directory();

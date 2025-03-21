@@ -105,3 +105,12 @@ function(safe_download name url out)
         message(STATUS "Downloaded ${name}: ${out}")
     endif()
 endfunction()
+
+# Get Architecture
+function(get_arch var)
+    execute_process(COMMAND uname -m OUTPUT_VARIABLE arch OUTPUT_STRIP_TRAILING_WHITESPACE)
+    if(arch STREQUAL "armv8b" OR arch STREQUAL "armv8l")
+        set(arch "aarch64")
+    endif()
+    set("${var}" "${arch}" PARENT_SCOPE)
+endfunction()

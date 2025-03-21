@@ -29,12 +29,9 @@ FetchContent_MakeAvailable(ninja)
 install(PROGRAMS "${ninja_SOURCE_DIR}/misc/jobserver_pool.py" TYPE BIN)
 
 # Download AppImageTool
-execute_process(COMMAND uname -m OUTPUT_VARIABLE ARCH OUTPUT_STRIP_TRAILING_WHITESPACE)
-if(ARCH STREQUAL "armv8b" OR ARCH STREQUAL "armv8l")
-    set(ARCH "aarch64")
-endif()
 set(APPIMAGETOOL_NAME "appimagetool")
 set(APPIMAGETOOL_BIN "${CMAKE_CURRENT_BINARY_DIR}/${APPIMAGETOOL_NAME}.AppImage")
+get_arch(ARCH)
 safe_download(
     "AppImageTool"
     "https://github.com/AppImage/appimagetool/releases/download/${APPIMAGETOOL_VERSION}/appimagetool-${ARCH}.AppImage"

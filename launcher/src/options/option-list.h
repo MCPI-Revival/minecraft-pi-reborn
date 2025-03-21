@@ -10,5 +10,4 @@ OPTION(only_generate, "only-generate", -8, "Generate World And Exit (Server-Mode
 OPTION(force_headless, "force-headless", -9, "Force Disable Game Rendering")
 OPTION(force_non_headless, "force-non-headless", -10, "Force Enable Game Rendering")
 OPTION(server_mode, "server", -11, "Run In Server-Mode")
-OPTION(skip_pagesize_check, "skip-pagesize-check", -12, "Skip Page-Size Check (Not Recommended)")
 OPTION(run_update, "update", -13, "Run Updater (If Available)")

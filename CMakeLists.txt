@@ -165,7 +165,6 @@ endif()
 
 # Superbuild
 if(BUILD_NATIVE_COMPONENTS)
-    include(ExternalProject)
     # Arguments
     set(ARM_OPTIONS "${MCPI_OPTIONS}")
     list(APPEND ARM_OPTIONS "-DMCPI_BUILD_MODE:STRING=arm")
@@ -181,8 +180,17 @@ if(BUILD_NATIVE_COMPONENTS)
     if(DEFINED ARM_TOOLCHAIN)
         list(APPEND ARM_OPTIONS "-DCMAKE_TOOLCHAIN_FILE:FILEPATH=${ARM_TOOLCHAIN}")
     endif()
+
+    # Force Rebuild If Needed
+    set(ARM_PREFIX "${CMAKE_CURRENT_BINARY_DIR}/arm-components")
+    if(DEFINED MCPI_FORCE_ARM_REBUILD)
+        file(REMOVE_RECURSE "${ARM_PREFIX}")
+    endif()
+
     # Build
+    include(ExternalProject)
     ExternalProject_Add(arm-components
+        PREFIX "${ARM_PREFIX}"
         # Source Directory
         DOWNLOAD_COMMAND ""
         SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}"
@@ -198,7 +206,7 @@ if(BUILD_NATIVE_COMPONENTS)
             "${CMAKE_COMMAND}" "-E"
             "rm" "-rf" "<INSTALL_DIR>/${MCPI_INSTALL_DIR}"
         COMMAND
-            "${CMAKE_COMMAND}" "-E" "env"  "DESTDIR="
+            "${CMAKE_COMMAND}" "-E" "env" "DESTDIR="
             "${CMAKE_COMMAND}" "--install" "<BINARY_DIR>" "--config" "$<CONFIG>"
         # Use Terminal
         USES_TERMINAL_CONFIGURE TRUE
@@ -207,6 +215,7 @@ if(BUILD_NATIVE_COMPONENTS)
         # Always Build
         BUILD_ALWAYS TRUE
     )
+
     # Install
     ExternalProject_Get_Property(arm-components INSTALL_DIR)
     install(DIRECTORY "${INSTALL_DIR}/${MCPI_INSTALL_DIR}/" DESTINATION "${MCPI_INSTALL_DIR}")

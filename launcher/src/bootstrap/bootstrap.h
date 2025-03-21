@@ -3,11 +3,9 @@
 #include <string>
 #include <vector>
 
-#include "../options/parser.h"
-
 #define MCPI_PATCHED_DIR "/tmp/.minecraft-pi-patched"
 
-void bootstrap(const options_t &options);
+void bootstrap();
 // Debugging
 void print_debug_information();
 // Mods

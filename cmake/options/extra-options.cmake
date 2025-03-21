@@ -13,7 +13,7 @@ if(BUILD_NATIVE_COMPONENTS)
         set(MCPI_USE_PREBUILT_ARMHF_TOOLCHAIN TRUE)
     endif()
     if(MCPI_USE_PREBUILT_ARMHF_TOOLCHAIN)
-        include("${CMAKE_CURRENT_LIST_DIR}/prebuilt-armhf-toolchain.cmake")
+        include("${CMAKE_CURRENT_LIST_DIR}/../toolchain/prebuilt/armhf-toolchain.cmake")
     endif()
 endif()
 
