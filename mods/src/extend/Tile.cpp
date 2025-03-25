@@ -2,40 +2,40 @@
 
 // Easily Create Custom Tiles
 AABB *CustomTile::getAABB(Level *level, const int x, const int y, const int z) {
-    return Tile_vtable::base->getAABB(self, level, x, y, z);
+    return _VTable::base->getAABB(self, level, x, y, z);
 }
 int CustomTile::getColor(LevelSource *level_source, const int x, const int y, const int z) {
-    return Tile_vtable::base->getColor(self, level_source, x, y, z);
+    return _VTable::base->getColor(self, level_source, x, y, z);
 }
 std::string CustomTile::getDescriptionId() {
-    return Tile_vtable::base->getDescriptionId(self);
+    return _VTable::base->getDescriptionId(self);
 }
 int CustomTile::getRenderLayer() {
-    return Tile_vtable::base->getRenderLayer(self);
+    return _VTable::base->getRenderLayer(self);
 }
 int CustomTile::getTexture2(const int face, const int data) {
-    return Tile_vtable::base->getTexture2(self, face, data);
+    return _VTable::base->getTexture2(self, face, data);
 }
 int CustomTile::getTexture3(LevelSource *level, const int x, const int y, const int z, const int face) {
-    return Tile_vtable::base->getTexture3(self, level, x, y, z, face);
+    return _VTable::base->getTexture3(self, level, x, y, z, face);
 }
 bool CustomTile::isCubeShaped() {
-    return Tile_vtable::base->isCubeShaped(self);
+    return _VTable::base->isCubeShaped(self);
 }
 bool CustomTile::isSolidRender() {
-    return Tile_vtable::base->isSolidRender(self);
+    return _VTable::base->isSolidRender(self);
 }
 bool CustomTile::shouldRenderFace(LevelSource *level_source, const int x, const int y, const int z, const int face) {
-    return Tile_vtable::base->shouldRenderFace(self, level_source, x, y, z, face);
+    return _VTable::base->shouldRenderFace(self, level_source, x, y, z, face);
 }
 void CustomTile::updateDefaultShape() {
-    Tile_vtable::base->updateDefaultShape(self);
+    _VTable::base->updateDefaultShape(self);
 }
 void CustomTile::updateShape(LevelSource *level, const int x, const int y, const int z) {
-    Tile_vtable::base->updateShape(self, level, x, y, z);
+    _VTable::base->updateShape(self, level, x, y, z);
 }
 int CustomTile::use(Level *level, const int x, const int y, const int z, Player *player) {
-    return Tile_vtable::base->use(self, level, x, y, z, player);
+    return _VTable::base->use(self, level, x, y, z, player);
 }
 
 // VTable
