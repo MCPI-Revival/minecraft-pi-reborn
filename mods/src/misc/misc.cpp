@@ -698,6 +698,14 @@ void init_misc() {
         overwrite_call((void *) 0x7de0c, Chicken_moveTo, ThrownEgg_onHit_Chicken_moveTo_injection);
     }
 
+    // Stop Doors And Trapdoors Closing When Updated
+    if (feature_has("Stop Doors And Trapdoors Closing When Updated", server_disabled)) {
+        // Patch out the `setOpen` call for doors and trap doors in neighborChanged
+        unsigned char nop_patch[4] = {0x00, 0xf0, 0x20, 0xe3}; // "nop"
+        patch((void *) 0xbe1a0, nop_patch); // door
+        patch((void *) 0xcf818, nop_patch); // trapdoor
+    }
+
     // Disable overwrite_calls() After Minecraft::init
     misc_run_on_init([](__attribute__((unused)) Minecraft *minecraft) {
         thunk_enabler = [](__attribute__((unused)) void *a, __attribute__((unused)) void *b) -> void * {

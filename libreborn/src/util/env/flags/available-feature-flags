@@ -160,3 +160,4 @@ CATEGORY Miscellaneous
     TRUE Add Camera Functionality
     TRUE Update Default Options
     TRUE Remove Chest Placement Restrictions
+    FALSE Stop Doors And Trapdoors Closing When Updated

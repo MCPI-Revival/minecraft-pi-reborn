@@ -6,6 +6,10 @@ vtable-size 0x13c;
 
 constructor (Level *level, Entity *thrower) = 0x8ccf0;
 
+virtual-method float getThrowPower() = 0x12c;
+virtual-method float getThrowUpAngleOffset() = 0x130;
+virtual-method float getGravity() = 0x134;
 virtual-method void onHit(HitResult *res) = 0x138;
 
 property int thrower_id = 0xd8;
+property int life = 0xdc;
