@@ -105,6 +105,20 @@ static bool Gui_tickItemDrop_Minecraft_isCreativeMode_call_injection(__attribute
     return false;
 }
 
+// Maximize Creative Inventory Stack Size
+static void Inventory_setupDefault_injection(Inventory_setupDefault_t original, Inventory *self) {
+    // Call Original Method
+    original(self);
+    // Update Item Counts
+    if (self->is_creative) {
+        for (ItemInstance *item : self->items) {
+            if (item) {
+                item->count = item->getMaxStackSize();
+            }
+        }
+    }
+}
+
 // Init
 void init_creative() {
     // Add Extra Items To Creative Inventory (Only Replace Specific Function Call)
@@ -173,7 +187,6 @@ void init_creative() {
 
     // Maximize Creative Inventory Stack Size
     if (feature_has("Maximize Creative Mode Inventory Stack Size", server_enabled)) {
-        unsigned char maximize_stack_patch[4] = {0xff, 0xc0, 0xa0, 0xe3}; // "mov r12, 0xff"
-        patch((void *) 0x8e104, maximize_stack_patch);
+        overwrite_calls(Inventory_setupDefault, Inventory_setupDefault_injection);
     }
 }
