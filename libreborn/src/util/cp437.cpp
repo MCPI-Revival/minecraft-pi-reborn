@@ -1,18 +1,10 @@
-#include <cstdint>
+#include <unordered_map>
 
 #include "utf8.h"
 
 #include <libreborn/util/string.h>
 
-// Conversion Functions
-static std::u32string to_utf32(const std::string &s) {
-    return utf8::utf8to32(s);
-}
-static std::string to_utf8(const std::u32string &s) {
-    return utf8::utf32to8(s);
-}
-
-// Minecraft-Flavored CP437
+// Minecraft-Flavored CP-437
 #define CP437_CHARACTERS 256
 static const std::string cp437_characters_map[CP437_CHARACTERS] = {
     "\0", "☺", "☻", "♥", "♦", "♣", "♠", "•", "◘", "○", "\n", "♂", "♀", "♪", "♫", "☼",
@@ -32,58 +24,77 @@ static const std::string cp437_characters_map[CP437_CHARACTERS] = {
     "α", "ß", "Γ", "π", "Σ", "σ", "µ", "τ", "Φ", "Θ", "Ω", "δ", "∞", "φ", "ε", "∩",
     "≡", "±", "≥", "≤", "⌠", "⌡", "÷", "≈", "°", "∙", "·", "√", "ⁿ", "²", "■", "©"
 };
-static uint32_t *get_cp437_characters_codepoint_map() {
-    static uint32_t map[CP437_CHARACTERS];
-    static int is_setup = 0;
+
+// Character Conversion Functions
+static char32_t cp437_to_utf32(const unsigned char c) {
+    // Map
+    static char32_t map[CP437_CHARACTERS];
+    static bool is_setup = false;
     if (!is_setup) {
         // Build Map
         for (int i = 0; i < CP437_CHARACTERS; i++) {
-            // Convert to UTF-32, Then Extract Codepoint
-            std::u32string str = to_utf32(cp437_characters_map[i]);
-            // Extract
-            map[i] = str[0];
+            map[i] = utf8::unchecked::peek_next(cp437_characters_map[i].begin());
         }
-        is_setup = 1;
+        is_setup = true;
     }
-    return map;
+    // Convert
+    return map[int(c)];
 }
-std::string to_cp437(const std::string &input) {
-    // Convert To UTF-32 For Easier Parsing
-    const std::u32string utf32_str = to_utf32(input);
+unsigned char utf32_to_cp437(const char32_t codepoint) {
+    // Map
+    static std::unordered_map<char32_t, unsigned char> map;
+    if (map.empty()) {
+        // Build Map
+        for (int i = 0; i < CP437_CHARACTERS; i++) {
+            const unsigned char c = (unsigned char) i;
+            map[cp437_to_utf32(c)] = c;
+        }
+    }
+    // Convert
+    if (map.contains(codepoint)) {
+        return map.at(codepoint);
+    } else {
+        // Invalid Character
+        return '?';
+    }
+}
 
+// String Conversion Functions
+std::string to_cp437(const std::string &input) {
     // Allocate String
     std::string cp437_str;
+    // CP-437 String Will Never Be Longer Than The Equivalent UTF-8 String
+    cp437_str.reserve(input.length());
 
     // Handle Characters
-    for (size_t i = 0; i < utf32_str.length(); i++) {
-        const uint32_t codepoint = utf32_str[i];
-        bool valid = false;
-        for (int j = 0; j < CP437_CHARACTERS; j++) {
-            const uint32_t test_codepoint = get_cp437_characters_codepoint_map()[j];
-            if (codepoint == test_codepoint) {
-                valid = true;
-                cp437_str += char(j);
-                break;
-            }
-        }
-        if (!valid) {
-            cp437_str += '?';
-        }
+    std::string::const_iterator it = input.begin();
+    while (it != input.end()) {
+        const char32_t codepoint = utf8::unchecked::next(it);
+        // Find Corresponding CP-437 Character
+        const unsigned char x = utf32_to_cp437(codepoint);
+        // Add To String
+        cp437_str.push_back(x);
     }
 
     // Return
     return cp437_str;
 }
 std::string from_cp437(const std::string &input) {
-    // Convert To UTF-32 For Easier Parsing
-    std::u32string utf32_str;
+    // Allocate String
+    std::string out;
+    // UTF-8 String May Be Longer Than The Equivalent CP-437 String
+    // Assume The Worst
+    out.reserve(input.length() * 4);
 
     // Handle Characters
-    for (size_t i = 0; i < input.length(); i++) {
-        const unsigned char c = (unsigned char) input[i];
-        utf32_str += char32_t(get_cp437_characters_codepoint_map()[(uint32_t) c]);
+    std::back_insert_iterator<std::string> it = std::back_inserter(out);
+    for (const char c : input) {
+        // Get Unicode Codepoint
+        const char32_t codepoint = cp437_to_utf32((unsigned char) c);
+        // Append To String
+        it = utf8::unchecked::append(codepoint, it);
     }
 
-    // Convert To UTF-8
-    return to_utf8(utf32_str);
+    // Return
+    return out;
 }

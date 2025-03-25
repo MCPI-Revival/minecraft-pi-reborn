@@ -132,7 +132,7 @@ static void glfw_key(__attribute__((unused)) GLFWwindow *window, const int key, 
 }
 
 // Pass Text To Minecraft
-static void character_event(char c) {
+static void character_event(unsigned char c) {
     if (!is_interactable) {
         return;
     }
@@ -143,34 +143,8 @@ static void character_event(char c) {
     event.user.data1 = (int) c;
     media_SDL_PushEvent(&event);
 }
-static void codepoint_to_utf8(unsigned char *const buffer, const unsigned int code) {
-    // https://stackoverflow.com/a/42013433/16198887
-    if (code <= 0x7f) {
-        buffer[0] = code;
-    } else if (code <= 0x7ff) {
-        buffer[0] = 0xc0 | (code >> 6); // 110xxxxx
-        buffer[1] = 0x80 | (code & 0x3f); // 10xxxxxx
-    } else if (code <= 0xffff) {
-        buffer[0] = 0xe0 | (code >> 12); // 1110xxxx
-        buffer[1] = 0x80 | ((code >> 6) & 0x3f); // 10xxxxxx
-        buffer[2] = 0x80 | (code & 0x3f); // 10xxxxxx
-    } else if (code <= 0x10ffff) {
-        buffer[0] = 0xf0 | (code >> 18); // 11110xxx
-        buffer[1] = 0x80 | ((code >> 12) & 0x3f); // 10xxxxxx
-        buffer[2] = 0x80 | ((code >> 6) & 0x3f); // 10xxxxxx
-        buffer[3] = 0x80 | (code & 0x3f); // 10xxxxxx
-    }
-}
 static void glfw_char(__attribute__((unused)) GLFWwindow *window, const unsigned int codepoint) {
-    // Convert
-    size_t str_size = 4 /* Maximum UTF-8 character size */ + 1 /* NULL-terminator */;
-    unsigned char str[str_size] = {};
-    codepoint_to_utf8(str, codepoint);
-    std::string cp437_str = to_cp437((const char *) str);
-    // Send Event
-    for (const char x : cp437_str) {
-        character_event(x);
-    }
+    character_event(utf32_to_cp437(codepoint));
 }
 
 // Convert Screen Coordinates To Pixels
