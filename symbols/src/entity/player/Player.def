@@ -5,6 +5,7 @@ vtable 0x10de70;
 virtual-method void drop(ItemInstance *item_instance, bool is_death) = 0x208;
 virtual-method void stopSleepInBed(bool param_1, bool param_2, bool param_3) = 0x228;
 virtual-method void openTextEdit(TileEntity *sign) = 0x230;
+virtual-method void displayClientMessage(const std::string &message) = 0x21c;
 
 method int isUsingItem() = 0x8f15c;
 method void stopUsingItem() = 0x8f514;

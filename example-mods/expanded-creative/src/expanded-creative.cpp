@@ -1,7 +1,5 @@
-#include <libreborn/patch.h>
-
+#include <libreborn/log.h>
 #include <symbols/minecraft.h>
-
 #include <mods/misc/misc.h>
 
 // The Actual Mod

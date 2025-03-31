@@ -8,7 +8,7 @@ method RenderChunk end(bool use_given_buffer, int buffer) = 0x528d4;
 method void draw() = 0x52e08;
 method void voidBeginAndEndCalls(bool x) = 0x52f74;
 
-method void colorABGR(int color) = 0x52b54;
+method void colorABGR(uint color) = 0x52b54;
 method void color(int r, int g, int b, int a) = 0x52a48;
 method void noColor() = 0x52d54;
 method void enableColor() = 0x52f7c;

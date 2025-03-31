@@ -110,7 +110,7 @@ struct Cake final : CustomTile {
     }
 
     // Eating
-    int use(Level *level, const int x, const int y, const int z, Player *player) override {
+    bool use(Level *level, const int x, const int y, const int z, Player *player) override {
         // Eat
         player->foodData.eat(3);
         // Set New Tile
@@ -123,7 +123,7 @@ struct Cake final : CustomTile {
             // Remove a slice
             level->setTileAndData(x, y, z, self->id, data);
         }
-        return 1;
+        return true;
     }
 };
 static Tile *cake = nullptr;
@@ -221,10 +221,10 @@ static void Recipes_injection(Recipes *recipes) {
         .auxiliary = 0
     };
     // Add
-    std::string line1 = "mmm";
-    std::string line2 = "ses";
-    std::string line3 = "www";
-    std::vector ingredients = {milk, sugar, wheat, eggs};
+    const std::string line1 = "mmm";
+    const std::string line2 = "ses";
+    const std::string line3 = "www";
+    const std::vector ingredients = {milk, sugar, wheat, eggs};
     recipes->addShapedRecipe_3(cake_item_obj, line1, line2, line3, ingredients);
 }
 

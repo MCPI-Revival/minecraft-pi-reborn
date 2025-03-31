@@ -13,5 +13,8 @@ project(chat-commands)
 include("$ENV{HOME}/.minecraft-pi/sdk/lib/minecraft-pi-reborn/sdk/sdk.cmake")
 
 # Build
-add_library(chat-commands SHARED chat-commands.cpp)
-target_link_libraries(chat-commands mods reborn-patch symbols)
+add_library(chat-commands SHARED
+    src/chat-commands.cpp
+    src/server-console-command.cpp
+)
+target_link_libraries(chat-commands mods reborn-util symbols)

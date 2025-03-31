@@ -1,7 +1,5 @@
-#include <libreborn/patch.h>
-
+#include <libreborn/log.h>
 #include <symbols/minecraft.h>
-
 #include <mods/misc/misc.h>
 
 // Custom Crafting Recipes
@@ -58,8 +56,7 @@ __attribute__((constructor)) static void init_recipes() {
     misc_run_on_furnace_recipes_setup(FurnaceRecipes_injection);
 
     // Recipe Remainder
-    overwrite_calls(Minecraft_init, [](Minecraft_init_t original, Minecraft *self) {
-        original(self);
+    misc_run_on_init([](Minecraft *self) {
         Item::items[SAND]->craftingRemainingItem = Item::snowball;
     });
 }

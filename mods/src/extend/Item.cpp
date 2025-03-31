@@ -22,7 +22,7 @@ bool CustomItem::isFood() {
 ItemInstance *CustomItem::use(ItemInstance *item_instance, Level *level, Player *player) {
     return _VTable::base->use(self, item_instance, level, player);
 }
-int CustomItem::useOn(ItemInstance *item_instance, Player *player, Level *level, const int x, const int y, const int z, const int hit_side, const float hit_x, const float hit_y, const float hit_z) {
+bool CustomItem::useOn(ItemInstance *item_instance, Player *player, Level *level, const int x, const int y, const int z, const int hit_side, const float hit_x, const float hit_y, const float hit_z) {
     return _VTable::base->useOn(self, item_instance, player, level, x, y, z, hit_side, hit_x, hit_y, hit_z);
 }
 ItemInstance CustomItem::useTimeDepleted(ItemInstance *item_instance, Level *level, Player *player) {

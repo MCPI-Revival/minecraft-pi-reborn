@@ -257,6 +257,7 @@ add_library(symbols SHARED ${OUTPUT_FILES})
 
 # Include Directory
 setup_header_dirs(symbols "${INCLUDE_OUTPUT_DIR}")
+set(SYMBOLS_HEADER_DIR "${INCLUDE_OUTPUT_DIR}" PARENT_SCOPE)
 
 # Install
 setup_library(symbols TRUE TRUE)

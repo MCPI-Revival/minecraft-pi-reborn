@@ -13,5 +13,5 @@ project(expanded-creative)
 include("$ENV{HOME}/.minecraft-pi/sdk/lib/minecraft-pi-reborn/sdk/sdk.cmake")
 
 # Build
-add_library(expanded-creative SHARED expanded-creative.cpp)
-target_link_libraries(expanded-creative mods reborn-patch symbols)
+add_library(expanded-creative SHARED src/expanded-creative.cpp)
+target_link_libraries(expanded-creative mods reborn-util symbols)

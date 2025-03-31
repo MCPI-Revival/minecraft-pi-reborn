@@ -32,7 +32,7 @@ virtual-method int getResource(int data, Random *random) = 0x70;
 virtual-method int getResourceCount(Random *random) = 0x74;
 // Returns 1 (default, not transparent), 2 (transparent when the texture is, like bushes), or 3 (semi-transparent, like water)
 virtual-method int getRenderLayer() = 0x94;
-virtual-method int use(Level *level, int x, int y, int z, Player *player) = 0x98;
+virtual-method bool use(Level *level, int x, int y, int z, Player *player) = 0x98;
 virtual-method void setPlacedBy(Level *level, int x, int y, int z, Mob *placer) = 0xa8;
 virtual-method void handleEntityInside(Level *level, int x, int y, int z, Entity *entity, Vec3 *speed) = 0xb4;
 // Note that this may be ignored depending on the value of getRenderShape

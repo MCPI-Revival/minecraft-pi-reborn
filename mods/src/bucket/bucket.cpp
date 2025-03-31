@@ -63,10 +63,10 @@ struct Bucket final : CustomItem {
     }
 
     // Use Bucket
-    int useOn(ItemInstance *item_instance, Player *player, Level *level, int x, int y, int z, const int hit_side, __attribute__((unused)) float hit_x, __attribute__((unused)) float hit_y, __attribute__((unused)) float hit_z) override {
+    bool useOn(ItemInstance *item_instance, Player *player, Level *level, int x, int y, int z, const int hit_side, __attribute__((unused)) float hit_x, __attribute__((unused)) float hit_y, __attribute__((unused)) float hit_z) override {
         if (item_instance->count < 1 || item_instance->auxiliary == MILK_AUX) {
             // Do Nothing
-            return 0;
+            return false;
         } else if (item_instance->auxiliary == 0) {
             // Use Empty Bucket
             int32_t new_auxiliary = 0;
@@ -80,13 +80,13 @@ struct Bucket final : CustomItem {
                 // Valid
                 if (fill_bucket(item_instance, player, new_auxiliary)) {
                     level->setTileAndData(x, y, z, 0, 0);
-                    return 1;
+                    return true;
                 } else {
-                    return 0;
+                    return false;
                 }
             } else {
                 // Invalid
-                return 0;
+                return false;
             }
         } else {
             // Place
@@ -112,9 +112,9 @@ struct Bucket final : CustomItem {
                 if (!player->inventory->is_creative) {
                     item_instance->auxiliary = 0;
                 }
-                return 1;
+                return true;
             } else {
-                return 0;
+                return false;
             }
         }
     }
@@ -122,7 +122,7 @@ struct Bucket final : CustomItem {
     // Milk
     int getUseDuration(ItemInstance *item_instance) override {
         if (item_instance->auxiliary == MILK_AUX) {
-            return 0x20;
+            return FoodItem_getUseDuration->get(false)(nullptr, item_instance);
         } else {
             return 0;
         }
@@ -238,7 +238,7 @@ static void handle_tick(const Minecraft *minecraft) {
     LocalPlayer *player = minecraft->player;
     if (player != nullptr) {
         // Get Selected Slot
-        int32_t selected_slot = misc_get_real_selected_slot((Player *) player);
+        const int32_t selected_slot = misc_get_real_selected_slot((Player *) player);
         Inventory *inventory = player->inventory;
 
         // Get Item
@@ -262,9 +262,9 @@ static void Minecraft_handleMouseDown_injection(Minecraft_handleMouseDown_t orig
     // Check
     Level *level = minecraft->level;
     if (level != nullptr) {
-        int32_t x = minecraft->hit_result.x;
-        int32_t y = minecraft->hit_result.y;
-        int32_t z = minecraft->hit_result.z;
+        const int32_t x = minecraft->hit_result.x;
+        const int32_t y = minecraft->hit_result.y;
+        const int32_t z = minecraft->hit_result.z;
         const int32_t tile = level->getTile(x, y, z);
         if (is_calm_liquid(tile)) {
             can_destroy = false;
@@ -288,14 +288,14 @@ static void Recipes_injection(Recipes *recipes) {
         },
         .letter = '#'
     };
-    ItemInstance result = {
+    const ItemInstance result = {
         .count = 1,
         .id = bucket->id,
         .auxiliary = 0
     };
-    std::string line1 = "# #";
-    std::string line2 = " # ";
-    std::vector types = {type1};
+    const std::string line1 = "# #";
+    const std::string line2 = " # ";
+    const std::vector types = {type1};
     recipes->addShapedRecipe_2(result, line1, line2, types);
 }
 
@@ -322,7 +322,7 @@ static void FurnaceTileEntity_tick_ItemInstance_setNull_injection(ItemInstance *
 
 // Add the bucket name to the language file
 static void Language_injection() {
-    I18n::_strings.insert(std::make_pair("item.bucketMilk.name", "Milk Bucket"));
+    I18n::_strings["item.bucketMilk.name"] = "Milk Bucket";
 }
 
 // Init

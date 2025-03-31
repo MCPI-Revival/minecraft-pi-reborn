@@ -12,7 +12,7 @@ CREATE_HELPER(Tile)
     virtual void updateShape(LevelSource *level, int x, int y, int z);
     virtual void updateDefaultShape();
     virtual AABB *getAABB(Level *level, int x, int y, int z);
-    virtual int use(Level *level, int x, int y, int z, Player *player);
+    virtual bool use(Level *level, int x, int y, int z, Player *player);
     virtual bool shouldRenderFace(LevelSource *level_source, int x, int y, int z, int face);
     virtual int getColor(LevelSource *level_source, int x, int y, int z);
 };

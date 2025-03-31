@@ -7,3 +7,4 @@
 * [View Custom Skins](CUSTOM_SKINS.md)
 * [View API](API.md)
 * [View Changelog](CHANGELOG.md)
+* [View Modding Guide](modding/README.md)

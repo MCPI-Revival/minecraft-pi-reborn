@@ -34,7 +34,7 @@ void CustomTile::updateDefaultShape() {
 void CustomTile::updateShape(LevelSource *level, const int x, const int y, const int z) {
     _VTable::base->updateShape(self, level, x, y, z);
 }
-int CustomTile::use(Level *level, const int x, const int y, const int z, Player *player) {
+bool CustomTile::use(Level *level, const int x, const int y, const int z, Player *player) {
     return _VTable::base->use(self, level, x, y, z, player);
 }
 

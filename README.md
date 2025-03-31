@@ -9,7 +9,7 @@
 </p>
 
 # Minecraft: Pi Edition: Reborn [![Gitea Actions](https://gitea.thebrokenrail.com/minecraft-pi-reborn/minecraft-pi-reborn/actions/workflows/build.yml/badge.svg)](https://gitea.thebrokenrail.com/minecraft-pi-reborn/minecraft-pi-reborn/actions)
-Minecraft: Pi Edition Modding Project
+Minecraft: Pi Edition: Reborn (also known as MCPI-Reborn) is modding project for [Minecraft: Pi Edition](https://minecraft.wiki/w/Pi_Edition). It serves the dual-purpose of porting it to modern hardware and enhancing the game itself.
 
 Get started [here](docs/GETTING_STARTED.md)!
 

@@ -125,8 +125,9 @@ if(BUILD_NATIVE_COMPONENTS AND MCPI_USE_PREBUILT_ARMHF_TOOLCHAIN)
     install_arm_sysroot()
 endif()
 
-# Install SDK
+# SDK
 if(BUILD_ARM_COMPONENTS)
+    # Install
     install(EXPORT sdk DESTINATION "${MCPI_SDK_DIR}" FILE "sdk-targets.cmake")
     file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/sdk.cmake"
         # Sanity Check

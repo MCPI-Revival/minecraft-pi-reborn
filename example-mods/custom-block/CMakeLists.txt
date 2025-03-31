@@ -7,11 +7,11 @@ set(CMAKE_SYSTEM_NAME "Linux")
 set(CMAKE_SYSTEM_PROCESSOR "arm")
 
 # Start Project
-project(recipes)
+project(chat-commands)
 
 # Include SDK
 include("$ENV{HOME}/.minecraft-pi/sdk/lib/minecraft-pi-reborn/sdk/sdk.cmake")
 
 # Build
-add_library(recipes SHARED src/recipes.cpp)
-target_link_libraries(recipes mods reborn-util symbols)
+add_library(custom-block SHARED src/custom-block.cpp)
+target_link_libraries(custom-block mods symbols)

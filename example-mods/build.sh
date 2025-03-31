@@ -24,3 +24,4 @@ build() {
 build chat-commands
 build expanded-creative
 build recipes
+build custom-block

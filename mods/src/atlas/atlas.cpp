@@ -182,10 +182,10 @@ static void ItemRenderer_renderGuiItem_two_injection(__attribute__((unused)) Ite
     const std::pair<int, int> &pos = atlas_key_to_pos[key];
     // Convert To UV
     constexpr float scale = float(atlas_texture_size) / atlas_entry_size;
-    float u0 = float(pos.first) / scale;
-    float u1 = float(pos.first + 1) / scale;
-    float v0 = float(pos.second) / scale;
-    float v1 = float(pos.second + 1) / scale;
+    const float u0 = float(pos.first) / scale;
+    const float u1 = float(pos.first + 1) / scale;
+    const float v0 = float(pos.second) / scale;
+    const float v1 = float(pos.second + 1) / scale;
     // Render
     textures->loadAndBindTexture("gui/gui_blocks.png");
     Tesselator &t = Tesselator::instance;
@@ -208,7 +208,7 @@ static int CropTile_getTexture2_injection(CropTile_getTexture2_t original, CropT
 }
 
 // Fix Open Inventory Button
-static void Gui_renderToolBar_GuiComponent_blit_injection(GuiComponent *self, int x_dest, int y_dest, __attribute__((unused)) const int x_src, __attribute__((unused)) const int y_src, const int width_dest, const int height_dest, const int width_src, const int height_src) {
+static void Gui_renderToolBar_GuiComponent_blit_injection(GuiComponent *self, const int x_dest, const int y_dest, __attribute__((unused)) const int x_src, __attribute__((unused)) const int y_src, const int width_dest, const int height_dest, const int width_src, const int height_src) {
     constexpr float size_scale = 2.0f / atlas_texture_size;
     constexpr float u1 = 1.0f;
     const float u0 = u1 - (float(width_src) * size_scale);
@@ -227,7 +227,7 @@ static void Gui_renderToolBar_GuiComponent_blit_injection(GuiComponent *self, in
 void atlas_update_tile(Textures *textures, const int texture, const unsigned char *pixels) {
     // Update Texture
     for (const std::pair<int, int> &pos : tile_texture_to_atlas_pos[texture]) {
-        uint32_t atlas_id = textures->loadAndBindTexture("gui/gui_blocks.png");
+        const uint32_t atlas_id = textures->loadAndBindTexture("gui/gui_blocks.png");
         const Texture *atlas_data = textures->getTemporaryTextureData(atlas_id);
         constexpr int texture_size = 16;
         constexpr float fake_atlas_size = atlas_texture_size * (float(texture_size) / atlas_entry_size);
