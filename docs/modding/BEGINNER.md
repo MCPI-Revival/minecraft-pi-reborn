@@ -25,7 +25,7 @@ If you really need a missing function, open a bug report.
 ## "Hooking" Functions
 Functions from both Reborn and the C library can be "hooked" using a similar technique to [`LD_PRELOAD`](https://tbrindus.ca/correct-ld-preload-hooking-libc/). To make this easier, Reborn provides the `HOOK` macro.
 
-An example can be found [here](../../example-mods/chat-commands/chat-commands.cpp).
+An example can be found [here](../../example-mods/chat-commands/src/chat-commands.cpp).
 
 This *does not* work with Minecraft functions.
 
