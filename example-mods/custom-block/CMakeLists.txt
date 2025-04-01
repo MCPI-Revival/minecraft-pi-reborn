@@ -7,7 +7,7 @@ set(CMAKE_SYSTEM_NAME "Linux")
 set(CMAKE_SYSTEM_PROCESSOR "arm")
 
 # Start Project
-project(chat-commands)
+project(custom-block)
 
 # Include SDK
 include("$ENV{HOME}/.minecraft-pi/sdk/lib/minecraft-pi-reborn/sdk/sdk.cmake")
