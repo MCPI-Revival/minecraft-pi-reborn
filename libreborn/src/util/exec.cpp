@@ -144,6 +144,8 @@ std::vector<unsigned char> *run_command(const char *const command[], int *exit_s
         // Run
         safe_execvpe(command, environ);
     } else {
+        // Close stdin
+        close(child->fds[2]);
         // Read stdout
         std::vector<unsigned char> *output = new std::vector<unsigned char>;
         poll_fds({child->fds[0], child->fds[1]}, [&output](const int i, const size_t size, unsigned char *buf) {
