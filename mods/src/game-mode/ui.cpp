@@ -137,7 +137,7 @@ struct CreateWorldScreen final : TextInputScreen {
     }
 };
 static Screen *create_create_world_screen() {
-    return extend_struct<CreateWorldScreen>();
+    return (new CreateWorldScreen())->self;
 }
 
 // Unique Level Name (https://github.com/ReMinecraftPE/mcpe/blob/d7a8b6baecf8b3b050538abdbc976f690312aa2d/source/client/gui/screens/CreateWorldScreen.cpp#L65-L83)

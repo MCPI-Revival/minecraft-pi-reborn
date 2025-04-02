@@ -1,10 +1,12 @@
 extends Tile;
 
-constructor (int id, int texture, const Material *material) = 0xbe578;
+constructor one(int id, int texture, const Material *material) = 0xbe578;
+constructor two(int id, const Material *material) = 0xbe544;
 
 vtable 0x111348;
 vtable-size 0x108;
 size 0x5c;
+generate-custom-wrapper;
 
 // Pure virtual
 virtual-method TileEntity *newTileEntity() = 0x104;

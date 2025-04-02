@@ -3,8 +3,10 @@ static-method void initTiles() = 0xc358c;
 vtable 0x115670;
 vtable-size 0x104;
 
-constructor (int id, int texture, const Material *material) = 0xc33a0;
+constructor one(int id, int texture, const Material *material) = 0xc33a0;
+constructor two(int id, const Material *material) = 0xc32d0;
 size 0x5c;
+generate-custom-wrapper;
 
 method Tile *init() = 0xc34dc;
 

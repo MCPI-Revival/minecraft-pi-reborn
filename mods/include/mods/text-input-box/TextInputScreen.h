@@ -3,7 +3,6 @@
 #include <symbols/minecraft.h>
 
 #include <mods/text-input-box/TextInputBox.h>
-#include <mods/extend/extend.h>
 
 struct TextInputScreen : CustomScreen {
     std::vector<TextInputBox *> *m_textInputs = nullptr;

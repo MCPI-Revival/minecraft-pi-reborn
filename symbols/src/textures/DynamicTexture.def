@@ -3,6 +3,7 @@ vtable-size 0x10;
 
 size 0x40c;
 constructor (int texture) = 0x66154;
+generate-custom-wrapper;
 
 virtual-method void tick() = 0x8;
 virtual-method void bindTexture(Textures *textures) = 0xc;

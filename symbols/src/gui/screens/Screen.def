@@ -2,6 +2,7 @@ extends GuiComponent;
 
 size 0x48;
 constructor () = 0x29028;
+generate-custom-wrapper;
 
 vtable-size 0x74;
 vtable 0x1039d8;

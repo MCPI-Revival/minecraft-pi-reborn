@@ -35,11 +35,6 @@ add_library(mods SHARED
     src/misc/tinting.cpp
     src/misc/home.cpp
     src/misc/base64.cpp
-    # extend
-    src/extend/Screen.cpp
-    src/extend/DynamicTexture.cpp
-    src/extend/Item.cpp
-    src/extend/Tile.cpp
     # options
     src/options/options.cpp
     src/options/ui.cpp

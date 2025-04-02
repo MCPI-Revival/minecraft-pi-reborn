@@ -9,7 +9,6 @@
 
 #include <mods/touch/touch.h>
 #include <mods/misc/misc.h>
-#include <mods/extend/extend.h>
 
 #include "internal.h"
 
@@ -126,7 +125,7 @@ struct WelcomeScreen final : CustomScreen {
     }
 };
 static Screen *create_welcome_screen() {
-    return extend_struct<WelcomeScreen>();
+    return (new WelcomeScreen())->self;
 }
 
 // Show Welcome Screen

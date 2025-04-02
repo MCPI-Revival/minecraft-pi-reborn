@@ -1,5 +1,4 @@
 #include <symbols/minecraft.h>
-#include <mods/extend/extend.h>
 #include <mods/misc/misc.h>
 
 // Custom Tile
@@ -22,7 +21,7 @@ static Tile *block;
 __attribute__((constructor)) static void init_custom_block() {
     // Construct Block
     misc_run_on_tiles_setup([]() {
-        block = extend_struct<CustomBlock>();
+        block = (new CustomBlock())->self;
         block->init();
         block->setDescriptionId(description_id);
     });

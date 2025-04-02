@@ -6,7 +6,6 @@
 #include <mods/init/init.h>
 #include <mods/misc/misc.h>
 #include <mods/bucket/bucket.h>
-#include <mods/extend/extend.h>
 
 // Custom Item
 #define MILK_AUX 1
@@ -169,9 +168,9 @@ struct Bucket final : CustomItem {
 static Item *bucket = nullptr;
 
 // Create Items
-static Item *create_bucket(const int32_t id, int32_t texture_x, int32_t texture_y, std::string name) {
+static Item *create_bucket(const int32_t id, const int32_t texture_x, const int32_t texture_y, const std::string &name) {
     // Construct
-    Item *item = extend_struct<Bucket>(id);
+    Item *item = (new Bucket(id))->self;
 
     // Setup
     item->setIcon(texture_x, texture_y);
@@ -204,7 +203,7 @@ static bool Cow_interact_injection(Cow_interact_t original, Cow *self, Player *p
     ItemInstance *item = player->inventory->getSelected();
     if (item && item->id == bucket->id && item->auxiliary == 0) {
         // Fill With Milk
-        extend_get_data<Bucket>(bucket)->fill_bucket(item, player, 1);
+        custom_get<Bucket>(bucket)->fill_bucket(item, player, 1);
         return true;
     }
     return original(self, player);

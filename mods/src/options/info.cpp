@@ -5,7 +5,6 @@
 
 #include <mods/touch/touch.h>
 #include <mods/misc/misc.h>
-#include <mods/extend/extend.h>
 
 #include "internal.h"
 
@@ -230,5 +229,5 @@ struct InfoScreen final : CustomScreen {
 
 // Create Screen
 Screen *_create_options_info_screen() {
-    return extend_struct<InfoScreen>();
+    return (new InfoScreen())->self;
 }

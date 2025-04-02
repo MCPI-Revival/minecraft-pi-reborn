@@ -2,7 +2,6 @@
 #include <cstdint>
 
 #include <libreborn/patch.h>
-#include <mods/extend/extend.h>
 #include <symbols/minecraft.h>
 
 #include "internal.h"
@@ -69,7 +68,7 @@ struct LavaTexture final : CustomDynamicTexture {
     }
 };
 static DynamicTexture *create_lava_texture() {
-    return extend_struct<LavaTexture>();
+    return (new LavaTexture())->self;
 }
 
 // LavaSideTexture
@@ -135,7 +134,7 @@ struct LavaSideTexture final : CustomDynamicTexture {
     }
 };
 static DynamicTexture *create_lava_side_texture() {
-    return extend_struct<LavaSideTexture>();
+    return (new LavaSideTexture())->self;
 }
 
 // FireTexture
@@ -195,7 +194,7 @@ struct FireTexture final : CustomDynamicTexture {
     }
 };
 static DynamicTexture *create_fire_texture(const int a2) {
-    return extend_struct<FireTexture>(a2);
+    return (new FireTexture(a2))->self;
 }
 
 // Add Textures

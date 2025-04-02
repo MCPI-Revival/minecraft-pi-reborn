@@ -4,7 +4,6 @@
 #include <mods/init/init.h>
 #include <mods/misc/misc.h>
 #include <mods/bucket/bucket.h>
-#include <mods/extend/extend.h>
 
 #define CAKE_LEN 0.0625f
 #define CAKE_SLICE_COUNT 6
@@ -133,7 +132,7 @@ static TilePlanterItem *cake_item = nullptr;
 static constexpr const char *cake_description = "cake";
 static void make_cake() {
     // Construct
-    cake = extend_struct<Cake>(92, 122, Material::dirt);
+    cake = (new Cake(92, 122, Material::dirt))->self;
 
     // Set Shape
     cake->updateDefaultShape();

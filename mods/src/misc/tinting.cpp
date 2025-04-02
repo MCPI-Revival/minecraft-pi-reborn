@@ -3,7 +3,6 @@
 #include <GLES/gl.h>
 
 #include <mods/feature/feature.h>
-#include <mods/extend/extend.h>
 
 #include "internal.h"
 
@@ -71,7 +70,7 @@ struct GrassSideTile final : CustomTile {
 static Tile *get_fake_grass_side_tile() {
     static Tile *out = nullptr;
     if (out == nullptr) {
-        out = extend_struct<GrassSideTile>(0, 38, Material::dirt);
+        out = (new GrassSideTile(0, 38, Material::dirt))->self;
     }
     return out;
 }

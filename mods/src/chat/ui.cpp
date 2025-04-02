@@ -115,7 +115,7 @@ struct ChatScreen final : TextInputScreen {
     }
 };
 static Screen *create_chat_screen() {
-    return extend_struct<ChatScreen>();
+    return (new ChatScreen())->self;
 }
 
 // Init

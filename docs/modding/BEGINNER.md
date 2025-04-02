@@ -27,13 +27,19 @@ Functions from both Reborn and the C library can be "hooked" using a similar tec
 
 An example can be found [here](../../example-mods/chat-commands/src/chat-commands.cpp).
 
-This *does not* work with Minecraft functions.
+**Note:** This *does not* work with Minecraft functions.
 
 ## Extending Minecraft Classes
-To create blocks or screens, you need to create custom `Tile` or `Screen` objects. However, due to how MCPI-Reborn is implemented, these class cannot be directly extended. Instead, it provides `Custom*` classes that can be extended.
+To create custom blocks, screens, or other components, you need to extend the corresponding class (for instance `Tile`).
+
+However, due to how MCPI-Reborn is implemented, these classes cannot be directly extended. Instead, it provides `Custom*` wrapper classes that can be extended.
 
 For instance, to create a custom block:
-* Create a custom class extending `CustomTile`.
-* Create a function that constructs the class using `extend_struct`.
+* Create a class extending `CustomTile`.
+* Create a function that constructs the class.
 * Register that function with `misc_run_on_tiles_setup`.
 * A full example can be found [here](../../example-mods/custom-block/src/custom-block.cpp).
+
+**Note:** A `Custom*` pointer *cannot* be cast to its corresponding plain object (or vive versa).
+
+To retrieve the plain object from a `Custom*` wrapper, use the `self` property. And to get the wrapper corresponding to a plain object, use the `custom_get<T>` function.

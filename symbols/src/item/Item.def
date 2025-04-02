@@ -5,6 +5,7 @@ vtable 0x10f128;
 
 size 0x24;
 constructor (int id) = 0x99488;
+generate-custom-wrapper;
 
 virtual-method int getIcon(int auxiliary) = 0x14;
 virtual-method Item *setIcon(int texture_x, int texture_y) = 0x18;
