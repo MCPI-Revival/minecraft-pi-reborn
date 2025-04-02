@@ -3,6 +3,7 @@ size 0x8;
 vtable 0x1081c0;
 vtable-size 0x14;
 constructor () = 0x67620;
+generate-custom-wrapper;
 
 virtual-method void render(TileEntity *tileentity, float x, float y, float z, float unknown) = 0x8;
 virtual-method void onGraphicsReset() = 0xc;
