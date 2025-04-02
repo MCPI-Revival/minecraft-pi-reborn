@@ -243,8 +243,7 @@ foreach(file IN LISTS SRC)
     list(APPEND INPUT_FILES "${CMAKE_CURRENT_SOURCE_DIR}/${file}")
 endforeach()
 set(OUTPUT_FILES ${SRC_OUTPUT_FILES} "${HEADER_OUTPUT_FILE}")
-add_custom_command(
-    OUTPUT ${OUTPUT_FILES}
+add_custom_command(OUTPUT ${OUTPUT_FILES}
     DEPENDS ${INPUT_FILES}
     COMMAND "npm"
     ARGS "start" "--silent" "--" "${SRC_OUTPUT_DIR}" "${HEADER_OUTPUT_FILE}" ${INPUT_FILES}

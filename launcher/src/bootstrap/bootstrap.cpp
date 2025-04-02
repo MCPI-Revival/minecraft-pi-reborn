@@ -49,6 +49,11 @@ void bootstrap() {
     DEBUG("Patching ELF...");
     patch_mcpi_elf_dependencies(game_binary, new_mcpi_exe_path, get_new_linker(binary_directory), mcpi_ld_path, mcpi_ld_preload);
 
+    // Fix Environment
+    DEBUG("Fixing Environment...");
+    set_and_print_env("LD_BIND_NOW", nullptr);
+    set_and_print_env("LC_ALL", "C.UTF-8");
+
     // Start Game
     INFO("Starting Game...");
 

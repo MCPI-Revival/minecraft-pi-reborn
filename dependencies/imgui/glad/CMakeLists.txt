@@ -16,8 +16,7 @@ set(GLAD_SOURCES
 find_package(Python REQUIRED QUIET)
 
 # Generate
-add_custom_command(
-    OUTPUT ${GLAD_SOURCES}
+add_custom_command(OUTPUT ${GLAD_SOURCES}
     COMMAND "${Python_EXECUTABLE}"
     ARGS "-m" "glad"
         "--out" "${GLAD_DIR}"
