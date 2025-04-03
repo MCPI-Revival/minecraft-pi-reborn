@@ -53,7 +53,7 @@ Fortunately, installing the sound data is simple:
 1. Obtain a valid Minecraft: Pocket Edition v0.6.1[^2] APK file.
 2. Extract `lib/*/libminecraftpe.so` from the APK.
 3. Create the directory `<Profile Directory>/overrides` if it does not already exist.
-4. Copy `libminecraftpe.so` into `<Profile Directory>/overrides`.
+4. Copy `libminecraftpe.so` into the created directory.
 5. Sound should now be fully functional!
 
 ## Custom Textures
