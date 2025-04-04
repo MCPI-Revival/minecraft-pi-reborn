@@ -27,7 +27,7 @@ Functions from both MCPI-Reborn and the C library can be "hooked" using a simila
 
 An example can be found [here](../../example-mods/chat-commands/src/chat-commands.cpp).
 
-**Note:** This *does not* work with game functions.
+**Note:** This *does not* work with game or `static` functions.
 
 ## Extending Minecraft Classes
 To create custom blocks, screens, or other components, you need to extend the corresponding class (for instance `Tile`).
@@ -40,8 +40,8 @@ For instance, to create a custom block:
 * Register that function with `misc_run_on_tiles_setup`.
 * A full example can be found [here](../../example-mods/custom-block/src/custom-block.cpp).
 
-**Note:** A wrapper object *cannot* be cast to its corresponding plain object (or vive versa).
+**Note:** A wrapper object *cannot* be directly cast to its corresponding plain object (or vice versa).
 
 To retrieve the plain object from a wrapper, use the `self` property.
 
-And to get the wrapper corresponding to a plain object, use the `custom_get<T>` function. However, this function *does not* do check that the provided pointer is attached to a wrapper.
+And to get the wrapper corresponding to a plain object, use the `custom_get<T>` function. However, this function *does not* check that the provided pointer is attached to a wrapper.

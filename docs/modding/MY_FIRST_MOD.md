@@ -2,9 +2,10 @@
 This chapter explains how to set up the SDK and build a simple mod.
 
 ## Installing The SDK
-1. Install [CMake](https://cmake.org/).
-2. Install MCPI-Reborn.
-3. Run MCPI-Reborn. This will copy the SDK to the profile directory.
+1. Install [CMake](https://cmake.org/). This is `cmake` and `ninja-build` on Ubuntu.
+2. Install an ARM32 C++ toolchain. This is `g++-arm-linux-gnueabihf` on Ubuntu.
+3. Install MCPI-Reborn.
+4. Run MCPI-Reborn. This will copy the SDK to the profile directory.
 
 ## Creating A Mod
 1. Create a folder for your new mod's source code. All following steps should take place in this directory.
@@ -13,8 +14,8 @@ This chapter explains how to set up the SDK and build a simple mod.
    cmake_minimum_required(VERSION 3.16.0)
 
    # Build For ARM
-   set(CMAKE_C_COMPILER arm-linux-gnueabihf-gcc)
-   set(CMAKE_CXX_COMPILER arm-linux-gnueabihf-g++)
+   set(CMAKE_C_COMPILER "arm-linux-gnueabihf-gcc")
+   set(CMAKE_CXX_COMPILER "arm-linux-gnueabihf-g++")
    set(CMAKE_SYSTEM_NAME "Linux")
    set(CMAKE_SYSTEM_PROCESSOR "arm")
 
