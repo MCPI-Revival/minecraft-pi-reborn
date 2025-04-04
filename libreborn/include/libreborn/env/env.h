@@ -13,6 +13,9 @@ void clear_internal_env_vars();
 void setenv_safe(const char *name, const char *value);
 void set_and_print_env(const char *name, const char *value);
 
+// Get Value
+const char *require_env(const char *name);
+
 // Convert Variable To Value And Vice-Versa
 struct Flags;
 struct ServerList;

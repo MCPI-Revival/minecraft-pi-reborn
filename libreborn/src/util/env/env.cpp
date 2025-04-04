@@ -33,6 +33,15 @@ void set_and_print_env(const char *name, const char *value) {
     DEBUG("Set %s = %s", name, value != NULL ? value : "(unset)");
 }
 
+// Get Environmental Variable
+const char *require_env(const char *name) {
+    const char *value = getenv(name);
+    if (!value) {
+        ERR("Missing Variable: %s", name);
+    }
+    return value;
+}
+
 // Conversion
 std::string obj_to_env_value(const std::string &obj) {
     return obj;

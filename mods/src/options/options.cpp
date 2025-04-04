@@ -24,10 +24,7 @@ static bool LevelData_getSpawnMobs_injection(__attribute__((unused)) LevelData_g
 
 // Get Custom Render Distance
 static int get_render_distance() {
-    const char *distance_str = getenv(MCPI_RENDER_DISTANCE_ENV);
-    if (distance_str == nullptr) {
-        distance_str = "Short";
-    }
+    const char *distance_str = require_env(MCPI_RENDER_DISTANCE_ENV);
     if (strcmp("Far", distance_str) == 0) {
         return 0;
     } else if (strcmp("Normal", distance_str) == 0) {
@@ -187,15 +184,10 @@ void init_options() {
     overwrite_calls(Minecraft_init, Minecraft_init_injection);
 
     // Change Username
-    const char *username = getenv(MCPI_USERNAME_ENV);
-    if (username != nullptr) {
-        DEBUG("Setting Username: %s", username);
-        if (strcmp(Strings::default_username, "StevePi") != 0) {
-            ERR("Default Username Is Invalid");
-        }
-        static std::string safe_username = to_cp437(username);
-        patch_address((void *) &Strings::default_username, (void *) safe_username.c_str());
-    }
+    const char *username = require_env(MCPI_USERNAME_ENV);
+    DEBUG("Setting Username: %s", username);
+    static std::string safe_username = to_cp437(username);
+    patch_address((void *) &Strings::default_username, (void *) safe_username.c_str());
 
     // Disable Autojump By Default
     if (feature_has("Disable Autojump By Default", server_disabled)) {

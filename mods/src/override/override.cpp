@@ -47,8 +47,8 @@ std::string override_get_path(std::string filename) {
     // Folders To Check
     const std::string asset_folders[] = {
         overrides,
-        getenv(_MCPI_REBORN_ASSETS_PATH_ENV),
-        getenv(_MCPI_VANILLA_ASSETS_PATH_ENV),
+        require_env(_MCPI_REBORN_ASSETS_PATH_ENV),
+        require_env(_MCPI_VANILLA_ASSETS_PATH_ENV),
         ""
     };
 

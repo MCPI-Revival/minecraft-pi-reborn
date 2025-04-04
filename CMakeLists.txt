@@ -202,6 +202,7 @@ if(BUILD_NATIVE_COMPONENTS)
         # Build
         BUILD_COMMAND
             "${CMAKE_COMMAND}" "--build" "<BINARY_DIR>" "--config" "$<CONFIG>"
+        BUILD_ALWAYS TRUE
         # Install
         INSTALL_COMMAND
             "${CMAKE_COMMAND}" "-E"
@@ -213,8 +214,6 @@ if(BUILD_NATIVE_COMPONENTS)
         USES_TERMINAL_CONFIGURE TRUE
         USES_TERMINAL_BUILD TRUE
         USES_TERMINAL_INSTALL TRUE
-        # Always Build
-        BUILD_ALWAYS TRUE
     )
 
     # Install

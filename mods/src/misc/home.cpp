@@ -8,7 +8,7 @@
 
 // Use MCPI_HOME
 static const char *getenv_HOME(__attribute__((unused)) const char *env) {
-    return getenv(_MCPI_HOME_ENV);
+    return require_env(_MCPI_HOME_ENV);
 }
 
 // Init

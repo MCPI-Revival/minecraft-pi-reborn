@@ -17,10 +17,8 @@ static void iterate_servers(const std::function<void(const char *address, Server
     static ServerList server_list;
     static bool loaded = false;
     if (!loaded) {
-        const char *str = getenv(MCPI_SERVER_LIST_ENV);
-        if (str != nullptr) {
-            env_value_to_obj(server_list, str);
-        }
+        const char *str = require_env(MCPI_SERVER_LIST_ENV);
+        env_value_to_obj(server_list, str);
         loaded = true;
     }
     // Loop

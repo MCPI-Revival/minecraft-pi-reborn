@@ -1,5 +1,4 @@
 #include <cstdlib>
-#include <cstring>
 
 #include <libreborn/log.h>
 #include <libreborn/config.h>
@@ -18,10 +17,8 @@ bool _feature_has(const char *name, const int server_default) {
     static Flags flags = Flags::get();
     static bool loaded = false;
     if (!loaded) {
-        const char *env = getenv(MCPI_FEATURE_FLAGS_ENV);
-        if (env) {
-            env_value_to_obj(flags, env);
-        }
+        const char *env = require_env(MCPI_FEATURE_FLAGS_ENV);
+        env_value_to_obj(flags, env);
         loaded = true;
     }
     int ret = -1;
