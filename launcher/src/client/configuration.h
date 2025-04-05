@@ -39,8 +39,9 @@ private:
     // General
     void draw_main() const;
     // Advanced
-    void draw_advanced() const;
-    static void draw_category(FlagNode &category);
+    void draw_advanced();
+    void draw_category(FlagNode &category);
+    bool should_draw_category(const FlagNode &category);
     // Server List
     void draw_servers() const;
     void draw_server_list() const;
@@ -52,6 +53,7 @@ private:
     const State original_state;
     State &state;
     bool &save_settings;
+    ImGuiTextFilter filter;
 };
 
 // Handle Non-Launch Commands

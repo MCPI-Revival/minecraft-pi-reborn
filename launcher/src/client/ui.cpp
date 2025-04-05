@@ -1,6 +1,7 @@
 #include <vector>
 #include <limits>
 #include <ranges>
+#include <algorithm>
 
 #include <libreborn/util/util.h>
 #include <libreborn/config.h>
@@ -144,10 +145,20 @@ void ConfigurationUI::draw_main() const {
 static std::string get_label_for_flag_node(const FlagNode &node) {
     return node.name + "##FlagNode" + std::to_string(node.id);
 }
-void ConfigurationUI::draw_advanced() const {
+void ConfigurationUI::draw_advanced() {
+    // Search
+    ImGui::SetNextItemWidth(-FLT_MIN);
+    if (ImGui::InputTextWithHint("##Filter", "Search", filter.InputBuf, IM_ARRAYSIZE(filter.InputBuf))) {
+        filter.Build();
+    }
+    ImGui::PopItemFlag();
+    // Features
     if (ImGui::BeginChild("Features", ImVec2(0, 0), ImGuiChildFlags_Borders, ImGuiWindowFlags_HorizontalScrollbar)) {
         // Categories
         for (FlagNode &category : state.flags.root.children) {
+            if (!should_draw_category(category)) {
+                continue;
+            }
             const std::string label = get_label_for_flag_node(category);
             if (ImGui::CollapsingHeader(label.c_str())) {
                 draw_category(category);
@@ -158,6 +169,9 @@ void ConfigurationUI::draw_advanced() const {
 }
 void ConfigurationUI::draw_category(FlagNode &category) {
     for (FlagNode &child : category.children) {
+        if (!should_draw_category(child)) {
+            continue;
+        }
         const std::string label = get_label_for_flag_node(child);
         if (!child.children.empty()) {
             // Sub-Category
@@ -171,6 +185,18 @@ void ConfigurationUI::draw_category(FlagNode &category) {
         }
     }
 }
+bool ConfigurationUI::should_draw_category(const FlagNode &category) {
+    if (category.children.empty()) {
+        // Flag
+        return filter.PassFilter(category.name.c_str());
+    } else {
+        // Recursive
+        return std::ranges::any_of(category.children, [this](const FlagNode &child) {
+            return should_draw_category(child);
+        });
+    }
+}
+
 
 // Servers
 void ConfigurationUI::draw_servers() const {
