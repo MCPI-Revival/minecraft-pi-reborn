@@ -54,13 +54,15 @@ int lock_file(const char *file) {
     if (flock(fd, LOCK_EX) == -1) {
         ERR("Unable To Lock File: %s: %s", file, strerror(errno));
     }
+    DEBUG("Locked File: %s: %i", file, fd);
     return fd;
 }
-void unlock_file(const char *file, const int fd) {
+void unlock_file(const int fd) {
     if (flock(fd, LOCK_UN) == -1) {
-        ERR("Unable To Unlock File: %s: %s", file, strerror(errno));
+        ERR("Unable To Unlock File: %i: %s", fd, strerror(errno));
     }
     close(fd);
+    DEBUG("Unlocked File: %i", fd);
 }
 
 // Check $DISPLAY

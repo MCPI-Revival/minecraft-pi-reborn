@@ -45,9 +45,8 @@ void bootstrap() {
     bootstrap_assets(original_game_binary);
 
     // Patch Binary
-    char new_mcpi_exe_path[] = MCPI_PATCHED_DIR "/XXXXXX";
     DEBUG("Patching ELF...");
-    patch_mcpi_elf_dependencies(game_binary, new_mcpi_exe_path, get_new_linker(binary_directory), mcpi_ld_path, mcpi_ld_preload);
+    patch_mcpi_elf_dependencies(game_binary, get_new_linker(binary_directory), mcpi_ld_path, mcpi_ld_preload);
 
     // Fix Environment
     DEBUG("Fixing Environment...");
@@ -60,9 +59,9 @@ void bootstrap() {
     // Arguments
     const std::vector<std::string> args {
 #ifdef MCPI_BUILD_RUNTIME
-         binary_directory + "/lib/native/runtime",
+        binary_directory + "/lib/native/runtime",
 #endif
-        new_mcpi_exe_path
+        patched_exe_path
     };
 
     // Run

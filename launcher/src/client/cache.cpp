@@ -95,16 +95,15 @@ State load_cache() {
         }
     } else {
         // Lock File
-        int lock_fd = lock_file(get_cache_path().c_str());
+        const int lock_fd = lock_file(get_cache_path().c_str());
 
         // Load
         read_cache(stream, ret);
-
         // Close
         stream.close();
 
         // Unlock File
-        unlock_file(get_cache_path().c_str(), lock_fd);
+        unlock_file(lock_fd);
     }
 
     // Return
@@ -153,7 +152,6 @@ void save_cache(const State &state) {
 
         // Write
         write_cache(stream, state);
-
         // Finish
         stream.close();
         if (!stream) {
@@ -161,7 +159,7 @@ void save_cache(const State &state) {
         }
 
         // Unlock File
-        unlock_file(get_cache_path().c_str(), lock_fd);
+        unlock_file(lock_fd);
     }
 }
 

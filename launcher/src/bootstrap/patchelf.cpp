@@ -1,25 +1,29 @@
 #include <cstdlib>
 #include <sys/stat.h>
 #include <ranges>
+#include <ext/stdio_filebuf.h>
 
 #include <LIEF/ELF.hpp>
 
 #include <libreborn/util/util.h>
+#include <libreborn/util/io.h>
+#include <libreborn/env/env.h>
 #include <libreborn/config.h>
 
 #include "bootstrap.h"
 
 // Duplicate MCPI Executable Into /tmp
-static void duplicate_mcpi_executable(char *new_path) {
-    // Ensure Temporary Directory
-    ensure_directory(MCPI_PATCHED_DIR);
-
+const char *patched_exe_path = "/tmp/" MCPI_APP_NAME;
+static int duplicate_mcpi_executable() {
     // Generate New File
-    const int new_file_fd = mkstemp(new_path);
-    if (new_file_fd == -1) {
-        ERR("Unable To Create Temporary File: %s", strerror(errno));
+    const int fd = lock_file(patched_exe_path);
+    set_and_print_env(_MCPI_LOCK_FD_ENV, std::to_string(fd).c_str());
+    // Fix Permissions
+    if (fchmod(fd, S_IRWXU) != 0) {
+        ERR("Unable To Set File Permissions: %s: %s", patched_exe_path, strerror(errno));
     }
-    close(new_file_fd);
+    // Return
+    return fd;
 }
 
 // Fix MCPI Dependencies
@@ -36,9 +40,9 @@ static std::vector<std::string> function_prefixes_to_patch = {
     "SDL_",
     "gl"
 };
-void patch_mcpi_elf_dependencies(const std::string &original_path, char *new_path, const std::string &interpreter, const std::vector<std::string> &rpath, const std::vector<std::string> &mods) {
+void patch_mcpi_elf_dependencies(const std::string &original_path, const std::string &interpreter, const std::vector<std::string> &rpath, const std::vector<std::string> &mods) {
     // Duplicate MCPI executable into /tmp so it can be modified.
-    duplicate_mcpi_executable(new_path);
+    const int fd = duplicate_mcpi_executable();
 
     // Load Binary
     const std::unique_ptr<LIEF::ELF::Binary> binary = LIEF::ELF::Parser::parse(original_path);
@@ -85,12 +89,9 @@ void patch_mcpi_elf_dependencies(const std::string &original_path, char *new_pat
     // Write Binary
     LIEF::ELF::Builder builder{*binary};
     builder.build();
-    builder.write(new_path);
-
-    // Fix Permissions
-    if (chmod(new_path, S_IRUSR | S_IXUSR) != 0) {
-        ERR("Unable To Set File Permissions: %s: %s", new_path, strerror(errno));
-    }
+    __gnu_cxx::stdio_filebuf<char> buf(dup(fd), std::ios::out);
+    std::ostream stream(&buf);
+    builder.write(stream);
 }
 
 // Linker

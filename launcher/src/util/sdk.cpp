@@ -163,5 +163,5 @@ void copy_sdk(const std::string &binary_directory, const bool force) {
     do_copy_sdk(binary_directory, force);
 
     // Unlock File
-    unlock_file(lock_file_path.c_str(), lock_file_fd);
+    unlock_file(lock_file_fd);
 }

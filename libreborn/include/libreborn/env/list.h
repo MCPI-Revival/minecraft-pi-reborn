@@ -25,3 +25,5 @@ ENV(MCPI_BINARY, "Custom Game Binary")
 // $HOME
 ENV(_MCPI_HOME, "")
 ENV(MCPI_PROFILE_DIRECTORY, "Custom Profile Directory")
+// Lock File
+ENV(_MCPI_LOCK_FD, "")

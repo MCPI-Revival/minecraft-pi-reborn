@@ -11,7 +11,7 @@ struct Pipe {
 
 // Lock File
 int lock_file(const char *file);
-void unlock_file(const char *file, int fd);
+void unlock_file(int fd);
 
 // Safe write()
 void safe_write(int fd, const void *buf, size_t size);

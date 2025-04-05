@@ -1,6 +1,9 @@
 #include <unistd.h>
 #include <csignal>
 
+#include <libreborn/util/io.h>
+#include <libreborn/env/env.h>
+
 #include <mods/compat/compat.h>
 #include <mods/init/init.h>
 
@@ -12,6 +15,9 @@ static void exit_handler(__attribute__((unused)) int data) {
     compat_request_exit();
 }
 void init_compat() {
+    // Unlock Lock File
+    const int lock_fd = std::stoi(require_env(_MCPI_LOCK_FD_ENV));
+    unlock_file(lock_fd);
     // SDL
     _init_compat_sdl();
     // Install Signal Handlers
