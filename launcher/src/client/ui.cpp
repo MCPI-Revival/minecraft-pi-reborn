@@ -310,7 +310,7 @@ void ConfigurationUI::draw_about() {
     ImGui::Separator();
     draw_links({
         {"Home", MCPI_REPO},
-        {"Changelog", MCPI_DOCS_CHANGELOG},
+        {"Changelog", MCPI_CHANGELOG},
         {"Credits", MCPI_DOCS "CREDITS.md"}
     });
     // Updater

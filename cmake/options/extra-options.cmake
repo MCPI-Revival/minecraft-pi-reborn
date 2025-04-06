@@ -45,13 +45,12 @@ mcpi_option(SKIN_SERVER "Skin Server" STRING "https://raw.githubusercontent.com/
 mcpi_option(DISCORD_INVITE "Discord Invite URL" STRING "https://discord.gg/mcpi-revival-740287937727561779")
 
 # Version
+set(version_file "${CMAKE_CURRENT_SOURCE_DIR}/VERSION")
 set_property(
-    DIRECTORY
-    APPEND
-    PROPERTY CMAKE_CONFIGURE_DEPENDS VERSION
+    DIRECTORY APPEND PROPERTY
+    CMAKE_CONFIGURE_DEPENDS "${version_file}"
 )
-file(STRINGS "${CMAKE_CURRENT_LIST_DIR}/../../VERSION" MCPI_VERSION)
-file(TIMESTAMP "${CMAKE_CURRENT_LIST_DIR}/../../VERSION" MCPI_VERSION_DATE "%Y-%m-%d" UTC)
+file(STRINGS "${version_file}" MCPI_VERSION)
 
 # Homepage
 mcpi_option(REPO_HOST "Repository Host" STRING "https://gitea.thebrokenrail.com")
@@ -60,6 +59,7 @@ mcpi_option(REPO "Repository URL" STRING "${MCPI_REPO_HOST}/${MCPI_REPO_PATH}")
 
 # Documentation URL
 mcpi_option(DOCS "Documentation URL" STRING "${MCPI_REPO}/src/tag/${MCPI_VERSION}/docs/")
+mcpi_option(CHANGELOG "Changelog URL" STRING "${MCPI_REPO}/releases/tag/${MCPI_VERSION}")
 
 # Packaging
 set(MCPI_ARCH "unknown")

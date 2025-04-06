@@ -48,7 +48,7 @@ static info_line info[] = {
         .get_text = []() {
             return std::string("Version: v") + reborn_get_version() + extra_version_info_full;
         },
-        .button_url = MCPI_DOCS_CHANGELOG,
+        .button_url = MCPI_CHANGELOG,
         .button_text = "Changelog"
     },
     {

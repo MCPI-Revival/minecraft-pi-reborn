@@ -9,6 +9,7 @@ include_toc: true
 * Modding API Revamped
   * `*(unsigned char **)` Is Dead!
   * Now C++ Only
+  * `overwrite_calls` Now Scans VTables
 * Add Peaceful Mode To Options Screen
 * Proper Create New World Screen
 * Proper Chat Screen
@@ -123,7 +124,6 @@ include_toc: true
 * Massive Build System Improvements
 * Fix Item Dropping When Killing Players From The Server Console
 * Fix Furnace Visual Bug When Using Lava Bucket As Fuel
-* `overwrite_calls` Now Scans VTables
 * Unify Server/Client Builds
 * Controller Support Removed
 * Brand New Launcher UI!

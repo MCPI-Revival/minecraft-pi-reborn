@@ -1,4 +1,5 @@
 import { fail } from './util.mjs';
+import * as path from 'node:path';
 
 // Enums
 export function Enum(values) {
@@ -40,7 +41,8 @@ function formatOptionalArg(arg) {
 }
 export function parseOptions(positionalArgs, flags, customHandler) {
     // Usage Text
-    let usage = 'USAGE: ';
+    const exe = path.basename(process.argv[1]);
+    let usage = `USAGE: ${exe} `;
     for (const arg of positionalArgs) {
         const option = arg[1];
         const arr = [];

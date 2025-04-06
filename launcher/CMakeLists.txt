@@ -38,12 +38,26 @@ target_compile_definitions(launcher PRIVATE _FILE_OFFSET_BITS=64)
 install(TARGETS launcher DESTINATION "${MCPI_INSTALL_DIR}")
 install_symlink("../${MCPI_INSTALL_DIR}/launcher" "bin/${MCPI_APP_NAME}")
 
+# Changelog
+set_property(
+    DIRECTORY APPEND PROPERTY
+    CMAKE_CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/../docs/CHANGELOG.md"
+)
+execute_process(
+    COMMAND
+        "${CMAKE_COMMAND}" "-E" "env" "URL=${MCPI_CHANGELOG}"
+        "${CMAKE_CURRENT_SOURCE_DIR}/../scripts/get-changelog.mjs" "appstream"
+    OUTPUT_VARIABLE MCPI_CHANGELOG_XML
+    OUTPUT_STRIP_TRAILING_WHITESPACE
+    COMMAND_ERROR_IS_FATAL ANY
+)
+
 # Data
 set(DATA_DIR "data")
 set_and_mkdir(CONFIGURED_DATA_DIR "${CMAKE_CURRENT_BINARY_DIR}/${DATA_DIR}")
 function(configure_and_install_data input_name output_path output_name)
     set(configured_path "${CONFIGURED_DATA_DIR}/${input_name}")
-    configure_file("${DATA_DIR}/${input_name}" "${configured_path}" ESCAPE_QUOTES)
+    configure_file("${DATA_DIR}/${input_name}" "${configured_path}")
     install(
         FILES "${configured_path}"
         DESTINATION "${MCPI_SHARE_DIR}/${output_path}"

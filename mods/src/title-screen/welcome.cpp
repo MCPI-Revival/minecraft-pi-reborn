@@ -115,7 +115,7 @@ struct WelcomeScreen final : CustomScreen {
         if (button == getting_started) {
             open_url(MCPI_DOCS_GETTING_STARTED);
         } else if (button == changelog) {
-            open_url(MCPI_DOCS_CHANGELOG);
+            open_url(MCPI_CHANGELOG);
         } else if (button == proceed) {
             mark_welcome_as_shown();
             self->minecraft->screen_chooser.setScreen(1);

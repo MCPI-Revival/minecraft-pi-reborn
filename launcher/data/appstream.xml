@@ -60,6 +60,6 @@
     </content_rating>
 
     <releases>
-        <release version="${MCPI_VERSION}" date="${MCPI_VERSION_DATE}" />
+        ${MCPI_CHANGELOG_XML}
     </releases>
 </component>

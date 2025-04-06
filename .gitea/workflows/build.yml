@@ -130,7 +130,7 @@ jobs:
           # Get Changelog
           - name: Get Changelog
             id: release-info
-            run: ./scripts/get-changelog.mjs >> "${GITHUB_OUTPUT}"
+            run: ./scripts/get-changelog.mjs ci >> "${GITHUB_OUTPUT}"
           # Create Release
           - name: Create Release
             uses: https://gitea.com/actions/release-action@main
