@@ -3,7 +3,7 @@
 #include <string>
 
 // Update Status
-enum UpdateStatus {
+enum class UpdateStatus {
     NOT_STARTED,
     CHECKING,
     UP_TO_DATE,
@@ -26,6 +26,7 @@ struct Updater {
     [[nodiscard]] std::string get_status() const;
     [[nodiscard]] bool can_start() const;
     void start();
+    void run();
     // Properties
-    UpdateStatus status = NOT_STARTED;
+    UpdateStatus status = UpdateStatus::NOT_STARTED;
 };

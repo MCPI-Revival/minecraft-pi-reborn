@@ -59,19 +59,19 @@ static const char *get_appimage_path() {
 }
 void AppImageUpdater::update() {
     // Check
-    if (status != CHECKING) {
+    if (status != UpdateStatus::CHECKING) {
         IMPOSSIBLE();
     }
     const std::optional<std::string> json = run_wget("-", MCPI_APPIMAGE_JSON_URL);
     if (!json.has_value()) {
-        status = ERROR;
+        status = UpdateStatus::ERROR;
         return;
     }
     const std::string tag_name = extract_from_json(json.value(), "tag_name");
 
     // Check Version
     if (tag_name == MCPI_VERSION) {
-        status = UP_TO_DATE;
+        status = UpdateStatus::UP_TO_DATE;
         return;
     }
 
@@ -96,7 +96,7 @@ void AppImageUpdater::update() {
     }
 
     // Download
-    status = DOWNLOADING;
+    status = UpdateStatus::DOWNLOADING;
     const std::optional<std::string> out = run_wget(new_appimage_path.c_str(), url.c_str());
     bool ret = out.has_value();
     if (ret) {
@@ -107,12 +107,12 @@ void AppImageUpdater::update() {
     }
     if (!ret) {
         unlink(new_appimage_path.c_str());
-        status = ERROR;
+        status = UpdateStatus::ERROR;
         return;
     }
 
     // Done
-    status = RESTART_NEEDED;
+    status = UpdateStatus::RESTART_NEEDED;
 }
 
 // Restart

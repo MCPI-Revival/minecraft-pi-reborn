@@ -48,13 +48,13 @@ static void handle_non_launch_commands(const options_t &options) {
     if (options.run_update) {
         Updater *updater = Updater::instance;
         if (updater) {
-            updater->update();
-            if (updater->status == ERROR) {
+            updater->run();
+            if (updater->status == UpdateStatus::ERROR) {
                 ERR("Unable To Update");
-            } else if (updater->status == UP_TO_DATE) {
+            } else if (updater->status == UpdateStatus::UP_TO_DATE) {
                 INFO("Already Up-To-Date");
             } else {
-                if (updater->status != RESTART_NEEDED) {
+                if (updater->status != UpdateStatus::RESTART_NEEDED) {
                     IMPOSSIBLE();
                 }
                 INFO("Update Completed");

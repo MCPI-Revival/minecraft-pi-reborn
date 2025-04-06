@@ -11,16 +11,16 @@ Updater::Updater() {
 
 // Check Status
 bool Updater::can_start() const {
-    return status == NOT_STARTED || status == RESTART_NEEDED;
+    return status == UpdateStatus::NOT_STARTED || status == UpdateStatus::RESTART_NEEDED;
 }
 std::string Updater::get_status() const {
     switch (status) {
-        case NOT_STARTED: return "Update";
-        case RESTART_NEEDED: return "Restart!";
-        case CHECKING: return "Checking...";
-        case UP_TO_DATE: return "Up-To-Date";
-        case DOWNLOADING: return "Downloading...";
-        case ERROR: return "Error";
+        case UpdateStatus::NOT_STARTED: return "Update";
+        case UpdateStatus::RESTART_NEEDED: return "Restart!";
+        case UpdateStatus::CHECKING: return "Checking...";
+        case UpdateStatus::UP_TO_DATE: return "Up-To-Date";
+        case UpdateStatus::DOWNLOADING: return "Downloading...";
+        case UpdateStatus::ERROR: return "Error";
         default: return "";
     }
 }
@@ -33,16 +33,23 @@ static void *update_thread(void *data) {
 }
 void Updater::start() {
     switch (status) {
-        case NOT_STARTED: {
-            status = CHECKING;
+        case UpdateStatus::NOT_STARTED: {
+            status = UpdateStatus::CHECKING;
             pthread_t thread;
             pthread_create(&thread, nullptr, update_thread, this);
             break;
         }
-        case RESTART_NEEDED: {
+        case UpdateStatus::RESTART_NEEDED: {
             restart();
             break;
         }
         default: IMPOSSIBLE();
     }
+}
+void Updater::run() {
+    if (status != UpdateStatus::NOT_STARTED) {
+        IMPOSSIBLE();
+    }
+    status = UpdateStatus::CHECKING;
+    update();
 }
