@@ -151,7 +151,6 @@ void ConfigurationUI::draw_advanced() {
     if (ImGui::InputTextWithHint("##Filter", "Search", filter.InputBuf, IM_ARRAYSIZE(filter.InputBuf))) {
         filter.Build();
     }
-    ImGui::PopItemFlag();
     // Features
     if (ImGui::BeginChild("Features", ImVec2(0, 0), ImGuiChildFlags_Borders, ImGuiWindowFlags_HorizontalScrollbar)) {
         // Categories
