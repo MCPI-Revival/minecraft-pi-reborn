@@ -22,7 +22,7 @@ const lines = changelog.split('\n');
 for (const line of lines) {
     if (!foundStart) {
         // Found Start Of Version Info
-        foundStart = line.includes(`**${version}**`);
+        foundStart = line.includes('## ' + version);
     } else if (line.trim().length === 0) {
         // Found End
         break;

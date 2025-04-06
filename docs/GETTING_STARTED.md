@@ -44,7 +44,8 @@ The list of systems supported by Pi-Apps can be found [here](https://github.com/
 ## Managing Game Data
 Just as regular Minecraft stores game data at `~/.minecraft`, MCPI-Reborn uses `~/.minecraft-pi`[^1]. This is the profile directory and is where your worlds, screenshots, and game settings are stored.
 
-The profile directory can easily be accessed by opening MCPI-Reborn and going to `Options -> Reborn -> Profile Directory`.
+> [!TIP]
+> The profile directory can easily be accessed by opening MCPI-Reborn and going to `Options -> Reborn -> Profile Directory`.
 
 ## Sound
 One of MCPI-Reborn's most important modifications is the addition of a sound engine. However, due to copyright limitations, Minecraft's sounds cannot be distributed with MCPI-Reborn and must be installed manually.
