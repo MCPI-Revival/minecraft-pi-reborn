@@ -16,29 +16,31 @@ function readFile(...args) {
     const __dirname = getScriptsDir();
     const root = path.join(__dirname, '..');
     return {
-        text: fs.readFileSync(path.join(root, ...args), 'utf8').trim(),
-        date: fs.statSync(path.join(root, ...args)).mtime.toISOString().split('T')[0],
+        data: fs.readFileSync(path.join(root, ...args), 'utf8').trim(),
+        time: fs.statSync(path.join(root, ...args)).mtime
     };
 }
-const version = readFile('VERSION').text;
+const version = readFile('VERSION');
 const changelog = readFile('docs', 'CHANGELOG.md');
 
 // Print Version
 if (options.mode === Modes.CI) {
-    console.log('version=' + version);
+    console.log('version=' + version.data);
 } else {
-    console.log(`<release version="${version}" date="${changelog.date}">`);
+    const time = new Date(Math.max(version.time.getTime(), changelog.time.getTime()));
+    const date = time.toISOString().split('T')[0];
+    console.log(`<release version="${version.data}" date="${date}">`);
     console.log('<url>' + process.env.URL + '</url>');
 }
 
 // Parse Changelog
 const out = [];
 let foundStart = false;
-const lines = changelog.text.split('\n');
+const lines = changelog.data.split('\n');
 for (const line of lines) {
     if (!foundStart) {
         // Found Start Of Version Info
-        foundStart = line.includes('## ' + version);
+        foundStart = line.trim() === '## ' + version.data;
     } else if (line.trim().length === 0) {
         // Found End
         break;
