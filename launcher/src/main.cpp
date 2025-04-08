@@ -49,16 +49,7 @@ static void handle_non_launch_commands(const options_t &options) {
         Updater *updater = Updater::instance;
         if (updater) {
             updater->run();
-            if (updater->status == UpdateStatus::ERROR) {
-                ERR("Unable To Update");
-            } else if (updater->status == UpdateStatus::UP_TO_DATE) {
-                INFO("Already Up-To-Date");
-            } else {
-                if (updater->status != UpdateStatus::RESTART_NEEDED) {
-                    IMPOSSIBLE();
-                }
-                INFO("Update Completed");
-            }
+            updater->log_status(false);
         } else {
             ERR("Built-In Updater Unavailable, Use System Package Manager");
         }

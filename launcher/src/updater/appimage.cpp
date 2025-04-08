@@ -12,7 +12,8 @@
 
 // Implement
 struct AppImageUpdater final : Updater {
-    void update() override;
+    std::optional<std::string> check() override;
+    bool download(const std::string &version) override;
     void restart() override;
     static AppImageUpdater instance;
 };
@@ -57,24 +58,19 @@ static const char *get_appimage_path() {
     }
     return path;
 }
-void AppImageUpdater::update() {
+std::optional<std::string> AppImageUpdater::check() {
     // Check
-    if (status != UpdateStatus::CHECKING) {
-        IMPOSSIBLE();
-    }
     const std::optional<std::string> json = run_wget("-", MCPI_APPIMAGE_JSON_URL);
     if (!json.has_value()) {
-        status = UpdateStatus::ERROR;
-        return;
+        return std::nullopt;
     }
-    const std::string tag_name = extract_from_json(json.value(), "tag_name");
-
-    // Check Version
-    if (tag_name == MCPI_VERSION) {
-        status = UpdateStatus::UP_TO_DATE;
-        return;
+    std::string tag_name = extract_from_json(json.value(), "tag_name");
+    if (tag_name.empty()) {
+        return std::nullopt;
     }
-
+    return tag_name;
+}
+bool AppImageUpdater::download(const std::string &version) {
     // Get URL
     std::string url = MCPI_APPIMAGE_DOWNLOAD_URL;
     while (true) {
@@ -83,7 +79,7 @@ void AppImageUpdater::update() {
         if (pos == std::string::npos) {
             break;
         }
-        url.replace(pos, placeholder.size(), tag_name);
+        url.replace(pos, placeholder.size(), version);
     }
 
     // Get Path
@@ -96,7 +92,6 @@ void AppImageUpdater::update() {
     }
 
     // Download
-    status = UpdateStatus::DOWNLOADING;
     const std::optional<std::string> out = run_wget(new_appimage_path.c_str(), url.c_str());
     bool ret = out.has_value();
     if (ret) {
@@ -107,12 +102,12 @@ void AppImageUpdater::update() {
     }
     if (!ret) {
         unlink(new_appimage_path.c_str());
-        status = UpdateStatus::ERROR;
-        return;
+        // Error
+        return false;
     }
 
     // Done
-    status = UpdateStatus::RESTART_NEEDED;
+    return true;
 }
 
 // Restart
