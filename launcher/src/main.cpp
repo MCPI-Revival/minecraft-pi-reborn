@@ -56,6 +56,12 @@ static void handle_non_launch_commands(const options_t &options) {
         fflush(stdout);
         exit(EXIT_SUCCESS);
     }
+    // Install Desktop File
+    if (options.run_install) {
+        copy_desktop_file();
+        fflush(stdout);
+        exit(EXIT_SUCCESS);
+    }
 }
 
 // Start The Game

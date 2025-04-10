@@ -21,6 +21,9 @@ To run MCPI-Reborn, all you need to do is [download the latest AppImage](https:/
 
 More details can be found [here](https://docs.appimage.org/introduction/quickstart.html#how-to-run-an-appimage).
 
+> [!TIP]
+> To integrate it with your application launcher, open the game launcher, click `About`, and click `Create Desktop Entry`.
+
 <details>
 <summary><b>Additional System Requirements</b></summary>
 The AppImage requires Debian Bullseye or higher. This is equivalent to Ubuntu 20.04.

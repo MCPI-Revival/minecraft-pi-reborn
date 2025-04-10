@@ -3,6 +3,7 @@
 
 #include <libreborn/log.h>
 #include <libreborn/util/exec.h>
+#include <libreborn/env/env.h>
 
 #include "util.h"
 
@@ -25,13 +26,21 @@ std::string safe_realpath(const std::string &path) {
     free(raw);
     return str;
 }
+std::string get_binary() {
+    return safe_realpath("/proc/self/exe");
+}
 std::string get_binary_directory() {
     // Get Path To Current Executable
-    std::string exe = safe_realpath("/proc/self/exe");
+    std::string exe = get_binary();
     // Chop Off Last Component
     chop_last_component(exe);
     // Return
     return exe;
+}
+
+// AppImage
+std::string get_appimage_path() {
+    return require_env("APPIMAGE");
 }
 
 // Read Directory

@@ -10,6 +10,7 @@ add_executable(launcher
     src/util/util.cpp
     src/util/sdk.cpp
     src/util/env.cpp
+    src/util/install.cpp
     src/logger/logger.cpp
     src/logger/crash-report.cpp
     src/options/parser.cpp
@@ -55,17 +56,23 @@ execute_process(
 # Data
 set(DATA_DIR "data")
 set_and_mkdir(CONFIGURED_DATA_DIR "${CMAKE_CURRENT_BINARY_DIR}/${DATA_DIR}")
-function(configure_and_install_data input_name output_path output_name)
+function(configure_and_install_data input_name output_path output_name is_desktop_file)
     set(configured_path "${CONFIGURED_DATA_DIR}/${input_name}")
     configure_file("${DATA_DIR}/${input_name}" "${configured_path}")
+    set(dir "${MCPI_SHARE_DIR}/${output_path}")
     install(
         FILES "${configured_path}"
-        DESTINATION "${MCPI_SHARE_DIR}/${output_path}"
+        DESTINATION "${dir}"
         RENAME "${output_name}"
     )
+    if(is_desktop_file)
+        set(full_path "${dir}/${output_name}")
+        cmake_path(RELATIVE_PATH full_path BASE_DIRECTORY "${MCPI_INSTALL_DIR}")
+        target_compile_definitions(launcher PRIVATE "DESKTOP_FILE_PATH=\"${full_path}\"")
+    endif()
 endfunction()
-configure_and_install_data(launcher.desktop applications "${MCPI_APP_ID}.desktop")
-configure_and_install_data(appstream.xml metainfo "${MCPI_APP_ID}.appdata.xml")
+configure_and_install_data(launcher.desktop applications "${MCPI_APP_ID}.desktop" TRUE)
+configure_and_install_data(appstream.xml metainfo "${MCPI_APP_ID}.appdata.xml" FALSE)
 
 # AppImage
 if(MCPI_IS_APPIMAGE_BUILD)

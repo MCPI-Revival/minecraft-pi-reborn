@@ -9,6 +9,7 @@
 
 #include "configuration.h"
 #include "../updater/updater.h"
+#include "../util/util.h"
 
 #include <imgui_stdlib.h>
 
@@ -312,6 +313,15 @@ void ConfigurationUI::draw_about() {
         {"Changelog", MCPI_CHANGELOG},
         {"Credits", MCPI_DOCS "CREDITS.md"}
     });
+    // Desktop File
+    ImGui::Separator();
+    ImGui::BeginDisabled(is_desktop_file_installed());
+    draw_right_aligned_buttons({"Create Desktop Entry"}, [](__attribute__((unused)) int id, const bool was_clicked) {
+        if (was_clicked) {
+            copy_desktop_file();
+        }
+    }, true);
+    ImGui::EndDisabled();
     // Updater
     Updater *updater = Updater::instance;
     if (updater) {

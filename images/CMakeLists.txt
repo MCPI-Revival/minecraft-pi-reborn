@@ -25,11 +25,15 @@ install(
 
 # Icon
 set(ICON_DIR "${MCPI_SHARE_DIR}/icons/hicolor/512x512/apps")
+set(ICON_NAME "${MCPI_APP_ID}.png")
 install(
     FILES "icon.png"
     DESTINATION "${ICON_DIR}"
-    RENAME "${MCPI_APP_ID}.png"
+    RENAME "${ICON_NAME}"
 )
+set(ICON_PATH "${ICON_DIR}/${ICON_NAME}")
+cmake_path(RELATIVE_PATH ICON_PATH BASE_DIRECTORY "${MCPI_INSTALL_DIR}")
+target_compile_definitions(launcher PRIVATE "ICON_PATH=\"${ICON_PATH}\"")
 
 # AppImage
 if(MCPI_IS_APPIMAGE_BUILD)

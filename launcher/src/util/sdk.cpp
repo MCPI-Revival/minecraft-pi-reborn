@@ -14,7 +14,7 @@
 
 // Utility Functions
 static constexpr char path_separator = '/';
-static void make_directory(std::string path /* Must Be Absolute */) {
+void make_directory(std::string path /* Must Be Absolute */) {
     path += path_separator;
     std::stringstream stream(path);
     path = "";
@@ -41,7 +41,7 @@ static void delete_recursively(const std::string &path, const bool allow_nonexis
         ERR("Unable To Delete Directory: %s: %s", path.c_str(), strerror(errno));
     }
 }
-static void copy_file(const std::string &src, const std::string &dst) {
+void copy_file(const std::string &src, const std::string &dst, const bool log) {
     std::ifstream in(src, std::ios::binary);
     if (!in) {
         ERR("Unable To Open Source File: %s", src.c_str());
@@ -53,6 +53,9 @@ static void copy_file(const std::string &src, const std::string &dst) {
     out << in.rdbuf();
     out.close();
     in.close();
+    if (log) {
+        INFO("Installed: %s", dst.c_str());
+    }
 }
 static void copy_directory(const std::string &src, const std::string &dst) {
     read_directory(src, [&src, &dst](const dirent *entry) {

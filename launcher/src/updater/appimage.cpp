@@ -9,6 +9,7 @@
 #include <libreborn/config.h>
 
 #include "updater.h"
+#include "../util/util.h"
 
 // Implement
 struct AppImageUpdater final : Updater {
@@ -51,13 +52,6 @@ static std::string extract_from_json(const std::string &json_str, const std::str
     const std::string::size_type end = indices[2];
     return json_str.substr(start, end - start - 1);
 }
-static const char *get_appimage_path() {
-    const char *path = getenv("APPIMAGE");
-    if (path == nullptr) {
-        IMPOSSIBLE();
-    }
-    return path;
-}
 std::optional<std::string> AppImageUpdater::check() {
     // Check
     const std::optional<std::string> json = run_wget("-", MCPI_APPIMAGE_JSON_URL);
@@ -83,8 +77,8 @@ bool AppImageUpdater::download(const std::string &version) {
     }
 
     // Get Path
-    const char *appimage_path = get_appimage_path();
-    const std::string new_appimage_path_base = std::string(appimage_path) + ".new";
+    const std::string appimage_path = get_appimage_path();
+    const std::string new_appimage_path_base = appimage_path + ".new";
     std::string new_appimage_path = new_appimage_path_base;
     int num = 1;
     while (access(new_appimage_path.c_str(), F_OK) != -1) {
@@ -98,7 +92,7 @@ bool AppImageUpdater::download(const std::string &version) {
         ret = chmod(new_appimage_path.c_str(), S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH) == 0;
     }
     if (ret) {
-        ret = rename(new_appimage_path.c_str(), appimage_path) == 0;
+        ret = rename(new_appimage_path.c_str(), appimage_path.c_str()) == 0;
     }
     if (!ret) {
         unlink(new_appimage_path.c_str());
@@ -112,6 +106,6 @@ bool AppImageUpdater::download(const std::string &version) {
 
 // Restart
 void AppImageUpdater::restart() {
-    const char *const command[] = {get_appimage_path(), nullptr};
+    const char *const command[] = {get_appimage_path().c_str(), nullptr};
     safe_execvpe(command, environ);
 }
