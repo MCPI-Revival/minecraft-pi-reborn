@@ -1,4 +1,4 @@
 # `multiplayer` Mod
-This mod implements connecting to external (non-LAN) servers. This mod is client mode only.
+This mod implements fixes and improvements for multiplayer.
 
-It is controlled by the `~/.minecraft-pi/servers.txt` file.
+It also allows connecting to external (non-LAN) servers.

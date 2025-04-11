@@ -84,7 +84,8 @@ add_library(mods SHARED
     src/server/commands.cpp
     src/server/properties.cpp
     # multiplayer
-    src/multiplayer/multiplayer.cpp
+    src/multiplayer/server-list.cpp
+    src/multiplayer/raknet.cpp
     # benchmark
     src/benchmark/benchmark.cpp
     # init
