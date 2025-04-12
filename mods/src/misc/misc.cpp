@@ -508,14 +508,6 @@ void init_misc() {
         overwrite_call((void *) 0x83b8c, PathfinderMob_findAttackTarget, PathfinderMob_updateAi_PathfinderMob_findAttackTarget_injection);
     }
 
-    // Send The Full Level, Not Only Changed Chunks
-    if (feature_has("Send Full Level When Hosting Game", server_enabled)) {
-        unsigned char nop_patch[4] = {0x00, 0xf0, 0x20, 0xe3}; // "nop"
-        patch((void *) 0x717c4, nop_patch);
-        unsigned char mov_r3_ff[4] = {0xff, 0x30, 0xa0, 0xe3}; // "mov r3, #0xff"
-        patch((void *) 0x7178c, mov_r3_ff);
-    }
-
     // Fix Used Items Transferring Durability
     if (feature_has("Fix Transferring Durability When Using Items", server_disabled)) {
         overwrite_calls(Player_startUsingItem, Player_startUsingItem_injection);

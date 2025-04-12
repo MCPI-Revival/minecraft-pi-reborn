@@ -112,7 +112,11 @@ static void handle_server_stop(Minecraft *minecraft) {
         // Save And Exit
         Level *level = minecraft->level;
         if (level != nullptr) {
-            level->saveLevelData();
+            level->saveGame();
+            ChunkSource *chunk_source = level->chunk_source;
+            if (chunk_source) {
+                chunk_source->saveAll(true);
+            }
         }
         minecraft->leaveGame(false);
         // Kill Reader Thread

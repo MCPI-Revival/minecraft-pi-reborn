@@ -18,6 +18,7 @@ method void handleMouseDown(int param_1, bool can_destroy) = 0x1584c;
 method void handleBuildAction(uint *build_action_intention) = 0x15920;
 method void joinMultiplayer(const PingedCompatibleServer &server) = 0x165f4;
 method void setSize(int width, int height) = 0x173a4;
+method void generateLevel(const std::string &message, Level *level) = 0x166e8;
 
 virtual-method void update() = 0x24;
 virtual-method int handleBack(bool do_nothing) = 0x34;
@@ -42,6 +43,7 @@ property Mob *camera = 0x194;
 property Gui gui = 0x198;
 property Screen *screen = 0xc10;
 property HitResult hit_result = 0xc38;
+property int progress_state = 0xc9c;
 property int progress = 0xc60;
 property int ticks_per_update = 0xc70;
 property bool is_creative_mode = 0xcb5;
@@ -49,6 +51,9 @@ property PerfRenderer *perf_renderer = 0xcbc;
 property CommandServer *command_server = 0xcc0;
 property SoundEngine *sound_engine = 0x15c;
 property int miss_time = 0xca0;
+property CThread *level_generation_thread = 0xc0c;
+property bool generating_level = 0xc90;
+property bool level_generation_signal = 0xc91;
 
 // Smooth Lighting
 static-property bool useAmbientOcclusion = 0x136b90;

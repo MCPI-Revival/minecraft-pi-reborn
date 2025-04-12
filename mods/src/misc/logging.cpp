@@ -23,7 +23,7 @@ static void Gui_addMessage_injection(Gui_addMessage_t original, Gui *gui, const 
         recursing = true;
 
         // Print Log Message
-        std::string safe_message = from_cp437(new_message);
+        const std::string safe_message = from_cp437(new_message);
         fprintf(stderr, "[CHAT]: %s\n", safe_message.c_str());
 
         // Call Original Method

@@ -1,1 +1,17 @@
 vtable 0x110268;
+
+virtual-method bool isEmpty() = 0x84;
+virtual-method void setData(int x, int y, int z, int data) = 0x70;
+virtual-method void recalcHeightmap() = 0x10;
+virtual-method void recalcHeightmapOnly() = 0x14;
+virtual-method void setTileAndData(int x, int y, int z, int tile_id, int data) = 0x68;
+virtual-method int getHeightmap(int x, int z) = 0xc;
+
+method void setTileRaw(int x, int y, int z, int tile_id) = 0xaffdc;
+
+property bool done_generating = 0x248;
+property bool should_save = 0x249;
+property uchar *blocks = 0x254;
+property DataLayer data = 0x10;
+property DataLayer light_sky = 0x1c;
+property DataLayer light_block = 0x28;

@@ -1,2 +1,2 @@
-static-property LightLayer *block = 0x17be94;
-static-property LightLayer *sky = 0x17be90;
+static-property LightLayer Block = 0x17be94;
+static-property LightLayer Sky = 0x17be90;

@@ -1,6 +1,7 @@
 #include <cstdlib>
 #include <sys/stat.h>
 #include <ranges>
+#include <fcntl.h>
 #include <ext/stdio_filebuf.h>
 
 #include <LIEF/ELF.hpp>
@@ -14,13 +15,15 @@
 
 // Duplicate MCPI Executable Into /tmp
 const char *patched_exe_path = "/tmp/" MCPI_APP_NAME;
-static int duplicate_mcpi_executable() {
+static int create_file() {
+    // Lock File
+    const int lock_fd = lock_file(patched_exe_path);
+    set_and_print_env(_MCPI_LOCK_FD_ENV, std::to_string(lock_fd).c_str());
     // Generate New File
-    const int fd = lock_file(patched_exe_path);
-    set_and_print_env(_MCPI_LOCK_FD_ENV, std::to_string(fd).c_str());
-    // Fix Permissions
-    if (fchmod(fd, S_IRWXU) != 0) {
-        ERR("Unable To Set File Permissions: %s: %s", patched_exe_path, strerror(errno));
+    unlink(patched_exe_path);
+    const int fd = open(patched_exe_path, O_WRONLY | O_CREAT, S_IRWXU);
+    if (fd <= 0) {
+        ERR("Unable To Open Patched Executable: %s", strerror(errno));
     }
     // Return
     return fd;
@@ -42,7 +45,7 @@ static std::vector<std::string> function_prefixes_to_patch = {
 };
 void patch_mcpi_elf_dependencies(const std::string &original_path, const std::string &interpreter, const std::vector<std::string> &rpath, const std::vector<std::string> &mods) {
     // Duplicate MCPI executable into /tmp so it can be modified.
-    const int fd = duplicate_mcpi_executable();
+    const int fd = create_file();
 
     // Load Binary
     const std::unique_ptr<LIEF::ELF::Binary> binary = LIEF::ELF::Parser::parse(original_path);

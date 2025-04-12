@@ -1,0 +1,1 @@
+constructor (void *func, void *data) = 0x1446c;

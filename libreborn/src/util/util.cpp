@@ -47,8 +47,12 @@ bool is_progress_difference_significant(const int32_t new_val, const int32_t old
 
 // Lock File
 int lock_file(const char *file) {
+    // Get New Path
+    const std::string lock = std::string(file) + ".lock";
+    file = lock.c_str();
+    // Lock
     const int fd = open(file, O_WRONLY | O_CREAT, S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH);
-    if (fd == -1) {
+    if (fd < 0) {
         ERR("Unable To Open Lock File: %s: %s", file, strerror(errno));
     }
     if (flock(fd, LOCK_EX) == -1) {

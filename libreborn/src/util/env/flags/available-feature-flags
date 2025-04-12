@@ -91,7 +91,7 @@ CATEGORY Multiplayer
         FALSE Hide Chat Messages
     TRUE Allow Joining Survival Mode Servers
     TRUE External Server Support
-    TRUE Send Full Level When Hosting Game
+    TRUE Improve Multiplayer Chunk Loading
     TRUE Sanitize Usernames
 CATEGORY Gameplay
     TRUE Implement Death Messages

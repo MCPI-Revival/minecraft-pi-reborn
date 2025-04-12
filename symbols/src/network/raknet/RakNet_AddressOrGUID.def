@@ -1,0 +1,7 @@
+size 0x28;
+mark-as-simple;
+
+constructor (const RakNet_RakNetGUID &guid) = 0x742f4;
+
+property RakNet_RakNetGUID guid = 0x0;
+property RakNet_SystemAddress address = 0x10;

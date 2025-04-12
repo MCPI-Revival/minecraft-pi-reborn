@@ -1,4 +1,5 @@
 #include <fstream>
+#include <cstdint>
 
 #include <libreborn/log.h>
 #include <libreborn/util/string.h>

@@ -159,7 +159,7 @@ void copy_sdk(const std::string &binary_directory, const bool force) {
     // Lock File
     const std::string root = get_sdk_root(home_get());
     ensure_directory(root.c_str());
-    const std::string lock_file_path = root + path_separator + ".lock";
+    const std::string lock_file_path = root + path_separator;
     const int lock_file_fd = lock_file(lock_file_path.c_str());
 
     // Do

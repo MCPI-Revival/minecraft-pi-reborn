@@ -74,6 +74,8 @@ property float explodeable = 0x38;
 property int category = 0x3c;
 property AABB aabb = 0x40;
 
+static-method int transformToValidBlockId(int tile_id, int x, int y, int z) = 0xc327c;
+
 // Globals, all of theses are 256 elements long
 static-property Tile *tiles[256] = 0x180e08;
 static-property int lightEmission[256] = 0x181214;

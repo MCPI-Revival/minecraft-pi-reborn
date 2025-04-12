@@ -5,6 +5,7 @@ constructor (Level *level, int seed, int version, bool enable_spawning) = 0xb442
 vtable 0x110598;
 
 method void buildSurface(int chunk_x, int chunk_y, uchar *chunk_data, Biome **biomes) = 0xb32ec;
+method void prepareHeights(int chunk_x, int chunk_y, uchar *chunk_data, void *unknown, float *temperatures) = 0xb3b54;
 
 property LargeCaveFeature cave_feature = 0x8;
 property Random random = 0x19f8;

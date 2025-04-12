@@ -2,5 +2,8 @@ extends NetEventCallback;
 
 vtable 0x108eb8;
 
+method void requestNextChunk() = 0x6d6dc;
+
 property Minecraft *minecraft = 0x4;
 property Level *level = 0x8;
+property bool chunk_loaded[256] = 0x83c;

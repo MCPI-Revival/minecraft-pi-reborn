@@ -22,10 +22,11 @@ set(SRC
     src/network/raknet/RakNet_RakString_SharedString.def
     src/network/raknet/RakNet_RakString.def
     src/network/raknet/RakNet_SystemAddress.def
-    src/network/raknet/RakNet_StartupResult.h
+    src/network/raknet/RakNet.h
     src/network/raknet/RakNet_RakNetGUID.def
     src/network/raknet/RakNet_RakPeer.def
     src/network/raknet/RakNet_BitStream.def
+    src/network/raknet/RakNet_AddressOrGUID.def
     src/network/ServerSideNetworkHandler.def
     src/network/ClientSideNetworkHandler.def
     src/network/packet/LoginPacket.def
@@ -37,6 +38,8 @@ set(SRC
     src/network/packet/PlayerActionPacket.def
     src/network/packet/MovePlayerPacket.def
     src/network/packet/SetEntityMotionPacket.def
+    src/network/packet/ChunkDataPacket.def
+    src/network/packet/RequestChunkPacket.def
     src/entity/EntityFactory.def
     src/entity/PrimedTnt.def
     src/entity/CameraEntity.def
@@ -113,6 +116,7 @@ set(SRC
     src/level/LevelStorage.def
     src/level/BiomeSource.def
     src/level/Region.def
+    src/level/DataLayer.def
     src/item/ItemRenderer.def
     src/item/ItemInHandRenderer.def
     src/item/AuxDataTileItem.def
@@ -206,6 +210,7 @@ set(SRC
     src/misc/Util.def
     src/misc/Tag.def
     src/misc/CompoundTag.def
+    src/misc/CThread.def
     src/input/IMoveInput.def
     src/input/IBuildInput.def
     src/input/MouseBuildInput.def

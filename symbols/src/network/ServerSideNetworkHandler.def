@@ -8,3 +8,4 @@ method void displayGameMessage(const std::string &message) = 0x750c4;
 
 property Level *level = 0xc;
 property Minecraft *minecraft = 0x8;
+property RakNet_RakPeer *peer = 0x14;

@@ -4,3 +4,4 @@ virtual-method RakNet_StartupResult Startup(unsigned short maxConnections, uchar
 virtual-method RakNet_SystemAddress GetSystemAddressFromGuid(RakNet_RakNetGUID guid) = 0xd0;
 virtual-method bool IsBanned(const char *ip) = 0x94;
 virtual-method bool Ping(const char *host, unsigned short remotePort, bool onlyReplyOnAcceptingConnections, uint connectionSocketIndex) = 0xa0;
+virtual-method uint Send(RakNet_BitStream *bitStream, RakNet_PacketPriority priority, RakNet_PacketReliability reliability, char orderingChannel, const RakNet_AddressOrGUID *systemIdentifier, bool broadcast, uint forceReceiptNumber) = 0x58;

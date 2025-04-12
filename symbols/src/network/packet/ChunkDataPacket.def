@@ -1,0 +1,5 @@
+extends Packet;
+
+property int x = 0xc;
+property int z = 0x10;
+property RakNet_BitStream data = 0x14;

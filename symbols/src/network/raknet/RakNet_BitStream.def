@@ -1,7 +1,13 @@
+size 0x114;
+
+constructor () = 0xd3b84;
+method void *destructor(int unknown) = 0xd3ce8;
+
 method void Write_uchar(uchar *i) = 0x18448;
 method void Write_int(int *i) = 0x18454;
 method void Write_ushort(ushort *i) = 0x45a68;
 method void Write_short(short *i) = 0x71918;
+method void Write_bytes(unsigned char *data, uint number_to_read) = 0xd45f4;
 // right_aligned should be true
 method void WriteBits(const uchar *buff, uint bits, bool right_aligned) = 0xd41b4;
 
@@ -10,6 +16,8 @@ method bool Read_int(int *i) = 0x184ec;
 method bool Read_ushort(ushort *i) = 0x45acc;
 method bool Read_short(short *i) = 0x72070;
 method bool Read_str(char *str) = 0xd5174;
+method bool Read_bytes(unsigned char *data, uint number_to_read) = 0xd3f5c;
+method bool Read_stream(RakNet_BitStream *data) = 0xd45b0;
 // right_aligned should be true
 method void ReadBits(uchar *buff, uint bits, bool right_aligned) = 0xd3e18;
 
