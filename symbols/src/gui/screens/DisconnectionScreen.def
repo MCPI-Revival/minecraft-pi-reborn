@@ -1,0 +1,6 @@
+extends Screen;
+
+vtable 0x104c18;
+size 0x50;
+
+constructor (const std::string &str) = 0x6e484;

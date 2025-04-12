@@ -12,3 +12,4 @@ static-property char survival_mode_description[34] = 0x104470; // "Mobs, health 
 static-property char *text_wrapping_delimiter = 0x253d0; // " \n\t\r"
 static-property char *title_texture_touch = 0x3e0fc; // "gui/pi_title.png"
 static-property char *title_texture_classic = 0x39798; // "gui/pi_title.png"
+static-property char unable_to_connect[40] = 0x104d79; // "Could not connect to server. Try again."

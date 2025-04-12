@@ -3,6 +3,7 @@
 
 #include <libreborn/util/io.h>
 #include <libreborn/env/env.h>
+#include <libreborn/patch.h>
 
 #include <mods/compat/compat.h>
 #include <mods/init/init.h>
@@ -18,8 +19,10 @@ void init_compat() {
     // Unlock Lock File
     const int lock_fd = std::stoi(require_env(_MCPI_LOCK_FD_ENV));
     unlock_file(lock_fd);
+
     // SDL
     _init_compat_sdl();
+
     // Install Signal Handlers
     struct sigaction act_sigint = {};
     act_sigint.sa_flags = SA_RESTART;
@@ -29,11 +32,16 @@ void init_compat() {
     act_sigterm.sa_flags = SA_RESTART;
     act_sigterm.sa_handler = &exit_handler;
     sigaction(SIGTERM, &act_sigterm, nullptr);
+
     // Patches
     _patch_egl_calls();
     _patch_x11_calls();
     _patch_bcm_host_calls();
     _patch_sdl_calls();
+
+    // Stop Threads From Being Detached
+    unsigned char nop_patch[4] = {0x00, 0xf0, 0x20, 0xe3}; // "nop"
+    patch((void *) 0x14498, nop_patch);
 }
 
 // Store Exit Requests

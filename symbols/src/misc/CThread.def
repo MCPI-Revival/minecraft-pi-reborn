@@ -1,1 +1,3 @@
+vtable 0x102368;
+
 constructor (void *func, void *data) = 0x1446c;

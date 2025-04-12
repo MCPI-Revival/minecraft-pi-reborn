@@ -5,11 +5,11 @@
 
 #include <symbols/minecraft.h>
 #include <libreborn/patch.h>
+#include <mods/misc/misc.h>
 
 #include "internal.h"
 
 // Track Whether The Connected Server Is Enhanced
-static bool server_supports_improved_loading;
 static void StartGamePacket_write_injection(StartGamePacket_write_t original, StartGamePacket *self, RakNet_BitStream *bit_stream) {
     // Call Original Method
     original(self, bit_stream);
@@ -17,12 +17,13 @@ static void StartGamePacket_write_injection(StartGamePacket_write_t original, St
     uchar x = 1;
     bit_stream->Write_uchar(&x);
 }
+static bool server_using_improved_loading; // Only Access This Value If You Know You're Joining A Server!
 static void StartGamePacket_read_injection(StartGamePacket_read_t original, StartGamePacket *self, RakNet_BitStream *bit_stream) {
     // Call Original Method
     original(self, bit_stream);
     // Check If Packet Contains Extra Data
     uchar x;
-    server_supports_improved_loading = bit_stream->Read_uchar(&x);
+    server_using_improved_loading = bit_stream->Read_uchar(&x);
 }
 
 // Chunk Data Structure
@@ -33,6 +34,7 @@ struct ChunkData {
     static constexpr int HEIGHT = 128;
     static constexpr int TOTAL_SIZE = COLUMNS * HEIGHT;
     static constexpr int TOTAL_SIZE_HALF = TOTAL_SIZE / 2;
+    static constexpr int WORLD_SIZE = 16; // In Chunks
     // Fields
     int x;
     int z;
@@ -109,12 +111,12 @@ static void start_requesting_chunks(const Minecraft *minecraft) {
 // Prevent Terrain Generation When Accessing Chunks
 static bool inhibit_terrain_generation = false;
 template <typename... Args>
-static void RandomLevelSource_buildSurface_injection(const std::function<void(RandomLevelSource *, int, int, uchar *, Args...)> &original, RandomLevelSource *self, int chunk_x, int chunk_y, uchar *chunk_data, Args... args) {
+static void block_terrain_generation_injection(const std::function<void(Args...)> &original, Args... args) {
     if (inhibit_terrain_generation) {
         return;
     }
     // Call Original Method
-    original(self, chunk_x, chunk_y, chunk_data, std::forward<Args>(args)...);
+    original(std::forward<Args>(args)...);
 }
 static LevelChunk *RandomLevelSource_getChunk_injection(RandomLevelSource_getChunk_t original, RandomLevelSource *self, const int chunk_x, const int chunk_z) {
     // Call Original Method
@@ -151,14 +153,38 @@ static bool update_progress(Minecraft *minecraft) {
 }
 
 // Thread For Processing Data
+static volatile bool should_stop_thread;
 static pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
 static std::queue<ChunkData *> chunks;
 static void *process_thread(void *thread_data) {
-    // Load Chunks
+    // Set Progress
     Minecraft *minecraft = (Minecraft *) thread_data;
+    update_progress(minecraft);
+
+    // Create Empty Chunks
     Level *level = minecraft->level;
+    inhibit_terrain_generation = true;
+    for (int x = 0; x < ChunkData::WORLD_SIZE; x++) {
+        for (int z = 0; z < ChunkData::WORLD_SIZE; z++) {
+            // Create Chunk
+            LevelChunk *chunk = level->chunk_source->create(x, z); // What is this doing?
+            if (!chunk || chunk->isEmpty()) {
+                IMPOSSIBLE();
+            }
+            memset(chunk->blocks, 0, ChunkData::TOTAL_SIZE);
+            // Mark As Custom
+            chunk->should_save = true;
+            chunk->loaded_from_disk = true;
+            for (uchar &mask : chunk->dirty_columns) {
+                mask = 0xff;
+            }
+        }
+    }
+    inhibit_terrain_generation = false;
+
+    // Load Chunks
     ClientSideNetworkHandler *handler = (ClientSideNetworkHandler *) minecraft->network_handler;
-    while (update_progress(minecraft)) {
+    while (update_progress(minecraft) && !should_stop_thread) {
         // Get Chunk Data
         ChunkData *chunk = nullptr;
         pthread_mutex_lock(&mutex);
@@ -172,21 +198,13 @@ static void *process_thread(void *thread_data) {
             continue;
         }
 
-        // Disable Terrain Generation
-        inhibit_terrain_generation = true;
-
-        // Get Level Chunk
-        LevelChunk *level_chunk = level->chunk_source->create(chunk->x, chunk->z);
-        if (!level_chunk || level_chunk->isEmpty()) {
-            IMPOSSIBLE();
-        }
-
         // Fix Invalid Tiles
         for (unsigned char &tile : chunk->blocks) {
             tile = Tile::transformToValidBlockId(tile, 0, 0, 0);
         }
 
         // Set Chunk Data
+        LevelChunk *level_chunk = level->chunk_source->create(chunk->x, chunk->z);
 #define copy(a, b) memcpy(level_chunk->a, chunk->b.data(), chunk->b.size())
         copy(blocks, blocks);
         copy(data.data, data);
@@ -195,19 +213,26 @@ static void *process_thread(void *thread_data) {
 #undef copy
 
         // Post-Processing
-        level_chunk->recalcHeightmap();
+        level_chunk->recalcHeightmapOnly();
         while (level->updateLights()) {}
-        level_chunk->should_save = true;
 
         // Finished
-        handler->chunk_loaded[(chunk->x * 16) + chunk->z] = true;
+        handler->chunk_loaded[(chunk->x * ChunkData::WORLD_SIZE) + chunk->z] = true;
         delete chunk;
-        inhibit_terrain_generation = false;
     }
+
+    // Free Queued Chunks
+    pthread_mutex_lock(&mutex);
+    while (!chunks.empty()) {
+        delete chunks.front();
+        chunks.pop();
+    }
+    pthread_mutex_unlock(&mutex);
 
     // Save Level
     level->saveGame();
     level->chunk_source->saveAll(false);
+
     // Done Loading
     minecraft->progress_state = 0;
     minecraft->progress = -1;
@@ -216,9 +241,11 @@ static void *process_thread(void *thread_data) {
 }
 
 // Handle Requested Chunk Data
+static bool is_loading_chunks(const ClientSideNetworkHandler *self) {
+    return server_using_improved_loading && self->level == nullptr;
+}
 static void ClientSideNetworkHandler_handle_ChunkDataPacket_injection(ClientSideNetworkHandler_handle_ChunkDataPacket_t original, ClientSideNetworkHandler *self, const RakNet_RakNetGUID &rak_net_guid, ChunkDataPacket *packet) {
-    const bool using_improved_loading = server_supports_improved_loading && self->level == nullptr;
-    if (using_improved_loading) {
+    if (is_loading_chunks(self)) {
         // Improved Chunk Loading
         ChunkData *chunk = new ChunkData;
 
@@ -249,13 +276,50 @@ static void ClientSideNetworkHandler_handle_ChunkDataPacket_injection(ClientSide
 static CThread *Minecraft_setLevel_CThread_injection(CThread *self, void *func, void *data) {
     const Minecraft *minecraft = (Minecraft *) data;
     const Level *level = minecraft->level;
-    if (level->is_client_side && server_supports_improved_loading) {
+    if (level->is_client_side && server_using_improved_loading) {
         // Request Chunks
+        if (!chunks.empty()) {
+            IMPOSSIBLE();
+        }
+        should_stop_thread = false;
         func = (void *) process_thread;
         start_requesting_chunks(minecraft);
     }
     // Call Original Method
     return self->constructor(func, data);
+}
+
+// Handle Disconnection While Loading
+static bool should_disconnect = false;
+static void ClientSideNetworkHandler_onDisconnect_injection(ClientSideNetworkHandler_onDisconnect_t original, ClientSideNetworkHandler *self, const RakNet_RakNetGUID &rak_net_guid) {
+    // Call Original Method
+    original(self, rak_net_guid);
+
+    // Handle Stopping loading
+    if (is_loading_chunks(self)) {
+        should_disconnect = true;
+    }
+}
+static void handle_disconnect_tick(Minecraft *minecraft) {
+    if (!should_disconnect) {
+        return;
+    }
+    should_disconnect = false;
+
+    // Stop Thread
+    should_stop_thread = true;
+    CThread *&thread = minecraft->level_generation_thread;
+    if (thread) {
+        thread->destructor_deleting();
+        thread = nullptr;
+    }
+    minecraft->level_generation_signal = true;
+
+    // Leave Game
+    minecraft->leaveGame(false); // This Destroys Self!
+    DisconnectionScreen *screen = DisconnectionScreen::allocate();
+    screen->constructor(Strings::unable_to_connect);
+    minecraft->setScreen((Screen *) screen);
 }
 
 // Init
@@ -278,7 +342,14 @@ void _init_multiplayer_loading() {
     // Request Chunks Instead Of Generating Them
     overwrite_call((void *) 0x152cc, CThread_constructor, Minecraft_setLevel_CThread_injection);
     overwrite_calls(ClientSideNetworkHandler_handle_ChunkDataPacket, ClientSideNetworkHandler_handle_ChunkDataPacket_injection);
-    overwrite_calls(RandomLevelSource_buildSurface, RandomLevelSource_buildSurface_injection<Biome **>);
-    overwrite_calls(RandomLevelSource_prepareHeights, RandomLevelSource_buildSurface_injection<void *, float *>);
+
+    // Allow Blocking Terrain Generation
+    overwrite_calls(RandomLevelSource_buildSurface, block_terrain_generation_injection<RandomLevelSource *, int, int, uchar *, Biome **>);
+    overwrite_calls(RandomLevelSource_prepareHeights, block_terrain_generation_injection<RandomLevelSource *, int, int, uchar *, void *, float *>);
+    overwrite_calls(LevelChunk_recalcHeightmap, block_terrain_generation_injection<LevelChunk *>);
     overwrite_calls(RandomLevelSource_getChunk, RandomLevelSource_getChunk_injection);
+
+    // Handle Disconnection
+    overwrite_calls(ClientSideNetworkHandler_onDisconnect, ClientSideNetworkHandler_onDisconnect_injection);
+    misc_run_on_tick(handle_disconnect_tick);
 }

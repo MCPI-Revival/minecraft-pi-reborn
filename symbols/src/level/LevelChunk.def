@@ -15,3 +15,5 @@ property uchar *blocks = 0x254;
 property DataLayer data = 0x10;
 property DataLayer light_sky = 0x1c;
 property DataLayer light_block = 0x28;
+property uchar dirty_columns[256] = 0x134;
+property bool loaded_from_disk = 0x24b;
