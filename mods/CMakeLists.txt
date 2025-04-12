@@ -86,7 +86,11 @@ add_library(mods SHARED
     # multiplayer
     src/multiplayer/server-list.cpp
     src/multiplayer/raknet.cpp
-    src/multiplayer/loading.cpp
+    src/multiplayer/loading/init.cpp
+    src/multiplayer/loading/packets.cpp
+    src/multiplayer/loading/thread.cpp
+    src/multiplayer/loading/misc.cpp
+    src/multiplayer/loading/terrain.cpp
     # benchmark
     src/benchmark/benchmark.cpp
     # init
