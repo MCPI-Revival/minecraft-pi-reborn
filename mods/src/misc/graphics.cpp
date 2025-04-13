@@ -581,7 +581,7 @@ void _init_misc_graphics() {
     }
 
     // 3D Chests
-    if (feature_has("3D Chest Model", server_disabled)) {
+    if (feature_has("3D Chest Model", server_enabled)) {
         overwrite_call((void *) 0x5e830, Tile_getRenderShape, TileRenderer_tesselateInWorld_Tile_getRenderShape_injection);
         overwrite_calls(ChestTileEntity_constructor, ChestTileEntity_injection);
         overwrite_call((void *) 0x6655c, ModelPart_render, ChestRenderer_render_ModelPart_render_injection);

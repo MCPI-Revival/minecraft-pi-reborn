@@ -1,0 +1,6 @@
+extends Packet;
+
+vtable 0x108e20;
+size 0x10;
+
+property char type = 0xc;

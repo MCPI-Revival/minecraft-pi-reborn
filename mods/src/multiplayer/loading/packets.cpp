@@ -17,6 +17,7 @@ static void StartGamePacket_read_injection(StartGamePacket_read_t original, Star
     // Check If Packet Contains Extra Data
     uchar x;
     _server_using_improved_loading = bit_stream->Read_uchar(&x);
+    _multiplayer_clear_updates();
 }
 
 // "Special" Version Of RequestChunkPacket That Sends Light Data
@@ -101,6 +102,17 @@ static void ClientSideNetworkHandler_handle_ChunkDataPacket_injection(ClientSide
     }
 }
 
+// Buffer Block Updates Received While Chunks Are Loading
+static void ClientSideNetworkHandler_handle_UpdateBlockPacket_injection(ClientSideNetworkHandler_handle_UpdateBlockPacket_t original, ClientSideNetworkHandler *self, const RakNet_RakNetGUID &rak_net_guid, UpdateBlockPacket *packet) {
+    if (_multiplayer_is_loading_chunks(self)) {
+        // Improved Chunk Loading
+        _multiplayer_set_tile(packet->x, packet->y, packet->z, packet->tile_id, packet->data);
+    } else {
+        // Call Original Method
+        original(self, rak_net_guid, packet);
+    }
+}
+
 // Init
 void _init_multiplayer_loading_packets() {
     // Detect Modded Servers
@@ -111,6 +123,9 @@ void _init_multiplayer_loading_packets() {
     overwrite_call((void *) 0x6d72c, RakNetInstance_send, ClientSideNetworkHandler_requestNextChunk_RakNetInstance_send_injection);
     overwrite_calls(ServerSideNetworkHandler_handle_RequestChunkPacket, ServerSideNetworkHandler_handle_RequestChunkPacket_injection);
     overwrite_calls(ClientSideNetworkHandler_handle_ChunkDataPacket, ClientSideNetworkHandler_handle_ChunkDataPacket_injection);
+
+    // Buffer Block Updates
+    overwrite_calls(ClientSideNetworkHandler_handle_UpdateBlockPacket,  ClientSideNetworkHandler_handle_UpdateBlockPacket_injection);
 
     // Modify ChunkDataPacket To Always Send The Full Chunk
     unsigned char nop_patch[4] = {0x00, 0xf0, 0x20, 0xe3}; // "nop"

@@ -40,6 +40,8 @@ set(SRC
     src/network/packet/SetEntityMotionPacket.def
     src/network/packet/ChunkDataPacket.def
     src/network/packet/RequestChunkPacket.def
+    src/network/packet/UpdateBlockPacket.def
+    src/network/packet/ReadyPacket.def
     src/entity/EntityFactory.def
     src/entity/PrimedTnt.def
     src/entity/CameraEntity.def

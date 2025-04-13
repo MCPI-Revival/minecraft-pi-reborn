@@ -1,0 +1,9 @@
+extends Packet;
+
+vtable 0x1093b8;
+
+property int x = 0xc;
+property uchar y = 0x14;
+property int z = 0x10;
+property uchar tile_id = 0x15;
+property uchar data = 0x16;

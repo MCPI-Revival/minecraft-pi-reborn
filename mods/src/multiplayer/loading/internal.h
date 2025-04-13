@@ -27,6 +27,10 @@ __attribute__((visibility("internal"))) void _multiplayer_stop_thread(Minecraft 
 // Check If Network Handler Is Loading Chunks
 __attribute__((visibility("internal"))) bool _multiplayer_is_loading_chunks(const ClientSideNetworkHandler *self);
 
+// Buffer Block Updates
+__attribute__((visibility("internal"))) void _multiplayer_clear_updates();
+__attribute__((visibility("internal"))) void _multiplayer_set_tile(int x, int y, int z, int tile_id, int data);
+
 // Chunk Data Structure
 struct ChunkData {
     // Constants
