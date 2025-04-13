@@ -40,7 +40,7 @@ static void RakNetInstance_pingForHosts_injection(RakNetInstance_pingForHosts_t 
     RakNet_RakPeer *rak_peer = rak_net_instance->peer;
 
     // Add External Servers
-    iterate_servers([rak_peer](const char *address, ServerList::port_t port) {
+    iterate_servers([rak_peer](const char *address, const ServerList::port_t port) {
         rak_peer->Ping(address, port, true, 0);
     });
 }

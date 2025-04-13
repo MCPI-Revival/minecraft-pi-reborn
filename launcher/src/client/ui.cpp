@@ -226,6 +226,9 @@ void ConfigurationUI::draw_servers() const {
     }
     ImGui::EndChild();
 }
+static bool is_numeric(const ImWchar x) {
+    return x >= '0' && x <= '9';
+}
 static int server_list_address_filter(ImGuiInputTextCallbackData *data) {
     // Lowercase
     constexpr std::pair lower_alpha = {'a', 'z'};
@@ -234,13 +237,24 @@ static int server_list_address_filter(ImGuiInputTextCallbackData *data) {
     if (x >= upper_alpha.first && x <= upper_alpha.second) {
         x += lower_alpha.first - upper_alpha.first;
     }
-    // Check Characters
-    return (x >= lower_alpha.first && x <= lower_alpha.second) || x == '.' ? 0 : 1;
+    if (x >= lower_alpha.first && x <= lower_alpha.second) {
+        return 0;
+    }
+    // Numbers
+    if (is_numeric(x)) {
+        return 0;
+    }
+    // Other Allowed Characters
+    if (x == '.' || x == '-') {
+        return 0;
+    }
+    // Not Allowed
+    return 1;
 }
 static int server_list_port_filter(ImGuiInputTextCallbackData *data) {
     // Only Allow Integers
     const ImWchar &x = data->EventChar;
-    return x >= '0' && x <= '9' ? 0 : 1;
+    return is_numeric(x) ? 0 : 1;
 }
 void ConfigurationUI::draw_server_list() const {
     for (std::vector<ServerList::Entry>::size_type i = 0; i < state.servers.entries.size(); ++i) {
