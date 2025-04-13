@@ -1,3 +1,16 @@
+CATEGORY Additions
+    CATEGORY Chat
+        TRUE Implement Chat
+        FALSE Hide Chat Messages
+    CATEGORY Screens
+        TRUE Add Welcome Screen
+        TRUE Implement Create World Dialog
+    CATEGORY API
+        TRUE Implement RaspberryJuice API
+        TRUE Optimized API Sockets
+    TRUE Add Buckets
+    TRUE Add Cake
+    TRUE Load Custom Skins
 CATEGORY Creative Mode
     CATEGORY Inventory
         FALSE Expand Creative Mode Inventory
@@ -22,9 +35,7 @@ CATEGORY User Interface
             TRUE Add Reborn Info To Options
         TRUE Force Touch UI Inventory
         TRUE Fix Pause Menu
-        TRUE Implement Create World Dialog
         TRUE Display Date In Select World Screen
-        TRUE Add Welcome Screen
         TRUE Enable Sign Screen
     CATEGORY HUD
         TRUE Classic HUD
@@ -86,9 +97,6 @@ CATEGORY Input
     TRUE Enable Text Input
     TRUE Extend Supported Keycodes
 CATEGORY Multiplayer
-    CATEGORY Chat
-        TRUE Implement Chat
-        FALSE Hide Chat Messages
     TRUE Allow Joining Survival Mode Servers
     TRUE External Server Support
     TRUE Improve Multiplayer Chunk Loading
@@ -97,9 +105,6 @@ CATEGORY Gameplay
     TRUE Implement Death Messages
     TRUE Implement Game-Mode Switching
     FALSE Force Mob Spawning
-    TRUE Add Buckets
-    TRUE Load Custom Skins
-    TRUE Add Cake
     TRUE Implement Crafting Remainders
     TRUE Implement Sound Engine
     TRUE Generate Caves
@@ -152,9 +157,6 @@ CATEGORY Logging
     TRUE Log Game Status
     TRUE Log RakNet Startup Errors
 CATEGORY Miscellaneous
-    CATEGORY API
-        TRUE Implement RaspberryJuice API
-        TRUE Optimized API Sockets
     TRUE Fullscreen Support
     TRUE Always Save Chest Tile Entities
     TRUE Screenshot Support
