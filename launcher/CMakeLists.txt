@@ -19,7 +19,11 @@ add_executable(launcher
     src/ui/color.cpp
     src/client/configuration.cpp
     src/client/cache.cpp
-    src/client/ui.cpp
+    src/client/ui/window.cpp
+    src/client/ui/main.cpp
+    src/client/ui/advanced.cpp
+    src/client/ui/servers.cpp
+    src/client/ui/about.cpp
     src/updater/updater.cpp
 )
 target_link_libraries(launcher
