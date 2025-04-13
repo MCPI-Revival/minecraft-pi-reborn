@@ -288,76 +288,6 @@ static void Mob_baseTick_injection_fire_immunity(Mob_baseTick_t original, Mob *s
     original(self);
 }
 
-// Fix Fire Syncing
-#define FLAG_ONFIRE 0
-static void Mob_baseTick_injection_fire_syncing(Mob_baseTick_t original, Mob *self) {
-    // Fix Fire Timer
-    if (self->level->is_client_side) {
-        self->fire_timer = 0;
-    }
-    // Call Original Method
-    original(self);
-    // Sync Data
-    if (!self->level->is_client_side) {
-        self->setSharedFlag(FLAG_ONFIRE, self->fire_timer > 0);
-    }
-}
-static bool Entity_isOnFire_injection(Entity_isOnFire_t original, Entity *self) {
-    // Call Original Method
-    bool ret = original(self);
-
-    // Check Shared Data
-    bool shared_data = false;
-    if (self->isMob()) {
-        shared_data = ((Mob *) self)->getSharedFlag(FLAG_ONFIRE);
-    }
-    if (shared_data) {
-        ret = true;
-    }
-
-    // Return
-    return ret;
-}
-
-// Fix Sneaking Syncing
-#define FLAG_SNEAKING 1
-#define PLAYER_ACTION_STOP_SNEAKING 100
-#define PLAYER_ACTION_START_SNEAKING 101
-static void LocalPlayer_tick_injection(LocalPlayer_tick_t original, LocalPlayer *self) {
-    // Call Original Method
-    original(self);
-    // Sync Data
-    if (!self->level->is_client_side) {
-        self->setSharedFlag(FLAG_SNEAKING, self->isSneaking());
-    } else {
-        const bool real = self->isSneaking();
-        const bool synced = self->getSharedFlag(FLAG_SNEAKING);
-        if (real != synced) {
-            // Send To Server
-            PlayerActionPacket *packet = PlayerActionPacket::allocate();
-            ((Packet *) packet)->constructor();
-            packet->vtable = PlayerActionPacket_vtable::base;
-            packet->entity_id = self->id;
-            packet->action = real ? PLAYER_ACTION_START_SNEAKING : PLAYER_ACTION_STOP_SNEAKING;
-            self->minecraft->rak_net_instance->send(*(Packet *) packet);
-            packet->destructor_deleting();
-        }
-    }
-}
-static void ServerSideNetworkHandler_handle_PlayerActionPacket_injection(ServerSideNetworkHandler_handle_PlayerActionPacket_t original, ServerSideNetworkHandler *self, const RakNet_RakNetGUID &rak_net_guid, PlayerActionPacket *packet) {
-    // Call Original Method
-    original(self, rak_net_guid, packet);
-
-    // Handle Sneaking
-    const bool is_sneaking = packet->action == PLAYER_ACTION_START_SNEAKING;
-    if (self->level != nullptr && (is_sneaking || packet->action == PLAYER_ACTION_STOP_SNEAKING)) {
-        Entity *entity = self->level->getEntity(packet->entity_id);
-        if (entity != nullptr && entity->isPlayer()) {
-            ((Player *) entity)->setSharedFlag(FLAG_SNEAKING, is_sneaking);
-        }
-    }
-}
-
 // Make Mobs Actually Catch On Fire
 void misc_set_on_fire(Mob *mob, const int seconds) {
     const int value = seconds * 20;
@@ -576,18 +506,6 @@ void init_misc() {
     // Fix Fire Immunity
     if (feature_has("Fix Fire Immunity", server_enabled)) {
         overwrite_calls(Mob_baseTick, Mob_baseTick_injection_fire_immunity);
-    }
-
-    // Fix Fire Syncing
-    if (feature_has("Fix Fire Syncing", server_enabled)) {
-        overwrite_calls(Mob_baseTick, Mob_baseTick_injection_fire_syncing);
-        overwrite_calls(Entity_isOnFire, Entity_isOnFire_injection);
-    }
-
-    // Fix Sneaking Syncing
-    if (feature_has("Fix Sneaking Syncing", server_enabled)) {
-        overwrite_calls(LocalPlayer_tick, LocalPlayer_tick_injection);
-        overwrite_calls(ServerSideNetworkHandler_handle_PlayerActionPacket, ServerSideNetworkHandler_handle_PlayerActionPacket_injection);
     }
 
     // Make Skeletons/Zombies Actually Catch On Fire

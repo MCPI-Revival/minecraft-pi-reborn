@@ -19,7 +19,7 @@ include_toc: true
     * `Animated Fire` (Enabled By Default)
     * `Add Cake` (Enabled By Default)
     * `Use Java Beta 1.3 Light Ramp` (Enabled By Default)
-    * `Send Full Level When Hosting Game` (Enabled By Default)
+    * `Improve Multiplayer Chunk Loading` (Enabled By Default)
     * `Food Overlay` (Disabled By Default)
     * `Add Splashes` (Enabled By Default)
     * `Display Date In Select World Screen` (Enabled By Default)

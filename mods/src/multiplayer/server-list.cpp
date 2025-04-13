@@ -52,8 +52,9 @@ void init_multiplayer() {
         overwrite_calls(RakNetInstance_pingForHosts, RakNetInstance_pingForHosts_injection);
     }
 
-    // Init RakNet Fixes
+    // Init Other Fixes
     _init_multiplayer_raknet();
+    _init_multiplayer_syncing();
 
     // Improved Chunk Loading
     if (feature_has("Improve Multiplayer Chunk Loading", server_enabled)) {

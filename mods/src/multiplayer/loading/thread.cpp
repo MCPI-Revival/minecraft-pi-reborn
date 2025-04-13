@@ -99,6 +99,18 @@ static void *process_thread(void *thread_data) {
         copy(light_block.data, light_block);
 #undef copy
 
+        // Construct Tile Entities
+        for (int x = 0; x < ChunkData::SIZE; x++) {
+            for (int y = 0; y < ChunkData::HEIGHT; y++) {
+                for (int z = 0; z < ChunkData::SIZE; z++) {
+                    const int tile_id = level_chunk->getTile(x, y, z);
+                    if (tile_id != 0 && Tile::isEntityTile[tile_id]) {
+                        level_chunk->getTileEntity(x, y, z);
+                    }
+                }
+            }
+        }
+
         // Post-Processing
         level_chunk->recalcHeightmapOnly();
         while (level->updateLights()) {}

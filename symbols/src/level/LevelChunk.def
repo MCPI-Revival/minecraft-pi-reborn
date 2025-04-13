@@ -4,10 +4,13 @@ virtual-method bool isEmpty() = 0x84;
 virtual-method void setData(int x, int y, int z, int data) = 0x70;
 virtual-method void recalcHeightmap() = 0x10;
 virtual-method void recalcHeightmapOnly() = 0x14;
-virtual-method void setTileAndData(int x, int y, int z, int tile_id, int data) = 0x68;
+virtual-method bool setTileAndData(int x, int y, int z, int tile_id, int data) = 0x68;
+virtual-method bool setTile(int x, int y, int z, int tile_id) = 0x64;
 virtual-method int getHeightmap(int x, int z) = 0xc;
+virtual-method int getTile(int x, int y, int z) = 0x60;
 
 method void setTileRaw(int x, int y, int z, int tile_id) = 0xaffdc;
+method TileEntity *getTileEntity(int x, int y, int z) = 0xb0c9c;
 
 property bool done_generating = 0x248;
 property bool should_save = 0x249;
@@ -17,3 +20,4 @@ property DataLayer light_sky = 0x1c;
 property DataLayer light_block = 0x28;
 property uchar dirty_columns[256] = 0x134;
 property bool loaded_from_disk = 0x24b;
+property Level *level = 0xc;

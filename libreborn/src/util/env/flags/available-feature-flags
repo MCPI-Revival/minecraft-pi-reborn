@@ -119,6 +119,7 @@ CATEGORY Bug Fixes
         TRUE Prevent Unnecessary Server Pinging
         TRUE Fix Fire Syncing
         TRUE Fix Sneaking Syncing
+        TRUE Fix Tile Entity Syncing
     CATEGORY Input
         TRUE Fix Bow & Arrow
         TRUE Fix Attacking
