@@ -1,6 +1,9 @@
-constructor () = 0xb64a0;
 vtable 0x10e530;
 vtable-size 0x10;
+
+size 0x8;
+constructor (bool param_1) = 0xb64a0;
+
 generate-custom-wrapper;
 
 // Pure virtual
