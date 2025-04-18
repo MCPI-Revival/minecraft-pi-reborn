@@ -128,9 +128,6 @@ void _init_multiplayer_loading_packets() {
     overwrite_calls(ClientSideNetworkHandler_handle_UpdateBlockPacket,  ClientSideNetworkHandler_handle_UpdateBlockPacket_injection);
 
     // Modify ChunkDataPacket To Always Send The Full Chunk
-    unsigned char nop_patch[4] = {0x00, 0xf0, 0x20, 0xe3}; // "nop"
-    patch((void *) 0x717c4, nop_patch);
-    // TODO is this all needed?
     unsigned char mov_r3_ff[4] = {0xff, 0x30, 0xa0, 0xe3}; // "mov r3, #0xff"
     patch((void *) 0x7178c, mov_r3_ff);
 }
