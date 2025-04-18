@@ -7,7 +7,7 @@
 
 // Track Progress
 static bool update_progress(Minecraft *minecraft) {
-    // Count loaded Chunks
+    // Count Loaded Chunks
     ClientSideNetworkHandler *handler = (ClientSideNetworkHandler *) minecraft->network_handler;
     float total = 0;
     float loaded = 0;
@@ -17,15 +17,11 @@ static bool update_progress(Minecraft *minecraft) {
             loaded++;
         }
     }
-    // Update
-    if (total != loaded) {
-        minecraft->progress_state = 1;
-        minecraft->progress = int((loaded / total) * 100);
-        return true;
-    } else {
-        // Done Loading
-        return false;
-    }
+    // Update Progress
+    minecraft->progress_state = 1;
+    minecraft->progress = int((loaded / total) * 100);
+    // Return
+    return total != loaded;
 }
 
 // Handle Stopping Thread

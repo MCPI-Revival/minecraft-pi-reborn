@@ -2,6 +2,22 @@
 
 set -e
 
+# End Process
+end() {
+    kill "$1"
+    wait "$1" || :
+}
+
+# Setup Nested X11
+NESTED_DISPLAY=":99"
+Xephyr "${NESTED_DISPLAY}" -ac > /dev/null 2>&1 &
+X11_PID="$!"
+sleep 1
+mutter --x11 --display "${NESTED_DISPLAY}" --sm-disable > /dev/null 2>&1 &
+SHELL_PID="$!"
+sleep 1
+export DISPLAY="${NESTED_DISPLAY}"
+
 # Change Directory
 cd "$(dirname "$0")/../"
 
@@ -29,11 +45,12 @@ screenshot() {
 
     # Screenshot
     sleep "${TIMER}"
-    gnome-screenshot --window "--file=${IMAGE}"
+    FOCUSED="$(xdotool getwindowfocus)"
+    TARGET="$(xwininfo -int -children -id "${FOCUSED}" | awk '/Parent window id:/{print $4}')"
+    maim --quiet --hidecursor --window "${TARGET}" "${IMAGE}"
 
     # Kill
-    kill "${PID}"
-    wait "${PID}" || :
+    end "${PID}"
 }
 
 # Launcher
@@ -52,3 +69,7 @@ export MCPI_FEATURE_FLAGS="$(
     tr '\n' '|'
 )"
 screenshot start 3 --default
+
+# Kill Shell
+end "${SHELL_PID}"
+end "${X11_PID}"
