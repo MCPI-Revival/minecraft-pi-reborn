@@ -39,35 +39,48 @@ void _multiplayer_stop_thread(Minecraft *minecraft) {
     }
 }
 
-// Thread For Processing Data
-static pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
-static std::queue<ChunkData *> chunks;
-static void *process_thread(void *thread_data) {
+// Empty Chunks
+static void create_chunks(Minecraft *minecraft, const Level *level) {
     // Set Progress
-    Minecraft *minecraft = (Minecraft *) thread_data;
     minecraft->progress_state = 2;
-    minecraft->progress = -1;
+    minecraft->progress = 0;
 
     // Create Empty Chunks
-    Level *level = minecraft->level;
+    constexpr float total = ChunkData::WORLD_SIZE * ChunkData::WORLD_SIZE;
+    float created = 0;
     _inhibit_terrain_generation = true;
     for (int x = 0; x < ChunkData::WORLD_SIZE; x++) {
         for (int z = 0; z < ChunkData::WORLD_SIZE; z++) {
             // Create Chunk
-            LevelChunk *chunk = level->chunk_source->create(x, z); // What is this doing?
+            LevelChunk *chunk = level->chunk_source->create(x, z);
             if (!chunk || chunk->isEmpty()) {
                 IMPOSSIBLE();
             }
             memset(chunk->blocks, 0, ChunkData::TOTAL_SIZE);
+            created++;
+
             // Mark As Custom
             chunk->should_save = true;
             chunk->loaded_from_disk = true;
             for (uchar &mask : chunk->dirty_columns) {
                 mask = 0xff;
             }
+
+            // Update Progress
+            minecraft->progress = int((created / total) * 100);
         }
     }
     _inhibit_terrain_generation = false;
+}
+
+// Thread For Processing Data
+static pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
+static std::queue<ChunkData *> chunks;
+static void *process_thread(void *thread_data) {
+    // Create Empty Chunks
+    Minecraft *minecraft = (Minecraft *) thread_data;
+    Level *level = minecraft->level;
+    create_chunks(minecraft, level);
 
     // Load Chunks
     ClientSideNetworkHandler *handler = (ClientSideNetworkHandler *) minecraft->network_handler;
