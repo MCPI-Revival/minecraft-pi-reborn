@@ -10,72 +10,90 @@ include_toc: true
   * `*(unsigned char **)` Is Dead!
   * Now C++ Only
   * `overwrite_calls` Now Scans VTables
-* Add Peaceful Mode To Options Screen
-* Proper Create New World Screen
-* Proper Chat Screen
-* New Feature Flags
-  * New Functionality
+* Add Cake
+  * Controlled By `Add Cake` Feature Flag (Enabled By Default)
+* Add Milk Buckets
+  * Included In The `Add Buckets` Feature Flag
+* Add More Animated Textures
+  * Relevant Feature Flags
     * `Animated Lava` (Enabled By Default)
     * `Animated Fire` (Enabled By Default)
-    * `Add Cake` (Enabled By Default)
+* Title Screen Redesign
+  * New Logo
+  * New Background
+  * Splash Text
+  * Relevant Feature Flags
+    * `Add Splashes` (Enabled By Default)
+    * `Allow High-Resolution Title` (Enabled By Default)
+    * `Improved Classic Title Positioning` (Enabled By Default)
+    * `Use Updated Title` (Enabled By Default)
+* Extended Scripting API
+  * Relevant Feature Flags
+    * `Implement RaspberryJuice API` (Enabled By Default)
+    * `Correctly Close API Sockets` (Enabled By Default)
+    * `Optimized API Sockets` (Enabled By Default)
+* Add Peaceful Mode To Options Screen
+* Replace Zenity-Based Dialogs
+  * Create New World Screen
+  * Chat Screen
+* Brand New Launcher UI!
+  * All Settings In One Window
+  * Integrated Server List
+  * Tree-Based Feature Flag Configuration
+* Other New Feature Flags
+  * New Functionality
     * `Use Java Beta 1.3 Light Ramp` (Enabled By Default)
     * `Improve Multiplayer Chunk Loading` (Enabled By Default)
     * `Food Overlay` (Disabled By Default)
-    * `Add Splashes` (Enabled By Default)
     * `Display Date In Select World Screen` (Enabled By Default)
     * `Optimized Chunk Sorting` (Enabled By Default)
-    * `Fix Held Item Caching` (Enabled By Default)
     * `Add Reborn Info To Options` (Enabled By Default)
     * `Log FPS` (Disabled By Default)
     * `Add Welcome Screen` (Enabled By Default)
     * `F3 Debug Information` (Enabled By Default)
     * `Multidraw Rendering` (Enabled By Default)
     * `Add Missing Language Strings` (Enabled By Default)
-    * `Fix Pigmen Burning In The Sun` (Enabled By Default)
-    * `Fix Carried Grass's Bottom Texture` (Enabled By Default)
     * `Hide Crosshair In Third-Person` (Enabled By Default)
-    * `Fix Camera Legs` (Enabled By Default)
+    * `Render Camera Legs` (Enabled By Default)
     * `Implement Crafting Remainders` (Enabled By Default)
-    * `Fix Door Duplication` (Enabled By Default)
-    * `Fix Cobweb Lighting` (Enabled By Default)
-    * `Fix Sneaking Syncing` (Enabled By Default)
-    * `Fix Fire Immunity` (Enabled By Default)
-    * `Fix Fire Syncing` (Enabled By Default)
-    * `Fix Sunlight Not Properly Setting Mobs On Fire` (Enabled By Default)
     * `Stop Creative Players From Burning` (Enabled By Default)
     * `Render Fire In Third-Person` (Enabled By Default)
     * `Improved Water Rendering` (Enabled By Default)
     * `Classic Item Count UI` (Enabled By Default)
-    * `Allow High-Resolution Title` (Enabled By Default)
-    * `Improved Classic Title Positioning` (Enabled By Default)
-    * `Use Updated Title` (Enabled By Default)
     * `Hide Block Outline When GUI Is Hidden` (Enabled By Default)
-    * `Fix Crash When Generating Certain Seeds` (Enabled By Default)
     * `Click Buttons On Mouse Down` (Enabled By Default)
     * `3D Dropped Items` (Enabled By Default)
     * `Render Entity Shadows` (Enabled By Default)
     * `Render Vignette` (Enabled By Default)
     * `Increase Render Chunk Size` (Enabled By Default)
     * `Proper Entity Shading` (Enabled By Default)
-    * `Fix Sugar Position In Hand` (Enabled By Default)
-    * `Fix Reloading Textures On Resize` (Enabled By Default)
     * `Improved UI Scaling` (Enabled By Default)
     * `Text Rendering Fixes` (Enabled By Default)
     * `Close Editor When Sign Is Destroyed` (Enabled By Default)
     * `Remove Chest Placement Restrictions` (Enabled By Default)
-    * `Fix Hanging When No Valid Spawn Point Exists` (Enabled By Default)
     * `Batch Font Rendering` (Enabled By Default)
-    * `Fix Furnace Screen Visual Bug` (Enabled By Default)
-    * `Fix Held Item Poking Through Screen Overlay` (Enabled By Default)
-    * `Implement RaspberryJuice API` (Enabled By Default)
-    * `Fix HUD When Spectating Other Players` (Enabled By Default)
-    * `Fix Crash When Spectated Entity Is Removed` (Enabled By Default)
-    * `Fix Torch Placement` (Enabled By Default)
-    * `Fix Eggs Spawning Abnormally Healthy Chickens` (Enabled By Default)
-    * `Correctly Close API Sockets` (Enabled By Default)
-    * `Optimized API Sockets` (Enabled By Default)
     * `Stop Doors And Trapdoors Closing When Updated` (Disabled By Default)
-    * `Fix Tile Entity Syncing` (Enabled By Default)
+  * New Bug Fixes (All Enabled By Default)
+    * `Fix Held Item Caching`
+    * `Fix Pigmen Burning In The Sun`
+    * `Fix Carried Grass's Bottom Texture`
+    * `Fix Door Duplication`
+    * `Fix Cobweb Lighting`
+    * `Fix Sneaking Syncing`
+    * `Fix Fire Immunity`
+    * `Fix Fire Syncing`
+    * `Fix Sunlight Not Properly Setting Mobs On Fire`
+    * `Fix Crash When Generating Certain Seeds`
+    * `Fix Sugar Position In Hand`
+    * `Fix Reloading Textures On Resize`
+    * `Fix Hanging When No Valid Spawn Point Exists`
+    * `Fix Furnace Screen Visual Bug`
+    * `Fix Held Item Poking Through Screen Overlay`
+    * `Fix HUD When Spectating Other Players`
+    * `Fix Crash When Spectated Entity Is Removed`
+    * `Fix Torch Placement`
+    * `Fix Eggs Spawning Abnormally Healthy Chickens`
+    * `Fix Tile Entity Syncing`
   * Existing Functionality (All Enabled By Default)
     * `Fix Screen Rendering When Hiding HUD`
     * `Sanitize Usernames`
@@ -90,21 +108,23 @@ include_toc: true
     * `Log Chat Messages`
     * `Log Game Status`
     * `Screenshot Support`
-    * `Fix Camera Functionality`
+    * `Add Camera Functionality`
     * `Property Scale Animated Textures`
     * `Enable Text Input`
     * `Update Default Options`
     * `Fix options.txt Loading/Saving`
     * `Extend Supported Keycodes`
 * Split Up `Remove Creative Mode Restrictions` Feature Flag
-  * `Remove Creative Mode Restrictions` (Disabled By Default)
-  * `Display Slot Count In Creative Mode` (Disabled By Default)
-  * `Force Survival Mode Inventory UI` (Disabled By Default)
-  * `Force Survival Mode Inventory Behavior` (Disabled By Default)
-  * `Maximize Creative Mode Inventory Stack Size` (Disabled By Default)
+  * Following Are All Disabled By Default
+  * `Remove Creative Mode Restrictions`
+  * `Display Slot Count In Creative Mode`
+  * `Force Survival Mode Inventory UI`
+  * `Force Survival Mode Inventory Behavior`
+  * `Maximize Creative Mode Inventory Stack Size`
 * Split Up `Miscellaneous Input Fixes` Feature Flag
-  * `Fix Escape Key Handling` (Enabled By Default)
-  * `Stop Locked Mouse From Interacting With HUD` (Enabled By Default)
+  * Following Are All Enabled By Default
+  * `Fix Escape Key Handling`
+  * `Stop Locked Mouse From Interacting With HUD`
 * Rename Feature Flags
   * `Disable Buggy Held Item Caching` To `Fix Held Item Caching`
   * `Disable 'gui_blocks' Atlas` To `Regenerate "gui_blocks" Atlas`
@@ -114,20 +134,14 @@ include_toc: true
   * `Force Touch GUI Button Behavior` To `Force Touch UI Button Behavior`
   * `Remove Forced GUI Lag (Can Break Joining Servers)` To `Remove Forced UI Lag`
   * `Hide Block Outline When GUI Is Hidden` To `Hide Block Outline When UI Is Hidden`
-  * `Fix Camera Functionality` To `Add Camera Functionality`
   * `Fix Camera Rendering` To `Enable Camera Rendering`
-  * `Fix Camera Legs` To `Render Camera Legs`
-* Add Milk Buckets
-  * Included In The `Add Buckets` Feature Flag
 * Removed `Property Scale Animated Textures` Feature Flag
 * Removed `Remove Invalid Item Background` Feature Flag
 * Improve Death Messages
 * Massive Build System Improvements
 * Fix Item Dropping When Killing Players From The Server Console
-* Fix Furnace Visual Bug When Using Lava Bucket As Fuel
 * Unify Server/Client Builds
 * Controller Support Removed
-* Brand New Launcher UI!
 
 ## 2.5.4
 * Use Base64-URL Encoding When Accessing The Skin Server
@@ -275,7 +289,7 @@ include_toc: true
 ## 2.3.4
 * AppImage Fixes
 * Make Death Messages Customizable Server-Side
-* Fix Q-Key Behavior Behavior When Editing Signs
+* Fix Q-Key Behavior When Editing Signs
 * Add `Force Touch Inventory` Feature Flag (Disabled By Default)
 * Add `Fix Pause Menu` Feature Flag (Enabled By Default)
   * Enables Server Visibility Toggle Button
@@ -337,7 +351,7 @@ include_toc: true
 * Add `Remove Creative Mode Restrictions` Optional Feature Flag
 * Improve GLFW->SDL Mouse Motion Event Conversion
 * Performance Optimizations
-* Make Majority Of Server-Specific Logging Code Also Apply To The Client
+* Make The Majority Of Server-Specific Logging Code Also Apply To The Client
 * Simple Benchmark Mode
 * Fix Typo When Audio Source File Doesn't Exist
 * Improve Build System
