@@ -23,7 +23,7 @@ template <typename T>
 void overwrite_calls(T *target, typename T::overwrite_type replacement) {
     DEBUG("Overwriting Method: %s", target->name);
     if (!target->overwrite(replacement)) {
-        ERR("Unable To Overwrite Method! Use patch_vtable() Instead!");
+        ERR("Selected Method Does Not Actually Exist! Use patch_vtable() Instead!");
     }
 }
 
@@ -34,7 +34,7 @@ void *reborn_thunk_enabler(void *target, void *thunk);
 void overwrite_calls_within_manual(void *from, void *to, const void *target, void *replacement);
 template <typename T>
 void overwrite_calls_within(void *from, void *to, T *target, typename T::ptr_type replacement) {
-    overwrite_calls_within_manual(from, to, (void *) target->get(), (void *) replacement);
+    overwrite_calls_within_manual(from, to, (void *) target->get(false), (void *) replacement);
 }
 
 // Get Target Address From BL Instruction
