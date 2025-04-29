@@ -77,7 +77,8 @@ static bool is_file_installed(const std::string &path) {
     return access(get_output_path(path).c_str(), F_OK) == 0;
 }
 bool is_desktop_file_installed() {
-    if (reborn_config.packaging == RebornConfig::PackagingType::FLATPAK) {
+    if (reborn_config.packaging == RebornConfig::PackagingType::FLATPAK || reborn_config.packaging == RebornConfig::PackagingType::DEBIAN) {
+        // Package Manger Handles Desktop Entries
         return true;
     } else {
         return is_file_installed(DESKTOP_FILE_PATH) && is_file_installed(ICON_PATH);

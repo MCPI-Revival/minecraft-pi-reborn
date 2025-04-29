@@ -12,6 +12,8 @@ static RebornConfig::PackagingType get_packaging_type() {
         return RebornConfig::PackagingType::APPIMAGE;
     } else if (value == "flatpak") {
         return RebornConfig::PackagingType::FLATPAK;
+    } else if (value == "debian") {
+        return RebornConfig::PackagingType::DEBIAN;
     } else {
         IMPOSSIBLE();
     }
@@ -73,6 +75,10 @@ std::string reborn_get_fancy_version() {
         }
         case RebornConfig::PackagingType::FLATPAK: {
             extra = "Flatpak";
+            break;
+        }
+        case RebornConfig::PackagingType::DEBIAN: {
+            extra = "Debian";
             break;
         }
         default: {}

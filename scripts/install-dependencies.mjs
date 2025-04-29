@@ -47,7 +47,7 @@ run(['apt-get', 'dist-upgrade', '-y']);
 // Install Packages
 const packages = [];
 function addPackageForBuild(...arr) {
-    // This will install packages thet match
+    // This will install packages that match
     // the build machine's architecture.
     // This is usually used for build tools.
     packages.push(...arr);
@@ -56,7 +56,7 @@ function getPackageForHost(name) {
     return name + archSuffix;
 }
 function addPackageForHost(...arr) {
-    // This will install packages thet match
+    // This will install packages that match
     // the host machine's architecture.
     // This is usually used for libraries.
     for (const name of arr) {

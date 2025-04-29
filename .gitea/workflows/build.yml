@@ -20,7 +20,7 @@ jobs:
                   - ARMHF
         name: Build
         runs-on: ubuntu-latest
-        container: node:lts-bullseye # Minimum Supported OS
+        container: node:lts-bullseye # Minimum-Supported OS
         steps:
           - name: Checkout Repository
             uses: actions/checkout@v4
@@ -31,13 +31,16 @@ jobs:
             run: ./scripts/install-dependencies.mjs build ${{ matrix.arch }}
           # Build
           - name: Build
-            run: ./scripts/build.mjs appimage ${{ matrix.arch }}
+            run: |
+                ./scripts/build.mjs appimage ${{ matrix.arch }}
+                ./scripts/build.mjs debian ${{ matrix.arch }}
           - name: Upload Artifacts
             uses: actions/upload-artifact@v3
             with:
                 name: ${{ matrix.arch }}
-                path: ./out/*.AppImage*
+                path: ./out/*
                 if-no-files-found: error
+
     # Test Project
     test:
         needs: build
@@ -70,6 +73,7 @@ jobs:
           # Test
           - name: Test
             run: ./scripts/test.sh ${{ matrix.mode }} ${{ matrix.arch }}
+
     # Example Mods
     example-mods:
         needs: build
@@ -103,6 +107,7 @@ jobs:
                 name: Example Mods
                 path: ./example-mods/out/*
                 if-no-files-found: error
+
     # Create Release
     release:
         if: startsWith(github.ref, 'refs/tags/')
@@ -135,7 +140,7 @@ jobs:
           - name: Create Release
             uses: https://gitea.com/actions/release-action@main
             with:
-                files: ./out/*/*.AppImage*
+                files: ./out/*/*
                 api_key: ${{ secrets.RELEASE_TOKEN }}
                 title: v${{ steps.release-info.outputs.version }}
                 body: ${{ steps.release-info.outputs.changelog }}

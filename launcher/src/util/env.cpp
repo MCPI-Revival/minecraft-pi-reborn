@@ -25,7 +25,7 @@ void setup_home() {
             home += std::string("/.var/app/") + reborn_config.app.id;
         }
     } else {
-        // Set Home To Current Directory, So World Data Is Stored There
+        // Set Home To The Current Directory, So World Data Is Stored There
         char *launch_directory = getcwd(nullptr, 0);
         if (launch_directory == nullptr) {
             IMPOSSIBLE();

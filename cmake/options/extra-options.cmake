@@ -4,7 +4,7 @@ mcpi_option(OPEN_SOURCE_ONLY "Only Install Open-Source Code (Will Result In Brok
 # Packaging Type
 set(no_packaging_type "none")
 mcpi_option(PACKAGING_TYPE "Packaging Type" STRING "${no_packaging_type}")
-set_property(CACHE MCPI_PACKAGING_TYPE PROPERTY STRINGS "${no_packaging_type}" "appimage" "flatpak")
+set_property(CACHE MCPI_PACKAGING_TYPE PROPERTY STRINGS "${no_packaging_type}" "appimage" "flatpak" "debian")
 macro(setup_packaging_type name)
     set(var "MCPI_IS_${name}_BUILD")
     string(TOLOWER "${name}" name)
@@ -16,6 +16,7 @@ macro(setup_packaging_type name)
 endmacro()
 setup_packaging_type(APPIMAGE)
 setup_packaging_type(FLATPAK)
+setup_packaging_type(DEBIAN)
 
 # Prebuilt ARMHF Toolchain
 if(BUILD_NATIVE_COMPONENTS)

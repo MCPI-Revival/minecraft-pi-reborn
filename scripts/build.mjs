@@ -37,7 +37,8 @@ function parseCMakeOption(arg) {
 const PackageTypes = new Enum([
     'None',
     'AppImage',
-    'Flatpak'
+    'Flatpak',
+    'Debian'
 ]);
 const options = parseOptions([
     ['packageType', PackageTypes],
@@ -49,8 +50,8 @@ const options = parseOptions([
 ], parseCMakeOption);
 
 // CPack
-const useCPack = [PackageTypes.AppImage].includes(options.packageType);
-const cpackExtensions = ['.AppImage'];
+const useCPack = [PackageTypes.AppImage, PackageTypes.Debian].includes(options.packageType);
+const cpackExtensions = ['.AppImage', '.deb'];
 
 // Check Options
 if (options.packageType === PackageTypes.Flatpak && options.architecture !== Architectures.Host) {
