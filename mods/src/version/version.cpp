@@ -11,7 +11,7 @@ const char *version_get() {
     static std::string version = "";
     // Load
     if (version.empty()) {
-        version = std::string(Strings::minecraft_pi_version) + " / Reborn v" + reborn_get_version();
+        version = std::string(Strings::minecraft_pi_version) + " / Reborn v" + reborn_config.general.version;
     }
     // Return
     return version.c_str();

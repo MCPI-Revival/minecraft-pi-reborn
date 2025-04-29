@@ -12,21 +12,29 @@ endfunction()
 # Embed Resources
 set(util_list_dir "${CMAKE_CURRENT_LIST_DIR}")
 function(embed_resource target file)
-    # Get C Name
+    # Input
+    set(in "${CMAKE_CURRENT_SOURCE_DIR}/${file}")
+    set_property(
+        DIRECTORY APPEND PROPERTY
+        CMAKE_CONFIGURE_DEPENDS "${in}"
+    )
+    # Output
     cmake_path(GET file FILENAME name)
     string(MAKE_C_IDENTIFIER "${name}" name)
-    # Add Command
-    set(in "${CMAKE_CURRENT_SOURCE_DIR}/${file}")
     set(out "${CMAKE_CURRENT_BINARY_DIR}/${name}.c")
-    set(script "${util_list_dir}/embed-resource.cmake")
-    add_custom_command(OUTPUT "${out}"
-        COMMAND "${CMAKE_COMMAND}"
-        ARGS "-DEMBED_IN=${in}" "-DEMBED_OUT=${out}" "-P" "${script}"
-        DEPENDS "${in}" "${script}"
-        VERBATIM
-    )
-    # Add To Target
     target_sources("${target}" PRIVATE "${out}")
+
+    # Read File
+    file(READ "${in}" data HEX)
+    # Convert Hex Data For C Compatibility
+    string(REGEX REPLACE "([0-9a-f][0-9a-f])" "0x\\1," data "${data}")
+
+    # Write Data
+    file(WRITE "${out}"
+        "#include <stddef.h>\n"
+        "const unsigned char ${name}[] = {${data}};\n"
+        "const size_t ${name}_len = sizeof (${name});\n"
+    )
 endfunction()
 
 # Nicer Output

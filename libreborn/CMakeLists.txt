@@ -1,8 +1,8 @@
 project(libreborn)
 
 # Config
-file(MAKE_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/include/libreborn")
-configure_file(include/libreborn/config.h.in "${CMAKE_CURRENT_BINARY_DIR}/include/libreborn/config.h" ESCAPE_QUOTES @ONLY)
+set(CONFIG_FILE "${CMAKE_CURRENT_BINARY_DIR}/config.cpp")
+configure_file(src/util/config.cpp.in "${CONFIG_FILE}" ESCAPE_QUOTES @ONLY)
 
 # Util
 add_library(reborn-util SHARED
@@ -12,7 +12,7 @@ add_library(reborn-util SHARED
     src/util/log.cpp
     src/util/cp437.cpp
     src/util/env/env.cpp
-    src/util/config.cpp
+    "${CONFIG_FILE}"
     src/util/env/flags/node.cpp
     src/util/env/flags/flags.cpp
     src/util/env/flags/available-feature-flags # Show In IDE

@@ -1,10 +1,21 @@
-# Specify Options
+# Only Include Open-Source Code
 mcpi_option(OPEN_SOURCE_ONLY "Only Install Open-Source Code (Will Result In Broken Install)" BOOL FALSE)
-mcpi_option(IS_APPIMAGE_BUILD "AppImage Build" BOOL FALSE)
-mcpi_option(IS_FLATPAK_BUILD "Flatpak Build" BOOL FALSE)
-if(MCPI_IS_APPIMAGE_BUILD AND MCPI_IS_FLATPAK_BUILD)
-    message(FATAL_ERROR "Invalid Build Configuration")
-endif()
+
+# Packaging Type
+set(no_packaging_type "none")
+mcpi_option(PACKAGING_TYPE "Packaging Type" STRING "${no_packaging_type}")
+set_property(CACHE MCPI_PACKAGING_TYPE PROPERTY STRINGS "${no_packaging_type}" "appimage" "flatpak")
+macro(setup_packaging_type name)
+    set(var "MCPI_IS_${name}_BUILD")
+    string(TOLOWER "${name}" name)
+    if(MCPI_PACKAGING_TYPE STREQUAL name)
+        set("${var}" TRUE)
+    else()
+        set("${var}" FALSE)
+    endif()
+endmacro()
+setup_packaging_type(APPIMAGE)
+setup_packaging_type(FLATPAK)
 
 # Prebuilt ARMHF Toolchain
 if(BUILD_NATIVE_COMPONENTS)

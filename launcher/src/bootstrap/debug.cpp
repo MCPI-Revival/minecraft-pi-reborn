@@ -27,10 +27,10 @@ void print_debug_information() {
     run_debug_command(command, "System Information");
 
     // Version
-    DEBUG("Reborn Version: v%s", MCPI_VERSION);
+    DEBUG("Reborn Version: %s", reborn_get_fancy_version().c_str());
 
     // Architecture
-    std::string arch = MCPI_ARCH;
+    std::string arch = reborn_config.general.arch;
     for (char &c : arch) {
         c = char(std::toupper(c));
     }

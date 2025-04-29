@@ -25,11 +25,12 @@ struct CrashReport final : Frame {
     bool first_render = true;
     int render() override {
         // Text
-        ImGui::TextWrapped("%s", MCPI_APP_TITLE " has crashed!");
+        const char *title = reborn_config.app.title;
+        ImGui::TextWrapped("%s has crashed!", title);
         ImGui::Spacing();
         ImGui::TextWrapped("Need help? Consider asking on the Discord server!");
         ImGui::Spacing();
-        ImGui::TextWrapped("If you believe this is a problem with " MCPI_APP_TITLE " itself, please upload this crash report to the #bugs Discord channel.");
+        ImGui::TextWrapped("If you believe this is a problem with %s itself, please upload this crash report to the #bugs Discord channel.", title);
         // Log
         if (ImGui::BeginChild("Log", ImVec2(0, -ImGui::GetFrameHeightWithSpacing() /* Leave Room For Bottom Row */), ImGuiChildFlags_Borders, ImGuiWindowFlags_HorizontalScrollbar)) {
             ImGui::PushFont(monospace);
@@ -43,7 +44,7 @@ struct CrashReport final : Frame {
         ImGui::EndChild();
         // Buttons
         if (ImGui::Button("Join Discord")) {
-            open_url(MCPI_DISCORD_INVITE);
+            open_url(reborn_config.extra.discord_invite);
         }
         ImGui::SameLine();
         if (ImGui::Button("View All Logs")) {

@@ -77,11 +77,11 @@ static bool is_file_installed(const std::string &path) {
     return access(get_output_path(path).c_str(), F_OK) == 0;
 }
 bool is_desktop_file_installed() {
-#ifdef MCPI_IS_FLATPAK_BUILD
-    return true;
-#else
-    return is_file_installed(DESKTOP_FILE_PATH) && is_file_installed(ICON_PATH);
-#endif
+    if (reborn_config.packaging == RebornConfig::PackagingType::FLATPAK) {
+        return true;
+    } else {
+        return is_file_installed(DESKTOP_FILE_PATH) && is_file_installed(ICON_PATH);
+    }
 }
 static void install_file(const std::string &path) {
     const std::string binary_directory = get_binary_directory();
@@ -94,11 +94,7 @@ static void install_file(const std::string &path) {
     copy_file(binary_directory + '/' + path, output_path, true);
 }
 static std::string get_exec() {
-#ifdef MCPI_IS_APPIMAGE_BUILD
-    return get_appimage_path();
-#else
-    return get_binary();
-#endif
+    return reborn_config.packaging == RebornConfig::PackagingType::APPIMAGE ? get_appimage_path() : get_binary();
 }
 void copy_desktop_file() {
     // Copy Files

@@ -660,7 +660,7 @@ static std::string CommandServer_parse_injection(CommandServer_parse_t original,
         // Disable Compatibility Mode
         command(disableCompatMode) {
             api_compat_mode = false;
-            return std::string(reborn_get_version()) + '\n';
+            return std::string(reborn_config.general.version) + '\n';
         }
         // Re-Enable Compatibility Mode
         command(enableCompatMode) {

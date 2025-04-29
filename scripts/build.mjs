@@ -48,31 +48,32 @@ const options = parseOptions([
     'debug'
 ], parseCMakeOption);
 
+// CPack
+const useCPack = [PackageTypes.AppImage].includes(options.packageType);
+const cpackExtensions = ['.AppImage'];
+
 // Check Options
 if (options.packageType === PackageTypes.Flatpak && options.architecture !== Architectures.Host) {
     err('Flatpak Builds Do Not Support Custom Toolchains');
 }
-if (options.packageType === PackageTypes.AppImage && options.install) {
-    err('AppImages Cannot Be Installed');
+if (useCPack && options.install) {
+    err('Cannot Install When Using CPack');
 }
 
 // Folders
 const __dirname = getScriptsDir();
 const root = path.join(__dirname, '..');
 let build = path.join(root, 'build');
-let out = path.join(root, 'out');
+const rootOut = path.join(root, 'out');
+let out = rootOut;
 
-// Update Build Directory
+// Update Directories
 function specializeDir(dir) {
-    // Use Unique Folder For Build Type
-    return path.join(dir, options.packageType.name, options.architecture.name);
+    // Use Unique Folder For Architecture
+    return path.join(dir, options.architecture.name);
 }
 build = specializeDir(build);
-// Update Output Directory
-const useOutRoot = options.packageType === PackageTypes.AppImage;
-if (!useOutRoot) {
-    out = specializeDir(out);
-}
+out = specializeDir(out);
 // Print Directories
 function printDir(name, dir) {
     info(name + ' Directory: ' + dir);
@@ -81,11 +82,7 @@ printDir('Build', build);
 printDir('Output', out);
 
 // Configure CMake Options
-function setupPackageTypeOption(type) {
-    cmakeOptions.set(`MCPI_IS_${type.name.toUpperCase()}_BUILD`, options.packageType === type ? 'ON' : 'OFF');
-}
-setupPackageTypeOption(PackageTypes.AppImage);
-setupPackageTypeOption(PackageTypes.Flatpak);
+cmakeOptions.set('MCPI_PACKAGING_TYPE', options.packageType.name);
 const toolchainOption = 'CMAKE_TOOLCHAIN_FILE';
 if (options.architecture !== Architectures.Host) {
     cmakeOptions.set(toolchainOption, path.join(root, 'cmake', 'toolchain', options.architecture.name + '-toolchain.cmake'));
@@ -96,8 +93,25 @@ if (options.architecture !== Architectures.Host) {
 // Make Build Directory
 createDir(build, options.clean);
 if (!options.install) {
-    createDir(out, !useOutRoot);
+    createDir(out, true);
 }
+
+// Clean Up Old CPack Packages
+function handleCPackFiles(callback) {
+    const files = fs.readdirSync(build);
+    for (const file of files) {
+        for (const extension of cpackExtensions) {
+            if (file.includes(extension)) {
+                callback(file);
+                break;
+            }
+        }
+    }
+}
+handleCPackFiles(file => {
+    file = path.join(build, file);
+    fs.unlinkSync(file);
+});
 
 // Use Build Tools
 const buildTools = getBuildToolsBin();
@@ -131,7 +145,7 @@ if (supportsJobserver) {
 run(buildCommand);
 
 // Package
-if (options.packageType !== PackageTypes.AppImage) {
+if (!useCPack) {
     if (!options.install) {
         process.env.DESTDIR = out;
     }
@@ -139,13 +153,10 @@ if (options.packageType !== PackageTypes.AppImage) {
 } else {
     run(['cmake', '--build', build, '--target', 'package', ...configArg]);
     // Copy Generated Files
-    const files = fs.readdirSync(build);
-    for (const file of files) {
-        if (file.includes('.AppImage')) {
-            info('Copying: ' + file);
-            const src = path.join(build, file);
-            const dst = path.join(out, file);
-            fs.copyFileSync(src, dst);
-        }
-    }
+    handleCPackFiles(file => {
+        info('Copying: ' + file);
+        const src = path.join(build, file);
+        const dst = path.join(rootOut, file);
+        fs.copyFileSync(src, dst);
+    });
 }

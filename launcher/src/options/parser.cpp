@@ -7,8 +7,10 @@
 #include "parser.h"
 
 // Globals
-const char *argp_program_version = "Reborn v" MCPI_VERSION;
-const char *argp_program_bug_address = "<" MCPI_DISCORD_INVITE ">";
+static std::string version = std::string("Reborn ") + reborn_get_fancy_version();
+const char *argp_program_version = version.c_str();
+static std::string bug_address = std::string("<") + reborn_config.extra.discord_invite + '>';
+const char *argp_program_bug_address = bug_address.c_str();
 static char doc[] = "Minecraft: Pi Edition Modding Project";
 
 // Options

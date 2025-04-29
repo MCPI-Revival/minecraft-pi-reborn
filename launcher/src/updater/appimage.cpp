@@ -54,7 +54,7 @@ static std::string extract_from_json(const std::string &json_str, const std::str
 }
 std::optional<std::string> AppImageUpdater::check() {
     // Check
-    const std::optional<std::string> json = run_wget("-", MCPI_APPIMAGE_JSON_URL);
+    const std::optional<std::string> json = run_wget("-", reborn_config.appimage.json_url);
     if (!json.has_value()) {
         return std::nullopt;
     }
@@ -66,9 +66,9 @@ std::optional<std::string> AppImageUpdater::check() {
 }
 bool AppImageUpdater::download(const std::string &version) {
     // Get URL
-    std::string url = MCPI_APPIMAGE_DOWNLOAD_URL;
+    std::string url = reborn_config.appimage.download_url;
     while (true) {
-        const std::string placeholder = MCPI_APPIMAGE_VERSION_PLACEHOLDER;
+        const std::string placeholder = reborn_config.appimage.version_placeholder;
         const std::string::size_type pos = url.find(placeholder);
         if (pos == std::string::npos) {
             break;

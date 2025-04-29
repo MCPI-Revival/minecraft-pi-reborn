@@ -14,14 +14,14 @@
 #include "bootstrap.h"
 
 // Duplicate MCPI Executable Into /tmp
-const char *patched_exe_path = "/tmp/" MCPI_APP_NAME;
+const std::string patched_exe_path = std::string("/tmp/") + reborn_config.app.name;
 static int create_file() {
     // Lock File
-    const int lock_fd = lock_file(patched_exe_path);
+    const int lock_fd = lock_file(patched_exe_path.c_str());
     set_and_print_env(_MCPI_LOCK_FD_ENV, std::to_string(lock_fd).c_str());
     // Generate New File
-    unlink(patched_exe_path);
-    const int fd = open(patched_exe_path, O_WRONLY | O_CREAT, S_IRWXU);
+    unlink(patched_exe_path.c_str());
+    const int fd = open(patched_exe_path.c_str(), O_WRONLY | O_CREAT, S_IRWXU);
     if (fd <= 0) {
         ERR("Unable To Open Patched Executable: %s", strerror(errno));
     }
@@ -100,25 +100,26 @@ void patch_mcpi_elf_dependencies(const std::string &original_path, const std::st
 // Linker
 std::string get_new_linker(const std::string &binary_directory) {
     std::string linker = "/lib/ld-linux-armhf.so.3";
-#ifdef MCPI_USE_PREBUILT_ARMHF_TOOLCHAIN
-    linker = binary_directory + "/sysroot" + linker;
-#else
-    (void) binary_directory;
-#endif
+    if (reborn_config.internal.use_prebuilt_armhf_toolchain) {
+        linker = binary_directory + "/sysroot" + linker;
+    }
     return linker;
 }
 std::vector<std::string> get_ld_path(const std::string &binary_directory) {
+    // Libraries
     std::vector<std::string> mcpi_ld_path = {
-        // ARM Sysroot
-#ifdef MCPI_USE_PREBUILT_ARMHF_TOOLCHAIN
-        "sysroot/lib",
-        "sysroot/lib/arm-linux-gnueabihf",
-        "sysroot/usr/lib",
-        "sysroot/usr/lib/arm-linux-gnueabihf",
-#endif
-        // Libraries
         "lib/arm"
     };
+    // ARM Sysroot
+    if (reborn_config.internal.use_prebuilt_armhf_toolchain) {
+        std::vector<std::string> sysroot_paths = {
+            "sysroot/lib",
+            "sysroot/lib/arm-linux-gnueabihf",
+            "sysroot/usr/lib",
+            "sysroot/usr/lib/arm-linux-gnueabihf"
+        };
+        mcpi_ld_path.insert(mcpi_ld_path.end(), sysroot_paths.begin(), sysroot_paths.end());
+    }
     // Fix Paths
     for (std::string &path : mcpi_ld_path) {
         path.insert(0, 1, '/');

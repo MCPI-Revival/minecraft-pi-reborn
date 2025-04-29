@@ -14,7 +14,7 @@
 
 // Custom Title
 HOOK(media_SDL_WM_SetCaption, void, (__attribute__((unused)) const char *title, const char *icon)) {
-    real_media_SDL_WM_SetCaption()(MCPI_APP_TITLE, icon);
+    real_media_SDL_WM_SetCaption()(reborn_config.app.title, icon);
 }
 
 // Mouse Cursor Is Always Invisible In Vanilla MCPI

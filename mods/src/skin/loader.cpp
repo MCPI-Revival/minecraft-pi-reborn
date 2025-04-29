@@ -73,7 +73,7 @@ static std::string get_skin_server() {
     if (custom_server != nullptr) {
         return custom_server;
     } else {
-        return MCPI_SKIN_SERVER;
+        return reborn_config.extra.skin_server;
     }
 }
 

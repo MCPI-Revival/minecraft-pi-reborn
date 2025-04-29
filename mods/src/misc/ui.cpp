@@ -155,13 +155,13 @@ static void GameRenderer_render_injection(GameRenderer_render_t original, GameRe
     // Call Original Method
     original(game_renderer, param_1);
 
-    // Check If Cursor Should Render
+    // Check If The Cursor Should Render
     if (media_SDL_WM_GrabInput(SDL_GRAB_QUERY) == SDL_GRAB_OFF) {
         // Fix GL Mode
         media_glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
         // Get X And Y
-        float x = Mouse::getX() * Gui::InvGuiScale;
-        float y = Mouse::getY() * Gui::InvGuiScale;
+        const float x = Mouse::getX() * Gui::InvGuiScale;
+        const float y = Mouse::getY() * Gui::InvGuiScale;
         // Render Cursor
         Minecraft *minecraft = game_renderer->minecraft;
         Common::renderCursor(x, y, minecraft);

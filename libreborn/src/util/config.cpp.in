@@ -1,0 +1,110 @@
+#include <libreborn/config.h>
+#include <libreborn/log.h>
+#include <libreborn/env/env.h>
+
+// Process CMake Options
+#cmakedefine01 MCPI_USE_PREBUILT_ARMHF_TOOLCHAIN
+static RebornConfig::PackagingType get_packaging_type() {
+    const std::string value = "@MCPI_PACKAGING_TYPE@";
+    if (value == "none") {
+        return RebornConfig::PackagingType::NONE;
+    } else if (value == "appimage") {
+        return RebornConfig::PackagingType::APPIMAGE;
+    } else if (value == "flatpak") {
+        return RebornConfig::PackagingType::FLATPAK;
+    } else {
+        IMPOSSIBLE();
+    }
+}
+
+// Main Config
+const RebornConfig reborn_config = {
+    // General
+    .general = {
+        .version = "@MCPI_VERSION@",
+        .author = "@MCPI_AUTHOR@",
+        .arch = "@MCPI_ARCH@"
+    },
+
+    // App Information
+    .app = {
+        .title = "@MCPI_APP_TITLE@",
+        .id = "@MCPI_APP_ID@",
+        .name = "@MCPI_APP_NAME@"
+    },
+
+    // Extra Options
+    .extra = {
+        .skin_server = "@MCPI_SKIN_SERVER@",
+        .discord_invite = "@MCPI_DISCORD_INVITE@",
+        .repo_url = "@MCPI_REPO@"
+    },
+
+    // Documentation
+    .docs = {
+        .base = "@MCPI_DOCS@",
+        .getting_started = "@MCPI_DOCS@GETTING_STARTED.md",
+        .changelog = "@MCPI_CHANGELOG@"
+    },
+
+    // Internal
+    .internal = {
+        .use_prebuilt_armhf_toolchain = MCPI_USE_PREBUILT_ARMHF_TOOLCHAIN == 1,
+        .sdk_dir = "@MCPI_SDK_DIR@"
+    },
+
+    // Packaging
+    .packaging = get_packaging_type(),
+    .appimage = {
+        .json_url = "@MCPI_APPIMAGE_JSON_URL@",
+        .version_placeholder = "@MCPI_APPIMAGE_VERSION_PLACEHOLDER@",
+        .download_url = "@MCPI_APPIMAGE_DOWNLOAD_URL@"
+    }
+};
+
+// Fancy Version Name
+std::string reborn_get_fancy_version() {
+    // Add Packaging Info
+    std::string extra;
+    switch (reborn_config.packaging) {
+        case RebornConfig::PackagingType::APPIMAGE: {
+            extra = "AppImage";
+            break;
+        }
+        case RebornConfig::PackagingType::FLATPAK: {
+            extra = "Flatpak";
+            break;
+        }
+        default: {}
+    }
+    if (!extra.empty()) {
+        extra = " (" + extra + ')';
+    }
+    // Return
+    return std::string("v") + reborn_config.general.version + extra;
+}
+
+// Runtime Configuration
+bool reborn_is_headless() {
+    static bool ret;
+    static bool is_set = false;
+    if (!is_set) {
+        ret = reborn_is_server();
+        if (getenv(_MCPI_FORCE_HEADLESS_ENV)) {
+            ret = true;
+        } else if (getenv(_MCPI_FORCE_NON_HEADLESS_ENV)) {
+            ret = false;
+        }
+        is_set = true;
+    }
+    return ret;
+}
+bool reborn_is_server() {
+    static bool ret;
+    static bool is_set = false;
+    if (!is_set) {
+        ret = getenv(_MCPI_SERVER_MODE_ENV) != nullptr;
+        is_set = true;
+    }
+    return ret;
+}

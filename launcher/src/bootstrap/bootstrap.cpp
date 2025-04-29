@@ -57,7 +57,7 @@ void bootstrap() {
     INFO("Starting Game...");
 
     // Arguments
-    const std::vector<std::string> args {
+    const std::vector args {
 #ifdef MCPI_BUILD_RUNTIME
         binary_directory + "/lib/native/runtime",
 #endif

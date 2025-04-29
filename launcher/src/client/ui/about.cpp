@@ -29,15 +29,15 @@ void ConfigurationUI::draw_links(const std::vector<std::pair<std::string, std::s
 // About
 void ConfigurationUI::draw_about() {
     // Text
-    draw_centered_text("By " MCPI_AUTHOR);
-    draw_centered_text("Version " MCPI_VERSION);
+    draw_centered_text(std::string("By ") + reborn_config.general.author);
+    draw_centered_text(std::string("Version ") + reborn_config.general.version);
 
     // Links
     ImGui::Separator();
     draw_links({
-        {"Home", MCPI_REPO},
-        {"Changelog", MCPI_CHANGELOG},
-        {"Credits", MCPI_DOCS "CREDITS.md"}
+        {"Home", reborn_config.extra.repo_url},
+        {"Changelog", reborn_config.docs.changelog},
+        {"Credits", std::string(reborn_config.docs.base) + "CREDITS.md"}
     });
 
     // Desktop File

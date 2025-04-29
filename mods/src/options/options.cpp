@@ -8,6 +8,7 @@
 #include <libreborn/env/env.h>
 #include <libreborn/util/string.h>
 #include <libreborn/util/util.h>
+#include <libreborn/config.h>
 
 #include <symbols/minecraft.h>
 

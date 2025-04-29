@@ -13,7 +13,7 @@
 #include "internal.h"
 
 // Constants
-static std::string line1 = "Welcome to " MCPI_APP_TITLE " v" MCPI_VERSION "!";
+static std::string line1 = std::string("Welcome to ") + reborn_config.app.title + " v" + reborn_config.general.version + "!";
 static constexpr int button_width = 120;
 static constexpr int button_height = 24;
 static constexpr int line_padding = 28;
@@ -32,7 +32,7 @@ static bool should_show_welcome() {
     // Read Line
     std::string line;
     std::getline(stream, line);
-    const bool invalid = line != MCPI_VERSION;
+    const bool invalid = line != reborn_config.general.version;
     // Close File
     stream.close();
     // Return
@@ -45,7 +45,7 @@ static void mark_welcome_as_shown() {
         return;
     }
     // Write
-    stream << MCPI_VERSION << std::endl;
+    stream << reborn_config.general.version << std::endl;
     // Close File
     stream.close();
 }
@@ -113,9 +113,9 @@ struct WelcomeScreen final : CustomScreen {
     // Handle Button Click
     void buttonClicked(Button *button) override {
         if (button == getting_started) {
-            open_url(MCPI_DOCS_GETTING_STARTED);
+            open_url(reborn_config.docs.getting_started);
         } else if (button == changelog) {
-            open_url(MCPI_CHANGELOG);
+            open_url(reborn_config.docs.changelog);
         } else if (button == proceed) {
             mark_welcome_as_shown();
             self->minecraft->screen_chooser.setScreen(1);

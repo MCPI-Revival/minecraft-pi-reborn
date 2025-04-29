@@ -76,7 +76,7 @@ static std::string get_sdk_root(const std::string &home) {
     return home + path_separator + "sdk";
 }
 static std::string get_sdk_path_home() {
-    return get_sdk_root(home_get()) + path_separator + MCPI_SDK_DIR;
+    return get_sdk_root(home_get()) + path_separator + reborn_config.internal.sdk_dir;
 }
 static std::string get_sdk_path_bundled(const std::string &binary_directory) {
     return get_sdk_root(binary_directory);

@@ -1,5 +1,6 @@
 #include <libreborn/util/exec.h>
 #include <libreborn/util/util.h>
+#include <libreborn/config.h>
 
 #include <symbols/minecraft.h>
 
@@ -24,18 +25,6 @@ static constexpr int info_text_y_offset = (line_button_height - line_height) / 2
 static constexpr int content_y_offset_top = (title_padding * 2) + line_height;
 static constexpr int content_y_offset_bottom = (bottom_padding * 2) + line_button_height;
 
-// Extra Version Info
-static std::string extra_version_info =
-#ifdef MCPI_IS_APPIMAGE_BUILD
-    "AppImage"
-#elif defined(MCPI_IS_FLATPAK_BUILD)
-    "Flatpak"
-#else
-    ""
-#endif
-    ;
-static std::string extra_version_info_full = !extra_version_info.empty() ? (" (" + extra_version_info + ")") : "";
-
 // Info Data
 struct info_line {
     std::string (*get_text)();
@@ -43,12 +32,13 @@ struct info_line {
     std::string button_text;
 };
 std::string info_sound_data_state = "N/A";
+const std::string sound_doc_url = std::string(reborn_config.docs.getting_started) + "#sound";
 static info_line info[] = {
     {
         .get_text = []() {
-            return std::string("Version: v") + reborn_get_version() + extra_version_info_full;
+            return std::string("Version: ") + reborn_get_fancy_version();
         },
-        .button_url = MCPI_CHANGELOG,
+        .button_url = reborn_config.docs.changelog,
         .button_text = "Changelog"
     },
     {
@@ -62,7 +52,7 @@ static info_line info[] = {
         .get_text = []() {
             return std::string("Sound Data: ") + info_sound_data_state;
         },
-        .button_url = SOUND_DOC_URL,
+        .button_url = sound_doc_url,
         .button_text = "More Info"
     },
 };
@@ -216,7 +206,7 @@ struct InfoScreen final : CustomScreen {
             self->handleBackEvent(false);
         } else if (button->id == DISCORD_ID) {
             // Open Discord Invite
-            open_url(MCPI_DISCORD_INVITE);
+            open_url(reborn_config.extra.discord_invite);
         } else if (button->id >= INFO_ID_START) {
             // Open Info URL
             const int i = button->id - INFO_ID_START;

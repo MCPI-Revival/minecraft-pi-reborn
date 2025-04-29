@@ -162,7 +162,7 @@ static void OptionsScreen_removed_injection(OptionsScreen_removed_t original, Op
 static void OptionButton_toggle_injection(OptionButton_toggle_t original, OptionButton *self, Options *options) {
     if (self->option == &Options_Option::SOUND && info_sound_data_state != info_sound_data_loaded) {
         // Open
-        open_url(SOUND_DOC_URL);
+        open_url(sound_doc_url);
     } else {
         // Call Original Method
         original(self, options);

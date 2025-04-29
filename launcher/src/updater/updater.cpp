@@ -66,7 +66,7 @@ void Updater::run() {
     }
     // Check Latest Version
     status = UpdateStatus::CHECKING;
-    const std::string current_version = reborn_get_version();
+    const std::string current_version = reborn_config.general.version;
     INFO("Current Version: %s", current_version.c_str());
     const std::optional<std::string> latest_version = check();
     if (!latest_version.has_value()) {

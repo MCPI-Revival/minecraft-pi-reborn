@@ -23,8 +23,9 @@ void init_glfw() {
 // Create Window
 GLFWwindow *create_glfw_window(const char *title, const int width, const int height) {
     // App ID
-    glfwWindowHintString(GLFW_X11_CLASS_NAME, MCPI_APP_ID);
-    glfwWindowHintString(GLFW_WAYLAND_APP_ID, MCPI_APP_ID);
+    const char *id = reborn_config.app.id;
+    glfwWindowHintString(GLFW_X11_CLASS_NAME, id);
+    glfwWindowHintString(GLFW_WAYLAND_APP_ID, id);
     // Create Window
     GLFWwindow *window = glfwCreateWindow(width, height, title, nullptr, nullptr);
     if (!window) {

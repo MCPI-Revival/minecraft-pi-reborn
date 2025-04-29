@@ -21,9 +21,9 @@ void setup_home() {
         }
         home = value;
         // Flatpak
-#ifdef MCPI_IS_FLATPAK_BUILD
-        home += "/.var/app/" MCPI_APP_ID;
-#endif
+        if (reborn_config.packaging == RebornConfig::PackagingType::FLATPAK) {
+            home += std::string("/.var/app/") + reborn_config.app.id;
+        }
     } else {
         // Set Home To Current Directory, So World Data Is Stored There
         char *launch_directory = getcwd(nullptr, 0);
