@@ -16,4 +16,5 @@ struct ServerCommand {
 extern "C" {
 std::vector<ServerCommand> *server_get_commands(Minecraft *minecraft, ServerSideNetworkHandler *server_side_network_handler);
 ServerProperties &get_server_properties();
+void server_kick(const ServerPlayer *player);
 }

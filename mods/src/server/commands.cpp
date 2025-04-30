@@ -1,5 +1,6 @@
 #include <fstream>
 #include <cstdint>
+#include <algorithm>
 
 #include <libreborn/log.h>
 #include <libreborn/util/string.h>
@@ -27,7 +28,7 @@ typedef void (*player_callback_t)(Minecraft *minecraft, const std::string &usern
 static void find_players(Minecraft *minecraft, const std::string &target_username, const player_callback_t callback, const bool all_players) {
     Level *level = get_level(minecraft);
     const std::vector<Player *> players = get_players_in_level(level);
-    bool found_player = false;
+    bool found_player = all_players;
     for (Player *player : players) {
         // Iterate Players
         std::string username = misc_get_player_username_utf(player);
@@ -37,49 +38,58 @@ static void find_players(Minecraft *minecraft, const std::string &target_usernam
             found_player = true;
         }
     }
-    if (!all_players && !found_player) {
-        INFO("Invalid Player: %s", target_username.c_str());
+    if (!found_player) {
+        WARN("Invalid Player: %s", target_username.c_str());
     }
-}
-
-// Get IP From Player
-static char *get_player_ip(const Minecraft *minecraft, Player *player) {
-    RakNet_RakPeer *rak_peer = minecraft->rak_net_instance->peer;
-    const RakNet_RakNetGUID guid = ((ServerPlayer *) player)->guid;
-    // Return
-    return get_rak_net_guid_ip(rak_peer, guid);
 }
 
 // Ban Player
-static void ban_callback(Minecraft *minecraft, const std::string &username, Player *player) {
-    // Get IP
-    char *ip = get_player_ip(minecraft, player);
-
-    // Ban Player
-    INFO("Banned: %s (%s)", username.c_str(), ip);
-    // Write To File
-    std::ofstream blacklist_output(get_blacklist_file(), std::ios_base::app);
-    if (blacklist_output) {
-        if (blacklist_output.good()) {
-            blacklist_output << "# " << username << '\n' << ip << '\n';
-        }
-        if (blacklist_output.is_open()) {
-            blacklist_output.close();
-        }
-    }
-    // Reload
-    is_ip_in_blacklist(nullptr);
+static void ban_callback(__attribute__((unused)) Minecraft *minecraft, __attribute__((unused)) const std::string &username, Player *player) {
+    blacklist.ban((ServerPlayer *) player);
 }
 
 // Kill Player
-static void kill_callback(__attribute__((unused)) Minecraft *minecraft, __attribute__((unused)) const std::string &username, Player *player) {
+static void kill_callback(__attribute__((unused)) Minecraft *minecraft, const std::string &username, Player *player) {
     player->hurt(nullptr, INT32_MAX);
     INFO("Killed: %s", username.c_str());
 }
 
 // List Player
 static void list_callback(Minecraft *minecraft, const std::string &username, Player *player) {
-    INFO(" - %s (%s)", username.c_str(), get_player_ip(minecraft, player));
+    RakNet_RakPeer *rak_peer = minecraft->rak_net_instance->peer;
+    const RakNet_RakNetGUID guid = ((ServerPlayer *) player)->guid;
+    INFO(" - %s (%s)", username.c_str(), get_rak_net_guid_ip(rak_peer, guid).c_str());
+}
+
+// Kick Player
+void server_kick(const ServerPlayer *player) {
+    const RakNet_RakNetGUID &guid = player->guid;
+    RakNet_AddressOrGUID target;
+    target.constructor(guid);
+    player->minecraft->rak_net_instance->peer->CloseConnection(&target, true, 0, LOW_PRIORITY);
+    player->minecraft->network_handler->onDisconnect(guid);
+}
+static void kick_callback(__attribute__((unused)) Minecraft *minecraft, const std::string &username, Player *player) {
+    server_kick((ServerPlayer *) player);
+    INFO("Kicked: %s", username.c_str());
+}
+
+// Trim String
+static void ltrim(std::string &s) {
+    s.erase(s.begin(), std::ranges::find_if(s, [](const unsigned char ch) {
+        return !std::isspace(ch);
+    }));
+}
+static void rtrim(std::string &s) {
+    s.erase(std::find_if(s.rbegin(), s.rend(), [](const unsigned char ch) {
+        return !std::isspace(ch);
+    }).base(), s.end());
+}
+static std::string trim(const std::string &x) {
+    std::string s = x;
+    rtrim(s);
+    ltrim(s);
+    return s;
 }
 
 // Read STDIN Thread
@@ -131,24 +141,41 @@ std::string ServerCommand::get_full_help(const int max_lhs_length) const {
 std::vector<ServerCommand> *server_get_commands(Minecraft *minecraft, ServerSideNetworkHandler *server_side_network_handler) {
     std::vector<ServerCommand> *commands = new std::vector<ServerCommand>;
     // Ban Player
-    if (!is_whitelist()) {
-        commands->push_back({
-            .name = "ban ",
-            .comment = "IP-Ban All Players With Specified Username",
-            .callback = [minecraft](const std::string &cmd) {
-                find_players(minecraft, cmd, ban_callback, false);
-            }
-        });
-    }
+    commands->push_back({
+        .name = "ban ",
+        .comment = "IP-Ban All Players With Specified Username",
+        .callback = [minecraft](const std::string &cmd) {
+            find_players(minecraft, cmd, ban_callback, false);
+        }
+    });
+    const std::string ban_ip_command = "ban-ip ";
+    commands->push_back({
+        .name = blacklist.is_white ? blacklist.get_name(false) + "-ip " : ban_ip_command,
+        .comment = std::string("Add IP To ") + blacklist.get_name(true),
+        .callback = [](const std::string &cmd) {
+            const std::string ip = trim(cmd);
+            blacklist.add_ip(ip);
+        }
+    });
+    commands->push_back({
+        .name = blacklist.is_white ? ban_ip_command : "pardon-ip ",
+        .comment = std::string("Remove IP From ") + blacklist.get_name(true),
+        .callback = [](const std::string &cmd) {
+            const std::string ip = trim(cmd);
+            blacklist.remove_ip(ip);
+        }
+    });
+
     // Reload White/Blacklist
     commands->push_back({
         .name = "reload",
-        .comment = std::string("Reload The ") + (is_whitelist() ? "Whitelist" : "Blacklist"),
+        .comment = std::string("Reload The ") + blacklist.get_name(true),
         .callback = [](__attribute__((unused)) const std::string &cmd) {
-            INFO("Reloading %s", is_whitelist() ? "Whitelist" : "Blacklist");
-            is_ip_in_blacklist(nullptr);
+            INFO("Reloading %s", blacklist.get_name(true).c_str());
+            blacklist.load();
         }
     });
+
     // Kill Player
     commands->push_back({
         .name = "kill ",
@@ -157,6 +184,16 @@ std::vector<ServerCommand> *server_get_commands(Minecraft *minecraft, ServerSide
             find_players(minecraft, cmd, kill_callback, false);
         }
     });
+
+    // Kick Player
+    commands->push_back({
+        .name = "kick ",
+        .comment = "Kick All Players With Specified Username",
+        .callback = [minecraft](const std::string &cmd) {
+            find_players(minecraft, cmd, kick_callback, false);
+        }
+    });
+
     // Post Message
     commands->push_back({
         .name = "say ",
@@ -169,6 +206,7 @@ std::vector<ServerCommand> *server_get_commands(Minecraft *minecraft, ServerSide
             server_side_network_handler->displayGameMessage(cpp_string);
         }
     });
+
     // List Players
     commands->push_back({
         .name = "list",
@@ -178,6 +216,7 @@ std::vector<ServerCommand> *server_get_commands(Minecraft *minecraft, ServerSide
             find_players(minecraft, "", list_callback, true);
         }
     });
+
     // Ticks-Per-Second
     commands->push_back({
         .name = "tps",
@@ -186,6 +225,7 @@ std::vector<ServerCommand> *server_get_commands(Minecraft *minecraft, ServerSide
             INFO("TPS: %f", tps);
         }
     });
+
     // Stop
     commands->push_back({
         .name = "stop",
@@ -194,6 +234,7 @@ std::vector<ServerCommand> *server_get_commands(Minecraft *minecraft, ServerSide
             compat_request_exit();
         }
     });
+
     // Help Page
     commands->push_back({
         .name = "help",
@@ -238,7 +279,7 @@ void handle_commands(Minecraft *minecraft) {
                 }
             }
             if (!success) {
-                INFO("Invalid Command: %s", data.c_str());
+                WARN("Invalid Command: %s", data.c_str());
             }
             // Free
             delete commands;

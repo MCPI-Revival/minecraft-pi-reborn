@@ -22,7 +22,7 @@ static void set_is_survival(const bool new_is_survival) {
         unsigned char inventory_patch[4] = {(unsigned char) (new_is_survival ? 0x00 : 0x01), 0x30, 0xa0, 0xe3}; // "mov r3, #0x0" or "mov r3, #0x1"
         patch((void *) 0x16efc, inventory_patch);
 
-        // Use Correct Size For GameMode Object
+        // Use The Correct Size For GameMode Object
         unsigned char size_patch[4] = {(unsigned char) (new_is_survival ? sizeof(SurvivalMode) : sizeof(CreatorMode)), 0x00, 0xa0, 0xe3}; // "mov r0, #SURVIVAL_MODE_SIZE" or "mov r0, #CREATOR_MODE_SIZE"
         patch((void *) 0x16ee4, size_patch);
 
@@ -33,7 +33,7 @@ static void set_is_survival(const bool new_is_survival) {
     }
 }
 
-// Handle Gamemode Switching
+// Handle Game-Mode Switching
 static void Minecraft_setIsCreativeMode_injection(Minecraft_setIsCreativeMode_t original, Minecraft *self, int32_t new_game_mode) {
     set_is_survival(!new_game_mode);
 
@@ -52,6 +52,12 @@ static ICreator *Minecraft_getCreator_injection(Minecraft_getCreator_t original,
     }
 }
 
+// Replace CreatorLevel With ServerLevel
+static CreatorLevel *Minecraft_selectLevel_CreatorMode_injection(CreatorLevel *self, LevelStorage *storage, const std::string &name, const LevelSettings &settings, int param_4, Dimension *dimension) {
+    ((ServerLevel *) self)->constructor(storage, name, settings, param_4, dimension);
+    return self;
+}
+
 // Init
 void init_game_mode() {
     // Dynamic Game Mode Switching
@@ -62,9 +68,8 @@ void init_game_mode() {
         overwrite_calls(Minecraft_setIsCreativeMode, Minecraft_setIsCreativeMode_injection);
 
         // Replace CreatorLevel With ServerLevel (This Fixes Beds And Mob Spawning)
-        overwrite_call_manual((void *) 0x16f84, (void *) ServerLevel_constructor->get(true));
-
-        // Allocate Correct Size For ServerLevel
+        overwrite_call((void *) 0x16f84, CreatorLevel_constructor, Minecraft_selectLevel_CreatorMode_injection);
+        // Allocate The Correct Size For ServerLevel
         constexpr uint32_t level_size = sizeof(ServerLevel);
         patch_address((void *) 0x17004, (void *) level_size);
 

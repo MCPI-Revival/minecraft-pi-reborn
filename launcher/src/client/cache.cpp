@@ -89,7 +89,7 @@ State load_cache() {
     // Open File
     std::ifstream stream(get_cache_path(), std::ios::in | std::ios::binary);
     if (!stream) {
-        // No Warning If File Doesn't Exist
+        // No Warning If The File Doesn't Exist
         if (errno != ENOENT) {
             WARN("Unable To Open Launcher Cache For Loading");
         }

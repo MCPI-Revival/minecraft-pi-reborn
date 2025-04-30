@@ -1,1 +1,3 @@
 vtable 0x1108a8;
+
+virtual-method LevelData *prepareLevel(Level* level) = 0x8;

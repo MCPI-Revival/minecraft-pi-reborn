@@ -1,6 +1,11 @@
 #include <functional>
 #include <string>
 #include <vector>
+#include <queue>
+#include <pthread.h>
+
+#include <netdb.h>
+#include <arpa/inet.h>
 
 #include <symbols/minecraft.h>
 
@@ -10,25 +15,73 @@
 
 #include <mods/init/init.h>
 #include <mods/feature/feature.h>
+#include <mods/misc/misc.h>
 
 #include "internal.h"
 
+// Resolve DNS
+static void resolve_address(std::string &address) {
+    // Hints
+    addrinfo hints = {};
+    hints.ai_family = AF_INET;
+    hints.ai_socktype = SOCK_DGRAM;
+    // Resolve
+    addrinfo *res = nullptr;
+    const int status = getaddrinfo(address.c_str(), nullptr, &hints, &res);
+    if (status != 0) {
+        // Invalid Address
+        DEBUG("Unable To Resolve: %s", address.c_str());
+        address.clear();
+        return;
+    }
+    // Convert To String
+    char str[INET_ADDRSTRLEN];
+    const void *addr = &((sockaddr_in *) res->ai_addr)->sin_addr;
+    inet_ntop(AF_INET, addr, str, sizeof(str));
+    freeaddrinfo(res);
+    DEBUG("Resolved: %s: %s", address.c_str(), str);
+    address = str;
+}
+
+// Does Resolution In A Separate Thread
+static std::queue<ServerList::Entry> queue;
+static pthread_mutex_t list_mutex = PTHREAD_MUTEX_INITIALIZER;
+static std::vector<ServerList::Entry> list;
+static void *resolve_thread(__attribute__((unused)) void *data) {
+    while (!queue.empty()) {
+        ServerList::Entry entry = queue.front();
+        queue.pop();
+        resolve_address(entry.first);
+        pthread_mutex_lock(&list_mutex);
+        list.push_back(entry);
+        pthread_mutex_unlock(&list_mutex);
+    }
+    return nullptr;
+}
+static void start_resolution() {
+    // Load Server List
+    ServerList server_list;
+    const char *str = require_env(MCPI_SERVER_LIST_ENV);
+    env_value_to_obj(server_list, str);
+    for (const ServerList::Entry &entry : server_list.entries) {
+        queue.push(entry);
+    }
+    // Start Thread
+    pthread_t thread;
+    pthread_create(&thread, nullptr, resolve_thread, nullptr);
+    pthread_detach(thread);
+}
+
 // Iterate Server List
 static void iterate_servers(const std::function<void(const char *address, ServerList::port_t port)> &callback) {
-    // Load
-    static ServerList server_list;
-    static bool loaded = false;
-    if (!loaded) {
-        const char *str = require_env(MCPI_SERVER_LIST_ENV);
-        env_value_to_obj(server_list, str);
-        loaded = true;
-    }
     // Loop
-    for (const ServerList::Entry &entry : server_list.entries) {
+    pthread_mutex_lock(&list_mutex);
+    for (const ServerList::Entry &entry : list) {
         if (!entry.first.empty() && entry.second > 0) {
             callback(entry.first.c_str(), entry.second);
         }
     }
+    pthread_mutex_unlock(&list_mutex);
 }
 
 // Ping External Servers
@@ -50,6 +103,9 @@ void init_multiplayer() {
     // Inject Code
     if (feature_has("External Server Support", server_disabled)) {
         overwrite_calls(RakNetInstance_pingForHosts, RakNetInstance_pingForHosts_injection);
+        misc_run_on_init([](__attribute__((unused)) Minecraft *mc) {
+            start_resolution();
+        });
     }
 
     // Init Other Fixes

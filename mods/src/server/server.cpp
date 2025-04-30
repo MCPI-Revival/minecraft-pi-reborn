@@ -26,7 +26,7 @@
 
 #include "internal.h"
 
-// --only-generate: Ony Generate World And Then Exit
+// --only-generate: Only Generate World And Then Exit
 static bool only_generate = false;
 __attribute__((constructor)) static void _init_only_generate() {
     only_generate = getenv(_MCPI_ONLY_GENERATE_ENV) != nullptr;
@@ -58,6 +58,7 @@ static auto &get_property_types() {
 }
 
 // Create/Start World
+static int forced_game_mode;
 static void start_world(Minecraft *minecraft) {
     // Get World Name
     std::string world_name = get_server_properties().get_string(get_property_types().world_name);
@@ -70,7 +71,7 @@ static void start_world(Minecraft *minecraft) {
 
     // Specify Level Settings
     LevelSettings settings;
-    settings.game_type = get_server_properties().get_int(get_property_types().game_mode);
+    settings.game_type = forced_game_mode = get_server_properties().get_int(get_property_types().game_mode);
     const std::string seed_str = get_server_properties().get_string(get_property_types().seed);
     const int32_t seed = get_seed_from_string(seed_str);
     settings.seed = seed;
@@ -92,17 +93,12 @@ static void start_world(Minecraft *minecraft) {
     minecraft->setScreen((Screen *) screen);
 }
 
-// Check If Running In Whitelist Mode
-bool is_whitelist() {
-    return get_server_properties().get_bool(get_property_types().enable_whitelist);
-}
-// Get Path Of Blacklist (Or Whitelist) File
-std::string get_blacklist_file() {
-    std::string file = home_get();
-    file += '/';
-    file += is_whitelist() ? "whitelist" : "blacklist";
-    file += ".txt";
-    return file;
+// Force Game-Mode To Match Server Settings
+static int LevelData_getTagData_CompoundTag_getInt_injection(__attribute__((unused)) CompoundTag *self, const std::string &key) {
+    if (key != "GameType") {
+        IMPOSSIBLE();
+    }
+    return forced_game_mode;
 }
 
 // Handle Server Stop
@@ -152,55 +148,14 @@ static void Minecraft_update_injection(Minecraft *minecraft) {
     handle_server_stop(minecraft);
 }
 
-// Check Blacklist/Whitelist
-bool is_ip_in_blacklist(const char *ip) {
-    static std::vector<std::string> ips;
-    if (ip == nullptr) {
-        // Reload
-        ips.clear();
-        // Check banned-ips.txt
-        const std::string blacklist_file_path = get_blacklist_file();
-        std::ifstream blacklist_file(blacklist_file_path, std::ios::binary);
-        if (blacklist_file) {
-            std::string line;
-            while (std::getline(blacklist_file, line)) {
-                // Check Line
-                if (!line.empty() && line[0] != '#') {
-                    ips.push_back(line);
-                }
-            }
-            blacklist_file.close();
-        } else {
-            ERR("Unable To Read Blacklist/Whitelist");
-        }
-        return false;
-    } else {
-        // Check List
-        for (std::string &x : ips) {
-            if (x == ip) {
-                return true;
-            }
-        }
-        return false;
-    }
-}
-
 // Ban Players
 static bool RakNet_RakPeer_IsBanned_injection(__attribute__((unused)) RakNet_RakPeer_IsBanned_t original, __attribute__((unused)) RakNet_RakPeer *rakpeer, const char *ip) {
     // Check List
-    const bool ret = is_ip_in_blacklist(ip);
-    if (is_whitelist()) {
-        return !ret;
-    } else {
-        return ret;
+    bool ret = blacklist.contains(ip);
+    if (blacklist.is_white) {
+        ret = !ret;
     }
-}
-
-// Get IP Address
-char *get_rak_net_guid_ip(RakNet_RakPeer *rak_peer, const RakNet_RakNetGUID &guid) {
-    RakNet_SystemAddress address = rak_peer->GetSystemAddressFromGuid(guid);
-    // Get IP
-    return address.ToString(false, '|');
+    return ret;
 }
 
 // Log IPs
@@ -208,16 +163,16 @@ static Player *ServerSideNetworkHandler_onReady_ClientGeneration_ServerSideNetwo
     // Call Original Method
     Player *player = server_side_network_handler->popPendingPlayer(guid);
 
-    // Check If Player Is Null
+    // Check If The Player Is Null
     if (player != nullptr) {
         // Get Data
         const std::string *username = &player->username;
         const Minecraft *minecraft = server_side_network_handler->minecraft;
         RakNet_RakPeer *rak_peer = minecraft->rak_net_instance->peer;
-        char *ip = get_rak_net_guid_ip(rak_peer, guid);
+        const std::string ip = get_rak_net_guid_ip(rak_peer, guid);
 
         // Log
-        INFO("%s Has Joined (IP: %s)", username->c_str(), ip);
+        INFO("%s Has Joined (IP: %s)", username->c_str(), ip.c_str());
     }
 
     // Return
@@ -275,9 +230,15 @@ static void server_init() {
         // Write Defaults
         std::ofstream properties_file_output(file);
         get_property_types();
+        bool is_first = true;
         for (const ServerProperty *property : ServerProperty::get_all()) {
-            properties_file_output << "# " << property->comment << '\n';
-            properties_file_output << property->key << '=' << property->def << '\n';
+            if (is_first) {
+                is_first = false;
+            } else {
+                properties_file_output << std::endl;
+            }
+            properties_file_output << "# " << property->comment << std::endl;
+            properties_file_output << property->key << '=' << property->def << std::endl;
         }
         properties_file_output.close();
         // Re-Open File
@@ -293,22 +254,17 @@ static void server_init() {
     // Close Properties File
     properties_file.close();
 
-    // Create Empty Blacklist/Whitelist File
-    std::string blacklist_file_path = get_blacklist_file();
-    if (access(blacklist_file_path.c_str(), F_OK) != 0) {
-        // Write Default
-        std::ofstream blacklist_output(blacklist_file_path);
-        blacklist_output << "# Blacklist/Whitelist; Each Line Is One IP Address\n";
-        blacklist_output.close();
-    }
-    // Load Blacklist/Whitelist
-    is_ip_in_blacklist(nullptr);
+    // Setup Blacklist
+    blacklist.is_white = get_server_properties().get_bool(get_property_types().enable_whitelist);
+    blacklist.load();
 
-    // Prevent Main Player From Loading
+    // Prevent The Main Player From Loading
     unsigned char player_patch[4] = {0x00, 0x20, 0xa0, 0xe3}; // "mov r2, #0x0"
     patch((void *) 0x1685c, player_patch);
     // Start World On Launch
     misc_run_on_update(Minecraft_update_injection);
+    // Force Game-Mode To Match Server Settings
+    overwrite_call((void *) 0xbac50, CompoundTag_getInt, LevelData_getTagData_CompoundTag_getInt_injection);
     // Set Max Players
     unsigned char max_players_patch[4] = {get_max_players(), 0x30, 0xa0, 0xe3}; // "mov r3, #MAX_PLAYERS"
     patch((void *) 0x166d0, max_players_patch);

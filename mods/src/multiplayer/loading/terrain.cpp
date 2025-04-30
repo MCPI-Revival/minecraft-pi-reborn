@@ -5,13 +5,23 @@
 
 // Prevent Terrain Generation When Accessing Chunks
 bool _inhibit_terrain_generation = false;
-template <typename... Args>
-static void block_terrain_generation_injection(const std::function<void(Args...)> &original, Args... args) {
+template <typename Self, typename... Args>
+struct block_terrain_generation {
+    template <void (Self::*func)(Args...)>
+    static void injection(Self *self, Args... args) {
+        if (_inhibit_terrain_generation) {
+            return;
+        }
+        // Call Original Method
+        (self->*func)(std::forward<Args>(args)...);
+    }
+};
+static Biome **RandomLevelSource_getChunk_BiomeSource_getBiomeBlock_injection(BiomeSource *self, const int x, const int z, const int param_1, const int param_2) {
     if (_inhibit_terrain_generation) {
-        return;
+        return nullptr;
     }
     // Call Original Method
-    original(std::forward<Args>(args)...);
+    return self->getBiomeBlock(x, z, param_1, param_2);
 }
 static LevelChunk *RandomLevelSource_getChunk_injection(RandomLevelSource_getChunk_t original, RandomLevelSource *self, const int chunk_x, const int chunk_z) {
     // Call Original Method
@@ -27,8 +37,9 @@ static LevelChunk *RandomLevelSource_getChunk_injection(RandomLevelSource_getChu
 // Init
 void _init_multiplayer_loading_terrain() {
     // Allow Blocking Terrain Generation
-    overwrite_calls(RandomLevelSource_buildSurface, block_terrain_generation_injection<RandomLevelSource *, int, int, uchar *, Biome **>);
-    overwrite_calls(RandomLevelSource_prepareHeights, block_terrain_generation_injection<RandomLevelSource *, int, int, uchar *, void *, float *>);
-    overwrite_calls(LevelChunk_recalcHeightmap, block_terrain_generation_injection<LevelChunk *>);
+    overwrite_call((void *) 0xb488c, RandomLevelSource_buildSurface, block_terrain_generation<RandomLevelSource, int, int, uchar *, Biome **>::injection<&RandomLevelSource::buildSurface>);
+    overwrite_call((void *) 0xb4874, RandomLevelSource_prepareHeights, block_terrain_generation<RandomLevelSource, int, int, uchar *, void *, float *>::injection<&RandomLevelSource::prepareHeights>);
+    overwrite_call((void *) 0xb489c, LevelChunk_recalcHeightmap, block_terrain_generation<LevelChunk>::injection<&LevelChunk::recalcHeightmap>);
+    overwrite_call((void *) 0xb4844, BiomeSource_getBiomeBlock, RandomLevelSource_getChunk_BiomeSource_getBiomeBlock_injection);
     overwrite_calls(RandomLevelSource_getChunk, RandomLevelSource_getChunk_injection);
 }

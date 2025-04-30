@@ -1,0 +1,6 @@
+extends Level;
+
+vtable 0x109d48;
+size 0xb7c;
+
+constructor (LevelStorage *storage, const std::string &name, const LevelSettings &settings, int param_4, Dimension *dimension) = 0x7692c;

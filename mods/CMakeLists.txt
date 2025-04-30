@@ -83,6 +83,7 @@ add_library(mods SHARED
     src/server/server.cpp
     src/server/commands.cpp
     src/server/properties.cpp
+    src/server/blacklist.cpp
     # multiplayer
     src/multiplayer/server-list.cpp
     src/multiplayer/raknet.cpp

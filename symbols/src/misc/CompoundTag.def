@@ -9,5 +9,6 @@ method char getByte(const std::string &name) = 0x7f00c;
 method void putByte(const std::string &name, char i) = 0x7d6d0;
 method short getShort(const std::string &name) = 0x459c0;
 method void putShort(const std::string &name, short i) = 0x7d60c;
+method int getInt(const std::string &name) = 0x7f03c;
 method bool contains(const std::string &name, int type) = 0x7d130;
 method void put(const std::string &name, Tag *tag) = 0x6a040;
