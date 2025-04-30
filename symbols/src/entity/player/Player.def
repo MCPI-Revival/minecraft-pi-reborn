@@ -11,6 +11,7 @@ method int isUsingItem() = 0x8f15c;
 method void stopUsingItem() = 0x8f514;
 method void startUsingItem(ItemInstance *item_instance, int use_duration) = 0x8f4b8;
 method ItemInstance *getArmor(int slot) = 0x8fda4;
+method void setArmor(int slot, const ItemInstance *item) = 0x8fde0;
 method bool isHurt() = 0x8fb44;
 
 property Inventory *inventory = 0xbe0;

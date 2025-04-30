@@ -140,6 +140,7 @@ CATEGORY Bug Fixes
         TRUE Fix Transferring Durability When Using Items
         TRUE Fix Torch Placement
         TRUE Fix Eggs Spawning Abnormally Healthy Chickens
+        TRUE Fix Dropping Armor On Death
     CATEGORY Crashes
         TRUE Fix Crash When Generating Certain Seeds
         TRUE Close Editor When Sign Is Destroyed

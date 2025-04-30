@@ -6,6 +6,7 @@ constructor tile_extra(const Tile *item, int count, int auxiliary) = 0x99918;
 constructor item_extra(const Item *item, int count, int auxiliary) = 0x99960;
 
 static-method ItemInstance *fromTag(CompoundTag *tag) = 0x9a124;
+static-method bool isArmorItem(const ItemInstance *item) = 0x9a288;
 
 method CompoundTag *save(CompoundTag *tag) = 0x9a31c;
 method int getMaxStackSize() = 0x99ac8;

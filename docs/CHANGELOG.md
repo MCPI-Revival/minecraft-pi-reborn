@@ -95,6 +95,7 @@ include_toc: true
     * `Fix Eggs Spawning Abnormally Healthy Chickens`
     * `Fix Tile Entity Syncing`
     * `Properly Free Pending Players`
+    * `Fix Dropping Armor On Death`
   * Existing Functionality (All Enabled By Default)
     * `Fix Screen Rendering When Hiding HUD`
     * `Sanitize Usernames`

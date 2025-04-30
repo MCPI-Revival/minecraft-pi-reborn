@@ -403,6 +403,23 @@ static void ThrownEgg_onHit_Chicken_moveTo_injection(Chicken *self, const float 
     self->setAge(-24000);
 }
 
+// Fix Dropping Armor On Death
+static void LocalPlayer_die_injection(LocalPlayer_die_t original, LocalPlayer *self, Entity *cause) {
+    // Call Original Method
+    original(self, cause);
+    // Properly Drop Armor
+    constexpr int num_armor = 4;
+    for (int i = 0; i < num_armor; i++) {
+        const ItemInstance *item = self->getArmor(i);
+        if (ItemInstance::isArmorItem(item)) {
+            ItemInstance *new_item = new ItemInstance;
+            *new_item = *item;
+            self->drop(new_item, true);
+            self->setArmor(i, nullptr);
+        }
+    }
+}
+
 // Init
 void init_misc() {
     // Sanitize Username
@@ -565,6 +582,11 @@ void init_misc() {
         unsigned char nop_patch[4] = {0x00, 0xf0, 0x20, 0xe3}; // "nop"
         patch((void *) 0xbe1a0, nop_patch); // door
         patch((void *) 0xcf818, nop_patch); // trapdoor
+    }
+
+    // Fix Dropping Armor On Death
+    if (feature_has("Fix Dropping Armor On Death", server_enabled)) {
+        overwrite_calls(LocalPlayer_die, LocalPlayer_die_injection);
     }
 
     // Disable overwrite_calls() After Minecraft::init
