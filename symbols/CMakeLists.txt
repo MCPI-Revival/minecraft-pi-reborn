@@ -42,6 +42,9 @@ set(SRC
     src/network/packet/RequestChunkPacket.def
     src/network/packet/UpdateBlockPacket.def
     src/network/packet/ReadyPacket.def
+    src/network/packet/SendInventoryPacket.def
+    src/network/packet/MessagePacket.def
+    src/network/packet/SetSpawnPositionPacket.def
     src/entity/EntityFactory.def
     src/entity/PrimedTnt.def
     src/entity/CameraEntity.def
@@ -215,6 +218,7 @@ set(SRC
     src/misc/Tag.def
     src/misc/CompoundTag.def
     src/misc/CThread.def
+    src/misc/Pos.def
     src/input/IMoveInput.def
     src/input/IBuildInput.def
     src/input/MouseBuildInput.def

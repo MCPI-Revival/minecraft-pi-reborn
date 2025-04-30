@@ -1,0 +1,6 @@
+extends Packet;
+
+size 0x10;
+vtable 0x109238;
+
+property RakNet_RakString message = 0xc;

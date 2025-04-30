@@ -1,1 +1,3 @@
+size 0x84;
+
 property char *c_str = 0x10;

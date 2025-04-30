@@ -1,0 +1,6 @@
+size 0xc;
+mark-as-simple;
+
+property int x = 0x0;
+property int y = 0x4;
+property int z = 0x8;

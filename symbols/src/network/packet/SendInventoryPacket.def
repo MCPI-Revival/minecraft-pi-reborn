@@ -1,0 +1,9 @@
+extends Packet;
+
+size 0x20;
+vtable 0x106030;
+
+property int entity_id = 0xc;
+property std::vector<ItemInstance> items = 0x10;
+property short inventory_size = 0x1c;
+property bool should_drop = 0x1e;

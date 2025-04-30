@@ -1,0 +1,9 @@
+extends Packet;
+
+size 0x1c;
+vtable 0x1094b8;
+
+property int entity_id = 0xc;
+property int x = 0x10;
+property int z = 0x14;
+property uchar y = 0x18;

@@ -50,7 +50,7 @@ static void LocalPlayer_tick_injection(LocalPlayer_tick_t original, LocalPlayer 
         const bool real = self->isSneaking();
         const bool synced = self->getSharedFlag(FLAG_SNEAKING);
         if (real != synced) {
-            // Send To Server
+            // Send Packet To Server
             PlayerActionPacket *packet = PlayerActionPacket::allocate();
             ((Packet *) packet)->constructor();
             packet->vtable = PlayerActionPacket_vtable::base;
@@ -88,6 +88,24 @@ static bool LevelChunk_setTile_injection(const std::function<bool(LevelChunk *, 
     return ret;
 }
 
+// Fix Spawn Position Syncing
+static void ServerSideNetworkHandler_onReady_ClientGeneration_injection(ServerSideNetworkHandler_onReady_ClientGeneration_t original, ServerSideNetworkHandler *self, const RakNet_RakNetGUID &rak_net_guid) {
+    // Call Original Method
+    original(self, rak_net_guid);
+    // Send Spawn Position
+    const Pos pos = self->level->getSharedSpawnPos();
+    SetSpawnPositionPacket *packet = SetSpawnPositionPacket::allocate();
+    ((Packet *) packet)->constructor();
+    packet->vtable = SetSpawnPositionPacket_vtable::base;
+    packet->x = pos.x;
+    packet->y = pos.y;
+    packet->z = pos.z;
+    packet->priority = HIGH_PRIORITY;
+    packet->reliability = RELIABLE_ORDERED;
+    self->rak_net_instance->sendTo(rak_net_guid, *(Packet *) packet);
+    packet->destructor_deleting();
+}
+
 // Init
 void _init_multiplayer_syncing() {
     // Fix Fire Syncing
@@ -106,5 +124,10 @@ void _init_multiplayer_syncing() {
     if (feature_has("Fix Tile Entity Syncing", server_enabled)) {
         overwrite_calls(LevelChunk_setTile, LevelChunk_setTile_injection<>);
         overwrite_calls(LevelChunk_setTileAndData, LevelChunk_setTile_injection<int>);
+    }
+
+    // Fix Spawn Position Syncing
+    if (feature_has("Fix Spawn Position Syncing", server_enabled)) {
+        overwrite_calls(ServerSideNetworkHandler_onReady_ClientGeneration, ServerSideNetworkHandler_onReady_ClientGeneration_injection);
     }
 }

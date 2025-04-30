@@ -96,6 +96,7 @@ include_toc: true
     * `Fix Tile Entity Syncing`
     * `Properly Free Pending Players`
     * `Fix Dropping Armor On Death`
+    * `Fix Spawn Position Syncing`
   * Existing Functionality (All Enabled By Default)
     * `Fix Screen Rendering When Hiding HUD`
     * `Sanitize Usernames`

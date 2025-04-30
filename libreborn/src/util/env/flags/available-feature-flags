@@ -126,6 +126,7 @@ CATEGORY Bug Fixes
         TRUE Fix Sneaking Syncing
         TRUE Fix Tile Entity Syncing
         TRUE Properly Free Pending Players
+        TRUE Fix Spawn Position Syncing
     CATEGORY Input
         TRUE Fix Bow & Arrow
         TRUE Fix Attacking

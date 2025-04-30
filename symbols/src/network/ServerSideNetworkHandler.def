@@ -5,7 +5,9 @@ vtable 0x109b98;
 method Player *getPlayer(const RakNet_RakNetGUID &guid) = 0x75464;
 method Player *popPendingPlayer(const RakNet_RakNetGUID &guid) = 0x75db4;
 method void displayGameMessage(const std::string &message) = 0x750c4;
+method void onReady_ClientGeneration(const RakNet_RakNetGUID &guid) = 0x75e44;
 
 property Level *level = 0xc;
 property Minecraft *minecraft = 0x8;
 property RakNet_RakPeer *peer = 0x14;
+property RakNetInstance *rak_net_instance = 0x10;
