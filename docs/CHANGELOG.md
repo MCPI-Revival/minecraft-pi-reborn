@@ -97,6 +97,7 @@ include_toc: true
     * `Properly Free Pending Players`
     * `Fix Dropping Armor On Death`
     * `Fix Spawn Position Syncing`
+    * `Fix Containers Overwriting The Inventory`
   * Existing Functionality (All Enabled By Default)
     * `Fix Screen Rendering When Hiding HUD`
     * `Sanitize Usernames`

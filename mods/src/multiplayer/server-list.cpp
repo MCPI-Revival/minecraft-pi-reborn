@@ -111,6 +111,7 @@ void init_multiplayer() {
     // Init Other Fixes
     _init_multiplayer_raknet();
     _init_multiplayer_syncing();
+    _init_multiplayer_inventory();
 
     // Improved Chunk Loading
     if (feature_has("Improve Multiplayer Chunk Loading", server_enabled)) {

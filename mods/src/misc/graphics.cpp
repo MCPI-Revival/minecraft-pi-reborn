@@ -395,12 +395,20 @@ static ContainerMenu *ContainerMenu_injection(ContainerMenu_constructor_t origin
     // Return
     return container_menu;
 }
+static bool is_destroying_level = false;
+static Level *Level_destructor_injection(Level_destructor_complete_t original, Level *self) {
+    // Call Original Method
+    is_destroying_level = true;
+    original(self);
+    is_destroying_level = false;
+    return self;
+}
 static ContainerMenu *ContainerMenu_destructor_injection(ContainerMenu_destructor_complete_t original, ContainerMenu *container_menu) {
     // Play Animation
     Container *container = container_menu->container;
     const ChestTileEntity *tile_entity = (ChestTileEntity *) (((unsigned char *) container) - offsetof(ChestTileEntity, container));
     const bool is_client = tile_entity->is_client;
-    if (!is_client) {
+    if (!is_client && !is_destroying_level) {
         container->stopOpen();
     }
 
@@ -595,6 +603,7 @@ void _init_misc_graphics() {
 
         // Animation
         overwrite_calls(ContainerMenu_constructor, ContainerMenu_injection);
+        overwrite_calls(Level_destructor_complete, Level_destructor_injection);
         overwrite_calls(ContainerMenu_destructor_complete, ContainerMenu_destructor_injection);
     }
     if (feature_has("Always Save Chest Tile Entities", server_enabled)) {

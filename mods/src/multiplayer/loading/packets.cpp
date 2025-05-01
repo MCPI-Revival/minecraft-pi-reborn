@@ -1,5 +1,6 @@
 #include <libreborn/patch.h>
 
+#include <mods/multiplayer/packets.h>
 #include "internal.h"
 
 // Track Whether The Connected Server Is Enhanced
@@ -14,7 +15,7 @@ bool _server_using_improved_loading;
 static void StartGamePacket_read_injection(StartGamePacket_read_t original, StartGamePacket *self, RakNet_BitStream *bit_stream) {
     // Call Original Method
     original(self, bit_stream);
-    // Check If Packet Contains Extra Data
+    // Check If The Packet Contains Extra Data
     uchar x;
     _server_using_improved_loading = bit_stream->Read_uchar(&x);
     _multiplayer_clear_updates();
@@ -22,14 +23,14 @@ static void StartGamePacket_read_injection(StartGamePacket_read_t original, Star
 
 // "Special" Version Of RequestChunkPacket That Sends Light Data
 bool _request_full_chunk = false;
-static void negate_int(int &x) {
+void multiplayer_negate(int &x) {
     x = -x - 1;
 }
 static void ClientSideNetworkHandler_requestNextChunk_RakNetInstance_send_injection(RakNetInstance *self, Packet &packet) {
     if (_request_full_chunk) {
         RequestChunkPacket *data = (RequestChunkPacket *) &packet;
-        negate_int(data->x);
-        negate_int(data->z);
+        multiplayer_negate(data->x);
+        multiplayer_negate(data->z);
         _request_full_chunk = false;
     }
     self->send(packet);
@@ -42,8 +43,8 @@ static void ServerSideNetworkHandler_handle_RequestChunkPacket_injection(ServerS
     }
 
     // Get Chunk
-    negate_int(packet->x);
-    negate_int(packet->z);
+    multiplayer_negate(packet->x);
+    multiplayer_negate(packet->z);
     if (!self->level) {
         return;
     }

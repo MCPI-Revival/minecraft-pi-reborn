@@ -1,0 +1,7 @@
+extends Packet;
+
+size 0x1c;
+vtable 0x109538;
+
+property uchar container_id = 0xc;
+property std::vector<ItemInstance> items = 0x10;

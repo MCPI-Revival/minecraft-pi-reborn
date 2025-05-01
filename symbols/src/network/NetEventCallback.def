@@ -10,3 +10,4 @@ virtual-method void handle_MovePlayerPacket(const RakNet_RakNetGUID &rak_net_gui
 virtual-method void handle_ChunkDataPacket(const RakNet_RakNetGUID &rak_net_guid, ChunkDataPacket *packet) = 0x7c;
 virtual-method void handle_RequestChunkPacket(const RakNet_RakNetGUID &rak_net_guid, RequestChunkPacket *packet) = 0x78;
 virtual-method void handle_UpdateBlockPacket(const RakNet_RakNetGUID &rak_net_guid, UpdateBlockPacket *packet) = 0x64;
+virtual-method void handle_ContainerSetContentPacket(const RakNet_RakNetGUID &rak_net_guid, ContainerSetContentPacket *packet) = 0xc4;
