@@ -3,6 +3,9 @@
 // Used To Designate Special Behavior
 void multiplayer_negate(int &x);
 
+// Armor Inventory Size
+static constexpr int multiplayer_armor_size = 4;
+
 // ContainerSetContentPacket IDs
 
 // Used To Overwrite Inventory

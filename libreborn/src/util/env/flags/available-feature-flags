@@ -101,6 +101,7 @@ CATEGORY Multiplayer
     TRUE External Server Support
     TRUE Improve Multiplayer Chunk Loading
     TRUE Sanitize Usernames
+    TRUE Allow Servers To Overwrite Armor
 CATEGORY Gameplay
     TRUE Implement Death Messages
     TRUE Implement Game-Mode Switching

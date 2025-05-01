@@ -21,6 +21,7 @@
 #include <mods/init/init.h>
 #include <mods/feature/feature.h>
 #include <mods/input/input.h>
+#include <mods/multiplayer/packets.h>
 #include <mods/misc/misc.h>
 
 #include "internal.h"
@@ -408,8 +409,7 @@ static void LocalPlayer_die_injection(LocalPlayer_die_t original, LocalPlayer *s
     // Call Original Method
     original(self, cause);
     // Properly Drop Armor
-    constexpr int num_armor = 4;
-    for (int i = 0; i < num_armor; i++) {
+    for (int i = 0; i < multiplayer_armor_size; i++) {
         const ItemInstance *item = self->getArmor(i);
         if (ItemInstance::isArmorItem(item)) {
             ItemInstance *new_item = new ItemInstance;

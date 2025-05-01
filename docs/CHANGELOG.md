@@ -73,6 +73,7 @@ include_toc: true
     * `Remove Chest Placement Restrictions` (Enabled By Default)
     * `Batch Font Rendering` (Enabled By Default)
     * `Stop Doors And Trapdoors Closing When Updated` (Disabled By Default)
+    * `Allow Servers To Overwrite Armor` (Enabled By Default)
   * New Bug Fixes (All Enabled By Default)
     * `Fix Held Item Caching`
     * `Fix Pigmen Burning In The Sun`
