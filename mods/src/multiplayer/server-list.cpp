@@ -110,6 +110,7 @@ void init_multiplayer() {
 
     // Init Other Fixes
     _init_multiplayer_raknet();
+    _init_multiplayer_misc();
     _init_multiplayer_syncing();
     _init_multiplayer_inventory();
 

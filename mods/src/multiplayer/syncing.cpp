@@ -92,8 +92,13 @@ static bool LevelChunk_setTile_injection(const std::function<bool(LevelChunk *, 
 static void ServerSideNetworkHandler_onReady_ClientGeneration_injection(ServerSideNetworkHandler_onReady_ClientGeneration_t original, ServerSideNetworkHandler *self, const RakNet_RakNetGUID &rak_net_guid) {
     // Call Original Method
     original(self, rak_net_guid);
+    // Get Spawn Position
+    Pos pos = self->level->getSharedSpawnPos();
+    Player *player = self->getPlayer(rak_net_guid);
+    if (player && player->hasRespawnPosition()) {
+        pos = player->getRespawnPosition();
+    }
     // Send Spawn Position
-    const Pos pos = self->level->getSharedSpawnPos();
     SetSpawnPositionPacket *packet = SetSpawnPositionPacket::allocate();
     ((Packet *) packet)->constructor();
     packet->vtable = SetSpawnPositionPacket_vtable::base;

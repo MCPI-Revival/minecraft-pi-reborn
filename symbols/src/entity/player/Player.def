@@ -13,6 +13,8 @@ method void startUsingItem(ItemInstance *item_instance, int use_duration) = 0x8f
 method ItemInstance *getArmor(int slot) = 0x8fda4;
 method void setArmor(int slot, const ItemInstance *item) = 0x8fde0;
 method bool isHurt() = 0x8fb44;
+method bool hasRespawnPosition() = 0x8fd9c;
+method Pos getRespawnPosition() = 0x8fc84;
 
 property Inventory *inventory = 0xbe0;
 property std::string username = 0xbf4;

@@ -58,6 +58,8 @@ method bool updateLights() = 0xa56a4;
 method void updateLight(const LightLayer &layer, int x0, int y0, int z0, int x1, int y1, int z1) = 0xa6c78;
 method void _init(const std::string &name, const LevelSettings &settings, int param_1, Dimension *param_2) = 0xa5768;
 method Pos getSharedSpawnPos() = 0xa6010;
+method bool isUnobstructed(const AABB &aabb) = 0xa5b50;
+method bool mayPlace(int tile_id, int x, int y, int z, bool param_1, unsigned char param_2) = 0xa5bd0;
 
 virtual-method void tick() = 0x28;
 virtual-method void updateSleepingPlayerList() = 0x2c;

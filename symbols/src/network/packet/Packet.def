@@ -3,6 +3,7 @@ constructor () = 0x6fc18;
 size 0xc;
 vtable 0x1024d8;
 vtable-size 0x14;
+generate-custom-wrapper;
 
 virtual-method void write(RakNet_BitStream *bit_stream) = 0x8;
 virtual-method void read(RakNet_BitStream *bit_stream) = 0xc;

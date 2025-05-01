@@ -87,6 +87,7 @@ add_library(mods SHARED
     # multiplayer
     src/multiplayer/server-list.cpp
     src/multiplayer/raknet.cpp
+    src/multiplayer/misc.cpp
     src/multiplayer/syncing.cpp
     src/multiplayer/inventory.cpp
     src/multiplayer/loading/init.cpp

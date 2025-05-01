@@ -100,6 +100,7 @@ include_toc: true
     * `Fix Dropping Armor On Death`
     * `Fix Spawn Position Syncing`
     * `Fix Containers Overwriting The Inventory`
+    * `Reliable Block Placement On Servers`
   * Existing Functionality (All Enabled By Default)
     * `Fix Screen Rendering When Hiding HUD`
     * `Sanitize Usernames`

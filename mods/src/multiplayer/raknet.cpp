@@ -56,17 +56,6 @@ static RakNet_StartupResult RakNetInstance_host_RakNet_RakPeer_Startup_injection
     return result;
 }
 
-// Properly Deallocate Pending Players
-static void ServerSideNetworkHandler_onDisconnect_injection(ServerSideNetworkHandler_onDisconnect_t original, ServerSideNetworkHandler *self, const RakNet_RakNetGUID &guid) {
-    // Call Original Method
-    original(self, guid);
-    // Free
-    Player *player = self->popPendingPlayer(guid);
-    if (player) {
-        player->destructor_deleting();
-    }
-}
-
 // Init
 void _init_multiplayer_raknet() {
     // Fix Bug Where RakNetInstance Starts Pinging Potential Servers Before The "Join Game" Screen Is Opened
@@ -82,10 +71,5 @@ void _init_multiplayer_raknet() {
     // Print Error Message If RakNet Startup Fails
     if (feature_has("Log RakNet Startup Errors", server_enabled)) {
         overwrite_call((void *) 0x73778, RakNet_RakPeer_Startup, RakNetInstance_host_RakNet_RakPeer_Startup_injection);
-    }
-
-    // Free Pending Players
-    if (feature_has("Properly Free Pending Players", server_enabled)) {
-        overwrite_calls(ServerSideNetworkHandler_onDisconnect, ServerSideNetworkHandler_onDisconnect_injection);
     }
 }

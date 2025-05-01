@@ -130,6 +130,7 @@ CATEGORY Bug Fixes
         TRUE Properly Free Pending Players
         TRUE Fix Spawn Position Syncing
         TRUE Fix Containers Overwriting The Inventory
+        TRUE Reliable Block Placement On Servers
     CATEGORY Input
         TRUE Fix Bow & Arrow
         TRUE Fix Attacking

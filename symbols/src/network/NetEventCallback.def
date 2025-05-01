@@ -11,3 +11,4 @@ virtual-method void handle_ChunkDataPacket(const RakNet_RakNetGUID &rak_net_guid
 virtual-method void handle_RequestChunkPacket(const RakNet_RakNetGUID &rak_net_guid, RequestChunkPacket *packet) = 0x78;
 virtual-method void handle_UpdateBlockPacket(const RakNet_RakNetGUID &rak_net_guid, UpdateBlockPacket *packet) = 0x64;
 virtual-method void handle_ContainerSetContentPacket(const RakNet_RakNetGUID &rak_net_guid, ContainerSetContentPacket *packet) = 0xc4;
+virtual-method void handle_UseItemPacket(const RakNet_RakNetGUID &rak_net_guid, UseItemPacket *packet) = 0x9c;
