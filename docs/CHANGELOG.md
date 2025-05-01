@@ -74,6 +74,7 @@ include_toc: true
     * `Batch Font Rendering` (Enabled By Default)
     * `Stop Doors And Trapdoors Closing When Updated` (Disabled By Default)
     * `Allow Servers To Overwrite Armor` (Enabled By Default)
+    * `Send Inventory To Server` (Enabled By Default)
   * New Bug Fixes (All Enabled By Default)
     * `Fix Held Item Caching`
     * `Fix Pigmen Burning In The Sun`

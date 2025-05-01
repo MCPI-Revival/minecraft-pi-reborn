@@ -30,6 +30,70 @@ static void ClientSideNetworkHandler_handle_ContainerSetContentPacket_injection(
     }
 }
 
+// Send Inventory
+static void send_inventory(LocalPlayer *self) {
+    // Not Needed In Creative
+    Inventory *inventory = self->inventory;
+    if (inventory->is_creative) {
+        return;
+    }
+
+    // Create Packet
+    SendInventoryPacket *packet = SendInventoryPacket::allocate();
+    ((Packet *) packet)->constructor();
+    packet->vtable = SendInventoryPacket_vtable::base;
+    new (&packet->items) std::vector<ItemInstance>;
+
+    // Configure Packet
+    packet->entity_id = self->id;
+    multiplayer_negate(packet->entity_id);
+    // Inventory
+    ItemInstance empty;
+    empty.setNull();
+    packet->inventory_size = 0;
+    for (int i = inventory->linked_slots_length; i < inventory->getContainerSize(); i++) {
+        packet->inventory_size++;
+        const ItemInstance *item = inventory->getItem(i);
+        packet->items.push_back(item ? *item : empty);
+    }
+    // Armor
+    for (int i = 0; i < multiplayer_armor_size; i++) {
+        const ItemInstance *item = self->getArmor(i);
+        packet->items.push_back(item ? *item : empty);
+    }
+
+    // Send
+    self->minecraft->rak_net_instance->send(*(Packet *) packet);
+}
+static void LocalPlayer_tick_injection(LocalPlayer_tick_t original, LocalPlayer *self) {
+    // Call Original Method
+    original(self);
+    // Custom Behavior
+    if (self->level->is_client_side) {
+        // Check Time
+        static int tick = 0;
+        const bool should_send = tick == 0;
+        tick++;
+        constexpr int period = 10; // Half-A-Second
+        if (tick >= period) {
+            tick = 0;
+        }
+        if (!should_send) {
+            return;
+        }
+        // Send Packet
+        send_inventory(self);
+    }
+}
+static void Minecraft_leaveGame_injection(Minecraft_leaveGame_t original, Minecraft *self, const bool param_1) {
+    // Send Inventory On Disconnect
+    if (self->isLevelGenerated() && self->level->is_client_side && self->player) {
+        send_inventory(self->player);
+    }
+    // Call Original Method
+    original(self, param_1);
+}
+
 // Init
 void _init_multiplayer_inventory() {
     // Fix Opening Containers
@@ -44,6 +108,12 @@ void _init_multiplayer_inventory() {
     // Armor
     if (feature_has("Allow Servers To Overwrite Armor", server_disabled)) {
         overwrite_calls(ClientSideNetworkHandler_handle_ContainerSetContentPacket, ClientSideNetworkHandler_handle_ContainerSetContentPacket_injection);
+    }
+
+    // Send Inventory
+    if (feature_has("Send Inventory To Server", server_disabled)) {
+        overwrite_calls(LocalPlayer_tick, LocalPlayer_tick_injection);
+        overwrite_calls(Minecraft_leaveGame, Minecraft_leaveGame_injection);
     }
 }
 
