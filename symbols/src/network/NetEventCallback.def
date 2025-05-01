@@ -13,3 +13,4 @@ virtual-method void handle_UpdateBlockPacket(const RakNet_RakNetGUID &rak_net_gu
 virtual-method void handle_ContainerSetContentPacket(const RakNet_RakNetGUID &rak_net_guid, ContainerSetContentPacket *packet) = 0xc4;
 virtual-method void handle_UseItemPacket(const RakNet_RakNetGUID &rak_net_guid, UseItemPacket *packet) = 0x9c;
 virtual-method void handle_SendInventoryPacket(const RakNet_RakNetGUID &rak_net_guid, SendInventoryPacket *packet) = 0xa8;
+virtual-method void handle_LoginPacket(const RakNet_RakNetGUID &rak_net_guid, LoginPacket *packet) = 0x1c;

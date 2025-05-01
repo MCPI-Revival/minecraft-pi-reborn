@@ -11,3 +11,4 @@ property Level *level = 0xc;
 property Minecraft *minecraft = 0x8;
 property RakNet_RakPeer *peer = 0x14;
 property RakNetInstance *rak_net_instance = 0x10;
+property std::vector<Player *> pending_players = 0x18;

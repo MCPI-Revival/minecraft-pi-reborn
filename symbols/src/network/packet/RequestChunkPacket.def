@@ -1,4 +1,6 @@
 extends Packet;
 
+vtable 0x108da0;
+
 property int x = 0xc;
 property int z = 0x10;

@@ -25,7 +25,7 @@ static void handle_disconnect_tick(Minecraft *minecraft) {
     // Stop Thread
     _multiplayer_stop_thread(minecraft);
 
-    // Leave Game
+    // Leave The Game
     minecraft->level_generation_signal = true;
     minecraft->leaveGame(false); // This Destroys Self!
     DisconnectionScreen *screen = DisconnectionScreen::allocate();
@@ -52,7 +52,7 @@ void _multiplayer_set_tile(int x, int y, int z, int tile_id, int data) {
 }
 
 // Handle Level Generation
-static void ClientSideNetworkHandler_levelGenerated_injection(ClientSideNetworkHandler_levelGenerated_t original,  ClientSideNetworkHandler *self, Level *level) {
+static void ClientSideNetworkHandler_levelGenerated_injection(ClientSideNetworkHandler_levelGenerated_t original, ClientSideNetworkHandler *self, Level *level) {
     // Check If Using Improved Chunk Loading
     if (!_multiplayer_is_loading_chunks(self)) {
         // Call Original Method
@@ -70,6 +70,7 @@ static void ClientSideNetworkHandler_levelGenerated_injection(ClientSideNetworkH
         packet->vtable = ReadyPacket_vtable::base;
         packet->type = type;
         self->rak_net_instance->send(*(Packet *) packet);
+        packet->destructor_deleting();
     }
 
     // Handle Buffered Block Updates

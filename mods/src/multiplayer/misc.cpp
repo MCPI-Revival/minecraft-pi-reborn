@@ -6,14 +6,26 @@
 #include "internal.h"
 
 // Properly Deallocate Pending Players
+static void free_pending_players(ServerSideNetworkHandler *self, const RakNet_RakNetGUID &guid) {
+    while (true) {
+        Player *player = self->popPendingPlayer(guid);
+        if (!player) {
+            break;
+        }
+        player->destructor_deleting();
+    }
+}
 static void ServerSideNetworkHandler_onDisconnect_injection(ServerSideNetworkHandler_onDisconnect_t original, ServerSideNetworkHandler *self, const RakNet_RakNetGUID &guid) {
     // Call Original Method
     original(self, guid);
     // Free
-    Player *player = self->popPendingPlayer(guid);
-    if (player) {
-        player->destructor_deleting();
-    }
+    free_pending_players(self, guid);
+}
+static void ServerSideNetworkHandler_handle_LoginPacket_injection(ServerSideNetworkHandler_handle_LoginPacket_t original, ServerSideNetworkHandler *self, const RakNet_RakNetGUID &guid, LoginPacket *packet) {
+    // Free
+    free_pending_players(self, guid);
+    // Call Original Method
+    original(self, guid, packet);
 }
 
 // More Reliable Block Placement On Servers
@@ -62,6 +74,7 @@ void _init_multiplayer_misc() {
     // Free Pending Players
     if (feature_has("Properly Free Pending Players", server_enabled)) {
         overwrite_calls(ServerSideNetworkHandler_onDisconnect, ServerSideNetworkHandler_onDisconnect_injection);
+        overwrite_calls(ServerSideNetworkHandler_handle_LoginPacket, ServerSideNetworkHandler_handle_LoginPacket_injection);
     }
 
     // Send Extra Packet For Block Placement On Servers
