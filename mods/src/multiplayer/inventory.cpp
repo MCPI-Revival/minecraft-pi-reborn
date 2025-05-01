@@ -94,6 +94,13 @@ static void Minecraft_leaveGame_injection(Minecraft_leaveGame_t original, Minecr
     // Call Original Method
     original(self, param_1);
 }
+static void ClientSideNetworkHandler_handle_SendInventoryPacket_injection(ClientSideNetworkHandler *self, __attribute__((unused)) const RakNet_RakNetGUID &guid, __attribute__((unused)) SendInventoryPacket *packet) {
+    // Server Has Requested Inventory
+    LocalPlayer *player = self->minecraft->player;
+    if (player) {
+        send_inventory(player);
+    }
+}
 
 // Init
 void _init_multiplayer_inventory() {
@@ -115,6 +122,7 @@ void _init_multiplayer_inventory() {
     if (feature_has("Send Inventory To Server", server_disabled)) {
         overwrite_calls(LocalPlayer_tick, LocalPlayer_tick_injection);
         overwrite_calls(Minecraft_leaveGame, Minecraft_leaveGame_injection);
+        patch_vtable(ClientSideNetworkHandler_handle_SendInventoryPacket, ClientSideNetworkHandler_handle_SendInventoryPacket_injection);
     }
 }
 
