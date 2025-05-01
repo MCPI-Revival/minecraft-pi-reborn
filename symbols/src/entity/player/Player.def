@@ -15,6 +15,7 @@ method void setArmor(int slot, const ItemInstance *item) = 0x8fde0;
 method bool isHurt() = 0x8fb44;
 method bool hasRespawnPosition() = 0x8fd9c;
 method Pos getRespawnPosition() = 0x8fc84;
+method void setRespawnPosition(const Pos &pos) = 0x8fca0;
 
 property Inventory *inventory = 0xbe0;
 property std::string username = 0xbf4;

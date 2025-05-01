@@ -19,8 +19,6 @@ __attribute__((visibility("internal"))) std::string api_join_outputs(const std::
 __attribute__((visibility("internal"))) void api_convert_to_outside_entity_type(int &type);
 __attribute__((visibility("internal"))) void api_convert_to_mcpi_entity_type(int &type);
 
-__attribute__((visibility("internal"))) void api_update_entity_position(const Entity *entity);
-
 __attribute__((visibility("internal"))) void _init_api_events();
 __attribute__((visibility("internal"))) void _init_api_misc();
 __attribute__((visibility("internal"))) void _init_api_socket();

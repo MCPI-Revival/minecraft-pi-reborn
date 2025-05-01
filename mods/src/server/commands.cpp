@@ -66,7 +66,7 @@ void server_kick(const ServerPlayer *player) {
     const RakNet_RakNetGUID &guid = player->guid;
     RakNet_AddressOrGUID target;
     target.constructor(guid);
-    player->minecraft->rak_net_instance->peer->CloseConnection(&target, true, 0, LOW_PRIORITY);
+    player->level->rak_net_instance->peer->CloseConnection(&target, true, 0, LOW_PRIORITY);
     player->minecraft->network_handler->onDisconnect(guid);
 }
 static void kick_callback(__attribute__((unused)) Minecraft *minecraft, const std::string &username, Player *player) {

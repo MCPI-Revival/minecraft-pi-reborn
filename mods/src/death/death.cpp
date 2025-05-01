@@ -78,13 +78,13 @@ static void Player_die_injection(const std::function<void(ParentSelf *, Entity *
     original((ParentSelf *) player, cause);
 
     // Get Variable
-    RakNetInstance *rak_net_instance = player->minecraft->rak_net_instance;
-    // Only Run On Server-Side
+    RakNetInstance *rak_net_instance = player->level->rak_net_instance;
+    // Only Run On The Server-Side
     if (rak_net_instance->isServer()) {
         // Get Death Message
-        std::string message = get_death_message((Player *) player, cause);
+        const std::string message = get_death_message((Player *) player, cause);
 
-        // Post Death Message
+        // Post The Death Message
         ServerSideNetworkHandler *server_side_network_handler = (ServerSideNetworkHandler *) player->minecraft->network_handler;
         server_side_network_handler->displayGameMessage(message);
     }
@@ -104,15 +104,15 @@ static void Player_actuallyHurt_injection(const std::function<void(OriginalSelf 
     const int32_t new_health = player->health;
 
     // Get Variables
-    RakNetInstance *rak_net_instance = player->minecraft->rak_net_instance;
-    // Only Run On Server-Side
+    RakNetInstance *rak_net_instance = player->level->rak_net_instance;
+    // Only Run On The Server-Side
     if (rak_net_instance->isServer()) {
         // Check Health
         if (new_health < 1 && old_health >= 1) {
             // Get Death Message
-            std::string message = get_death_message((Player *) player, nullptr);
+            const std::string message = get_death_message((Player *) player, nullptr);
 
-            // Post Death Message
+            // Post The Death Message
             ServerSideNetworkHandler *server_side_network_handler = (ServerSideNetworkHandler *) player->minecraft->network_handler;
             server_side_network_handler->displayGameMessage(message);
         }

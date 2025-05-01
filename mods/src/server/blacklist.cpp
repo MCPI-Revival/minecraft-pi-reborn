@@ -94,7 +94,7 @@ void Blacklist::ban(const ServerPlayer *player) {
     // Kick Player
     server_kick(player);
     // Ban
-    const std::string ip = get_rak_net_guid_ip(player->minecraft->rak_net_instance->peer, player->guid);
+    const std::string ip = get_rak_net_guid_ip(player->level->rak_net_instance->peer, player->guid);
     if (is_white) {
         // Remove From Whitelist
         remove_ip(ip);

@@ -11,6 +11,8 @@ __attribute__((visibility("internal"))) void handle_commands(Minecraft *minecraf
 __attribute__((visibility("internal"))) void start_reading_commands();
 __attribute__((visibility("internal"))) void stop_reading_commands();
 
+__attribute__((visibility("internal"))) void _init_server_playerdata();
+
 // Blacklist/Whitelist
 struct Blacklist {
     bool is_white;

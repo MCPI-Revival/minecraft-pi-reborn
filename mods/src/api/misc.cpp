@@ -1,6 +1,7 @@
 #include <libreborn/patch.h>
 
 #include <mods/feature/feature.h>
+#include <mods/api/api.h>
 
 #include "internal.h"
 
@@ -63,7 +64,7 @@ static bool CommandServer__updateClient_injection_1(CommandServer__updateClient_
 }
 
 // Properly Teleport Players
-void api_update_entity_position(const Entity *entity) {
+void api_update_entity_position(const Entity *entity, const RakNet_RakNetGUID *guid) {
     MovePlayerPacket *packet = MovePlayerPacket::allocate(); // Despite The Name, This Supports All Entities
     ((Packet *) packet)->constructor();
     packet->vtable = MovePlayerPacket_vtable::base;
@@ -73,7 +74,12 @@ void api_update_entity_position(const Entity *entity) {
     packet->yaw = entity->yaw;
     packet->pitch = entity->pitch;
     packet->entity_id = entity->id;
-    entity->level->rak_net_instance->send(*(Packet *) packet);
+    RakNetInstance *rak_net_instance = entity->level->rak_net_instance;
+    if (guid) {
+        rak_net_instance->sendTo(*guid, *(Packet *) packet);
+    } else {
+        rak_net_instance->send(*(Packet *) packet);
+    }
     packet->destructor_deleting();
 }
 static void CommandServer_parse_Entity_moveTo_injection(Entity *self, const float x, const float y, const float z, const float yaw, const float pitch) {

@@ -63,7 +63,7 @@ static void send_inventory(LocalPlayer *self) {
     }
 
     // Send
-    self->minecraft->rak_net_instance->send(*(Packet *) packet);
+    self->level->rak_net_instance->send(*(Packet *) packet);
     packet->destructor_deleting();
 }
 static void LocalPlayer_tick_injection(LocalPlayer_tick_t original, LocalPlayer *self) {

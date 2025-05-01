@@ -32,7 +32,7 @@ include_toc: true
     * `Implement RaspberryJuice API` (Enabled By Default)
     * `Correctly Close API Sockets` (Enabled By Default)
     * `Optimized API Sockets` (Enabled By Default)
-* Add Peaceful Mode To Options Screen
+* Add Peaceful Mode To The Options Screen
 * Replace Zenity-Based Dialogs
   * Create New World Screen
   * Chat Screen
@@ -40,6 +40,8 @@ include_toc: true
   * All Settings In One Window
   * Integrated Server List
   * Tree-Based Feature Flag Configuration
+* Save/Load Player Data In Multiplayer!
+  * Including Inventory
 * Other New Feature Flags
   * New Functionality
     * `Use Java Beta 1.3 Light Ramp` (Enabled By Default)
@@ -122,14 +124,14 @@ include_toc: true
     * `Fix options.txt Loading/Saving`
     * `Extend Supported Keycodes`
 * Split Up `Remove Creative Mode Restrictions` Feature Flag
-  * Following Are All Disabled By Default
+  * The Following Are All Disabled By Default
   * `Remove Creative Mode Restrictions`
   * `Display Slot Count In Creative Mode`
   * `Force Survival Mode Inventory UI`
   * `Force Survival Mode Inventory Behavior`
   * `Maximize Creative Mode Inventory Stack Size`
 * Split Up `Miscellaneous Input Fixes` Feature Flag
-  * Following Are All Enabled By Default
+  * The Following Are All Enabled By Default
   * `Fix Escape Key Handling`
   * `Stop Locked Mouse From Interacting With HUD`
 * Rename Feature Flags
@@ -208,7 +210,7 @@ include_toc: true
   * PatchELF Replaced With LIEF
 * Moved `3D Anaglyph` Feature Flag To Options Screen
 * Add `Improved Classic Title Screen` Feature Flag (Enabled By Default)
-  * Add Quit button
+  * Add A Quit Button
   * Add Options Button (Moved From `Fix Options Screen` Feature Flag)
 * Add `Disable Speed Bridging` Feature Flag (Disabled By Default)
 * Add `Disable Creative Mode Mining Delay` Feature Flag (Disabled By Default)
@@ -415,7 +417,7 @@ include_toc: true
 * Fix `RakNet::RakString` Security Bug
 
 ## 2.1.3
-* Workaround Broken Library Search Path On Some ARM 32-Bit Systems
+* Work Around A Broken Library Search Path On Some ARM 32-Bit Systems
 
 ## 2.1.2
 * Fix Library Loading On ARM 32-Bit Systems
@@ -436,7 +438,7 @@ include_toc: true
 * Use Default Port In `servers.txt` If Not Specified
 
 ## 2.0.7
-* Fix Sign Text Not Updating In Multiplayer When Exiting Editing UI Using Escape Button
+* Fix Sign Text Not Updating In Multiplayer When Exiting The Editing UI Using Escape Button
 * Fix Item Dropping Not Working
 
 ## 2.0.6

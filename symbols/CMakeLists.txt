@@ -99,6 +99,7 @@ set(SRC
     src/level/Material.def
     src/level/LevelSource.def
     src/level/ExternalFileLevelStorageSource.def
+    src/level/ExternalFileLevelStorage.def
     src/level/Biome.def
     src/level/LevelChunk.def
     src/level/ChunkSource.def
