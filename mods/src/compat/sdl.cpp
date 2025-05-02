@@ -70,9 +70,10 @@ HOOK(media_SDL_PollEvent, int, (SDL_Event *event)) {
                 }
                 break;
             }
+            default: {}
         }
         if (handled) {
-            // Event Was Handled
+            // The Event Was Handled
             return media_SDL_PollEvent(event);
         }
     }

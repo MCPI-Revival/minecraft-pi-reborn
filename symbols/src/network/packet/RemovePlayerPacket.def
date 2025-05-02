@@ -1,0 +1,3 @@
+extends Packet;
+
+property int entity_id = 0xc;

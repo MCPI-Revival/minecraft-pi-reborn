@@ -132,6 +132,7 @@ CATEGORY Bug Fixes
         TRUE Fix Spawn Position Syncing
         TRUE Fix Containers Overwriting The Inventory
         TRUE Reliable Block Placement On Servers
+        TRUE Prevent Removing Local Player
     CATEGORY Input
         TRUE Fix Bow & Arrow
         TRUE Fix Attacking

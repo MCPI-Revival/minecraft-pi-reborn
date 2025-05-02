@@ -104,6 +104,7 @@ include_toc: true
     * `Fix Spawn Position Syncing`
     * `Fix Containers Overwriting The Inventory`
     * `Reliable Block Placement On Servers`
+    * `Prevent Removing Local Player`
   * Existing Functionality (All Enabled By Default)
     * `Fix Screen Rendering When Hiding HUD`
     * `Sanitize Usernames`

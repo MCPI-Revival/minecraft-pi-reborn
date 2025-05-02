@@ -12,9 +12,15 @@
 
 // Fork
 Process::Process(const pid_t pid_, const std::array<int, fd_count> &fds_): pid(pid_), fds(fds_) {}
-int Process::close() const {
-    for (const int fd : fds) {
-        ::close(fd);
+void Process::close_fd(const int i) {
+    if (!closed.contains(i)) {
+        ::close(fds[i]);
+        closed.insert(i);
+    }
+}
+int Process::close() {
+    for (int i = 0; i < fd_count; i++) {
+        close_fd(i);
     }
     int status;
     waitpid(pid, &status, 0);
@@ -137,7 +143,7 @@ __attribute__((noreturn)) void safe_execvpe(const char *const argv[], const char
 #define CHILD_PROCESS_TAG "(Child Process) "
 std::vector<unsigned char> *run_command(const char *const command[], int *exit_status) {
     // Run
-    const std::optional<Process> child = fork_with_stdio();
+    std::optional<Process> child = fork_with_stdio();
     if (!child) {
         // Child Process
         reborn_debug_tag = CHILD_PROCESS_TAG;
@@ -145,7 +151,7 @@ std::vector<unsigned char> *run_command(const char *const command[], int *exit_s
         safe_execvpe(command, environ);
     } else {
         // Close stdin
-        close(child->fds[2]);
+        child->close_fd(2);
         // Read stdout
         std::vector<unsigned char> *output = new std::vector<unsigned char>;
         poll_fds({child->fds[0], child->fds[1]}, [&output](const int i, const size_t size, unsigned char *buf) {

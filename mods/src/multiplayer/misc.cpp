@@ -69,6 +69,20 @@ static void ServerSideNetworkHandler_handle_UpdateBlockPacket_injection(ServerSi
     Tile::tiles[tile_id]->setPlacedBy(level, x, y, z, (Mob *) player);
 }
 
+// Prevent Removing Local Player
+static void ClientSideNetworkHandler_handle_RemovePlayerPacket_injection(ClientSideNetworkHandler_handle_RemovePlayerPacket_t original, ClientSideNetworkHandler *self, const RakNet_RakNetGUID &guid, RemovePlayerPacket *packet) {
+    // Check
+    const Minecraft *minecraft = self->minecraft;
+    if (minecraft) {
+        const LocalPlayer *player = minecraft->player;
+        if (player && player->id == packet->entity_id) {
+            return;
+        }
+    }
+    // Call Original Method
+    original(self, guid, packet);
+}
+
 // Init
 void _init_multiplayer_misc() {
     // Free Pending Players
@@ -82,5 +96,10 @@ void _init_multiplayer_misc() {
         overwrite_call((void *) 0xcb784, Level_setTileAndData, TileItem_useOn_Level_setTileAndData_injection);
         overwrite_call((void *) 0x98c24, Level_setTile, TilePlanterItem_useOn_Level_setTile_injection);
         patch_vtable(ServerSideNetworkHandler_handle_UpdateBlockPacket, ServerSideNetworkHandler_handle_UpdateBlockPacket_injection);
+    }
+
+    // Prevent Removing Local Player
+    if (feature_has("Prevent Removing Local Player", server_disabled)) {
+        overwrite_calls(ClientSideNetworkHandler_handle_RemovePlayerPacket, ClientSideNetworkHandler_handle_RemovePlayerPacket_injection);
     }
 }

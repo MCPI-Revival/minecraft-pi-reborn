@@ -108,7 +108,7 @@ static void handle_server_stop(Minecraft *minecraft) {
         INFO("Stopping Server");
         // Save And Exit
         Level *level = minecraft->level;
-        if (level != nullptr) {
+        if (level != nullptr && minecraft->isLevelGenerated()) {
             level->saveGame();
             ChunkSource *chunk_source = level->chunk_source;
             if (chunk_source) {

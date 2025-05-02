@@ -5,14 +5,19 @@
 #include <array>
 #include <vector>
 #include <functional>
+#include <unordered_set>
 
 // fork() With I/O
 struct Process {
     static constexpr int fd_count = 3;
     Process(pid_t pid_, const std::array<int, fd_count> &fds_);
-    [[nodiscard]] int close() const;
+    // Close
+    void close_fd(int i);
+    [[nodiscard]] int close();
+    // Data
     const pid_t pid;
     const std::array<int, fd_count> fds;
+    std::unordered_set<int> closed;
 };
 std::optional<Process> fork_with_stdio();
 void poll_fds(const std::vector<int> &fds, const std::function<void(int, size_t, unsigned char *)> &on_data);
