@@ -28,6 +28,9 @@
 
 // Sanitize Username
 #define MAX_USERNAME_LENGTH 16
+void misc_sanitize_username(std::string &username) {
+    sanitize_string(username, MAX_USERNAME_LENGTH, false);
+}
 static void LoginPacket_read_injection(LoginPacket_read_t original, LoginPacket *packet, RakNet_BitStream *bit_stream) {
     // Call Original Method
     original(packet, bit_stream);
@@ -39,7 +42,7 @@ static void LoginPacket_read_injection(LoginPacket_read_t original, LoginPacket 
     const char *c_str = shared_string->c_str;
     // Sanitize
     std::string new_username = c_str;
-    sanitize_string(new_username, MAX_USERNAME_LENGTH, false);
+    misc_sanitize_username(new_username);
     // Set New Username
     rak_string->Assign(new_username.c_str());
 }

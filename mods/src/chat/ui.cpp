@@ -1,5 +1,3 @@
-#include "internal.h"
-
 #include <symbols/minecraft.h>
 
 #include <mods/chat/chat.h>
@@ -8,10 +6,15 @@
 #include <mods/touch/touch.h>
 #include <mods/input/input.h>
 
+#include "internal.h"
+
 // Store History
 static std::vector<std::string> &get_history() {
     static std::vector<std::string> history = {};
     return history;
+}
+void _chat_clear_history() {
+    get_history().clear();
 }
 
 // Structure

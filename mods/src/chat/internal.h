@@ -13,3 +13,4 @@ __attribute__((visibility("internal"))) std::string _chat_get_prefix(const char 
 __attribute__((visibility("internal"))) void _chat_send_message_to_server(const Minecraft *minecraft, const char *message);
 // Init Chat UI
 __attribute__((visibility("internal"))) void _init_chat_ui();
+__attribute__((visibility("internal"))) void _chat_clear_history();

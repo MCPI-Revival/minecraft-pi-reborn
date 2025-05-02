@@ -7,7 +7,7 @@ generate-custom-wrapper;
 
 virtual-method void write(RakNet_BitStream *bit_stream) = 0x8;
 virtual-method void read(RakNet_BitStream *bit_stream) = 0xc;
-virtual-method void handle(RakNet_RakNetGUID *guid, NetEventCallback *callback) = 0x10;
+virtual-method void handle(const RakNet_RakNetGUID &guid, NetEventCallback *callback) = 0x10;
 
 property RakNet_PacketPriority priority = 0x4;
 property RakNet_PacketReliability reliability = 0x8;

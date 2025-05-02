@@ -1,0 +1,1 @@
+static-method Packet *createPacket(int id) = 0x6fc34;

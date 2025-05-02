@@ -77,6 +77,7 @@ include_toc: true
     * `Stop Doors And Trapdoors Closing When Updated` (Disabled By Default)
     * `Allow Servers To Overwrite Armor` (Enabled By Default)
     * `Send Inventory To Server` (Enabled By Default)
+    * `Clear Old Chat Messages When Joining Worlds` (Enabled By Default)
   * New Bug Fixes (All Enabled By Default)
     * `Fix Held Item Caching`
     * `Fix Pigmen Burning In The Sun`

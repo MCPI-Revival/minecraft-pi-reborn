@@ -5,9 +5,10 @@
 
 #include <mods/init/init.h>
 #include <mods/feature/feature.h>
-#include "internal.h"
 #include <mods/chat/chat.h>
 #include <mods/api/api.h>
+
+#include "internal.h"
 
 // Send UTF-8 API Command
 std::string chat_send_api_command(const Minecraft *minecraft, const std::string &str) {
@@ -85,7 +86,7 @@ static void CommandServer_parse_CommandServer_dispatchPacket_injection(CommandSe
 }
 
 // Handle ChatPacket Server-Side
-static void ServerSideNetworkHandler_handle_ChatPacket_injection(ServerSideNetworkHandler *server_side_network_handler, const RakNet_RakNetGUID &rak_net_guid, ChatPacket *chat_packet) {
+void ServerSideNetworkHandler_handle_ChatPacket_injection(ServerSideNetworkHandler *server_side_network_handler, const RakNet_RakNetGUID &rak_net_guid, ChatPacket *chat_packet) {
     const Player *player = server_side_network_handler->getPlayer(rak_net_guid);
     if (player != nullptr) {
         const char *message = chat_packet->message.c_str();
@@ -108,6 +109,15 @@ static void ChatPacket_read_injection(__attribute__((unused)) ChatPacket_read_t 
     ::operator delete(str);
 }
 
+// Clear Old Chat Messages When Joining Worlds
+static void Minecraft_setLevel_injection(Minecraft_setLevel_t original, Minecraft *self, Level *level, const std::string &param_1, LocalPlayer *player) {
+    // Clear
+    self->gui.messages.clear();
+    _chat_clear_history();
+    // Call Original Method
+    original(self, level, param_1, player);
+}
+
 // Init
 void init_chat() {
     if (feature_has("Implement Chat", server_enabled)) {
@@ -125,5 +135,9 @@ void init_chat() {
         unsigned char message_limit_patch[4] = {0x03, 0x00, 0x53, 0xe1}; // "cmp r4, r4"
         patch((void *) 0x6b4c0, message_limit_patch);
         overwrite_calls(ChatPacket_read, ChatPacket_read_injection);
+    }
+    // Clear Chat Messages
+    if (feature_has("Clear Old Chat Messages When Joining Worlds", server_enabled)) {
+        overwrite_calls(Minecraft_setLevel, Minecraft_setLevel_injection);
     }
 }

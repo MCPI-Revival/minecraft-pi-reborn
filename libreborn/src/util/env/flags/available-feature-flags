@@ -2,6 +2,7 @@ CATEGORY Additions
     CATEGORY Chat
         TRUE Implement Chat
         FALSE Hide Chat Messages
+        TRUE Clear Old Chat Messages When Joining Worlds
     CATEGORY Screens
         TRUE Add Welcome Screen
         TRUE Implement Create World Dialog

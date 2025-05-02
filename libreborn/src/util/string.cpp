@@ -7,7 +7,7 @@
 // Sanitize String
 void sanitize_string(std::string &str, const int max_length, const bool allow_newlines) {
     // Truncate Message
-    if (max_length >= 0 && str.size() > ((size_t) max_length)) {
+    if (max_length >= 0 && str.size() > size_t(max_length)) {
         str = str.substr(0, max_length);
     }
     // Loop Through Message

@@ -47,6 +47,7 @@ set(SRC
     src/network/packet/SetSpawnPositionPacket.def
     src/network/packet/ContainerSetContentPacket.def
     src/network/packet/UseItemPacket.def
+    src/network/packet/MinecraftPackets.def
     src/entity/EntityFactory.def
     src/entity/PrimedTnt.def
     src/entity/CameraEntity.def

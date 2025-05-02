@@ -174,8 +174,8 @@ static void save(ServerPlayer *player) {
 
     // Get Inventory
     InventoryData &inv_data = inventories[player->id];
-    const bool savw_inv = !player->inventory->is_creative;
-    if (savw_inv) {
+    const bool save_inv = !player->inventory->is_creative;
+    if (!save_inv) {
         inv_data.inv.clear();
     }
 
@@ -198,7 +198,7 @@ static void save(ServerPlayer *player) {
     safe_write(file, data);
 
     // Write Inventory
-    if (savw_inv) {
+    if (save_inv) {
         std::vector<ItemInstance> items;
         items.insert(items.end(), inv_data.inv.begin(), inv_data.inv.end());
         items.insert(items.end(), inv_data.armor.begin(), inv_data.armor.end());

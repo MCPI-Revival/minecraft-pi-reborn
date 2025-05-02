@@ -11,7 +11,7 @@ int align_up(int x, int alignment);
 // Hook Library Function
 #define HOOK(name, return_type, args) \
     typedef return_type (*real_##name##_t)args; \
-    __attribute__((__unused__)) static real_##name##_t real_##name() { \
+    __attribute__((unused)) static real_##name##_t real_##name() { \
         static real_##name##_t func = NULL; \
         if (!func) { \
             dlerror(); \
@@ -22,7 +22,7 @@ int align_up(int x, int alignment);
         } \
         return func; \
     } \
-    extern "C" __attribute__((__used__)) return_type name args
+    extern "C" __attribute__((used, visibility("default"))) return_type name args
 
 // Check If Two Percentages Are Different Enough To Be Logged
 bool is_progress_difference_significant(int32_t new_val, int32_t old_val);

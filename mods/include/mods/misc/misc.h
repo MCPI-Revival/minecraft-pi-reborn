@@ -27,6 +27,7 @@ void misc_run_on_creative_inventory_setup(const std::function<void(FillingContai
 void misc_run_on_swap_buffers(const std::function<void()> &function);
 
 std::string misc_get_player_username_utf(const Player *player);
+void misc_sanitize_username(std::string &username);
 
 enum class EntityType {
     UNKNOWN = 0,
