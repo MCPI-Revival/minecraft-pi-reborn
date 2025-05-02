@@ -9,6 +9,12 @@
 // Seperator
 #define PORT_SEPERATOR_CHAR ':'
 
+// Constructor
+ServerList::ServerList() {
+    // Official Server
+    entries.emplace_back("thebrokenrail.com", DEFAULT_MULTIPLAYER_PORT);
+}
+
 // Load
 ServerList::port_t ServerList::parse_port(const std::string &s) {
     unsigned long port = std::strtoul(s.c_str(), nullptr, 10);

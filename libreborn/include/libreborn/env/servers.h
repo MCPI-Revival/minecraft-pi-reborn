@@ -6,6 +6,7 @@
 
 // Parse servers.txt
 struct ServerList {
+    ServerList();
     // Type
     typedef unsigned short port_t;
     typedef std::pair<std::string, port_t> Entry;
