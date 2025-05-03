@@ -1,0 +1,4 @@
+size 0x4;
+
+property bool immortal = 0x0;
+property bool infinite_items = 0x3;

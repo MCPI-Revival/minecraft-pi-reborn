@@ -1,5 +1,3 @@
-#include <cstdint>
-
 #include <libreborn/patch.h>
 
 #include <symbols/minecraft.h>
@@ -9,41 +7,37 @@
 
 #include "internal.h"
 
-static int is_survival = -1;
-
-// Patch Game Mode
-static void *survival_mode_constructor;
-static void *creative_mode_constructor;
-static void set_is_survival(const bool new_is_survival) {
-    if (is_survival != new_is_survival) {
-        DEBUG("Setting Game Mode: %s", new_is_survival ? "Survival" : "Creative");
-
-        // Correct Inventory UI
-        unsigned char inventory_patch[4] = {(unsigned char) (new_is_survival ? 0x00 : 0x01), 0x30, 0xa0, 0xe3}; // "mov r3, #0x0" or "mov r3, #0x1"
-        patch((void *) 0x16efc, inventory_patch);
-
-        // Use The Correct Size For GameMode Object
-        unsigned char size_patch[4] = {(unsigned char) (new_is_survival ? sizeof(SurvivalMode) : sizeof(CreatorMode)), 0x00, 0xa0, 0xe3}; // "mov r0, #SURVIVAL_MODE_SIZE" or "mov r0, #CREATOR_MODE_SIZE"
-        patch((void *) 0x16ee4, size_patch);
-
-        // Replace Default CreatorMode Constructor With CreatorMode Or SurvivalMode Constructor
-        overwrite_call_manual((void *) 0x16ef4, new_is_survival ? survival_mode_constructor : creative_mode_constructor);
-
-        is_survival = new_is_survival;
-    }
-}
-
 // Handle Game-Mode Switching
-static void Minecraft_setIsCreativeMode_injection(Minecraft_setIsCreativeMode_t original, Minecraft *self, int32_t new_game_mode) {
-    set_is_survival(!new_game_mode);
-
-    // Call Original Method
-    original(self, new_game_mode);
+static void Minecraft_setIsCreativeMode_injection(__attribute__((unused)) Minecraft_setIsCreativeMode_t original, Minecraft *self, const bool new_is_creative) {
+    // Log
+    DEBUG("Setting Game Mode: %s", new_is_creative ? "Creative" : "Survival");
+    self->is_creative_mode = new_is_creative;
+    // Destroy Old Game-Mode
+    GameMode *&game_mode = self->game_mode;
+    if (game_mode) {
+        game_mode->destructor_deleting();
+        game_mode = nullptr;
+    }
+    // Construct New Game-Mode
+    if (new_is_creative) {
+        CreatorMode *creator_mode = CreatorMode::allocate();
+        creator_mode->constructor(self);
+        game_mode = (GameMode *) creator_mode;
+    } else {
+        SurvivalMode *survival_mode = SurvivalMode::allocate();
+        survival_mode->constructor(self);
+        game_mode = (GameMode *) survival_mode;
+    }
+    // Setup Player
+    LocalPlayer *player = self->player;
+    if (player) {
+        game_mode->initAbilities(player->abilities);
+    }
 }
 
 // Disable CreatorMode-Specific API Features (Polling Block Hits) In SurvivalMode, This Is Preferable To Crashing
 static ICreator *Minecraft_getCreator_injection(Minecraft_getCreator_t original, Minecraft *minecraft) {
-    if (is_survival) {
+    if (!minecraft->is_creative_mode) {
         // SurvivalMode, Return nullptr
         return nullptr;
     } else {
@@ -62,15 +56,12 @@ static CreatorLevel *Minecraft_selectLevel_CreatorMode_injection(CreatorLevel *s
 void init_game_mode() {
     // Dynamic Game Mode Switching
     if (feature_has("Implement Game-Mode Switching", server_enabled)) {
-        survival_mode_constructor = (void *) SurvivalMode_constructor->get(true);
-        creative_mode_constructor = (void *) CreatorMode_constructor->get(true);
-        set_is_survival(true);
         overwrite_calls(Minecraft_setIsCreativeMode, Minecraft_setIsCreativeMode_injection);
 
         // Replace CreatorLevel With ServerLevel (This Fixes Beds And Mob Spawning)
         overwrite_call((void *) 0x16f84, CreatorLevel_constructor, Minecraft_selectLevel_CreatorMode_injection);
         // Allocate The Correct Size For ServerLevel
-        constexpr uint32_t level_size = sizeof(ServerLevel);
+        constexpr uint level_size = sizeof(ServerLevel);
         patch_address((void *) 0x17004, (void *) level_size);
 
         // Disable CreatorMode-Specific API Features (Polling Block Hits) In SurvivalMode, This Is Preferable To Crashing

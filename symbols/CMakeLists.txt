@@ -76,6 +76,7 @@ set(SRC
     src/entity/Mob.def
     src/entity/player/ServerPlayer.def
     src/entity/player/Player.def
+    src/entity/player/Abilities.def
     src/entity/player/PlayerRenderer.def
     src/entity/player/RemotePlayer.def
     src/entity/player/LocalPlayer.def

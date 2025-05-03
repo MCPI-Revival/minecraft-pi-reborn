@@ -1,7 +1,7 @@
 vtable 0x102700;
 
 method void tickInput() = 0x15ffc;
-method void setIsCreativeMode(int is_creative) = 0x16ec4;
+method void setIsCreativeMode(bool is_creative) = 0x16ec4;
 method bool isTouchscreen() = 0x1639c;
 method void setScreen(Screen *screen) = 0x15d6c;
 method void tick(int tick, int max_ticks) = 0x16934;

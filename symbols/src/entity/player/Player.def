@@ -19,7 +19,6 @@ method void setRespawnPosition(const Pos &pos) = 0x8fca0;
 
 property Inventory *inventory = 0xbe0;
 property std::string username = 0xbf4;
-property bool immortal = 0xbfc;
-property bool infinite_items = 0xbff;
 property ItemInstance itemBeingUsed = 0xc34;
 property SimpleFoodData foodData = 0xc00;
+property Abilities abilities = 0xbfc;
