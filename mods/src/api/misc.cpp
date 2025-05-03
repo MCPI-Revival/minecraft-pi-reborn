@@ -1,4 +1,5 @@
 #include <libreborn/patch.h>
+#include <libreborn/util/string.h>
 
 #include <mods/feature/feature.h>
 #include <mods/api/api.h>
@@ -101,6 +102,26 @@ static void ClientSideNetworkHandler_handle_MovePlayerPacket_injection(ClientSid
     }
 }
 
+// Improve Sending Chat Messages With The API
+static void CommandServer_parse_CommandServer_dispatchPacket_injection(CommandServer *command_server, Packet &packet) {
+    // Convert Unicode To CP-437
+    ChatPacket *chat_packet = (ChatPacket *) &packet;
+    chat_packet->message = to_cp437(chat_packet->message);
+    // Send Packet
+    const Minecraft *minecraft = command_server->minecraft;
+    if (minecraft != nullptr) {
+        RakNetInstance *rak_net_instance = minecraft->rak_net_instance;
+        if (rak_net_instance->isServer()) {
+            // Hosting Multiplayer
+            ServerSideNetworkHandler *server_side_network_handler = (ServerSideNetworkHandler *) minecraft->network_handler;
+            server_side_network_handler->displayGameMessage(chat_packet->message);
+        } else {
+            // Client, Send The Packet
+            rak_net_instance->send(packet);
+        }
+    }
+}
+
 // Init
 void _init_api_misc() {
     // Bug Fixes
@@ -120,5 +141,12 @@ void _init_api_misc() {
     if (feature_has("Fix Moving Players With The API In Multiplayer", server_enabled)) {
         overwrite_calls(ClientSideNetworkHandler_handle_MovePlayerPacket, ClientSideNetworkHandler_handle_MovePlayerPacket_injection);
         overwrite_call((void *) 0x6b6e8, Entity_moveTo, CommandServer_parse_Entity_moveTo_injection);
+    }
+    if (feature_has("Improve API Chat Messages", server_enabled)) {
+        // Disable Original ChatPacket Loopback
+        unsigned char disable_chat_packet_loopback_patch[4] = {0x00, 0xf0, 0x20, 0xe3}; // "nop"
+        patch((void *) 0x6b490, disable_chat_packet_loopback_patch);
+        // Manually Send (And Loopback) ChatPacket
+        overwrite_call((void *) 0x6b518, CommandServer_dispatchPacket, CommandServer_parse_CommandServer_dispatchPacket_injection);
     }
 }

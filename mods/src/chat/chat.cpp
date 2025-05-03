@@ -10,33 +10,20 @@
 
 #include "internal.h"
 
-// Send UTF-8 API Command
-std::string chat_send_api_command(const Minecraft *minecraft, const std::string &str) {
-    ConnectedClient client;
-    client.sock = -1;
-    client.str = "";
-    client.lastBlockHitPoll = 0;
-    CommandServer *command_server = minecraft->command_server;
-    if (command_server != nullptr) {
-        return command_server->parse(client, str);
-    } else {
-        return "";
-    }
-}
-
 // Send API Chat Command
 static void send_api_chat_command(const Minecraft *minecraft, const char *str) {
-    const std::string utf_str = from_cp437(str);
-    const std::string command = std::string("chat.post(") + utf_str + ")\n";
-    chat_send_api_command(minecraft, command);
-}
-
-// Track "Real" API Clients
-static bool is_real_api_client;
-static std::string CommandServer_parse_injection(CommandServer_parse_t original, CommandServer *self, ConnectedClient &client, const std::string &input) {
-    is_real_api_client = client.sock >= 0;
-    // Call Original Method
-    return original(self, client, input);
+    // Construct Packet
+    ChatPacket *packet = ChatPacket::allocate();
+    ((Packet *) packet)->constructor();
+    packet->vtable = ChatPacket_vtable::base;
+    new (&packet->message) std::string;
+    // Configure Packet
+    packet->message = str;
+    packet->param_1 = false;
+    // Send Packet
+    chat_handle_packet_send(minecraft, packet);
+    // Destroy Packet
+    packet->destructor_deleting();
 }
 
 // Send Message To Players
@@ -56,32 +43,18 @@ void chat_send_message_to_clients(ServerSideNetworkHandler *server_side_network_
     server_side_network_handler->displayGameMessage(full_message);
     is_sending = false;
 }
-// Handle Chat Packet Send
+
+// Handle Sending Chat Packet
 void chat_handle_packet_send(const Minecraft *minecraft, ChatPacket *packet) {
-    // Convert To CP-437
-    packet->message = to_cp437(packet->message);
-    // Send
     RakNetInstance *rak_net_instance = minecraft->rak_net_instance;
     if (rak_net_instance->isServer()) {
-        // Hosting Multiplayer
+        // Handle Packet
         const char *message = packet->message.c_str();
         ServerSideNetworkHandler *server_side_network_handler = (ServerSideNetworkHandler *) minecraft->network_handler;
-        if (is_real_api_client) {
-            server_side_network_handler->displayGameMessage(packet->message);
-        } else {
-            chat_send_message_to_clients(server_side_network_handler, (Player *) minecraft->player, message);
-        }
+        chat_send_message_to_clients(server_side_network_handler, (Player *) minecraft->player, message);
     } else {
-        // Client
+        // Pass Packet To Server
         rak_net_instance->send(*(Packet *) packet);
-    }
-}
-
-// Manually Send (And Loopback) ChatPacket
-static void CommandServer_parse_CommandServer_dispatchPacket_injection(CommandServer *command_server, Packet &packet) {
-    const Minecraft *minecraft = command_server->minecraft;
-    if (minecraft != nullptr) {
-        chat_handle_packet_send(minecraft, (ChatPacket *) &packet);
     }
 }
 
@@ -121,13 +94,7 @@ static void Minecraft_setLevel_injection(Minecraft_setLevel_t original, Minecraf
 // Init
 void init_chat() {
     if (feature_has("Implement Chat", server_enabled)) {
-        // Disable Original ChatPacket Loopback
-        unsigned char disable_chat_packet_loopback_patch[4] = {0x00, 0xf0, 0x20, 0xe3}; // "nop"
-        patch((void *) 0x6b490, disable_chat_packet_loopback_patch);
-        // Manually Send (And Loopback) ChatPacket
-        overwrite_calls(CommandServer_parse, CommandServer_parse_injection);
-        overwrite_call((void *) 0x6b518, CommandServer_dispatchPacket, CommandServer_parse_CommandServer_dispatchPacket_injection);
-        // Re-Broadcast ChatPacket
+        // Handle ChatPacket Server-Side
         patch_vtable(ServerSideNetworkHandler_handle_ChatPacket, ServerSideNetworkHandler_handle_ChatPacket_injection);
         // Init UI
         _init_chat_ui();

@@ -8,7 +8,8 @@ CATEGORY Additions
         TRUE Implement Create World Dialog
     CATEGORY API
         TRUE Implement RaspberryJuice API
-        TRUE Optimized API Sockets
+        TRUE Optimize API Sockets
+        TRUE Improve API Chat Messages
     TRUE Add Buckets
     TRUE Add Cake
     TRUE Load Custom Skins
@@ -58,7 +59,7 @@ CATEGORY User Interface
     TRUE Improved UI Scaling
 CATEGORY Rendering
     CATEGORY Optimizations
-        TRUE Optimized Chunk Sorting
+        TRUE Optimize Chunk Sorting
         TRUE Multidraw Rendering
         TRUE Increase Render Chunk Size
         TRUE Batch Font Rendering

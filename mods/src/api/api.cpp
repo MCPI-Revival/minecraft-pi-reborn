@@ -192,7 +192,7 @@ static bool _package(std::string_view &cmd, const std::string &package) {
 #define command(name) if (cmd == #name)
 #define passthrough(name) \
     command(name) { \
-        api_suppress_chat_events = client.sock >= 0; /* Suppress If Real API Client */ \
+        api_suppress_chat_events = true; \
         std::string ret = original(server, client, command); \
         api_suppress_chat_events = false; \
         return ret; \

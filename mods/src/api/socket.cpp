@@ -122,7 +122,7 @@ static void CommandServer__close_injection_2(CommandServer__close_t original, Co
 // Init
 void _init_api_socket() {
     // Optimization
-    if (feature_has("Optimized API Sockets", server_enabled)) {
+    if (feature_has("Optimize API Sockets", server_enabled)) {
         overwrite_calls(CommandServer__updateClient, CommandServer__updateClient_injection_2);
     }
     // Clear Extra Data On Socket Close

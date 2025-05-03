@@ -31,7 +31,7 @@ include_toc: true
   * Relevant Feature Flags
     * `Implement RaspberryJuice API` (Enabled By Default)
     * `Correctly Close API Sockets` (Enabled By Default)
-    * `Optimized API Sockets` (Enabled By Default)
+    * `Optimize API Sockets` (Enabled By Default)
 * Add Peaceful Mode To The Options Screen
 * Replace Zenity-Based Dialogs
   * Create New World Screen
@@ -48,7 +48,7 @@ include_toc: true
     * `Improve Multiplayer Chunk Loading` (Enabled By Default)
     * `Food Overlay` (Disabled By Default)
     * `Display Date In Select World Screen` (Enabled By Default)
-    * `Optimized Chunk Sorting` (Enabled By Default)
+    * `Optimize Chunk Sorting` (Enabled By Default)
     * `Add Reborn Info To Options` (Enabled By Default)
     * `Log FPS` (Disabled By Default)
     * `Add Welcome Screen` (Enabled By Default)
@@ -78,6 +78,7 @@ include_toc: true
     * `Allow Servers To Overwrite Armor` (Enabled By Default)
     * `Send Inventory To Server` (Enabled By Default)
     * `Clear Old Chat Messages When Joining Worlds` (Enabled By Default)
+    * `Improve API Chat Messages` (Enabled By Default)
   * New Bug Fixes (All Enabled By Default)
     * `Fix Held Item Caching`
     * `Fix Pigmen Burning In The Sun`

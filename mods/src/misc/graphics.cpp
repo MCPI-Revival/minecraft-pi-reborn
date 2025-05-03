@@ -550,7 +550,7 @@ void _init_misc_graphics() {
     }
 
     // Replace 2011 std::sort With Optimized(TM) Code
-    if (feature_has("Optimized Chunk Sorting", server_enabled)) {
+    if (feature_has("Optimize Chunk Sorting", server_enabled)) {
         overwrite_calls_manual((void *) 0x51fac, (void *) sort_chunks);
     }
 
