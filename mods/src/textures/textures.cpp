@@ -127,17 +127,26 @@ static Texture AppPlatform_linux_loadTexture_injection(__attribute__((unused)) A
 
     // Read Image
     int width = 0, height = 0, channels = 0;
-    stbi_uc *img = stbi_load(real_path.c_str(), &width, &height, &channels, STBI_rgb_alpha);
-    if (!img)
-    {
+    constexpr int desired_channels = STBI_rgb_alpha;
+    stbi_uc *img = stbi_load(real_path.c_str(), &width, &height, &channels, desired_channels);
+    if (!img) {
         // Failed To Parse Image
         WARN("Unable To Load Texture: %s", real_path.c_str());
         return out;
     }
 
+    // Get Line Size
+    const int line_width = width * desired_channels;
+    const int size = height * line_width;
+    // Check Alignment
+    int alignment;
+    media_glGetIntegerv(GL_PACK_ALIGNMENT, &alignment);
+    if ((line_width % alignment) != 0) {
+        ERR("Invalid Texture Width");
+    }
     // Copy Image
-    unsigned char *img2 = new unsigned char[width * height * channels];
-    memcpy(img2, img, width * height * channels);
+    unsigned char *img2 = new unsigned char[size];
+    memcpy(img2, img, size);
     stbi_image_free(img);
 
     // Create Texture
