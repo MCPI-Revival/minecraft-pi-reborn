@@ -37,5 +37,5 @@ struct Storage {
     void free_block(Block *block);
     void recreate(ssize_t extra_size = 0);
     void check_fragmentation();
-    ssize_t get_end() const;
+    [[nodiscard]] ssize_t get_end() const;
 };
