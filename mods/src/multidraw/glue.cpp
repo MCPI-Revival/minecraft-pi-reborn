@@ -20,7 +20,7 @@
 static Storage *storage = nullptr;
 static void setup_multidraw(const int chunks, GLuint *buffers) {
     delete storage;
-    storage = new Storage(chunks);
+    storage = new Storage();
     for (int i = 0; i < chunks; i++) {
         buffers[i] = i + MULTIDRAW_BASE;
     }
@@ -34,19 +34,19 @@ HOOK(media_glDeleteBuffers, void, (GLsizei n, const GLuint *buffers)) {
 }
 
 // Setup Fake OpenGL Buffers
-static int current_chunk = -1;
+static int current_fake_buffer = -1;
 HOOK(media_glBindBuffer, void, (const GLenum target, GLuint buffer)) {
     if (target == GL_ARRAY_BUFFER && buffer >= MULTIDRAW_BASE && storage != nullptr) {
-        current_chunk = int(buffer - MULTIDRAW_BASE);
+        current_fake_buffer = int(buffer - MULTIDRAW_BASE);
         buffer = storage->buffer->server_side_data;
     } else {
-        current_chunk = -1;
+        current_fake_buffer = -1;
     }
     real_media_glBindBuffer()(target, buffer);
 }
 HOOK(media_glBufferData, void, (GLenum target, GLsizeiptr size, const void *data, GLenum usage)) {
-    if (target == GL_ARRAY_BUFFER && current_chunk >= 0 && storage != nullptr) {
-        storage->upload(current_chunk, size, data);
+    if (target == GL_ARRAY_BUFFER && current_fake_buffer >= 0 && storage != nullptr) {
+        storage->upload(current_fake_buffer, size, data);
     } else {
         real_media_glBufferData()(target, size, data, usage);
     }
@@ -107,14 +107,15 @@ static int LevelRenderer_renderChunks_injection(__attribute__((unused)) LevelRen
         if (!chunk->field_1c[a] && chunk->visible) {
             const RenderChunk *render_chunk = chunk->getRenderChunk(a);
             // Get Data Block
-            const int chunk_id = int(render_chunk->buffer - MULTIDRAW_BASE);
-            const Block *block = storage->chunk_to_block[chunk_id];
-            if (block == nullptr) {
+            const int fake_buffer_id = int(render_chunk->buffer - MULTIDRAW_BASE);
+            const std::unordered_map<int, intptr_t> &map = storage->chunk_to_offset;
+            if (!map.contains(fake_buffer_id)) {
                 continue;
             }
+            const intptr_t offset = map.at(fake_buffer_id);
             // Queue
             const int j = multidraw_total++;
-            multidraw_firsts[j] = block->offset / multidraw_vertex_size;
+            multidraw_firsts[j] = offset / multidraw_vertex_size;
             multidraw_counts[j] = render_chunk->vertices;
         }
     }

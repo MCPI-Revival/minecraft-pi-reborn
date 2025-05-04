@@ -3,66 +3,55 @@
 #include "storage.h"
 
 // Setup
-#define DEFAULT_SIZE 16777216 // 16 MiB
-Storage::Storage(const int chunks) {
+Storage::Storage() {
     // Allocate
-    total_size = DEFAULT_SIZE;
+    total_size = DEFAULT_BUFFER_SIZE;
     used_size = 0;
-    for (int i = 0; i < chunks; i++) {
-        chunk_to_block.push_back(nullptr);
-    }
     buffer = new Buffer(total_size);
     // First Free Block
-    Block *block = new Block;
-    block->offset = 0;
-    block->size = total_size;
+    Block block;
+    block.offset = 0;
+    block.size = total_size;
     free_blocks.push_back(block);
 }
 Storage::~Storage() {
     delete buffer;
-    for (const std::vector<Block *> &blocks : {free_blocks, used_blocks}) {
-        for (const Block *block : blocks) {
-            delete block;
-        }
-    }
 }
 
 // Free Block
-void Storage::free_block(Block *block) {
+void Storage::free_block(Block block) {
     // Check
-    if (block == nullptr) {
+    if (block.size == 0) {
         return;
     }
 
     // Find Block
-    std::vector<Block *>::iterator it = std::ranges::find(used_blocks, block);
+    std::vector<Block>::iterator it = std::ranges::find(used_blocks, block);
     if (it == used_blocks.end()) {
         return;
     }
     used_blocks.erase(it);
 
     // Update Size
-    used_size -= block->size;
+    used_size -= block.size;
 
     // Merge With Next/Previous Blocks
     for (it = free_blocks.begin(); it < free_blocks.end(); ++it) {
-        const Block *x = *it;
-        if (x->offset == (block->offset + block->size)) {
+        const Block &x = *it;
+        if (x.offset == (block.offset + block.size)) {
             // Found Free Block After Target
-            block->size += x->size;
+            block.size += x.size;
             free_blocks.erase(it);
-            delete x;
             break;
         }
     }
     for (it = free_blocks.begin(); it < free_blocks.end(); ++it) {
-        const Block *x = *it;
-        if ((x->offset + x->size) == block->offset) {
+        const Block &x = *it;
+        if ((x.offset + x.size) == block.offset) {
             // Found Free Block Before Target
-            block->size += x->size;
-            block->offset -= x->size;
+            block.size += x.size;
+            block.offset -= x.size;
             free_blocks.erase(it);
-            delete x;
             break;
         }
     }
@@ -77,8 +66,8 @@ void Storage::free_block(Block *block) {
 // Check Fragmentation
 ssize_t Storage::get_end() const {
     ssize_t end = 0;
-    for (const Block *block : used_blocks) {
-        const ssize_t new_end = block->offset + block->size;
+    for (const Block &block : used_blocks) {
+        const ssize_t new_end = block.offset + block.size;
         if (new_end > end) {
             end = new_end;
         }
@@ -100,19 +89,26 @@ void Storage::check_fragmentation() {
 // Upload Chunk
 void Storage::upload(const int chunk, const ssize_t size, const void *data) {
     // Free Old Block
-    free_block(chunk_to_block[chunk]);
+    if (chunk_to_offset.contains(chunk)) {
+        const intptr_t old_offset = chunk_to_offset[chunk];
+        for (const Block &block : used_blocks) {
+            if (block.offset == old_offset) {
+                free_block(block);
+                break;
+            }
+        }
+    }
 
     // Check Size
     if (size == 0) {
-        chunk_to_block[chunk] = nullptr;
         return;
     }
 
     // Find Free Block
-    std::vector<Block *>::iterator it;
+    std::vector<Block>::iterator it;
     while (true) {
         for (it = free_blocks.begin(); it < free_blocks.end(); ++it) {
-            if ((*it)->size >= size) {
+            if (it->size >= size) {
                 break;
             }
         }
@@ -124,29 +120,27 @@ void Storage::upload(const int chunk, const ssize_t size, const void *data) {
             break;
         }
     }
-    Block *old_free_block = *it;
+    Block &old_free_block = *it;
 
     // Create New Used Block
-    Block *new_used_block = new Block;
-    new_used_block->offset = old_free_block->offset;
-    new_used_block->size = size;
+    Block new_used_block;
+    new_used_block.chunk_id = chunk;
+    new_used_block.offset = old_free_block.offset;
+    new_used_block.size = size;
     used_blocks.push_back(new_used_block);
     // Update Old Free Block
-    old_free_block->offset += size;
-    old_free_block->size -= size;
-    if (old_free_block->size == 0) {
+    old_free_block.offset += size;
+    old_free_block.size -= size;
+    if (old_free_block.size == 0) {
         free_blocks.erase(it);
-        delete old_free_block;
     }
 
     // Upload
-    buffer->upload(new_used_block->offset, size, data);
-
-    // Assign Block To Chunk
-    chunk_to_block[chunk] = new_used_block;
-
-    // Update Size
+    buffer->upload(new_used_block.offset, size, data);
     used_size += size;
+
+    // Update Map
+    chunk_to_offset[chunk] = new_used_block.offset;
 
     // Check Fragmentation
     check_fragmentation();
@@ -160,20 +154,21 @@ void Storage::recreate(const ssize_t extra_size) {
 
     // Copy Used Blocks
     intptr_t offset = 0;
-    for (Block *block : used_blocks) {
-        new_buffer->upload(offset, block->size, buffer->client_side_data + block->offset);
-        block->offset = offset;
-        offset += block->size;
+    int i = 0;
+    chunk_to_offset.clear();
+    for (Block &block : used_blocks) {
+        new_buffer->upload(offset, block.size, buffer->client_side_data + block.offset);
+        block.offset = offset;
+        chunk_to_offset[block.chunk_id] = offset;
+        offset += block.size;
+        i++;
     }
 
     // Update Free Blocks
-    for (const Block *block : free_blocks) {
-        delete block;
-    }
     free_blocks.clear();
-    Block *block = new Block;
-    block->offset = offset;
-    block->size = new_size - offset;
+    Block block;
+    block.offset = offset;
+    block.size = new_size - offset;
     free_blocks.push_back(block);
 
     // Use New Buffer
