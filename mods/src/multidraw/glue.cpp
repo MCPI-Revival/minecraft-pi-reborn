@@ -53,7 +53,7 @@ HOOK(media_glBufferData, void, (GLenum target, GLsizeiptr size, const void *data
 }
 
 // Render
-int multidraw_vertex_size = 24;
+static int multidraw_vertex_size = 24; // Matches MCPI
 #define MAX_RENDER_CHUNKS 4096
 static bool supports_multidraw() {
     static int ret = -1;
@@ -75,6 +75,7 @@ static void multidraw_renderSameAsLast(const LevelRenderer *self, const float b)
     media_glTranslatef(-x, -y, -z);
 
     // Setup OpenGL
+    media_glDisableClientState(GL_NORMAL_ARRAY);
     media_glEnableClientState(GL_VERTEX_ARRAY);
     media_glEnableClientState(GL_COLOR_ARRAY);
     media_glEnableClientState(GL_TEXTURE_COORD_ARRAY);

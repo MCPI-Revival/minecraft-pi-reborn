@@ -36,7 +36,7 @@ HOOK(media_SDL_PollEvent, int, (SDL_Event *event)) {
     }
 
     // Poll Events
-    int ret = real_media_SDL_PollEvent()(event);
+    const int ret = real_media_SDL_PollEvent()(event);
 
     // Handle Events
     if (ret == 1 && event != nullptr) {
@@ -73,10 +73,11 @@ HOOK(media_SDL_PollEvent, int, (SDL_Event *event)) {
             default: {}
         }
         if (handled) {
-            // The Event Was Handled
+            // The Event Was Handled, Request Next Event
             return media_SDL_PollEvent(event);
         }
     }
+    // Return
     return ret;
 }
 
