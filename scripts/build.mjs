@@ -46,7 +46,8 @@ const options = parseOptions([
 ], [
     'clean',
     'install',
-    'debug'
+    'debug',
+    'verbose'
 ], parseCMakeOption);
 
 // CPack
@@ -140,6 +141,9 @@ run(configure);
 // Build
 const configArg = ['--config', options.debug ? 'Debug' : 'Release'];
 const buildCommand = ['cmake', '--build', build, ...configArg];
+if (options.verbose) {
+    buildCommand.push('-v');
+}
 if (supportsJobserver) {
     buildCommand.unshift(jobserver, '--fifo', path.join(os.tmpdir(), '.jobserver-' + process.pid));
 }
