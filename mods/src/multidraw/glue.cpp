@@ -74,6 +74,9 @@ static void multidraw_renderSameAsLast(const LevelRenderer *self, const float b)
     media_glPushMatrix();
     media_glTranslatef(-x, -y, -z);
 
+    // Sync "Dirty" Data
+    storage->buffer->sync();
+
     // Setup OpenGL
     media_glDisableClientState(GL_NORMAL_ARRAY);
     media_glEnableClientState(GL_VERTEX_ARRAY);

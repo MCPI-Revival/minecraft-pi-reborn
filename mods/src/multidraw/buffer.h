@@ -17,5 +17,11 @@ struct Buffer {
     unsigned char *client_side_data;
 
     // Upload Data
-    void upload(intptr_t offset, ssize_t size, const void *data) const;
+    void upload(intptr_t offset, ssize_t size, const void *data);
+
+    // "Dirty" Data
+    void clear_dirty();
+    void sync();
+    intptr_t dirty_start;
+    intptr_t dirty_end;
 };
