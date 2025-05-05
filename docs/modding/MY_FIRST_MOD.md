@@ -49,5 +49,5 @@ This chapter explains how to set up the SDK and build a simple mod.
    ```
 2. This should create `lib<your-mod-name>.so` in your newly created build directory.
 3. Copy it to the `mods` folder in your profile directory.
-4. Run MCPI-Reborn from a terminal, it should now print your log message on startup!
-5. Congratulations! You have a now created a simple mod!
+4. Run MCPI-Reborn from the terminal, it should now print your log message on startup!
+5. Congratulations! You have now created a simple mod!

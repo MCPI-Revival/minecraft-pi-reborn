@@ -4,7 +4,7 @@ include_toc: true
 ---
 
 # Intermediate Modding
-When modding a game, it's often necessary to intercept or alter behavior of class methods.
+When modding a game, it's often necessary to intercept or alter the behavior of class methods.
 
 To facilitate this, MCPI-Reborn includes multiple built-in functions.
 
@@ -19,15 +19,17 @@ struct B : A {
 ```
 
 > [!IMPORTANT]
-> In reality, these function only support built-in game functions.
+> In reality, these functions only support built-in game functions.
 
 ## Method Objects
-Targetable methods have corresponding objects that can used in the following functions. For instance, `A::func` would correspond to the `A_func` object.
+Targetable methods have corresponding objects that can be used in the following functions.
+For instance, `A::func` would correspond to the `A_func` object.
 
 They also have the following additional members:
 * `name`: The method's name (including its enclosing structure).
 * `backup`: A pointer to the original method.
-* `get`: A method that will retrieve a pointer to the method. It accepts a single boolean argument referring to whether the return value will be stored.
+* `get`: A method that will retrieve a pointer to the method.
+  * It accepts a single boolean argument. This should bet to `true` if (and only if) the returned value will be stored.
 * `get_vtable_addr`: A method that will return a pointer to the method's [VTable](https://en.wikipedia.org/wiki/Virtual_method_table?useskin=vector) entry (if applicable).
 * Any additional members are implementation details and *should not be relied upon*.
 
@@ -51,7 +53,8 @@ overwrite_calls(A_func, A_func_injection);
 ```
 
 ### Limitations
-This function can only target methods that actually exist. For instance, `B::func` is not a real method as `B` just inherits it without overriding it. It does not have any actual code to target.
+This function can only target methods that actually exist.
+For instance, `B::func` is not a real method as `B` just inherits it without overriding it. It does not have any actual code to target.
 
 ## `patch_vtable`
 This function directly patches a method's VTable entry. This can be used to work around the previous method's limitations.
