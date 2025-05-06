@@ -4,6 +4,7 @@
 #include <mods/init/init.h>
 #include <symbols/minecraft.h>
 
+// Init
 __attribute__((constructor)) static void init() {
     reborn_init_patch();
     thunk_enabler = reborn_thunk_enabler;
@@ -49,3 +50,10 @@ __attribute__((constructor)) static void init() {
         init_classic_ui();
     }
 }
+
+// Instantiate Some Templates To Make Sure Everything Works
+typedef std::remove_pointer_t<decltype(Minecraft_init)> func_t;
+template void overwrite_call<func_t>(void *, func_t *, void (*)(Minecraft *), bool);
+template void overwrite_calls<func_t>(func_t *, std::function<void(Minecraft_init_t, Minecraft *)>);
+template void overwrite_calls_within<func_t>(void *, void *, func_t *, void (*)(Minecraft *));
+template void patch_vtable<func_t>(const func_t *, void (*)(Minecraft *));
