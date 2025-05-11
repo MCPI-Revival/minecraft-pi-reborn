@@ -11,7 +11,8 @@ The API operates over a TCP socket.
 It is typically hosted on port `4711`, but this can be configured.
 
 ## Compatibility Mode
-By default, MCPI-Reborn runs in a "compatibility mode." This makes it completely compatible with RaspberryJuice, but limits functionality.
+By default, MCPI-Reborn runs in a "compatibility mode."
+This makes it completely compatible with RaspberryJuice but limits functionality.
 
 * <b>Bold</b> text only applies to the compatibility mode.
 * <ins>Underlined</ins> text only applies when it is disabled.
@@ -23,7 +24,7 @@ By default, MCPI-Reborn runs in a "compatibility mode." This makes it completely
 * All commands are responses end with a newline.
 * Arguments surrounded by square brackets (for instance `[abc]`) are optional.
 * Numbers surrounded by colons (for instance `:a:`) are floating-point, all other numbers are integers.
-* Lists are delimited by pipes (`|`). For instance: `A|B|C`.
+* Pipes (`|`) delimit lists. For instance: `A|B|C`.
 * Unless otherwise noted, all `player.*(...)` commands are equivalent to `entity.*(local_player_id,...)`.
 
 ### Vanilla
