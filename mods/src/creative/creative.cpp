@@ -20,7 +20,7 @@ static void inventory_add_item(FillingContainer *inventory, const Tile *item) {
 }
 
 // Expand Creative Inventory
-static void Inventory_setupDefault_FillingContainer_addItem_call_injection(FillingContainer *filling_container) {
+static void Inventory_setupDefault_FillingContainer_addItem_injection(FillingContainer *filling_container) {
     // Add Items
     inventory_add_item(filling_container, Item::flintAndSteel);
     inventory_add_item(filling_container, Item::snowball);
@@ -118,7 +118,7 @@ static void Inventory_setupDefault_injection(Inventory_setupDefault_t original, 
 void init_creative() {
     // Add Extra Items To Creative Inventory (Only Replace Specific Function Call)
     if (feature_has("Expand Creative Mode Inventory", server_enabled)) {
-        misc_run_on_creative_inventory_setup(Inventory_setupDefault_FillingContainer_addItem_call_injection);
+        misc_run_on_creative_inventory_setup(Inventory_setupDefault_FillingContainer_addItem_injection);
 
         // Use AuxDataTileItem by default instead of TileItem, so tiles in the Creative
         // Inventory can have arbitrary auxiliary values.

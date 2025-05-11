@@ -34,7 +34,7 @@ struct Callbacks {
 // Run Functions On Creative Inventory Setup
 SETUP_CALLBACK(creative_inventory_setup, FillingContainer *);
 // Handle Custom Creative Inventory Setup Behavior
-static int Inventory_setupDefault_FillingContainer_addItem_call_injection(FillingContainer *filling_container, ItemInstance *item_instance) {
+static int Inventory_setupDefault_FillingContainer_addItem_injection(FillingContainer *filling_container, ItemInstance *item_instance) {
     // Call Original Method
     const int ret = filling_container->addItem(item_instance);
 
@@ -122,17 +122,17 @@ void misc_run_on_key_press(const std::function<bool(Minecraft *, int)> &func) {
 }
 
 // Render Fancy Background
-void misc_render_background(int color, const Minecraft *minecraft, const int x, const int y, const int width, const int height) {
+void misc_render_background(const int color, const Minecraft *minecraft, const int x, const int y, const int width, const int height) {
     // https://github.com/ReMinecraftPE/mcpe/blob/f0d65eaecec1b3fe9c2f2b251e114a890c54ab77/source/client/gui/components/RolledSelectionList.cpp#L169-L179
     media_glColor4f(1, 1, 1, 1);
     minecraft->textures->loadAndBindTexture("gui/background.png");
     Tesselator *t = &Tesselator::instance;
     t->begin(GL_QUADS);
     t->color(color, color, color, 255);
-    float x1 = float(x);
-    float x2 = x1 + float(width);
-    float y1 = float(y);
-    float y2 = y1 + float(height);
+    const float x1 = float(x);
+    const float x2 = x1 + float(width);
+    const float y1 = float(y);
+    const float y2 = y1 + float(height);
     t->vertexUV(x1, y2, 0.0f, x1 / 32.0f, y2 / 32.0f);
     t->vertexUV(x2, y2, 0.0f, x2 / 32.0f, y2 / 32.0f);
     t->vertexUV(x2, y1, 0.0f, x2 / 32.0f, y1 / 32.0f);
@@ -232,10 +232,10 @@ Entity *misc_make_entity_from_id(Level *level, const int id, const float x, cons
                 };
                 for (const std::pair<int, std::pair<int, int>> &info : directions) {
                     // Select Motive
-                    int direction = info.first;
-                    int new_x = int(x) - info.second.first;
-                    int new_y = int(y);
-                    int new_z = int(z) - info.second.second;
+                    const int direction = info.first;
+                    const int new_x = int(x) - info.second.first;
+                    const int new_y = int(y);
+                    const int new_z = int(z) - info.second.second;
                     painting->setPosition(new_x, new_y, new_z);
                     painting->setRandomMotive(direction);
                     // Check
@@ -259,8 +259,9 @@ Entity *misc_make_entity_from_id(Level *level, const int id, const float x, cons
                 item->pickup_delay = 10;
                 break;
             }
+            default: {}
         }
-        // Add To World
+        // Add To The World
         if (add_to_level) {
             level->addEntity(entity);
         }
@@ -277,5 +278,5 @@ std::string misc_get_player_username_utf(const Player *player) {
 // Init
 void _init_misc_api() {
     // Handle Custom Creative Inventory Setup Behavior
-    overwrite_call((void *) 0x8e0fc, FillingContainer_addItem, Inventory_setupDefault_FillingContainer_addItem_call_injection);
+    overwrite_call((void *) 0x8e0fc, FillingContainer_addItem, Inventory_setupDefault_FillingContainer_addItem_injection);
 }

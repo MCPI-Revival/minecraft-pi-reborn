@@ -3,7 +3,7 @@
 #include <mods/misc/misc.h>
 
 // The Actual Mod
-static void Inventory_setupDefault_FillingContainer_addItem_call_injection(FillingContainer *filling_container) {
+static void Inventory_setupDefault_FillingContainer_addItem_injection(FillingContainer *filling_container) {
     ItemInstance *fire_instance = new ItemInstance;
     fire_instance->count = 255;
     fire_instance->auxiliary = 0;
@@ -542,5 +542,5 @@ static void Inventory_setupDefault_FillingContainer_addItem_call_injection(Filli
 // Init
 __attribute__((constructor)) static void init_expanded_creative() {
     INFO("Loading Expanded Creative Mod");
-    misc_run_on_creative_inventory_setup(Inventory_setupDefault_FillingContainer_addItem_call_injection);
+    misc_run_on_creative_inventory_setup(Inventory_setupDefault_FillingContainer_addItem_injection);
 }

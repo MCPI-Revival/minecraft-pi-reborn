@@ -96,6 +96,7 @@ struct Bucket final : CustomItem {
                 case 3: z += 1; break;
                 case 4: x -= 1; break;
                 case 5: x += 1; break;
+                default: {}
             }
             // Get Current Tile
             bool valid = false;
@@ -220,7 +221,7 @@ static void inventory_add_item(FillingContainer *inventory, Item *item, int32_t 
     item_instance = item_instance->constructor_item_extra(item, 1, auxiliary);
     inventory->addItem(item_instance);
 }
-static void Inventory_setupDefault_FillingContainer_addItem_call_injection(FillingContainer *filling_container) {
+static void Inventory_setupDefault_FillingContainer_addItem_injection(FillingContainer *filling_container) {
     inventory_add_item(filling_container, bucket, 0);
     inventory_add_item(filling_container, bucket, Tile::water->id);
     inventory_add_item(filling_container, bucket, Tile::lava->id);
@@ -338,7 +339,7 @@ void init_bucket() {
         overwrite_calls(Cow_interact, Cow_interact_injection);
         overwrite_call((void *) 0x19f1c, ItemInstance_setAuxValue, CreatorMode_releaseUsingItem_ItemInstance_setAuxValue_injection);
         // Creative Inventory
-        misc_run_on_creative_inventory_setup(Inventory_setupDefault_FillingContainer_addItem_call_injection);
+        misc_run_on_creative_inventory_setup(Inventory_setupDefault_FillingContainer_addItem_injection);
         // Make Liquids Selectable
         overwrite_call((void *) 0x7f5b0, Level_clip, Mob_pick_Level_clip_injection);
         misc_run_on_tick(handle_tick);

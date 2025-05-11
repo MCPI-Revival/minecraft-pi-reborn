@@ -28,7 +28,7 @@ static EntityRenderDispatcher *EntityRenderDispatcher_injection(EntityRenderDisp
 }
 
 // Display Smoke From TripodCamera Higher
-static void TripodCamera_tick_Level_addParticle_call_injection(Level *level, const std::string &particle, const float x, const float y, const float z, const float deltaX, const float deltaY, const float deltaZ, const int count) {
+static void TripodCamera_tick_Level_addParticle_injection(Level *level, const std::string &particle, const float x, const float y, const float z, const float deltaX, const float deltaY, const float deltaZ, const int count) {
     // Call Original Method
     level->addParticle(particle, x, y + 0.5f, z, deltaX, deltaY, deltaZ, count);
 }
@@ -62,7 +62,7 @@ void init_camera() {
         // Enable TripodCameraRenderer
         overwrite_calls(EntityRenderDispatcher_constructor, EntityRenderDispatcher_injection);
         // Display Smoke From TripodCamera Higher
-        overwrite_call((void *) 0x87dc4, Level_addParticle, TripodCamera_tick_Level_addParticle_call_injection);
+        overwrite_call((void *) 0x87dc4, Level_addParticle, TripodCamera_tick_Level_addParticle_injection);
     }
     // Camera Legs
     if (feature_has("Render Camera Legs", server_disabled)) {

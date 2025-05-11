@@ -9,11 +9,11 @@
 #include <symbols/minecraft.h>
 
 // Enable Touch GUI
-static bool Minecraft_isTouchscreen_call_injection(__attribute__((unused)) Minecraft *minecraft) {
+static bool Minecraft_isTouchscreen_injection_one(__attribute__((unused)) Minecraft *minecraft) {
     return true;
 }
-static bool Minecraft_isTouchscreen_injection(__attribute__((unused)) Minecraft_isTouchscreen_t original, __attribute__((unused)) Minecraft *minecraft) {
-    return Minecraft_isTouchscreen_call_injection(minecraft);
+static bool Minecraft_isTouchscreen_injection_two(__attribute__((unused)) Minecraft_isTouchscreen_t original, __attribute__((unused)) Minecraft *minecraft) {
+    return Minecraft_isTouchscreen_injection_one(minecraft);
 }
 
 // IngameBlockSelectionScreen Memory Allocation Override
@@ -36,7 +36,7 @@ static int32_t Button_hovered_injection(__attribute__((unused)) Button_hovered_t
     // Check
     return x >= button_x1 && x < button_x2 && y >= button_y1 && y < button_y2;
 }
-static void LargeImageButton_render_GuiComponent_drawCenteredString_injection(GuiComponent *component, Font *font, const std::string &text, int32_t x, int32_t y, uint32_t color) {
+static void LargeImageButton_render_GuiComponent_drawCenteredString_injection(GuiComponent *component, Font *font, const std::string &text, const int32_t x, const int32_t y, uint32_t color) {
     // Change Color On Hover
     if (color == 0xe0e0e0 && Button_hovered_injection(nullptr, (Button *) component, nullptr, 0, 0)) {
         color = 0xffffa0;
@@ -68,7 +68,7 @@ void init_touch() {
     bool touch_buttons = touch_gui;
     if (touch_gui) {
         // Main UI
-        overwrite_calls(Minecraft_isTouchscreen, Minecraft_isTouchscreen_injection);
+        overwrite_calls(Minecraft_isTouchscreen, Minecraft_isTouchscreen_injection_two);
 
         // Force Correct Toolbar Size
         unsigned char toolbar_patch[4] = {0x01, 0x00, 0x50, 0xe3}; // "cmp r0, #0x1"
@@ -86,16 +86,16 @@ void init_touch() {
         // Force Touch Button Behavior
         if (feature_has("Force Touch UI Button Behavior", server_disabled)) {
             touch_buttons = true;
-            overwrite_call((void *) 0x1baf4, Minecraft_isTouchscreen, Minecraft_isTouchscreen_call_injection);
-            overwrite_call((void *) 0x1be40, Minecraft_isTouchscreen, Minecraft_isTouchscreen_call_injection);
-            overwrite_call((void *) 0x1c470, Minecraft_isTouchscreen, Minecraft_isTouchscreen_call_injection);
-            overwrite_call((void *) 0x1e868, Minecraft_isTouchscreen, Minecraft_isTouchscreen_call_injection);
-            overwrite_call((void *) 0x290b8, Minecraft_isTouchscreen, Minecraft_isTouchscreen_call_injection);
-            overwrite_call((void *) 0x29168, Minecraft_isTouchscreen, Minecraft_isTouchscreen_call_injection);
-            overwrite_call((void *) 0x3e314, Minecraft_isTouchscreen, Minecraft_isTouchscreen_call_injection);
-            overwrite_call((void *) 0x2cbc0, Minecraft_isTouchscreen, Minecraft_isTouchscreen_call_injection);
-            overwrite_call((void *) 0x2ea7c, Minecraft_isTouchscreen, Minecraft_isTouchscreen_call_injection);
-            overwrite_call((void *) 0x4a438, Minecraft_isTouchscreen, Minecraft_isTouchscreen_call_injection);
+            overwrite_call((void *) 0x1baf4, Minecraft_isTouchscreen, Minecraft_isTouchscreen_injection_one);
+            overwrite_call((void *) 0x1be40, Minecraft_isTouchscreen, Minecraft_isTouchscreen_injection_one);
+            overwrite_call((void *) 0x1c470, Minecraft_isTouchscreen, Minecraft_isTouchscreen_injection_one);
+            overwrite_call((void *) 0x1e868, Minecraft_isTouchscreen, Minecraft_isTouchscreen_injection_one);
+            overwrite_call((void *) 0x290b8, Minecraft_isTouchscreen, Minecraft_isTouchscreen_injection_one);
+            overwrite_call((void *) 0x29168, Minecraft_isTouchscreen, Minecraft_isTouchscreen_injection_one);
+            overwrite_call((void *) 0x3e314, Minecraft_isTouchscreen, Minecraft_isTouchscreen_injection_one);
+            overwrite_call((void *) 0x2cbc0, Minecraft_isTouchscreen, Minecraft_isTouchscreen_injection_one);
+            overwrite_call((void *) 0x2ea7c, Minecraft_isTouchscreen, Minecraft_isTouchscreen_injection_one);
+            overwrite_call((void *) 0x4a438, Minecraft_isTouchscreen, Minecraft_isTouchscreen_injection_one);
         }
     }
 

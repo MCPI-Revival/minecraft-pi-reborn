@@ -159,7 +159,7 @@ static void Item_initTiles_injection() {
 }
 
 // Add Cake To Creative Inventory
-static void Inventory_setupDefault_FillingContainer_addItem_call_injection(FillingContainer *filling_container) {
+static void Inventory_setupDefault_FillingContainer_addItem_injection(FillingContainer *filling_container) {
     ItemInstance *cake_instance = new ItemInstance;
     cake_instance->count = 255;
     cake_instance->auxiliary = 0;
@@ -233,7 +233,7 @@ void init_cake() {
     if (feature_has("Add Cake", server_enabled)) {
         misc_run_on_tiles_setup(Tile_initTiles_injection);
         misc_run_on_items_setup(Item_initTiles_injection);
-        misc_run_on_creative_inventory_setup(Inventory_setupDefault_FillingContainer_addItem_call_injection);
+        misc_run_on_creative_inventory_setup(Inventory_setupDefault_FillingContainer_addItem_injection);
         if (buckets_enabled) {
             // The recipe needs milk buckets
             misc_run_on_recipes_setup(Recipes_injection);
