@@ -47,7 +47,7 @@ bool is_progress_difference_significant(const int32_t new_val, const int32_t old
 
 // Lock File
 int lock_file(const char *file) {
-    // Get New Path
+    // Get A New Path
     const std::string lock = std::string(file) + ".lock";
     file = lock.c_str();
     // Lock

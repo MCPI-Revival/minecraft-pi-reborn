@@ -44,7 +44,7 @@ static std::vector<std::string> function_prefixes_to_patch = {
     "gl"
 };
 void patch_mcpi_elf_dependencies(const std::string &original_path, const std::string &interpreter, const std::vector<std::string> &rpath, const std::vector<std::string> &mods) {
-    // Duplicate MCPI executable into /tmp so it can be modified.
+    // Create New Executable File
     const int fd = create_file();
 
     // Load Binary
@@ -53,7 +53,7 @@ void patch_mcpi_elf_dependencies(const std::string &original_path, const std::st
     // Set Interpreter
     binary->interpreter(interpreter);
 
-    // Remove Existing Needed Libraries
+    // Remove The Existing Needed Libraries
     std::vector<std::string> to_remove;
     for (const LIEF::ELF::DynamicEntry &entry : binary->dynamic_entries()) {
         const LIEF::ELF::DynamicEntryLibrary *library = dynamic_cast<const LIEF::ELF::DynamicEntryLibrary *>(&entry);
@@ -95,6 +95,9 @@ void patch_mcpi_elf_dependencies(const std::string &original_path, const std::st
     __gnu_cxx::stdio_filebuf<char> buf(dup(fd), std::ios::out);
     std::ostream stream(&buf);
     builder.write(stream);
+
+    // Close File
+    close(fd);
 }
 
 // Linker
