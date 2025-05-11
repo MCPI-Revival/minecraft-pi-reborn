@@ -46,17 +46,16 @@ void Blacklist::load() {
 }
 void Blacklist::save() const {
     std::ofstream blacklist_file(get_blacklist_file(), std::ios::binary);
-    if (blacklist_file) {
-        blacklist_file << "# " << get_name(true) << "; Each Line Is One IP Address" << std::endl;
-        for (const std::string &ip : ips) {
-            blacklist_file << ip << std::endl;
-        }
-        blacklist_file.close();
-        if (!blacklist_file) {
-            ERR("Unable To Save %s", get_name(true).c_str());
-        }
-    } else {
+    if (!blacklist_file) {
         ERR("Unable To Open %s For Saving", get_name(true).c_str());
+    }
+    blacklist_file << "# " << get_name(true) << "; Each Line Is One IP Address" << std::endl;
+    for (const std::string &ip : ips) {
+        blacklist_file << ip << std::endl;
+    }
+    blacklist_file.close();
+    if (!blacklist_file) {
+        ERR("Unable To Save %s", get_name(true).c_str());
     }
 }
 

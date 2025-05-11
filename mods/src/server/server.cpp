@@ -39,7 +39,7 @@ ServerProperties &get_server_properties() {
 }
 
 // Default Server Properties
-static auto &get_property_types() {
+static const auto &get_property_types() {
     static struct {
         const ServerProperty message_of_the_day = ServerProperty("motd", "Minecraft Server", "Message Of The Day");
         const ServerProperty show_minecon_badge = ServerProperty("show-minecon-badge", "false", "Show The MineCon Badge Next To MOTD In Server List");

@@ -132,8 +132,11 @@ This only applies to function with [external-linkage](https://learn.microsoft.co
   * `Minecraft::tick`
   * `main`
 
-An example can be found [here](../../example-mods/chat-commands/src/chat-commands.cpp).
+The macro's signature is `HOOK(<name>, <return type>, <args>)`.
+It will generate a `real_<name>` method that will return the real/original/next version of the target.
 
 > [!NOTE]
 > If the target function does not use [C linkage](https://en.cppreference.com/w/cpp/language/language_linkage),
 > then you must pass the mangled name to the macro.
+
+A full example can be found [here](../../example-mods/chat-commands/src/chat-commands.cpp).
