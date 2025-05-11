@@ -42,7 +42,6 @@ void *extract_from_bl_instruction(unsigned char *addr);
 
 // Patch Instruction
 void patch(void *addr, unsigned char patch[4]);
-
 // Patch 4 Bytes Of Data
 void patch_address(void *addr, void *target);
 

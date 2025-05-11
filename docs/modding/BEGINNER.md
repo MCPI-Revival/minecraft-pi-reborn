@@ -4,7 +4,10 @@ include_toc: true
 ---
 
 # Beginner Modding
-The easiest way to create mods is by simply calling pre-existing functions.
+This chapter will cover basic modding techniques.
+This includes MCPI-Reborn's built-in API and game functions/classes.
+
+This chapter assumes basic knowledge of C++.
 
 ## Utility Functions
 MCPI-Reborn's built-in mods expose quite a few utility functions to make modding easier. These include:
@@ -21,7 +24,8 @@ This project also includes a utility library: `libreborn`. This includes:
 * More can be found [here](../../libreborn/include).
 
 ## Minecraft Classes
-The game contains many built-in classes. Accessing, manipulating, creating, and destroying these classes will be essential for effective modding.
+The game contains many built-in classes.
+Accessing, manipulating, creating, and destroying these classes will be essential for effective modding.
 
 Unfortunately, not every class is supported. The list of supported classes can be found [here](../../symbols/src).
 
@@ -53,7 +57,7 @@ If you really need a missing member, open a bug report.
 
 ### Extending Classes
 Due to how MCPI-Reborn is implemented, game classes cannot be directly extended.
-Instead, `Custom*` wrapper classes that can be extended are provided.
+Instead, `Custom*` wrapper classes are provided.
 
 For instance, to create a custom block:
 * Create a class extending `CustomTile`.
@@ -74,6 +78,8 @@ Make sure you know exactly what object you're working with before using this.
 Due to technical limitations, game classes cannot be directly constructed using `new`.
 Instead, the class must be manually allocated before calling the constructor separately.
 
+You must *always* call a constructor.
+
 For instance:
 ```c++
 Textures *textures = Textures::allocate();
@@ -85,6 +91,22 @@ Or:
 ProgressScreen *screen = ProgressScreen::allocate();
 screen->constructor();
 ```
+
+> [!TIP]
+> If a constructor does not exist (usually because of inlining), you must implement it manually.
+>
+> This usually involves:
+> 1. Calling the parent constructor.
+> 2. Setting the correct [VTable](https://en.wikipedia.org/wiki/Virtual_method_table?useskin=vector).
+> 3. Constructing all properties (using placement `new`).
+>
+> For instance:
+> ```c++
+> SendInventoryPacket *packet = SendInventoryPacket::allocate();
+> ((Packet *) packet)->constructor();
+> packet->vtable = SendInventoryPacket_vtable::base;
+> new (&packet->items) std::vector<ItemInstance>;
+> ```
 
 ### Destruction
 Game classes cannot be directly destroyed using `delete`.
@@ -111,3 +133,7 @@ This only applies to function with [external-linkage](https://learn.microsoft.co
   * `main`
 
 An example can be found [here](../../example-mods/chat-commands/src/chat-commands.cpp).
+
+> [!NOTE]
+> If the target function does not use [C linkage](https://en.cppreference.com/w/cpp/language/language_linkage),
+> then you must pass the mangled name to the macro.

@@ -75,7 +75,7 @@ static int _overwrite_calls_within_internal(void *from, void *to, const void *ta
 // .text Information
 #define TEXT_START 0xde60
 #define TEXT_END 0x1020c0
-// Overwrite All B(L) Intrusctions That Target The Specified Address
+// Overwrite All B(L) Instructions That Target The Specified Address
 #define NO_CALLSITE_ERROR() ERR("Unable To Find Callsites")
 void *overwrite_calls_manual(void *target, void *replacement, const bool allow_no_callsites) {
     // Add New Target To Code Block
@@ -115,12 +115,12 @@ void overwrite_calls_within_manual(void *from /* inclusive */, void *to /* exclu
 // Patch Instruction
 static void safe_mprotect(void *addr, const size_t len, const int prot) {
     const long page_size = sysconf(_SC_PAGESIZE);
-    const long diff = uintptr_t(addr) % page_size;
-    void *aligned_addr = (void *) (((uintptr_t) addr) - diff);
+    const uintptr_t diff = uintptr_t(addr) % page_size;
+    void *aligned_addr = (void *) (uintptr_t(addr) - diff);
     const size_t aligned_len = len + diff;
     const int ret = mprotect(aligned_addr, aligned_len, prot);
     if (ret == -1) {
-        ERR("Unable To Set Permissions: %p: %s", addr, strerror(errno));
+        ERR("Unable To Set Memory Permissions: %p: %s", addr, strerror(errno));
     }
 }
 void patch(void *addr, unsigned char patch[4]) {

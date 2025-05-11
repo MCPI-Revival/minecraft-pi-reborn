@@ -4,9 +4,9 @@ include_toc: true
 ---
 
 # Intermediate Modding
-When modding a game, it's often necessary to intercept or alter the behavior of class methods.
+This chapter will cover intercepting or altering the behavior of class methods.
 
-To facilitate this, MCPI-Reborn includes multiple built-in functions.
+This chapter assumes basic knowledge of C++.
 
 ## Example Target Structures
 This guide will use the following structures to demonstrate the modding API:
@@ -19,7 +19,7 @@ struct B : A {
 ```
 
 > [!IMPORTANT]
-> In reality, these functions only support built-in game functions.
+> In reality, these functions only support a subset of game functions.
 
 ## Method Objects
 Targetable methods have corresponding objects that can be used in the following functions.
@@ -34,11 +34,13 @@ They also have the following additional members:
 * Any additional members are implementation details and *should not be relied upon*.
 
 ## `overwrite_calls`
-This function globally intercepts all calls to a function. This includes calls originating from other mods.
-
-This allows layered injections, where each new one can call the previous version.
-
+This function globally intercepts all calls to a function.
+This includes calls originating from other mods.
 This supports both virtual and non-virtual functions.
+
+This allows layered injections, where each function can call the previous version.
+
+The naming convention for replacement functions is `<target function>_injection`.
 
 ### Example
 ```c++
@@ -65,14 +67,16 @@ This function directly patches a method's VTable entry. This can be used to work
 static bool B_func_injection(B *self, int a, int b) {
     INFO("Hello World!");
     // Call Original Method
-    return A_func->get(false)(self, a, b);
+    return A_func->get(false)((A *) self, a, b);
 }
 // Inside Init Function
 patch_vtable(B_func, B_func_injection);
 ```
 
 ### Limitations
-This function does not support automatic layering like the previous method. This means you have to manually retrieve the correct parent function to call. It may also cause conflicts with other mods.
+This function does not support automatic layering like the previous method.
+This means you have to manually retrieve the correct parent function to call.
+It may also cause conflicts with other mods.
 
 This method also does not affect subclasses which inherit or override the target.
 

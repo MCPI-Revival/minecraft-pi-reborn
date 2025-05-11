@@ -1,9 +1,13 @@
 # My First Mod
-This chapter explains how to set up the SDK and build a simple mod.
+This chapter explains how to set up a development environment and build a simple mod.
+
+This chapter assumes basic knowledge of the Linux command-line.
 
 ## Installing The SDK
-1. Install [CMake](https://cmake.org/). This is `cmake` and `ninja-build` on Ubuntu.
-2. Install an ARM32 C++ toolchain. This is `g++-arm-linux-gnueabihf` on Ubuntu.
+1. Install [CMake](https://cmake.org/). 
+   * This is `cmake` and `ninja-build` on Ubuntu.
+2. Install an ARM32 C++ toolchain.
+   * This is `g++-arm-linux-gnueabihf` on Ubuntu.
 3. Install MCPI-Reborn.
 4. Run MCPI-Reborn. This will copy the SDK to the profile directory.
 
@@ -26,10 +30,10 @@ This chapter explains how to set up the SDK and build a simple mod.
    include("$ENV{HOME}/.minecraft-pi/sdk/lib/minecraft-pi-reborn/sdk/sdk.cmake")
 
    # Build
-   add_library(<your-mod-name> SHARED src/main.cpp)
+   add_library(<your-mod-name> SHARED src/mod.cpp)
    target_link_libraries(<your-mod-name> mods reborn-patch symbols)
    ```
-3. Create `src/main.cpp`:
+3. Create `src/mod.cpp`:
    ```c++
    #include <libreborn/log.h>
 
@@ -43,8 +47,11 @@ This chapter explains how to set up the SDK and build a simple mod.
 ## Building And Running
 1. Run:
    ```sh
+   # Create Build Directory
    mkdir build && cd build
+   # Configure Project
    cmake -GNinja ..
+   # Build
    cmake --build .
    ```
 2. This should create `lib<your-mod-name>.so` in your newly created build directory.

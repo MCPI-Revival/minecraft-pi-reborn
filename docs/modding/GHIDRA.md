@@ -8,6 +8,8 @@ include_toc: true
 
 This is not intended to be a general guide, rather this chapter will focus on how Ghidra can help with modding Minecraft.
 
+This chapter assumes basic knowledge of ARM32 Assembly.
+
 ## Common Actions
 Ghidra contains *many* tools. These are some of the most useful for game modding:
 * You can jump to a specific function or address using `Navigate -> Go To...`.
@@ -48,6 +50,7 @@ undefined4 FUN_00075464(int param_1,int *param_2)
   return *(undefined4 *)(*(int *)(*(int *)(param_1 + 0xc) + 0x60) + uVar3 * 4);
 }
 ```
+
 Meanwhile, the decompiled version of the same function in MCPE is:
 ```c++
 /* ServerSideNetworkHandler::getPlayer(RakNet::RakNetGUID const&) */
@@ -72,8 +75,8 @@ ServerSideNetworkHandler::getPlayer(ServerSideNetworkHandler *this,RakNetGUID *p
 }
 ```
 
-## Finding An MCPE Function Inside MCPI
-Often, you need to find the address of an MCPI function from an MCPE function.
+## Finding An MCPI Function
+Often, you need to find the address of an MCPI function from an already-known MCPE function.
 
 The easiest way is to check if it is already documented.
 This project contains a [list of known symbols](../../symbols/src) including function addresses.
@@ -85,5 +88,5 @@ If it is not documented, there are a few techniques that can be used to locate t
 * If this function is virtual, you can find the equivalent VTable inside MCPI because MCPE and MCPI VTable indices are almost always the same.
 
 > [!NOTE]
-> Because of inlining, sometimes an MCPE function may not exist inside MCPI and vice versa.
+> Because of inlining, an MCPE function may not exist inside MCPI and vice versa.
 > For instance, `CompoundTag::getCompound` is inlined in MCPI.

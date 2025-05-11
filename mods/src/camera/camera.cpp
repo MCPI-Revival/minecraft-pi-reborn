@@ -28,9 +28,9 @@ static EntityRenderDispatcher *EntityRenderDispatcher_injection(EntityRenderDisp
 }
 
 // Display Smoke From TripodCamera Higher
-static void TripodCamera_tick_Level_addParticle_call_injection(Level *level, const std::string &particle, float x, const float y, float z, float deltaX, float deltaY, float deltaZ, int count) {
+static void TripodCamera_tick_Level_addParticle_call_injection(Level *level, const std::string &particle, const float x, const float y, const float z, const float deltaX, const float deltaY, const float deltaZ, const int count) {
     // Call Original Method
-    level->addParticle(particle, x, y + 0.5, z, deltaX, deltaY, deltaZ, count);
+    level->addParticle(particle, x, y + 0.5f, z, deltaX, deltaY, deltaZ, count);
 }
 
 // Fix Camera Legs

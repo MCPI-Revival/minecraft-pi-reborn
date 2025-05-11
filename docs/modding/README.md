@@ -1,7 +1,7 @@
 # Modding Guide
 In addition to various built-in mods, MCPI-Reborn includes an SDK for creating custom mods.
 
-This tutorial explains how to set it up and use it.
+This tutorial explains how to set up and use it.
 
 ## Chapters
 1. [My First Mod](MY_FIRST_MOD.md)
