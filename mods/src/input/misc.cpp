@@ -6,7 +6,6 @@
 #include "internal.h"
 #include <mods/input/input.h>
 #include <mods/feature/feature.h>
-#include <mods/creative/creative.h>
 #include <mods/misc/misc.h>
 
 // Handle Back Button Presses
@@ -44,15 +43,13 @@ static bool InBedScreen_handleBackEvent_injection(InBedScreen *screen, const boo
     return true;
 }
 
-// Block UI Interaction When Mouse Is Locked
-static bool Gui_tickItemDrop_Minecraft_isCreativeMode_call_injection(Minecraft *minecraft) {
+// Block Item Dropping When Mouse Is Locked
+static void Gui_tickItemDrop_injection(Gui_tickItemDrop_t original, Gui *self) {
+    const Minecraft *minecraft = self->minecraft;
     const bool is_in_game = minecraft->screen == nullptr || minecraft->screen->vtable == (Screen_vtable *) Touch_IngameBlockSelectionScreen_vtable::base;
     if (media_SDL_WM_GrabInput(SDL_GRAB_QUERY) == SDL_GRAB_OFF && is_in_game) {
         // Call Original Method
-        return creative_is_restricted() && minecraft->isCreativeMode();
-    } else {
-        // Disable Item Drop Ticking
-        return true;
+        return original(self);
     }
 }
 
@@ -86,6 +83,6 @@ void _init_misc() {
         // Disable Opening Inventory Using The Cursor When Cursor Is Hidden
         overwrite_calls(Gui_handleClick, Gui_handleClick_injection);
         // Disable Item Dropping Using The Cursor When Cursor Is Hidden
-        overwrite_call((void *) 0x27800, Minecraft_isCreativeMode, Gui_tickItemDrop_Minecraft_isCreativeMode_call_injection);
+        overwrite_calls(Gui_tickItemDrop, Gui_tickItemDrop_injection);
     }
 }

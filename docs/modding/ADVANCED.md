@@ -29,12 +29,12 @@ The naming convention for replacement functions is `<parent function>_<target fu
 ### Example
 ```c++
 // The Replacement Function
-static void TripodCamera_tick_Level_addParticle_call_injection(Level *level, const std::string &particle, const float x, const float y, const float z, const float deltaX, const float deltaY, const float deltaZ, const int count) {
+static void TripodCamera_tick_Level_addParticle_injection(Level *level, const std::string &particle, const float x, const float y, const float z, const float deltaX, const float deltaY, const float deltaZ, const int count) {
     // Call Original Method
     level->addParticle(particle, x, y, z, deltaX, deltaY, deltaZ, count);
 }
 // Inside Init Function
-overwrite_call((void *) 0x87dc4, Level_addParticle, TripodCamera_tick_Level_addParticle_call_injection);
+overwrite_call((void *) 0x87dc4, Level_addParticle, TripodCamera_tick_Level_addParticle_injection);
 ```
 
 ## `overwrite_calls_within`
@@ -43,12 +43,12 @@ This will overwrite all function calls to a specified method within the provided
 ### Example
 ```c++
 // The Replacement Function
-static void Level_addParticle_call_injection(Level *level, const std::string &particle, const float x, const float y, const float z, const float deltaX, const float deltaY, const float deltaZ, const int count) {
+static void Level_addParticle_injection(Level *level, const std::string &particle, const float x, const float y, const float z, const float deltaX, const float deltaY, const float deltaZ, const int count) {
     // Call Original Method
     level->addParticle(particle, x, y, z, deltaX, deltaY, deltaZ, count);
 }
 // Inside Init Function
-overwrite_calls_within((void *) 0xabcde, (void *) 0xedcba, Level_addParticle, Level_addParticle_call_injection);
+overwrite_calls_within((void *) 0xabcde, (void *) 0xedcba, Level_addParticle, Level_addParticle_injection);
 ```
 
 ## `extract_from_bl_instruction`

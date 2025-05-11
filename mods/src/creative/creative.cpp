@@ -8,14 +8,14 @@
 #include <mods/creative/creative.h>
 
 // Add Item To Inventory
-static void inventory_add_item(FillingContainer *inventory, Item *item) {
+static void inventory_add_item(FillingContainer *inventory, const Item *item) {
     ItemInstance *item_instance = new ItemInstance;
-    item_instance = item_instance->constructor_item(item);
+    item_instance->constructor_item(item);
     inventory->addItem(item_instance);
 }
-static void inventory_add_item(FillingContainer *inventory, Tile *item) {
+static void inventory_add_item(FillingContainer *inventory, const Tile *item) {
     ItemInstance *item_instance = new ItemInstance;
-    item_instance = item_instance->constructor_tile(item);
+    item_instance->constructor_tile(item);
     inventory->addItem(item_instance);
 }
 
@@ -29,11 +29,11 @@ static void Inventory_setupDefault_FillingContainer_addItem_call_injection(Filli
     // Dyes
     for (int i = 0; i < 16; i++) {
         if (i == 15) {
-            // Bonemeal Is Already In The Creative Inventory
+            // Bone Meal Is Already In The Creative Inventory
             continue;
         }
         ItemInstance *new_item_instance = new ItemInstance;
-        new_item_instance = new_item_instance->constructor_item_extra(Item::dye_powder, 1, i);
+        new_item_instance->constructor_item_extra(Item::dye_powder, 1, i);
         filling_container->addItem(new_item_instance);
     }
     inventory_add_item(filling_container, Item::camera);
@@ -57,7 +57,7 @@ static void Inventory_setupDefault_FillingContainer_addItem_call_injection(Filli
             continue;
         }
         ItemInstance *new_item_instance = new ItemInstance;
-        new_item_instance = new_item_instance->constructor_tile_extra(Tile::netherReactor, 1, i);
+        new_item_instance->constructor_tile_extra(Tile::netherReactor, 1, i);
         filling_container->addItem(new_item_instance);
     }
     // Tall Grass
@@ -67,19 +67,19 @@ static void Inventory_setupDefault_FillingContainer_addItem_call_injection(Filli
             continue;
         }
         ItemInstance *new_item_instance = new ItemInstance;
-        new_item_instance = new_item_instance->constructor_tile_extra(Tile::tallgrass, 1, i);
+        new_item_instance->constructor_tile_extra(Tile::tallgrass, 1, i);
         filling_container->addItem(new_item_instance);
     }
     // Smooth Stone Slab
     {
         ItemInstance *new_item_instance = new ItemInstance;
-        new_item_instance = new_item_instance->constructor_tile_extra(Tile::stoneSlab, 1, 6);
+        new_item_instance->constructor_tile_extra(Tile::stoneSlab, 1, 6);
         filling_container->addItem(new_item_instance);
     }
 }
 
 // Hook Specific TileItem Constructor
-static TileItem *Tile_initTiles_TileItem_injection(TileItem *tile_item, int32_t id) {
+static TileItem *Tile_initTiles_TileItem_injection(TileItem *tile_item, const int32_t id) {
     // Call Original Method
     tile_item->constructor(id);
 
@@ -94,14 +94,9 @@ static TileItem *Tile_initTiles_TileItem_injection(TileItem *tile_item, int32_t 
     return tile_item;
 }
 
-// Check Restriction Status
-static bool is_restricted = true;
-bool creative_is_restricted() {
-    return is_restricted;
-}
-
 // Allow Creative Players To Drop Items
-static bool Gui_tickItemDrop_Minecraft_isCreativeMode_call_injection(__attribute__((unused)) Minecraft *minecraft) {
+void *const Gui_tick_Minecraft_isCreativeMode_addr = (void *) 0x27800;
+static bool Gui_tick_Minecraft_isCreativeMode_injection(__attribute__((unused)) Minecraft *minecraft) {
     return false;
 }
 
@@ -148,15 +143,7 @@ void init_creative() {
         // Allow Nether Reactor
         patch((void *) 0xc0290, nop_patch);
         // Item Dropping
-        void *addr = (void *) 0x27800;
-        const void *func = extract_from_bl_instruction((unsigned char *) addr);
-        if (func == Minecraft_isCreativeMode->backup) {
-            overwrite_call(addr, Minecraft_isCreativeMode, Gui_tickItemDrop_Minecraft_isCreativeMode_call_injection);
-        } else {
-            // Handled By input/misc.cpp
-        }
-        // Disable Other Restrictions
-        is_restricted = false;
+        overwrite_call(Gui_tick_Minecraft_isCreativeMode_addr, Minecraft_isCreativeMode, Gui_tick_Minecraft_isCreativeMode_injection);
     }
 
     // Inventory Behavior
@@ -171,7 +158,7 @@ void init_creative() {
 
     // "Craft" And "Armor" Buttons
     if (feature_has("Force Survival Mode Inventory UI", server_enabled)) {
-        patch((void *) 0x341c0, nop_patch); // Add "Armor" Button To Classic Inventory
+        patch((void *) 0x341c0, nop_patch); // Add The "Armor" Button To Classic Inventory
         unsigned char inv_creative_check_r5_patch[4] = {0x05, 0x00, 0x55, 0xe1}; // "cmp r5, r5"
         patch((void *) 0x3adb0, inv_creative_check_r5_patch); // Reposition "Select blocks" In Touch Inventory
         patch((void *) 0x3b374, nop_patch); // Add "Armor" And "Craft" Buttons To Touch Inventory

@@ -53,7 +53,7 @@ __attribute__((constructor)) static void init() {
 
 // Instantiate Some Templates To Make Sure Everything Works
 typedef std::remove_pointer_t<decltype(Minecraft_init)> func_t;
-template void overwrite_call<func_t>(void *, func_t *, void (*)(Minecraft *), bool);
-template void overwrite_calls<func_t>(func_t *, std::function<void(Minecraft_init_t, Minecraft *)>);
-template void overwrite_calls_within<func_t>(void *, void *, func_t *, void (*)(Minecraft *));
-template void patch_vtable<func_t>(const func_t *, void (*)(Minecraft *));
+template void overwrite_call<func_t>(void *, func_t *, func_t::ptr_type, bool);
+template void overwrite_calls<func_t>(func_t *, func_t::overwrite_type);
+template void overwrite_calls_within<func_t>(void *, void *, func_t *, func_t::ptr_type);
+template void patch_vtable<func_t>(const func_t *, func_t::ptr_type);

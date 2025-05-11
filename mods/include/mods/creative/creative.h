@@ -1,5 +1,5 @@
 #pragma once
 
 extern "C" {
-bool creative_is_restricted();
+extern void *const Gui_tick_Minecraft_isCreativeMode_addr;
 }
