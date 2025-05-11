@@ -132,8 +132,8 @@ This only applies to function with [external-linkage](https://learn.microsoft.co
   * `Minecraft::tick`
   * `main`
 
-The macro's signature is `HOOK(<name>, <return type>, <args>)`.
-It will generate a `real_<name>` method that will return the real/original/next version of the target.
+The signature is `HOOK(<name>, <return type>, <args>) { <code> }`.
+It will also generate a `real_<name>` method that will return the real/original/next version of the target.
 
 > [!NOTE]
 > If the target function does not use [C linkage](https://en.cppreference.com/w/cpp/language/language_linkage),
