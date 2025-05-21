@@ -5,13 +5,13 @@
 #include "../internal.h"
 
 // Functions That Have Their Return Values Used
-static int XTranslateCoordinates_injection(__attribute__((unused)) void *display, __attribute__((unused)) XID src_w, __attribute__((unused)) XID dest_w, int src_x, int src_y, int *dest_x_return, int *dest_y_return, __attribute__((unused)) XID *child_return) {
+static int XTranslateCoordinates_injection(MCPI_UNUSED void *display, MCPI_UNUSED XID src_w, MCPI_UNUSED XID dest_w, int src_x, int src_y, int *dest_x_return, int *dest_y_return, MCPI_UNUSED XID *child_return) {
     // Use MCPI Replacement Function
     *dest_x_return = src_x;
     *dest_y_return = src_y;
     return 1;
 }
-static int XGetWindowAttributes_injection(__attribute__((unused)) void *display, __attribute__((unused)) XID w, XWindowAttributes *window_attributes_return) {
+static int XGetWindowAttributes_injection(MCPI_UNUSED void *display, MCPI_UNUSED XID w, XWindowAttributes *window_attributes_return) {
     // Use MCPI Replacement Function
     XWindowAttributes attributes = {};
     attributes.x = 0;

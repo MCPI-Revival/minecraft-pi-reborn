@@ -124,7 +124,7 @@ static void Gui_renderToolBar_injection(Gui_renderToolBar_t original, Gui *gui, 
     original(gui, param_1, param_2, param_3);
     media_glDisable(GL_BLEND);
 }
-static void Gui_renderToolBar_glColor4f_injection(const GLfloat red, const GLfloat green, const GLfloat blue, __attribute__((unused)) GLfloat alpha) {
+static void Gui_renderToolBar_glColor4f_injection(const GLfloat red, const GLfloat green, const GLfloat blue, MCPI_UNUSED GLfloat alpha) {
     // Fix Alpha
     media_glColor4f(red, green, blue, 1.0f);
 }
@@ -217,7 +217,7 @@ static bool GameRenderer_render_Minecraft_isLevelGenerated_injection(Minecraft *
 }
 
 // Click Buttons On Mouse Down
-static void Screen_mouseClicked_injection(__attribute__((unused)) Screen_mouseClicked_t original, Screen *self,  int x, int y, const int param_1) {
+static void Screen_mouseClicked_injection(MCPI_UNUSED Screen_mouseClicked_t original, Screen *self,  int x, int y, const int param_1) {
     if (param_1 == 1) {
         for (Button *button : self->rendered_buttons) {
             if (button->clicked(self->minecraft, x, y)) {
@@ -231,7 +231,7 @@ static void Screen_mouseClicked_injection(__attribute__((unused)) Screen_mouseCl
         }
     }
 }
-static void Screen_mouseReleased_injection(__attribute__((unused)) Screen_mouseReleased_t original, Screen *self,  int x, int y, const int param_1) {
+static void Screen_mouseReleased_injection(MCPI_UNUSED Screen_mouseReleased_t original, Screen *self,  int x, int y, const int param_1) {
     if (param_1 == 1 && self->clicked_button) {
         self->clicked_button->released(x, y);
         self->clicked_button = nullptr;
@@ -252,7 +252,7 @@ static void Minecraft_handleMouseDown_injection(Minecraft_handleMouseDown_t orig
 }
 
 // Open Sign Screen
-static void LocalPlayer_openTextEdit_injection(__attribute__((unused)) LocalPlayer_openTextEdit_t original, LocalPlayer *local_player, TileEntity *sign) {
+static void LocalPlayer_openTextEdit_injection(MCPI_UNUSED LocalPlayer_openTextEdit_t original, LocalPlayer *local_player, TileEntity *sign) {
     if (sign->type == 4) {
         Minecraft *minecraft = local_player->minecraft;
         TextEditScreen *screen = TextEditScreen::allocate();
@@ -308,7 +308,7 @@ static void Font_draw_injection(const std::function<void(Font *, Args...)> &orig
 }
 
 // Screen Overlay
-static void ItemInHandRenderer_renderScreenEffect_injection(__attribute__((unused)) ItemInHandRenderer_renderScreenEffect_t original, ItemInHandRenderer *self, float param_1) {
+static void ItemInHandRenderer_renderScreenEffect_injection(MCPI_UNUSED ItemInHandRenderer_renderScreenEffect_t original, ItemInHandRenderer *self, float param_1) {
     media_glDisable(GL_ALPHA_TEST);
     const Minecraft *mc = self->minecraft;
     Mob *player = mc->camera;

@@ -11,7 +11,7 @@
 #include "internal.h"
 
 // Exit Handler
-static void exit_handler(__attribute__((unused)) int data) {
+static void exit_handler(MCPI_UNUSED int data) {
     // Request Exit
     compat_request_exit();
 }

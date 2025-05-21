@@ -19,7 +19,7 @@
 #include "internal.h"
 
 // Force Mob Spawning
-static bool LevelData_getSpawnMobs_injection(__attribute__((unused)) LevelData_getSpawnMobs_t original, __attribute__((unused)) LevelData *level_data) {
+static bool LevelData_getSpawnMobs_injection(MCPI_UNUSED LevelData_getSpawnMobs_t original, MCPI_UNUSED LevelData *level_data) {
     return true;
 }
 
@@ -119,7 +119,7 @@ static std::vector<std::string> OptionsFile_getOptionStrings_v2(OptionsFile *opt
 }
 
 // Replacement Of Options::update
-static void Options_update_injection(__attribute__((unused)) Options_update_t original, Options *self) {
+static void Options_update_injection(MCPI_UNUSED Options_update_t original, Options *self) {
     const std::vector<std::string> strings = OptionsFile_getOptionStrings_v2(&self->options_file);
     for (std::vector<std::string>::size_type i = 0; i < strings.size(); i++) {
         // Read

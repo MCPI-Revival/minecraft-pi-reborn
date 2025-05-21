@@ -47,7 +47,7 @@ static void resolve_address(std::string &address) {
 static std::queue<ServerList::Entry> queue;
 static pthread_mutex_t list_mutex = PTHREAD_MUTEX_INITIALIZER;
 static std::vector<ServerList::Entry> list;
-static void *resolve_thread(__attribute__((unused)) void *data) {
+static void *resolve_thread(MCPI_UNUSED void *data) {
     while (!queue.empty()) {
         ServerList::Entry entry = queue.front();
         queue.pop();
@@ -103,7 +103,7 @@ void init_multiplayer() {
     // Inject Code
     if (feature_has("External Server Support", server_disabled)) {
         overwrite_calls(RakNetInstance_pingForHosts, RakNetInstance_pingForHosts_injection);
-        misc_run_on_init([](__attribute__((unused)) Minecraft *mc) {
+        misc_run_on_init([](MCPI_UNUSED Minecraft *mc) {
             start_resolution();
         });
     }

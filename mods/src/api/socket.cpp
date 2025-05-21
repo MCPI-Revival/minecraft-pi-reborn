@@ -56,7 +56,7 @@ static void handle_line(CommandServer *self, ConnectedClient &client, const std:
 }
 // Remove Speed Limit
 static constexpr int max_read_per_tick_per_client = 16384; // 16 KiB
-static bool CommandServer__updateClient_injection_2(__attribute__((unused)) CommandServer__updateClient_t original, CommandServer *self, ConnectedClient &client) {
+static bool CommandServer__updateClient_injection_2(MCPI_UNUSED CommandServer__updateClient_t original, CommandServer *self, ConnectedClient &client) {
     // Read Lines
     size_t total_read = 0;
     constexpr size_t buffer_size = 2048;

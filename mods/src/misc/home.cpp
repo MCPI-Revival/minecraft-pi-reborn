@@ -7,7 +7,7 @@
 #include "internal.h"
 
 // Use MCPI_HOME
-static const char *getenv_HOME(__attribute__((unused)) const char *env) {
+static const char *getenv_HOME(MCPI_UNUSED const char *env) {
     return require_env(_MCPI_HOME_ENV);
 }
 

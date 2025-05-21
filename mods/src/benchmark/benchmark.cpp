@@ -57,7 +57,7 @@ static void handle_swap_buffers() {
 
 // Track Ticks
 static unsigned long long int ticks = 0;
-static void Minecraft_tick_injection(__attribute__((unused)) const Minecraft *minecraft) {
+static void Minecraft_tick_injection(MCPI_UNUSED const Minecraft *minecraft) {
     ticks++;
 }
 
@@ -157,13 +157,13 @@ static void Minecraft_update_injection(Minecraft *minecraft) {
 }
 
 // PerformanceTestChunkSource
-static RandomLevelSource *PerformanceTestChunkSource_constructor(__attribute__((unused)) RandomLevelSource_constructor_t original, __attribute__((unused)) RandomLevelSource *self, Level *level, __attribute__((unused)) int seed, __attribute__((unused)) int version, __attribute__((unused)) bool enable_spawning) {
+static RandomLevelSource *PerformanceTestChunkSource_constructor(MCPI_UNUSED RandomLevelSource_constructor_t original, MCPI_UNUSED RandomLevelSource *self, Level *level, MCPI_UNUSED int seed, MCPI_UNUSED int version, MCPI_UNUSED bool enable_spawning) {
     PerformanceTestChunkSource *self2 = (PerformanceTestChunkSource *) self;
     self2->vtable = PerformanceTestChunkSource_vtable::base;
     self2->level = level;
     return self;
 }
-static bool LevelData_getSpawnMobs_injection(__attribute__((unused)) LevelData_getSpawnMobs_t original, __attribute__((unused)) LevelData *level_data) {
+static bool LevelData_getSpawnMobs_injection(MCPI_UNUSED LevelData_getSpawnMobs_t original, MCPI_UNUSED LevelData *level_data) {
     return false;
 }
 

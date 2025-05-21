@@ -62,7 +62,7 @@ struct Bucket final : CustomItem {
     }
 
     // Use Bucket
-    bool useOn(ItemInstance *item_instance, Player *player, Level *level, int x, int y, int z, const int hit_side, __attribute__((unused)) float hit_x, __attribute__((unused)) float hit_y, __attribute__((unused)) float hit_z) override {
+    bool useOn(ItemInstance *item_instance, Player *player, Level *level, int x, int y, int z, const int hit_side, MCPI_UNUSED float hit_x, MCPI_UNUSED float hit_y, MCPI_UNUSED float hit_z) override {
         if (item_instance->count < 1 || item_instance->auxiliary == MILK_AUX) {
             // Do Nothing
             return false;
@@ -127,7 +127,7 @@ struct Bucket final : CustomItem {
             return 0;
         }
     }
-    ItemInstance useTimeDepleted(ItemInstance *item_instance, __attribute__((unused)) Level *level, Player *player) override {
+    ItemInstance useTimeDepleted(ItemInstance *item_instance, MCPI_UNUSED Level *level, Player *player) override {
         if (item_instance->auxiliary == MILK_AUX) {
             // Finish Drinking
             player->foodData.eat(0);
@@ -146,7 +146,7 @@ struct Bucket final : CustomItem {
     bool isFood() override {
         return true;
     }
-    ItemInstance *use(ItemInstance *item_instance, __attribute__((unused)) Level *level, Player *player) override {
+    ItemInstance *use(ItemInstance *item_instance, MCPI_UNUSED Level *level, Player *player) override {
         if (item_instance->auxiliary == MILK_AUX) {
             // Start Drinking
             player->startUsingItem(item_instance, getUseDuration(item_instance));
@@ -230,7 +230,7 @@ static void Inventory_setupDefault_FillingContainer_addItem_injection(FillingCon
 
 // Make Liquids Selectable
 static bool is_holding_bucket = false;
-static HitResult Mob_pick_Level_clip_injection(Level *level, const Vec3 &param_1, const Vec3 &param_2, __attribute__((unused)) bool clip_liquids, bool clip_hitboxes) {
+static HitResult Mob_pick_Level_clip_injection(Level *level, const Vec3 &param_1, const Vec3 &param_2, MCPI_UNUSED bool clip_liquids, bool clip_hitboxes) {
     // Call Original Method
     return level->clip(param_1, param_2, is_holding_bucket, clip_hitboxes);
 }

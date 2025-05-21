@@ -44,12 +44,12 @@ static void find_players(Minecraft *minecraft, const std::string &target_usernam
 }
 
 // Ban Player
-static void ban_callback(__attribute__((unused)) Minecraft *minecraft, __attribute__((unused)) const std::string &username, Player *player) {
+static void ban_callback(MCPI_UNUSED Minecraft *minecraft, MCPI_UNUSED const std::string &username, Player *player) {
     blacklist.ban((ServerPlayer *) player);
 }
 
 // Kill Player
-static void kill_callback(__attribute__((unused)) Minecraft *minecraft, const std::string &username, Player *player) {
+static void kill_callback(MCPI_UNUSED Minecraft *minecraft, const std::string &username, Player *player) {
     player->hurt(nullptr, INT32_MAX);
     INFO("Killed: %s", username.c_str());
 }
@@ -69,7 +69,7 @@ void server_kick(const ServerPlayer *player) {
     player->level->rak_net_instance->peer->CloseConnection(&target, true, 0, HIGH_PRIORITY);
     player->minecraft->network_handler->onDisconnect(guid);
 }
-static void kick_callback(__attribute__((unused)) Minecraft *minecraft, const std::string &username, Player *player) {
+static void kick_callback(MCPI_UNUSED Minecraft *minecraft, const std::string &username, Player *player) {
     server_kick((ServerPlayer *) player);
     INFO("Kicked: %s", username.c_str());
 }
@@ -96,7 +96,7 @@ static std::string trim(const std::string &x) {
 static pthread_t read_stdin_thread_obj;
 static volatile bool stdin_line_ready = false;
 static std::string stdin_line;
-static void *read_stdin_thread(__attribute__((unused)) void *data) {
+static void *read_stdin_thread(MCPI_UNUSED void *data) {
     // Loop
     char *line = nullptr;
     size_t len = 0;
@@ -170,7 +170,7 @@ std::vector<ServerCommand> *server_get_commands(Minecraft *minecraft, ServerSide
     commands->push_back({
         .name = "reload",
         .comment = std::string("Reload The ") + blacklist.get_name(true),
-        .callback = [](__attribute__((unused)) const std::string &cmd) {
+        .callback = [](MCPI_UNUSED const std::string &cmd) {
             INFO("Reloading %s", blacklist.get_name(true).c_str());
             blacklist.load();
         }
@@ -211,7 +211,7 @@ std::vector<ServerCommand> *server_get_commands(Minecraft *minecraft, ServerSide
     commands->push_back({
         .name = "list",
         .comment = "List All Players",
-        .callback = [minecraft](__attribute__((unused)) const std::string &cmd) {
+        .callback = [minecraft](MCPI_UNUSED const std::string &cmd) {
             INFO("All Players:");
             find_players(minecraft, "", list_callback, true);
         }
@@ -221,7 +221,7 @@ std::vector<ServerCommand> *server_get_commands(Minecraft *minecraft, ServerSide
     commands->push_back({
         .name = "tps",
         .comment = "Print TPS",
-        .callback = [](__attribute__((unused)) const std::string &cmd) {
+        .callback = [](MCPI_UNUSED const std::string &cmd) {
             INFO("TPS: %f", tps);
         }
     });
@@ -230,7 +230,7 @@ std::vector<ServerCommand> *server_get_commands(Minecraft *minecraft, ServerSide
     commands->push_back({
         .name = "stop",
         .comment = "Stop Server",
-        .callback = [](__attribute__((unused)) const std::string &cmd) {
+        .callback = [](MCPI_UNUSED const std::string &cmd) {
             compat_request_exit();
         }
     });
@@ -239,7 +239,7 @@ std::vector<ServerCommand> *server_get_commands(Minecraft *minecraft, ServerSide
     commands->push_back({
         .name = "help",
         .comment = "Print This Message",
-        .callback = [commands](__attribute__((unused)) const std::string &cmd) {
+        .callback = [commands](MCPI_UNUSED const std::string &cmd) {
             INFO("All Commands:");
             std::string::size_type max_lhs_length = 0;
             for (const ServerCommand &command : *commands) {

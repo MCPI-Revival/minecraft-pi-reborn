@@ -108,7 +108,7 @@ void media_glTexSubImage2D_with_scaling(const Texture *target, const GLint xoffs
 }
 
 // Load Textures
-static Texture AppPlatform_linux_loadTexture_injection(__attribute__((unused)) AppPlatform_linux_loadTexture_t original, __attribute__((unused)) AppPlatform_linux *app_platform, const std::string &path, const bool b) {
+static Texture AppPlatform_linux_loadTexture_injection(MCPI_UNUSED AppPlatform_linux_loadTexture_t original, MCPI_UNUSED AppPlatform_linux *app_platform, const std::string &path, const bool b) {
     Texture out;
     std::string real_path = path;
     if (b) {

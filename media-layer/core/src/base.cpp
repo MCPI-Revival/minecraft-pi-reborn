@@ -5,7 +5,7 @@
 #include "window/media.h"
 
 // SDL Is Replaced With GLFW
-int media_SDL_Init(__attribute__((unused)) uint32_t flags) {
+int media_SDL_Init(MCPI_UNUSED uint32_t flags) {
     return 0;
 }
 

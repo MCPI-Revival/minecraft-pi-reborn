@@ -28,7 +28,7 @@ static void Minecraft_init_injection(Minecraft_init_t original, Minecraft *self)
     }
     grass_colors_loaded = true;
 }
-static int32_t GrassTile_getColor_injection(__attribute__((unused)) GrassTile_getColor_t original, __attribute__((unused)) GrassTile *tile, LevelSource *level_source, const int32_t x, __attribute__((unused)) int32_t y, const int32_t z) {
+static int32_t GrassTile_getColor_injection(MCPI_UNUSED GrassTile_getColor_t original, MCPI_UNUSED GrassTile *tile, LevelSource *level_source, const int32_t x, MCPI_UNUSED int32_t y, const int32_t z) {
     // Get Level
     Level *level = ((Region *) level_source)->level;
     // Find Biome Temperature
@@ -84,7 +84,7 @@ static bool TileRenderer_tesselateBlockInWorld_injection(TileRenderer_tesselateB
 
 // No Block Tinting
 template <typename T>
-static int32_t Tile_getColor_injection(__attribute__((unused)) const std::function<int(T *, LevelSource *, int, int, int)> &original, __attribute__((unused)) T *self, __attribute__((unused)) LevelSource *level_source, __attribute__((unused)) int x, __attribute__((unused)) int y, __attribute__((unused)) int z) {
+static int32_t Tile_getColor_injection(MCPI_UNUSED const std::function<int(T *, LevelSource *, int, int, int)> &original, MCPI_UNUSED T *self, MCPI_UNUSED LevelSource *level_source, MCPI_UNUSED int x, MCPI_UNUSED int y, MCPI_UNUSED int z) {
     return 0xffffff;
 }
 

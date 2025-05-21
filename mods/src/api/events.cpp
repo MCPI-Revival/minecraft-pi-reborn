@@ -61,7 +61,7 @@ struct ChatEvent {
     std::string message;
     int owner_id;
 };
-static std::string event_to_string(__attribute__((unused)) CommandServer *server, const ChatEvent &e) {
+static std::string event_to_string(MCPI_UNUSED CommandServer *server, const ChatEvent &e) {
     return api_join_outputs({
         std::to_string(e.owner_id),
         api_get_output(e.message, true),
@@ -188,7 +188,7 @@ static void Arrow_tick_injection(Arrow_tick_t original, Arrow *self) {
     current_shooter = self->level->getEntity(self->getAuxData());
     original(self);
 }
-static bool Arrow_tick_Entity_hurt_injection(Entity *self, __attribute__((unused)) Entity *cause, int damage) {
+static bool Arrow_tick_Entity_hurt_injection(Entity *self, MCPI_UNUSED Entity *cause, int damage) {
     on_projectile_hit(current_shooter, self);
     // Call Original Method
     return self->hurt(cause, damage);
@@ -263,7 +263,7 @@ static bool GameMode_useItemOn_injection(GameMode_useItemOn_t original, GameMode
     // Call Original Method
     return original(self, player, level, item, x, y, z, param_1, param_2);
 }
-static bool CreatorMode_useItemOn_injection(__attribute__((unused)) CreatorMode_useItemOn_t original, CreatorMode *self, Player *player, Level *level, ItemInstance *item, const int x, const int y, const int z, const int param_1, const Vec3 &param_2) {
+static bool CreatorMode_useItemOn_injection(MCPI_UNUSED CreatorMode_useItemOn_t original, CreatorMode *self, Player *player, Level *level, ItemInstance *item, const int x, const int y, const int z, const int param_1, const Vec3 &param_2) {
     return GameMode_useItemOn->get(false)((GameMode *) self, player, level, item, x, y, z, param_1, param_2);
 }
 

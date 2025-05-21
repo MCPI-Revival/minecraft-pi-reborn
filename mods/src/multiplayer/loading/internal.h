@@ -7,7 +7,7 @@
 #include "../internal.h"
 
 // Init
-#define init(name) __attribute__((visibility("internal"))) void _init_multiplayer_loading_##name()
+#define init(name) MCPI_INTERNAL void _init_multiplayer_loading_##name()
 init(packets);
 init(thread);
 init(misc);
@@ -16,20 +16,20 @@ init(terrain);
 
 // Track Whether Improved Chunk Loading Is Active
 // Only Access This Value If You Know You're Joining A Server!
-__attribute__((visibility("internal"))) extern bool _server_using_improved_loading;
+MCPI_INTERNAL extern bool _server_using_improved_loading;
 // Request Full Chunk Data
-__attribute__((visibility("internal"))) extern bool _request_full_chunk;
+MCPI_INTERNAL extern bool _request_full_chunk;
 // Disable Terrain Generation
-__attribute__((visibility("internal"))) extern bool _inhibit_terrain_generation;
+MCPI_INTERNAL extern bool _inhibit_terrain_generation;
 
 // Stop Thread
-__attribute__((visibility("internal"))) void _multiplayer_stop_thread(Minecraft *minecraft);
+MCPI_INTERNAL void _multiplayer_stop_thread(Minecraft *minecraft);
 // Check If Network Handler Is Loading Chunks
-__attribute__((visibility("internal"))) bool _multiplayer_is_loading_chunks(const ClientSideNetworkHandler *self);
+MCPI_INTERNAL bool _multiplayer_is_loading_chunks(const ClientSideNetworkHandler *self);
 
 // Buffer Block Updates
-__attribute__((visibility("internal"))) void _multiplayer_clear_updates();
-__attribute__((visibility("internal"))) void _multiplayer_set_tile(int x, int y, int z, int tile_id, int data);
+MCPI_INTERNAL void _multiplayer_clear_updates();
+MCPI_INTERNAL void _multiplayer_set_tile(int x, int y, int z, int tile_id, int data);
 
 // Chunk Data Structure
 struct ChunkData {
@@ -50,4 +50,4 @@ struct ChunkData {
 };
 
 // Receive Chunk Data
-__attribute__((visibility("internal"))) void _multiplayer_chunk_received(ChunkData *data);
+MCPI_INTERNAL void _multiplayer_chunk_received(ChunkData *data);

@@ -1,5 +1,5 @@
 #pragma once
 
-__attribute__((visibility("internal"))) void _init_welcome();
-__attribute__((visibility("internal"))) extern int version_text_bottom;
-__attribute__((visibility("internal"))) void _init_splashes();
+MCPI_INTERNAL void _init_welcome();
+MCPI_INTERNAL extern int version_text_bottom;
+MCPI_INTERNAL void _init_splashes();

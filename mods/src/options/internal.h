@@ -2,8 +2,8 @@
 
 #include <symbols/minecraft.h>
 
-__attribute__((visibility("internal"))) extern const std::string sound_doc_url;
+MCPI_INTERNAL extern const std::string sound_doc_url;
 
-__attribute__((visibility("internal"))) void _init_options_ui();
-__attribute__((visibility("internal"))) extern Options *stored_options;
-__attribute__((visibility("internal"))) Screen *_create_options_info_screen();
+MCPI_INTERNAL void _init_options_ui();
+MCPI_INTERNAL extern Options *stored_options;
+MCPI_INTERNAL Screen *_create_options_info_screen();

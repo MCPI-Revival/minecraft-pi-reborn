@@ -68,7 +68,7 @@ static void update_fps() {
 // Track TPS
 double tps = 0;
 static Tracker tps_tracker(tps, nullptr);
-static void update_tps(__attribute__((unused)) Minecraft *minecraft) {
+static void update_tps(MCPI_UNUSED Minecraft *minecraft) {
     tps_tracker.update();
 }
 

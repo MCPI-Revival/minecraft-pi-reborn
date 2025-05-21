@@ -94,7 +94,7 @@ static void Minecraft_leaveGame_injection(Minecraft_leaveGame_t original, Minecr
     // Call Original Method
     original(self, param_1);
 }
-static void ClientSideNetworkHandler_handle_SendInventoryPacket_injection(ClientSideNetworkHandler *self, __attribute__((unused)) const RakNet_RakNetGUID &guid, __attribute__((unused)) SendInventoryPacket *packet) {
+static void ClientSideNetworkHandler_handle_SendInventoryPacket_injection(ClientSideNetworkHandler *self, MCPI_UNUSED const RakNet_RakNetGUID &guid, MCPI_UNUSED SendInventoryPacket *packet) {
     // Server Has Requested Inventory
     LocalPlayer *player = self->minecraft->player;
     if (player) {

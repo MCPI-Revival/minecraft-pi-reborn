@@ -73,7 +73,7 @@ void _chat_send_message_to_server(const Minecraft *minecraft, const char *messag
 }
 
 // Allow Reading Longer ChatPacket Messages
-static void ChatPacket_read_injection(__attribute__((unused)) ChatPacket_read_t original, ChatPacket *self, RakNet_BitStream *stream) {
+static void ChatPacket_read_injection(MCPI_UNUSED ChatPacket_read_t original, ChatPacket *self, RakNet_BitStream *stream) {
     RakNet_RakString *str = RakNet_RakString::allocate();
     str->constructor();
     str->Deserialize(stream);

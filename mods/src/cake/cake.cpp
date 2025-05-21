@@ -14,7 +14,7 @@ struct Cake final : CustomTile {
     Cake(const int id, const int texture, const Material *material): CustomTile(id, texture, material) {}
 
     // Textures
-    int getTexture2(const int face, __attribute__((unused)) int data) override {
+    int getTexture2(const int face, MCPI_UNUSED int data) override {
         if (face == 1) {
             // Top Texture
             return 121;

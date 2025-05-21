@@ -43,7 +43,7 @@ void ConfigurationUI::draw_about() {
     // Desktop File
     ImGui::Separator();
     ImGui::BeginDisabled(is_desktop_file_installed());
-    draw_right_aligned_buttons({"Create Desktop Entry"}, [](__attribute__((unused)) int id, const bool was_clicked) {
+    draw_right_aligned_buttons({"Create Desktop Entry"}, [](MCPI_UNUSED int id, const bool was_clicked) {
         if (was_clicked) {
             copy_desktop_file();
         }
@@ -55,7 +55,7 @@ void ConfigurationUI::draw_about() {
     if (updater) {
         ImGui::Separator();
         ImGui::BeginDisabled(!updater->can_start());
-        draw_right_aligned_buttons({updater->get_status().c_str()}, [&updater](__attribute__((unused)) int id, const bool was_clicked) {
+        draw_right_aligned_buttons({updater->get_status().c_str()}, [&updater](MCPI_UNUSED int id, const bool was_clicked) {
             if (was_clicked) {
                 updater->start();
             }

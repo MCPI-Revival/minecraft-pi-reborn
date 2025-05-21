@@ -29,7 +29,7 @@ void add_segment(segment_data data) {
 
 // Init
 void reborn_init_patch() {
-    dl_iterate_phdr([](struct dl_phdr_info *info, __attribute__((unused)) size_t size, __attribute__((unused)) void *user_data) {
+    dl_iterate_phdr([](struct dl_phdr_info *info, MCPI_UNUSED size_t size, MCPI_UNUSED void *user_data) {
         // Only Search Current Program
         if (strcmp(info->dlpi_name, "") == 0) {
             for (int i = 0; i < info->dlpi_phnum; i++) {

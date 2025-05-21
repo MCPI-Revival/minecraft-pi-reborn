@@ -9,7 +9,7 @@
 #include <mods/init/init.h>
 
 // Take Screenshot Using TripodCamera
-static void AppPlatform_saveScreenshot_injection(__attribute__((unused)) AppPlatform_saveScreenshot_t original, __attribute__((unused)) AppPlatform *app_platform, __attribute__((unused)) const std::string &path, __attribute__((unused)) int32_t width, __attribute__((unused)) int32_t height) {
+static void AppPlatform_saveScreenshot_injection(MCPI_UNUSED AppPlatform_saveScreenshot_t original, MCPI_UNUSED AppPlatform *app_platform, MCPI_UNUSED const std::string &path, MCPI_UNUSED int32_t width, MCPI_UNUSED int32_t height) {
     screenshot_take(nullptr);
 }
 
@@ -34,10 +34,10 @@ static void TripodCamera_tick_Level_addParticle_injection(Level *level, const st
 }
 
 // Fix Camera Legs
-static void TripodCameraRenderer_render_EntityRenderer_bindTexture_injection(EntityRenderer *self, __attribute__((unused)) const std::string &file) {
+static void TripodCameraRenderer_render_EntityRenderer_bindTexture_injection(EntityRenderer *self, MCPI_UNUSED const std::string &file) {
     self->bindTexture("item/camera.png");
 }
-static void TripodCameraRenderer_render_TileRenderer_tesselateCrossTexture_injection(__attribute__((unused)) TileRenderer *self, __attribute__((unused)) Tile *tile, __attribute__((unused)) int data, __attribute__((unused)) float x, __attribute__((unused)) float y, __attribute__((unused)) float z) {
+static void TripodCameraRenderer_render_TileRenderer_tesselateCrossTexture_injection(MCPI_UNUSED TileRenderer *self, MCPI_UNUSED Tile *tile, MCPI_UNUSED int data, MCPI_UNUSED float x, MCPI_UNUSED float y, MCPI_UNUSED float z) {
     Tesselator *t = &Tesselator::instance;
     for (const float a : {-1.f, 1.f}) {
         for (const float b : {-1.f, 1.f}) {

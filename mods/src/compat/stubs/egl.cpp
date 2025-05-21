@@ -5,17 +5,17 @@
 #include "../internal.h"
 
 // Functions That Have Their Return Values Used
-static EGLSurface eglCreateWindowSurface_injection(__attribute__((unused)) EGLDisplay display, __attribute__((unused)) EGLConfig config, __attribute__((unused)) NativeWindowType native_window, __attribute__((unused)) EGLint const *attrib_list) {
+static EGLSurface eglCreateWindowSurface_injection(MCPI_UNUSED EGLDisplay display, MCPI_UNUSED EGLConfig config, MCPI_UNUSED NativeWindowType native_window, MCPI_UNUSED EGLint const *attrib_list) {
     return nullptr;
 }
-static EGLDisplay eglGetDisplay_injection(__attribute__((unused)) NativeDisplayType native_display) {
+static EGLDisplay eglGetDisplay_injection(MCPI_UNUSED NativeDisplayType native_display) {
     return nullptr;
 }
-static EGLContext eglCreateContext_injection(__attribute__((unused)) EGLDisplay display, __attribute__((unused)) EGLConfig config, __attribute__((unused)) EGLContext share_context, __attribute__((unused)) EGLint const *attrib_list) {
+static EGLContext eglCreateContext_injection(MCPI_UNUSED EGLDisplay display, MCPI_UNUSED EGLConfig config, MCPI_UNUSED EGLContext share_context, MCPI_UNUSED EGLint const *attrib_list) {
     return nullptr;
 }
 // Call media_swap_buffers()
-static EGLBoolean eglSwapBuffers_injection(__attribute__((unused)) EGLDisplay display, __attribute__((unused)) EGLSurface surface) {
+static EGLBoolean eglSwapBuffers_injection(MCPI_UNUSED EGLDisplay display, MCPI_UNUSED EGLSurface surface) {
     media_swap_buffers();
     return EGL_TRUE;
 }

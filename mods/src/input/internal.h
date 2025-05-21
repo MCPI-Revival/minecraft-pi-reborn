@@ -1,8 +1,8 @@
 #pragma once
 
-__attribute__((visibility("internal"))) void _init_attack();
-__attribute__((visibility("internal"))) void _init_bow();
-__attribute__((visibility("internal"))) void _init_misc();
-__attribute__((visibility("internal"))) void _init_toggle();
-__attribute__((visibility("internal"))) void _init_drop();
-__attribute__((visibility("internal"))) void _init_keys();
+MCPI_INTERNAL void _init_attack();
+MCPI_INTERNAL void _init_bow();
+MCPI_INTERNAL void _init_misc();
+MCPI_INTERNAL void _init_toggle();
+MCPI_INTERNAL void _init_drop();
+MCPI_INTERNAL void _init_keys();

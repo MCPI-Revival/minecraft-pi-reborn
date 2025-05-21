@@ -19,7 +19,7 @@ void media_disable_vsync() {
 // Init Media Layer
 #define GL_VERSION 0x1f02
 typedef const char *(*glGetString_t)(unsigned int name);
-void media_SDL_WM_SetCaption(const char *title, __attribute__((unused)) const char *icon) {
+void media_SDL_WM_SetCaption(const char *title, MCPI_UNUSED const char *icon) {
     // Disable In Headless Mode
     if (reborn_is_headless()) {
         return;

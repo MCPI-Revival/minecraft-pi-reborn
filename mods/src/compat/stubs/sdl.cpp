@@ -5,7 +5,7 @@
 #include "../internal.h"
 
 // SDL Stub
-static void *SDL_SetVideoMode_injection(__attribute__((unused)) int width, __attribute__((unused)) int height, __attribute__((unused)) int bpp, __attribute__((unused)) uint32_t flags) {
+static void *SDL_SetVideoMode_injection(MCPI_UNUSED int width, MCPI_UNUSED int height, MCPI_UNUSED int bpp, MCPI_UNUSED uint32_t flags) {
     // Return Value Is Only Used For A NULL-Check
     return (void *) 1;
 }

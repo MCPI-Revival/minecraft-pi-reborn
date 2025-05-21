@@ -170,7 +170,7 @@ static void Player_stopUsingItem_injection(Player_stopUsingItem_t original, Play
 }
 
 // Read Asset File
-static AppPlatform_readAssetFile_return_value AppPlatform_readAssetFile_injection(__attribute__((unused)) AppPlatform_readAssetFile_t original, __attribute__((unused)) AppPlatform *app_platform, const std::string &path) {
+static AppPlatform_readAssetFile_return_value AppPlatform_readAssetFile_injection(MCPI_UNUSED AppPlatform_readAssetFile_t original, MCPI_UNUSED AppPlatform *app_platform, const std::string &path) {
     // Open File
     std::ifstream stream("data/" + path, std::ios::binary | std::ios::ate);
     if (!stream) {
@@ -213,7 +213,7 @@ static void PaneCraftingScreen_craftSelectedItem_PaneCraftingScreen_recheckRecip
     // Call Original Method
     self->recheckRecipes();
 }
-static ItemInstance *Item_getCraftingRemainingItem_injection(__attribute__((unused)) Item_getCraftingRemainingItem_t original, const Item *self, const ItemInstance *item_instance) {
+static ItemInstance *Item_getCraftingRemainingItem_injection(MCPI_UNUSED Item_getCraftingRemainingItem_t original, const Item *self, const ItemInstance *item_instance) {
     if (self->craftingRemainingItem != nullptr) {
         ItemInstance *ret = new ItemInstance;
         ret->id = self->craftingRemainingItem->id;
@@ -225,7 +225,7 @@ static ItemInstance *Item_getCraftingRemainingItem_injection(__attribute__((unus
 }
 
 // Display Date In Select World Screen
-static std::string AppPlatform_linux_getDateString_injection(__attribute__((unused)) AppPlatform_linux *app_platform, const int time) {
+static std::string AppPlatform_linux_getDateString_injection(MCPI_UNUSED AppPlatform_linux *app_platform, const int time) {
     // From https://github.com/ReMinecraftPE/mcpe/blob/56e51027b1c2e67fe5a0e8a091cefe51d4d11926/platforms/sdl/base/AppPlatform_sdl_base.cpp#L68-L84
     return format_time("%b %d %Y %H:%M:%S", time);
 }
@@ -273,12 +273,12 @@ static float Zombie_aiStep_getBrightness_injection(Entity *self, float param_1) 
 }
 
 // Fix Door Item Dropping
-static void DoorTile_neighborChanged_Tile_spawnResources_injection(DoorTile *self, Level *level, int x, int y, int z, int data2, __attribute__((unused)) float chance) {
+static void DoorTile_neighborChanged_Tile_spawnResources_injection(DoorTile *self, Level *level, int x, int y, int z, int data2, MCPI_UNUSED float chance) {
     self->spawnResources(level, x, y, z, data2, 1);
 }
 
 // Fix Cobweb Lighting
-static Tile *Tile_initTiles_WebTile_setLightBlock_injection(Tile *self, __attribute__((unused)) int strength) {
+static Tile *Tile_initTiles_WebTile_setLightBlock_injection(Tile *self, MCPI_UNUSED int strength) {
     return self;
 }
 
@@ -300,7 +300,7 @@ void misc_set_on_fire(Mob *mob, const int seconds) {
     }
 }
 template <typename Self>
-static void Monster_aiStep_injection(__attribute__((unused)) const std::function<void(Self *)> &original, Self *self) {
+static void Monster_aiStep_injection(MCPI_UNUSED const std::function<void(Self *)> &original, Self *self) {
     // Fire!
     Level *level = self->level;
     if (level->isDay() && !level->is_client_side) {
@@ -342,7 +342,7 @@ static Item *Item_initItems_Item_handEquipped_injection(Item *self) {
 }
 
 // Chest Placement
-static bool ChestTile_mayPlace_injection(__attribute__((unused)) ChestTile_mayPlace_t original, __attribute__((unused)) ChestTile *self, __attribute__((unused)) Level *level, __attribute__((unused)) int x, __attribute__((unused)) int y, __attribute__((unused)) int z, __attribute__((unused)) uchar face) {
+static bool ChestTile_mayPlace_injection(MCPI_UNUSED ChestTile_mayPlace_t original, MCPI_UNUSED ChestTile *self, MCPI_UNUSED Level *level, MCPI_UNUSED int x, MCPI_UNUSED int y, MCPI_UNUSED int z, MCPI_UNUSED uchar face) {
     return true;
 }
 
@@ -393,7 +393,7 @@ static int Level_getTopTile_injection(Level_getTopTile_t original, Level *self, 
 }
 
 // Fix Torch Placement
-static void TorchTile_onPlace_injection(__attribute__((unused)) TorchTile_onPlace_t original, TorchTile *self, Level *level, const int x, const int y, const int z) {
+static void TorchTile_onPlace_injection(MCPI_UNUSED TorchTile_onPlace_t original, TorchTile *self, Level *level, const int x, const int y, const int z) {
     Tile_onPlace->get(false)((Tile *) self, level, x, y, z);
 }
 
@@ -482,7 +482,7 @@ void init_misc() {
 
     // Fullscreen
     if (feature_has("Fullscreen Support", server_disabled)) {
-        misc_run_on_key_press([](__attribute__((unused)) Minecraft *mc, int key) {
+        misc_run_on_key_press([](MCPI_UNUSED Minecraft *mc, int key) {
             if (key == MC_KEY_F11) {
                 media_toggle_fullscreen();
                 return true;
@@ -593,8 +593,8 @@ void init_misc() {
     }
 
     // Disable overwrite_calls() After Minecraft::init
-    misc_run_on_init([](__attribute__((unused)) Minecraft *minecraft) {
-        thunk_enabler = [](__attribute__((unused)) void *a, __attribute__((unused)) void *b) -> void * {
+    misc_run_on_init([](MCPI_UNUSED Minecraft *minecraft) {
+        thunk_enabler = [](MCPI_UNUSED void *a, MCPI_UNUSED void *b) -> void * {
             IMPOSSIBLE();
         };
     });

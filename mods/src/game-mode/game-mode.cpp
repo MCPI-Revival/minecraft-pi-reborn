@@ -8,7 +8,7 @@
 #include "internal.h"
 
 // Handle Game-Mode Switching
-static void Minecraft_setIsCreativeMode_injection(__attribute__((unused)) Minecraft_setIsCreativeMode_t original, Minecraft *self, const bool new_is_creative) {
+static void Minecraft_setIsCreativeMode_injection(MCPI_UNUSED Minecraft_setIsCreativeMode_t original, Minecraft *self, const bool new_is_creative) {
     // Log
     DEBUG("Setting Game Mode: %s", new_is_creative ? "Creative" : "Survival");
     self->is_creative_mode = new_is_creative;

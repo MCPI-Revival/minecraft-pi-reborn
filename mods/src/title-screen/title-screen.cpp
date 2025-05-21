@@ -65,7 +65,7 @@ static Texture *StartMenuScreen_render_Textures_getTemporaryTextureData_injectio
     ret.height = title_height;
     return &ret;
 }
-static float StartMenuScreen_render_Mth_min_injection(__attribute__((unused)) float a, const float b) {
+static float StartMenuScreen_render_Mth_min_injection(MCPI_UNUSED float a, const float b) {
     return b;
 }
 
@@ -118,7 +118,7 @@ static void StartMenuScreen_render_Screen_renderBackground_injection(StartMenuSc
     t.vertexUV(x - w, y, self->z, 0, 0);
     t.draw();
 }
-static Texture *StartMenuScreen_render_Textures_getTemporaryTextureData_injection_modern(__attribute__((unused)) Textures *self, __attribute__((unused)) uint id) {
+static Texture *StartMenuScreen_render_Textures_getTemporaryTextureData_injection_modern(MCPI_UNUSED Textures *self, MCPI_UNUSED uint id) {
     return nullptr;
 }
 

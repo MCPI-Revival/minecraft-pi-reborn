@@ -11,7 +11,7 @@ int align_up(int x, int alignment);
 // Hook Library Function
 #define HOOK(name, return_type, args) \
     typedef return_type (*real_##name##_t)args; \
-    __attribute__((unused)) static real_##name##_t real_##name() { \
+    MCPI_UNUSED static real_##name##_t real_##name() { \
         static real_##name##_t func = NULL; \
         if (!func) { \
             dlerror(); \

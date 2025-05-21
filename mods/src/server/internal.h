@@ -5,13 +5,13 @@
 
 #include <symbols/minecraft.h>
 
-__attribute__((visibility("internal"))) std::string get_rak_net_guid_ip(RakNet_RakPeer *rak_peer, const RakNet_RakNetGUID &guid);
+MCPI_INTERNAL std::string get_rak_net_guid_ip(RakNet_RakPeer *rak_peer, const RakNet_RakNetGUID &guid);
 
-__attribute__((visibility("internal"))) void handle_commands(Minecraft *minecraft);
-__attribute__((visibility("internal"))) void start_reading_commands();
-__attribute__((visibility("internal"))) void stop_reading_commands();
+MCPI_INTERNAL void handle_commands(Minecraft *minecraft);
+MCPI_INTERNAL void start_reading_commands();
+MCPI_INTERNAL void stop_reading_commands();
 
-__attribute__((visibility("internal"))) void _init_server_playerdata();
+MCPI_INTERNAL void _init_server_playerdata();
 
 // Blacklist/Whitelist
 struct Blacklist {
@@ -31,4 +31,4 @@ private:
     // Data
     std::unordered_set<std::string> ips;
 };
-__attribute__((visibility("internal"))) extern Blacklist blacklist;
+MCPI_INTERNAL extern Blacklist blacklist;

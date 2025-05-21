@@ -192,7 +192,7 @@ static void render_debug_info(Gui *self, const std::vector<std::string> &info, c
         y += debug_line_padding;
     }
 }
-static void Gui_renderDebugInfo_injection(__attribute__((unused)) Gui_renderDebugInfo_t original, Gui *self) {
+static void Gui_renderDebugInfo_injection(MCPI_UNUSED Gui_renderDebugInfo_t original, Gui *self) {
     if (debug_info_shown) {
         for (int pass = 0; pass < 2; pass++) {
             Tesselator &t = Tesselator::instance;
@@ -219,7 +219,7 @@ static void Gui_renderDebugInfo_injection(__attribute__((unused)) Gui_renderDebu
 void init_f3() {
     if (feature_has("F3 Debug Information", server_disabled)) {
         overwrite_calls(Gui_renderDebugInfo, Gui_renderDebugInfo_injection);
-        misc_run_on_game_key_press([](__attribute__((unused)) Minecraft *minecraft, const int key) {
+        misc_run_on_game_key_press([](MCPI_UNUSED Minecraft *minecraft, const int key) {
             if (key == MC_KEY_F3) {
                 debug_info_shown = !debug_info_shown;
                 return true;

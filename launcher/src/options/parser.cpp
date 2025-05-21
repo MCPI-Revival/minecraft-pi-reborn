@@ -36,7 +36,7 @@ static argp_option options_data[] = {
     case key: \
         options->name = true; \
         break;
-static error_t parse_opt(const int key, __attribute__((unused)) char *arg, argp_state *state) {
+static error_t parse_opt(const int key, MCPI_UNUSED char *arg, argp_state *state) {
     options_t *options = (options_t *) state->input;
     switch (key) {
 #include "option-list.h"

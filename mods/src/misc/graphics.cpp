@@ -16,14 +16,14 @@
 #include "internal.h"
 
 // Properly Generate Buffers
-static void anGenBuffers_injection(__attribute__((unused)) Common_anGenBuffers_t original, const int32_t count, uint32_t *buffers) {
+static void anGenBuffers_injection(MCPI_UNUSED Common_anGenBuffers_t original, const int32_t count, uint32_t *buffers) {
     if (!reborn_is_headless()) {
         media_glGenBuffers(count, buffers);
     }
 }
 
 // Custom Outline Color
-static void LevelRenderer_render_AABB_glColor4f_injection(__attribute__((unused)) GLfloat red, __attribute__((unused)) GLfloat green, __attribute__((unused)) GLfloat blue, __attribute__((unused)) GLfloat alpha) {
+static void LevelRenderer_render_AABB_glColor4f_injection(MCPI_UNUSED GLfloat red, MCPI_UNUSED GLfloat green, MCPI_UNUSED GLfloat blue, MCPI_UNUSED GLfloat alpha) {
     // Set Color
     media_glColor4f(0, 0, 0, 0.4);
 
@@ -50,7 +50,7 @@ static void LevelRenderer_render_AABB_glColor4f_injection(__attribute__((unused)
 }
 
 // Java Light Ramp
-static void Dimension_updateLightRamp_injection(__attribute__((unused)) Dimension_updateLightRamp_t original, Dimension *self) {
+static void Dimension_updateLightRamp_injection(MCPI_UNUSED Dimension_updateLightRamp_t original, Dimension *self) {
     // https://github.com/ReMinecraftPE/mcpe/blob/d7a8b6baecf8b3b050538abdbc976f690312aa2d/source/world/level/Dimension.cpp#L92-L105
     for (int i = 0; i <= 15; i++) {
         const float f1 = 1.0f - (((float) i) / 15.0f);
@@ -376,7 +376,7 @@ static void PolygonQuad_render_Tesselator_vertexUV_injection(Tesselator *self, c
     // Call Original Method
     self->vertexUV(x, y, z, u, v);
 }
-static bool ChestTileEntity_shouldSave_injection(__attribute__((unused)) ChestTileEntity_shouldSave_t original, __attribute__((unused)) ChestTileEntity *tile_entity) {
+static bool ChestTileEntity_shouldSave_injection(MCPI_UNUSED ChestTileEntity_shouldSave_t original, MCPI_UNUSED ChestTileEntity *tile_entity) {
     return true;
 }
 
@@ -527,7 +527,7 @@ void _init_misc_graphics() {
 
     // Replace Block Highlight With Outline
     if (feature_has("Replace Block Highlight With Outline", server_disabled)) {
-        overwrite_calls(LevelRenderer_renderHitSelect, [](__attribute__((unused)) LevelRenderer_renderHitSelect_t original, LevelRenderer *self, Player *player, const HitResult &hit_result, int i, void *vp, float f) {
+        overwrite_calls(LevelRenderer_renderHitSelect, [](MCPI_UNUSED LevelRenderer_renderHitSelect_t original, LevelRenderer *self, Player *player, const HitResult &hit_result, int i, void *vp, float f) {
             self->renderHitOutline(player, hit_result, i, vp, f);
         });
         unsigned char fix_outline_patch[4] = {0x00, 0xf0, 0x20, 0xe3}; // "nop"

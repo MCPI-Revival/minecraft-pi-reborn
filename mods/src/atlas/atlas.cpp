@@ -161,7 +161,7 @@ static void generate_atlas(Minecraft *minecraft) {
 }
 
 // Use New Atlas
-static void ItemRenderer_renderGuiItem_two_injection(__attribute__((unused)) ItemRenderer_renderGuiItem_two_t original, __attribute__((unused)) Font *font, Textures *textures, const ItemInstance *item_instance_ptr, const float x, const float y, const float w, const float h, __attribute__((unused)) bool param_5) {
+static void ItemRenderer_renderGuiItem_two_injection(MCPI_UNUSED ItemRenderer_renderGuiItem_two_t original, MCPI_UNUSED Font *font, Textures *textures, const ItemInstance *item_instance_ptr, const float x, const float y, const float w, const float h, MCPI_UNUSED bool param_5) {
     // "Carried" Items
     ItemInstance item_instance = *item_instance_ptr;
     if (item_instance.id == Tile::leaves->id) {
@@ -208,7 +208,7 @@ static int CropTile_getTexture2_injection(CropTile_getTexture2_t original, CropT
 }
 
 // Fix Open Inventory Button
-static void Gui_renderToolBar_GuiComponent_blit_injection(GuiComponent *self, const int x_dest, const int y_dest, __attribute__((unused)) const int x_src, __attribute__((unused)) const int y_src, const int width_dest, const int height_dest, const int width_src, const int height_src) {
+static void Gui_renderToolBar_GuiComponent_blit_injection(GuiComponent *self, const int x_dest, const int y_dest, MCPI_UNUSED const int x_src, MCPI_UNUSED const int y_src, const int width_dest, const int height_dest, const int width_src, const int height_src) {
     constexpr float size_scale = 2.0f / atlas_texture_size;
     constexpr float u1 = 1.0f;
     const float u0 = u1 - (float(width_src) * size_scale);

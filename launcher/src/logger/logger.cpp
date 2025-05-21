@@ -19,7 +19,7 @@
 
 // Exit Handler
 static pid_t child_pid = -1;
-static void exit_handler(__attribute__((unused)) int signal) {
+static void exit_handler(MCPI_UNUSED int signal) {
     // Murder
     kill(child_pid, SIGTERM);
 }

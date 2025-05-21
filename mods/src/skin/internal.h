@@ -1,3 +1,3 @@
 #pragma once
 
-__attribute__((visibility("internal"))) void _init_skin_loader();
+MCPI_INTERNAL void _init_skin_loader();

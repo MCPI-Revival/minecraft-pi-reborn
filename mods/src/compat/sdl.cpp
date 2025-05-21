@@ -13,7 +13,7 @@
 #include "internal.h"
 
 // Custom Title
-HOOK(media_SDL_WM_SetCaption, void, (__attribute__((unused)) const char *title, const char *icon)) {
+HOOK(media_SDL_WM_SetCaption, void, (MCPI_UNUSED const char *title, const char *icon)) {
     real_media_SDL_WM_SetCaption()(reborn_config.app.title, icon);
 }
 

@@ -12,17 +12,17 @@
 #include <media-layer/core.h>
 
 // Interactivity
-__attribute__((visibility("internal"))) extern bool is_interactable;
+MCPI_INTERNAL extern bool is_interactable;
 
 // Window
-__attribute__((visibility("internal"))) extern GLFWwindow *glfw_window;
+MCPI_INTERNAL extern GLFWwindow *glfw_window;
 
 // Cursor
-__attribute__((visibility("internal"))) void _media_update_cursor();
-__attribute__((visibility("internal"))) extern bool ignore_relative_motion;
-__attribute__((visibility("internal"))) extern bool raw_mouse_motion_enabled;
+MCPI_INTERNAL void _media_update_cursor();
+MCPI_INTERNAL extern bool ignore_relative_motion;
+MCPI_INTERNAL extern bool raw_mouse_motion_enabled;
 
 // Events
-__attribute__((visibility("internal"))) void _media_register_event_listeners();
-__attribute__((visibility("internal"))) void _media_handle_media_SDL_PollEvent();
-__attribute__((visibility("internal"))) void _media_glfw_motion(GLFWwindow *window, double xpos, double ypos);
+MCPI_INTERNAL void _media_register_event_listeners();
+MCPI_INTERNAL void _media_handle_media_SDL_PollEvent();
+MCPI_INTERNAL void _media_glfw_motion(GLFWwindow *window, double xpos, double ypos);

@@ -59,15 +59,15 @@ static void play(const std::string &name, const float x, const float y, const fl
         media_audio_play(source.c_str(), resolved_name.c_str(), x, y, z, pitch, volume, is_ui);
     }
 }
-static void SoundEngine_playUI_injection(__attribute__((unused)) SoundEngine_playUI_t original, __attribute__((unused)) SoundEngine *sound_engine, const std::string &name, const float volume, const float pitch) {
+static void SoundEngine_playUI_injection(MCPI_UNUSED SoundEngine_playUI_t original, MCPI_UNUSED SoundEngine *sound_engine, const std::string &name, const float volume, const float pitch) {
     play(name, 0, 0, 0, volume, pitch, true);
 }
-static void SoundEngine_play_injection(__attribute__((unused)) SoundEngine_play_t original, __attribute__((unused)) SoundEngine *sound_engine, const std::string &name, const float x, const float y, const float z, const float volume, const float pitch) {
+static void SoundEngine_play_injection(MCPI_UNUSED SoundEngine_play_t original, MCPI_UNUSED SoundEngine *sound_engine, const std::string &name, const float x, const float y, const float z, const float volume, const float pitch) {
     play(name, x, y, z, volume, pitch, false);
 }
 
 // Refresh Data
-static void SoundEngine_update_injection(__attribute__((unused)) SoundEngine_update_t original, SoundEngine *sound_engine, Mob *listener_mob, __attribute__((unused)) float listener_angle) {
+static void SoundEngine_update_injection(MCPI_UNUSED SoundEngine_update_t original, SoundEngine *sound_engine, Mob *listener_mob, MCPI_UNUSED float listener_angle) {
     // Variables
     static float volume = 0;
     static float x = 0;

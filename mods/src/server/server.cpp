@@ -95,7 +95,7 @@ static void start_world(Minecraft *minecraft) {
 }
 
 // Force Game-Mode To Match Server Settings
-static int LevelData_getTagData_CompoundTag_getInt_injection(__attribute__((unused)) CompoundTag *self, const std::string &key) {
+static int LevelData_getTagData_CompoundTag_getInt_injection(MCPI_UNUSED CompoundTag *self, const std::string &key) {
     if (key != "GameType") {
         IMPOSSIBLE();
     }
@@ -150,7 +150,7 @@ static void Minecraft_update_injection(Minecraft *minecraft) {
 }
 
 // Ban Players
-static bool RakNet_RakPeer_IsBanned_injection(__attribute__((unused)) RakNet_RakPeer_IsBanned_t original, __attribute__((unused)) RakNet_RakPeer *rakpeer, const char *ip) {
+static bool RakNet_RakPeer_IsBanned_injection(MCPI_UNUSED RakNet_RakPeer_IsBanned_t original, MCPI_UNUSED RakNet_RakPeer *rakpeer, const char *ip) {
     // Check List
     bool ret = blacklist.contains(ip);
     if (blacklist.is_white) {

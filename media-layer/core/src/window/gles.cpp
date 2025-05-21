@@ -10,7 +10,7 @@
 unsigned int media_context_id = 0;
 #define GL_FUNC(name, return_type, args) \
     typedef return_type (*real_##name##_t)args; \
-    __attribute__((__unused__)) static real_##name##_t real_##name() { \
+    MCPI_UNUSED static real_##name##_t real_##name() { \
         static real_##name##_t func = nullptr; \
         static unsigned int old_context = 0; \
         if (!func || old_context != media_context_id) { \

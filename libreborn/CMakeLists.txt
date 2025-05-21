@@ -24,6 +24,10 @@ if(TARGET glfw)
     target_sources(reborn-util PRIVATE src/util/glfw.cpp)
     target_link_libraries(reborn-util PRIVATE glfw)
 endif()
+target_compile_definitions(reborn-util PUBLIC
+    "MCPI_UNUSED=__attribute__((unused))"
+    "MCPI_INTERNAL=__attribute__((visibility(\"internal\")))"
+)
 setup_header_dirs(reborn-util
     "${CMAKE_CURRENT_SOURCE_DIR}/include"
     "${CMAKE_CURRENT_BINARY_DIR}/include"

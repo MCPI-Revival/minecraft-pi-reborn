@@ -96,7 +96,7 @@ static TileItem *Tile_initTiles_TileItem_injection(TileItem *tile_item, const in
 
 // Allow Creative Players To Drop Items
 void *const Gui_tick_Minecraft_isCreativeMode_addr = (void *) 0x27800;
-static bool Gui_tick_Minecraft_isCreativeMode_injection(__attribute__((unused)) Minecraft *minecraft) {
+static bool Gui_tick_Minecraft_isCreativeMode_injection(MCPI_UNUSED Minecraft *minecraft) {
     return false;
 }
 

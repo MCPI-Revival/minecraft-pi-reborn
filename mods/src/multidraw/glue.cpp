@@ -101,7 +101,7 @@ static void multidraw_renderSameAsLast(const LevelRenderer *self, const float b)
     media_glDisableClientState(GL_TEXTURE_COORD_ARRAY);
     media_glPopMatrix();
 }
-static int LevelRenderer_renderChunks_injection(__attribute__((unused)) LevelRenderer_renderChunks_t original, const LevelRenderer *self, const int start, const int end, const int a, const float b) {
+static int LevelRenderer_renderChunks_injection(MCPI_UNUSED LevelRenderer_renderChunks_t original, const LevelRenderer *self, const int start, const int end, const int a, const float b) {
     // Batch
     multidraw_total = 0;
     for (int i = start; i < end; i++) {

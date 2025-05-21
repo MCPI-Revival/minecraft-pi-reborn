@@ -10,7 +10,7 @@ HOOK(server_get_commands, std::vector<ServerCommand> *, (Minecraft *minecraft, S
     commands->push_back({
         .name = "greet",
         .comment = "Example Custom Command",
-        .callback = [](__attribute__((unused)) const std::string &cmd) {
+        .callback = [](MCPI_UNUSED const std::string &cmd) {
             INFO("Hello World!");
         }
     });

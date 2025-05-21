@@ -13,7 +13,7 @@ void reborn_init_patch();
 // Replace Call Located At start With A Call To target
 void overwrite_call_manual(void *addr, void *new_target, bool force_b_instruction = false);
 template <typename T>
-void overwrite_call(void *addr, __attribute__((unused)) T *target_type, typename T::ptr_type new_target, const bool force_b_instruction = false) {
+void overwrite_call(void *addr, MCPI_UNUSED T *target_type, typename T::ptr_type new_target, const bool force_b_instruction = false) {
     overwrite_call_manual(addr, (void *) new_target, force_b_instruction);
 }
 

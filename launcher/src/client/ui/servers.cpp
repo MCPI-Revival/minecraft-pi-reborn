@@ -19,7 +19,7 @@ void ConfigurationUI::draw_servers() const {
     // Clear
     bool should_clear = false;
     ImGui::BeginDisabled(state.servers.entries.empty());
-    draw_right_aligned_buttons({"Clear"}, [&should_clear](__attribute__((unused)) const int id, const bool was_clicked) {
+    draw_right_aligned_buttons({"Clear"}, [&should_clear](MCPI_UNUSED const int id, const bool was_clicked) {
         should_clear = was_clicked;
     });
     ImGui::EndDisabled();

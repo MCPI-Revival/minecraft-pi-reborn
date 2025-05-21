@@ -256,7 +256,7 @@ static void Tesselator_vertex_injection(Tesselator *self, const float x, const f
 }
 
 // Specify Normal
-static void Tesselator_normal_injection(__attribute__((unused)) Tesselator *self, const float nx, const float ny, const float nz) {
+static void Tesselator_normal_injection(MCPI_UNUSED Tesselator *self, const float nx, const float ny, const float nz) {
     if (are_vertices_flat) {
         IMPOSSIBLE();
     }

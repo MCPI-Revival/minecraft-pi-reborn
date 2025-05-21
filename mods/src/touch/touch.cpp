@@ -9,20 +9,20 @@
 #include <symbols/minecraft.h>
 
 // Enable Touch GUI
-static bool Minecraft_isTouchscreen_injection_one(__attribute__((unused)) Minecraft *minecraft) {
+static bool Minecraft_isTouchscreen_injection_one(MCPI_UNUSED Minecraft *minecraft) {
     return true;
 }
-static bool Minecraft_isTouchscreen_injection_two(__attribute__((unused)) Minecraft_isTouchscreen_t original, __attribute__((unused)) Minecraft *minecraft) {
+static bool Minecraft_isTouchscreen_injection_two(MCPI_UNUSED Minecraft_isTouchscreen_t original, MCPI_UNUSED Minecraft *minecraft) {
     return Minecraft_isTouchscreen_injection_one(minecraft);
 }
 
 // IngameBlockSelectionScreen Memory Allocation Override
-static unsigned char *operator_new_IngameBlockSelectionScreen_injection(__attribute__((unused)) uint32_t size) {
+static unsigned char *operator_new_IngameBlockSelectionScreen_injection(MCPI_UNUSED uint32_t size) {
     return (unsigned char *) ::operator new(sizeof(Touch_IngameBlockSelectionScreen));
 }
 
 // Improved Button Hover Behavior
-static int32_t Button_hovered_injection(__attribute__((unused)) Button_hovered_t original, __attribute__((unused)) Button *button, __attribute__((unused)) Minecraft *minecraft, __attribute__((unused)) int32_t click_x, __attribute__((unused)) int32_t click_y) {
+static int32_t Button_hovered_injection(MCPI_UNUSED Button_hovered_t original, MCPI_UNUSED Button *button, MCPI_UNUSED Minecraft *minecraft, MCPI_UNUSED int32_t click_x, MCPI_UNUSED int32_t click_y) {
     // Get Mouse Position
     const int32_t x = Mouse::getX() * Gui::InvGuiScale;
     const int32_t y = (Mouse::getY() * Gui::InvGuiScale) - 1; // Screen::mouseEvent Offsets Mouse Events

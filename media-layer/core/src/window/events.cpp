@@ -125,7 +125,7 @@ static void glfw_key_raw(int key, int scancode, int action, int mods) {
     event2.user.data2 = key;
     media_SDL_PushEvent(&event2);
 }
-static void glfw_key(__attribute__((unused)) GLFWwindow *window, const int key, const int scancode, const int action, const int mods) {
+static void glfw_key(MCPI_UNUSED GLFWwindow *window, const int key, const int scancode, const int action, const int mods) {
     if (is_interactable) {
         glfw_key_raw(key, scancode, action, mods);
     }
@@ -143,7 +143,7 @@ static void character_event(unsigned char c) {
     event.user.data1 = (int) c;
     media_SDL_PushEvent(&event);
 }
-static void glfw_char(__attribute__((unused)) GLFWwindow *window, const unsigned int codepoint) {
+static void glfw_char(MCPI_UNUSED GLFWwindow *window, const unsigned int codepoint) {
     character_event(utf32_to_cp437(codepoint));
 }
 
@@ -167,7 +167,7 @@ static double last_mouse_x = 0;
 static double last_mouse_y = 0;
 
 // Pass Mouse Movement To SDL
-void _media_glfw_motion(__attribute__((unused)) GLFWwindow *window, double xpos, double ypos) {
+void _media_glfw_motion(MCPI_UNUSED GLFWwindow *window, double xpos, double ypos) {
     convert_to_pixels(window, &xpos, &ypos);
     if (is_interactable) {
         SDL_Event event;
@@ -200,14 +200,14 @@ static void glfw_click_raw(const int button, const int action) {
     const int sdl_button = button == GLFW_MOUSE_BUTTON_RIGHT ? SDL_BUTTON_RIGHT : (button == GLFW_MOUSE_BUTTON_LEFT ? SDL_BUTTON_LEFT : SDL_BUTTON_MIDDLE);
     click_event(sdl_button, up);
 }
-static void glfw_click(__attribute__((unused)) GLFWwindow *window, const int button, const int action, __attribute__((unused)) int mods) {
+static void glfw_click(MCPI_UNUSED GLFWwindow *window, const int button, const int action, MCPI_UNUSED int mods) {
     if (is_interactable) {
         glfw_click_raw(button, action);
     }
 }
 
 // Pass Mouse Scroll To SDL
-static void glfw_scroll(__attribute__((unused)) GLFWwindow *window, __attribute__((unused)) double xoffset, double yoffset) {
+static void glfw_scroll(MCPI_UNUSED GLFWwindow *window, MCPI_UNUSED double xoffset, double yoffset) {
     if (is_interactable && yoffset != 0) {
         const int sdl_button = yoffset > 0 ? SDL_BUTTON_WHEELUP : SDL_BUTTON_WHEELDOWN;
         click_event(sdl_button, false);
