@@ -173,22 +173,28 @@ void init_title_screen() {
     }
 
     // High-Resolution Title
+    Texture *(*new_classic_title_getTemporaryTextureData)(Textures *, uint) = nullptr;
     if (feature_has("Allow High-Resolution Title", server_disabled) || modern_logo) {
         // Touch
         overwrite_call((void *) 0x3df2c, Textures_getTemporaryTextureData, StartMenuScreen_render_Textures_getTemporaryTextureData_injection);
         overwrite_call((void *) 0x3df98, Mth_min, StartMenuScreen_render_Mth_min_injection);
         // Classic
-        overwrite_call((void *) 0x3956c, Textures_getTemporaryTextureData, StartMenuScreen_render_Textures_getTemporaryTextureData_injection);
+        new_classic_title_getTemporaryTextureData = StartMenuScreen_render_Textures_getTemporaryTextureData_injection;
         overwrite_call((void *) 0x395d8, Mth_min, StartMenuScreen_render_Mth_min_injection);
     }
 
     // Better Scaling And Position
     bool hijack_version_rendering = false;
     if (feature_has("Improved Classic Title Positioning", server_disabled)) {
-        overwrite_call((void *) 0x3956c, Textures_getTemporaryTextureData, StartMenuScreen_render_Textures_getTemporaryTextureData_injection_modern);
+        new_classic_title_getTemporaryTextureData = StartMenuScreen_render_Textures_getTemporaryTextureData_injection_modern; // This Overrides The Previous Flag
         overwrite_call((void *) 0x39528, StartMenuScreen_renderBackground, StartMenuScreen_render_Screen_renderBackground_injection);
         hijack_version_rendering = true;
         adjust_version_y = get_version_y;
+    }
+
+    // Change Classic Title Screen Rendering
+    if (new_classic_title_getTemporaryTextureData) {
+        overwrite_call((void *) 0x3956c, Textures_getTemporaryTextureData, new_classic_title_getTemporaryTextureData);
     }
 
     // Add Splashes

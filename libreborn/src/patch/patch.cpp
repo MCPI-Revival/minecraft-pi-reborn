@@ -5,6 +5,7 @@
 #include <sys/mman.h>
 #include <cstdint>
 #include <cerrno>
+#include <unordered_set>
 
 #include <libreborn/patch.h>
 #include "patch-internal.h"
@@ -123,9 +124,20 @@ static void safe_mprotect(void *addr, const size_t len, const int prot) {
         ERR("Unable To Set Memory Permissions: %p: %s", addr, strerror(errno));
     }
 }
+static bool record_patch = true;
+bool ignore_patch_conflict = false;
 void patch(void *addr, unsigned char patch[4]) {
     if (uint32_t(addr) % 4 != 0) {
         ERR("Invalid Address: %p", addr);
+    }
+
+    // Detect Multiple Patches At Address
+    static std::unordered_set<void *> patched_addresses;
+    if (patched_addresses.contains(addr) && !ignore_patch_conflict) {
+        ERR("Patch Conflict Detected: %p", addr);
+    }
+    if (record_patch) {
+        patched_addresses.insert(addr).second;
     }
 
     // Get Current Permissions
@@ -162,5 +174,11 @@ void patch_address(void *addr, void *target) {
 
 // Thunks
 void *reborn_thunk_enabler(void *target, void *thunk) {
-    return overwrite_calls_manual(target, thunk, true);
+    // Treat These Patches As If They Were Part Of The Original Binary
+    record_patch = false;
+    ignore_patch_conflict = true;
+    void *ret = overwrite_calls_manual(target, thunk, true);
+    record_patch = true;
+    ignore_patch_conflict = false;
+    return ret;
 }

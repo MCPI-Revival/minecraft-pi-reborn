@@ -41,6 +41,7 @@ void overwrite_calls_within(void *from, void *to, T *target, typename T::ptr_typ
 void *extract_from_bl_instruction(unsigned char *addr);
 
 // Patch Instruction
+extern bool ignore_patch_conflict;
 void patch(void *addr, unsigned char patch[4]);
 // Patch 4 Bytes Of Data
 void patch_address(void *addr, void *target);

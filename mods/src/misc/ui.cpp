@@ -268,7 +268,10 @@ static void set_gui_scale(const float new_scale) {
         void *b;
     } pun = {};
     pun.a = new_scale;
+    // Patch Scale, This Will Be Applied Multiple Times
+    ignore_patch_conflict = true;
     patch_address((void *) 0x17520, pun.b);
+    ignore_patch_conflict = false;
 }
 static float calculate_scale(const float value, const float default_value) {
     // y = mx + b
