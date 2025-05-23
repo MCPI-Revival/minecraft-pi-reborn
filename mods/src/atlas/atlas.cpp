@@ -43,7 +43,8 @@ static void render_atlas(Textures *textures) {
     int x = 0;
     int y = 0;
     // Loop Over All Possible IDs
-    for (int id = 0; id < 512; id++) {
+    constexpr int id_count = int(sizeof(Item::items) / sizeof(Item *));
+    for (int id = 0; id < id_count; id++) {
         Item *item = Item::items[id];
         if (!item) {
             // Invalid ID
@@ -110,18 +111,21 @@ static void generate_atlas(Minecraft *minecraft) {
     media_glTranslatef(0, 0, -2000);
     media_glDisable(GL_DEPTH_TEST);
 
-    // Re-Upload Textures
-    Textures *textures = Textures::allocate();
-    textures->constructor(&minecraft->options, minecraft->platform());
-
     // Render
+    Textures *textures = minecraft->textures;
     render_atlas(textures);
 
     // Copy Open Inventory Button
-    textures->loadAndBindTexture("gui/gui_blocks.png");
-    constexpr int icon_width = 28;
-    constexpr int icon_height = 8;
-    minecraft->gui.blit(atlas_texture_size - icon_width, atlas_texture_size - icon_height, 242, 252, icon_width, icon_height, 14, 4);
+    textures->loadAndBindTexture("terrain.png");
+    constexpr int in_icon_x = 209;
+    constexpr int in_icon_y = 214;
+    constexpr int in_icon_width = 14;
+    constexpr int in_icon_height = 4;
+    constexpr int out_icon_width = in_icon_width * 2;
+    constexpr int out_icon_height = in_icon_height * 2;
+    constexpr int out_icon_x = atlas_texture_size - out_icon_width;
+    constexpr int out_icon_y = atlas_texture_size - out_icon_height;
+    minecraft->gui.blit(out_icon_x, out_icon_y, in_icon_x, in_icon_y, out_icon_width, out_icon_height, in_icon_width, in_icon_height);
 
     // Read Texture
     int line_size = atlas_texture_size * 4;
@@ -151,8 +155,6 @@ static void generate_atlas(Minecraft *minecraft) {
     }
 
     // Restore Old Context
-    textures->destructor();
-    ::operator delete(textures);
     media_end_offscreen_render();
 
     // Upload Texture
@@ -216,10 +218,10 @@ static void Gui_renderToolBar_GuiComponent_blit_injection(GuiComponent *self, co
     const float v0 = v1 - (float(height_src) * size_scale);
     Tesselator &t = Tesselator::instance;
     t.begin(GL_QUADS);
-    t.vertexUV(x_dest, y_dest + height_dest, self->z, u0, v1);
-    t.vertexUV(x_dest + width_dest, y_dest + height_dest, self->z, u1, v1);
-    t.vertexUV(x_dest + width_dest, y_dest, self->z, u1, v0);
-    t.vertexUV(x_dest, y_dest, self->z, u0, v0);
+    t.vertexUV(float(x_dest), float(y_dest + height_dest), self->z, u0, v1);
+    t.vertexUV(float(x_dest + width_dest), float(y_dest + height_dest), self->z, u1, v1);
+    t.vertexUV(float(x_dest + width_dest), float(y_dest), self->z, u1, v0);
+    t.vertexUV(float(x_dest), float(y_dest), self->z, u0, v0);
     t.draw();
 }
 

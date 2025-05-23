@@ -40,7 +40,7 @@ property Item *craftingRemainingItem = 0x1c;
 property std::string description_id = 0x20;
 
 // Globals
-static-property Item *items[256] = 0x17b250;
+static-property Item *items[512] = 0x17b250;
 
 // Items
 static-property Item *flintAndSteel = 0x17ba70;
