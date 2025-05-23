@@ -46,7 +46,7 @@ static bool InBedScreen_handleBackEvent_injection(InBedScreen *screen, const boo
 // Block Item Dropping When Mouse Is Locked
 static void Gui_tickItemDrop_injection(Gui_tickItemDrop_t original, Gui *self) {
     const Minecraft *minecraft = self->minecraft;
-    const bool is_in_game = minecraft->screen == nullptr || minecraft->screen->vtable == (Screen_vtable *) Touch_IngameBlockSelectionScreen_vtable::base;
+    const bool is_in_game = minecraft->screen == nullptr || minecraft->screen->vtable == (Screen::VTable *) Touch_IngameBlockSelectionScreen::VTable::base;
     if (media_SDL_WM_GrabInput(SDL_GRAB_QUERY) == SDL_GRAB_OFF && is_in_game) {
         // Call Original Method
         return original(self);

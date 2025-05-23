@@ -104,7 +104,7 @@ screen->constructor();
 > ```c++
 > SendInventoryPacket *packet = SendInventoryPacket::allocate();
 > ((Packet *) packet)->constructor();
-> packet->vtable = SendInventoryPacket_vtable::base;
+> packet->vtable = SendInventoryPacket::VTable::base;
 > new (&packet->items) std::vector<ItemInstance>;
 > ```
 

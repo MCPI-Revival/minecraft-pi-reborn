@@ -84,7 +84,7 @@ static TileItem *Tile_initTiles_TileItem_injection(TileItem *tile_item, const in
     tile_item->constructor(id);
 
     // Switch VTable
-    tile_item->vtable = (TileItem_vtable *) AuxDataTileItem_vtable::base;
+    tile_item->vtable = (TileItem::VTable *) AuxDataTileItem::VTable::base;
     // Configure Item
     tile_item->is_stacked_by_data = true;
     tile_item->max_damage = 0;

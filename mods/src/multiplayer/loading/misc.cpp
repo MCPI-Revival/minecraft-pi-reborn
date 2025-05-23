@@ -67,7 +67,7 @@ static void ClientSideNetworkHandler_levelGenerated_injection(ClientSideNetworkH
     for (const uchar type : {1, 2}) {
         ReadyPacket *packet = ReadyPacket::allocate();
         ((Packet *) packet)->constructor();
-        packet->vtable = ReadyPacket_vtable::base;
+        packet->vtable = ReadyPacket::VTable::base;
         packet->type = type;
         self->rak_net_instance->send(*(Packet *) packet);
         packet->destructor_deleting();

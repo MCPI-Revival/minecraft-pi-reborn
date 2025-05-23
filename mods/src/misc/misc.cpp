@@ -353,7 +353,7 @@ static void Minecraft_setScreen_injection(Minecraft_setScreen_t original, Minecr
     original(self, screen);
     // Track
     current_sign_screen = nullptr;
-    if (screen != nullptr && screen->vtable == (Screen_vtable *) TextEditScreen_vtable::base) {
+    if (screen != nullptr && screen->vtable == (Screen::VTable *) TextEditScreen::VTable::base) {
         current_sign_screen = (TextEditScreen *) screen;
     }
 }

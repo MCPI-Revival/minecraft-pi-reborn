@@ -61,7 +61,7 @@ static int32_t TallGrass_getColor_injection(TallGrass_getColor_t original, TallG
 struct GrassSideTile final : CustomTile {
     GrassSideTile(const int id, const int texture, const Material *material) : CustomTile(id, texture, material) {}
     bool shouldRenderFace(LevelSource *level_source, const int x, const int y, const int z, const int face) override {
-        return face > 1 && Tile_vtable::base->shouldRenderFace(self, level_source, x, y, z, face);
+        return face > 1 && Tile::VTable::base->shouldRenderFace(self, level_source, x, y, z, face);
     }
     int getColor(LevelSource *level_source, const int x, const int y, const int z) override {
         return GrassTile_getColor_injection(nullptr, (GrassTile *) self, level_source, x, y, z);

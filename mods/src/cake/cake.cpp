@@ -151,7 +151,7 @@ static void Item_initTiles_injection() {
     // Create Item
     cake_item = TilePlanterItem::allocate();
     ((Item *) cake_item)->constructor(98);
-    cake_item->vtable = TilePlanterItem_vtable::base;
+    cake_item->vtable = TilePlanterItem::VTable::base;
     cake_item->tile_id = cake->id;
     cake_item->setIcon(13, 1);
     cake_item->max_stack_size = 1;

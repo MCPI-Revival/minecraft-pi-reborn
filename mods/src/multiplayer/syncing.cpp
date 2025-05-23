@@ -53,7 +53,7 @@ static void LocalPlayer_tick_injection(LocalPlayer_tick_t original, LocalPlayer 
             // Send Packet To Server
             PlayerActionPacket *packet = PlayerActionPacket::allocate();
             ((Packet *) packet)->constructor();
-            packet->vtable = PlayerActionPacket_vtable::base;
+            packet->vtable = PlayerActionPacket::VTable::base;
             packet->entity_id = self->id;
             packet->action = real ? PLAYER_ACTION_START_SNEAKING : PLAYER_ACTION_STOP_SNEAKING;
             self->level->rak_net_instance->send(*(Packet *) packet);
@@ -101,7 +101,7 @@ static void ServerSideNetworkHandler_onReady_ClientGeneration_injection(ServerSi
     // Send Spawn Position
     SetSpawnPositionPacket *packet = SetSpawnPositionPacket::allocate();
     ((Packet *) packet)->constructor();
-    packet->vtable = SetSpawnPositionPacket_vtable::base;
+    packet->vtable = SetSpawnPositionPacket::VTable::base;
     packet->x = pos.x;
     packet->y = pos.y;
     packet->z = pos.z;

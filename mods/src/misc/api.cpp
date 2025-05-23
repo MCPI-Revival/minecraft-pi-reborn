@@ -160,12 +160,12 @@ std::pair<std::string, std::string> misc_get_entity_type_name(Entity *entity) {
                 return misc_get_entity_type_names()[type];
             } else if (type == EntityType::UNKNOWN) {
                 // Special Entity
-                static std::unordered_map<void *, std::string> vtable_to_name = {
-                    {(void *) Particle_vtable::base, "Particle"},
-                    {(void *) TripodCamera_vtable::base, "Tripod Camera"},
-                    {(void *) CameraEntity_vtable::base, "API Camera"}
+                static std::unordered_map<const void *, std::string> vtable_to_name = {
+                    {(const void *) Particle::VTable::base, "Particle"},
+                    {(const void *) TripodCamera::VTable::base, "Tripod Camera"},
+                    {(const void *) CameraEntity::VTable::base, "API Camera"}
                 };
-                void *vtable = entity->vtable;
+                const void *vtable = entity->vtable;
                 if (vtable_to_name.contains(vtable)) {
                     return format_entity_name(vtable_to_name[vtable]);
                 }

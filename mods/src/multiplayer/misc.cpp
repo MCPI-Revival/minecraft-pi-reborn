@@ -36,7 +36,7 @@ static bool TileItem_useOn_Level_setTileAndData_injection(Level *self, const int
     if (ret) {
         UpdateBlockPacket *packet = UpdateBlockPacket::allocate();
         ((Packet *) packet)->constructor();
-        packet->vtable = UpdateBlockPacket_vtable::base;
+        packet->vtable = UpdateBlockPacket::VTable::base;
         packet->x = x;
         packet->y = y;
         packet->z = z;

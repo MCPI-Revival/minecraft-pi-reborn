@@ -68,7 +68,7 @@ static bool CommandServer__updateClient_injection_1(CommandServer__updateClient_
 void api_update_entity_position(const Entity *entity, const RakNet_RakNetGUID *guid) {
     MovePlayerPacket *packet = MovePlayerPacket::allocate(); // Despite The Name, This Supports All Entities
     ((Packet *) packet)->constructor();
-    packet->vtable = MovePlayerPacket_vtable::base;
+    packet->vtable = MovePlayerPacket::VTable::base;
     packet->x = entity->x;
     packet->y = entity->y - entity->height_offset;
     packet->z = entity->z;

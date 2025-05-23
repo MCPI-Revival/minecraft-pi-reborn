@@ -118,7 +118,7 @@ static void load(ServerPlayer *player) {
         // Create Packet
         ContainerSetContentPacket *packet = ContainerSetContentPacket::allocate();
         ((Packet *) packet)->constructor();
-        packet->vtable = ContainerSetContentPacket_vtable::base;
+        packet->vtable = ContainerSetContentPacket::VTable::base;
         new (&packet->items) std::vector<ItemInstance>;
 
         // Send Inventory

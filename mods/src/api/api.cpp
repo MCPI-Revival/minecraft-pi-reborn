@@ -590,7 +590,7 @@ static std::string CommandServer_parse_injection(CommandServer_parse_t original,
             // Set Velocity
             SetEntityMotionPacket *packet = SetEntityMotionPacket::allocate();
             ((Packet *) packet)->constructor();
-            packet->vtable = SetEntityMotionPacket_vtable::base;
+            packet->vtable = SetEntityMotionPacket::VTable::base;
             packet->entity_id = id;
 #define next_component(axis) \
     next_float(axis); \

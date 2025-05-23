@@ -15,7 +15,7 @@ static void send_api_chat_command(const Minecraft *minecraft, const char *str) {
     // Construct Packet
     ChatPacket *packet = ChatPacket::allocate();
     ((Packet *) packet)->constructor();
-    packet->vtable = ChatPacket_vtable::base;
+    packet->vtable = ChatPacket::VTable::base;
     new (&packet->message) std::string;
     // Configure Packet
     packet->message = str;
