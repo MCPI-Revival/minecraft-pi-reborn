@@ -132,10 +132,12 @@ jobs:
             uses: actions/download-artifact@v3
             with:
                 path: out
-          # Get Changelog
-          - name: Get Changelog
+          # Prepare Release
+          - name: Prepare Release
             id: release-info
-            run: ./scripts/get-changelog.mjs ci >> "${GITHUB_OUTPUT}"
+            run: |
+                ./scripts/get-changelog.mjs ci >> "${GITHUB_OUTPUT}"
+                find ./out -name '*.so' -delete
           # Create Release
           - name: Create Release
             uses: https://gitea.com/actions/release-action@main
