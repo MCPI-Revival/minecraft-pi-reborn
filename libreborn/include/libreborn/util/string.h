@@ -13,3 +13,6 @@ std::string from_cp437(const std::string &input);
 // Format Time
 std::string format_time(const char *fmt);
 std::string format_time(const char *fmt, int time);
+
+// Trimming
+void trim(std::string &str);

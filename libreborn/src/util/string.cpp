@@ -1,3 +1,4 @@
+#include <algorithm>
 #include <ctime>
 #include <cstring>
 
@@ -39,4 +40,20 @@ std::string format_time(const char *fmt) {
 std::string format_time(const char *fmt, const int time) {
     // This Will Break In 2038
     return _format_time(fmt, time);
+}
+
+// Trim String
+static void ltrim(std::string &s) {
+    s.erase(s.begin(), std::ranges::find_if(s, [](const unsigned char ch) {
+        return !std::isspace(ch);
+    }));
+}
+static void rtrim(std::string &s) {
+    s.erase(std::find_if(s.rbegin(), s.rend(), [](const unsigned char ch) {
+        return !std::isspace(ch);
+    }).base(), s.end());
+}
+void trim(std::string &str) {
+    rtrim(str);
+    ltrim(str);
 }

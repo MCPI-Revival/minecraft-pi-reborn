@@ -1,6 +1,5 @@
 #include <fstream>
 #include <cstdint>
-#include <algorithm>
 
 #include <libreborn/log.h>
 #include <libreborn/util/string.h>
@@ -74,24 +73,6 @@ static void kick_callback(MCPI_UNUSED Minecraft *minecraft, const std::string &u
     INFO("Kicked: %s", username.c_str());
 }
 
-// Trim String
-static void ltrim(std::string &s) {
-    s.erase(s.begin(), std::ranges::find_if(s, [](const unsigned char ch) {
-        return !std::isspace(ch);
-    }));
-}
-static void rtrim(std::string &s) {
-    s.erase(std::find_if(s.rbegin(), s.rend(), [](const unsigned char ch) {
-        return !std::isspace(ch);
-    }).base(), s.end());
-}
-static std::string trim(const std::string &x) {
-    std::string s = x;
-    rtrim(s);
-    ltrim(s);
-    return s;
-}
-
 // Read STDIN Thread
 static pthread_t read_stdin_thread_obj;
 static volatile bool stdin_line_ready = false;
@@ -153,7 +134,8 @@ std::vector<ServerCommand> *server_get_commands(Minecraft *minecraft, ServerSide
         .name = blacklist.is_white ? blacklist.get_name(false) + "-ip " : ban_ip_command,
         .comment = std::string("Add IP To ") + blacklist.get_name(true),
         .callback = [](const std::string &cmd) {
-            const std::string ip = trim(cmd);
+            std::string ip = cmd;
+            trim(ip);
             blacklist.add_ip(ip);
         }
     });
@@ -161,7 +143,8 @@ std::vector<ServerCommand> *server_get_commands(Minecraft *minecraft, ServerSide
         .name = blacklist.is_white ? ban_ip_command : "pardon-ip ",
         .comment = std::string("Remove IP From ") + blacklist.get_name(true),
         .callback = [](const std::string &cmd) {
-            const std::string ip = trim(cmd);
+            std::string ip = cmd;
+            trim(ip);
             blacklist.remove_ip(ip);
         }
     });

@@ -12,6 +12,7 @@ MCPI_INTERNAL void start_reading_commands();
 MCPI_INTERNAL void stop_reading_commands();
 
 MCPI_INTERNAL void _init_server_playerdata();
+MCPI_INTERNAL void _load_playerdata(ServerPlayer *player);
 
 // Blacklist/Whitelist
 struct Blacklist {

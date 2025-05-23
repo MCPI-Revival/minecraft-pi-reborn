@@ -89,7 +89,7 @@ static void safe_read(std::ifstream &file, T &obj, const bool required = true) {
         ERR("Unable To Read Player Data");
     }
 }
-static void load(ServerPlayer *player) {
+void _load_playerdata(ServerPlayer *player) {
     // Open File
     std::ifstream file(get_data_file(player), std::ios::binary);
     if (!file) {
@@ -148,16 +148,6 @@ static void load(ServerPlayer *player) {
 
     // Close File
     file.close();
-}
-static Player *ServerSideNetworkHandler_onReady_ClientGeneration_ServerSideNetworkHandler_popPendingPlayer_injection(ServerSideNetworkHandler *self, const RakNet_RakNetGUID &guid) {
-    // Call Original Method
-    Player *player = self->popPendingPlayer(guid);
-    // Load
-    if (player) {
-        load((ServerPlayer *) player);
-    }
-    // Return
-    return player;
 }
 
 // Save Player Data
@@ -236,6 +226,4 @@ void _init_server_playerdata() {
     // Handle Saving
     overwrite_calls(ServerSideNetworkHandler_onDisconnect, ServerSideNetworkHandler_onDisconnect_injection);
     overwrite_calls(Level_saveGame, Level_saveGame_injection);
-    // Handle Loading
-    overwrite_call((void *) 0x75e54, ServerSideNetworkHandler_popPendingPlayer, ServerSideNetworkHandler_onReady_ClientGeneration_ServerSideNetworkHandler_popPendingPlayer_injection);
 }

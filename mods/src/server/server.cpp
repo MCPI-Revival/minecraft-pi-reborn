@@ -159,21 +159,25 @@ static bool RakNet_RakPeer_IsBanned_injection(MCPI_UNUSED RakNet_RakPeer_IsBanne
     return ret;
 }
 
-// Log IPs
+// Handle New Player
 static Player *ServerSideNetworkHandler_onReady_ClientGeneration_ServerSideNetworkHandler_popPendingPlayer_injection(ServerSideNetworkHandler *server_side_network_handler, const RakNet_RakNetGUID &guid) {
     // Call Original Method
     Player *player = server_side_network_handler->popPendingPlayer(guid);
 
-    // Check If The Player Is Null
+    // Handle
     if (player != nullptr) {
         // Get Data
-        const std::string *username = &player->username;
+        const std::string username = misc_get_player_username_utf(player);
         const Minecraft *minecraft = server_side_network_handler->minecraft;
         RakNet_RakPeer *rak_peer = minecraft->rak_net_instance->peer;
         const std::string ip = get_rak_net_guid_ip(rak_peer, guid);
+        // Log IP
+        INFO("%s Has Joined (IP: %s)", username.c_str(), ip.c_str());
 
-        // Log
-        INFO("%s Has Joined (IP: %s)", username->c_str(), ip.c_str());
+        // Player Data
+        if (get_server_properties().get_bool(get_property_types().player_data)) {
+            _load_playerdata((ServerPlayer *) player);
+        }
     }
 
     // Return
@@ -278,7 +282,7 @@ static void server_init() {
         patch((void *) 0x737e4, minecon_badge_patch);
     }
 
-    // Log IPs
+    // Handle Newly Joined Players
     overwrite_call((void *) 0x75e54, ServerSideNetworkHandler_popPendingPlayer, ServerSideNetworkHandler_onReady_ClientGeneration_ServerSideNetworkHandler_popPendingPlayer_injection);
 
     // Start Reading STDIN
