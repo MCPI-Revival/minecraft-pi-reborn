@@ -668,7 +668,10 @@ void _init_misc_graphics() {
 
     // Don't Render Game In Headless Mode
     if (reborn_is_headless()) {
-        overwrite_calls(GameRenderer_render, nop<GameRenderer_render_t, GameRenderer *, float>);
+        overwrite_calls(GameRenderer_render, [](MCPI_UNUSED GameRenderer_render_t original, MCPI_UNUSED GameRenderer *self, MCPI_UNUSED float param_1) {
+            // Prevent Overloading
+            usleep(1000);
+        });
         overwrite_calls(NinecraftApp_initGLStates, nop<NinecraftApp_initGLStates_t, NinecraftApp *>);
         overwrite_calls(Gui_onConfigChanged, nop<Gui_onConfigChanged_t, Gui *, const Config &>);
         overwrite_calls(LevelRenderer_generateSky, nop<LevelRenderer_generateSky_t, LevelRenderer *>);

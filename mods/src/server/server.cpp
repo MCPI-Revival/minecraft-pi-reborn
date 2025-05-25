@@ -53,7 +53,7 @@ static const auto &get_property_types() {
         const ServerProperty enable_whitelist = ServerProperty("whitelist", "false", "Enable Whitelist");
         const ServerProperty enable_death_messages = ServerProperty("death-messages", "true", "Enable Death Messages");
         const ServerProperty enable_cave_generation = ServerProperty("generate-caves", "true", "Generate Caves");
-        const ServerProperty player_data = ServerProperty("track-player-data", "true", "Save/Load Player Data");
+        const ServerProperty player_data = ServerProperty("track-player-data", "false", "Save/Load Player Data");
     } types;
     return types;
 }
