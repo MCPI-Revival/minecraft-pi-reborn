@@ -83,7 +83,17 @@ add_subdirectory(dependencies)
 add_compile_options(-ffast-math)
 
 # Warnings
-add_compile_options(-Wall -Wextra -Werror -Wpointer-arith -Wshadow -Wnull-dereference)
+add_compile_options(
+    -Wall
+    -Wextra
+    -Werror
+    -Wpointer-arith
+    -Wshadow
+    -Wnull-dereference
+    "$<$<COMPILE_LANGUAGE:C>:-Wstrict-prototypes>"
+    "$<$<COMPILE_LANGUAGE:C>:-Wmissing-prototypes>"
+    -Wmissing-declarations
+)
 if(CMAKE_C_COMPILER_ID STREQUAL "GNU")
     # Prevents False Positives
     if(CMAKE_C_COMPILER_VERSION VERSION_GREATER 10.0)

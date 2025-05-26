@@ -29,7 +29,7 @@ static std::string get_blacklist_file() {
 void Blacklist::load() {
     // Load
     ips.clear();
-    std::ifstream blacklist_file(get_blacklist_file(), std::ios::binary);
+    std::ifstream blacklist_file(get_blacklist_file(), std::ios::in);
     if (blacklist_file) {
         // Read File
         std::string line;
@@ -45,7 +45,7 @@ void Blacklist::load() {
     save();
 }
 void Blacklist::save() const {
-    std::ofstream blacklist_file(get_blacklist_file(), std::ios::binary);
+    std::ofstream blacklist_file(get_blacklist_file(), std::ios::out);
     if (!blacklist_file) {
         ERR("Unable To Open %s For Saving", get_name(true).c_str());
     }

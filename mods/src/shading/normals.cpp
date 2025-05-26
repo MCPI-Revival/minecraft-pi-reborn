@@ -6,10 +6,10 @@
 #include "internal.h"
 
 // PolygonQuad
-Vec3 vector_to(const Vec3 &a, const Vec3 &b) {
+static Vec3 vector_to(const Vec3 &a, const Vec3 &b) {
     return Vec3(b.x - a.x, b.y - a.y, b.z - a.z);
 }
-Vec3 vector_cross(const Vec3 &a, const Vec3 &b) {
+static Vec3 vector_cross(const Vec3 &a, const Vec3 &b) {
     return Vec3((a.y * b.z) - (a.z * b.y), (a.z * b.x) - (a.x * b.z), (a.x * b.y) - (a.y * b.x));
 }
 static void PolygonQuad_render_injection(PolygonQuad_render_t original, PolygonQuad *self, Tesselator &t, const float scale, const int buffer) {

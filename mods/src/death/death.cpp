@@ -9,7 +9,7 @@
 #include <mods/misc/misc.h>
 
 // Death Messages
-std::string get_death_message(Player *player, Entity *cause, const bool was_shot = false) {
+static std::string get_death_message(Player *player, Entity *cause, const bool was_shot = false) {
     // Prepare Death Message
     std::string message = player->username;
     if (cause) {
@@ -49,6 +49,7 @@ std::string get_death_message(Player *player, Entity *cause, const bool was_shot
             return message + " admired too much art";
         }
     }
+
     // Miscellaneous Causes
     if (was_shot) {
         // Throwable With Invalid Owner

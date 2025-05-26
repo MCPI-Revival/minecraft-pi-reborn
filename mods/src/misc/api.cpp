@@ -6,6 +6,7 @@
 
 #include <symbols/minecraft.h>
 #include <GLES/gl.h>
+#include <media-layer/core.h>
 
 #include <mods/misc/misc.h>
 #include "internal.h"

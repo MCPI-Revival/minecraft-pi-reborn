@@ -228,7 +228,7 @@ void init_server_flags() {
         }
         properties_file_output.close();
         // Re-Open File
-        properties_file = std::ifstream(file, std::ios::binary);
+        properties_file = std::ifstream(file, std::ios::in);
     }
 
     // Check Properties File

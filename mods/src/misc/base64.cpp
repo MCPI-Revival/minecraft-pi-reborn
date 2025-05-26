@@ -1,6 +1,8 @@
 #include <string>
 #include <vector>
 
+#include <mods/misc/misc.h>
+
 // Base64-URL Encode/Decode (https://stackoverflow.com/a/57314480)
 static constexpr char base64_url_alphabet[] = {
     'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M',
