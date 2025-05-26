@@ -49,7 +49,9 @@ static void ban_callback(MCPI_UNUSED Minecraft *minecraft, MCPI_UNUSED const std
 
 // Kill Player
 static void kill_callback(MCPI_UNUSED Minecraft *minecraft, const std::string &username, Player *player) {
-    player->hurt(nullptr, INT32_MAX);
+    player->stopSleepInBed(true, true, false);
+    player->health = 0;
+    player->die(nullptr);
     INFO("Killed: %s", username.c_str());
 }
 

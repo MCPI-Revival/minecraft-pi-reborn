@@ -134,6 +134,7 @@ CATEGORY Bug Fixes
         TRUE Fix Containers Overwriting The Inventory
         TRUE Reliable Block Placement On Servers
         TRUE Prevent Removing Local Player
+        TRUE Clear Existing Inventory When Overwritten By Server
     CATEGORY Input
         TRUE Fix Bow & Arrow
         TRUE Fix Attacking
@@ -149,6 +150,7 @@ CATEGORY Bug Fixes
         TRUE Fix Torch Placement
         TRUE Fix Eggs Spawning Abnormally Healthy Chickens
         TRUE Fix Dropping Armor On Death
+        TRUE Fix Dropping Items In Creative Mode On Death
     CATEGORY Crashes
         TRUE Fix Crash When Generating Certain Seeds
         TRUE Close Editor When Sign Is Destroyed

@@ -106,6 +106,8 @@ include_toc: true
     * `Fix Containers Overwriting The Inventory`
     * `Reliable Block Placement On Servers`
     * `Prevent Removing Local Player`
+    * `Fix Dropping Items In Creative Mode On Death`
+    * `Clear Existing Inventory When Overwritten By Server`
   * Existing Functionality (All Enabled By Default)
     * `Fix Screen Rendering When Hiding HUD`
     * `Sanitize Usernames`

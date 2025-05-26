@@ -6,6 +6,7 @@
 #include <mods/feature/feature.h>
 #include <mods/misc/misc.h>
 #include <mods/creative/creative.h>
+#include <mods/multiplayer/packets.h>
 
 // Add Item To Inventory
 static void inventory_add_item(FillingContainer *inventory, const Item *item) {
@@ -114,6 +115,19 @@ static void Inventory_setupDefault_injection(Inventory_setupDefault_t original, 
     }
 }
 
+// Do Not Drop Items In Creative
+static void LocalPlayer_die_injection(LocalPlayer_die_t original, LocalPlayer *self, Entity *cause) {
+    // Clear Inventory
+    if (self->inventory->is_creative) {
+        self->inventory->dropAll(true);
+        for (int i = 0; i < multiplayer_armor_size; i++) {
+            self->setArmor(i, nullptr);
+        }
+    }
+    // Call Original Method
+    original(self, cause);
+}
+
 // Init
 void init_creative() {
     // Add Extra Items To Creative Inventory (Only Replace Specific Function Call)
@@ -175,5 +189,10 @@ void init_creative() {
     // Maximize Creative Inventory Stack Size
     if (feature_has("Maximize Creative Mode Inventory Stack Size", server_enabled)) {
         overwrite_calls(Inventory_setupDefault, Inventory_setupDefault_injection);
+    }
+
+    // Do Not Drop Items In Creative
+    if (feature_has("Fix Dropping Items In Creative Mode On Death", server_enabled)) {
+        overwrite_calls(LocalPlayer_die, LocalPlayer_die_injection);
     }
 }

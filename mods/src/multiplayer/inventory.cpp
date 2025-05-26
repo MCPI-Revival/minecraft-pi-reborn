@@ -6,7 +6,7 @@
 #include "internal.h"
 
 // Receive Armor From Server
-static void ClientSideNetworkHandler_handle_ContainerSetContentPacket_injection(ClientSideNetworkHandler_handle_ContainerSetContentPacket_t original, ClientSideNetworkHandler *self, const RakNet_RakNetGUID &guid, ContainerSetContentPacket *packet) {
+static void ClientSideNetworkHandler_handle_ContainerSetContentPacket_injection_armor(ClientSideNetworkHandler_handle_ContainerSetContentPacket_t original, ClientSideNetworkHandler *self, const RakNet_RakNetGUID &guid, ContainerSetContentPacket *packet) {
     if (packet->container_id == multiplayer_armor_container_id) {
         // Custom Behavior
         if (!self->minecraft) {
@@ -28,6 +28,19 @@ static void ClientSideNetworkHandler_handle_ContainerSetContentPacket_injection(
         // Call Original Method
         original(self, guid, packet);
     }
+}
+
+// Clear Inventory Before Receiving Inventory
+static void ClientSideNetworkHandler_handle_ContainerSetContentPacket_injection_inventory(ClientSideNetworkHandler_handle_ContainerSetContentPacket_t original, ClientSideNetworkHandler *self, const RakNet_RakNetGUID &guid, ContainerSetContentPacket *packet) {
+    // Clear Inventory
+    if (packet->container_id == multiplayer_inventory_container_id && self->minecraft) {
+        const LocalPlayer *player = self->minecraft->player;
+        if (player) {
+            player->inventory->dropAll(true);
+        }
+    }
+    // Call Original Method
+    original(self, guid, packet);
 }
 
 // Send Inventory
@@ -115,7 +128,12 @@ void _init_multiplayer_inventory() {
 
     // Armor
     if (feature_has("Allow Servers To Overwrite Armor", server_disabled)) {
-        overwrite_calls(ClientSideNetworkHandler_handle_ContainerSetContentPacket, ClientSideNetworkHandler_handle_ContainerSetContentPacket_injection);
+        overwrite_calls(ClientSideNetworkHandler_handle_ContainerSetContentPacket, ClientSideNetworkHandler_handle_ContainerSetContentPacket_injection_armor);
+    }
+
+    // Receive Inventory
+    if (feature_has("Clear Existing Inventory When Overwritten By Server", server_disabled)) {
+        overwrite_calls(ClientSideNetworkHandler_handle_ContainerSetContentPacket, ClientSideNetworkHandler_handle_ContainerSetContentPacket_injection_inventory);
     }
 
     // Send Inventory
