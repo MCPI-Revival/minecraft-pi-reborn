@@ -38,10 +38,9 @@ static int get_render_distance() {
         ERR("Invalid Render Distance: %s", distance_str);
     }
 }
-
 static int render_distance;
+
 // Configure Options
-Options *stored_options = nullptr;
 static void Options_initDefaultValue_injection(Options_initDefaultValue_t original, Options *options) {
     // Call Original Method
     original(options);
@@ -54,6 +53,7 @@ static void Options_initDefaultValue_injection(Options_initDefaultValue_t origin
         options->sound = 0;
     }
 }
+Options *stored_options = nullptr;
 static void Minecraft_init_injection(Minecraft_init_t original, Minecraft *minecraft) {
     // Call Original Method
     original(minecraft);
@@ -79,16 +79,21 @@ static bool TileRenderer_tesselateBlockInWorld_injection(TileRenderer_tesselateB
 
 // Actually Save options.txt
 // Hook Last Options::addOptionToSaveOutput Call
+#define def(name, value) static constexpr const char *option_##name = value;
+def(smooth_lighting, "gfx_ao");
+def(fancy_grapohics, "gfx_fancygraphics");
+def(anaglyph_3d, "gfx_anaglyph");
+def(view_bobbing, "gfx_viewbobbing");
+#undef def
 static void Options_save_Options_addOptionToSaveOutput_injection(Options *options, std::vector<std::string> *data, std::string option, int32_t value) {
     // Call Original Method
     options->addOptionToSaveOutput(data, option, value);
 
-    // Save Smooth Lighting
-    options->addOptionToSaveOutput(data, "gfx_ao", options->ambient_occlusion);
-    // Save Fancy Graphics
-    options->addOptionToSaveOutput(data, "gfx_fancygraphics", options->fancy_graphics);
-    // Save 3D Anaglyph
-    options->addOptionToSaveOutput(data, "gfx_anaglyph", options->anaglyph_3d);
+    // Save Extra Options
+    options->addOptionToSaveOutput(data, option_smooth_lighting, options->ambient_occlusion);
+    options->addOptionToSaveOutput(data, option_fancy_grapohics, options->fancy_graphics);
+    options->addOptionToSaveOutput(data, option_anaglyph_3d, options->anaglyph_3d);
+    options->addOptionToSaveOutput(data, option_view_bobbing, options->view_bobbing);
 
     // Save File
     OptionsFile *options_file = &options->options_file;
@@ -122,13 +127,14 @@ static std::vector<std::string> OptionsFile_getOptionStrings_v2(OptionsFile *opt
 static void Options_update_injection(MCPI_UNUSED Options_update_t original, Options *self) {
     const std::vector<std::string> strings = OptionsFile_getOptionStrings_v2(&self->options_file);
     for (std::vector<std::string>::size_type i = 0; i < strings.size(); i++) {
-        // Read
-        const std::string key = strings[i++];
+        // Read Key/Value
+        const std::string key = strings.at(i++);
         if (i == strings.size()) {
             // Missing Value
             break;
         }
-        const std::string value = strings[i];
+        const std::string value = strings.at(i);
+        // Load Option
         if (key == "mp_server_visible_default") {
             Options::readBool(value, self->server_visible);
         } else if (key == "game_difficulty") {
@@ -142,12 +148,14 @@ static void Options_update_injection(MCPI_UNUSED Options_update_t original, Opti
             Options::readBool(value, self->invert_mouse);
         } else if (key == "ctrl_islefthanded") {
             Options::readBool(value, self->lefty);
-        } else if (key == "gfx_ao") {
+        } else if (key == option_smooth_lighting) {
             Options::readBool(value, self->ambient_occlusion);
-        } else if (key == "gfx_fancygraphics") {
+        } else if (key == option_fancy_grapohics) {
             Options::readBool(value, self->fancy_graphics);
-        } else if (key == "gfx_anaglyph") {
+        } else if (key == option_anaglyph_3d) {
             Options::readBool(value, self->anaglyph_3d);
+        } else if (key == option_view_bobbing) {
+            Options::readBool(value, self->view_bobbing);
         } else if (key == "ctrl_usetouchscreen" || key == "feedback_vibration") {
             // Skip
         } else {

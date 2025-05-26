@@ -53,10 +53,14 @@ static void OptionsPane_unknown_toggle_creating_function_injection(OptionsPane_u
     // Call Original Method
     original(options_pane, group_id, &new_name, option);
 
-    // Add 3D Anaglyph
+    // Add Graphics Settings
     if (option == &Options_Option::GRAPHICS) {
+        // 3D Anaglyph
         std::string cpp_string = "3D Anaglyph";
         original(options_pane, group_id, &cpp_string, &Options_Option::ANAGLYPH);
+        // View Bobbing
+        cpp_string = "View Bobbing";
+        original(options_pane, group_id, &cpp_string, &Options_Option::VIEW_BOBBING);
     }
 
     // Add Peaceful Mode
