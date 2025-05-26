@@ -6,6 +6,9 @@
 
 // Init
 __attribute__((constructor)) static void init() {
+    if (reborn_is_server()) {
+        init_server_flags();
+    }
     reborn_init_patch();
     thunk_enabler = reborn_thunk_enabler;
     init_version();

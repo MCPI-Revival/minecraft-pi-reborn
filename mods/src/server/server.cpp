@@ -23,6 +23,8 @@
 #include <mods/compat/compat.h>
 #include <mods/misc/misc.h>
 #include <mods/game-mode/game-mode.h>
+#include <mods/feature/feature.h>
+#include <mods/options/options.h>
 
 #include "internal.h"
 
@@ -46,14 +48,15 @@ static const auto &get_property_types() {
         const ServerProperty game_mode = ServerProperty("game-mode", "0", "Game Mode (0 = Survival, 1 = Creative)");
         const ServerProperty port = ServerProperty("port", std::to_string(DEFAULT_MULTIPLAYER_PORT), "Port");
         const ServerProperty seed = ServerProperty("seed", "", "World Seed (Blank = Random Seed)");
-        const ServerProperty force_mob_spawning = ServerProperty("force-mob-spawning", "false", "Force Mob Spawning (false = Disabled, true = Enabled)");
-        const ServerProperty peaceful_mode = ServerProperty("peaceful-mode", "false", "Peaceful Mode (false = Disabled, true = Enabled)");
+        const ServerProperty force_mob_spawning = ServerProperty("force-mob-spawning", "false", "Force Mob Spawning");
+        const ServerProperty peaceful_mode = ServerProperty("peaceful-mode", "false", "Peaceful Mode");
         const ServerProperty world_name = ServerProperty("world-name", "world", "World To Select");
         const ServerProperty max_players = ServerProperty("max-players", "4", "Maximum Player Count");
         const ServerProperty enable_whitelist = ServerProperty("whitelist", "false", "Enable Whitelist");
-        const ServerProperty enable_death_messages = ServerProperty("death-messages", "true", "Enable Death Messages");
-        const ServerProperty enable_cave_generation = ServerProperty("generate-caves", "true", "Generate Caves");
+        const ServerProperty death_messages = ServerProperty("death-messages", "true", "Enable Death Messages");
+        const ServerProperty generate_caves = ServerProperty("generate-caves", "true", "Generate Caves");
         const ServerProperty player_data = ServerProperty("track-player-data", "false", "Save/Load Player Data");
+        const ServerProperty is_vanilla_compatible = ServerProperty("is-vanilla-compatible", "false", "Whether The Server Is Compatible With Vanilla Clients");
     } types;
     return types;
 }
@@ -68,7 +71,7 @@ static void start_world(Minecraft *minecraft) {
 
     // Peaceful Mode
     Options *options = &minecraft->options;
-    options->game_difficulty = get_server_properties().get_bool(get_property_types().peaceful_mode) ? 0 : 2;
+    options->game_difficulty = get_server_properties().get_bool(get_property_types().peaceful_mode) ? difficulty_peaceful : difficulty_normal;
 
     // Specify Level Settings
     LevelSettings settings;
@@ -190,27 +193,6 @@ static std::string get_motd() {
     return motd;
 }
 
-// Get Feature Flags
-static bool loaded_features = false;
-static const char *get_features() {
-    static std::string features;
-    if (!loaded_features) {
-        loaded_features = true;
-
-        features.clear();
-        if (get_server_properties().get_bool(get_property_types().force_mob_spawning)) {
-            features += "Force Mob Spawning|";
-        }
-        if (get_server_properties().get_bool(get_property_types().enable_death_messages)) {
-            features += "Implement Death Messages|";
-        }
-        if (get_server_properties().get_bool(get_property_types().enable_cave_generation)) {
-            features += "Generate Caves|";
-        }
-    }
-    return features.c_str();
-}
-
 // Get Max Players
 static unsigned char get_max_players() {
     int val = get_server_properties().get_int(get_property_types().max_players);
@@ -223,17 +205,16 @@ static unsigned char get_max_players() {
     return (unsigned char) val;
 }
 
-// Real Init Server
-static void server_init() {
+// Load Properties
+void init_server_flags() {
     // Open Properties File
-    std::string file(home_get());
-    file.append("/server.properties");
-    std::ifstream properties_file(file, std::ios::binary);
+    std::string file = home_get() + "/server.properties";
+    std::ifstream properties_file(file, std::ios::in);
 
     // Check Properties File
     if (!properties_file) {
         // Write Defaults
-        std::ofstream properties_file_output(file);
+        std::ofstream properties_file_output(file, std::ios::out);
         get_property_types();
         bool is_first = true;
         for (const ServerProperty *property : ServerProperty::get_all()) {
@@ -259,6 +240,17 @@ static void server_init() {
     // Close Properties File
     properties_file.close();
 
+    // Apply Flags
+#define FLAG(name) server_##name = get_server_properties().get_bool(get_property_types().name)
+#include <mods/feature/server.h>
+#undef FLAG
+    feature_server_flags_set = true;
+    set_and_print_env(MCPI_RENDER_DISTANCE_ENV, "Tiny");
+    set_and_print_env(MCPI_USERNAME_ENV, get_motd().c_str());
+}
+
+// Init Server
+void init_server() {
     // Setup Blacklist
     blacklist.is_white = get_server_properties().get_bool(get_property_types().enable_whitelist);
     blacklist.load();
@@ -292,12 +284,4 @@ static void server_init() {
     if (get_server_properties().get_bool(get_property_types().player_data)) {
         _init_server_playerdata();
     }
-}
-
-// Init Server
-void init_server() {
-    server_init();
-    set_and_print_env(MCPI_FEATURE_FLAGS_ENV, get_features());
-    set_and_print_env(MCPI_RENDER_DISTANCE_ENV, "Tiny");
-    set_and_print_env(MCPI_USERNAME_ENV, get_motd().c_str());
 }

@@ -329,7 +329,7 @@ static void Language_injection() {
 bool buckets_enabled = false;
 void init_bucket() {
     // Add Buckets
-    buckets_enabled = feature_has("Add Buckets", server_enabled);
+    buckets_enabled = feature_has("Add Buckets", server_is_not_vanilla_compatible);
     if (buckets_enabled) {
         // Add Items
         misc_run_on_items_setup(Item_initItems_injection);

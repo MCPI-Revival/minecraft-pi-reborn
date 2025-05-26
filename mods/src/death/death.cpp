@@ -128,7 +128,7 @@ static void LocalPlayer_actuallyHurt_injection(LocalPlayer_actuallyHurt_t origin
 // Init
 void init_death() {
     // Death Messages
-    if (feature_has("Implement Death Messages", server_auto)) {
+    if (feature_has("Implement Death Messages", server_death_messages)) {
         patch_vtable(ServerPlayer_die, [](ServerPlayer *player, Entity *cause) {
             Player_die_injection<ServerPlayer, Player>(Player_die->get(false), player, cause);
         });

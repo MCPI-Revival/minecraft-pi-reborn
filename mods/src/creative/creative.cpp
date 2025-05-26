@@ -147,7 +147,7 @@ void init_creative() {
     }
 
     // Inventory Behavior
-    if (feature_has("Force Survival Mode Inventory Behavior", server_enabled)) {
+    if (feature_has("Force Survival Mode Inventory Behavior", server_disabled)) {
         patch((void *) 0x8d080, nop_patch); // Inventory::add
         patch((void *) 0x92828, nop_patch); // FillingContainer::add
         patch((void *) 0x91d48, nop_patch); // FillingContainer::hasResource
@@ -157,7 +157,7 @@ void init_creative() {
     }
 
     // "Craft" And "Armor" Buttons
-    if (feature_has("Force Survival Mode Inventory UI", server_enabled)) {
+    if (feature_has("Force Survival Mode Inventory UI", server_disabled)) {
         patch((void *) 0x341c0, nop_patch); // Add The "Armor" Button To Classic Inventory
         unsigned char inv_creative_check_r5_patch[4] = {0x05, 0x00, 0x55, 0xe1}; // "cmp r5, r5"
         patch((void *) 0x3adb0, inv_creative_check_r5_patch); // Reposition "Select blocks" In Touch Inventory
@@ -165,7 +165,7 @@ void init_creative() {
     }
 
     // Display Slot Count
-    if (feature_has("Display Slot Count In Creative Mode", server_enabled)) {
+    if (feature_has("Display Slot Count In Creative Mode", server_disabled)) {
         patch((void *) 0x1e3f4, nop_patch);
         unsigned char slot_count_patch[4] = {0x18, 0x00, 0x00, 0xea}; // "b 0x27110"
         patch((void *) 0x270a8, slot_count_patch);

@@ -140,9 +140,8 @@ static void Options_update_injection(MCPI_UNUSED Options_update_t original, Opti
         } else if (key == "game_difficulty") {
             int &difficulty = self->game_difficulty;
             Options::readInt(value, difficulty);
-            constexpr int normal_difficulty = 2;
-            if (difficulty != 0 && difficulty != normal_difficulty) {
-                difficulty = normal_difficulty;
+            if (difficulty != difficulty_peaceful && difficulty != difficulty_normal) {
+                difficulty = difficulty_normal;
             }
         } else if (key == "ctrl_invertmouse") {
             Options::readBool(value, self->invert_mouse);
@@ -178,7 +177,7 @@ static const char *get_new_options_txt_path() {
 // Init
 void init_options() {
     // Force Mob Spawning
-    if (feature_has("Force Mob Spawning", server_auto)) {
+    if (feature_has("Force Mob Spawning", server_force_mob_spawning)) {
         overwrite_calls(LevelData_getSpawnMobs, LevelData_getSpawnMobs_injection);
     }
 

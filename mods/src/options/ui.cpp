@@ -76,7 +76,7 @@ static bool Options_getBooleanValue_injection(Options_getBooleanValue_t original
     if (option == &Options_Option::GRAPHICS) {
         return options->fancy_graphics;
     } else if (option == &Options_Option::DIFFICULTY) {
-        return options->game_difficulty == 0;
+        return options->game_difficulty == difficulty_peaceful;
     } else {
         // Call Original Method
         return original(options, option);
@@ -86,12 +86,12 @@ static bool Options_getBooleanValue_injection(Options_getBooleanValue_t original
 // Fix Difficulty When Toggling
 static void OptionButton_toggle_Options_save_injection(Options *self) {
     // Fix Value
-    if (self->game_difficulty == 1) {
+    if (self->game_difficulty == (difficulty_peaceful + 1)) {
         // Disable Peaceful
-        self->game_difficulty = 2;
-    } else if (self->game_difficulty == 3) {
+        self->game_difficulty = difficulty_normal;
+    } else if (self->game_difficulty == (difficulty_normal + 1)) {
         // Switch To Peaceful
-        self->game_difficulty = 0;
+        self->game_difficulty = difficulty_peaceful;
     }
     // Call Original Method
     self->save();

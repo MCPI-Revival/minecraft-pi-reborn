@@ -230,7 +230,7 @@ static void Recipes_injection(Recipes *recipes) {
 // Init
 void init_cake() {
     // Add Cakes
-    if (feature_has("Add Cake", server_enabled)) {
+    if (feature_has("Add Cake", server_is_not_vanilla_compatible)) {
         misc_run_on_tiles_setup(Tile_initTiles_injection);
         misc_run_on_items_setup(Item_initTiles_injection);
         misc_run_on_creative_inventory_setup(Inventory_setupDefault_FillingContainer_addItem_injection);

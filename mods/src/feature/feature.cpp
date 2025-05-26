@@ -7,13 +7,23 @@
 
 #include <mods/feature/feature.h>
 
+// Flags In Server-Mode
+bool feature_server_flags_set = false;
+#define FLAG(name) bool server_##name = false
+#include <mods/feature/server.h>
+#undef FLAG
+
 // Check For Feature
-bool _feature_has(const char *name, const int server_default) {
+bool feature_has(const char *name, const bool enabled_in_server_mode) {
     // Server Handling
-    if (reborn_is_server() && server_default != -1) {
-        return server_default > 0;
+    if (reborn_is_server()) {
+        if (!feature_server_flags_set) {
+            IMPOSSIBLE();
+        }
+        return enabled_in_server_mode;
     }
-    // Get Value
+
+    // Load Flags
     static Flags flags = Flags::get();
     static bool loaded = false;
     if (!loaded) {
@@ -21,6 +31,8 @@ bool _feature_has(const char *name, const int server_default) {
         env_value_to_obj(flags, env);
         loaded = true;
     }
+
+    // Get Value
     int ret = -1;
     flags.root.for_each_const([&ret, &name](const FlagNode &flag) {
         if (flag.name == std::string(name)) {

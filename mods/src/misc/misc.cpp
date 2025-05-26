@@ -449,7 +449,7 @@ void init_misc() {
     }
 
     // Generate Caves
-    if (feature_has("Generate Caves", server_auto)) {
+    if (feature_has("Generate Caves", server_generate_caves)) {
         overwrite_calls(RandomLevelSource_buildSurface, RandomLevelSource_buildSurface_injection);
     }
 

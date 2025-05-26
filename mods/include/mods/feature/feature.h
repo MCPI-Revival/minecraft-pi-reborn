@@ -1,10 +1,15 @@
 #pragma once
 
-extern "C" {
-bool _feature_has(const char *name, int server_default);
-}
+// Flags In Server-Mode
+static constexpr bool server_enabled = true;
+static constexpr bool server_disabled = false;
+extern bool feature_server_flags_set;
+#define FLAG(name) extern bool server_##name
+#include "server.h"
+#undef FLAG
+#define server_is_not_vanilla_compatible (!server_is_vanilla_compatible)
 
-#define _feature_has_server_disabled (0)
-#define _feature_has_server_auto (-1)
-#define _feature_has_server_enabled (1)
-#define feature_has(name, server_default) _feature_has(name, _feature_has_##server_default)
+// Check If The Flag Is Enabled
+extern "C" {
+bool feature_has(const char *name, bool enabled_in_server_mode);
+}

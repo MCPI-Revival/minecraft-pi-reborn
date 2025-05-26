@@ -4,6 +4,7 @@ extern "C" {
 void init_version();
 void init_compat();
 void init_server();
+void init_server_flags();
 void init_multiplayer();
 void init_benchmark();
 void init_sound();
