@@ -74,7 +74,6 @@ include_toc: true
     * `Close Editor When Sign Is Destroyed` (Enabled By Default)
     * `Remove Chest Placement Restrictions` (Enabled By Default)
     * `Batch Font Rendering` (Enabled By Default)
-    * `Stop Doors And Trapdoors Closing When Updated` (Disabled By Default)
     * `Allow Servers To Overwrite Armor` (Enabled By Default)
     * `Send Inventory To Server` (Enabled By Default)
     * `Clear Old Chat Messages When Joining Worlds` (Enabled By Default)
@@ -108,6 +107,7 @@ include_toc: true
     * `Prevent Removing Local Player`
     * `Fix Dropping Items In Creative Mode On Death`
     * `Clear Existing Inventory When Overwritten By Server`
+    * `Stop Doors And Trapdoors Closing When Updated`
   * Existing Functionality (All Enabled By Default)
     * `Fix Screen Rendering When Hiding HUD`
     * `Sanitize Usernames`

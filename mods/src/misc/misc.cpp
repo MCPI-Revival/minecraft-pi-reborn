@@ -579,8 +579,8 @@ void init_misc() {
         overwrite_call((void *) 0x7de0c, Chicken_moveTo, ThrownEgg_onHit_Chicken_moveTo_injection);
     }
 
-    // Stop Doors And Trapdoors Closing When Updated
-    if (feature_has("Stop Doors And Trapdoors Closing When Updated", server_disabled)) {
+    // Fix Doors And Trapdoors Closing When Updated
+    if (feature_has("Stop Doors And Trapdoors Closing When Updated", server_enabled)) {
         // Patch out the `setOpen` call for doors and trap doors in neighborChanged
         unsigned char nop_patch[4] = {0x00, 0xf0, 0x20, 0xe3}; // "nop"
         patch((void *) 0xbe1a0, nop_patch); // door
