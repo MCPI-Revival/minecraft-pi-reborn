@@ -1,12 +1,7 @@
 #pragma once
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #include <X11/Xlib.h>
 
-#include "SDL_events.h"
 #include "SDL_version.h"
 
 typedef enum {
@@ -20,15 +15,11 @@ typedef struct SDL_SysWMinfo {
         struct {
             void *display;
             XID window;
-            void (*lock_func)(void);
-            void (*unlock_func)(void);
+            void (*lock_func)();
+            void (*unlock_func)();
             XID fswindow;
             XID wmwindow;
             void *gfxdisplay;
         } x11;
     } info;
 } SDL_SysWMinfo;
-
-#ifdef __cplusplus
-}
-#endif

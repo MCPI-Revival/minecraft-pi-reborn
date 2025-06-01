@@ -1,11 +1,6 @@
 #pragma once
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 typedef unsigned long XID;
-
 typedef struct {
     int x, y;
     int width, height;
@@ -29,7 +24,3 @@ typedef struct {
     int override_redirect;
     void *screen;
 } XWindowAttributes;
-
-#ifdef __cplusplus
-}
-#endif

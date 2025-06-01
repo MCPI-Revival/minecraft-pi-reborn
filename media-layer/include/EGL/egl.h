@@ -1,10 +1,6 @@
 #pragma once
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-#include <stdint.h>
+#include <cstdint>
 
 #include <X11/Xlib.h>
 
@@ -22,7 +18,3 @@ typedef void *EGLNativeDisplayType;
 typedef XID EGLNativeWindowType;
 typedef EGLNativeWindowType NativeWindowType;
 typedef EGLNativeDisplayType NativeDisplayType;
-
-#ifdef __cplusplus
-}
-#endif

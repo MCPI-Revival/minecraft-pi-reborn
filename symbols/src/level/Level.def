@@ -60,6 +60,7 @@ method void _init(const std::string &name, const LevelSettings &settings, int pa
 method Pos getSharedSpawnPos() = 0xa6010;
 method bool isUnobstructed(const AABB &aabb) = 0xa5b50;
 method bool mayPlace(int tile_id, int x, int y, int z, bool param_1, unsigned char param_2) = 0xa5bd0;
+method void prepare() = 0xa5bac;
 
 virtual-method void tick() = 0x28;
 virtual-method void updateSleepingPlayerList() = 0x2c;

@@ -1,10 +1,8 @@
 #pragma once
 
-#ifdef __cplusplus
 extern "C" {
-#endif
 
-#include <stdint.h>
+#include <cstdint>
 
 #include "SDL_keysym.h"
 #include "SDL_events.h"
@@ -30,6 +28,4 @@ SDL_GrabMode media_SDL_WM_GrabInput(SDL_GrabMode mode);
 #define SDL_ENABLE 1
 int media_SDL_ShowCursor(int toggle);
 
-#ifdef __cplusplus
 }
-#endif

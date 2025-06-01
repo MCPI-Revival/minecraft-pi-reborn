@@ -138,12 +138,14 @@ static void *process_thread(void *thread_data) {
     pthread_mutex_unlock(&mutex);
 
     // Save Level
+    minecraft->progress_state = 3;
+    minecraft->progress = -1;
     level->saveGame();
     level->chunk_source->saveAll(false);
+    level->prepare();
 
     // Done Loading
     minecraft->progress_state = 0;
-    minecraft->progress = -1;
     minecraft->generating_level = false;
     return nullptr;
 }

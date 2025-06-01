@@ -1,9 +1,5 @@
 #pragma once
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 typedef enum {
     SDLK_UNKNOWN = 0,
     SDLK_BACKSPACE = 8,
@@ -56,7 +52,3 @@ typedef enum {
 #define KMOD_SHIFT (KMOD_LSHIFT | KMOD_RSHIFT)
 #define KMOD_CTRL (KMOD_LCTRL | KMOD_RCTRL)
 #define KMOD_ALT (KMOD_LALT | KMOD_RALT)
-
-#ifdef __cplusplus
-}
-#endif
