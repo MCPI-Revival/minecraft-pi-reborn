@@ -1,3 +1,4 @@
 extends LevelStorage;
 
 property std::string path = 0xc;
+property RegionFile *region_file = 0x14;

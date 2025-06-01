@@ -1,0 +1,6 @@
+vtable 0x110b98;
+
+method bool writeChunk(int x, int z, RakNet_BitStream &data) = 0xbb800;
+
+property void *file = 0x4; // FILE *
+property std::string filename = 0x8;

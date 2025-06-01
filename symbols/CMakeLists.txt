@@ -128,6 +128,7 @@ set(SRC
     src/level/LevelStorage.def
     src/level/BiomeSource.def
     src/level/Region.def
+    src/level/RegionFile.def
     src/level/DataLayer.def
     src/item/ItemRenderer.def
     src/item/ItemInHandRenderer.def
