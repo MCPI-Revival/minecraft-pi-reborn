@@ -121,8 +121,10 @@ void init_classic_ui() {
         overwrite_call((void *) 0x26758, GuiComponent_blit, Gui_renderHearts_GuiComponent_blit_hearts_injection);
         overwrite_call((void *) 0x2656c, GuiComponent_blit, Gui_renderHearts_GuiComponent_blit_armor_injection);
         overwrite_call((void *) 0x268c4, GuiComponent_blit, Gui_renderBubbles_GuiComponent_blit_injection);
-        overwrite_call((void *) 0x266f8, GuiComponent_blit, Gui_renderHearts_GuiComponent_blit_hearts_injection);
-        overwrite_call((void *) 0x267c8, GuiComponent_blit, Gui_renderHearts_GuiComponent_blit_hearts_injection);
+        if (!feature_has("Food Overlay", server_disabled)) {
+            overwrite_call((void *) 0x266f8, GuiComponent_blit, Gui_renderHearts_GuiComponent_blit_hearts_injection);
+            overwrite_call((void *) 0x267c8, GuiComponent_blit, Gui_renderHearts_GuiComponent_blit_hearts_injection);
+        }
     }
 
     // Classic Slot Count Location
