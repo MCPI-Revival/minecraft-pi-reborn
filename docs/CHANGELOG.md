@@ -106,7 +106,7 @@ include_toc: true
     * `Reliable Block Placement On Servers`
     * `Prevent Removing Local Player`
     * `Fix Dropping Items In Creative Mode On Death`
-    * `Clear Existing Inventory When Overwritten By Server`
+    * `Correctly Handle Empty Slots When Receiving Inventory Data`
     * `Stop Doors And Trapdoors Closing When Updated`
   * Existing Functionality (All Enabled By Default)
     * `Fix Screen Rendering When Hiding HUD`

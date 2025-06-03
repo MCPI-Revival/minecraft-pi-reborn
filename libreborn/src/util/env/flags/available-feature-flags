@@ -134,7 +134,7 @@ CATEGORY Bug Fixes
         TRUE Fix Containers Overwriting The Inventory
         TRUE Reliable Block Placement On Servers
         TRUE Prevent Removing Local Player
-        TRUE Clear Existing Inventory When Overwritten By Server
+        TRUE Correctly Handle Empty Slots When Receiving Inventory Data
     CATEGORY Input
         TRUE Fix Bow & Arrow
         TRUE Fix Attacking
