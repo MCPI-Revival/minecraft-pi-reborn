@@ -381,9 +381,11 @@ static void PauseScreen_init_injection_2(PauseScreen_init_t original, PauseScree
 }
 
 // Init
+bool food_overlay = false;
 void _init_misc_ui() {
     // Food Overlay
     if (feature_has("Food Overlay", server_disabled)) {
+        food_overlay = true;
         overwrite_calls(Gui_renderHearts, Gui_renderHearts_injection);
         overwrite_call((void *) 0x266f8, GuiComponent_blit, Gui_renderHearts_GuiComponent_blit_overlay_empty_injection);
         overwrite_call((void *) 0x267c8, GuiComponent_blit, Gui_renderHearts_GuiComponent_blit_overlay_hearts_injection);

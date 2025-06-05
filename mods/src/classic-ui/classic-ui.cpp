@@ -2,6 +2,7 @@
 #include <libreborn/patch.h>
 
 #include <mods/init/init.h>
+#include <mods/misc/misc.h>
 #include <mods/feature/feature.h>
 #include <mods/classic-ui/classic-ui.h>
 
@@ -121,7 +122,7 @@ void init_classic_ui() {
         overwrite_call((void *) 0x26758, GuiComponent_blit, Gui_renderHearts_GuiComponent_blit_hearts_injection);
         overwrite_call((void *) 0x2656c, GuiComponent_blit, Gui_renderHearts_GuiComponent_blit_armor_injection);
         overwrite_call((void *) 0x268c4, GuiComponent_blit, Gui_renderBubbles_GuiComponent_blit_injection);
-        if (!feature_has("Food Overlay", server_disabled)) {
+        if (!food_overlay) {
             overwrite_call((void *) 0x266f8, GuiComponent_blit, Gui_renderHearts_GuiComponent_blit_hearts_injection);
             overwrite_call((void *) 0x267c8, GuiComponent_blit, Gui_renderHearts_GuiComponent_blit_hearts_injection);
         }
