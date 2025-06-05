@@ -1,5 +1,9 @@
 #include <libreborn/patch.h>
 
+#include "stb_image.h"
+#include "stb_image_write.h"
+STBIWDEF unsigned char *stbi_zlib_compress(unsigned char *data, int data_len, int *out_len, int quality);
+
 #include <mods/multiplayer/packets.h>
 #include "internal.h"
 
@@ -53,6 +57,17 @@ static void ServerSideNetworkHandler_handle_RequestChunkPacket_injection(ServerS
         return;
     }
 
+    // Compress Data
+    static ChunkData::Raw data;
+#define copy(src, dest) memcpy(data.dest.data(), chunk->src, data.dest.size())
+    copy(blocks, blocks);
+    copy(data.data, data);
+    copy(light_sky.data, light_sky);
+    copy(light_block.data, light_block);
+#undef copy
+    int compressed_len;
+    unsigned char *compressed = stbi_zlib_compress((uchar *) &data, sizeof(data), &compressed_len, stbi_write_png_compression_level);
+
     // Manually Create ChunkDataPacket
     RakNet_BitStream *stream = RakNet_BitStream::allocate();
     stream->constructor();
@@ -60,15 +75,16 @@ static void ServerSideNetworkHandler_handle_RequestChunkPacket_injection(ServerS
     stream->Write_uchar(&id);
     stream->Write_int(&packet->x);
     stream->Write_int(&packet->z);
-    stream->Write_bytes(chunk->blocks, ChunkData::TOTAL_SIZE);
-    stream->Write_bytes(chunk->data.data, ChunkData::TOTAL_SIZE_HALF);
-    stream->Write_bytes(chunk->light_sky.data, ChunkData::TOTAL_SIZE_HALF);
-    stream->Write_bytes(chunk->light_block.data, ChunkData::TOTAL_SIZE_HALF);
+    stream->Write_int(&compressed_len);
+    stream->Write_bytes(compressed, compressed_len);
 
     // Send Packet
     RakNet_AddressOrGUID target;
     target.constructor(rak_net_guid);
-    self->peer->Send(stream, HIGH_PRIORITY, RELIABLE_ORDERED, 0, &target, false, 0);
+    self->peer->Send(stream, HIGH_PRIORITY, RELIABLE, 0, &target, false, 0);
+
+    // Free
+    free(compressed);
     stream->destructor(0);
     ::operator delete(stream);
 }
@@ -85,12 +101,19 @@ static void ClientSideNetworkHandler_handle_ChunkDataPacket_injection(ClientSide
         // Parse Packet
         chunk->x = packet->x;
         chunk->z = packet->z;
-#define read(type) packet->data.Read_bytes(chunk->type.data(), chunk->type.size())
-        read(blocks);
-        read(data);
-        read(light_sky);
-        read(light_block);
-#undef read
+        int compressed_len;
+        static int total = 0;
+        bool success = packet->data.Read_int(&compressed_len);
+        if (success) {
+            total += compressed_len;
+            uchar *compressed = new uchar[compressed_len];
+            success = packet->data.Read_bytes(compressed, compressed_len);
+            if (success) {
+                ChunkData::Raw &out = chunk->raw;
+                stbi_zlib_decode_buffer((char *) &out, sizeof(out), (const char *) compressed, compressed_len);
+            }
+            delete[] compressed;
+        }
 
         // Add Chunk To Queue
         _multiplayer_chunk_received(chunk);

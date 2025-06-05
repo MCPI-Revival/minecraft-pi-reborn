@@ -42,6 +42,12 @@ static void ClientSideNetworkHandler_handle_ContainerSetContentPacket_injection_
     // Call Original Method
     original(self, guid, packet);
 }
+static void ClientSideNetworkHandler_handle_ContainerSetContentPacket_Inventory_setItem_injection(Inventory *self, const int slot, ItemInstance *item_instance) {
+    // Don't Set Null Items
+    if (item_instance && !item_instance->isNull()) {
+        self->setItem(slot, item_instance);
+    }
+}
 
 // Send Inventory
 static void send_inventory(LocalPlayer *self) {
@@ -115,13 +121,6 @@ static void ClientSideNetworkHandler_handle_SendInventoryPacket_injection(Client
     }
 }
 
-static void ClientSideNetworkHandler_handle_ContainerSetContentPacket_Inventory_setItem_injection(Inventory *self, int slot, ItemInstance *item_instance) {
-    if (item_instance && !item_instance->isNull()) {
-        // Don't set null items
-        self->setItem(slot, item_instance);
-    }
-}
-
 // Init
 void _init_multiplayer_inventory() {
     // Fix Opening Containers
@@ -141,8 +140,8 @@ void _init_multiplayer_inventory() {
     // Receive Inventory
     if (feature_has("Correctly Handle Empty Slots When Receiving Inventory Data", server_disabled)) {
         overwrite_calls(ClientSideNetworkHandler_handle_ContainerSetContentPacket, ClientSideNetworkHandler_handle_ContainerSetContentPacket_injection_inventory);
-
-        // Don't allow for "EmptyItemInstance.name<"
+        // Prevent Buggy Empty Slots
+        // Listed As "EmptyItemInstance.name<"
         overwrite_call((void *) 0x6d3e8, Inventory_setItem, ClientSideNetworkHandler_handle_ContainerSetContentPacket_Inventory_setItem_injection);
     }
 

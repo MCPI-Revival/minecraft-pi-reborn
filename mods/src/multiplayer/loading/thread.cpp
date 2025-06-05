@@ -24,17 +24,6 @@ static bool update_progress(Minecraft *minecraft) {
     return total != loaded;
 }
 
-// Handle Stopping Thread
-static volatile bool should_stop_thread;
-void _multiplayer_stop_thread(Minecraft *minecraft) {
-    should_stop_thread = true;
-    CThread *&thread = minecraft->level_generation_thread;
-    if (thread) {
-        thread->destructor_deleting();
-        thread = nullptr;
-    }
-}
-
 // Empty Chunks
 static void create_chunks(Minecraft *minecraft, const Level *level) {
     // Set Progress
@@ -69,8 +58,27 @@ static void create_chunks(Minecraft *minecraft, const Level *level) {
     _inhibit_terrain_generation = false;
 }
 
-// Thread For Processing Data
+// Mutex
 static pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
+static pthread_cond_t cond = PTHREAD_COND_INITIALIZER;
+
+// Handle Stopping Thread
+static volatile bool should_stop_thread;
+void _multiplayer_stop_thread(Minecraft *minecraft) {
+    // Signal Thread
+    pthread_mutex_lock(&mutex);
+    should_stop_thread = true;
+    pthread_cond_signal(&cond);
+    pthread_mutex_unlock(&mutex);
+    // Wait For Thread
+    CThread *&thread = minecraft->level_generation_thread;
+    if (thread) {
+        thread->destructor_deleting();
+        thread = nullptr;
+    }
+}
+
+// Thread For Processing Data
 static std::queue<ChunkData *> chunks;
 static void *process_thread(void *thread_data) {
     // Create Empty Chunks
@@ -85,23 +93,27 @@ static void *process_thread(void *thread_data) {
         ChunkData *chunk = nullptr;
         pthread_mutex_lock(&mutex);
         if (!chunks.empty()) {
+            // Get The Next Chunk
             chunk = chunks.front();
             chunks.pop();
+        } else {
+            // Wait For New Data
+            pthread_cond_wait(&cond, &mutex);
         }
         pthread_mutex_unlock(&mutex);
         if (!chunk) {
-            // Wait
+            // No Data Available, End Loop Iteration Early
             continue;
         }
 
         // Fix Invalid Tiles
-        for (unsigned char &tile : chunk->blocks) {
+        for (unsigned char &tile : chunk->raw.blocks) {
             tile = Tile::transformToValidBlockId(tile, 0, 0, 0);
         }
 
         // Set Chunk Data
         LevelChunk *level_chunk = level->chunk_source->create(chunk->x, chunk->z);
-#define copy(a, b) memcpy(level_chunk->a, chunk->b.data(), chunk->b.size())
+#define copy(a, b) memcpy(level_chunk->a, chunk->raw.b.data(), chunk->raw.b.size())
         copy(blocks, blocks);
         copy(data.data, data);
         copy(light_sky.data, light_sky);
@@ -154,6 +166,7 @@ static void *process_thread(void *thread_data) {
 void _multiplayer_chunk_received(ChunkData *data) {
     pthread_mutex_lock(&mutex);
     chunks.push(data);
+    pthread_cond_signal(&cond);
     pthread_mutex_unlock(&mutex);
 }
 

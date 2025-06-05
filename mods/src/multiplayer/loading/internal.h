@@ -43,10 +43,12 @@ struct ChunkData {
     // Fields
     int x;
     int z;
-    std::array<unsigned char, TOTAL_SIZE> blocks;
-    std::array<unsigned char, TOTAL_SIZE_HALF> data;
-    std::array<unsigned char, TOTAL_SIZE_HALF> light_sky;
-    std::array<unsigned char, TOTAL_SIZE_HALF> light_block;
+    struct Raw {
+        std::array<unsigned char, TOTAL_SIZE> blocks;
+        std::array<unsigned char, TOTAL_SIZE_HALF> data;
+        std::array<unsigned char, TOTAL_SIZE_HALF> light_sky;
+        std::array<unsigned char, TOTAL_SIZE_HALF> light_block;
+    } raw;
 };
 
 // Receive Chunk Data
