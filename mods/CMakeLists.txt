@@ -32,7 +32,6 @@ add_library(mods SHARED
     src/misc/api.cpp
     src/misc/graphics.cpp
     src/misc/ui.cpp
-    src/misc/tinting.cpp
     src/misc/home.cpp
     src/misc/base64.cpp
     # options
@@ -77,6 +76,7 @@ add_library(mods SHARED
     src/textures/textures.cpp
     src/textures/lava.cpp
     src/textures/headless.cpp
+    src/textures/tinting.cpp
     # fps
     src/fps/fps.cpp
     # server

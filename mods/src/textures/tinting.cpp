@@ -79,10 +79,10 @@ static int32_t TallGrass_getColor_injection(TallGrass_getColor_t original, TallG
 struct GrassSideTile final : CustomTile {
     GrassSideTile(const int id, const int texture, const Material *material) : CustomTile(id, texture, material) {}
     bool shouldRenderFace(LevelSource *level_source, const int x, const int y, const int z, const int face) override {
-        return face > 1 && Tile::VTable::base->shouldRenderFace(self, level_source, x, y, z, face);
+        return face > 1 && CustomTile::shouldRenderFace(level_source, x, y, z, face);
     }
     int getColor(LevelSource *level_source, const int x, const int y, const int z) override {
-        return GrassTile_getColor_injection(nullptr, (GrassTile *) self, level_source, x, y, z);
+        return GrassTile::VTable::base->getColor((GrassTile *) self, level_source, x, y, z);
     }
 };
 static Tile *get_fake_grass_side_tile() {
@@ -107,7 +107,7 @@ static int32_t Tile_getColor_injection(MCPI_UNUSED const std::function<int(T *, 
 }
 
 // Init
-void _init_misc_tinting() {
+void _init_textures_tinting() {
     // Change Grass Color
     if (feature_has("Add Biome Colors To Grass", server_disabled)) {
         overwrite_calls(Minecraft_init, Minecraft_init_injection);

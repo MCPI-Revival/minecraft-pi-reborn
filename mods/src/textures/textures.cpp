@@ -185,4 +185,7 @@ void init_textures() {
         unsigned char texture_reset_patch[4] = {0x00, 0xf0, 0x20, 0xe3}; // "nop"
         patch((void *) 0x126b4, texture_reset_patch);
     }
+
+    // Block Tinting
+    _init_textures_tinting();
 }
