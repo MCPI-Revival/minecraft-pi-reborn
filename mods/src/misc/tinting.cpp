@@ -1,3 +1,5 @@
+#include <unordered_set>
+
 #include <libreborn/patch.h>
 #include <symbols/minecraft.h>
 #include <GLES/gl.h>
@@ -28,9 +30,25 @@ static void Minecraft_init_injection(Minecraft_init_t original, Minecraft *self)
     }
     grass_colors_loaded = true;
 }
+static Level *get_level_from_source(LevelSource *source) {
+    const void *vtable = source->vtable;
+    static std::unordered_set level_vtables = {
+        (const void *) Level::VTable::base,
+        (const void *) ServerLevel::VTable::base,
+        (const void *) MultiPlayerLevel::VTable::base,
+        (const void *) CreatorLevel::VTable::base
+    };
+    if (level_vtables.contains(vtable)) {
+        return (Level *) source;
+    } else if (vtable == (const void *) Region::VTable::base) {
+        return ((Region *) source)->level;
+    } else {
+        IMPOSSIBLE();
+    }
+}
 static int32_t GrassTile_getColor_injection(MCPI_UNUSED GrassTile_getColor_t original, MCPI_UNUSED GrassTile *tile, LevelSource *level_source, const int32_t x, MCPI_UNUSED int32_t y, const int32_t z) {
     // Get Level
-    Level *level = ((Region *) level_source)->level;
+    Level *level = get_level_from_source(level_source);
     // Find Biome Temperature
     BiomeSource *biome_source = level->getBiomeSource();
     biome_source->getBiomeBlock(x, z, 1, 1);
