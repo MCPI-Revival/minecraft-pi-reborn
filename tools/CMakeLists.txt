@@ -15,14 +15,14 @@ force_set(CMAKE_INSTALL_PREFIX "${CMAKE_CURRENT_SOURCE_DIR}/bin" FILEPATH)
 force_set(CMAKE_INSTALL_BINDIR "." FILEPATH)
 
 # Versions
-set(NINJA_VERSION "d4a4f3694c983306584b26c8e45bf3efcd53d108")
+set(NINJA_VERSION "1b52e21f4b0183ec5689da830b86300398dffc2a")
 set(APPIMAGETOOL_VERSION "continuous")
 set(APPSTREAM_VERSION "v1.0.4")
 
 # Ninja
 include(FetchContent)
 FetchContent_Declare(ninja
-    GIT_REPOSITORY "https://github.com/digit-google/ninja.git"
+    GIT_REPOSITORY "https://github.com/ninja-build/ninja.git"
     GIT_TAG "${NINJA_VERSION}"
 )
 FetchContent_MakeAvailable(ninja)

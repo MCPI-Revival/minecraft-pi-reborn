@@ -6,12 +6,14 @@ endmacro()
 # Setup Header Directories For Target
 function(setup_header_dirs target)
     _get_sdk_header_dir("${target}")
+
     # Get Header Type
     set(header_type "PUBLIC")
     get_target_property(type "${target}" TYPE)
     if ("${type}" STREQUAL "INTERFACE_LIBRARY")
         set(header_type "INTERFACE")
     endif()
+
     # Loop
     foreach(dir IN LISTS ARGN)
         # Add To Target
@@ -26,6 +28,7 @@ function(setup_header_dirs target)
             )
         endif()
     endforeach()
+
     # Add SDK Headers To Target
     if(BUILD_ARM_COMPONENTS)
         target_include_directories("${target}" "${header_type}" "$<INSTALL_INTERFACE:${sdk_dir}>")

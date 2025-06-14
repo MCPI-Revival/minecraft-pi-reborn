@@ -6,21 +6,6 @@ cmake_policy(SET CMP0135 NEW)
 # Core Options
 include(cmake/options/core-options.cmake)
 
-# Utility Functions
-include(cmake/util/util.cmake)
-
-# Build Mode
-get_property(IS_MULTI_CONFIG GLOBAL PROPERTY GENERATOR_IS_MULTI_CONFIG)
-if(IS_MULTI_CONFIG)
-    force_set(CMAKE_CONFIGURATION_TYPES "Release;Debug" STRING)
-    set(FORCE_BUILD_TYPE "")
-elseif(NOT DEFINED CMAKE_BUILD_TYPE)
-    set(FORCE_BUILD_TYPE "Release")
-endif()
-if(DEFINED FORCE_BUILD_TYPE)
-    force_set(CMAKE_BUILD_TYPE "${FORCE_BUILD_TYPE}" STRING)
-endif()
-
 # Start Project
 project(minecraft-pi-reborn)
 
@@ -38,6 +23,26 @@ if(BUILD_ARM_COMPONENTS)
 endif()
 cmake_language(EVAL CODE "${ARM_SANITY_CHECK}")
 
+# Utility Functions
+include(cmake/util/util.cmake)
+include(cmake/sdk/util.cmake)
+
+# Build Mode
+set(RELEASE_MODE "Release")
+string(CONCAT BUILD_MODE_SETUP
+    "get_property(IS_MULTI_CONFIG GLOBAL PROPERTY GENERATOR_IS_MULTI_CONFIG)\n"
+    "if(IS_MULTI_CONFIG)\n"
+    "    force_set(CMAKE_CONFIGURATION_TYPES \"${RELEASE_MODE};Debug\" STRING)\n"
+    "    set(FORCE_BUILD_TYPE \"\")\n"
+    "elseif(NOT CMAKE_BUILD_TYPE)\n"
+    "    set(FORCE_BUILD_TYPE \"${RELEASE_MODE}\")\n"
+    "endif()\n"
+    "if(DEFINED FORCE_BUILD_TYPE)\n"
+    "    force_set(CMAKE_BUILD_TYPE \"\${FORCE_BUILD_TYPE}\" STRING)\n"
+    "endif()\n"
+)
+cmake_language(EVAL CODE "${BUILD_MODE_SETUP}")
+
 # Extra Options
 include(cmake/options/extra-options.cmake)
 
@@ -45,28 +50,24 @@ include(cmake/options/extra-options.cmake)
 include(cmake/options/paths.cmake)
 
 # Required Compile Flags
-set(RELEASE_MODE_GENERATOR "\$<CONFIG:Release>")
+set(RELEASE_MODE_GENERATOR "\$<CONFIG:${RELEASE_MODE}>")
 string(CONCAT COMPILE_FLAGS_SETUP
     # Optimizations
     "add_compile_options(\"\$<IF:${RELEASE_MODE_GENERATOR},-O3,-g>\")\n"
     "add_link_options(\"\$<${RELEASE_MODE_GENERATOR}:-s>\")\n"
 
-    # PIC
-    "set(CMAKE_POSITION_INDEPENDENT_CODE TRUE)\n"
-
     # Warnings
     "add_link_options(-Wl,--no-undefined)\n"
 
-    # C Standard
+    # Default C Standard
     "add_definitions(-D_GNU_SOURCE)\n"
     "set(CMAKE_C_STANDARD 99)\n"
     "set(CMAKE_CXX_STANDARD 20)\n"
 
-    # Skip RPath
-    "set(CMAKE_SKIP_BUILD_RPATH TRUE)\n"
-
-    # Always Build Shared Libraries
-    "set(BUILD_SHARED_LIBS TRUE CACHE BOOL \"\" FORCE)\n"
+    # Build Option
+    "force_set(CMAKE_POSITION_INDEPENDENT_CODE TRUE BOOL)\n"
+    "force_set(CMAKE_SKIP_BUILD_RPATH TRUE BOOL)\n"
+    "force_set(BUILD_SHARED_LIBS TRUE BOOL)\n"
 )
 if(BUILD_ARM_COMPONENTS)
     string(APPEND COMPILE_FLAGS_SETUP
@@ -104,129 +105,31 @@ if(CMAKE_C_COMPILER_ID STREQUAL "GNU")
     endif()
 endif()
 
-# Build libreborn
+# Build
 add_subdirectory(libreborn)
-
-# Build Media Layer
 add_subdirectory(media-layer)
 
-# Build Launcher
+# Switch Mode
 if(BUILD_NATIVE_COMPONENTS)
-    add_subdirectory(launcher)
-endif()
-
-# Include Symbols
-if(BUILD_ARM_COMPONENTS)
-    add_subdirectory(symbols)
-endif()
-
-# Build Mods
-if(BUILD_ARM_COMPONENTS)
-    add_subdirectory(mods)
-endif()
-
-# Include Images
-if(BUILD_NATIVE_COMPONENTS)
-    add_subdirectory(images)
-endif()
-
-# Install Prebuilt ARMHF Toolchain Sysroot
-if(BUILD_NATIVE_COMPONENTS AND MCPI_USE_PREBUILT_ARMHF_TOOLCHAIN)
-    install_arm_sysroot()
-endif()
-
-# SDK
-if(BUILD_ARM_COMPONENTS)
-    # Install
-    install(EXPORT sdk DESTINATION "${MCPI_SDK_DIR}" FILE "sdk-targets.cmake")
-    file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/sdk.cmake"
-        # Sanity Check
-        "${ARM_SANITY_CHECK}"
-        # Compile Flags
-        "${COMPILE_FLAGS_SETUP}"
-        # Log
-        "message(STATUS \"Using Reborn SDK v${MCPI_VERSION}\")\n"
-        # Include Targets
-        "include(\"\${CMAKE_CURRENT_LIST_DIR}/sdk-targets.cmake\")\n"
-    )
-    install(FILES "${CMAKE_CURRENT_BINARY_DIR}/sdk.cmake" DESTINATION "${MCPI_SDK_DIR}")
-    # Calculate Hash Of SDK
-    string(CONCAT SDK_HASH_SCRIPT
-        # Prepare
-        "set(dir \"\$ENV{DESTDIR}\${CMAKE_INSTALL_PREFIX}/${MCPI_SDK_DIR}\")\n"
-        "set(out \"\${dir}/.hash\")\n"
-        # Calculate Hashes
-        "set(content \"\")\n"
-        "file(GLOB_RECURSE files LIST_DIRECTORIES FALSE \"\${dir}/*\")\n"
-        "foreach(file IN LISTS files)\n"
-        "    file(SHA256 \"\${file}\" hash)\n"
-        "    cmake_path(RELATIVE_PATH file BASE_DIRECTORY \"\${dir}\")\n"
-        "    string(APPEND content \"\${hash} \${file}\\n\")\n"
-        "endforeach()\n"
-        # Write File
-        "file(WRITE \"\${out}\" \"\${content}\")\n"
-    )
-    install(CODE "${SDK_HASH_SCRIPT}")
-endif()
-
-# Packaging
-if(BUILD_NATIVE_COMPONENTS)
-    include(cmake/cpack/packaging.cmake)
-endif()
-
-# Superbuild
-if(BUILD_NATIVE_COMPONENTS)
-    # Arguments
-    set(ARM_OPTIONS "${MCPI_OPTIONS}")
-    list(APPEND ARM_OPTIONS "-DMCPI_BUILD_MODE:STRING=arm")
-    list(APPEND ARM_OPTIONS "-DCMAKE_INSTALL_MESSAGE:STRING=NEVER")
-    list(APPEND ARM_OPTIONS "-DCMAKE_INSTALL_PREFIX:PATH=<INSTALL_DIR>")
-    if(NOT MCPI_USE_PREBUILT_ARMHF_TOOLCHAIN)
-        if(DEFINED CMAKE_TOOLCHAIN_FILE)
-            set(ARM_TOOLCHAIN "${CMAKE_TOOLCHAIN_FILE}")
-        endif()
-    else()
-        set(ARM_TOOLCHAIN "${MCPI_CMAKE_TOOLCHAIN_FILE}")
-    endif()
-    if(DEFINED ARM_TOOLCHAIN)
-        list(APPEND ARM_OPTIONS "-DCMAKE_TOOLCHAIN_FILE:FILEPATH=${ARM_TOOLCHAIN}")
-    endif()
-
-    # Force Rebuild If Needed
-    set(ARM_PREFIX "${CMAKE_CURRENT_BINARY_DIR}/arm-components")
-    if(DEFINED MCPI_FORCE_ARM_REBUILD)
-        file(REMOVE_RECURSE "${ARM_PREFIX}")
-    endif()
-
     # Build
-    include(ExternalProject)
-    ExternalProject_Add(arm-components
-        PREFIX "${ARM_PREFIX}"
-        # Source Directory
-        DOWNLOAD_COMMAND ""
-        SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}"
-        # Configure
-        CMAKE_CACHE_ARGS ${ARM_OPTIONS}
-        CMAKE_GENERATOR "Ninja Multi-Config"
-        CONFIGURE_HANDLED_BY_BUILD TRUE
-        # Build
-        BUILD_COMMAND
-            "${CMAKE_COMMAND}" "--build" "<BINARY_DIR>" "--config" "$<CONFIG>"
-        BUILD_ALWAYS TRUE
-        # Install
-        INSTALL_COMMAND
-            "${CMAKE_COMMAND}" "-E"
-            "rm" "-rf" "<INSTALL_DIR>/${MCPI_INSTALL_DIR}"
-        COMMAND
-            "${CMAKE_COMMAND}" "-E" "env" "DESTDIR="
-            "${CMAKE_COMMAND}" "--install" "<BINARY_DIR>" "--config" "$<CONFIG>"
-        # Use Terminal
-        USES_TERMINAL_CONFIGURE TRUE
-        USES_TERMINAL_BUILD TRUE
-        USES_TERMINAL_INSTALL TRUE
-    )
+    add_subdirectory(launcher)
+    add_subdirectory(images)
 
-    # Install
-    ExternalProject_Get_Property(arm-components INSTALL_DIR)
-    install(DIRECTORY "${INSTALL_DIR}/${MCPI_INSTALL_DIR}/" DESTINATION "${MCPI_INSTALL_DIR}")
+    # Install Prebuilt ARMHF Toolchain Sysroot
+    if(MCPI_USE_PREBUILT_ARMHF_TOOLCHAIN)
+        install_arm_sysroot()
+    endif()
+
+    # Packaging
+    include(cmake/cpack/packaging.cmake)
+
+    # Superbuild
+    include(cmake/superbuild.cmake)
+elseif(BUILD_ARM_COMPONENTS)
+    # Build
+    add_subdirectory(symbols)
+    add_subdirectory(mods)
+
+    # SDK
+    include(cmake/sdk/install.cmake)
 endif()

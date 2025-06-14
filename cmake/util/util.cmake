@@ -32,16 +32,16 @@ function(message log_level)
     endif()
 endfunction()
 
-# Exporting Targets And Headers
-include("${CMAKE_CURRENT_LIST_DIR}/export.cmake")
-
 # Force Set Configuration Variable
-function(force_set name value type)
-    set("${name}" "${value}" CACHE "${type}" "" FORCE)
-    mark_as_advanced(FORCE "${name}")
-endfunction()
+string(CONCAT FORCE_SET_FUNCTION
+    "function(force_set name value type)\n"
+    "    set(\"\${name}\" \"\${value}\" CACHE \"\${type}\" \"\" FORCE)\n"
+    "    mark_as_advanced(FORCE \"\${name}\")\n"
+    "endfunction()\n"
+)
+cmake_language(EVAL CODE "${FORCE_SET_FUNCTION}")
 
-# Get Architecture
+# Get Build Computer Architecture
 function(get_arch var)
     execute_process(COMMAND uname -m OUTPUT_VARIABLE arch OUTPUT_STRIP_TRAILING_WHITESPACE)
     if(arch STREQUAL "armv8b" OR arch STREQUAL "armv8l")
