@@ -3,7 +3,7 @@
     <id>${MCPI_APP_ID}</id>
 
     <name>${MCPI_APP_TITLE}</name>
-    <summary>Fun with Blocks</summary>
+    <summary>${MCPI_APP_DESCRIPTION}</summary>
     <description>
         <p>Minecraft: Pi Edition Modding Project.</p>
         <p>NOTE: This is not verified by, affiliated with, or supported by Mojang or Microsoft.</p>

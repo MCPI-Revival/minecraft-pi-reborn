@@ -49,6 +49,7 @@ mcpi_option(AUTHOR_ID "Author ID" STRING "com.thebrokenrail")
 mcpi_option(APP_NAME "App Name" STRING "minecraft-pi-reborn")
 mcpi_option(APP_ID "App ID" STRING "${MCPI_AUTHOR_ID}.MCPIReborn")
 mcpi_option(APP_TITLE "App Title" STRING "Minecraft: Pi Edition: Reborn")
+mcpi_option(APP_DESCRIPTION "Package Description" STRING "Fun with Blocks")
 
 # Skin Server
 mcpi_option(SKIN_SERVER "Skin Server" STRING "https://raw.githubusercontent.com/MCPI-Revival/Skins/data")

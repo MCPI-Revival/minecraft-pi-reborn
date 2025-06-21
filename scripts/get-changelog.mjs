@@ -6,7 +6,7 @@ import { Enum, parseOptions } from './lib/options.mjs';
 
 // Parse Options
 const Modes = new Enum([
-    'CI',
+    'Release',
     'AppStream'
 ]);
 const options = parseOptions([['mode', Modes]], [], null);
@@ -24,9 +24,7 @@ const version = readFile('VERSION');
 const changelog = readFile('docs', 'CHANGELOG.md');
 
 // Print Version
-if (options.mode === Modes.CI) {
-    console.log('version=' + version.data);
-} else {
+if (options.mode === Modes.AppStream) {
     const time = new Date(Math.max(version.time.getTime(), changelog.time.getTime()));
     const date = time.toISOString().split('T')[0];
     console.log(`<release version="${version.data}" date="${date}">`);
@@ -51,11 +49,8 @@ for (const line of lines) {
 }
 
 // Print
-if (options.mode === Modes.CI) {
-    const delimiter = 'CHANGELOG_EOF';
-    console.log('changelog<<' + delimiter);
+if (options.mode === Modes.Release) {
     console.log(out.join('\n'));
-    console.log(delimiter);
 } else {
     console.log('<description>');
     console.log('<ul>');
