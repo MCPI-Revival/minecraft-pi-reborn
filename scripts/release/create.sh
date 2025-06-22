@@ -6,7 +6,7 @@ cd "$(dirname "$0")"
 . ./common.sh
 
 # Upload Packages To Stable Repository
-./scripts/releases/upload-packages.sh stable
+./scripts/release/upload-packages.sh stable
 
 # Arguments
 TAG="$1"
@@ -18,7 +18,13 @@ curl -o "${TEA}" "https://dl.gitea.com/tea/${TEA_VERSION}/tea-${TEA_VERSION}-lin
 chmod +x "${TEA}"
 
 # Login
-"${TEA}" logins add --url "${SERVER}" --token "${RELEASE_TOKEN}"
+LOGIN_NAME='ci'
+"${TEA}" logins delete "${LOGIN_NAME}" || :
+"${TEA}" logins add \
+    --name "${LOGIN_NAME}" \
+    --url "${SERVER}" \
+    --token "${RELEASE_TOKEN}"
+"${TEA}" logins default "${LOGIN_NAME}"
 
 # Create Release
 "${TEA}" releases create \

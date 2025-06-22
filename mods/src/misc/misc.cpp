@@ -423,6 +423,17 @@ static void LocalPlayer_die_injection(LocalPlayer_die_t original, LocalPlayer *s
     }
 }
 
+// Reliable Chunk Saving
+static bool RegionFile_writeChunk_injection(RegionFile_writeChunk_t original, RegionFile *self, const int x, const int z, RakNet_BitStream &data) {
+    // Call Original Method
+    const bool ret = original(self, x, z, data);
+    // Sync
+    FILE *file = (FILE *) self->file;
+    fflush(file);
+    // Return
+    return ret;
+}
+
 // Init
 void init_misc() {
     // Sanitize Username
@@ -590,6 +601,11 @@ void init_misc() {
     // Fix Dropping Armor On Death
     if (feature_has("Fix Dropping Armor On Death", server_enabled)) {
         overwrite_calls(LocalPlayer_die, LocalPlayer_die_injection);
+    }
+
+    // Reliable Chunk Saving
+    if (feature_has("Sync Chunks To Disk After Saving", server_enabled)) {
+        overwrite_calls(RegionFile_writeChunk, RegionFile_writeChunk_injection);
     }
 
     // Disable overwrite_calls() After Minecraft::init
