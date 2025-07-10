@@ -139,7 +139,7 @@ handlers.set(Modes.Build, function () {
 });
 
 // Testing Dependencies
-handlers.set(Modes.Test, function () {
+const addTestPackages = () => {
     let glib = 'libglib2.0-0';
     const newerGlib = glib + 't64';
     if (doesPackageExist(getPackageForHost(newerGlib))) {
@@ -151,11 +151,15 @@ handlers.set(Modes.Test, function () {
         'libopenal1',
         glib
     );
+};
+handlers.set(Modes.Test, function () {
+    addTestPackages();
     installPackages();
 });
 
 // SDK Usage Dependencies
 handlers.set(Modes.SDK, function () {
+    addTestPackages(); // Needed So SDK Can Be Extracted
     addPackageForBuild(
         'cmake' + backportsSuffix,
         'ninja-build',
