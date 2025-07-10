@@ -33,11 +33,21 @@ target_link_libraries(launcher
     trampoline-headers
     pthread
 )
+
 # RPath
 set_target_properties(launcher PROPERTIES INSTALL_RPATH "$ORIGIN/lib/native")
 target_link_options(launcher PRIVATE "LINKER:--disable-new-dtags")
+
 # Files
 target_compile_definitions(launcher PRIVATE _FILE_OFFSET_BITS=64)
+
+# Runtime/Trampoline
+if(TARGET runtime)
+    target_link_libraries(launcher
+        media-layer-trampoline
+        runtime
+    )
+endif()
 
 # Install
 install(TARGETS launcher DESTINATION "${MCPI_INSTALL_DIR}")

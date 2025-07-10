@@ -5,6 +5,7 @@
 #include <utility>
 
 #include <libreborn/log.h>
+#include <trampoline/guest.h>
 
 #include "../common/common.h"
 

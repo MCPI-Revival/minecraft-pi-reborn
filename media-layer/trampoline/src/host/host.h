@@ -2,6 +2,8 @@
 
 #include <cstdlib>
 
+#include <trampoline/host.h>
+
 #include "../common/common.h"
 
 // Macro

@@ -6,6 +6,11 @@
 #include <libreborn/config.h>
 #include <libreborn/util/exec.h>
 
+#ifdef MCPI_BUILD_RUNTIME
+#include <trampoline/host.h>
+extern "C" std::remove_pointer_t<trampoline_t> trampoline;
+#endif
+
 #include "../util/util.h"
 #include "bootstrap.h"
 
@@ -65,10 +70,11 @@ void bootstrap() {
     };
 
     // Run
-    const char *new_argv[args.size() + 1];
-    for (std::vector<std::string>::size_type i = 0; i < args.size(); i++) {
-        new_argv[i] = args[i].c_str();
-    }
-    new_argv[args.size()] = nullptr;
+    static constexpr int new_argc = 1;
+    const char *new_argv[new_argc + 1] = {patched_exe_path.c_str(), nullptr};
+#ifdef MCPI_BUILD_RUNTIME
+    runtime_main(trampoline, new_argc, new_argv);
+#else
     safe_execvpe(new_argv, environ);
+#endif
 }

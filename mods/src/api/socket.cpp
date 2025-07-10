@@ -42,6 +42,8 @@ static void write_queued_data(const int sock) {
         return pair.second.empty();
     });
 }
+
+// Handle Command
 static void handle_line(CommandServer *self, ConnectedClient &client, const std::string &line) {
     // Run
     const std::string ret = self->parse(client, line);
@@ -54,14 +56,15 @@ static void handle_line(CommandServer *self, ConnectedClient &client, const std:
         to_write[client.sock] += ret;
     }
 }
+
 // Remove Speed Limit
 static constexpr int max_read_per_tick_per_client = 16384; // 16 KiB
 static bool CommandServer__updateClient_injection_2(MCPI_UNUSED CommandServer__updateClient_t original, CommandServer *self, ConnectedClient &client) {
     // Read Lines
     size_t total_read = 0;
     constexpr size_t buffer_size = 2048;
-    char buffer[buffer_size];
     while (total_read < max_read_per_tick_per_client) {
+        static char buffer[buffer_size];
         const ssize_t bytes_received = recv(client.sock, buffer, buffer_size, 0);
         if (bytes_received == -1) {
             if (errno == EINTR) {
@@ -79,6 +82,7 @@ static bool CommandServer__updateClient_injection_2(MCPI_UNUSED CommandServer__u
             return false;
         }
         total_read += bytes_received;
+
         // Append Received Data To Client Buffer
         client.str.append(buffer, bytes_received);
     }
