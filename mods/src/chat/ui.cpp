@@ -18,11 +18,14 @@ void _chat_clear_history() {
 }
 
 // Structure
-static std::string _starting_text = "";
 struct ChatScreen final : TextInputScreen {
     TextInputBox *chat;
     Button *send;
     int history_pos;
+    const std::string starting_text;
+    // Construction
+    ChatScreen(std::string start_text) : TextInputScreen(), starting_text(start_text) {
+    }
     // Init
     std::vector<std::string> local_history = {};
     void init() override {
@@ -32,6 +35,7 @@ struct ChatScreen final : TextInputScreen {
         m_textInputs->push_back(chat);
         chat->init(self->font);
         chat->setFocused(true);
+        chat->setText(starting_text);
         history_pos = get_history().size();
         local_history = get_history();
         local_history.push_back("");
@@ -45,8 +49,6 @@ struct ChatScreen final : TextInputScreen {
         self->selectable_buttons.push_back(send);
         // Hide Chat Messages
         is_in_chat = true;
-        // Setup starting text
-        chat->setText(_starting_text);
     }
     // Removal
     ~ChatScreen() override {
@@ -121,25 +123,21 @@ struct ChatScreen final : TextInputScreen {
     }
 };
 static Screen *create_chat_screen(std::string starting_text) {
-    _starting_text = starting_text;
-    return (new ChatScreen())->self;
+    return (new ChatScreen(starting_text))->self;
 }
 
 // Init
 void _init_chat_ui() {
     misc_run_on_game_key_press([](Minecraft *minecraft, const int key) {
-        if (key == MC_KEY_t) {
-            if (minecraft->isLevelGenerated() && minecraft->screen == nullptr) {
+        if (minecraft->isLevelGenerated() && minecraft->screen == nullptr) {
+            if (key == MC_KEY_t) {
                 minecraft->setScreen(create_chat_screen(""));
-            }
-            return true;
-        } else if (key == MC_KEY_SLASH) {
-            if (minecraft->isLevelGenerated() && minecraft->screen == nullptr) {
+            } else if (key == MC_KEY_SLASH) {
                 minecraft->setScreen(create_chat_screen("/"));
+            } else {
+                return false;
             }
-            return true;
-        } else {
-            return false;
         }
+        return true;
     });
 }
