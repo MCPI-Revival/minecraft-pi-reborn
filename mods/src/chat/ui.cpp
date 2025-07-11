@@ -18,6 +18,7 @@ void _chat_clear_history() {
 }
 
 // Structure
+static std::string _starting_text = "";
 struct ChatScreen final : TextInputScreen {
     TextInputBox *chat;
     Button *send;
@@ -44,6 +45,8 @@ struct ChatScreen final : TextInputScreen {
         self->selectable_buttons.push_back(send);
         // Hide Chat Messages
         is_in_chat = true;
+        // Setup starting text
+        chat->setText(_starting_text);
     }
     // Removal
     ~ChatScreen() override {
@@ -117,7 +120,8 @@ struct ChatScreen final : TextInputScreen {
         }
     }
 };
-static Screen *create_chat_screen() {
+static Screen *create_chat_screen(std::string starting_text) {
+    _starting_text = starting_text;
     return (new ChatScreen())->self;
 }
 
@@ -126,7 +130,12 @@ void _init_chat_ui() {
     misc_run_on_game_key_press([](Minecraft *minecraft, const int key) {
         if (key == MC_KEY_t) {
             if (minecraft->isLevelGenerated() && minecraft->screen == nullptr) {
-                minecraft->setScreen(create_chat_screen());
+                minecraft->setScreen(create_chat_screen(""));
+            }
+            return true;
+        } else if (key == MC_KEY_SLASH) {
+            if (minecraft->isLevelGenerated() && minecraft->screen == nullptr) {
+                minecraft->setScreen(create_chat_screen("/"));
             }
             return true;
         } else {

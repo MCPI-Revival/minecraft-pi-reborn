@@ -64,6 +64,8 @@ static SDLKey glfw_key_to_sdl_key(const int key) {
             return SDLK_BACKSPACE;
         case GLFW_KEY_DELETE:
             return SDLK_DELETE;
+        case GLFW_KEY_SLASH:
+            return SDLK_SLASH;
         // Fullscreen
         case GLFW_KEY_F11:
             return SDLK_F11;
