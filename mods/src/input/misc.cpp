@@ -67,6 +67,14 @@ static void Gui_handleClick_injection(Gui_handleClick_t original, Gui *gui, cons
     }
 }
 
+// Block Tile Interaction When Sneaking
+static int GameMode_useItemOn_Tile_use_injection(Tile *tile, Level *level, int x, int y, int z, Player *player) {
+    if (player->isSneaking()) {
+        return 0;
+    }
+    return tile->use(level, x, y, z, player);
+}
+
 // Init
 void _init_misc() {
     // Proper Back Button Handling
@@ -90,5 +98,8 @@ void _init_misc() {
         overwrite_calls(Gui_handleClick, Gui_handleClick_injection);
         // Disable Item Dropping Using The Cursor When Cursor Is Hidden
         overwrite_calls(Gui_tickItemDrop, Gui_tickItemDrop_injection);
+    }
+    if (feature_has("Block Tile Interaction When Sneaking", server_enabled)) {
+        overwrite_call_manual((void *) 0x1a870, (void *) GameMode_useItemOn_Tile_use_injection);
     }
 }

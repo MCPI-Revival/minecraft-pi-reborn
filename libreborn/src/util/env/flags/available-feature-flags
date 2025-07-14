@@ -128,6 +128,7 @@ CATEGORY Input
     FALSE Disable Speed Bridging
     TRUE Enable Text Input
     TRUE Extend Supported Keycodes
+    TRUE Block Tile Interaction When Sneaking
 CATEGORY Multiplayer
     TRUE Allow Joining Survival Mode Servers
     TRUE External Server Support
