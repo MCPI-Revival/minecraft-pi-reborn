@@ -101,5 +101,6 @@ void _init_misc() {
     }
     if (feature_has("Block Tile Interaction When Sneaking", server_enabled)) {
         overwrite_call_manual((void *) 0x1a870, (void *) GameMode_useItemOn_Tile_use_injection);
+        overwrite_call_manual((void *) 0x748ec, (void *) GameMode_useItemOn_Tile_use_injection);
     }
 }
