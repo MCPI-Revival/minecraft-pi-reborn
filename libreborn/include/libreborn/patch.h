@@ -31,7 +31,7 @@ void overwrite_calls(T *target, typename T::overwrite_type replacement) {
 void *reborn_thunk_enabler(void *target, void *thunk);
 
 // Replace All Calls To start With target Within [to, from)
-void overwrite_calls_within_manual(void *from, void *to, const void *target, void *replacement);
+void overwrite_calls_within_manual(void *from, void *to, void *target, void *replacement);
 template <typename T>
 void overwrite_calls_within(void *from, void *to, T *target, typename T::ptr_type replacement) {
     overwrite_calls_within_manual(from, to, (void *) target->get(false), (void *) replacement);

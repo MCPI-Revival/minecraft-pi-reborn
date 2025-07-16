@@ -17,6 +17,10 @@ bool is_branch_instruction(unsigned char opcode) {
         return false;
     }
 }
+unsigned char get_opcode(void *addr) {
+    const unsigned char *instruction = (unsigned char *) addr;
+    return instruction[3];
+}
 
 // Extract Target Address From B(L) Instruction
 static void *extract_from_bl_instruction(unsigned char *from, const uint32_t instruction) {

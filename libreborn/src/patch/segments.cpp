@@ -29,14 +29,14 @@ void add_segment(segment_data data) {
 
 // Init
 void reborn_init_patch() {
-    dl_iterate_phdr([](struct dl_phdr_info *info, MCPI_UNUSED size_t size, MCPI_UNUSED void *user_data) {
+    dl_iterate_phdr([](dl_phdr_info *info, MCPI_UNUSED size_t size, MCPI_UNUSED void *user_data) {
         // Only Search Current Program
         if (strcmp(info->dlpi_name, "") == 0) {
             for (int i = 0; i < info->dlpi_phnum; i++) {
-                // Only Loaded Segemnts
+                // Only Loaded Segments
                 if (info->dlpi_phdr[i].p_type == PT_LOAD) {
                     // Store
-                    segment_data data;
+                    segment_data data = {};
                     data.start = (void *) (info->dlpi_addr + info->dlpi_phdr[i].p_vaddr);
                     data.end = (void *) (((uintptr_t) data.start) + info->dlpi_phdr[i].p_memsz);
                     data.is_executable = info->dlpi_phdr[i].p_flags & PF_X;
@@ -48,4 +48,6 @@ void reborn_init_patch() {
         // Return
         return 0;
     }, nullptr);
+    // Init Callsite Cache
+    init_cache();
 }

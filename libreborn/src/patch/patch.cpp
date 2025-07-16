@@ -27,55 +27,32 @@ void overwrite_call_manual(void *addr, void *new_target, const bool force_b_inst
     _overwrite_call_internal(addr, new_target, use_b_instruction);
 }
 
-// .rodata Information
-#define RODATA_START 0x1020c8
-#define RODATA_END 0x11665c
-// .data.rel.ro Information
-#define DATA_REL_RO_START 0x1352b8
-#define DATA_REL_RO_END 0x135638
-// Search And Patch VTables Containing Function
-#define scan_vtables(section) \
-    for (uintptr_t i = section##_START; i < section##_END; i = i + 4) { \
-        uint32_t *addr = (uint32_t *) i; \
-        if (*addr == (uintptr_t) target) { \
-            /* Found VTable Entry */ \
-            patch_address(addr, replacement); \
-            found++; \
-        } \
-    }
+// Patch VTables
 static int _patch_vtables(void *target, void *replacement) {
     int found = 0;
-    scan_vtables(RODATA);
-    scan_vtables(DATA_REL_RO);
+    const std::unordered_set<void *> callsites = get_virtual_callsites(target);
+    for (void *addr : callsites) {
+        patch_address(addr, replacement);
+        found++;
+    }
     return found;
 }
-#undef scan_vtables
 
 // Patch Calls Within Range
-static int _overwrite_calls_within_internal(void *from, void *to, const void *target, void *replacement) {
+static int _overwrite_calls_within_internal(const void *from, const void *to, void *target, void *replacement) {
     int found = 0;
-    for (uintptr_t i = (uintptr_t) from; i < (uintptr_t) to; i = i + 4) {
-        unsigned char *addr = (unsigned char *) i;
-        const unsigned char opcode = addr[3];
-        // Check If Instruction is B Or BL
-        if (is_branch_instruction(opcode)) {
-            // Extract Instruction Target
-            const void *instruction_target = extract_from_bl_instruction(addr);
-            // Check If Instruction Calls Target
-            if (instruction_target == target) {
-                // Patch Instruction
-                uint32_t new_instruction = generate_bl_instruction(addr, replacement, opcode);
-                patch(addr, (unsigned char *) &new_instruction);
-                found++;
-            }
+    const std::unordered_set<void *> callsites = get_normal_callsites(target);
+    for (void *addr : callsites) {
+        if (to == nullptr || (addr >= from && addr < to)) {
+            const unsigned char opcode = get_opcode(addr);
+            uint32_t new_instruction = generate_bl_instruction(addr, replacement, opcode);
+            patch(addr, (unsigned char *) &new_instruction);
+            found++;
         }
     }
     return found;
 }
 
-// .text Information
-#define TEXT_START 0xde60
-#define TEXT_END 0x1020c0
 // Overwrite All B(L) Instructions That Target The Specified Address
 #define NO_CALLSITE_ERROR() ERR("Unable To Find Callsites")
 void *overwrite_calls_manual(void *target, void *replacement, const bool allow_no_callsites) {
@@ -83,7 +60,7 @@ void *overwrite_calls_manual(void *target, void *replacement, const bool allow_n
     void *code_block = update_code_block(replacement);
 
     // Patch Code
-    int found = _overwrite_calls_within_internal((void *) TEXT_START, (void *) TEXT_END, target, code_block);
+    int found = _overwrite_calls_within_internal(nullptr, nullptr, target, code_block);
     // Patch VTables
     found += _patch_vtables(target, code_block);
 
@@ -98,7 +75,7 @@ void *overwrite_calls_manual(void *target, void *replacement, const bool allow_n
     // Return
     return code_block;
 }
-void overwrite_calls_within_manual(void *from /* inclusive */, void *to /* exclusive */, const void *target, void *replacement) {
+void overwrite_calls_within_manual(void *from /* inclusive */, void *to /* exclusive */, void *target, void *replacement) {
     // Add New Target To Code Block
     void *code_block = update_code_block(replacement);
 
@@ -137,7 +114,7 @@ void patch(void *addr, unsigned char patch[4]) {
         ERR("Patch Conflict Detected: %p", addr);
     }
     if (record_patch) {
-        patched_addresses.insert(addr).second;
+        patched_addresses.insert(addr);
     }
 
     // Get Current Permissions
@@ -155,8 +132,10 @@ void patch(void *addr, unsigned char patch[4]) {
     safe_mprotect(addr, size, prot | PROT_WRITE);
 
     // Patch
+    remove_callsite(addr);
     unsigned char *data = (unsigned char *) addr;
     memcpy(data, patch, 4);
+    add_callsite(addr);
 
     // Reset Code Memory Permissions
     safe_mprotect(addr, size, prot);

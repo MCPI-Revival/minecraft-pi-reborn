@@ -41,6 +41,7 @@ if(BUILD_ARM_COMPONENTS)
         src/patch/segments.cpp
         src/patch/code-block.cpp
         src/patch/instruction.cpp
+        src/patch/cache.cpp
     )
     target_link_libraries(reborn-patch dl pthread reborn-util)
     target_compile_definitions(reborn-patch PUBLIC REBORN_HAS_PATCH_CODE)
