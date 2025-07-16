@@ -9,7 +9,7 @@
 
 // UI
 struct CrashReport final : Frame {
-    explicit CrashReport(const char *filename): Frame("Crash Report", 640, 480) {
+    explicit CrashReport(const char *filename): Frame("Crash Report", 640, 480, true) {
         // Open File
         std::ifstream stream(filename, std::ios::binary | std::ios::ate);
         if (stream) {

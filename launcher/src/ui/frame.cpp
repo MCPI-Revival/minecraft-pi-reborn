@@ -10,7 +10,7 @@
 #include <libreborn/util/util.h>
 
 // Init/Cleanup
-Frame::Frame(const char *title, const int width, const int height) {
+Frame::Frame(const char *title, const int width, const int height, const bool block_vsync) {
     // Create Window
     init_glfw();
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 1);
@@ -24,7 +24,9 @@ Frame::Frame(const char *title, const int width, const int height) {
 
     // Disable V-Sync
     // (On Wayland, This Fixes Issues With The Clipboard)
-    glfwSwapInterval(0);
+    if (block_vsync) {
+        glfwSwapInterval(0);
+    }
 
     // Setup ImGui Context
     IMGUI_CHECKVERSION();
