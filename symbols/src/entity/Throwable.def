@@ -3,6 +3,7 @@ extends Entity;
 size 0xf4;
 vtable 0x10dcb8;
 vtable-size 0x13c;
+generate-custom-wrapper;
 
 constructor (Level *level, Entity *thrower) = 0x8ccf0;
 
