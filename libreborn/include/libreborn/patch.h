@@ -23,7 +23,7 @@ template <typename T>
 void overwrite_calls(T *target, typename T::overwrite_type replacement) {
     DEBUG("Overwriting Method: %s", target->name);
     if (!target->overwrite(replacement)) {
-        ERR("Selected Method Does Not Actually Exist! Use patch_vtable() Instead!");
+        ERR("Selected Method '%s' Does Not Actually Exist! Use patch_vtable() Instead!", target->name);
     }
 }
 

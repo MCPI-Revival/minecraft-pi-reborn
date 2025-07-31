@@ -39,6 +39,7 @@ CATEGORY User Interface
         TRUE Fix Pause Menu
         TRUE Display Date In Select World Screen
         TRUE Enable Sign Screen
+        TRUE Implement 'Quit and copy map' Button
     CATEGORY HUD
         TRUE Classic HUD
         TRUE Translucent Toolbar

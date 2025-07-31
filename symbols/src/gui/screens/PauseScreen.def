@@ -4,4 +4,5 @@ vtable 0x104b20;
 
 method void updateServerVisibilityText() = 0x366b8;
 
+property Button *save_locally_button = 0x5c;
 property Button *server_visibility_button = 0x60;

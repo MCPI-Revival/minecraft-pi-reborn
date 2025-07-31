@@ -1,0 +1,7 @@
+extends Screen;
+
+vtable 0x104db0;
+
+constructor (std::string &level_id) = 0x37320;
+
+property std::string level_name = 0x48;

@@ -13,6 +13,7 @@
 
 #include <mods/feature/feature.h>
 #include <mods/classic-ui/classic-ui.h>
+#include <mods/game-mode/game-mode.h>
 #include <mods/misc/misc.h>
 
 #include "internal.h"
@@ -191,16 +192,20 @@ static void PauseScreen_init_injection(PauseScreen_init_t original, PauseScreen 
     const Minecraft *minecraft = screen->minecraft;
     RakNetInstance *rak_net_instance = minecraft->rak_net_instance;
     if (rak_net_instance != nullptr) {
+        std::vector<Button *> *rendered_buttons = &screen->rendered_buttons;
+        std::vector<Button *> *selectable_buttons = &screen->selectable_buttons;
         if (rak_net_instance->isServer()) {
             // Add Button
-            std::vector<Button *> *rendered_buttons = &screen->rendered_buttons;
-            std::vector<Button *> *selectable_buttons = &screen->selectable_buttons;
             Button *button = screen->server_visibility_button;
             rendered_buttons->push_back(button);
             selectable_buttons->push_back(button);
 
             // Update Button Text
             screen->updateServerVisibilityText();
+        } else if (gamemode_implement_save_locally_button) {
+            Button *button = screen->save_locally_button;
+            rendered_buttons->push_back(button);
+            selectable_buttons->push_back(button);
         }
     }
 }

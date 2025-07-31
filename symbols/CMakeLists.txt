@@ -162,6 +162,7 @@ set(SRC
     src/gui/screens/ScreenChooser.def
     src/gui/screens/ArmorScreen.def
     src/gui/screens/DisconnectionScreen.def
+    src/gui/screens/RenameMPLevelScreen.def
     src/gui/Font.def
     src/gui/components/ImageButton.def
     src/gui/components/OptionButton.def
