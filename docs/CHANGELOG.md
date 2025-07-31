@@ -109,6 +109,7 @@ include_toc: true
     * `Fix Dropping Items In Creative Mode On Death`
     * `Correctly Handle Empty Slots When Receiving Inventory Data`
     * `Stop Doors And Trapdoors Closing When Updated`
+    * `Force Saving Level Data On World Exit`
   * Existing Functionality (All Enabled By Default)
     * `Fix Screen Rendering When Hiding HUD`
     * `Sanitize Usernames`

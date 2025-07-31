@@ -164,6 +164,7 @@ CATEGORY Bug Fixes
     TRUE Fix Reloading Textures On Resize
     TRUE Fix options.txt Loading/Saving
     TRUE Fix Hanging When No Valid Spawn Point Exists
+    TRUE Force Saving Level Data On World Exit
 CATEGORY Logging
     FALSE Log FPS
     TRUE Log Chat Messages

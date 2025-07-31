@@ -434,6 +434,21 @@ static bool RegionFile_writeChunk_injection(RegionFile_writeChunk_t original, Re
     return ret;
 }
 
+// Force Saving Level Data On World Exit
+static void Minecraft_leaveGame_injection(Minecraft_leaveGame_t original, Minecraft *self, const bool save_remote) {
+    // Save
+    Level *level = self->level;
+    if (level) {
+        const bool is_generating = self->generating_level || !self->level_generation_signal;
+        const bool should_save = !level->is_client_side || save_remote;
+        if (!is_generating && should_save) {
+            level->saveGame();
+        }
+    }
+    // Call Original Method
+    original(self, save_remote);
+}
+
 // Init
 void init_misc() {
     // Sanitize Username
@@ -606,6 +621,11 @@ void init_misc() {
     // Reliable Chunk Saving
     if (feature_has("Sync Chunks To Disk After Saving", server_enabled)) {
         overwrite_calls(RegionFile_writeChunk, RegionFile_writeChunk_injection);
+    }
+
+    // Force Saving On Exiting World
+    if (feature_has("Force Saving Level Data On World Exit", server_enabled)) {
+        overwrite_calls(Minecraft_leaveGame, Minecraft_leaveGame_injection);
     }
 
     // Disable overwrite_calls() After Minecraft::init

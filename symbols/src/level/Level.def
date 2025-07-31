@@ -3,6 +3,7 @@ extends LevelSource;
 vtable 0x10fcf0;
 
 method void saveGame() = 0xa6408;
+// This is called by the above method.
 method void saveLevelData() = 0xa2e94;
 method bool setTile(int x, int y, int z, int id) = 0xa3904;
 method bool setTileNoUpdate(int x, int y, int z, int id) = 0xa342c;
