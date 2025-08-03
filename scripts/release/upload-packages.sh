@@ -13,7 +13,7 @@ COMPONENT='main'
 delete() {
     curl \
         -X DELETE \
-        -H "Authorization: token ${RELEASE_TOKEN}" \
+        -H "Authorization: token ${RELEASE_TOKEN:?}" \
         "${SERVER}/api/packages/${ORGANIZATION}/debian/pool/${DISTRIBUTION}/${COMPONENT}/$1/$2/$3" \
         > /dev/null || :
 }
@@ -32,7 +32,7 @@ upload() {
     # Upload
     curl \
         --upload-file "${FILE}" \
-        -H "Authorization: token ${RELEASE_TOKEN}" \
+        -H "Authorization: token ${RELEASE_TOKEN:?}" \
         "${SERVER}/api/packages/${ORGANIZATION}/debian/pool/${DISTRIBUTION}/${COMPONENT}/upload" \
         > /dev/null
 }

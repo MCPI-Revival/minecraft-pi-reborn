@@ -96,6 +96,7 @@ std::unordered_set<void *> get_virtual_callsites(void *addr) {
 
 // Init
 void init_cache() {
+    DEBUG("Caching Callsites...");
     const std::vector<std::pair<void *, void *>> ranges = {
         {TEXT_START, TEXT_END},
         {RODATA_START, RODATA_END},

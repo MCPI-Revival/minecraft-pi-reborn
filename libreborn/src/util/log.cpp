@@ -29,7 +29,7 @@ void reborn_set_log(const int fd) {
 
 // Debug Logging
 static bool should_print_debug_to_stderr() {
-    return getenv(MCPI_DEBUG_ENV) != nullptr;
+    return is_env_set(MCPI_DEBUG_ENV);
 }
 int reborn_get_debug_fd() {
     return should_print_debug_to_stderr() ? STDERR_FILENO : reborn_get_log_fd();

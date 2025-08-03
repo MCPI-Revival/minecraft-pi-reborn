@@ -71,14 +71,14 @@ void unlock_file(const int fd) {
 
 // Check $DISPLAY
 void reborn_check_display() {
-    if (!getenv("DISPLAY") && !getenv("WAYLAND_DISPLAY")) {
+    if (!is_env_set("DISPLAY") && !is_env_set("WAYLAND_DISPLAY")) {
         ERR("No display attached! Make sure $DISPLAY or $WAYLAND_DISPLAY is set.");
     }
 }
 
 // Home Subdirectory
 const char *get_home_subdirectory_for_game_data() {
-    if (getenv(MCPI_PROFILE_DIRECTORY_ENV) != nullptr) {
+    if (is_env_set(MCPI_PROFILE_DIRECTORY_ENV)) {
         // No Subdirectory When Using Custom Profile Directory
         return "";
     } else if (!reborn_is_server()) {

@@ -2,6 +2,7 @@
 #include <cmath>
 
 #include <libreborn/patch.h>
+#include <libreborn/env/env.h>
 
 #include <symbols/minecraft.h>
 #include <GLES/gl.h>
@@ -36,7 +37,9 @@ struct SplashLine {
     static constexpr float min_scale = 0.6f;
     static constexpr float padding = (1.0f / 18.0f);
     const StartMenuScreen *screen;
-    explicit SplashLine(const StartMenuScreen *screen_, const float y_factor_): y_factor(y_factor_), screen(screen_) {}
+    explicit SplashLine(const StartMenuScreen *screen_, const float y_factor_):
+        y_factor(y_factor_), screen(screen_) {}
+
     // Get Origin
     [[nodiscard]] float origin_x() const {
         return (float(screen->width) / 2.0f) + x_offset;
@@ -54,6 +57,7 @@ struct SplashLine {
     [[nodiscard]] static float angle_rad() {
         return angle * float(M_PI / 180.0f);
     }
+
     // Find Endpoint
     [[nodiscard]] float from_x(float x) const {
         x -= origin_x();
@@ -68,6 +72,7 @@ struct SplashLine {
         const float end_y = float(screen->width) * padding;
         return std::min(from_x(end_x), from_y(end_y));
     }
+
     // Get Scale
     [[nodiscard]] float get_max_scale(bool &bad_y_factor) const {
         float region = get_region();
@@ -85,13 +90,14 @@ struct SplashLine {
     }
 };
 
-// Add Splashes
+// Draw Splash
 static std::string current_splash;
 static bool draw_splash(const StartMenuScreen *screen, const float y_factor, const bool allow_bad_y_factor) {
     // Position
     const SplashLine line(screen, y_factor);
     const float x = line.origin_x();
     const float y = line.origin_y();
+
     // Choose Scale
     const float max_width = line.end();
     bool bad_y_factor = false;
@@ -107,29 +113,39 @@ static bool draw_splash(const StartMenuScreen *screen, const float y_factor, con
         scale *= multiplier;
         splash_width *= multiplier;
     }
+
     // Position
     media_glPushMatrix();
     media_glTranslatef(x, y, 0.0f);
     // Rotate
     media_glRotatef(SplashLine::angle, 0.0f, 0.0f, 1.0f);
+
     // Oscillate
-    const float timeMS = float(Common::getTimeMs() % 1000) / 1000.0f;
-    const float time = 4.0f * float(M_PI) * timeMS;
-    float oscillation = 0.1f;
-    oscillation /= 2.0f;
-    oscillation = 1.0f + (oscillation * Mth::cos(time)) - oscillation;
-    scale *= oscillation;
+    const bool enable_oscillation = !is_env_set(MCPI_PROMOTIONAL_ENV);
+    if (enable_oscillation) {
+        const float timeMS = float(Common::getTimeMs() % 1000) / 1000.0f;
+        const float time = 4.0f * float(M_PI) * timeMS;
+        float oscillation = 0.1f;
+        oscillation /= 2.0f;
+        oscillation = 1.0f + (oscillation * Mth::cos(time)) - oscillation;
+        scale *= oscillation;
+    }
+
     // Scale
     media_glTranslatef(splash_width / 2.0f, 0, 0);
     media_glScalef(scale, scale, 1);
     media_glTranslatef(-text_width / 2.0f, 0, 0);
+
     // Render
-    float y_offset = -float(line_height - 1) / 2.0f;
+    constexpr float y_offset = -float(line_height - 1) / 2.0f;
     screen->font->drawShadow(current_splash, 0, y_offset, 0xffff00);
+
     // Finish
     media_glPopMatrix();
     return true;
 }
+
+// Pick Splash To Draw
 static void StartMenuScreen_render_injection(StartMenuScreen_render_t original, StartMenuScreen *screen, const int mouse_x, const int mouse_y, const float param_1) {
     // Call Original Method
     original(screen, mouse_x, mouse_y, param_1);
@@ -148,7 +164,11 @@ static void StartMenuScreen_render_injection(StartMenuScreen_render_t original, 
     if (!splashes.empty()) {
         // Pick Splash
         if (current_splash.empty()) {
-            current_splash = splashes[rand() % splashes.size()];
+            int id = 0;
+            if (!is_env_set(MCPI_PROMOTIONAL_ENV)) {
+                id = rand() % splashes.size();
+            }
+            current_splash = splashes[id];
         }
         // Draw
         float y_factor = 2.0f;

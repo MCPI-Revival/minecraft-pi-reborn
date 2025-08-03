@@ -1,6 +1,5 @@
 #include <symbols/minecraft.h>
 
-#include <mods/chat/chat.h>
 #include <mods/text-input-box/TextInputScreen.h>
 #include <mods/misc/misc.h>
 #include <mods/touch/touch.h>
@@ -19,17 +18,21 @@ void _chat_clear_history() {
 
 // Structure
 struct ChatScreen final : TextInputScreen {
-    TextInputBox *chat;
-    Button *send;
-    int history_pos;
+    TextInputBox *chat = nullptr;
+    Button *send = nullptr;
+    int history_pos = 0;
     const std::string starting_text;
+
     // Construction
-    ChatScreen(std::string start_text) : TextInputScreen(), starting_text(start_text) {
-    }
+    explicit ChatScreen(const std::string &start_text):
+        TextInputScreen(),
+        starting_text(start_text) {}
+
     // Init
     std::vector<std::string> local_history = {};
     void init() override {
         TextInputScreen::init();
+
         // Text Input
         chat = new TextInputBox;
         m_textInputs->push_back(chat);
@@ -39,23 +42,28 @@ struct ChatScreen final : TextInputScreen {
         history_pos = get_history().size();
         local_history = get_history();
         local_history.push_back("");
+
         // Determine Max Length
         const std::string prefix = _chat_get_prefix(Strings::default_username);
         const int max_length = MAX_CHAT_MESSAGE_LENGTH - prefix.length();
         chat->setMaxLength(max_length);
+
         // Send Button
         send = touch_create_button(1, "Send");
         self->rendered_buttons.push_back(send);
         self->selectable_buttons.push_back(send);
+
         // Hide Chat Messages
         is_in_chat = true;
     }
+
     // Removal
     ~ChatScreen() override {
         is_in_chat = false;
         delete chat;
         send->destructor_deleting();
     }
+
     // Rendering
     void render(const int x, const int y, const float param_1) override {
         // Background
@@ -65,6 +73,7 @@ struct ChatScreen final : TextInputScreen {
         // Call Original Method
         TextInputScreen::render(x, y, param_1);
     }
+
     // Positioning
     void setupPositions() override {
         TextInputScreen::setupPositions();
@@ -77,6 +86,7 @@ struct ChatScreen final : TextInputScreen {
         send->y = self->height - send->height;
         send->x = x + width;
     }
+
     // Key Presses
     void keyPressed(const int key) override {
         if (chat->isFocused()) {
@@ -110,6 +120,7 @@ struct ChatScreen final : TextInputScreen {
         // Call Original Method
         TextInputScreen::keyPressed(key);
     }
+
     // Button Click
     void buttonClicked(Button *button) override {
         if (button == send) {
@@ -122,7 +133,7 @@ struct ChatScreen final : TextInputScreen {
         }
     }
 };
-static Screen *create_chat_screen(std::string starting_text) {
+static Screen *create_chat_screen(const std::string &starting_text) {
     return (new ChatScreen(starting_text))->self;
 }
 

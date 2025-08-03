@@ -2,6 +2,7 @@
 #include <cmath>
 
 #include <libreborn/patch.h>
+#include <libreborn/env/env.h>
 #include <symbols/minecraft.h>
 #include <GLES/gl.h>
 
@@ -209,7 +210,7 @@ void init_title_screen() {
     }
 
     // Init Welcome Screen
-    if (feature_has("Add Welcome Screen", server_disabled)) {
+    if (feature_has("Add Welcome Screen", server_disabled) && !is_env_set(MCPI_PROMOTIONAL_ENV)) {
         _init_welcome();
     }
 }

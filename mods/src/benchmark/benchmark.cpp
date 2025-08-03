@@ -37,7 +37,7 @@ static void start_world(Minecraft *minecraft) {
 
     // Delete World If It Already Exists
     LevelStorageSource *level_source = minecraft->getLevelSource();
-    std::string name = BENCHMARK_WORLD_NAME;
+    const std::string name = BENCHMARK_WORLD_NAME;
     level_source->deleteLevel(name);
 
     // Select Level
@@ -170,7 +170,7 @@ static bool LevelData_getSpawnMobs_injection(MCPI_UNUSED LevelData_getSpawnMobs_
 // Init Benchmark
 void init_benchmark() {
     // --benchmark: Activate Benchmark
-    const bool active = getenv(_MCPI_BENCHMARK_ENV) != nullptr;
+    const bool active = is_env_set(_MCPI_BENCHMARK_ENV);
     if (active) {
         misc_run_on_update(Minecraft_update_injection);
         // Track Frames

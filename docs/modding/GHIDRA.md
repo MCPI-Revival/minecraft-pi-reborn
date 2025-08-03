@@ -36,7 +36,7 @@ undefined4 FUN_00075464(int param_1,int *param_2)
   bool bVar1;
   int iVar2;
   uint uVar3;
-  
+
   uVar3 = 0;
   while( true ) {
     iVar2 = *(int *)(*(int *)(param_1 + 0xc) + 0x60);
@@ -59,7 +59,7 @@ ServerSideNetworkHandler::getPlayer(ServerSideNetworkHandler *this,RakNetGUID *p
 {
   int iVar1;
   uint uVar2;
-  
+
   uVar2 = 0;
   while( true ) {
     iVar1 = *(int *)(*(int *)(this + 0xc) + 0x60);

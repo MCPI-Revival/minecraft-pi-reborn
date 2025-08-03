@@ -461,4 +461,9 @@ void _init_misc_ui() {
     if (feature_has("Fix Held Item Poking Through Screen Overlay", server_disabled)) {
         overwrite_calls(ItemInHandRenderer_renderScreenEffect, ItemInHandRenderer_renderScreenEffect_injection);
     }
+
+    // Hide Cursor In Promotional Mode
+    if (is_env_set(MCPI_PROMOTIONAL_ENV)) {
+        overwrite_calls(Common_renderCursor, nop<Common_renderCursor_t, float, float, Minecraft *>);
+    }
 }

@@ -22,6 +22,7 @@ ENV(MCPI_API_PORT, "Custom API Port")
 ENV(MCPI_BLOCK_OUTLINE_WIDTH, "Custom Width For Block Outline (In Pixels)")
 ENV(MCPI_GUI_SCALE, "Custom GUI Scale")
 ENV(MCPI_BINARY, "Custom Game Binary")
+ENV(MCPI_PROMOTIONAL, "Promotional Mdoe (Used For Consistent Screenshots)")
 // $HOME
 ENV(_MCPI_HOME, "")
 ENV(MCPI_PROFILE_DIRECTORY, "Custom Profile Directory")

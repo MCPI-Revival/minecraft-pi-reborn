@@ -25,10 +25,11 @@ cd "$(dirname "$0")/../"
 export XDG_SESSION_TYPE=x11
 unset MCPI_GUI_SCALE
 unset MCPI_USERNAME
-export PATH="$(pwd)/out/none/host/usr/bin:${PATH}"
+PWD="$(pwd)"
+export PATH="${PWD}/out/host/usr/bin:${PATH}"
 
 # Game Directory
-export MCPI_PROFILE_DIRECTORY="$(pwd)/.testing-tmp"
+export MCPI_PROFILE_DIRECTORY="${PWD}/.testing-tmp"
 rm -rf "${MCPI_PROFILE_DIRECTORY}"
 mkdir "${MCPI_PROFILE_DIRECTORY}"
 
@@ -57,17 +58,7 @@ screenshot() {
 screenshot launcher 0.5
 
 # Start Screen
-export MCPI_FEATURE_FLAGS="$(
-    # Get All Feature Flags
-    minecraft-pi-reborn --print-available-feature-flags |
-    # Find Enabled Feature Flags
-    grep '^TRUE ' | cut -f2- -d' ' |
-    # Disable Flags
-    grep -v 'Add Welcome Screen' |
-    grep -v 'Improved Cursor Rendering' |
-    # Format
-    tr '\n' '|'
-)"
+export MCPI_PROMOTIONAL=
 screenshot start 3 --default
 
 # Kill Shell

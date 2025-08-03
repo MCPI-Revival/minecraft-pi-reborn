@@ -30,8 +30,8 @@
 
 // --only-generate: Only Generate World And Then Exit
 static bool only_generate = false;
-__attribute__((constructor)) static void _init_only_generate() {
-    only_generate = getenv(_MCPI_ONLY_GENERATE_ENV) != nullptr;
+static void init_only_generate() {
+    only_generate = is_env_set(_MCPI_ONLY_GENERATE_ENV);
 }
 
 // Server Properties
@@ -284,4 +284,7 @@ void init_server() {
     if (get_server_properties().get_bool(get_property_types().player_data)) {
         _init_server_playerdata();
     }
+
+    // Setup Variables
+    init_only_generate();
 }

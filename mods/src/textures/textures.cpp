@@ -7,6 +7,7 @@
 #include <libreborn/patch.h>
 #include <libreborn/util/util.h>
 #include <libreborn/config.h>
+#include <libreborn/env/env.h>
 
 #include <symbols/minecraft.h>
 
@@ -20,24 +21,40 @@
 #include "stb_image.h"
 
 // Animated Water
+static void tick_textures(Textures *textures) {
+    for (DynamicTexture *texture : textures->dynamic_textures) {
+        texture->tick();
+        texture->bindTexture(textures);
+        for (int x = 0; x < texture->texture_size; x++) {
+            for (int y = 0; y < texture->texture_size; y++) {
+                const Texture *data = textures->getTemporaryTextureData(textures->current_texture);
+                const int x_offset = 16 * ((texture->texture_index % 16) + x);
+                const int y_offset = 16 * ((texture->texture_index / 16) + y);
+                media_glTexSubImage2D_with_scaling(data, x_offset, y_offset, 16, 16, 256, 256, texture->pixels);
+            }
+        }
+        if (textures->current_texture == textures->loadTexture("terrain.png", true)) {
+            atlas_update_tile(textures, texture->texture_index, texture->pixels);
+        }
+    }
+}
 static void Minecraft_tick_injection(const Minecraft *minecraft) {
     // Tick Dynamic Textures
     Textures *textures = minecraft->textures;
     if (textures != nullptr) {
-        for (DynamicTexture *texture : textures->dynamic_textures) {
-            texture->tick();
-            texture->bindTexture(textures);
-            for (int x = 0; x < texture->texture_size; x++) {
-                for (int y = 0; y < texture->texture_size; y++) {
-                    const Texture *data = textures->getTemporaryTextureData(textures->current_texture);
-                    const int x_offset = 16 * ((texture->texture_index % 16) + x);
-                    const int y_offset = 16 * ((texture->texture_index / 16) + y);
-                    media_glTexSubImage2D_with_scaling(data, x_offset, y_offset, 16, 16, 256, 256, texture->pixels);
-                }
+        int count = 1;
+        if (is_env_set(MCPI_PROMOTIONAL_ENV)) {
+            // Freeze Animated Textures In Promotional Mode
+            static bool has_run = false;
+            if (!has_run) {
+                count = 40;
+                has_run = true;
+            } else {
+                count = 0;
             }
-            if (textures->current_texture == textures->loadTexture("terrain.png", true)) {
-                atlas_update_tile(textures, texture->texture_index, texture->pixels);
-            }
+        }
+        for (int i = 0; i < count; i++) {
+            tick_textures(textures);
         }
     }
 }

@@ -4,7 +4,7 @@ This chapter explains how to set up a development environment and build a simple
 This chapter assumes basic knowledge of the Linux command-line.
 
 ## Installing The SDK
-1. Install [CMake](https://cmake.org/). 
+1. Install [CMake](https://cmake.org/).
    * This is `cmake` and `ninja-build` on Ubuntu.
 2. Install an ARM32 C++ toolchain.
    * This is `g++-arm-linux-gnueabihf` on Ubuntu.

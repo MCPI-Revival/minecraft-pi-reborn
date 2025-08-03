@@ -375,7 +375,7 @@ include_toc: true
 * Fix Crash When OpenAL Is Unavailable
 * Fix Command Input In Server
 
-## 2.2.5
+## 2.2.6
 * Fix Bug In Texture Scaling Code
 
 ## 2.2.5

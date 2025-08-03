@@ -74,6 +74,22 @@ jobs:
           - name: Test
             run: ./scripts/test.sh ${{ matrix.mode }} ${{ matrix.arch }}
 
+    # Lint Project
+    lint:
+        name: Lint
+        runs-on: ubuntu-latest
+        steps:
+          - name: Checkout Repository
+            uses: actions/checkout@v4
+            with:
+              submodules: false
+          # Dependencies
+          - name: Install Dependencies
+            run: ./scripts/install-dependencies.mjs lint host
+          # Run
+          - name: Lint
+            run: ./scripts/lint.sh
+
     # Example Mods
     example-mods:
         needs: build
@@ -113,6 +129,7 @@ jobs:
         needs:
           - build
           - test
+          - lint
           - example-mods
         name: Release
         runs-on: ubuntu-latest
@@ -128,10 +145,6 @@ jobs:
             uses: actions/download-artifact@v3
             with:
                 path: out
-          # Unstable Release
-          - name: Upload Packages To Unstable Repository
-            run: ./scripts/release/upload-packages.sh unstable
-          # Stable Release
-          - name: Create Release
-            if: startsWith(github.ref, 'refs/tags/')
-            run: ./scripts/release/create.sh {{ github.ref_name }}
+          # Run
+          - name: Run
+            run: ./scripts/release/run.sh ${{ startsWith(github.ref, 'refs/tags/') }} ${{ github.ref_name }}

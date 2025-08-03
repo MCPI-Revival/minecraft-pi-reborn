@@ -28,7 +28,7 @@ This makes it completely compatible with RaspberryJuice but limits functionality
 * Unless otherwise noted, all `player.*(...)` commands are equivalent to `entity.*(local_player_id,...)`.
 
 ### Vanilla
-* `world.setBlock(x,y,z,block_id[,data])` 
+* `world.setBlock(x,y,z,block_id[,data])`
   * Description: Set the specified block at the given location.
 * `world.getBlock(x,y,z)`
   * Description: Retrieve the block ID at the specified location.

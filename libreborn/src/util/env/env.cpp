@@ -41,6 +41,9 @@ const char *require_env(const char *name) {
     }
     return value;
 }
+bool is_env_set(const char *name) {
+    return getenv(name) != nullptr;
+}
 
 // Conversion
 std::string obj_to_env_value(const std::string &obj) {

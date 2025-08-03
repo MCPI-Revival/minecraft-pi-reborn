@@ -16,7 +16,8 @@ if (!fs.existsSync('/etc/debian_version')) {
 const Modes = new Enum([
     'Build',
     'Test',
-    'SDK'
+    'SDK',
+    'Lint'
 ]);
 const options = parseOptions([
     ['mode', Modes],
@@ -167,6 +168,17 @@ handlers.set(Modes.SDK, function () {
         'gcc-arm-linux-gnueabihf'
     );
     installPackages();
+});
+
+// Linting Dependencies
+handlers.set(Modes.Lint, function () {
+    addPackageForBuild(
+        'shellcheck',
+        'nodejs',
+        'npm'
+    );
+    installPackages();
+    run(['npm', 'install', '-g', 'markdownlint-cli']);
 });
 
 // Run

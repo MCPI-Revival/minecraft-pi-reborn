@@ -2,10 +2,12 @@
 
 #include <string>
 
+// Define Variables
 #define ENV(name, ...) constexpr const char *name##_ENV = #name;
 #include "list.h"
 #undef ENV
 
+// Internal Variables
 bool is_env_var_internal(const char *env);
 void clear_internal_env_vars();
 
@@ -15,6 +17,7 @@ void set_and_print_env(const char *name, const char *value);
 
 // Get Value
 const char *require_env(const char *name);
+bool is_env_set(const char *name);
 
 // Convert Variable To Value And Vice-Versa
 struct Flags;

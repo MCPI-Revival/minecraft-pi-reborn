@@ -5,15 +5,12 @@ set -e
 cd "$(dirname "$0")"
 . ./common.sh
 
-# Upload Packages To Stable Repository
-./scripts/release/upload-packages.sh stable
-
 # Arguments
 TAG="$1"
 
 # Setup Gitea CLI
 TEA_VERSION='0.10.1'
-TEA=/tmp/tea
+TEA="$(mktemp --tmpdir "tea-${TEA_VERSION}.XXXXXXXXXX")"
 curl -o "${TEA}" "https://dl.gitea.com/tea/${TEA_VERSION}/tea-${TEA_VERSION}-linux-amd64"
 chmod +x "${TEA}"
 
@@ -23,18 +20,22 @@ LOGIN_NAME='ci'
 "${TEA}" logins add \
     --name "${LOGIN_NAME}" \
     --url "${SERVER}" \
-    --token "${RELEASE_TOKEN}"
+    --token "${RELEASE_TOKEN:?}"
 "${TEA}" logins default "${LOGIN_NAME}"
 
 # Create Release
+CHANGELOG="$(./scripts/get-changelog.mjs release)"
 "${TEA}" releases create \
     --repo "${SLUG}" \
     --tag "${TAG}" \
     --title "v${VERSION}" \
-    --note "$(./scripts/get-changelog.mjs release)"
+    --note "${CHANGELOG}"
 
 # Attachments
 find ./out \
     -type f \
     -and -not -name '*.so' \
-    -exec "${TEA}" releases assets create "${TAG}" {} --repo "${SLUG}" \;
+    -exec "${TEA}" releases assets create --repo "${SLUG}" "${TAG}" {} +
+
+# Clean Up
+rm -f "${TEA}"
