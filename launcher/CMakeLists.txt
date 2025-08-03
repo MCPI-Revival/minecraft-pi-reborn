@@ -61,7 +61,7 @@ set_property(
 execute_process(
     COMMAND
         "${CMAKE_COMMAND}" "-E" "env" "URL=${MCPI_CHANGELOG}"
-        "${CMAKE_CURRENT_SOURCE_DIR}/../scripts/get-changelog.mjs" "appstream"
+        "${CMAKE_CURRENT_SOURCE_DIR}/../scripts/misc/get-changelog.mjs" "appstream"
     OUTPUT_VARIABLE MCPI_CHANGELOG_XML
     OUTPUT_STRIP_TRAILING_WHITESPACE
     COMMAND_ERROR_IS_FATAL ANY

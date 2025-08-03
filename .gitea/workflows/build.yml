@@ -72,7 +72,7 @@ jobs:
                 path: out
           # Test
           - name: Test
-            run: ./scripts/test.sh ${{ matrix.mode }} ${{ matrix.arch }}
+            run: ./scripts/verification/test.mjs ${{ matrix.mode }} ${{ matrix.arch }}
 
     # Lint Project
     lint:
@@ -88,7 +88,7 @@ jobs:
             run: ./scripts/install-dependencies.mjs lint host
           # Run
           - name: Lint
-            run: ./scripts/lint.sh
+            run: ./scripts/verification/lint.sh
 
     # Example Mods
     example-mods:

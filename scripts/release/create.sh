@@ -24,7 +24,7 @@ LOGIN_NAME='ci'
 "${TEA}" logins default "${LOGIN_NAME}"
 
 # Create Release
-CHANGELOG="$(./scripts/get-changelog.mjs release)"
+CHANGELOG="$(./scripts/misc/get-changelog.mjs release)"
 "${TEA}" releases create \
     --repo "${SLUG}" \
     --tag "${TAG}" \

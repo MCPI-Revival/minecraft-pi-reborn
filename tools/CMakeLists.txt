@@ -39,7 +39,7 @@ safe_download(
 )
 # Fix
 execute_process(
-    COMMAND "${CMAKE_CURRENT_SOURCE_DIR}/../scripts/fix-appimage-for-docker.sh" "${APPIMAGETOOL_BIN}"
+    COMMAND "${CMAKE_CURRENT_SOURCE_DIR}/../scripts/misc/fix-appimage-for-docker.sh" "${APPIMAGETOOL_BIN}"
     COMMAND_ERROR_IS_FATAL ANY
 )
 # Install

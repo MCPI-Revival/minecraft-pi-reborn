@@ -9,7 +9,7 @@ end() {
 }
 
 # Setup Nested X11
-NESTED_DISPLAY=":99"
+NESTED_DISPLAY=':99'
 Xephyr "${NESTED_DISPLAY}" -ac > /dev/null 2>&1 &
 X11_PID="$!"
 sleep 1
@@ -19,7 +19,7 @@ sleep 1
 export DISPLAY="${NESTED_DISPLAY}"
 
 # Change Directory
-cd "$(dirname "$0")/../"
+cd "$(dirname "$0")/../../"
 
 # Setup
 export XDG_SESSION_TYPE=x11

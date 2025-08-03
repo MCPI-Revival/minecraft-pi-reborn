@@ -1,5 +1,5 @@
-import { fail } from './util.mjs';
 import * as path from 'node:path';
+import { fail } from './util.mjs';
 
 // Enums
 export function Enum(values) {
@@ -25,10 +25,14 @@ Enum.prototype.get = function (name) {
 };
 
 // Supported Architectures
-export const Architectures = new Enum([
+const arches = [
     'AMD64',
     'ARM64',
-    'ARMHF',
+    'ARMHF'
+];
+export const ArchitecturesMinusHost = new Enum(arches);
+export const Architectures = new Enum([
+    ...arches,
     'Host'
 ]);
 

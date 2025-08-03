@@ -40,6 +40,17 @@ export function getScriptsDir() {
     const __dirname = path.dirname(__filename);
     return path.join(__dirname, '..');
 }
+export function readFile(...args) {
+    const __dirname = getScriptsDir();
+    const root = path.join(__dirname, '..');
+    return {
+        data: fs.readFileSync(path.join(root, ...args), 'utf8').trim(),
+        time: fs.statSync(path.join(root, ...args)).mtime
+    };
+}
+export function getVersion() {
+    return readFile('VERSION');
+}
 
 // Custom Build Tools
 export function getBuildToolsDir() {
