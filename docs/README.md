@@ -1,5 +1,6 @@
 # Documentation
 * [View Getting Started](GETTING_STARTED.md)
+* [View Installation](INSTALL.md)
 * [View Dedicated Server](DEDICATED_SERVER.md)
 * [View Credits](CREDITS.md)
 * [View Terminology](TERMINOLOGY.md)
