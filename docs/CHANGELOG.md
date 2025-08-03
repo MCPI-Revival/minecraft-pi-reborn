@@ -157,6 +157,7 @@ include_toc: true
 * Fix Item Dropping When Killing Players From The Server Console
 * Unify Server/Client Builds
 * Controller Support Removed
+* Based On Debian Bookworm
 
 ## 2.5.4
 * Use Base64-URL Encoding When Accessing The Skin Server

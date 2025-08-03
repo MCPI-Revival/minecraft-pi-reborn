@@ -26,7 +26,8 @@ More details can be found [here](https://docs.appimage.org/introduction/quicksta
 
 <details>
 <summary><b>Additional System Requirements</b></summary>
-The AppImage requires Debian Bullseye or higher. This is equivalent to Ubuntu 20.04.
+The AppImage requires <a href="https://www.debian.org/releases/bookworm/">Debian Bookworm</a> or higher.
+This is equivalent to <a href="https://releases.ubuntu.com/jammy/">Ubuntu 22.04</a>.
 
 It also requires some additional packages. To install them, run:
 ```sh

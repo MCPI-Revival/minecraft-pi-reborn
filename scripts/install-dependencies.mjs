@@ -1,16 +1,14 @@
 #!/usr/bin/env node
 import * as path from 'node:path';
-import * as fs from 'node:fs';
-import { err, run, getDebianVersion, info, doesPackageExist, getBuildToolsDir, createDir } from './lib/util.mjs';
+import { run, info, getBuildToolsDir, createDir } from './lib/util.mjs';
 import { parseOptions, Enum, Architectures } from './lib/options.mjs';
-
-// Check System
-if (process.getuid() !== 0) {
-    err("Must Run As Root!");
-}
-if (!fs.existsSync('/etc/debian_version')) {
-    err('Non-Debian OS Detected');
-}
+import {
+    addPackageForBuild,
+    addPackageForHost,
+    doesPackageExist,
+    getPackageForHost,
+    installPackages, setupApt
+} from './lib/apt.mjs';
 
 // Options
 const Modes = new Enum([
@@ -24,50 +22,8 @@ const options = parseOptions([
     ['architecture', Architectures]
 ], [], null);
 
-// Setup Backports If Needed
-const debianVersion = getDebianVersion();
-info('OS Version: ' + debianVersion);
-let backportsSuffix = '';
-if (debianVersion === 'bullseye') {
-    const repo = debianVersion + '-backports';
-    const source = `deb http://deb.debian.org/debian ${repo} main\n`;
-    fs.writeFileSync(`/etc/apt/sources.list.d/${repo}.list`, source);
-    backportsSuffix = '/' + repo;
-}
-
-// Update APT
-let archSuffix = '';
-if (options.architecture !== Architectures.Host) {
-    const arch = options.architecture.name;
-    run(['dpkg', '--add-architecture', arch]);
-    archSuffix = ':' + arch;
-}
-run(['apt-get', 'update']);
-run(['apt-get', 'dist-upgrade', '-y']);
-
-// Install Packages
-const packages = [];
-function addPackageForBuild(...arr) {
-    // This will install packages that match
-    // the build machine's architecture.
-    // This is usually used for build tools.
-    packages.push(...arr);
-}
-function getPackageForHost(name) {
-    return name + archSuffix;
-}
-function addPackageForHost(...arr) {
-    // This will install packages that match
-    // the host machine's architecture.
-    // This is usually used for libraries.
-    for (const name of arr) {
-        packages.push(getPackageForHost(name));
-    }
-}
-function installPackages() {
-    // Install Queued Packages
-    run(['apt-get', 'install', '--no-install-recommends', '-y', ...packages]);
-}
+// Setup
+setupApt(options.architecture);
 
 // Build Dependencies
 const handlers = new Map();
@@ -75,12 +31,12 @@ handlers.set(Modes.Build, function () {
     // Build Dependencies
     addPackageForBuild(
         'git',
-        'cmake' + backportsSuffix,
+        'cmake',
         // For Building Ninja
         'ninja-build',
         're2c',
         // For Building AppStream
-        'meson' + backportsSuffix,
+        'meson',
         'libyaml-dev',
         'liblzma-dev',
         'libzstd-dev',
@@ -116,7 +72,7 @@ handlers.set(Modes.Build, function () {
     addPackageForBuild(
         'python3',
         'python3-venv',
-        `python3-tomli` + backportsSuffix
+        `python3-tomli`
     );
     addPackageForHost('libglib2.0-dev');
 
@@ -162,7 +118,7 @@ handlers.set(Modes.Test, function () {
 handlers.set(Modes.SDK, function () {
     addTestPackages(); // Needed So SDK Can Be Extracted
     addPackageForBuild(
-        'cmake' + backportsSuffix,
+        'cmake',
         'ninja-build',
         'g++-arm-linux-gnueabihf',
         'gcc-arm-linux-gnueabihf'
@@ -182,4 +138,5 @@ handlers.set(Modes.Lint, function () {
 });
 
 // Run
+info('Installing Dependencies For: ' + options.mode.prettyName);
 handlers.get(options.mode)();

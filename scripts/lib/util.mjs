@@ -25,15 +25,6 @@ export function run(command) {
         err(e);
     }
 }
-export function doesPackageExist(name) {
-    try {
-        info('Checking If Package Exists: ' + name);
-        child_process.execFileSync('apt-cache', ['show', name], {stdio: 'ignore'});
-        return true;
-    } catch (e) {
-        return false;
-    }
-}
 
 // Create Directory
 export function createDir(dir, clean) {
@@ -41,19 +32,6 @@ export function createDir(dir, clean) {
         fs.rmSync(dir, {recursive: true, force: true});
     }
     fs.mkdirSync(dir, {recursive: true});
-}
-
-// Get System Information
-export function getDebianVersion() {
-    const info = fs.readFileSync('/etc/os-release', 'utf8');
-    const lines = info.split('\n');
-    const prefix = 'VERSION_CODENAME=';
-    for (const line of lines) {
-        if (line.startsWith(prefix)) {
-            return line.substring(prefix.length);
-        }
-    }
-    return 'unknown';
 }
 
 // Get Scripts Directory

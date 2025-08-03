@@ -20,7 +20,7 @@ jobs:
                   - ARMHF
         name: Build
         runs-on: ubuntu-latest
-        container: node:lts-bullseye # Minimum-Supported OS
+        container: node:lts-bookworm # Minimum-Supported OS
         steps:
           - name: Checkout Repository
             uses: actions/checkout@v4
