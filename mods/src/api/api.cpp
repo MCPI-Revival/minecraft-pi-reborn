@@ -3,6 +3,7 @@
 
 #include <libreborn/patch.h>
 #include <libreborn/config.h>
+#include <libreborn/util/string.h>
 
 #include <mods/api/api.h>
 #include <mods/init/init.h>
@@ -48,9 +49,9 @@ static std::string get_blocks(CommandServer *server, const Vec3 &start, const Ve
         for (int y = start_y; y <= end_y; y++) {
             for (int z = start_z; z <= end_z; z++) {
                 std::vector<std::string> pieces;
-                pieces.push_back(std::to_string(server->minecraft->level->getTile(x, y, z)));
+                pieces.push_back(safe_to_string(server->minecraft->level->getTile(x, y, z)));
                 if (!api_compat_mode) {
-                    pieces.push_back(std::to_string(server->minecraft->level->getData(x, y, z)));
+                    pieces.push_back(safe_to_string(server->minecraft->level->getData(x, y, z)));
                 }
                 ret.push_back(api_join_outputs(pieces, arg_separator));
             }
@@ -95,11 +96,11 @@ static Vec3 get_dir(const Entity *entity) {
 static std::string get_entity_message(CommandServer *server, Entity *entity) {
     std::vector<std::string> pieces;
     // ID
-    pieces.push_back(std::to_string(entity->id));
+    pieces.push_back(safe_to_string(entity->id));
     // Type
     int type = entity->getEntityTypeId();
     api_convert_to_outside_entity_type(type);
-    pieces.push_back(std::to_string(type));
+    pieces.push_back(safe_to_string(type));
     if (api_compat_mode) {
         pieces.push_back(api_get_output(misc_get_entity_type_name(entity).second, true));
     }
@@ -108,9 +109,9 @@ static std::string get_entity_message(CommandServer *server, Entity *entity) {
     float y = entity->y - entity->height_offset;
     float z = entity->z;
     server->pos_translator.to_float(x, y, z);
-    pieces.push_back(std::to_string(x));
-    pieces.push_back(std::to_string(y));
-    pieces.push_back(std::to_string(z));
+    pieces.push_back(safe_to_string(x));
+    pieces.push_back(safe_to_string(y));
+    pieces.push_back(safe_to_string(z));
     // Return
     return api_join_outputs(pieces, arg_separator);
 }
@@ -223,7 +224,7 @@ static std::string CommandServer_parse_injection(CommandServer_parse_t original,
         if (player) {
             _new_cmd = package_str(entity) + std::string(cmd);
             cmd = _new_cmd;
-            _new_args_str = std::to_string(player->id) + arg_separator + std::string(args_str);
+            _new_args_str = safe_to_string(player->id) + arg_separator + std::string(args_str);
             args_str = _new_args_str;
         } else {
             return CommandServer::Fail;
@@ -268,7 +269,7 @@ static std::string CommandServer_parse_injection(CommandServer_parse_t original,
             for (Player *player : server->minecraft->level->players) {
                 if (player->username == username) {
                     // Found
-                    return std::to_string(player->id) + '\n';
+                    return safe_to_string(player->id) + '\n';
                 }
             }
             return CommandServer::Fail;
@@ -298,7 +299,7 @@ static std::string CommandServer_parse_injection(CommandServer_parse_t original,
                 entity->remove();
                 result++;
             }
-            return std::to_string(result) + '\n';
+            return safe_to_string(result) + '\n';
         }
         command(removeEntities) {
             // Parse
@@ -312,7 +313,7 @@ static std::string CommandServer_parse_injection(CommandServer_parse_t original,
                     removed++;
                 }
             }
-            return std::to_string(removed) + '\n';
+            return safe_to_string(removed) + '\n';
         }
 
         // Spawn Entity
@@ -336,7 +337,7 @@ static std::string CommandServer_parse_injection(CommandServer_parse_t original,
             if (entity == nullptr) {
                 return CommandServer::Fail;
             }
-            return std::to_string(entity->id) + '\n';
+            return safe_to_string(entity->id) + '\n';
         }
         command(spawnItem) {
             // Parse
@@ -369,7 +370,7 @@ static std::string CommandServer_parse_injection(CommandServer_parse_t original,
             }
             entity->item = item;
             server->minecraft->level->addEntity((Entity *) entity);
-            return std::to_string(entity->id) + '\n';
+            return safe_to_string(entity->id) + '\n';
         }
 
         // Get All Valid Entity Types
@@ -378,7 +379,7 @@ static std::string CommandServer_parse_injection(CommandServer_parse_t original,
             for (const std::pair<const EntityType, std::pair<std::string, std::string>> &i : misc_get_entity_type_names()) {
                 int id = static_cast<int>(i.first);
                 api_convert_to_outside_entity_type(id);
-                result.push_back(api_join_outputs({std::to_string(id), api_get_output(i.second.second, true)}, arg_separator));
+                result.push_back(api_join_outputs({safe_to_string(id), api_get_output(i.second.second, true)}, arg_separator));
             }
             return api_join_outputs(result, list_separator);
         }
@@ -437,10 +438,10 @@ static std::string CommandServer_parse_injection(CommandServer_parse_t original,
 
         // Level Information
         command(getSeed) {
-            return std::to_string(server->minecraft->level->data.seed) + '\n';
+            return safe_to_string(server->minecraft->level->data.seed) + '\n';
         }
         command(getGameMode) {
-            return std::to_string(server->minecraft->level->data.game_type) + '\n';
+            return safe_to_string(server->minecraft->level->data.game_type) + '\n';
         }
     }
 
@@ -473,13 +474,13 @@ static std::string CommandServer_parse_injection(CommandServer_parse_t original,
             get_entity(Fail);
             int type = entity->getEntityTypeId();
             api_convert_to_outside_entity_type(type);
-            return std::to_string(type) + '\n';
+            return safe_to_string(type) + '\n';
         }
         command(getId) {
             // Parse
             get_entity(Fail);
             // Check If Entity Exists
-            return std::to_string(entity->id) + '\n'; // I Promise This Is Useful
+            return safe_to_string(entity->id) + '\n'; // I Promise This Is Useful
         }
 
         // Get/Remove Nearby Entities
@@ -512,7 +513,7 @@ static std::string CommandServer_parse_injection(CommandServer_parse_t original,
                     removed++;
                 }
             }
-            return std::to_string(removed) + '\n';
+            return safe_to_string(removed) + '\n';
         }
 
         // Get/Set Rotation
@@ -531,7 +532,7 @@ static std::string CommandServer_parse_injection(CommandServer_parse_t original,
             get_entity(Fail);
             // Get
             Vec3 vec = get_dir(entity);
-            return api_join_outputs({std::to_string(vec.x), std::to_string(vec.y), std::to_string(vec.z)}, arg_separator);
+            return api_join_outputs({safe_to_string(vec.x), safe_to_string(vec.y), safe_to_string(vec.z)}, arg_separator);
         }
         command(setRotation) {
             // Parse
@@ -546,7 +547,7 @@ static std::string CommandServer_parse_injection(CommandServer_parse_t original,
             // Parse
             get_entity(Fail);
             // Get
-            return std::to_string(entity->yaw) + '\n';
+            return safe_to_string(entity->yaw) + '\n';
         }
         command(setPitch) {
             // Parse
@@ -561,7 +562,7 @@ static std::string CommandServer_parse_injection(CommandServer_parse_t original,
             // Parse
             get_entity(Fail);
             // Get
-            return std::to_string(entity->pitch) + '\n';
+            return safe_to_string(entity->pitch) + '\n';
         }
 
         // Get/Set Absolute Position
@@ -580,7 +581,7 @@ static std::string CommandServer_parse_injection(CommandServer_parse_t original,
             // Parse
             get_entity(Fail);
             // Get
-            return api_join_outputs({std::to_string(entity->x), std::to_string(entity->y - entity->height_offset), std::to_string(entity->z)}, arg_separator);
+            return api_join_outputs({safe_to_string(entity->x), safe_to_string(entity->y - entity->height_offset), safe_to_string(entity->z)}, arg_separator);
         }
 
         // Get/Set Velocity
@@ -608,7 +609,7 @@ static std::string CommandServer_parse_injection(CommandServer_parse_t original,
             // Parse
             get_entity(Fail);
             // Get
-            return api_join_outputs({std::to_string(entity->velocity_x), std::to_string(entity->velocity_y), std::to_string(entity->velocity_z)}, arg_separator);
+            return api_join_outputs({safe_to_string(entity->velocity_x), safe_to_string(entity->velocity_y), safe_to_string(entity->velocity_z)}, arg_separator);
         }
 
         // Selected Item
@@ -623,9 +624,9 @@ static std::string CommandServer_parse_injection(CommandServer_parse_t original,
             }
             // Return
             return api_join_outputs({
-                std::to_string(item->id),
-                std::to_string(item->count),
-                std::to_string(item->auxiliary)
+                safe_to_string(item->id),
+                safe_to_string(item->count),
+                safe_to_string(item->auxiliary)
             }, arg_separator);
         }
 #undef get_entity

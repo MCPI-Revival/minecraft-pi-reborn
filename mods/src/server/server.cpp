@@ -46,7 +46,7 @@ static const auto &get_property_types() {
         const ServerProperty message_of_the_day = ServerProperty("motd", "Minecraft Server", "Message Of The Day");
         const ServerProperty show_minecon_badge = ServerProperty("show-minecon-badge", "false", "Show The MineCon Badge Next To MOTD In Server List");
         const ServerProperty game_mode = ServerProperty("game-mode", "0", "Game Mode (0 = Survival, 1 = Creative)");
-        const ServerProperty port = ServerProperty("port", std::to_string(DEFAULT_MULTIPLAYER_PORT), "Port");
+        const ServerProperty port = ServerProperty("port", safe_to_string(DEFAULT_MULTIPLAYER_PORT), "Port");
         const ServerProperty seed = ServerProperty("seed", "", "World Seed (Blank = Random Seed)");
         const ServerProperty force_mob_spawning = ServerProperty("force-mob-spawning", "false", "Force Mob Spawning");
         const ServerProperty peaceful_mode = ServerProperty("peaceful-mode", "false", "Peaceful Mode");

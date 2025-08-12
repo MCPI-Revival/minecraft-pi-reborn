@@ -45,7 +45,7 @@ static void setup_log_file() {
     std::string file;
     int num = 1;
     do {
-        file = time + '-' + std::to_string(num) + ".log";
+        file = time + '-' + safe_to_string(num) + ".log";
         log_filename = logs + '/' + file;
         num++;
     } while (access(log_filename.c_str(), F_OK) != -1);

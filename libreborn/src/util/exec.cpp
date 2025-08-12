@@ -9,6 +9,7 @@
 #include <libreborn/log.h>
 #include <libreborn/util/exec.h>
 #include <libreborn/util/io.h>
+#include <libreborn/util/string.h>
 
 // Fork
 Process::Process(const pid_t pid_, const std::array<int, fd_count> &fds_): pid(pid_), fds(fds_) {}
@@ -181,9 +182,9 @@ std::vector<unsigned char> *run_command(const char *const command[], int *exit_s
 // Get Exit Status String
 std::string get_exit_status_string(const int status) {
     if (WIFEXITED(status)) {
-        return ": Exit Code: " + std::to_string(WEXITSTATUS(status));
+        return ": Exit Code: " + safe_to_string(WEXITSTATUS(status));
     } else if (WIFSIGNALED(status)) {
-        return ": Signal: " + std::to_string(WTERMSIG(status)) + (WCOREDUMP(status) ? " (Core Dumped)" : "");
+        return ": Signal: " + safe_to_string(WTERMSIG(status)) + (WCOREDUMP(status) ? " (Core Dumped)" : "");
     } else {
         return "";
     }

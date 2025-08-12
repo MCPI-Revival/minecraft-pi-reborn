@@ -16,3 +16,10 @@ std::string format_time(const char *fmt, int time);
 
 // Trimming
 void trim(std::string &str);
+
+// Safe std::to_string
+#define def(type) std::string safe_to_string(type x)
+def(float);
+def(int);
+def(size_t);
+#undef def

@@ -5,6 +5,7 @@
 
 #include <libreborn/patch.h>
 #include <libreborn/util/util.h>
+#include <libreborn/util/string.h>
 
 #include <mods/text-input-box/TextInputScreen.h>
 #include <mods/game-mode/game-mode.h>
@@ -70,7 +71,7 @@ struct CreateWorldScreen final : TextInputScreen {
         // Seed
         std::string seed_preset = "";
         if (!creating_new_world) {
-            seed_preset = std::to_string(level_summery.seed);
+            seed_preset = safe_to_string(level_summery.seed);
         }
         seed = new TextInputBox("Seed", seed_preset);
         m_textInputs->push_back(seed);

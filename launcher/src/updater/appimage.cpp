@@ -6,6 +6,7 @@
 
 #include <libreborn/log.h>
 #include <libreborn/util/exec.h>
+#include <libreborn/util/string.h>
 #include <libreborn/config.h>
 
 #include "updater.h"
@@ -82,7 +83,7 @@ bool AppImageUpdater::download(const std::string &version) {
     std::string new_appimage_path = new_appimage_path_base;
     int num = 1;
     while (access(new_appimage_path.c_str(), F_OK) != -1) {
-        new_appimage_path = new_appimage_path_base + '.' + std::to_string(num++);
+        new_appimage_path = new_appimage_path_base + '.' + safe_to_string(num++);
     }
 
     // Download

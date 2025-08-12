@@ -1,10 +1,12 @@
 #include <algorithm>
 
+#include <libreborn/util/string.h>
+
 #include "../configuration.h"
 
 // Utility Function
 static std::string get_label_for_flag_node(const FlagNode &node) {
-    return node.name + "##FlagNode" + std::to_string(node.id);
+    return node.name + "##FlagNode" + safe_to_string(node.id);
 }
 
 // Advanced Tab

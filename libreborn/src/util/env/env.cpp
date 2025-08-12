@@ -1,5 +1,6 @@
 #include <libreborn/env/env.h>
 #include <libreborn/util/exec.h>
+#include <libreborn/util/string.h>
 #include <libreborn/log.h>
 #include <libreborn/env/flags.h>
 #include <libreborn/env/servers.h>
@@ -50,7 +51,7 @@ std::string obj_to_env_value(const std::string &obj) {
     return obj;
 }
 std::string obj_to_env_value(const float &obj) {
-    return std::to_string(obj);
+    return safe_to_string(obj);
 }
 std::string obj_to_env_value(const Flags &obj) {
     return obj.to_string();

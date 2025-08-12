@@ -1,6 +1,7 @@
 #include <ranges>
 
 #include <libreborn/patch.h>
+#include <libreborn/util/string.h>
 
 #include <mods/misc/misc.h>
 #include <mods/chat/chat.h>
@@ -25,9 +26,9 @@ static std::string event_to_string(CommandServer *server, const ProjectileHitEve
     // Get Outputs
     std::vector pieces = {
         // Position
-        std::to_string(nx),
-        std::to_string(ny),
-        std::to_string(nz)
+        safe_to_string(nx),
+        safe_to_string(ny),
+        safe_to_string(nz)
     };
     // Needed For Compatibility
     if (api_compat_mode) {
@@ -39,7 +40,7 @@ static std::string event_to_string(CommandServer *server, const ProjectileHitEve
     if (api_compat_mode) {
         owner = api_get_output(misc_get_entity_name(level->getEntity(e.owner_id)), true);
     } else {
-        owner = std::to_string(e.owner_id);
+        owner = safe_to_string(e.owner_id);
     }
     pieces.push_back(owner);
     // Target
@@ -49,7 +50,7 @@ static std::string event_to_string(CommandServer *server, const ProjectileHitEve
             target = api_get_output(misc_get_entity_name(level->getEntity(e.target_id)), true);
         }
     } else {
-        target = std::to_string(e.target_id);
+        target = safe_to_string(e.target_id);
     }
     pieces.push_back(target);
     // Return
@@ -63,7 +64,7 @@ struct ChatEvent {
 };
 static std::string event_to_string(MCPI_UNUSED CommandServer *server, const ChatEvent &e) {
     return api_join_outputs({
-        std::to_string(e.owner_id),
+        safe_to_string(e.owner_id),
         api_get_output(e.message, true),
     }, arg_separator);
 }
@@ -78,13 +79,13 @@ static std::string event_to_string(CommandServer *server, const TileEvent &e) {
     // Output
     return api_join_outputs({
         // Position
-        std::to_string(x),
-        std::to_string(y),
-        std::to_string(z),
+        safe_to_string(x),
+        safe_to_string(y),
+        safe_to_string(z),
         // Face
-        std::to_string(e.face),
+        safe_to_string(e.face),
         // Entity ID
-        std::to_string(e.owner_id)
+        safe_to_string(e.owner_id)
     }, arg_separator);
 }
 

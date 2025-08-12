@@ -8,6 +8,7 @@
 
 #include <libreborn/util/util.h>
 #include <libreborn/util/io.h>
+#include <libreborn/util/string.h>
 #include <libreborn/env/env.h>
 #include <libreborn/config.h>
 
@@ -18,7 +19,7 @@ const std::string patched_exe_path = std::string("/tmp/") + reborn_config.app.na
 static int create_file() {
     // Lock File
     const int lock_fd = lock_file(patched_exe_path.c_str());
-    set_and_print_env(_MCPI_LOCK_FD_ENV, std::to_string(lock_fd).c_str());
+    set_and_print_env(_MCPI_LOCK_FD_ENV, safe_to_string(lock_fd).c_str());
     // Generate New File
     unlink(patched_exe_path.c_str());
     const int fd = open(patched_exe_path.c_str(), O_WRONLY | O_CREAT, S_IRWXU);

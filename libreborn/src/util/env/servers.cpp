@@ -5,6 +5,7 @@
 #include <libreborn/env/servers.h>
 #include <libreborn/env/flags.h>
 #include <libreborn/util/util.h>
+#include <libreborn/util/string.h>
 
 // Seperator
 #define PORT_SEPERATOR_CHAR ':'
@@ -41,7 +42,7 @@ void ServerList::load(const std::string &str) {
             std::string port_str;
             const size_t separator_pos = line.find_last_of(PORT_SEPERATOR_CHAR);
             if (separator_pos == std::string::npos) {
-                port_str = std::to_string(DEFAULT_MULTIPLAYER_PORT);
+                port_str = safe_to_string(DEFAULT_MULTIPLAYER_PORT);
                 address = line;
             } else {
                 address = line.substr(0, separator_pos);
@@ -57,7 +58,7 @@ void ServerList::load(const std::string &str) {
 std::string ServerList::to_string() const {
     std::stringstream out;
     for (const Entry &entry : entries) {
-        out << entry.first << PORT_SEPERATOR_CHAR << std::to_string(entry.second) << FLAG_SEPERATOR_CHAR;
+        out << entry.first << PORT_SEPERATOR_CHAR << safe_to_string(entry.second) << FLAG_SEPERATOR_CHAR;
     }
     return out.str();
 }

@@ -5,6 +5,7 @@
 
 #include <symbols/minecraft.h>
 #include <libreborn/patch.h>
+#include <libreborn/util/string.h>
 #include <GLES/gl.h>
 
 #include <mods/misc/misc.h>
@@ -40,7 +41,7 @@ static std::vector<std::string> get_debug_info_left(const Minecraft *minecraft) 
     // Level Information
     if (minecraft->level) {
         info.push_back("");
-        info.push_back("Seed: " + std::to_string(minecraft->level->data.seed));
+        info.push_back("Seed: " + safe_to_string(minecraft->level->data.seed));
         const ClientSideNetworkHandler *handler = (ClientSideNetworkHandler *) minecraft->network_handler;
         if (handler && handler->vtable == ClientSideNetworkHandler::VTable::base) {
             int total_chunks = 0;
@@ -51,11 +52,11 @@ static std::vector<std::string> get_debug_info_left(const Minecraft *minecraft) 
                     loaded_chunks++;
                 }
             }
-            info.push_back("Chunks Loaded: " + std::to_string(loaded_chunks) + '/' + std::to_string(total_chunks));
+            info.push_back("Chunks Loaded: " + safe_to_string(loaded_chunks) + '/' + safe_to_string(total_chunks));
         }
-        info.push_back("Time: " + std::to_string(minecraft->level->data.time));
-        info.push_back("Entities: " + std::to_string(minecraft->level->entities.size()));
-        info.push_back("Players: " + std::to_string(minecraft->level->players.size()));
+        info.push_back("Time: " + safe_to_string(minecraft->level->data.time));
+        info.push_back("Entities: " + safe_to_string(minecraft->level->entities.size()));
+        info.push_back("Players: " + safe_to_string(minecraft->level->players.size()));
     }
     // Player Information
     if (minecraft->player) {
@@ -96,7 +97,7 @@ static std::vector<std::string> get_debug_info_left(const Minecraft *minecraft) 
     return info;
 }
 static std::string format_type(const int id, const std::string &name) {
-    std::string out = std::to_string(id);
+    std::string out = safe_to_string(id);
     if (!name.empty()) {
         out = name + " (" + out + ')';
     }
@@ -135,7 +136,7 @@ static std::vector<std::string> get_debug_info_right(const Minecraft *minecraft)
                     }
                 }
                 type_info.push_back(format_type(id, name));
-                type_info.push_back("Data: " + std::to_string(minecraft->level->getData(x, y, z)));
+                type_info.push_back("Data: " + safe_to_string(minecraft->level->getData(x, y, z)));
             }
             xyz_precision = 0;
         } else {
@@ -147,10 +148,10 @@ static std::vector<std::string> get_debug_info_right(const Minecraft *minecraft)
             type = "Entity";
             const int type_id = entity->getEntityTypeId();
             type_info.push_back(format_type(type_id, misc_get_entity_type_name(entity).first));
-            type_info.push_back("ID: " + std::to_string(entity->id));
+            type_info.push_back("ID: " + safe_to_string(entity->id));
             if (entity->isMob()) {
                 Mob *mob = (Mob *) entity;
-                type_info.push_back("Health: " + std::to_string(mob->health) + '/' + std::to_string(mob->getMaxHealth()));
+                type_info.push_back("Health: " + safe_to_string(mob->health) + '/' + safe_to_string(mob->getMaxHealth()));
             }
             xyz_precision = debug_precision;
         }

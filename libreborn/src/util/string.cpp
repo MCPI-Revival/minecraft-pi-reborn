@@ -57,3 +57,17 @@ void trim(std::string &str) {
     rtrim(str);
     ltrim(str);
 }
+
+// Safe std::to_string
+// Because C++26 Changed It
+// https://www.sandordargo.com/blog/2025/07/09/cpp26-format-part-1
+#define def(type, format) \
+    std::string safe_to_string(const type x) { \
+        char buf[64]; \
+        sprintf(buf, format, x); \
+        return buf; \
+    }
+def(float, "%f")
+def(int, "%d")
+def(size_t, "%zu")
+#undef def

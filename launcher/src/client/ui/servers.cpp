@@ -1,6 +1,7 @@
 #include <limits>
 
 #include <libreborn/util/util.h>
+#include <libreborn/util/string.h>
 
 #include "../configuration.h"
 
@@ -76,13 +77,13 @@ void ConfigurationUI::draw_server_list() const {
 
         // Calculate Item Widths
         const ImGuiStyle &style = ImGui::GetStyle();
-        const std::string port_width_text = std::to_string(int(std::numeric_limits<ServerList::port_t>::max()) * 2); // Should Comfortably Fit All Port Numbers
+        const std::string port_width_text = safe_to_string(int(std::numeric_limits<ServerList::port_t>::max()) * 2); // Should Comfortably Fit All Port Numbers
         const std::string delete_text = "Delete";
         const float port_width = get_frame_width(port_width_text.c_str());
         const float width_needed = (style.ItemSpacing.x * 2.0f) + port_width + get_frame_width(delete_text.c_str());
 
         // Labels
-        const std::string base_label = "##ServerEntry" + std::to_string(i);
+        const std::string base_label = "##ServerEntry" + safe_to_string(i);
 
         // Hints
         const char *address_hint = "Address";
@@ -95,7 +96,7 @@ void ConfigurationUI::draw_server_list() const {
 
         // Port
         ServerList::port_t &port = entry.second;
-        std::string port_str = port > 0 ? std::to_string(port) : "";
+        std::string port_str = port > 0 ? safe_to_string(port) : "";
         ImGui::SameLine();
         ImGui::PushItemWidth(port_width);
         if (ImGui::InputTextWithHint((base_label + port_hint).c_str(), port_hint, &port_str, ImGuiInputTextFlags_CallbackCharFilter | ImGuiInputTextFlags_NoHorizontalScroll, server_list_port_filter)) {

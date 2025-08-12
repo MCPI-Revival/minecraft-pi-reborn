@@ -52,7 +52,7 @@ void screenshot_take(Gui *gui) {
     do {
         filename = time;
         if (num > 0) {
-            filename += '-' + std::to_string(num);
+            filename += '-' + safe_to_string(num);
         }
         filename += ".png";
         num++;

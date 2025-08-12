@@ -4,6 +4,7 @@
 
 #include <libreborn/log.h>
 #include <libreborn/env/env.h>
+#include <libreborn/util/string.h>
 
 // Debug Tag
 const char *reborn_debug_tag = "";
@@ -24,7 +25,7 @@ int reborn_get_log_fd() {
 void reborn_set_log(const int fd) {
     // Set Variable
     log_fd = unset_fd;
-    setenv_safe(_MCPI_LOG_FD_ENV, fd >= 0 ? std::to_string(fd).c_str() : nullptr);
+    setenv_safe(_MCPI_LOG_FD_ENV, fd >= 0 ? safe_to_string(fd).c_str() : nullptr);
 }
 
 // Debug Logging
