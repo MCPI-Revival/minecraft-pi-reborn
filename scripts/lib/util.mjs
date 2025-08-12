@@ -19,7 +19,10 @@ export function info(message) {
 // Sub-Process
 export function run(command) {
     try {
-        info('Running: ' + command.join(' '));
+        const prettyCommand = command
+            .map(part => part.includes(' ') ? JSON.stringify(part) : part)
+            .join(' ');
+        info('Running: ' + prettyCommand);
         child_process.execFileSync(command[0], command.slice(1), {stdio: 'inherit'});
     } catch (e) {
         err(e);

@@ -64,15 +64,16 @@ function getPositionalArguments(options) {
 
 // Usage Text
 function formatFlag(name) {
-    return '--' + name;
+    return `--${name}`;
 }
 function formatOptionalArg(arg) {
-    return '[' + arg + '] ';
+    return `[${arg}]`;
 }
 function getUsageText(options, customHandler) {
     // Usage Text
     const exe = path.basename(process.argv[1]);
-    let usage = `USAGE: ${exe} `;
+    const separator = '\n    ';
+    let usage = `USAGE: ${exe}${separator}`;
 
     // Positional Arguments
     const positionalArgs = getPositionalArguments(options);
@@ -81,13 +82,13 @@ function getUsageText(options, customHandler) {
         for (const value of arg.obj.values) {
             arr.push(value.name);
         }
-        usage += '<' + arr.join('|') + '> ';
+        usage += `<${arr.join('|')}>${separator}`;
     }
 
     // Flags
     const flags = getFlags(options);
     for (const flag of flags) {
-        usage += formatOptionalArg(formatFlag(flag));
+        usage += formatOptionalArg(formatFlag(flag)) + separator;
     }
 
     // Custom Arguments

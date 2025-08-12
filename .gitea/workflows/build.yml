@@ -1,4 +1,4 @@
-# $schema: https://www.schemastore.org/github-action.json
+# $schema: https://www.schemastore.org/github-workflow.json
 name: 'CI'
 on:
     push:
@@ -112,7 +112,7 @@ jobs:
                 path: out
           - name: Extract SDK
             run: |
-                ./scripts/fix-appimage-for-docker.sh ./out/*.AppImage
+                ./scripts/misc/fix-appimage-for-docker.sh ./out/*.AppImage
                 chmod +x ./out/*.AppImage
                 ./out/*.AppImage --appimage-extract-and-run --copy-sdk
           # Build Example Mods

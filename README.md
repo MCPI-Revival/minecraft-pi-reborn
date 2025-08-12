@@ -1,3 +1,5 @@
+<!-- markdownlint-disable first-line-heading -->
+
 <p align="center">
     <img alt="Start Screen" src="images/screenshots/start.png">
 </p>

@@ -137,7 +137,7 @@ handlers.set(Modes.Lint, function () {
         'npm'
     );
     installPackages();
-    run(['npm', 'install', '-g', 'markdownlint-cli']);
+    run(['npm', 'install', '-g', 'markdownlint-cli@0.44.0']);
 });
 
 // Run

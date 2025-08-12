@@ -34,7 +34,6 @@ style 'blanks-around-tables = false'
 style 'blanks-around-fences = false'
 style 'no-duplicate-heading.siblings_only = true'
 style 'descriptive-link-text = false'
-style 'first-line-heading.allow_preamble = true'
 find docs mods/src README.md \
     -type f \
     -name '*.md' \
