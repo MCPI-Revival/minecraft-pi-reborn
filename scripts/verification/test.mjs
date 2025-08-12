@@ -1,19 +1,21 @@
 #!/usr/bin/env node
 import * as path from 'node:path';
 import * as fs from 'node:fs';
-import { parseOptions, Enum } from '../lib/options.mjs';
+import { parseOptions, createEnum, PositionalArg } from '../lib/options.mjs';
 import { err, getScriptsDir, getVersion, run } from '../lib/util.mjs';
 import { ArchitecturesMinusHost } from '../lib/options.mjs';
 
 // Options
-const Modes = new Enum([
-    'Client',
-    'Server'
-]);
-const options = parseOptions([
-    ['mode', Modes],
-    ['architecture', ArchitecturesMinusHost]
-], [], null);
+const Modes = {
+    Client: null,
+    Server: null
+};
+createEnum(Modes);
+const options = {
+    modes: PositionalArg(0, Modes),
+    architecture: PositionalArg(1, ArchitecturesMinusHost)
+};
+parseOptions(options, null);
 
 // Prepare AppImage
 const scripts = getScriptsDir();

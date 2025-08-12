@@ -3,7 +3,7 @@ import * as path from 'node:path';
 import * as fs from 'node:fs';
 import * as os from 'node:os';
 import { info, err, run, createDir, getScriptsDir, getBuildToolsBin } from './lib/util.mjs';
-import { parseOptions, Enum, Architectures } from './lib/options.mjs';
+import { parseOptions, createEnum, Architectures, Flag, PositionalArg } from './lib/options.mjs';
 
 // CMake Options
 const cmakeArgPrefix = '-D';
@@ -34,21 +34,24 @@ function parseCMakeOption(arg) {
 }
 
 // Options
-const PackageTypes = new Enum([
-    'None',
-    'AppImage',
-    'Flatpak',
-    'Debian'
-]);
-const options = parseOptions([
-    ['packageType', PackageTypes],
-    ['architecture', Architectures]
-], [
-    'clean',
-    'install',
-    'debug',
-    'verbose'
-], parseCMakeOption);
+const PackageTypes = {
+    None: null,
+    AppImage: null,
+    Flatpak: null,
+    Debian: null
+};
+createEnum(PackageTypes);
+const options = {
+    // Positional Arguments
+    packageType: PositionalArg(0, PackageTypes),
+    architecture: PositionalArg(1, Architectures),
+    // Flags
+    clean: Flag,
+    install: Flag,
+    debug: Flag,
+    verbose: Flag
+};
+parseOptions(options, parseCMakeOption);
 
 // CPack
 const useCPack = [PackageTypes.AppImage, PackageTypes.Debian].includes(options.packageType);

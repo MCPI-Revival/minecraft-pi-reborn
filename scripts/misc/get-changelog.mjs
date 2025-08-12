@@ -1,13 +1,17 @@
 #!/usr/bin/env node
 import { getVersion, readFile } from '../lib/util.mjs';
-import { Enum, parseOptions } from '../lib/options.mjs';
+import { createEnum, parseOptions, PositionalArg } from '../lib/options.mjs';
 
 // Parse Options
-const Modes = new Enum([
-    'Release',
-    'AppStream'
-]);
-const options = parseOptions([['mode', Modes]], [], null);
+const Modes = {
+    Release: null,
+    AppStream: null
+};
+createEnum(Modes);
+const options = {
+    mode: PositionalArg(0, Modes)
+};
+parseOptions(options, null);
 
 // Read Files
 const version = getVersion();

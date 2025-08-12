@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 import * as path from 'node:path';
 import { run, info, getBuildToolsDir, createDir } from './lib/util.mjs';
-import { parseOptions, Enum, Architectures } from './lib/options.mjs';
+import { parseOptions, createEnum, Architectures, PositionalArg } from './lib/options.mjs';
 import {
     addPackageForBuild,
     addPackageForHost,
@@ -11,16 +11,18 @@ import {
 } from './lib/apt.mjs';
 
 // Options
-const Modes = new Enum([
-    'Build',
-    'Test',
-    'SDK',
-    'Lint'
-]);
-const options = parseOptions([
-    ['mode', Modes],
-    ['architecture', Architectures]
-], [], null);
+const Modes = {
+    Build: null,
+    Test: null,
+    SDK: null,
+    Lint: null
+};
+createEnum(Modes);
+const options = {
+    mode: PositionalArg(0, Modes),
+    architecture: PositionalArg(1, Architectures)
+};
+parseOptions(options, null);
 
 // Setup
 setupApt(options.architecture);
@@ -130,6 +132,7 @@ handlers.set(Modes.SDK, function () {
 handlers.set(Modes.Lint, function () {
     addPackageForBuild(
         'shellcheck',
+        'devscripts',
         'nodejs',
         'npm'
     );

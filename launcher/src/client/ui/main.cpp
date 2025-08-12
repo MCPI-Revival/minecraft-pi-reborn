@@ -43,11 +43,11 @@ void ConfigurationUI::draw_main() const {
 
     // UI Scale
     int gui_scale_int = int(state.gui_scale); // Fractional GUI Scales Are Messy
-    std::string scale_format = "%ix";
+    const char *scale_format = "%ix";
     if (gui_scale_int <= AUTO_GUI_SCALE) {
         scale_format = "Automatic";
     }
-    if (ImGui::SliderInt(labels[2], &gui_scale_int, 0, MAX_GUI_SCALE, scale_format.c_str())) {
+    if (ImGui::SliderInt(labels[2], &gui_scale_int, 0, MAX_GUI_SCALE, scale_format)) {
         state.gui_scale = float(gui_scale_int);
         if (state.gui_scale < AUTO_GUI_SCALE) {
             state.gui_scale = AUTO_GUI_SCALE;
