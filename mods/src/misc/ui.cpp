@@ -184,29 +184,23 @@ static int FurnaceTileEntity_getLitProgress_injection(FurnaceTileEntity_getLitPr
 }
 
 // Add Missing Buttons To Pause Menu
-static void PauseScreen_init_injection(PauseScreen_init_t original, PauseScreen *screen) {
+static void PauseScreen_init_injection_1(PauseScreen_init_t original, PauseScreen *screen) {
     // Call Original Method
     original(screen);
 
     // Check If Server
     const Minecraft *minecraft = screen->minecraft;
     RakNetInstance *rak_net_instance = minecraft->rak_net_instance;
-    if (rak_net_instance != nullptr) {
+    if (rak_net_instance != nullptr && rak_net_instance->isServer()) {
+        // Add Button
         std::vector<Button *> *rendered_buttons = &screen->rendered_buttons;
         std::vector<Button *> *selectable_buttons = &screen->selectable_buttons;
-        if (rak_net_instance->isServer()) {
-            // Add Button
-            Button *button = screen->server_visibility_button;
-            rendered_buttons->push_back(button);
-            selectable_buttons->push_back(button);
+        Button *button = screen->server_visibility_button;
+        rendered_buttons->push_back(button);
+        selectable_buttons->push_back(button);
 
-            // Update Button Text
-            screen->updateServerVisibilityText();
-        } else if (gamemode_implement_save_locally_button) {
-            Button *button = screen->save_locally_button;
-            rendered_buttons->push_back(button);
-            selectable_buttons->push_back(button);
-        }
+        // Update Button Text
+        screen->updateServerVisibilityText();
     }
 }
 
@@ -341,6 +335,51 @@ static void ItemInHandRenderer_renderScreenEffect_injection(MCPI_UNUSED ItemInHa
     media_glEnable(GL_ALPHA_TEST);
 }
 
+// Implement "Quit and copy map"
+static void mark_chunks_as_unsaved(const Level *level) {
+    ChunkSource *chunk_source = level->chunk_source;
+    if (chunk_source) {
+        for (int x = 0; x < world_size; x++) {
+            for (int z = 0; z < world_size; z++) {
+                LevelChunk *chunk = chunk_source->getChunk(x, z);
+                chunk->should_save = true;
+            }
+        }
+    }
+}
+static void Minecraft_leaveGame_injection(Minecraft_leaveGame_t original, Minecraft *self, const bool save_remote) {
+    // Mark Chunks To Save
+    const Level *level = self->level;
+    if (level) {
+        const bool is_generating = self->generating_level || !self->level_generation_signal;
+        const bool should_modify = level->is_client_side && save_remote;
+        if (!is_generating && should_modify) {
+            mark_chunks_as_unsaved(level);
+        }
+    }
+    // Call Original Method
+    original(self, save_remote);
+}
+static void RenameMPLevelScreen_render_injection(MCPI_UNUSED RenameMPLevelScreen_render_t original, RenameMPLevelScreen *self, MCPI_UNUSED const int param_1, MCPI_UNUSED const int param_2, MCPI_UNUSED const float param_3) {
+    self->renderBackground();
+    self->minecraft->setScreen(game_mode_create_screen(false, self->level_name));
+}
+static void PauseScreen_init_injection_2(PauseScreen_init_t original, PauseScreen *screen) {
+    // Call Original Method
+    original(screen);
+
+    // Check If Server
+    const Minecraft *minecraft = screen->minecraft;
+    RakNetInstance *rak_net_instance = minecraft->rak_net_instance;
+    if (rak_net_instance != nullptr && !rak_net_instance->isServer()) {
+        std::vector<Button *> *rendered_buttons = &screen->rendered_buttons;
+        std::vector<Button *> *selectable_buttons = &screen->selectable_buttons;
+        Button *button = screen->save_locally_button;
+        rendered_buttons->push_back(button);
+        selectable_buttons->push_back(button);
+    }
+}
+
 // Init
 void _init_misc_ui() {
     // Food Overlay
@@ -390,7 +429,7 @@ void _init_misc_ui() {
     // Fix Pause Menu
     if (feature_has("Fix Pause Menu", server_disabled)) {
         // Add Missing Buttons To Pause Menu
-        overwrite_calls(PauseScreen_init, PauseScreen_init_injection);
+        overwrite_calls(PauseScreen_init, PauseScreen_init_injection_1);
     }
 
     // Remove Forced GUI Lag
@@ -470,5 +509,12 @@ void _init_misc_ui() {
     // Hide Cursor In Promotional Mode
     if (is_env_set(MCPI_PROMOTIONAL_ENV)) {
         overwrite_calls(Common_renderCursor, nop<Common_renderCursor_t, float, float, Minecraft *>);
+    }
+
+    // Allow Saving Multiplayer Worlds
+    if (feature_has("Implement \"Quit and copy map\" Button", server_disabled)) {
+        overwrite_calls(Minecraft_leaveGame, Minecraft_leaveGame_injection);
+        overwrite_calls(RenameMPLevelScreen_render, RenameMPLevelScreen_render_injection);
+        overwrite_calls(PauseScreen_init, PauseScreen_init_injection_2);
     }
 }

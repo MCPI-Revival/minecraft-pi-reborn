@@ -1,4 +1,4 @@
-extends GuiComponent;
+extends GuiElement;
 
 size 0x28;
 constructor (int id, const std::string &text) = 0x1bc54;
@@ -9,9 +9,5 @@ virtual-method bool clicked(Minecraft *minecraft, int click_x, int click_y) = 0x
 virtual-method void setPressed() = 0x28;
 virtual-method bool released(int click_x, int click_y) = 0x24;
 
-property int width = 0x14;
-property int height = 0x18;
-property int x = 0xc;
-property int y = 0x10;
 property std::string text = 0x1c;
 property int id = 0x20;

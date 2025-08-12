@@ -3,6 +3,7 @@
 #include <array>
 
 #include <symbols/minecraft.h>
+#include <mods/misc/misc.h>
 
 #include "../internal.h"
 
@@ -39,7 +40,7 @@ struct ChunkData {
     static constexpr int HEIGHT = 128;
     static constexpr int TOTAL_SIZE = COLUMNS * HEIGHT;
     static constexpr int TOTAL_SIZE_HALF = TOTAL_SIZE / 2;
-    static constexpr int WORLD_SIZE = 16; // In Chunks
+    static constexpr int WORLD_SIZE = world_size; // In Chunks
     // Fields
     int x;
     int z;

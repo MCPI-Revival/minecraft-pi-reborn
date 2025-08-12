@@ -41,6 +41,18 @@ static std::vector<std::string> get_debug_info_left(const Minecraft *minecraft) 
     if (minecraft->level) {
         info.push_back("");
         info.push_back("Seed: " + std::to_string(minecraft->level->data.seed));
+        const ClientSideNetworkHandler *handler = (ClientSideNetworkHandler *) minecraft->network_handler;
+        if (handler && handler->vtable == ClientSideNetworkHandler::VTable::base) {
+            int total_chunks = 0;
+            int loaded_chunks = 0;
+            for (const bool &chunk_loaded : handler->chunk_loaded) {
+                total_chunks++;
+                if (chunk_loaded) {
+                    loaded_chunks++;
+                }
+            }
+            info.push_back("Chunks Loaded: " + std::to_string(loaded_chunks) + '/' + std::to_string(total_chunks));
+        }
         info.push_back("Time: " + std::to_string(minecraft->level->data.time));
         info.push_back("Entities: " + std::to_string(minecraft->level->entities.size()));
         info.push_back("Players: " + std::to_string(minecraft->level->players.size()));

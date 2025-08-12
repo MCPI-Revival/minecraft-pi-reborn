@@ -1,0 +1,11 @@
+extends GuiComponent;
+
+vtable 0x103248;
+size 0x1c;
+
+property bool enabled = 0x8;
+property bool visible = 0x9;
+property int width = 0x14;
+property int height = 0x18;
+property int x = 0xc;
+property int y = 0x10;

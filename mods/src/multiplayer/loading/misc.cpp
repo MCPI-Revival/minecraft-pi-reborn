@@ -1,7 +1,6 @@
 #include <queue>
 
 #include <libreborn/patch.h>
-#include <mods/misc/misc.h>
 
 #include "internal.h"
 

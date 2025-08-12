@@ -3,6 +3,7 @@
 #include <mods/text-input-box/TextInputBox.h>
 #include <mods/input/input.h>
 
+// Constructor/Destructor
 TextInputBox::TextInputBox(const std::string &placeholder, const std::string &text) {
     // Construct
     this->component = GuiComponent::allocate();
@@ -28,6 +29,7 @@ TextInputBox::~TextInputBox() {
     component->destructor_deleting();
 }
 
+// Set Dimensions
 void TextInputBox::setSize(const int x, const int y, const int width, const int height) {
     m_xPos = x;
     m_yPos = y;
@@ -36,14 +38,17 @@ void TextInputBox::setSize(const int x, const int y, const int width, const int 
     recalculateScroll();
 }
 
+// Initialize
 void TextInputBox::init(Font *pFont) {
     m_pFont = pFont;
 }
 
+// Enable/Disable
 void TextInputBox::setEnabled(const bool bEnabled) {
     m_bEnabled = bEnabled;
 }
 
+// Handle Key Press
 void TextInputBox::keyPressed(const int key) {
     if (!m_bFocused) {
         return;
@@ -107,9 +112,11 @@ void TextInputBox::keyPressed(const int key) {
             m_bFocused = false;
             break;
         }
+        default: {}
     }
 }
 
+// Tick
 void TextInputBox::tick() {
     if (!m_lastFlashed) {
         m_lastFlashed = Common::getTimeMs();
@@ -125,6 +132,10 @@ void TextInputBox::tick() {
     }
 }
 
+// Get/Set Focus
+bool TextInputBox::isFocused() const {
+    return m_bFocused;
+}
 void TextInputBox::setFocused(const bool b) {
     if (m_bFocused == b) {
         return;
@@ -139,10 +150,12 @@ void TextInputBox::setFocused(const bool b) {
     }
 }
 
+// Handle Click Event
 void TextInputBox::onClick(const int x, const int y) {
     setFocused(clicked(x, y));
 }
 
+// Handle Character Event
 static int PADDING = 5;
 void TextInputBox::charPressed(const int k) {
     if (!m_bFocused) {
@@ -165,6 +178,7 @@ void TextInputBox::charPressed(const int k) {
     recalculateScroll();
 }
 
+// Get Slice Of Text To Render
 static std::string get_rendered_text(Font *font, const int width, const int scroll_pos, const std::string &text) {
     std::string rendered_text = text.substr(scroll_pos);
     const int max_width = width - (PADDING * 2);
@@ -174,9 +188,9 @@ static std::string get_rendered_text(Font *font, const int width, const int scro
     return rendered_text;
 }
 
+// Render
 static char CURSOR_CHAR = '_';
-
-void TextInputBox::render() {
+void TextInputBox::render() const {
     component->fill(m_xPos, m_yPos, m_xPos + m_width, m_yPos + m_height, 0xFFAAAAAA);
     component->fill(m_xPos + 1, m_yPos + 1, m_xPos + m_width - 1, m_yPos + m_height - 1, 0xFF000000);
 
@@ -189,7 +203,7 @@ void TextInputBox::render() {
         scroll_pos = 0;
     } else {
         rendered_text = m_text;
-        text_color = 0xffffff;
+        text_color = m_bEnabled ? 0xe0e0e0 : 0x707070;
         scroll_pos = m_scrollPos;
     }
     rendered_text = get_rendered_text(m_pFont, m_width, scroll_pos, rendered_text);
@@ -200,7 +214,7 @@ void TextInputBox::render() {
     if (m_bCursorOn) {
         const int cursor_pos = m_insertHead - m_scrollPos;
         if (cursor_pos >= 0 && cursor_pos <= int(rendered_text.length())) {
-            std::string substr = rendered_text.substr(0, cursor_pos);
+            const std::string substr = rendered_text.substr(0, cursor_pos);
             const int xPos = PADDING + m_pFont->width(substr);
 
             std::string str;
@@ -210,6 +224,7 @@ void TextInputBox::render() {
     }
 }
 
+// Check If Mouse Event Clicked This Widget
 bool TextInputBox::clicked(const int xPos, const int yPos) const {
     if (!m_bEnabled) {
         return false;
@@ -231,6 +246,7 @@ bool TextInputBox::clicked(const int xPos, const int yPos) const {
     return true;
 }
 
+// Calculate Scroll Position
 void TextInputBox::recalculateScroll() {
     // Skip If Size Unset
     if (m_width == 0) {
@@ -282,19 +298,16 @@ void TextInputBox::recalculateScroll() {
     }
 }
 
+// Get/Set Text
 std::string TextInputBox::getText() const {
     return m_text;
 }
-
 void TextInputBox::setText(const std::string &text) {
     m_text = text;
     m_insertHead = int(m_text.size());
 }
 
-bool TextInputBox::isFocused() const {
-    return m_bFocused;
-}
-
+// Set Max Length
 void TextInputBox::setMaxLength(const int max_length) {
     m_maxLength = max_length;
 }

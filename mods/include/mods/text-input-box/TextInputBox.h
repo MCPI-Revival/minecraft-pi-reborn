@@ -13,7 +13,7 @@ struct TextInputBox {
     void setEnabled(bool bEnabled);
     void keyPressed(int key);
     void charPressed(int k);
-    void render();
+    void render() const;
     void tick();
     void setFocused(bool b);
     void onClick(int x, int y);

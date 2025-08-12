@@ -79,6 +79,7 @@ include_toc: true
     * `Clear Old Chat Messages When Joining Worlds` (Enabled By Default)
     * `Improve API Chat Messages` (Enabled By Default)
     * `Sync Chunks To Disk After Saving` (Enabled By Default)
+    * `Implement "Quit and copy map" Button` (Enabled By Default)
   * New Bug Fixes (All Enabled By Default)
     * `Fix Held Item Caching`
     * `Fix Pigmen Burning In The Sun`

@@ -8,7 +8,6 @@
 
 #include <mods/text-input-box/TextInputScreen.h>
 #include <mods/game-mode/game-mode.h>
-#include <mods/feature/feature.h>
 #include <mods/touch/touch.h>
 #include <mods/misc/misc.h>
 #include "internal.h"
@@ -28,26 +27,29 @@ static constexpr int content_y_offset_top = (title_padding * 2) + line_height;
 static constexpr int content_y_offset_bottom = button_height + (bottom_padding * 2);
 
 // Structure
-static void create_world(Minecraft *, std::string, bool, const std::string &);
-static std::string getFolderName(Minecraft *, std::string &);
+static void create_world(Minecraft *, const std::string &, bool, const std::string &);
+static std::string get_folder_name(Minecraft *, std::string);
 struct CreateWorldScreen final : TextInputScreen {
-    TextInputBox *name;
-    TextInputBox *seed;
-    Button *game_mode;
-    Button *create;
-    Button *back;
+    // UI
+    TextInputBox *name = nullptr;
+    TextInputBox *seed = nullptr;
+    Button *game_mode = nullptr;
+    Button *create = nullptr;
+    Button *back = nullptr;
+    // Type
     bool creating_new_world;
     std::string old_world_name;
 
-    CreateWorldScreen(bool is_creating_new_world = true, std::string old_world = "")
-        : TextInputScreen(), creating_new_world(is_creating_new_world), old_world_name(old_world)
-    {}
+    CreateWorldScreen(const bool is_creating_new_world, const std::string &old_world):
+        TextInputScreen(),
+        creating_new_world(is_creating_new_world),
+        old_world_name(old_world) {}
 
     // Init
     void init() override {
         TextInputScreen::init();
 
-        // Get level data if renaming a world
+        // Get level Data When Renaming A World
         LevelSummary level_summery = {};
         if (!creating_new_world) {
             std::vector<LevelSummary> level_list = {};
@@ -76,15 +78,16 @@ struct CreateWorldScreen final : TextInputScreen {
         seed->setFocused(false);
         seed->setEnabled(creating_new_world);
         // Game Mode
-        std::string gamemode_preset = CREATIVE_STR;
+        std::string game_mode_preset = CREATIVE_STR;
         if (!creating_new_world && level_summery.game_mode == 0) {
-            gamemode_preset = SURVIVAL_STR;
+            game_mode_preset = SURVIVAL_STR;
         }
-        game_mode = touch_create_button(1, gamemode_preset);
+        game_mode = touch_create_button(1, game_mode_preset);
         self->rendered_buttons.push_back(game_mode);
         self->selectable_buttons.push_back(game_mode);
+        game_mode->enabled = creating_new_world;
         // Create
-        create = touch_create_button(2, "Create");
+        create = touch_create_button(2, get_action());
         self->rendered_buttons.push_back(create);
         self->selectable_buttons.push_back(create);
         // Back
@@ -101,6 +104,9 @@ struct CreateWorldScreen final : TextInputScreen {
         create->destructor_deleting();
     }
     // Rendering
+    [[nodiscard]] std::string get_action() const {
+        return creating_new_world ? "Create" : "Save";
+    }
     void render(const int x, const int y, const float param_1) override {
         // Background
         misc_render_background(80, self->minecraft, 0, 0, self->width, self->height);
@@ -108,11 +114,11 @@ struct CreateWorldScreen final : TextInputScreen {
         // Call Original Method
         TextInputScreen::render(x, y, param_1);
         // Title
-        std::string title = creating_new_world ? "Create world" : "Save world";
+        const std::string title = get_action() + " world";
         self->drawCenteredString(self->font, title, self->width / 2, title_padding, 0xffffffff);
         // Game Mode Description
         const bool is_creative = game_mode->text == CREATIVE_STR;
-        std::string description = is_creative ? Strings::creative_mode_description : Strings::survival_mode_description;
+        const std::string description = is_creative ? Strings::creative_mode_description : Strings::survival_mode_description;
         self->drawString(self->font, description, game_mode->x, game_mode->y + game_mode->height + description_padding, 0xa0a0a0);
     }
     // Positioning
@@ -166,16 +172,16 @@ struct CreateWorldScreen final : TextInputScreen {
                 create_world(self->minecraft, name->getText(), is_creative, seed->getText());
             } else {
                 // Save
-                std::string new_name = name->getText();
-                self->minecraft->getLevelSource()->renameLevel(old_world_name, getFolderName(self->minecraft, new_name));
-                self->minecraft->screen_chooser.setScreen(5);
+                const std::string new_name = name->getText();
+                self->minecraft->getLevelSource()->renameLevel(old_world_name, get_folder_name(self->minecraft, new_name));
+                self->handleBackEvent(false);
             }
         } else {
             TextInputScreen::buttonClicked(button);
         }
     }
 };
-static Screen *create_create_world_screen(bool creating_new_world = true, std::string old_world_name = "") {
+Screen *game_mode_create_screen(const bool creating_new_world, const std::string &old_world_name) {
     return (new CreateWorldScreen(creating_new_world, old_world_name))->self;
 }
 
@@ -194,8 +200,7 @@ static std::string getUniqueLevelName(LevelStorageSource *source, const std::str
     }
     return out;
 }
-
-static std::string getFolderName(Minecraft *minecraft, std::string &name) {
+static std::string get_folder_name(Minecraft *minecraft, std::string name) {
     // Get Folder Name
     name = Util::stringTrim(name);
     std::string folder = "";
@@ -239,10 +244,9 @@ int get_seed_from_string(std::string str) {
     }
     return seed;
 }
-static void create_world(Minecraft *minecraft, std::string name, const bool is_creative, const std::string &seed_str) {
-    std::string folder = getFolderName(minecraft, name);
-
-    // Get Seed
+static void create_world(Minecraft *minecraft, const std::string &name, const bool is_creative, const std::string &seed_str) {
+    // Prepare
+    const std::string folder = get_folder_name(minecraft, name);
     const int seed = get_seed_from_string(seed_str);
 
     // Settings
@@ -267,7 +271,7 @@ static void create_world(Minecraft *minecraft, std::string name, const bool is_c
     static void prefix##SelectWorldScreen_tick_injection(prefix##SelectWorldScreen_tick_t original, prefix##SelectWorldScreen *screen) { \
         if (screen->should_create_world) { \
             /* Open Screen */ \
-            screen->minecraft->setScreen(create_create_world_screen()); \
+            screen->minecraft->setScreen(game_mode_create_screen()); \
             /* Finish */ \
             screen->should_create_world = false; \
         } else { \
@@ -278,21 +282,9 @@ static void create_world(Minecraft *minecraft, std::string name, const bool is_c
 create_SelectWorldScreen_tick_injection()
 create_SelectWorldScreen_tick_injection(Touch_)
 
-// Implement "Quit and copy map"
-static void RenameMPLevelScreen_tick_injection(RenameMPLevelScreen *self) {
-    self->minecraft->setScreen(create_create_world_screen(false, self->level_name));
-}
-
 // Init
-bool gamemode_implement_save_locally_button = false;
 void _init_game_mode_ui() {
     // Hijack Create World Button
     overwrite_calls(SelectWorldScreen_tick, SelectWorldScreen_tick_injection);
     overwrite_calls(Touch_SelectWorldScreen_tick, Touch_SelectWorldScreen_tick_injection);
-
-    // Implement "Quit and copy map"
-    if (feature_has("Implement 'Quit and copy map' Button", server_disabled)) {
-        gamemode_implement_save_locally_button = true;
-        patch_vtable(RenameMPLevelScreen_tick, RenameMPLevelScreen_tick_injection);
-    }
 }

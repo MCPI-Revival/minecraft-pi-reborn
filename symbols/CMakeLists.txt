@@ -168,6 +168,7 @@ set(SRC
     src/gui/components/OptionButton.def
     src/gui/components/OptionsPane.def
     src/gui/components/GuiComponent.def
+    src/gui/components/GuiElement.def
     src/gui/components/Button.def
     src/gui/Gui.def
     src/gui/GuiMessage.def
