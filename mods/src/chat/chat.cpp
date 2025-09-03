@@ -44,6 +44,31 @@ void chat_send_message_to_clients(ServerSideNetworkHandler *server_side_network_
     is_sending = false;
 }
 
+// Only Send Messages To Fully Connected Players
+static void ServerSideNetworkHandler_displayGameMessage_injection(MCPI_UNUSED ServerSideNetworkHandler_displayGameMessage_t original, ServerSideNetworkHandler *self, const std::string &message) {
+    // Display Locally
+    self->minecraft->gui.addMessage(message);
+    // Create Packet
+    MessagePacket *packet = MessagePacket::allocate();
+    ((Packet *) packet)->constructor();
+    packet->vtable = MessagePacket::VTable::base;
+    packet->message.constructor();
+    packet->message.Assign(message.c_str());
+    packet->reliability = RELIABLE_ORDERED;
+    // Send Packet
+    const Level *level = self->level;
+    if (level) {
+        for (Player *player : self->level->players) {
+            if (player->vtable == (const Player::VTable *) ServerPlayer::VTable::base) {
+                const ServerPlayer *server_player = (ServerPlayer *) player;
+                const RakNet_RakNetGUID &guid = server_player->guid;
+                self->rak_net_instance->sendTo(guid, *(Packet *) packet);
+            }
+        }
+    }
+    packet->destructor_deleting();
+}
+
 // Handle Sending Chat Packet
 void chat_handle_packet_send(const Minecraft *minecraft, ChatPacket *packet) {
     RakNetInstance *rak_net_instance = minecraft->rak_net_instance;
@@ -106,5 +131,11 @@ void init_chat() {
     // Clear Chat Messages
     if (feature_has("Clear Old Chat Messages When Joining Worlds", server_enabled)) {
         overwrite_calls(Minecraft_setLevel, Minecraft_setLevel_injection);
+    }
+    // Only Send Messages To Fully Connected Players
+    // This prevents unauthenticated players from
+    // receiving chat messages.
+    if (feature_has("Only Send Messages To Fully Connected Players", server_enabled)) {
+        overwrite_calls(ServerSideNetworkHandler_displayGameMessage, ServerSideNetworkHandler_displayGameMessage_injection);
     }
 }

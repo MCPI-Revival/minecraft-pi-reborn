@@ -106,6 +106,7 @@ CATEGORY Multiplayer
     TRUE Sanitize Usernames
     TRUE Allow Servers To Overwrite Armor
     TRUE Send Inventory To Server
+    TRUE Only Send Messages To Fully Connected Players
 CATEGORY Gameplay
     TRUE Implement Death Messages
     TRUE Implement Game-Mode Switching

@@ -1,4 +1,12 @@
 extends Tile;
 
+vtable 0x1116d0;
+vtable-size 0x10c;
+
+constructor one(int id, int texture, const Material *material) = 0xbf470;
+constructor two(int id, int texture) = 0xbf444;
+size 0x5c;
+generate-custom-wrapper;
+
 // Sand/Gravel Instant Falling
 static-property bool instaFall = 0x180cc0;

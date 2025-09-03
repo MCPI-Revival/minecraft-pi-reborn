@@ -1,9 +1,10 @@
 virtual-method bool isSolid() = 0x8;
 
 // Globals
-static-property Material *dirt  = 0x180a94;
+static-property Material *dirt = 0x180a94;
 static-property Material *stone = 0x180a9c;
-static-property Material *wood  = 0x180a98;
+static-property Material *wood = 0x180a98;
 static-property Material *metal = 0x180aa0;
 static-property Material *plant = 0x180ab0;
 static-property Material *glass = 0x180acc;
+static-property Material *sand = 0x180ac4;

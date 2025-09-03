@@ -219,7 +219,7 @@ void TextInputBox::render() const {
 
             std::string str;
             str += CURSOR_CHAR;
-            component->drawString(m_pFont, str, m_xPos + xPos, m_yPos + textYPos + 2, 0xffffff);
+            component->drawString(m_pFont, str, m_xPos + xPos, m_yPos + textYPos + 2, text_color);
         }
     }
 }
