@@ -43,7 +43,7 @@ static void lighting_turn_off() {
 }
 
 // Entity Rendering
-static void LevelRenderer_renderEntities_injection(LevelRenderer_renderEntities_t original, LevelRenderer *self, Vec3 pos, void *unknown, float a) {
+static void LevelRenderer_renderEntities_injection(LevelRenderer_renderEntities_t original, LevelRenderer *self, Vec3 pos, void *unknown, const float a) {
     lighting_turn_on();
     original(self, pos, unknown, a);
     lighting_turn_off();
@@ -78,12 +78,22 @@ static void EntityRenderer_render_injection(const std::function<void(Self *, Ent
 }
 
 // Fix Falling Tile Rendering
-static void FallingTileRenderer_render_TileRenderer_renderBlock_injection(TileRenderer *self, Tile *tile, LevelSource *level, int x, int y, int z) {
-    media_glDisable(GL_LIGHTING);
-    self->renderBlock(tile, level, x, y, z);
-    media_glEnable(GL_LIGHTING);
+static int32_t current_falling_tile_data;
+static void FallingTileRenderer_render_injection(FallingTileRenderer_render_t original, FallingTileRenderer *self, Entity *entity, const float x, const float y, const float z, const float param_1, const float param_2) {
+    current_falling_tile_data = ((FallingTile *) entity)->data;
+    original(self, entity, x, y, z, param_1, param_2);
 }
-static void TntRenderer_render_TileRenderer_renderTile_injection(TileRenderer *self, Tile *tile, int data) {
+static void FallingTileRenderer_render_TileRenderer_renderBlock_injection(TileRenderer *self, Tile *tile, MCPI_UNUSED LevelSource *level, MCPI_UNUSED const int x, MCPI_UNUSED const int y, MCPI_UNUSED const int z) {
+    const float a = tile->getBrightness(level, x, y, z);
+    const float b = tile->getBrightness(level, x, y - 1, z);
+    const float c = std::max(a, b);
+    media_glColor4f(c, c, c, 1.0f);
+    media_glEnable(GL_POLYGON_OFFSET_FILL);
+    media_glPolygonOffset(-1.0f, -1.0f);
+    self->renderTile(tile, current_falling_tile_data);
+    media_glDisable(GL_POLYGON_OFFSET_FILL);
+}
+static void TntRenderer_render_TileRenderer_renderTile_injection(TileRenderer *self, Tile *tile, const int data) {
     media_glDisable(GL_LIGHTING);
     self->renderTile(tile, data);
     media_glEnable(GL_LIGHTING);
@@ -133,6 +143,7 @@ void _init_lighting() {
     overwrite_calls(PaintingRenderer_render, EntityRenderer_render_injection<PaintingRenderer>);
     overwrite_call_manual((void *) 0x641ec, (void *) enable_rescale_normal);
     overwrite_call_manual((void *) 0x647a0, (void *) disable_rescale_normal);
+    overwrite_calls(FallingTileRenderer_render, FallingTileRenderer_render_injection);
     overwrite_call((void *) 0x62b08, TileRenderer_renderBlock, FallingTileRenderer_render_TileRenderer_renderBlock_injection);
     overwrite_call((void *) 0x65754, TileRenderer_renderTile, TntRenderer_render_TileRenderer_renderTile_injection);
     overwrite_calls(MobRenderer_renderNameTag, MobRenderer_renderNameTag_injection);

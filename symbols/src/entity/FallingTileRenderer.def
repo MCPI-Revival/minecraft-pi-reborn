@@ -1,0 +1,3 @@
+extends EntityRenderer;
+
+vtable 0x1078c8;

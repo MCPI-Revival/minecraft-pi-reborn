@@ -92,6 +92,7 @@ set(SRC
     src/entity/painting/HangingEntity.def
     src/entity/painting/Motive.def
     src/entity/FallingTile.def
+    src/entity/FallingTileRenderer.def
     src/level/container/FillingContainer.def
     src/level/container/Container.def
     src/level/container/ContainerMenu.def
