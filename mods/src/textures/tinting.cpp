@@ -43,12 +43,17 @@ static Level *get_level_from_source(LevelSource *source) {
     } else if (vtable == (const void *) Region::VTable::base) {
         return ((Region *) source)->level;
     } else {
-        IMPOSSIBLE();
+        return nullptr;
     }
 }
-static int32_t GrassTile_getColor_injection(MCPI_UNUSED GrassTile_getColor_t original, MCPI_UNUSED GrassTile *tile, LevelSource *level_source, const int32_t x, MCPI_UNUSED int32_t y, const int32_t z) {
+static int32_t GrassTile_getColor_injection(GrassTile_getColor_t original, GrassTile *tile, LevelSource *level_source, const int32_t x, const int32_t y, const int32_t z) {
     // Get Level
     Level *level = get_level_from_source(level_source);
+    if (!level) {
+        // Call Original Method
+        return original(tile, level_source, x, y, z);
+    }
+
     // Find Biome Temperature
     BiomeSource *biome_source = level->getBiomeSource();
     biome_source->getBiomeBlock(x, z, 1, 1);
@@ -71,6 +76,7 @@ static int32_t TallGrass_getColor_injection(TallGrass_getColor_t original, TallG
     if (original_color == 0x339933) {
         return GrassTile_getColor_injection(nullptr, nullptr, level_source, x, y, z);
     } else {
+        // Dead Bush
         return original_color;
     }
 }

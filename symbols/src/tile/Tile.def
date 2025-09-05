@@ -73,6 +73,7 @@ property float destroyTime = 0x34;
 property float explodeable = 0x38;
 property int category = 0x3c;
 property AABB aabb = 0x40;
+property Material *material = 0x2c;
 
 static-method int transformToValidBlockId(int tile_id, int x, int y, int z) = 0xc327c;
 

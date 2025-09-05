@@ -1,5 +1,4 @@
 #include <cstdlib>
-#include <cstring>
 #include <unistd.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
@@ -628,11 +627,14 @@ void init_misc() {
         overwrite_calls(Minecraft_leaveGame, Minecraft_leaveGame_injection);
     }
 
-    // Disable overwrite_calls() After Minecraft::init
-    misc_run_on_init([](MCPI_UNUSED Minecraft *minecraft) {
+    // Disable overwrite_calls() Before NinecraftApp::init
+    overwrite_calls(NinecraftApp_init, [](NinecraftApp_init_t original, NinecraftApp *self) {
         thunk_enabler = [](MCPI_UNUSED void *a, MCPI_UNUSED void *b) -> void * {
             IMPOSSIBLE();
         };
+        can_construct_custom_wrappers = true;
+        // Call Original Method
+        original(self);
     });
 
     // Init Other Components

@@ -1,6 +1,7 @@
 #include <GLES/gl.h>
 #include <symbols/minecraft.h>
 #include <libreborn/patch.h>
+#include <mods/misc/misc.h>
 
 #include "internal.h"
 
@@ -78,20 +79,95 @@ static void EntityRenderer_render_injection(const std::function<void(Self *, Ent
 }
 
 // Fix Falling Tile Rendering
-static int32_t current_falling_tile_data;
+struct FallingSandRenderer {
+    // Custom Level Source
+    struct SandLevelSource final : CustomLevelSource {
+        // Properties
+        static constexpr int32_t point = 8;
+        int32_t id = 0;
+        int32_t data = 0;
+        float brightness = 0;
+        // Methods
+        int getTile(const int x, const int y, const int z) override {
+            if (x == point && y == point && z == point) {
+                return id;
+            } else {
+                return 0;
+            }
+        }
+        int getData(const int x, const int y, const int z) override {
+            if (x == point && y == point && z == point) {
+                return data;
+            } else {
+                return 0;
+            }
+        }
+        Material *getMaterial(const int x, const int y, const int z) override {
+            if (x == point && y == point && z == point) {
+                return Tile::tiles[id]->material;
+            } else {
+                return Material::air;
+            }
+        }
+        float getBrightness(MCPI_UNUSED const int x, MCPI_UNUSED const int y, MCPI_UNUSED const int z) override {
+            return brightness;
+        }
+    };
+    // Properties
+    SandLevelSource level_source;
+    TileRenderer *renderer;
+    // Methods
+    FallingSandRenderer() {
+        // Construct Block Renderer
+        renderer = TileRenderer::allocate();
+        renderer->constructor(level_source.self);
+    }
+    [[nodiscard]] bool render() const {
+        // Render Block
+        Tile *tile = Tile::tiles[level_source.id];
+        if (tile) {
+            constexpr float point = SandLevelSource::point;
+            constexpr float offset = point + 0.5f;
+            media_glTranslatef(-offset, -offset, -offset);
+            Tesselator &t = Tesselator::instance;
+            t.begin(GL_QUADS);
+            const bool success = renderer->tesselateInWorld(tile, point, point, point);
+            t.draw();
+            media_glTranslatef(offset, offset, offset);
+            return success;
+        } else {
+            // Nothing To Render
+            // Treat This As Success
+            return true;
+        }
+    }
+};
+static FallingSandRenderer *falling_sand_renderer;
 static void FallingTileRenderer_render_injection(FallingTileRenderer_render_t original, FallingTileRenderer *self, Entity *entity, const float x, const float y, const float z, const float param_1, const float param_2) {
-    current_falling_tile_data = ((FallingTile *) entity)->data;
+    // Store ID/Data
+    const FallingTile *sand = (const FallingTile *) entity;
+    falling_sand_renderer->level_source.id = sand->tile_id;
+    falling_sand_renderer->level_source.data = sand->data;
+    // Call Original Method
     original(self, entity, x, y, z, param_1, param_2);
 }
-static void FallingTileRenderer_render_TileRenderer_renderBlock_injection(TileRenderer *self, Tile *tile, MCPI_UNUSED LevelSource *level, MCPI_UNUSED const int x, MCPI_UNUSED const int y, MCPI_UNUSED const int z) {
+static void FallingTileRenderer_render_TileRenderer_renderBlock_injection(TileRenderer *self, Tile *tile, LevelSource *level, const int x, const int y, const int z) {
+    // Determine Lighting
     const float a = tile->getBrightness(level, x, y, z);
     const float b = tile->getBrightness(level, x, y - 1, z);
     const float c = std::max(a, b);
-    media_glColor4f(c, c, c, 1.0f);
+    falling_sand_renderer->level_source.brightness = c;
+    // Render
     media_glEnable(GL_POLYGON_OFFSET_FILL);
+    media_glDisable(GL_LIGHTING);
     media_glPolygonOffset(-1.0f, -1.0f);
-    self->renderTile(tile, current_falling_tile_data);
+    const bool success = falling_sand_renderer->render();
+    if (!success) {
+        // Call Original Method As Fallback
+        self->renderBlock(tile, level, x, y, z);
+    }
     media_glDisable(GL_POLYGON_OFFSET_FILL);
+    media_glEnable(GL_LIGHTING);
 }
 static void TntRenderer_render_TileRenderer_renderTile_injection(TileRenderer *self, Tile *tile, const int data) {
     media_glDisable(GL_LIGHTING);
@@ -143,11 +219,15 @@ void _init_lighting() {
     overwrite_calls(PaintingRenderer_render, EntityRenderer_render_injection<PaintingRenderer>);
     overwrite_call_manual((void *) 0x641ec, (void *) enable_rescale_normal);
     overwrite_call_manual((void *) 0x647a0, (void *) disable_rescale_normal);
-    overwrite_calls(FallingTileRenderer_render, FallingTileRenderer_render_injection);
-    overwrite_call((void *) 0x62b08, TileRenderer_renderBlock, FallingTileRenderer_render_TileRenderer_renderBlock_injection);
     overwrite_call((void *) 0x65754, TileRenderer_renderTile, TntRenderer_render_TileRenderer_renderTile_injection);
     overwrite_calls(MobRenderer_renderNameTag, MobRenderer_renderNameTag_injection);
     overwrite_calls(ArmorScreen_renderPlayer, ArmorScreen_renderPlayer_injection);
     overwrite_call_manual((void *) 0x29d88, (void *) ArmorScreen_renderPlayer_glRotatef_injection);
     overwrite_call((void *) 0x65a10, Tesselator_draw, TripodCameraRenderer_render_Tesselator_draw_injection);
+    // Falling Sand
+    misc_run_on_init([](MCPI_UNUSED Minecraft *minecraft) {
+        falling_sand_renderer = new FallingSandRenderer();
+    });
+    overwrite_calls(FallingTileRenderer_render, FallingTileRenderer_render_injection);
+    overwrite_call((void *) 0x62b08, TileRenderer_renderBlock, FallingTileRenderer_render_TileRenderer_renderBlock_injection);
 }

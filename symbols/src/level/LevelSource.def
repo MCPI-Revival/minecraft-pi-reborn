@@ -1,3 +1,10 @@
+size 0x4;
+
+vtable 0x10fb58;
+vtable-size 0x28;
+
+generate-custom-wrapper;
+
 virtual-method int getTile(int x, int y, int z) = 0x8;
 virtual-method int isEmptyTile(int x, int y, int z) = 0xc;
 virtual-method float getBrightness(int x, int y, int z) = 0x10;

@@ -1,6 +1,6 @@
 size 0xb8;
 
-constructor (Minecraft *minecraft, LevelSource *level) = 0x53e58;
+constructor (LevelSource *level) = 0x53e58;
 
 static-method bool canRender(int shape) = 0x5accc;
 
