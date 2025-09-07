@@ -23,7 +23,6 @@
 [submodule "dependencies/imgui/src"]
 	path = dependencies/imgui/src
 	url = https://github.com/ocornut/imgui.git
-	ignore = dirty
 [submodule "dependencies/imgui/glad/src"]
 	path = dependencies/imgui/glad/src
 	url = https://github.com/Dav1dde/glad.git

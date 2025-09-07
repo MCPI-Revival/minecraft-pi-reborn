@@ -37,14 +37,6 @@ target_compile_definitions(imgui PUBLIC
     IMGUI_DISABLE_OBSOLETE_FUNCTIONS
 )
 
-# Patch
-execute_process(
-    COMMAND "patch" "-p1" "--forward" "--reject-file=-"
-    WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/src"
-    INPUT_FILE "${CMAKE_CURRENT_SOURCE_DIR}/fix-hidpi.patch"
-    OUTPUT_QUIET
-)
-
 # Install
 setup_library(imgui TRUE FALSE)
 

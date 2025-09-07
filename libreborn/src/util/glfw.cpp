@@ -51,11 +51,8 @@ void cleanup_glfw(GLFWwindow *window) {
 // Framebuffer Scaling
 void get_glfw_scale(GLFWwindow *window, float *x_scale_ptr, float *y_scale_ptr) {
     // Output
-    float x_scale;
-    float y_scale;
-
-    // Default
-    x_scale = y_scale = 1.0f;
+    float x_scale = 1.0f;
+    float y_scale = x_scale;
 
     // Detect Platform
     if (glfwGetPlatform() == GLFW_PLATFORM_X11) {

@@ -33,7 +33,7 @@ struct CrashReport final : Frame {
         ImGui::TextWrapped("If you believe this is a problem with %s itself, please upload this crash report to the #bugs Discord channel.", title);
         // Log
         if (ImGui::BeginChild("Log", ImVec2(0, -ImGui::GetFrameHeightWithSpacing() /* Leave Room For Bottom Row */), ImGuiChildFlags_Borders, ImGuiWindowFlags_HorizontalScrollbar)) {
-            ImGui::PushFont(monospace);
+            ImGui::PushFont(monospace, monospace->LegacySize);
             ImGui::TextUnformatted(log.data(), log.data() + log.size());
             ImGui::PopFont();
             if (first_render) {
