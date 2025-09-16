@@ -182,7 +182,7 @@ void TextInputBox::charPressed(const int k) {
 static std::string get_rendered_text(Font *font, const int width, const int scroll_pos, const std::string &text) {
     std::string rendered_text = text.substr(scroll_pos);
     const int max_width = width - (PADDING * 2);
-    while (font->width(rendered_text) > max_width) {
+    while (font->width(rendered_text) > max_width && !rendered_text.empty()) {
         rendered_text.pop_back();
     }
     return rendered_text;

@@ -27,6 +27,7 @@ private:
     GLFWwindow *window = nullptr;
     // Internal Methods
     float get_scale();
-    void setup_style();
+    void setup_fonts();
+    static void setup_style(float scale);
     static void patch_colors(ImGuiStyle &style);
 };

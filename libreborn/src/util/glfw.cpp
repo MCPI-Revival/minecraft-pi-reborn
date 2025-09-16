@@ -22,6 +22,9 @@ void init_glfw() {
 
 // Create Window
 GLFWwindow *create_glfw_window(const char *title, const int width, const int height) {
+    // Scaling
+    glfwWindowHint(GLFW_SCALE_TO_MONITOR, GLFW_TRUE);
+    glfwWindowHint(GLFW_SCALE_FRAMEBUFFER, GLFW_TRUE);
     // App ID
     const char *id = reborn_config.app.id;
     glfwWindowHintString(GLFW_X11_CLASS_NAME, id);
@@ -46,37 +49,4 @@ void cleanup_glfw(GLFWwindow *window) {
     // Terminate GLFW
     glfwDestroyWindow(window);
     glfwTerminate();
-}
-
-// Framebuffer Scaling
-void get_glfw_scale(GLFWwindow *window, float *x_scale_ptr, float *y_scale_ptr) {
-    // Output
-    float x_scale = 1.0f;
-    float y_scale = x_scale;
-
-    // Detect Platform
-    if (glfwGetPlatform() == GLFW_PLATFORM_X11) {
-        // X11 Has No Scaling
-    } else {
-        // Get Window Size
-        int window_width;
-        int window_height;
-        glfwGetWindowSize(window, &window_width, &window_height);
-        // Get Framebuffer Size
-        int framebuffer_width;
-        int framebuffer_height;
-        glfwGetFramebufferSize(window, &framebuffer_width, &framebuffer_height);
-
-        // Calculate
-        if (window_width > 0 && window_height > 0) {
-            x_scale = float(framebuffer_width) / float(window_width);
-            y_scale = float(framebuffer_height) / float(window_height);
-        }
-    }
-
-    // Return
-#define ret(x) if (x##_ptr) *x##_ptr = x
-    ret(x_scale);
-    ret(y_scale);
-#undef ret
 }
