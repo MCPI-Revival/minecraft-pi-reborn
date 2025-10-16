@@ -7,8 +7,8 @@
 #include <libreborn/config.h>
 
 // Handle GLFW Error
-static void glfw_error(MCPI_UNUSED int error, const char *description) {
-    WARN("GLFW Error: %s", description);
+static void glfw_error(const int error, const char *description) {
+    WARN("GLFW Error: %i: %s", error, description);
 }
 
 // Init
