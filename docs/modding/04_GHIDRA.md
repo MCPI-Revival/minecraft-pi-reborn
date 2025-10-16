@@ -12,6 +12,7 @@ This chapter assumes basic knowledge of ARM32 Assembly.
 
 ## Common Actions
 Ghidra contains *many* tools. These are some of the most useful for game modding:
+
 * You can jump to a specific function or address using `Navigate -> Go To...`.
   * This tool supports wildcard expressions.
   * You can also jump to a specific string by entering `*<fragment>*`. This is because strings are automatically labeled as `s_<string>_<address>` (for instance `s_This_works?_00104a1f`).
@@ -82,6 +83,7 @@ The easiest way is to check if it is already documented.
 This project contains a [list of known symbols](../../symbols/src) including function addresses.
 
 If it is not documented, there are a few techniques that can be used to locate the function:
+
 * If a function contains a unique string, you can search for this string inside MCPI using `Go To...`.
 * If this function is called by or calls a known function, you can access that function inside MCPI and look through its callers and callees.
   * You may need to do this for multiple levels. For instance, an unknown function may be called by another unknown function, but that function may be called by a known function.

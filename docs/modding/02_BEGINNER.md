@@ -11,6 +11,7 @@ This chapter assumes basic knowledge of C++.
 
 ## Utility Functions
 MCPI-Reborn's built-in mods expose quite a few utility functions to make modding easier. These include:
+
 * `misc_run_on_tick` will register a callback that will be run on every game-tick.
 * `misc_run_on_init` will register a callback that will be run immediately after the game initializes.
 * `screenshot_take` will take a screenshot.
@@ -18,6 +19,7 @@ MCPI-Reborn's built-in mods expose quite a few utility functions to make modding
 * More can be found [here](../../mods/include).
 
 This project also includes a utility library: `libreborn`. This includes:
+
 * `INFO`/`ERR` handle logging messages.
 * `to_`/`from_cp437` will convert to/from MCPI's built-in text encoding.
 * `home_get` will retrieve the profile directory.
@@ -43,6 +45,7 @@ They can also be easily copied and allocated on the stack, something explicitly 
 All classes have member functions and/or properties. These can be called, accessed, and modified normally.
 
 For instance:
+
 * Functions
   * `Gui::addMessage`
   * `Level::setTile`
@@ -60,6 +63,7 @@ Due to how MCPI-Reborn is implemented, game classes cannot be directly extended.
 Instead, `Custom*` wrapper classes are provided.
 
 For instance, to create a custom block:
+
 * Create a class extending `CustomTile`.
 * Create a function that constructs the class.
 * Register that function with `misc_run_on_tiles_setup`.
@@ -96,6 +100,7 @@ screen->constructor();
 > If a constructor does not exist (usually because of inlining), you must implement it manually.
 >
 > This usually involves:
+>
 > 1. Calling the parent constructor.
 > 2. Setting the correct [VTable](https://en.wikipedia.org/wiki/Virtual_method_table?useskin=vector).
 > 3. Constructing all properties (using placement `new`).
@@ -123,6 +128,7 @@ Some functions with can be "hooked" using a similar technique to [`LD_PRELOAD`](
 To make this easier, `libreborn` provides the `HOOK` macro.
 
 This only applies to function with [external-linkage](https://learn.microsoft.com/en-us/cpp/cpp/program-and-linkage-cpp?view=msvc-170#external-vs-internal-linkage). For instance:
+
 * Supported
   * `open`
   * `close`

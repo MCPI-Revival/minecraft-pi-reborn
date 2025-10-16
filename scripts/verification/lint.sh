@@ -29,7 +29,6 @@ style 'default = true'
 style 'blanks-around-headings.lines_below = 0'
 style 'line-length = false'
 style "no-inline-html.allowed_elements = ['b', 'ins', 'code', 'kbd', 'details', 'summary', 'p', 'img', 'a']"
-style 'blanks-around-lists = false'
 style 'blanks-around-tables = false'
 style 'blanks-around-fences = false'
 style 'no-duplicate-heading.siblings_only = true'

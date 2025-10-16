@@ -20,6 +20,7 @@ This makes it completely compatible with RaspberryJuice but limits functionality
 * In the compatibility mode, entity type IDs are automatically translated to/from their [MC Java equivalents](https://mcreator.net/wiki/entity-ids#toc-index-2).
 
 ## Commands
+
 * Commands are formatted like `<command>(<args>)` and may return a response. The response `Fail` indicates an error.
 * All commands are responses end with a newline.
 * Arguments surrounded by square brackets (for instance `[abc]`) are optional.
@@ -28,6 +29,7 @@ This makes it completely compatible with RaspberryJuice but limits functionality
 * Unless otherwise noted, all `player.*(...)` commands are equivalent to `entity.*(local_player_id,...)`.
 
 ### Vanilla
+
 * `world.setBlock(x,y,z,block_id[,data])`
   * Description: Set the specified block at the given location.
 * `world.getBlock(x,y,z)`
@@ -81,6 +83,7 @@ This makes it completely compatible with RaspberryJuice but limits functionality
   * Output: List of `x,y,z,face,entity_id`
 
 ### RaspberryJuice
+
 * `world.getBlocks(x0,y0,z0,x1,y1,z1)`
   * Description: Retrieve the blocks in the specified region.
   * Output: List of <code>block_id<ins>,data</ins></code>
@@ -157,6 +160,7 @@ This makes it completely compatible with RaspberryJuice but limits functionality
   * Description: Clear all queued events produced by the specified entity.
 
 ### Reborn-Specific
+
 * `reborn.disableCompatMode()`
   * Description: Disable the compatibility mode.
   * Output: `reborn_version`

@@ -4,6 +4,7 @@ This chapter explains how to set up a development environment and build a simple
 This chapter assumes basic knowledge of the Linux command-line.
 
 ## Installing The SDK
+
 1. Install [CMake](https://cmake.org/).
    * This is `cmake` and `ninja-build` on Ubuntu.
 2. Install an ARM32 C++ toolchain.
@@ -12,6 +13,7 @@ This chapter assumes basic knowledge of the Linux command-line.
 4. Run MCPI-Reborn. This will copy the SDK to the profile directory.
 
 ## Creating A Mod
+
 1. Create a folder for your new mod's source code. All following steps should take place in this directory.
 2. Create `CMakeLists.txt`:
    ```cmake
@@ -45,6 +47,7 @@ This chapter assumes basic knowledge of the Linux command-line.
 4. The `init_mod` function (or any others with the `constructor` attribute) will run immediately before the game starts.
 
 ## Building And Running
+
 1. Run:
    ```sh
    # Create Build Directory

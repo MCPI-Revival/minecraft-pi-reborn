@@ -26,6 +26,7 @@ Targetable methods have corresponding objects that can be used in the following 
 For instance, `A::func` would correspond to the `A_func` object.
 
 They also have the following additional members:
+
 * `name`: The method's name (including its enclosing structure).
 * `backup`: A pointer to the original method.
 * `get`: A method that will retrieve a pointer to the method.

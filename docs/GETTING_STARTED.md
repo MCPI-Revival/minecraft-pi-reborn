@@ -19,6 +19,7 @@ Just as regular Minecraft stores game data at `~/.minecraft`, MCPI-Reborn uses `
 One of MCPI-Reborn's most important modifications is the addition of a sound engine. However, due to copyright limitations, Minecraft's sounds cannot be distributed with MCPI-Reborn and must be installed manually.
 
 Fortunately, installing the sound data is simple:
+
 1. Obtain a valid Minecraft: Pocket Edition v0.6.1[^2] APK file.
 2. Extract `lib/*/libminecraftpe.so` from the APK.
 3. Create the directory `<Profile Directory>/overrides` if it does not already exist.
