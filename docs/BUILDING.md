@@ -19,4 +19,5 @@
 ```
 
 ### Environment Variables
-* ``MCPI_TOOLCHAIN_USE_DEFAULT_SEARCH_PATHS``: Use Default CMake Search Paths Rather Than Guessing
+
+* `MCPI_TOOLCHAIN_USE_DEFAULT_SEARCH_PATHS`: Use Default CMake Search Paths Rather Than Guessing

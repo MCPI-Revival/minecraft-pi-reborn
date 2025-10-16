@@ -1,4 +1,5 @@
 # Documentation
+
 * [View Installation](INSTALL.md)
 * [View Overriding Assets](OVERRIDING_ASSETS.md)
 * [View Dedicated Server](DEDICATED_SERVER.md)
@@ -12,3 +13,4 @@
 * [View In-Game Controls](CONTROLS.md)
 * [View Custom Skins](CUSTOM_SKINS.md)
 * [View Changelog](CHANGELOG.md)
+* [View Modding Guide](MODDING.md)
