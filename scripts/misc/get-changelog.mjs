@@ -28,11 +28,16 @@ if (options.mode === Modes.AppStream) {
 // Parse Changelog
 const out = [];
 let foundStart = false;
+let skipLine = false;
 const lines = changelog.data.split('\n');
 for (const line of lines) {
     if (!foundStart) {
         // Found Start Of Version Info
         foundStart = line.trim() === '## ' + version.data;
+        skipLine = true;
+    } else if (skipLine) {
+        // Skip This Line
+        skipLine = false;
     } else if (line.trim().length === 0) {
         // Found End
         break;
