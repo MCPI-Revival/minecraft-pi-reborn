@@ -6,4 +6,4 @@
 Minecraft: Pi Edition Modding Project
 
 ## Documentation
-[View Documentation](docs/README.md)
+[View Documentation](docs/)
