@@ -1,12 +1,13 @@
 # Documentation
 
-* [View Getting Started](GETTING_STARTED.md)
-* [View Installation](INSTALL.md)
-* [View Dedicated Server](DEDICATED_SERVER.md)
-* [View Credits](CREDITS.md)
-* [View Terminology](TERMINOLOGY.md)
-* [View In-Game Controls](CONTROLS.md)
-* [View Custom Skins](CUSTOM_SKINS.md)
-* [View API](API.md)
-* [View Changelog](CHANGELOG.md)
-* [View Modding Guide](modding/README.md)
+<!-- Introduction Link Location -->
+* [Getting Started](GETTING_STARTED.md)
+* [Installation](INSTALL.md)
+* [Dedicated Server](DEDICATED_SERVER.md)
+* [Credits](CREDITS.md)
+* [Terminology](TERMINOLOGY.md)
+* [In-Game Controls](CONTROLS.md)
+* [Custom Skins](CUSTOM_SKINS.md)
+* [API](API.md)
+* [Changelog](CHANGELOG.md)
+* [Modding Guide](modding/)
