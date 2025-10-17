@@ -2,6 +2,7 @@
 
 #include <mods/text-input-box/TextInputBox.h>
 #include <mods/input/input.h>
+#include <mods/misc/misc.h>
 
 // Constructor/Destructor
 TextInputBox::TextInputBox(const std::string &placeholder, const std::string &text) {
@@ -191,9 +192,12 @@ static std::string get_rendered_text(Font *font, const int width, const int scro
 // Render
 static char CURSOR_CHAR = '_';
 void TextInputBox::render() const {
+    // Draw Background
     component->fill(m_xPos, m_yPos, m_xPos + m_width, m_yPos + m_height, 0xFFAAAAAA);
     component->fill(m_xPos + 1, m_yPos + 1, m_xPos + m_width - 1, m_yPos + m_height - 1, 0xFF000000);
 
+    // Prepare
+    constexpr int cursor_color = 0xe0e0e0;
     int text_color;
     int scroll_pos;
     std::string rendered_text;
@@ -203,14 +207,16 @@ void TextInputBox::render() const {
         scroll_pos = 0;
     } else {
         rendered_text = m_text;
-        text_color = m_bEnabled ? 0xe0e0e0 : 0x707070;
+        text_color = m_bEnabled ? cursor_color : 0x707070;
         scroll_pos = m_scrollPos;
     }
     rendered_text = get_rendered_text(m_pFont, m_width, scroll_pos, rendered_text);
 
-    const int textYPos = (m_height - 8) / 2;
+    // Draw Visible Text
+    const int textYPos = (m_height - line_height) / 2;
     component->drawString(m_pFont, rendered_text, m_xPos + PADDING, m_yPos + textYPos, text_color);
 
+    // Draw Cursor
     if (m_bCursorOn) {
         const int cursor_pos = m_insertHead - m_scrollPos;
         if (cursor_pos >= 0 && cursor_pos <= int(rendered_text.length())) {
@@ -219,7 +225,7 @@ void TextInputBox::render() const {
 
             std::string str;
             str += CURSOR_CHAR;
-            component->drawString(m_pFont, str, m_xPos + xPos, m_yPos + textYPos + 2, text_color);
+            component->drawString(m_pFont, str, m_xPos + xPos, m_yPos + textYPos + 2, cursor_color);
         }
     }
 }
