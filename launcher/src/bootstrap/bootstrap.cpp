@@ -1,5 +1,6 @@
 #include <string>
 #include <vector>
+#include <unistd.h>
 
 #include <libreborn/log.h>
 #include <libreborn/env/env.h>
