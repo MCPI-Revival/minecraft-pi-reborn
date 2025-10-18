@@ -20,6 +20,7 @@ add_executable(launcher
     src/util/env.cpp
     src/util/install.cpp
     src/logger/logger.cpp
+    src/logger/writer.cpp
     src/options/parser.cpp
     src/main.cpp
     src/client/configuration.cpp

@@ -31,7 +31,7 @@ void set_and_print_env(const char *name, const char *value) {
     setenv_safe(name, value);
 
     // Print New Value
-    DEBUG("Set %s = %s", name, value != NULL ? value : "(unset)");
+    DEBUG("Set %s = %s", name, value != nullptr ? value : "(unset)");
 }
 
 // Get Environmental Variable

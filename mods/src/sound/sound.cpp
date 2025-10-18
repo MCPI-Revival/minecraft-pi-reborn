@@ -1,4 +1,5 @@
 #include <string>
+#include <unistd.h>
 
 #include <libreborn/patch.h>
 #include <symbols/minecraft.h>

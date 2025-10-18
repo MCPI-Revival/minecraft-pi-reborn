@@ -2,7 +2,7 @@
 #include <sys/file.h>
 #include <sys/stat.h>
 #include <cstring>
-#include <cmath>
+#include <unistd.h>
 
 #include <libreborn/util/util.h>
 #include <libreborn/util/io.h>

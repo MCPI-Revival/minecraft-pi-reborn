@@ -1,4 +1,5 @@
 OPTION(debug, "debug", 'd', "Enable Debug Logging")
+OPTION(quiet, "quiet", 'q', "Silence Most Logging")
 OPTION(copy_sdk, "copy-sdk", -2, "Extract Modding SDK And Exit")
 OPTION(disable_logger, "disable-logger", -1, "Disable Logger (And Crash Report Dialog)")
 OPTION(use_default, "default", -3, "Skip Client-Mode Configuration Dialog")

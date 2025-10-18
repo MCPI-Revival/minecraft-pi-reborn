@@ -12,6 +12,7 @@ ENV(_MCPI_ONLY_GENERATE, "")
 // Logging
 ENV(_MCPI_LOG_FD, "")
 ENV(MCPI_DEBUG, "Enable Debug Logging")
+ENV(MCPI_QUIET, "Silence Most Logging")
 // Server/Headless
 ENV(_MCPI_SERVER_MODE, "")
 ENV(_MCPI_FORCE_HEADLESS, "")

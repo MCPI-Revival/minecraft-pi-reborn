@@ -1,5 +1,6 @@
 #include <cmath>
 #include <algorithm>
+#include <unistd.h>
 
 #include <libreborn/patch.h>
 #include <libreborn/config.h>

@@ -4,6 +4,7 @@
 #include <sys/stat.h>
 #include <dirent.h>
 #include <cstring>
+#include <unistd.h>
 
 #include <libreborn/log.h>
 #include <libreborn/util/util.h>

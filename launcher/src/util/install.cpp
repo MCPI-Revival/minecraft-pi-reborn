@@ -1,6 +1,7 @@
 #include <cstdlib>
 #include <cstring>
 #include <fcntl.h>
+#include <unistd.h>
 
 #include <libreborn/env/env.h>
 #include <libreborn/log.h>

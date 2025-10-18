@@ -1,3 +1,5 @@
+#include <unistd.h>
+
 #include <libreborn/patch.h>
 #include <libreborn/util/string.h>
 
