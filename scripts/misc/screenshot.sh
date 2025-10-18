@@ -26,7 +26,7 @@ export XDG_SESSION_TYPE=x11
 unset MCPI_GUI_SCALE
 unset MCPI_USERNAME
 PWD="$(pwd)"
-export PATH="${PWD}/out/host/usr/bin:${PATH}"
+export PATH="${PWD}/out/host/usr/lib/minecraft-pi-reborn:${PATH}"
 
 # Game Directory
 export MCPI_PROFILE_DIRECTORY="${PWD}/.testing-tmp"
@@ -41,7 +41,7 @@ screenshot() {
     shift 2
 
     # Run
-    minecraft-pi-reborn "$@" &
+    "$@" &
     PID="$!"
 
     # Screenshot
@@ -55,11 +55,15 @@ screenshot() {
 }
 
 # Launcher
-screenshot launcher 0.5
+screenshot launcher 0.5 launcher
 
 # Start Screen
 export MCPI_PROMOTIONAL=
-screenshot start 3 --default
+screenshot start 3 launcher --default
+
+# Crash Report
+LOGS="${MCPI_PROFILE_DIRECTORY}/logs"
+screenshot crash-report 0.5 crash-report "${LOGS}/latest.log" "${LOGS}"
 
 # Kill Shell
 end "${SHELL_PID}"
