@@ -16,6 +16,7 @@
 #include <libreborn/config.h>
 
 #include "logger.h"
+#include "../util/util.h"
 
 // Exit Handler
 static pid_t child_pid = -1;
@@ -27,7 +28,7 @@ static void exit_handler(MCPI_UNUSED int signal) {
 // Log File
 static std::string log_filename;
 static int log_fd;
-std::string get_logs_folder() {
+static std::string get_logs_folder() {
     const std::string home = home_get();
     ensure_directory(home.c_str());
     const std::string logs = home + "/logs";
@@ -63,6 +64,15 @@ static void setup_log_file() {
         ERR("Unable To Create Log File: %s", strerror(errno));
     }
     reborn_set_log(log_fd);
+}
+
+// Show Crash Report
+static void show_report() {
+    const std::string exe = get_binary_directory() + "/crash-report";
+    const std::string dir = get_logs_folder();
+    const char *argv[] = {exe.c_str(), log_filename.c_str(), dir.c_str(), nullptr};
+    const std::vector<unsigned char> *output = run_command(argv, nullptr);
+    delete output;
 }
 
 // Setup
@@ -134,7 +144,7 @@ void setup_logger() {
 
         // Show Crash Log
         if (is_crash && !reborn_is_headless()) {
-            show_report(log_filename.c_str());
+            show_report();
         }
 
         // Exit

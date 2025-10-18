@@ -1,6 +1,14 @@
 project(launcher)
 
 # Launcher
+add_library(ui SHARED
+    src/ui/frame.cpp
+    src/ui/color.cpp
+)
+target_link_libraries(ui
+    reborn-util
+    imgui
+)
 add_executable(launcher
     src/bootstrap/bootstrap.cpp
     src/bootstrap/mods.cpp
@@ -12,11 +20,8 @@ add_executable(launcher
     src/util/env.cpp
     src/util/install.cpp
     src/logger/logger.cpp
-    src/logger/crash-report.cpp
     src/options/parser.cpp
     src/main.cpp
-    src/ui/frame.cpp
-    src/ui/color.cpp
     src/client/configuration.cpp
     src/client/cache.cpp
     src/client/ui/window.cpp
@@ -27,16 +32,15 @@ add_executable(launcher
     src/updater/updater.cpp
 )
 target_link_libraries(launcher
-    reborn-util
+    ui
     LIB_LIEF
-    imgui
     trampoline-headers
     pthread
 )
-
-# RPath
-set_target_properties(launcher PROPERTIES INSTALL_RPATH "$ORIGIN/lib/native")
-target_link_options(launcher PRIVATE "LINKER:--disable-new-dtags")
+add_executable(crash-report
+    src/logger/crash-report.cpp
+)
+target_link_libraries(crash-report ui)
 
 # Files
 target_compile_definitions(launcher PRIVATE _FILE_OFFSET_BITS=64)
@@ -50,7 +54,15 @@ if(TARGET runtime)
 endif()
 
 # Install
-install(TARGETS launcher DESTINATION "${MCPI_INSTALL_DIR}")
+setup_library(ui TRUE FALSE)
+function(install_bin target)
+    install(TARGETS "${target}" DESTINATION "${MCPI_INSTALL_DIR}")
+    # RPath
+    set_target_properties("${target}" PROPERTIES INSTALL_RPATH "$ORIGIN/lib/native")
+    target_link_options("${target}" PRIVATE "LINKER:--disable-new-dtags")
+endfunction()
+install_bin(launcher)
+install_bin(crash-report)
 install_symlink("../${MCPI_INSTALL_DIR}/launcher" "bin/${MCPI_APP_NAME}")
 
 # Changelog

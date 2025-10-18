@@ -1,6 +1,4 @@
 project(runtime)
 
-## Extra Runtime
-
-# Build
+# Extra Runtime
 add_subdirectory(src)

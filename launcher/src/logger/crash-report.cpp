@@ -4,25 +4,31 @@
 #include <libreborn/config.h>
 #include <libreborn/util/exec.h>
 
-#include "logger.h"
 #include "../ui/frame.h"
 
 // UI
 struct CrashReport final : Frame {
-    explicit CrashReport(const char *filename): Frame("Crash Report", 640, 480, true) {
+    // Constructor
+    CrashReport(const char *filename, const char *logs_dir_):
+        Frame("Crash Report", 640, 480, true),
+        first_render(true),
+        logs_dir(logs_dir_)
+    {
         // Open File
-        std::ifstream stream(filename, std::ios::binary | std::ios::ate);
-        if (stream) {
-            // Read File
-            const std::streamoff size = stream.tellg();
-            stream.seekg(0, std::ifstream::beg);
-            log.resize(size);
-            stream.read(log.data(), size);
-            // Close File
-            stream.close();
+        if (filename) {
+            std::ifstream stream(filename, std::ios::binary | std::ios::ate);
+            if (stream) {
+                // Read File
+                const std::streamoff size = stream.tellg();
+                stream.seekg(0, std::ifstream::beg);
+                log.resize(size);
+                stream.read(log.data(), size);
+                // Close File
+                stream.close();
+            }
         }
     }
-    bool first_render = true;
+    // Render Function
     int render() override {
         // Text
         const char *title = reborn_config.app.title;
@@ -47,9 +53,11 @@ struct CrashReport final : Frame {
             open_url(reborn_config.extra.discord_invite);
         }
         ImGui::SameLine();
+        ImGui::BeginDisabled(logs_dir == nullptr);
         if (ImGui::Button("View All Logs")) {
-            open_url("file://" + get_logs_folder());
+            open_url("file://" + std::string(logs_dir));
         }
+        ImGui::EndDisabled();
         ImGui::SameLine();
         // Right-Aligned
         int ret = 0;
@@ -67,27 +75,17 @@ struct CrashReport final : Frame {
         });
         return ret;
     }
+    // Properties
+    bool first_render;
+    const char *logs_dir;
     std::string log;
 };
 
 // Show Crash Report Dialog
-static void redirect_file(FILE *file, const char *mode) {
-    const FILE *ret = freopen("/dev/null", mode, file);
-    if (!ret) {
-        IMPOSSIBLE();
-    }
-}
-void show_report(const char *log_filename) {
-    // Fork
-    const pid_t pid = fork();
-    if (pid == 0) {
-        // Child
-        setsid();
-        redirect_file(stdout, "w");
-        redirect_file(stderr, "w");
-        redirect_file(stdin, "r");
-        CrashReport ui(log_filename);
-        ui.run();
-        exit(EXIT_SUCCESS);
-    }
+int main(const int argc, char *argv[]) {
+    const bool has_file = argc > 1;
+    const bool has_dir = argc > 2;
+    CrashReport ui(has_file ? argv[1] : nullptr, has_dir ? argv[2] : nullptr);
+    ui.run();
+    return EXIT_SUCCESS;
 }
