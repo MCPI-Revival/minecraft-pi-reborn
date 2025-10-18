@@ -10,7 +10,7 @@
 #include <libreborn/util/util.h>
 
 // Init/Cleanup
-Frame::Frame(const char *title, const int width, const int height, const bool block_vsync) {
+Frame::Frame(const char *title, const int width, const int height) {
     // Create Window
     init_glfw();
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 1);
@@ -20,12 +20,6 @@ Frame::Frame(const char *title, const int width, const int height, const bool bl
     // Load OpenGL
     if (!gladLoadGLLoader((GLADloadproc) glfwGetProcAddress)) {
         ERR("Unable To Load GLAD");
-    }
-
-    // Disable V-Sync
-    // (On Wayland, This Fixes Issues With The Clipboard)
-    if (block_vsync) {
-        glfwSwapInterval(0);
     }
 
     // Setup ImGui Context

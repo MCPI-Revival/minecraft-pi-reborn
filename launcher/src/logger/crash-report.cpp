@@ -10,7 +10,7 @@
 struct CrashReport final : Frame {
     // Constructor
     CrashReport(const char *filename, const char *logs_dir_):
-        Frame("Crash Report", 640, 480, true),
+        Frame("Crash Report", 640, 480),
         first_render(true),
         logs_dir(logs_dir_)
     {
@@ -65,6 +65,9 @@ struct CrashReport final : Frame {
         draw_right_aligned_buttons({"Copy", quit_text}, [&ret, &log_ref](const int id, const bool was_clicked) {
             if (was_clicked) {
                 if (id == 0) {
+                    // Disable V-Sync
+                    // (On Wayland, This Fixes Issues With The Clipboard)
+                    glfwSwapInterval(0);
                     // Copy Log
                     ImGui::SetClipboardText(log_ref.c_str());
                 } else {

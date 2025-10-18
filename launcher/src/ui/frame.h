@@ -8,7 +8,7 @@
 
 // UI Frame
 struct Frame {
-    Frame(const char *title, int width, int height, bool block_vsync = false);
+    Frame(const char *title, int width, int height);
     virtual ~Frame();
     // Prevent Copying
     Frame(const Frame &) = delete;
