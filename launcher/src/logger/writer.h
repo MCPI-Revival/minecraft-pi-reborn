@@ -3,9 +3,6 @@
 #include <string>
 #include <fstream>
 
-// Setup
-void setup_logger();
-
 // Log Writer
 struct LogWriter final {
     // Properties

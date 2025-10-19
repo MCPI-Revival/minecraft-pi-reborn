@@ -5,7 +5,7 @@
 #include <libreborn/log.h>
 #include <libreborn/util/string.h>
 
-#include "logger.h"
+#include "writer.h"
 
 // Determine File Name
 static std::string get_filename(const std::string &dir) {

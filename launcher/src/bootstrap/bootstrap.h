@@ -3,7 +3,11 @@
 #include <string>
 #include <vector>
 
-void bootstrap();
+#include "../options/parser.h"
+
+// Bootstrap
+void bootstrap(const options_t &options);
+
 // Debugging
 void print_debug_information();
 // Mods

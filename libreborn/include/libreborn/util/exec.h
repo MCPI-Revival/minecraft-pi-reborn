@@ -23,7 +23,7 @@ std::optional<Process> fork_with_stdio();
 void poll_fds(const std::vector<int> &fds, const std::function<void(int, size_t, unsigned char *)> &on_data);
 
 // Safe execvpe()
-__attribute__((noreturn)) void safe_execvpe(const char *const argv[], const char *const envp[]);
+__attribute__((noreturn)) void safe_execvpe(const char *const argv[]);
 
 // Run Command And Get Output
 std::vector<unsigned char> *run_command(const char *const command[], int *exit_status);

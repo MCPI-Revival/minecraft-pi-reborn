@@ -6,7 +6,6 @@
 
 #include "bootstrap/bootstrap.h"
 #include "options/parser.h"
-#include "logger/logger.h"
 #include "util/util.h"
 #include "client/configuration.h"
 #include "updater/updater.h"
@@ -74,13 +73,8 @@ static void start_game(const options_t &options) {
         configure_client(options);
     }
 
-    // Start Logging
-    if (!options.disable_logger) {
-        setup_logger();
-    }
-
     // Bootstrap
-    bootstrap();
+    bootstrap(options);
 }
 
 // Main

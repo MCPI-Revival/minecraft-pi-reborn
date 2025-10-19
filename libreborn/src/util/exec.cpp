@@ -125,14 +125,14 @@ void poll_fds(const std::vector<int> &fds, const std::function<void(int, size_t,
 }
 
 // Safe execvpe()
-__attribute__((noreturn)) void safe_execvpe(const char *const argv[], const char *const envp[]) {
+void safe_execvpe(const char *const argv[]) {
     // Log
     DEBUG("Running Command:");
     for (int i = 0; argv[i] != nullptr; i++) {
         DEBUG("    %s", argv[i]);
     }
     // Run
-    const int ret = execvpe(argv[0], (char *const *) argv, (char *const *) envp);
+    const int ret = execvpe(argv[0], (char *const *) argv, environ);
     if (ret == -1) {
         ERR("Unable To Execute Program: %s: %s", argv[0], strerror(errno));
     } else {
@@ -149,7 +149,7 @@ std::vector<unsigned char> *run_command(const char *const command[], int *exit_s
         // Child Process
         reborn_debug_tag = CHILD_PROCESS_TAG;
         // Run
-        safe_execvpe(command, environ);
+        safe_execvpe(command);
     } else {
         // Close stdin
         child->close_fd(2);

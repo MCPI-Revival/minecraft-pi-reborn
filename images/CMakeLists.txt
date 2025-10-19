@@ -33,7 +33,7 @@ install(
 )
 set(ICON_PATH "${ICON_DIR}/${ICON_NAME}")
 cmake_path(RELATIVE_PATH ICON_PATH BASE_DIRECTORY "${MCPI_INSTALL_DIR}")
-target_compile_definitions(launcher PRIVATE "ICON_PATH=\"${ICON_PATH}\"")
+target_compile_definitions(launcher-util PRIVATE "ICON_PATH=\"${ICON_PATH}\"")
 
 # AppImage
 if(MCPI_IS_APPIMAGE_BUILD)

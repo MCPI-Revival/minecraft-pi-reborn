@@ -108,5 +108,5 @@ bool AppImageUpdater::download(const std::string &version) {
 // Restart
 void AppImageUpdater::restart() {
     const char *const command[] = {get_appimage_path().c_str(), nullptr};
-    safe_execvpe(command, environ);
+    safe_execvpe(command);
 }

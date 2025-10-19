@@ -1,26 +1,34 @@
 project(launcher)
 
-# Launcher
-add_library(ui SHARED
+# 64-Bit FS Support
+add_compile_definitions(_FILE_OFFSET_BITS=64)
+
+# UI Code
+add_library(launcher-ui SHARED
     src/ui/frame.cpp
     src/ui/color.cpp
 )
-target_link_libraries(ui
+target_link_libraries(launcher-ui
     reborn-util
     imgui
 )
+
+# Utility Functions
+add_library(launcher-util SHARED
+    src/util/util.cpp
+    src/util/sdk.cpp
+    src/util/env.cpp
+    src/util/install.cpp
+)
+target_link_libraries(launcher-util reborn-util)
+
+# Launcher
 add_executable(launcher
     src/bootstrap/bootstrap.cpp
     src/bootstrap/mods.cpp
     src/bootstrap/assets.cpp
     src/bootstrap/patchelf.cpp
     src/bootstrap/debug.cpp
-    src/util/util.cpp
-    src/util/sdk.cpp
-    src/util/env.cpp
-    src/util/install.cpp
-    src/logger/logger.cpp
-    src/logger/writer.cpp
     src/options/parser.cpp
     src/main.cpp
     src/client/configuration.cpp
@@ -33,29 +41,45 @@ add_executable(launcher
     src/updater/updater.cpp
 )
 target_link_libraries(launcher
-    ui
+    launcher-ui
+    launcher-util
     LIB_LIEF
     trampoline-headers
     pthread
 )
+
+# Logger
+add_executable(logger
+    src/logger/logger.cpp
+    src/logger/writer.cpp
+)
+target_link_libraries(logger
+    reborn-util
+    launcher-util
+)
+
+# Crash Report Dialog
 add_executable(crash-report
     src/logger/crash-report.cpp
 )
-target_link_libraries(crash-report ui)
-
-# Files
-target_compile_definitions(launcher PRIVATE _FILE_OFFSET_BITS=64)
+target_link_libraries(crash-report
+    launcher-ui
+)
 
 # Runtime/Trampoline
+add_executable(runtime-exe src/bootstrap/runtime.cpp)
+set_target_properties(runtime-exe PROPERTIES OUTPUT_NAME runtime)
+target_link_libraries(runtime-exe reborn-util)
 if(TARGET runtime)
-    target_link_libraries(launcher
+    target_link_libraries(runtime-exe
         media-layer-trampoline
         runtime
     )
 endif()
 
 # Install
-setup_library(ui TRUE FALSE)
+setup_library(launcher-ui TRUE FALSE)
+setup_library(launcher-util TRUE FALSE)
 function(install_bin target)
     install(TARGETS "${target}" DESTINATION "${MCPI_INSTALL_DIR}")
     # RPath
@@ -63,7 +87,9 @@ function(install_bin target)
     target_link_options("${target}" PRIVATE "LINKER:--disable-new-dtags")
 endfunction()
 install_bin(launcher)
+install_bin(logger)
 install_bin(crash-report)
+install_bin(runtime-exe)
 install_symlink("../${MCPI_INSTALL_DIR}/launcher" "bin/${MCPI_APP_NAME}")
 
 # Changelog
@@ -95,7 +121,7 @@ function(configure_and_install_data input_name output_path output_name is_deskto
     if(is_desktop_file)
         set(full_path "${dir}/${output_name}")
         cmake_path(RELATIVE_PATH full_path BASE_DIRECTORY "${MCPI_INSTALL_DIR}")
-        target_compile_definitions(launcher PRIVATE "DESKTOP_FILE_PATH=\"${full_path}\"")
+        target_compile_definitions(launcher-util PRIVATE "DESKTOP_FILE_PATH=\"${full_path}\"")
     endif()
 endfunction()
 configure_and_install_data(launcher.desktop applications "${MCPI_APP_ID}.desktop" TRUE)

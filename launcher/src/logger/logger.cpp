@@ -2,9 +2,7 @@
 #include <cstring>
 #include <cerrno>
 #include <cstdlib>
-#include <cstdio>
 #include <csignal>
-#include <sys/stat.h>
 #include <string>
 
 #include <libreborn/util/exec.h>
@@ -13,7 +11,7 @@
 #include <libreborn/util/io.h>
 #include <libreborn/config.h>
 
-#include "logger.h"
+#include "writer.h"
 #include "../util/util.h"
 
 // Exit Handler
@@ -71,7 +69,7 @@ static void setup_logger_child() {
     // Create New Process Group
     setpgid(0, 0);
 }
-static void setup_logger_parent(Process &child) {
+static int setup_logger_parent(Process &child) {
     // This process will:
     // * Forward the child's output to the terminal and the log file.
     // * Forward the terminal's input to the child.
@@ -156,9 +154,11 @@ static void setup_logger_parent(Process &child) {
     }
 
     // Exit
-    exit(WIFEXITED(status) ? WEXITSTATUS(status) : EXIT_FAILURE);
+    return WIFEXITED(status) ? WEXITSTATUS(status) : EXIT_FAILURE;
 }
-void setup_logger() {
+
+// Main
+int main(MCPI_UNUSED const int argc, char *argv[]) {
     // Setup Logging
     setup_log_file();
 
@@ -167,8 +167,10 @@ void setup_logger() {
     if (!child) {
         // Child Process
         setup_logger_child();
+        argv++;
+        safe_execvpe(argv);
     } else {
         // Parent Process
-        setup_logger_parent(*child);
+        return setup_logger_parent(*child);
     }
 }

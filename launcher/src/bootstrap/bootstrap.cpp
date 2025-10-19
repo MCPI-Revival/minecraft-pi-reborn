@@ -1,16 +1,10 @@
 #include <string>
 #include <vector>
-#include <unistd.h>
 
 #include <libreborn/log.h>
 #include <libreborn/env/env.h>
 #include <libreborn/config.h>
 #include <libreborn/util/exec.h>
-
-#ifdef MCPI_BUILD_RUNTIME
-#include <trampoline/host.h>
-extern "C" std::remove_pointer_t<trampoline_t> trampoline;
-#endif
 
 #include "../util/util.h"
 #include "bootstrap.h"
@@ -18,7 +12,7 @@ extern "C" std::remove_pointer_t<trampoline_t> trampoline;
 #define MCPI_BINARY "minecraft-pi"
 
 // Bootstrap
-void bootstrap() {
+void bootstrap(const options_t &options) {
     // Debug Information
     print_debug_information();
 
@@ -62,20 +56,16 @@ void bootstrap() {
     // Start Game
     INFO("Starting Game...");
 
-    // Arguments
-    const std::vector args {
-#ifdef MCPI_BUILD_RUNTIME
-        binary_directory + "/lib/native/runtime",
-#endif
-        patched_exe_path
-    };
-
     // Run
-    static constexpr int new_argc = 1;
-    const char *new_argv[new_argc + 1] = {patched_exe_path.c_str(), nullptr};
-#ifdef MCPI_BUILD_RUNTIME
-    runtime_main(trampoline, new_argc, new_argv);
-#else
-    safe_execvpe(new_argv, environ);
-#endif
+    const std::string runtime_exe = binary_directory + "/runtime";
+    const std::string logger_exe = binary_directory + "/logger";
+    std::vector<const char *> new_argv = {
+        runtime_exe.c_str(),
+        patched_exe_path.c_str(),
+        nullptr
+    };
+    if (!options.disable_logger) {
+        new_argv.insert(new_argv.begin(), logger_exe.c_str());
+    }
+    safe_execvpe(new_argv.data());
 }
