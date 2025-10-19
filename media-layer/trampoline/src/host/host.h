@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cstdlib>
+#include <cstring>
 
 #include <trampoline/host.h>
 
@@ -42,7 +43,7 @@ struct TrampolineArguments {
         if (length != nullptr) {
             *length = size / sizeof(T);
         }
-        static bool just_read_pointer = !is_trampoline_pipe_based();
+        static bool just_read_pointer = should_just_send_pointer();
         if (size == 0) {
             return nullptr;
         } else if (just_read_pointer) {

@@ -6,7 +6,10 @@ set(MEDIA_LAYER_TRAMPOLINE_SRC src/media-layer-core.cpp src/GLESv1_CM.cpp)
 # Build
 if(BUILD_NATIVE_COMPONENTS)
     # Host Component
-    add_library(media-layer-trampoline src/host/host.cpp ${MEDIA_LAYER_TRAMPOLINE_SRC})
+    add_library(media-layer-trampoline
+        src/host/host.cpp
+        ${MEDIA_LAYER_TRAMPOLINE_SRC}
+    )
     target_link_libraries(media-layer-trampoline
         PRIVATE
             reborn-util
@@ -18,7 +21,9 @@ if(BUILD_NATIVE_COMPONENTS)
     setup_library(media-layer-trampoline TRUE TRUE)
 elseif(BUILD_ARM_COMPONENTS)
     # Guest Component
-    add_library(media-layer-core SHARED ${MEDIA_LAYER_TRAMPOLINE_SRC})
+    add_library(media-layer-core SHARED
+        ${MEDIA_LAYER_TRAMPOLINE_SRC}
+    )
     target_link_libraries(media-layer-core
         PUBLIC
             media-layer-headers

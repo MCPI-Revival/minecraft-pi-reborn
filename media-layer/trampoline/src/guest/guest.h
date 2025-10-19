@@ -40,7 +40,7 @@ inline void _handle_trampoline_arg<copy_array>(unsigned char *&out, const copy_a
     _handle_trampoline_arg(out, arg.size);
     // Send Data
     if (arg.size > 0) {
-        static bool just_send_pointer = !is_trampoline_pipe_based();
+        static bool just_send_pointer = should_just_send_pointer();
         if (just_send_pointer) {
             _handle_trampoline_arg(out, uint32_t(arg.data));
         } else {
