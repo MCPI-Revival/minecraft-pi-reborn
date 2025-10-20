@@ -1,11 +1,11 @@
 import * as child_process from 'node:child_process';
 import * as fs from 'node:fs';
 import { err, info, run } from './util.mjs';
-import { Architectures } from './options.mjs';
+import { Architectures, convertArchitectureToLinux } from './options.mjs';
 
 // Check System
 if (process.getuid() !== 0) {
-    err("Must Run As Root!");
+    err('Must Run As Root!');
 }
 if (!fs.existsSync('/etc/debian_version')) {
     err('Non-Debian OS Detected');
@@ -25,6 +25,7 @@ export function doesPackageExist(name) {
 // Update APT
 let archSuffix = '';
 export function setupApt(architecture) {
+    architecture = convertArchitectureToLinux(architecture);
     if (architecture !== Architectures.Host) {
         const arch = architecture.name;
         run(['dpkg', '--add-architecture', arch]);

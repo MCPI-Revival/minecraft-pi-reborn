@@ -4,6 +4,7 @@ import * as fs from 'node:fs';
 import * as os from 'node:os';
 import { info, err, run, createDir, getScriptsDir, getBuildToolsBin } from './lib/util.mjs';
 import { parseOptions, createEnum, Architectures, Flag, PositionalArg } from './lib/options.mjs';
+import { enableMsys2 } from "./lib/msys2.mjs";
 
 // CMake Options
 const cmakeArgPrefix = '-D';
@@ -64,6 +65,10 @@ if (options.packageType === PackageTypes.Flatpak && options.architecture !== Arc
 if (useCPack && options.install) {
     err('Cannot Install When Using CPack');
 }
+const isWindows = options.architecture === Architectures.Windows;
+if (isWindows && (options.install || options.packageType !== PackageTypes.None)) {
+    err('Windows Builds Do Not Support Packaging');
+}
 
 // Folders
 const __dirname = getScriptsDir();
@@ -89,7 +94,7 @@ printDir('Output', out);
 // Configure CMake Options
 cmakeOptions.set('MCPI_PACKAGING_TYPE', options.packageType.name);
 const toolchainOption = 'CMAKE_TOOLCHAIN_FILE';
-if (options.architecture !== Architectures.Host) {
+if (options.architecture !== Architectures.Host && !isWindows) {
     cmakeOptions.set(toolchainOption, path.join(root, 'cmake', 'toolchain', options.architecture.name + '-toolchain.cmake'));
 } else {
     cmakeOptions.delete(toolchainOption);
@@ -131,6 +136,11 @@ if (supportsJobserver) {
         process.env[env] = value;
     }
     prependEnv('PATH', getBuildToolsBin());
+}
+
+// Enable MSYS2
+if (isWindows) {
+    enableMsys2();
 }
 
 // Run CMake

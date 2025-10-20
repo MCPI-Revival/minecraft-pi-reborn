@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 import * as path from 'node:path';
-import { run, info, getBuildToolsDir, createDir } from './lib/util.mjs';
+import { run, info, getBuildToolsDir, createDir, err } from './lib/util.mjs';
 import { parseOptions, createEnum, Architectures, PositionalArg } from './lib/options.mjs';
 import {
     addPackageForBuild,
@@ -9,6 +9,7 @@ import {
     getPackageForHost,
     installPackages, setupApt
 } from './lib/apt.mjs';
+import { installMsys2, installMsys2Packages } from './lib/msys2.mjs';
 
 // Options
 const Modes = {
@@ -47,28 +48,53 @@ handlers.set(Modes.Build, function () {
         'gperf'
     );
 
-    // Compiler
-    if (options.architecture === Architectures.Host) {
-        addPackageForBuild('gcc', 'g++');
+    // Select Platform
+    if (options.architecture !== Architectures.Windows) {
+        // Linux Target
+
+        // Compiler
+        if (options.architecture === Architectures.Host) {
+            addPackageForBuild('gcc', 'g++');
+        } else {
+            addPackageForBuild('crossbuild-essential-' + options.architecture.name);
+        }
+
+        // Main Dependencies
+        addPackageForHost('libopenal-dev');
+
+        // GLFW Dependencies
+        addPackageForBuild('libwayland-bin');
+        addPackageForHost(
+            'libwayland-dev',
+            'libxkbcommon-dev',
+            'libx11-dev',
+            'libxcursor-dev',
+            'libxi-dev',
+            'libxinerama-dev',
+            'libxrandr-dev',
+            'libxext-dev'
+        );
     } else {
-        addPackageForBuild('crossbuild-essential-' + options.architecture.name);
+        // Windows Target
+
+        // MSYS2 Dependencies
+        addPackageForBuild(
+            // https://github.com/HolyBlackCat/quasi-msys2?tab=readme-ov-file#usage
+            'make',
+            'wget',
+            'tar',
+            'zstd',
+            'gawk',
+            'gpg',
+            'gpgv',
+            // Compiler
+            'clang',
+            'lld',
+            // Compiler (For QEMU)
+            'gcc',
+            'g++'
+        );
     }
-
-    // Main Dependencies
-    addPackageForHost('libopenal-dev');
-
-    // GLFW Dependencies
-    addPackageForBuild('libwayland-bin');
-    addPackageForHost(
-        'libwayland-dev',
-        'libxkbcommon-dev',
-        'libx11-dev',
-        'libxcursor-dev',
-        'libxi-dev',
-        'libxinerama-dev',
-        'libxrandr-dev',
-        'libxext-dev'
-    );
 
     // QEMU Dependencies
     addPackageForBuild(
@@ -95,10 +121,26 @@ handlers.set(Modes.Build, function () {
     ]);
     run(['cmake', '--build', buildDir]);
     run(['cmake', '--install', buildDir]);
+
+    // Setup MSYS2
+    if (options.architecture === Architectures.Windows) {
+        installMsys2();
+        installMsys2Packages([
+            'gcc',
+            'openal'
+        ]);
+    }
 });
 
 // Testing Dependencies
+function blockWindows() {
+    // These modes do not make sense when targeting Windows.
+    if (options.architecture === Architectures.Windows) {
+        err('Windows Not Supported');
+    }
+}
 const addTestPackages = () => {
+    blockWindows();
     let glib = 'libglib2.0-0';
     const newerGlib = glib + 't64';
     if (doesPackageExist(getPackageForHost(newerGlib))) {
@@ -130,6 +172,7 @@ handlers.set(Modes.SDK, function () {
 
 // Linting Dependencies
 handlers.set(Modes.Lint, function () {
+    blockWindows();
     addPackageForBuild(
         'shellcheck',
         'devscripts',

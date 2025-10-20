@@ -39,10 +39,17 @@ export const ArchitecturesMinusHost = {
 };
 export const Architectures = {
     ...ArchitecturesMinusHost,
-    Host: null
+    Host: null,
+    Windows: null
 };
 createEnum(ArchitecturesMinusHost);
 createEnum(Architectures);
+export function convertArchitectureToLinux(architecture) {
+    if (architecture === Architectures.Windows) {
+        return Architectures.AMD64;
+    }
+    return architecture;
+}
 
 // Options Types
 export const Flag = {};
