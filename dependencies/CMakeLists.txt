@@ -1,7 +1,7 @@
 project(dependencies)
 
 # stb_image
-if(BUILD_ARM_COMPONENTS)
+if(BUILD_ARM_COMPONENTS OR BUILD_MEDIA_LAYER_CORE)
     add_subdirectory(stb_image)
 endif()
 # Minecraft: Pi Edition

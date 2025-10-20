@@ -22,6 +22,8 @@ void media_set_raw_mouse_motion_enabled(int enabled);
 int media_has_extension(const char *name);
 void media_begin_offscreen_render(int width, int height);
 void media_end_offscreen_render();
+void media_download_into_texture(unsigned int texture, const char *url);
+void media_apply_downloaded_textures();
 
 #ifdef __cplusplus
 }

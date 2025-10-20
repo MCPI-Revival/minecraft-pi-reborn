@@ -8,7 +8,8 @@ add_library(media-layer-core SHARED
     src/window/util.cpp
     src/window/events.cpp
     src/window/offscreen.cpp
-    src/window/gles.cpp
+    src/window/opengl/api.cpp
+    src/window/opengl/texture.cpp
     src/audio/api.cpp
     src/audio/engine.cpp
     src/audio/file.cpp
@@ -29,4 +30,5 @@ target_link_libraries(media-layer-core
         m
         glfw
         LIB_LIEF
+        stb_image
 )

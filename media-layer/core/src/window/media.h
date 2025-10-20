@@ -26,3 +26,6 @@ MCPI_INTERNAL extern bool raw_mouse_motion_enabled;
 MCPI_INTERNAL void _media_register_event_listeners();
 MCPI_INTERNAL void _media_handle_media_SDL_PollEvent();
 MCPI_INTERNAL void _media_glfw_motion(GLFWwindow *window, double xpos, double ypos);
+
+// Texture Download
+MCPI_INTERNAL void _media_cancel_download(unsigned int texture_id);

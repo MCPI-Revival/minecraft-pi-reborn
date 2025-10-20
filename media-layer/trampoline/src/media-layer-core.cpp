@@ -13,7 +13,7 @@ CALL(0, media_SDL_Init, int, (uint32_t flags))
 #ifdef MEDIA_LAYER_TRAMPOLINE_GUEST
     return trampoline(false, flags);
 #else
-    uint32_t flags = args.next<uint32_t>();
+    const uint32_t flags = args.next<uint32_t>();
     return func(flags);
 #endif
 }
@@ -109,11 +109,11 @@ CALL(59, media_audio_update, void, (float volume, float x, float y, float z, flo
 #ifdef MEDIA_LAYER_TRAMPOLINE_GUEST
     trampoline(true, volume, x, y, z, yaw);
 #else
-    float volume = args.next<float>();
-    float x = args.next<float>();
-    float y = args.next<float>();
-    float z = args.next<float>();
-    float yaw = args.next<float>();
+    const float volume = args.next<float>();
+    const float x = args.next<float>();
+    const float y = args.next<float>();
+    const float z = args.next<float>();
+    const float yaw = args.next<float>();
     func(volume, x, y, z, yaw);
     return 0;
 #endif
@@ -125,12 +125,12 @@ CALL(60, media_audio_play, void, (const char *source, const char *name, float x,
 #else
     const char *source = args.next_arr<char>();
     const char *name = args.next_arr<char>();
-    float x = args.next<float>();
-    float y = args.next<float>();
-    float z = args.next<float>();
-    float pitch = args.next<float>();
-    float volume = args.next<float>();
-    int is_ui = args.next<int>();
+    const float x = args.next<float>();
+    const float y = args.next<float>();
+    const float z = args.next<float>();
+    const float pitch = args.next<float>();
+    const float volume = args.next<float>();
+    const int is_ui = args.next<int>();
     func(source, name, x, y, z, pitch, volume, is_ui);
     return 0;
 #endif
@@ -187,6 +187,26 @@ CALL(77, media_end_offscreen_render, void, ())
 #ifdef MEDIA_LAYER_TRAMPOLINE_GUEST
     trampoline(true);
     _media_restore_gl_state();
+#else
+    func();
+    return 0;
+#endif
+}
+
+CALL(78, media_download_into_texture, void, (unsigned int texture, const char *url))
+#ifdef MEDIA_LAYER_TRAMPOLINE_GUEST
+    trampoline(true, texture, copy_array(url));
+#else
+    const unsigned int texture = args.next<uint32_t>();
+    const char *url = args.next_arr<char>();
+    func(texture, url);
+    return 0;
+#endif
+}
+
+CALL(79, media_apply_downloaded_textures, void, ())
+#ifdef MEDIA_LAYER_TRAMPOLINE_GUEST
+    trampoline(true);
 #else
     func();
     return 0;

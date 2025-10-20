@@ -4,7 +4,7 @@
 
 #include <libreborn/log.h>
 
-#include "media.h"
+#include "../media.h"
 
 // Load GL Function
 unsigned int media_context_id = 0;
@@ -173,6 +173,9 @@ void media_glGenTextures(const GLsizei n, GLuint *textures) {
 }
 GL_FUNC(glDeleteTextures, void, (GLsizei n, const GLuint *textures))
 void media_glDeleteTextures(const GLsizei n, const GLuint *textures) {
+    for (int i = 0; i < n; i++) {
+        _media_cancel_download(textures[i]);
+    }
     real_glDeleteTextures()(n, textures);
 }
 GL_FUNC(glAlphaFunc, void, (GLenum func, GLclampf ref))

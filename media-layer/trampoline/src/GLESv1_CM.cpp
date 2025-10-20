@@ -15,7 +15,7 @@ CALL(11, media_glFogfv, void, (GLenum pname, const GLfloat *params))
 #ifdef MEDIA_LAYER_TRAMPOLINE_GUEST
     trampoline(true, pname, copy_array(get_glFogfv_params_length(pname), params));
 #else
-    GLenum pname = args.next<GLenum>();
+    const GLenum pname = args.next<GLenum>();
     const GLfloat *params = args.next_arr<GLfloat>();
     func(pname, params);
     return 0;
@@ -145,8 +145,8 @@ CALL(14, media_glBlendFunc, void, (GLenum sfactor, GLenum dfactor))
 #ifdef MEDIA_LAYER_TRAMPOLINE_GUEST
     trampoline(true, sfactor, dfactor);
 #else
-    GLenum sfactor = args.next<GLenum>();
-    GLenum dfactor = args.next<GLenum>();
+    const GLenum sfactor = args.next<GLenum>();
+    const GLenum dfactor = args.next<GLenum>();
     func(sfactor, dfactor);
     return 0;
 #endif
@@ -158,9 +158,9 @@ CALL(15, media_glDrawArrays, void, (GLenum mode, GLint first, GLsizei count))
 #else
     const gl_state_t &gl_state = args.next<gl_state_t>();
     gl_state.send_to_driver();
-    GLenum mode = args.next<GLenum>();
-    GLint first = args.next<GLint>();
-    GLsizei count = args.next<GLsizei>();
+    const GLenum mode = args.next<GLenum>();
+    const GLint first = args.next<GLint>();
+    const GLsizei count = args.next<GLsizei>();
     func(mode, first, count);
     return 0;
 #endif
@@ -172,7 +172,7 @@ CALL(70, media_glMultiDrawArrays, void, (GLenum mode, const GLint *first, const 
 #else
     const gl_state_t &gl_state = args.next<gl_state_t>();
     gl_state.send_to_driver();
-    GLenum mode = args.next<GLenum>();
+    const GLenum mode = args.next<GLenum>();
     uint32_t drawcount;
     const GLint *first = args.next_arr<GLint>(&drawcount);
     const GLsizei *count = args.next_arr<GLsizei>();
@@ -185,10 +185,10 @@ CALL(16, media_glColor4f, void, (GLfloat red, GLfloat green, GLfloat blue, GLflo
 #ifdef MEDIA_LAYER_TRAMPOLINE_GUEST
     trampoline(true, red, green, blue, alpha);
 #else
-    GLfloat red = args.next<float>();
-    GLfloat green = args.next<float>();
-    GLfloat blue = args.next<float>();
-    GLfloat alpha = args.next<float>();
+    const GLfloat red = args.next<float>();
+    const GLfloat green = args.next<float>();
+    const GLfloat blue = args.next<float>();
+    const GLfloat alpha = args.next<float>();
     func(red, green, blue, alpha);
     return 0;
 #endif
@@ -208,10 +208,10 @@ CALL(18, media_glBufferData, void, (GLenum target, GLsizeiptr size, const void *
     trampoline(true, gl_state.bound_array_buffer, target, int32_t(size), copy_array(size, (unsigned char *) data), usage);
 #else
     media_glBindBuffer(GL_ARRAY_BUFFER, args.next<GLuint>());
-    GLenum target = args.next<GLenum>();
-    int32_t size = args.next<int32_t>();
+    const GLenum target = args.next<GLenum>();
+    const int32_t size = args.next<int32_t>();
     const unsigned char *data = args.next_arr<unsigned char>();
-    GLenum usage = args.next<GLenum>();
+    const GLenum usage = args.next<GLenum>();
     func(target, size, data, usage);
     return 0;
 #endif
@@ -221,8 +221,8 @@ CALL(19, media_glFogx, void, (GLenum pname, GLfixed param))
 #ifdef MEDIA_LAYER_TRAMPOLINE_GUEST
     trampoline(true, pname, param);
 #else
-    GLenum pname = args.next<GLenum>();
-    GLfixed param = args.next<GLfixed>();
+    const GLenum pname = args.next<GLenum>();
+    const GLfixed param = args.next<GLfixed>();
     func(pname, param);
     return 0;
 #endif
@@ -232,8 +232,8 @@ CALL(20, media_glFogf, void, (GLenum pname, GLfloat param))
 #ifdef MEDIA_LAYER_TRAMPOLINE_GUEST
     trampoline(true, pname, param);
 #else
-    GLenum pname = args.next<GLenum>();
-    GLfloat param = args.next<GLfloat>();
+    const GLenum pname = args.next<GLenum>();
+    const GLfloat param = args.next<GLfloat>();
     func(pname, param);
     return 0;
 #endif
@@ -254,10 +254,10 @@ CALL(23, media_glScissor, void, (GLint x, GLint y, GLsizei width, GLsizei height
 #ifdef MEDIA_LAYER_TRAMPOLINE_GUEST
     trampoline(true, x, y, width, height);
 #else
-    GLint x = args.next<GLint>();
-    GLint y = args.next<GLint>();
-    GLsizei width = args.next<GLsizei>();
-    GLsizei height = args.next<GLsizei>();
+    const GLint x = args.next<GLint>();
+    const GLint y = args.next<GLint>();
+    const GLsizei width = args.next<GLsizei>();
+    const GLsizei height = args.next<GLsizei>();
     func(x, y, width, height);
     return 0;
 #endif
@@ -268,9 +268,9 @@ CALL(24, media_glTexParameteri, void, (GLenum target, GLenum pname, GLint param)
     trampoline(true, gl_state.bound_texture, target, pname, param);
 #else
     media_glBindTexture(GL_TEXTURE_2D, args.next<GLuint>());
-    GLenum target = args.next<GLenum>();
-    GLenum pname = args.next<GLenum>();
-    GLint param = args.next<GLint>();
+    const GLenum target = args.next<GLenum>();
+    const GLenum pname = args.next<GLenum>();
+    const GLint param = args.next<GLint>();
     func(target, pname, param);
     return 0;
 #endif
@@ -316,14 +316,14 @@ CALL(25, media_glTexImage2D, void, (GLenum target, GLint level, GLint internalfo
     trampoline(true, gl_state.bound_texture, target, level, internalformat, width, height, border, format, type, copy_array(get_texture_size(width, height, format, type, true), (const unsigned char *) pixels));
 #else
     media_glBindTexture(GL_TEXTURE_2D, args.next<GLuint>());
-    GLenum target = args.next<GLenum>();
-    GLint level = args.next<GLint>();
-    GLint internalformat = args.next<GLint>();
-    GLsizei width = args.next<GLsizei>();
-    GLsizei height = args.next<GLsizei>();
-    GLint border = args.next<GLint>();
-    GLenum format = args.next<GLenum>();
-    GLenum type = args.next<GLenum>();
+    const GLenum target = args.next<GLenum>();
+    const GLint level = args.next<GLint>();
+    const GLint internalformat = args.next<GLint>();
+    const GLsizei width = args.next<GLsizei>();
+    const GLsizei height = args.next<GLsizei>();
+    const GLint border = args.next<GLint>();
+    const GLenum format = args.next<GLenum>();
+    const GLenum type = args.next<GLenum>();
     const unsigned char *pixels = args.next_arr<unsigned char>();
     func(target, level, internalformat, width, height, border, format, type, pixels);
     return 0;
@@ -349,8 +349,8 @@ CALL(28, media_glPolygonOffset, void, (GLfloat factor, GLfloat units))
 #ifdef MEDIA_LAYER_TRAMPOLINE_GUEST
     trampoline(true, factor, units);
 #else
-    GLfloat factor = args.next<GLfloat>();
-    GLfloat units = args.next<GLfloat>();
+    const GLfloat factor = args.next<GLfloat>();
+    const GLfloat units = args.next<GLfloat>();
     func(factor, units);
     return 0;
 #endif
@@ -386,8 +386,8 @@ CALL(30, media_glDepthRangef, void, (GLclampf near, GLclampf far))
 #ifdef MEDIA_LAYER_TRAMPOLINE_GUEST
     trampoline(true, near, far);
 #else
-    GLclampf near = args.next<GLclampf>();
-    GLclampf far = args.next<GLclampf>();
+    const GLclampf near = args.next<GLclampf>();
+    const GLclampf far = args.next<GLclampf>();
     func(near, far);
     return 0;
 #endif
@@ -420,10 +420,10 @@ CALL(33, media_glClearColor, void, (GLclampf red, GLclampf green, GLclampf blue,
 #ifdef MEDIA_LAYER_TRAMPOLINE_GUEST
     trampoline(true, red, green, blue, alpha);
 #else
-    GLclampf red = args.next<GLclampf>();
-    GLclampf green = args.next<GLclampf>();
-    GLclampf blue = args.next<GLclampf>();
-    GLclampf alpha = args.next<GLclampf>();
+    const GLclampf red = args.next<GLclampf>();
+    const GLclampf green = args.next<GLclampf>();
+    const GLclampf blue = args.next<GLclampf>();
+    const GLclampf alpha = args.next<GLclampf>();
     func(red, green, blue, alpha);
     return 0;
 #endif
@@ -451,9 +451,9 @@ CALL(36, media_glScalef, void, (GLfloat x, GLfloat y, GLfloat z))
 #ifdef MEDIA_LAYER_TRAMPOLINE_GUEST
     trampoline(true, x, y, z);
 #else
-    GLfloat x = args.next<GLfloat>();
-    GLfloat y = args.next<GLfloat>();
-    GLfloat z = args.next<GLfloat>();
+    const GLfloat x = args.next<GLfloat>();
+    const GLfloat y = args.next<GLfloat>();
+    const GLfloat z = args.next<GLfloat>();
     func(x, y, z);
     return 0;
 #endif
@@ -481,8 +481,8 @@ CALL(39, media_glHint, void, (GLenum target, GLenum mode))
 #ifdef MEDIA_LAYER_TRAMPOLINE_GUEST
     trampoline(true, target, mode);
 #else
-    GLenum target = args.next<GLenum>();
-    GLenum mode = args.next<GLenum>();
+    const GLenum target = args.next<GLenum>();
+    const GLenum mode = args.next<GLenum>();
     func(target, mode);
     return 0;
 #endif
@@ -517,10 +517,10 @@ CALL(43, media_glColorMask, void, (GLboolean red, GLboolean green, GLboolean blu
 #ifdef MEDIA_LAYER_TRAMPOLINE_GUEST
     trampoline(true, red, green, blue, alpha);
 #else
-    GLboolean red = args.next<GLboolean>();
-    GLboolean green = args.next<GLboolean>();
-    GLboolean blue = args.next<GLboolean>();
-    GLboolean alpha = args.next<GLboolean>();
+    const GLboolean red = args.next<GLboolean>();
+    const GLboolean green = args.next<GLboolean>();
+    const GLboolean blue = args.next<GLboolean>();
+    const GLboolean alpha = args.next<GLboolean>();
     func(red, green, blue, alpha);
     return 0;
 #endif
@@ -531,14 +531,14 @@ CALL(44, media_glTexSubImage2D, void, (GLenum target, GLint level, GLint xoffset
     trampoline(true, gl_state.bound_texture, target, level, xoffset, yoffset, width, height, format, type, copy_array(get_texture_size(width, height, format, type, true), (const unsigned char *) pixels));
 #else
     media_glBindTexture(GL_TEXTURE_2D, args.next<GLuint>());
-    GLenum target = args.next<GLenum>();
-    GLint level = args.next<GLint>();
-    GLint xoffset = args.next<GLint>();
-    GLint yoffset = args.next<GLint>();
-    GLsizei width = args.next<GLsizei>();
-    GLsizei height = args.next<GLsizei>();
-    GLenum format = args.next<GLenum>();
-    GLenum type = args.next<GLenum>();
+    const GLenum target = args.next<GLenum>();
+    const GLint level = args.next<GLint>();
+    const GLint xoffset = args.next<GLint>();
+    const GLint yoffset = args.next<GLint>();
+    const GLsizei width = args.next<GLsizei>();
+    const GLsizei height = args.next<GLsizei>();
+    const GLenum format = args.next<GLenum>();
+    const GLenum type = args.next<GLenum>();
     const unsigned char *pixels = args.next_arr<unsigned char>();
     func(target, level, xoffset, yoffset, width, height, format, type, pixels);
     return 0;
@@ -549,7 +549,7 @@ CALL(45, media_glGenTextures, void, (GLsizei n, GLuint *textures))
 #ifdef MEDIA_LAYER_TRAMPOLINE_GUEST
     trampoline(false, n, uint32_t(textures));
 #else
-    GLsizei n = args.next<GLsizei>();
+    const GLsizei n = args.next<GLsizei>();
     GLuint *textures = new GLuint[n];
     func(n, textures);
     writer(args.next<uint32_t>(), textures, n * sizeof(GLuint));
@@ -573,8 +573,8 @@ CALL(47, media_glAlphaFunc, void, (GLenum func, GLclampf ref))
 #ifdef MEDIA_LAYER_TRAMPOLINE_GUEST
     trampoline(true, func, ref);
 #else
-    GLenum func2 = args.next<GLenum>();
-    GLclampf ref = args.next<GLclampf>();
+    const GLenum func2 = args.next<GLenum>();
+    const GLclampf ref = args.next<GLclampf>();
     func(func2, ref);
     return 0;
 #endif
@@ -600,7 +600,7 @@ CALL(48, media_glGetFloatv, void, (GLenum pname, GLfloat *params))
 #ifdef MEDIA_LAYER_TRAMPOLINE_GUEST
     trampoline(false, pname, uint32_t(params));
 #else
-    GLenum pname = args.next<GLenum>();
+    const GLenum pname = args.next<GLenum>();
     const int size = get_glGetFloatv_params_size(pname);
     GLfloat *params = new GLfloat[size];
     func(pname, params);
@@ -624,9 +624,9 @@ CALL(50, media_glTranslatef, void, (GLfloat x, GLfloat y, GLfloat z))
 #ifdef MEDIA_LAYER_TRAMPOLINE_GUEST
     trampoline(true, x, y, z);
 #else
-    GLfloat x = args.next<GLfloat>();
-    GLfloat y = args.next<GLfloat>();
-    GLfloat z = args.next<GLfloat>();
+    const GLfloat x = args.next<GLfloat>();
+    const GLfloat y = args.next<GLfloat>();
+    const GLfloat z = args.next<GLfloat>();
     func(x, y, z);
     return 0;
 #endif
@@ -645,12 +645,12 @@ CALL(52, media_glOrthof, void, (GLfloat left, GLfloat right, GLfloat bottom, GLf
 #ifdef MEDIA_LAYER_TRAMPOLINE_GUEST
     trampoline(true, left, right, bottom, top, near, far);
 #else
-    GLfloat left = args.next<GLfloat>();
-    GLfloat right = args.next<GLfloat>();
-    GLfloat bottom = args.next<GLfloat>();
-    GLfloat top = args.next<GLfloat>();
-    GLfloat near = args.next<GLfloat>();
-    GLfloat far = args.next<GLfloat>();
+    const GLfloat left = args.next<GLfloat>();
+    const GLfloat right = args.next<GLfloat>();
+    const GLfloat bottom = args.next<GLfloat>();
+    const GLfloat top = args.next<GLfloat>();
+    const GLfloat near = args.next<GLfloat>();
+    const GLfloat far = args.next<GLfloat>();
     func(left, right, bottom, top, near, far);
     return 0;
 #endif
@@ -678,10 +678,10 @@ CALL(55, media_glRotatef, void, (GLfloat angle, GLfloat x, GLfloat y, GLfloat z)
 #ifdef MEDIA_LAYER_TRAMPOLINE_GUEST
     trampoline(true, angle, x, y, z);
 #else
-    GLfloat angle = args.next<GLfloat>();
-    GLfloat x = args.next<GLfloat>();
-    GLfloat y = args.next<GLfloat>();
-    GLfloat z = args.next<GLfloat>();
+    const GLfloat angle = args.next<GLfloat>();
+    const GLfloat x = args.next<GLfloat>();
+    const GLfloat y = args.next<GLfloat>();
+    const GLfloat z = args.next<GLfloat>();
     func(angle, x, y, z);
     return 0;
 #endif
@@ -691,10 +691,10 @@ CALL(56, media_glViewport, void, (GLint x, GLint y, GLsizei width, GLsizei heigh
 #ifdef MEDIA_LAYER_TRAMPOLINE_GUEST
     trampoline(true, x, y, width, height);
 #else
-    GLint x = args.next<GLint>();
-    GLint y = args.next<GLint>();
-    GLsizei width = args.next<GLsizei>();
-    GLsizei height = args.next<GLsizei>();
+    const GLint x = args.next<GLint>();
+    const GLint y = args.next<GLint>();
+    const GLsizei width = args.next<GLsizei>();
+    const GLsizei height = args.next<GLsizei>();
     func(x, y, width, height);
     return 0;
 #endif
@@ -704,9 +704,9 @@ CALL(57, media_glNormal3f, void, (GLfloat nx, GLfloat ny, GLfloat nz))
 #ifdef MEDIA_LAYER_TRAMPOLINE_GUEST
     trampoline(true, nx, ny, nz);
 #else
-    GLfloat nx = args.next<GLfloat>();
-    GLfloat ny = args.next<GLfloat>();
-    GLfloat nz = args.next<GLfloat>();
+    const GLfloat nx = args.next<GLfloat>();
+    const GLfloat ny = args.next<GLfloat>();
+    const GLfloat nz = args.next<GLfloat>();
     func(nx, ny, nz);
     return 0;
 #endif
@@ -745,7 +745,7 @@ CALL(61, media_glGetIntegerv, void, (GLenum pname, GLint *params))
     }
     trampoline(false, pname, uint32_t(params));
 #else
-    GLenum pname = args.next<GLenum>();
+    const GLenum pname = args.next<GLenum>();
     const int size = get_glGetIntegerv_params_size(pname);
     GLint *params = new GLint[size];
     func(pname, params);
@@ -759,12 +759,12 @@ CALL(65, media_glReadPixels, void, (GLint x, GLint y, GLsizei width, GLsizei hei
 #ifdef MEDIA_LAYER_TRAMPOLINE_GUEST
     trampoline(false, x, y, width, height, format, type, uint32_t(data));
 #else
-    GLint x = args.next<GLint>();
-    GLint y = args.next<GLint>();
-    GLsizei width = args.next<GLsizei>();
-    GLsizei height = args.next<GLsizei>();
-    GLenum format = args.next<GLenum>();
-    GLenum type = args.next<GLenum>();
+    const GLint x = args.next<GLint>();
+    const GLint y = args.next<GLint>();
+    const GLsizei width = args.next<GLsizei>();
+    const GLsizei height = args.next<GLsizei>();
+    const GLenum format = args.next<GLenum>();
+    const GLenum type = args.next<GLenum>();
     const int data_size = get_texture_size(width, height, format, type, false);
     unsigned char *data = new unsigned char[data_size];
     func(x, y, width, height, format, type, data);
@@ -778,7 +778,7 @@ CALL(67, media_glGenBuffers, void, (GLsizei n, GLuint *buffers))
 #ifdef MEDIA_LAYER_TRAMPOLINE_GUEST
     trampoline(false, n, uint32_t(buffers));
 #else
-    GLsizei n = args.next<GLsizei>();
+    const GLsizei n = args.next<GLsizei>();
     GLuint *buffers = new GLuint[n];
     func(n, buffers);
     writer(args.next<uint32_t>(), buffers, n * sizeof(GLuint));
@@ -792,8 +792,8 @@ CALL(69, media_glBufferSubData, void, (GLenum target, GLintptr offset, GLsizeipt
     trampoline(true, gl_state.bound_array_buffer, target, int32_t(offset), copy_array(size, (unsigned char *) data));
 #else
     media_glBindBuffer(GL_ARRAY_BUFFER, args.next<GLuint>());
-    GLenum target = args.next<GLenum>();
-    int32_t offset = args.next<int32_t>();
+    const GLenum target = args.next<GLenum>();
+    const int32_t offset = args.next<int32_t>();
     uint32_t size;
     const unsigned char *data = args.next_arr<unsigned char>(&size);
     func(target, offset, size, data);
@@ -823,8 +823,8 @@ CALL(73, media_glLightfv, void, (GLenum light, GLenum pname, const GLfloat *para
 #ifdef MEDIA_LAYER_TRAMPOLINE_GUEST
     trampoline(true, light, pname, copy_array(4, params));
 #else
-    GLenum light = args.next<GLenum>();
-    GLenum pname = args.next<GLenum>();
+    const GLenum light = args.next<GLenum>();
+    const GLenum pname = args.next<GLenum>();
     const GLfloat *params = args.next_arr<GLfloat>();
     func(light, pname, params);
     return 0;
@@ -835,8 +835,8 @@ CALL(74, media_glColorMaterial, void, (GLenum face, GLenum mode))
 #ifdef MEDIA_LAYER_TRAMPOLINE_GUEST
     trampoline(true, face, mode);
 #else
-    GLenum face = args.next<GLenum>();
-    GLenum mode = args.next<GLenum>();
+    const GLenum face = args.next<GLenum>();
+    const GLenum mode = args.next<GLenum>();
     func(face, mode);
     return 0;
 #endif
@@ -846,7 +846,7 @@ CALL(75, media_glLightModelfv, void, (GLenum pname, const GLfloat *params))
 #ifdef MEDIA_LAYER_TRAMPOLINE_GUEST
     trampoline(true, pname, copy_array(4, params));
 #else
-    GLenum pname = args.next<GLenum>();
+    const GLenum pname = args.next<GLenum>();
     const GLfloat *params = args.next_arr<GLfloat>();
     func(pname, params);
     return 0;
