@@ -48,6 +48,7 @@ static void log(const int fd, const char *color_code, const char *level, const c
     dprintf(fd, log_start, color_code, level);
     vdprintf(fd, format, args);
     dprintf(fd, log_end);
+    fsync(fd);
 }
 void INFO(const char *format, ...) {
     va_list args;

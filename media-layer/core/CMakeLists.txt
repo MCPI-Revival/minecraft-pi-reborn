@@ -19,14 +19,14 @@ add_library(media-layer-core SHARED
 setup_library(media-layer-core TRUE TRUE)
 
 # Link
-find_library(OPENAL_LIBRARY NAMES openal REQUIRED)
+find_package(OpenAL REQUIRED)
 target_link_libraries(media-layer-core
     PUBLIC
         media-layer-headers
         reborn-util
         dl
     PRIVATE
-        "${OPENAL_LIBRARY}"
+        OpenAL::OpenAL
         m
         glfw
         LIB_LIEF

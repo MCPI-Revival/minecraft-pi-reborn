@@ -1,6 +1,6 @@
 #pragma once
 
-#include <AL/al.h>
+#include <al.h>
 
 MCPI_INTERNAL void _media_audio_delete_sources();
 

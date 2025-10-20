@@ -2,8 +2,6 @@
 #include <string>
 #include <functional>
 
-#include <AL/al.h>
-
 #include <LIEF/ELF.hpp>
 
 #include <libreborn/log.h>

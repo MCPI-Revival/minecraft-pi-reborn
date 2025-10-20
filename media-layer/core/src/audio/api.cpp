@@ -1,8 +1,6 @@
 #include <vector>
 #include <cmath>
 
-#include <AL/al.h>
-
 #include <media-layer/audio.h>
 #include <libreborn/log.h>
 

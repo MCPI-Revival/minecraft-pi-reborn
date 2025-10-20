@@ -1,8 +1,5 @@
 cmake_minimum_required(VERSION 3.25.0)
 
-# Avoid Warning About DOWNLOAD_EXTRACT_TIMESTAMP
-cmake_policy(SET CMP0135 NEW)
-
 # Core Options
 include(cmake/options/core-options.cmake)
 
