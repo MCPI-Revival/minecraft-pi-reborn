@@ -10,7 +10,13 @@ set(MCPI_LIB_DIR "${MCPI_INSTALL_DIR}/lib")
 if(BUILD_ARM_COMPONENTS)
     string(APPEND MCPI_LIB_DIR "/arm")
 elseif(BUILD_NATIVE_COMPONENTS)
-    string(APPEND MCPI_LIB_DIR "/native")
+    if(MCPI_WIN32)
+        # Windows Requires DLLs To Be
+        # Placed Alongside Executables
+        set(MCPI_LIB_DIR "${MCPI_INSTALL_DIR}")
+    else()
+        string(APPEND MCPI_LIB_DIR "/native")
+    endif()
 endif()
 
 # Share Directory

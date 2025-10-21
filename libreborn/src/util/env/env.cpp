@@ -20,11 +20,15 @@ void clear_internal_env_vars() {
 
 // Set Environmental Variable
 void setenv_safe(const char *name, const char *value) {
+#ifdef _WIN32
+    _putenv_s(name, value ? value : "");
+#else
     if (value != nullptr) {
         setenv(name, value, 1);
     } else {
         unsetenv(name);
     }
+#endif
 }
 void set_and_print_env(const char *name, const char *value) {
     // Set The Value
@@ -44,6 +48,25 @@ const char *require_env(const char *name) {
 }
 bool is_env_set(const char *name) {
     return getenv(name) != nullptr;
+}
+
+// Set WSLENV
+void set_wslenv() {
+    // https://devblogs.microsoft.com/commandline/share-environment-vars-between-wsl-and-windows/
+    std::vector<std::string> variables;
+#define ENV(name, _, flags) variables.push_back(name##_ENV + std::string(flags));
+#include <libreborn/env/list.h>
+#undef ENV
+    const char *wslenv = "WSLENV";
+    const char *old_value = getenv(wslenv);
+    std::string value = old_value ? old_value : "";
+    for (const std::string &it : variables) {
+        if (!value.empty()) {
+            value += ';';
+        }
+        value += it;
+    }
+    set_and_print_env(wslenv, value.c_str());
 }
 
 // Conversion

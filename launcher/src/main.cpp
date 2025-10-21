@@ -27,6 +27,9 @@ static void setup_environment(const options_t &options) {
     bind_to_env(_MCPI_FORCE_HEADLESS_ENV, options.force_headless);
     bind_to_env(_MCPI_FORCE_NON_HEADLESS_ENV, options.force_non_headless);
 
+    // Setup WSLENV (If Needed)
+    set_wslenv();
+
     // Setup MCPI_HOME
     setup_home();
     // Create If Needed

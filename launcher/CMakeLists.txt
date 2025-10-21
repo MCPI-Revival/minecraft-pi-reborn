@@ -23,7 +23,7 @@ add_library(launcher-util SHARED
 target_link_libraries(launcher-util reborn-util)
 
 # Launcher
-add_executable(launcher
+add_executable(launcher WIN32
     src/bootstrap/bootstrap.cpp
     src/bootstrap/mods.cpp
     src/bootstrap/assets.cpp
@@ -49,7 +49,7 @@ target_link_libraries(launcher
 )
 
 # Logger
-add_executable(logger
+add_executable(logger WIN32
     src/logger/logger.cpp
     src/logger/writer.cpp
 )
@@ -59,7 +59,7 @@ target_link_libraries(logger
 )
 
 # Crash Report Dialog
-add_executable(crash-report
+add_executable(crash-report WIN32
     src/logger/crash-report.cpp
 )
 target_link_libraries(crash-report

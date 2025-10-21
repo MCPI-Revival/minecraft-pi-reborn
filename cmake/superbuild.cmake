@@ -20,6 +20,19 @@ if(DEFINED MCPI_FORCE_ARM_REBUILD)
     file(REMOVE_RECURSE "${ARM_PREFIX}")
 endif()
 
+# Escape MSYS2 If Needed
+set(ESCAPE_MSYS2 "")
+if(MCPI_WIN32)
+    list(APPEND ESCAPE_MSYS2
+        "${CMAKE_COMMAND}" "-E" "env"
+        "--unset=AR"
+        "--unset=LDD"
+        "--unset=RANLIB"
+        "PATH=$ENV{WIN_ORIGINAL_PATH}"
+        "--"
+    )
+endif()
+
 # Build
 include(ExternalProject)
 ExternalProject_Add(arm-components
@@ -33,13 +46,16 @@ ExternalProject_Add(arm-components
     CONFIGURE_HANDLED_BY_BUILD TRUE
     # Build
     BUILD_COMMAND
+        ${ESCAPE_MSYS2}
         "${CMAKE_COMMAND}" "--build" "<BINARY_DIR>" "--config" "$<CONFIG>"
     BUILD_ALWAYS TRUE
     # Install
     INSTALL_COMMAND
+        ${ESCAPE_MSYS2}
         "${CMAKE_COMMAND}" "-E"
         "rm" "-rf" "<INSTALL_DIR>/${MCPI_INSTALL_DIR}"
     COMMAND
+        ${ESCAPE_MSYS2}
         "${CMAKE_COMMAND}" "-E" "env" "DESTDIR="
         "${CMAKE_COMMAND}" "--install" "<BINARY_DIR>" "--config" "$<CONFIG>"
     # Use Terminal
