@@ -50,7 +50,9 @@ void reborn_set_log(const int fd) {
     // Configure Local State
     close_log_file();
     open_log_file_from_fd(fd);
-    logger_process = getpid();
+    if (log_file.value_or(nullptr)) {
+        logger_process = getpid();
+    }
     // Set Variable
     const std::string env_value
 #ifndef _WIN32

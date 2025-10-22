@@ -17,4 +17,3 @@ install(
     USE_SOURCE_PERMISSIONS
     REGEX "api" EXCLUDE
 )
-install_symlink("game/minecraft-pi" "${MCPI_INSTALL_DIR}/minecraft-pi")

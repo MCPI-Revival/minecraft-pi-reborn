@@ -2,6 +2,7 @@
 
 #include <cstddef>
 
+static constexpr char linux_path_separator = '/';
 #ifdef _WIN32
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
@@ -11,7 +12,7 @@ static constexpr char path_separator = '\\';
 typedef int HANDLE;
 #define HANDLE_PRINTF "%i"
 #define CloseHandle ::close
-static constexpr char path_separator = '/';
+static constexpr char path_separator = linux_path_separator;
 #endif
 
 // Safe Version Of pipe()

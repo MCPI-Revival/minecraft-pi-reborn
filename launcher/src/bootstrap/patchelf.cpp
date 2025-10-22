@@ -1,4 +1,3 @@
-#include <cstdlib>
 #include <sys/stat.h>
 #include <ranges>
 #include <fcntl.h>
@@ -11,16 +10,23 @@
 #include <libreborn/util/string.h>
 #include <libreborn/env/env.h>
 #include <libreborn/config.h>
+#include <libreborn/log.h>
 
 #include "bootstrap.h"
 
 // Duplicate MCPI Executable Into /tmp
-const std::string patched_exe_path = std::string("/tmp/") + reborn_config.app.name;
+std::string get_patched_exe_path() {
+    return get_temp_dir() + reborn_config.app.name;
+}
 static int create_file() {
     // Lock File
-    const int lock_fd = lock_file(patched_exe_path.c_str());
+    // Locks are not inheritable on Windows.
+#ifndef _WIN32
+    const HANDLE lock_fd = lock_file(patched_exe_path.c_str());
     set_and_print_env(_MCPI_LOCK_FD_ENV, safe_to_string(lock_fd).c_str());
+#endif
     // Generate New File
+    const std::string patched_exe_path = get_patched_exe_path();
     unlink(patched_exe_path.c_str());
     const int fd = open(patched_exe_path.c_str(), O_WRONLY | O_CREAT, S_IRWXU);
     if (fd <= 0) {
@@ -71,9 +77,10 @@ void patch_mcpi_elf_dependencies(const std::string &original_path, const std::st
 
     // Add Libraries
     std::vector<std::string> all_libraries;
-    for (const std::vector<std::string> &list : {mods, needed_libraries}) {
-        all_libraries.insert(all_libraries.end(), list.begin(), list.end());
+    for (const std::string &mod : mods) {
+        all_libraries.push_back(translate_native_path_to_linux(mod));
     }
+    all_libraries.insert(all_libraries.end(), needed_libraries.begin(), needed_libraries.end());
     for (const std::string &library : all_libraries | std::views::reverse) {
         binary->add_library(library);
     }
@@ -102,32 +109,32 @@ void patch_mcpi_elf_dependencies(const std::string &original_path, const std::st
 }
 
 // Linker
-std::string get_new_linker(const std::string &binary_directory) {
-    std::string linker = "/lib/ld-linux-armhf.so.3";
+std::string get_new_linker(const std::string &binary_directory_linux) {
+    std::string linker = linux_path_separator + std::string("lib") + linux_path_separator + "ld-linux-armhf.so.3";
     if (reborn_config.internal.use_prebuilt_armhf_toolchain) {
-        linker = binary_directory + "/sysroot" + linker;
+        linker = binary_directory_linux + linux_path_separator + "sysroot" + linker;
     }
     return linker;
 }
-std::vector<std::string> get_ld_path(const std::string &binary_directory) {
+std::vector<std::string> get_ld_path(const std::string &binary_directory_linux) {
     // Libraries
-    std::vector<std::string> mcpi_ld_path = {
-        "lib/arm"
+    std::vector mcpi_ld_path = {
+        std::string("lib") + linux_path_separator + "arm"
     };
     // ARM Sysroot
     if (reborn_config.internal.use_prebuilt_armhf_toolchain) {
-        std::vector<std::string> sysroot_paths = {
-            "sysroot/lib",
-            "sysroot/lib/arm-linux-gnueabihf",
-            "sysroot/usr/lib",
-            "sysroot/usr/lib/arm-linux-gnueabihf"
+        std::vector sysroot_paths = {
+            std::string("sysroot") + linux_path_separator + "lib",
+            std::string("sysroot") + linux_path_separator + "lib" + linux_path_separator + "arm-linux-gnueabihf",
+            std::string("sysroot") + linux_path_separator + "usr" + linux_path_separator + "lib",
+            std::string("sysroot") + linux_path_separator + "usr" + linux_path_separator + "lib" + linux_path_separator + "arm-linux-gnueabihf"
         };
         mcpi_ld_path.insert(mcpi_ld_path.end(), sysroot_paths.begin(), sysroot_paths.end());
     }
     // Fix Paths
     for (std::string &path : mcpi_ld_path) {
-        path.insert(0, 1, '/');
-        path.insert(0, binary_directory);
+        path.insert(0, 1, linux_path_separator);
+        path.insert(0, binary_directory_linux);
     }
     // Return
     return mcpi_ld_path;

@@ -10,7 +10,7 @@ enum class UpdateStatus {
     UP_TO_DATE,
     DOWNLOADING,
     RESTART_NEEDED,
-    ERROR
+    UNKNOWN_ERROR
 };
 
 // Updater

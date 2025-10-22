@@ -54,7 +54,7 @@ string(CONCAT COMPILE_FLAGS_SETUP
     "add_link_options(\"\$<${RELEASE_MODE_GENERATOR}:-s>\")\n"
 
     # Warnings
-    "add_link_options(-Wl,--no-undefined)\n"
+    "add_link_options(\"LINKER:--no-undefined\")\n"
 
     # Default C Standard
     "add_definitions(-D_GNU_SOURCE)\n"

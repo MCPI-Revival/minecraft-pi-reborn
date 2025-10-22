@@ -22,12 +22,12 @@ std::string Updater::get_status() const {
         case UpdateStatus::CHECKING: return "Checking...";
         case UpdateStatus::UP_TO_DATE: return "Up-To-Date";
         case UpdateStatus::DOWNLOADING: return "Downloading...";
-        case UpdateStatus::ERROR: return "Error";
+        case UpdateStatus::UNKNOWN_ERROR: return "Error";
         default: return "";
     }
 }
 void Updater::log_status(const bool is_ui) const {
-    if (status == UpdateStatus::ERROR) {
+    if (status == UpdateStatus::UNKNOWN_ERROR) {
         CONDITIONAL_ERR(!is_ui, "Unable To Update");
     } else if (status == UpdateStatus::UP_TO_DATE) {
         INFO("Already Up-To-Date");
@@ -71,7 +71,7 @@ void Updater::run() {
     const std::optional<std::string> latest_version = check();
     if (!latest_version.has_value()) {
         // Error
-        status = UpdateStatus::ERROR;
+        status = UpdateStatus::UNKNOWN_ERROR;
         return;
     }
     INFO("New Version: %s", latest_version.value().c_str());
@@ -85,6 +85,6 @@ void Updater::run() {
     status = UpdateStatus::DOWNLOADING;
     if (!download(latest_version.value())) {
         // Error
-        status = UpdateStatus::ERROR;
+        status = UpdateStatus::UNKNOWN_ERROR;
     }
 }

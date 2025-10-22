@@ -33,7 +33,7 @@ add_executable(launcher WIN32
     src/bootstrap/assets.cpp
     src/bootstrap/patchelf.cpp
     src/bootstrap/debug.cpp
-    src/options/parser.cpp
+    src/bootstrap/util.cpp
     src/main.cpp
     src/client/configuration.cpp
     src/client/cache.cpp
@@ -44,6 +44,15 @@ add_executable(launcher WIN32
     src/client/ui/about.cpp
     src/updater/updater.cpp
 )
+if(MCPI_WIN32)
+    target_sources(launcher PRIVATE
+        src/options/parser_win32.cpp
+    )
+else()
+    target_sources(launcher PRIVATE
+        src/options/parser.cpp
+    )
+endif()
 target_link_libraries(launcher
     launcher-ui
     launcher-util
@@ -71,7 +80,7 @@ target_link_libraries(crash-report
 )
 
 # Runtime/Trampoline
-add_executable(runtime-exe
+add_executable(runtime-exe WIN32
     src/bootstrap/runtime.cpp
 )
 set_target_properties(runtime-exe PROPERTIES OUTPUT_NAME runtime)

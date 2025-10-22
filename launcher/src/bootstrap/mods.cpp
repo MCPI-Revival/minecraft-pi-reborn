@@ -11,6 +11,7 @@
 
 #include <libreborn/log.h>
 #include <libreborn/util/util.h>
+#include <libreborn/util/io.h>
 
 #include "bootstrap.h"
 #include "../util/util.h"
@@ -31,7 +32,7 @@ static void handle_file(std::vector<std::string> &ld_preload, const std::string 
     // Check Type
     if (is_dir) {
         // Recurse Into Directory
-        load(ld_preload, std::string(file) + '/', recursion_limit - 1);
+        load(ld_preload, std::string(file) + path_separator, recursion_limit - 1);
     } else if (is_symlink) {
         // Resolve Symlink
         const std::string resolved_file = safe_realpath(file);
@@ -67,7 +68,6 @@ static void load(std::vector<std::string> &ld_preload, const std::string &folder
 }
 
 // Bootstrap Mods
-#define SUBDIRECTORY_FOR_MODS "/mods/"
 std::vector<std::string> bootstrap_mods(const std::string &binary_directory) {
     // Prepare
     std::vector<std::string> preload;
@@ -78,7 +78,7 @@ std::vector<std::string> bootstrap_mods(const std::string &binary_directory) {
         binary_directory
     };
     for (std::string mods_folder : folders) {
-        mods_folder += SUBDIRECTORY_FOR_MODS;
+        mods_folder += path_separator + std::string("mods") + path_separator;
         load(preload, mods_folder);
     }
 

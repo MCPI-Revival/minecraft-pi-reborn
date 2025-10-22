@@ -24,7 +24,6 @@ target_link_libraries(media-layer-core
     PUBLIC
         media-layer-headers
         reborn-util
-        dl
     PRIVATE
         OpenAL::OpenAL
         m
@@ -32,3 +31,8 @@ target_link_libraries(media-layer-core
         LIB_LIEF
         stb_image
 )
+if(NOT MCPI_WIN32)
+    target_link_libraries(media-layer-core PUBLIC
+        dl
+    )
+endif()

@@ -41,6 +41,7 @@ void ConfigurationUI::draw_about() {
     });
 
     // Desktop File
+#ifndef _WIN32
     ImGui::Separator();
     ImGui::BeginDisabled(is_desktop_file_installed());
     draw_right_aligned_buttons({"Create Desktop Entry"}, [](MCPI_UNUSED int id, const bool was_clicked) {
@@ -49,6 +50,7 @@ void ConfigurationUI::draw_about() {
         }
     }, true);
     ImGui::EndDisabled();
+#endif
 
     // Updater
     Updater *updater = Updater::instance;

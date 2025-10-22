@@ -14,7 +14,7 @@
 
 // Get Cache Path
 static std::string get_cache_path() {
-    return home_get() + "/.launcher-cache";
+    return home_get() + path_separator + ".launcher-cache";
 }
 
 // Load
@@ -95,7 +95,7 @@ State load_cache() {
         }
     } else {
         // Lock File
-        const int lock_fd = lock_file(get_cache_path().c_str());
+        const HANDLE lock_fd = lock_file(get_cache_path().c_str());
 
         // Load
         read_cache(stream, ret);
@@ -148,7 +148,7 @@ void save_cache(const State &state) {
         WARN("Unable To Open Launcher Cache For Saving");
     } else {
         // Lock File
-        const int lock_fd = lock_file(get_cache_path().c_str());
+        const HANDLE lock_fd = lock_file(get_cache_path().c_str());
 
         // Write
         write_cache(stream, state);

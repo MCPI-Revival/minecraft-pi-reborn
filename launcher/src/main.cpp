@@ -3,6 +3,7 @@
 #include <libreborn/env/env.h>
 #include <libreborn/util/util.h>
 #include <libreborn/config.h>
+#include <libreborn/log.h>
 
 #include "bootstrap/bootstrap.h"
 #include "options/parser.h"
@@ -59,11 +60,13 @@ static void handle_non_launch_commands(const options_t &options) {
         exit(EXIT_SUCCESS);
     }
     // Install Desktop File
+#ifndef _WIN32
     if (options.run_install) {
         copy_desktop_file();
         fflush(stdout);
         exit(EXIT_SUCCESS);
     }
+#endif
 }
 
 // Start The Game

@@ -6,24 +6,20 @@
 
 // Debug Information
 static void run_debug_command(const char *const command[], const char *prefix) {
-    int status = 0;
-    const std::vector<unsigned char> *output = run_command(command, &status);
-    if (!is_exit_status_success(status)) {
-        ERR("Unable To Gather Debug Information");
-    }
-    std::string output_str = (const char *) output->data();
-    delete output;
-    // Trim
-    const std::string::size_type length = output_str.length();
-    if (length > 0 && output_str[length - 1] == '\n') {
-        output_str.pop_back();
-    }
+    const std::string output_str = run_command_and_trim(command, "Gather Debug Information");
     // Print
     DEBUG("%s: %s", prefix, output_str.c_str());
 }
 void print_debug_information() {
     // System Information
-    constexpr const char *const command[] = {"uname", "-a", nullptr};
+    constexpr const char *const command[] = {
+#ifndef _WIN32
+        "uname", "-a",
+#else
+        "cmd", "/c", "ver",
+#endif
+        nullptr
+    };
     run_debug_command(command, "System Information");
 
     // Version

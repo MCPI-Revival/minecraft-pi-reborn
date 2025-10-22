@@ -4,7 +4,6 @@
 #include <unistd.h>
 #include <sys/stat.h>
 
-#include <libreborn/log.h>
 #include <libreborn/util/exec.h>
 #include <libreborn/util/string.h>
 #include <libreborn/config.h>

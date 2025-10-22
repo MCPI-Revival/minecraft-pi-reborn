@@ -9,8 +9,6 @@
 #include "../util/util.h"
 #include "bootstrap.h"
 
-#define MCPI_BINARY "minecraft-pi"
-
 // Bootstrap
 void bootstrap(const options_t &options) {
     // Debug Information
@@ -27,7 +25,7 @@ void bootstrap(const options_t &options) {
 
     // Resolve Binary Path
     DEBUG("Resolving File Paths...");
-    std::string original_game_binary = binary_directory + ("/" MCPI_BINARY);
+    std::string original_game_binary = binary_directory + path_separator + "game" + path_separator + "minecraft-pi";
     original_game_binary = safe_realpath(original_game_binary);
     const char *custom_binary = getenv(MCPI_BINARY_ENV);
     const std::string game_binary = custom_binary ? safe_realpath(custom_binary) : original_game_binary;
@@ -38,7 +36,8 @@ void bootstrap(const options_t &options) {
 
     // Configure Library Search Path
     DEBUG("Setting Linker Search Paths...");
-    const std::vector<std::string> mcpi_ld_path = get_ld_path(binary_directory);
+    const std::string binary_directory_linux = translate_native_path_to_linux(binary_directory);
+    const std::vector<std::string> mcpi_ld_path = get_ld_path(binary_directory_linux);
 
     // Assets
     DEBUG("Finding Assets...");
@@ -46,7 +45,7 @@ void bootstrap(const options_t &options) {
 
     // Patch Binary
     DEBUG("Patching ELF...");
-    patch_mcpi_elf_dependencies(game_binary, get_new_linker(binary_directory), mcpi_ld_path, mcpi_ld_preload);
+    patch_mcpi_elf_dependencies(game_binary, get_new_linker(binary_directory_linux), mcpi_ld_path, mcpi_ld_preload);
 
     // Fix Environment
     DEBUG("Fixing Environment...");
@@ -57,11 +56,12 @@ void bootstrap(const options_t &options) {
     INFO("Starting Game...");
 
     // Run
-    const std::string runtime_exe = binary_directory + "/runtime";
-    const std::string logger_exe = binary_directory + "/logger";
+    const std::string runtime_exe = binary_directory + path_separator + "runtime";
+    const std::string logger_exe = binary_directory + path_separator + "logger";
+    const std::string patched_exe = get_patched_exe_path();
     std::vector<const char *> new_argv = {
         runtime_exe.c_str(),
-        patched_exe_path.c_str(),
+        patched_exe.c_str(),
         nullptr
     };
     if (!options.disable_logger) {
