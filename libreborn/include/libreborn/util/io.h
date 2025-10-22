@@ -10,12 +10,13 @@ static constexpr char path_separator = '\\';
 #else
 typedef int HANDLE;
 #define HANDLE_PRINTF "%i"
+#define CloseHandle ::close
 static constexpr char path_separator = '/';
 #endif
 
 // Safe Version Of pipe()
 struct Pipe {
-    Pipe();
+    explicit Pipe(bool inheritable_on_windows);
     const HANDLE read;
     const HANDLE write;
 };

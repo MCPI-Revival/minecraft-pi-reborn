@@ -29,17 +29,17 @@ int align_up(int x, const int alignment) {
 // Safe Version Of pipe()
 #define PIPE_ERROR "Unable To Create Pipe"
 #ifdef _WIN32
-Pipe::Pipe(): read(nullptr), write(nullptr) {
+Pipe::Pipe(const bool inheritable_on_windows): read(nullptr), write(nullptr) {
     SECURITY_ATTRIBUTES attr;
     attr.nLength = sizeof(attr);
-    attr.bInheritHandle = TRUE;
+    attr.bInheritHandle = inheritable_on_windows ? TRUE : FALSE;
     attr.lpSecurityDescriptor = nullptr;
     if (!CreatePipe(const_cast<PHANDLE>(&read), const_cast<PHANDLE>(&write), &attr, 0)) {
         ERR(PIPE_ERROR);
     }
 }
 #else
-Pipe::Pipe(): read(-1), write(-1) {
+Pipe::Pipe(const bool): read(-1), write(-1) {
     int out[2];
     if (pipe(out) != 0) {
         ERR(PIPE_ERROR ": %s", strerror(errno));
@@ -99,13 +99,12 @@ void unlock_file(const HANDLE fd) {
     if (!UnlockFile(fd, 0, 0, MAXDWORD, MAXDWORD)) {
         ERR(UNLOCK_ERROR);
     }
-    CloseHandle(fd);
 #else
     if (flock(fd, LOCK_UN) == -1) {
         ERR(UNLOCK_ERROR ": %i: %s", fd, strerror(errno));
     }
-    close(fd);
 #endif
+    CloseHandle(fd);
     DEBUG("Unlocked File: " HANDLE_PRINTF, fd);
 }
 

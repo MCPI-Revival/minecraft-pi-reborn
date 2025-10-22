@@ -3,17 +3,18 @@
 #include <cstdio>
 
 // Log File
-FILE *reborn_get_log_fd();
+FILE *reborn_get_log_file();
 void reborn_set_log(int fd);
 // Debug Logging
 extern const char *reborn_debug_tag;
-FILE *reborn_get_debug_fd();
+FILE *reborn_get_debug_file();
 
 // Logging
 #define ATTR __attribute__((format(printf, 1, 2)))
 ATTR void INFO(const char *format, ...);
 ATTR void WARN(const char *format, ...);
-ATTR void DEBUG(const char *format, ...);
+ATTR void _DEBUG(const char *format, ...);
+#define DEBUG(format, ...) _DEBUG("%s" format, reborn_debug_tag, ##__VA_ARGS__)
 ATTR __attribute__((noreturn)) void _ERR(const char *format, ...);
 #define ERR(format, ...) _ERR("(%s:%i): " format, __FILE__, __LINE__, ##__VA_ARGS__)
 #undef ATTR

@@ -36,7 +36,11 @@ std::optional<Process> fork_with_stdio();
 Process spawn_with_stdio(const char *const argv[]);
 
 // Easily Poll FDs
-void poll_fds(std::vector<HANDLE> fds, bool include_stdin, const std::function<void(int, size_t, unsigned char *)> &on_data);
+void poll_fds(
+    std::vector<HANDLE> fds,
+    const std::unordered_set<HANDLE> &do_not_expect_to_close,
+    const std::function<void(int, size_t, unsigned char *)> &on_data
+);
 
 // Run Command And Get Output
 std::vector<unsigned char> *run_command(const char *const command[], int *exit_status);

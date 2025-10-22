@@ -39,7 +39,7 @@ endfunction()
 function(setup_library target should_install should_export)
     # Install
     if(should_install)
-        install(TARGETS "${target}" RUNTIME DESTINATION "${MCPI_LIB_DIR}")
+        install(TARGETS "${target}" RUNTIME LIBRARY DESTINATION "${MCPI_LIB_DIR}")
     endif()
     # SDK
     if(should_export AND BUILD_ARM_COMPONENTS)

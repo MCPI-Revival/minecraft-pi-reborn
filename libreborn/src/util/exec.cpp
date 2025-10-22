@@ -105,12 +105,8 @@ Process::Process(const process_t &pid_, const std::array<HANDLE, fd_count> &fds_
     fds(fds_) {}
 void Process::close_fd(const int i) {
     if (!closed.contains(i)) {
-        HANDLE fd = fds.at(i);
-#ifdef _WIN32
+        const HANDLE fd = fds.at(i);
         CloseHandle(fd);
-#else
-        ::close(fd);
-#endif
         closed.insert(i);
     }
 }
@@ -140,7 +136,11 @@ int Process::close() {
 #define PIPE_WRITE 1
 std::optional<Process> fork_with_stdio() {
     // Store Output
-    const std::array<Pipe, Process::fd_count> pipes = {};
+    const std::array<Pipe, Process::fd_count> pipes = {
+        Pipe(true),
+        Pipe(true),
+        Pipe(true)
+    };
 
     // Fork
     const pid_t ret = fork();
@@ -193,7 +193,11 @@ Process spawn_with_stdio(const char *const argv[]) {
     log_command(argv, "Spawning");
 
     // Store Output
-    const std::array<Pipe, Process::fd_count> pipes = {};
+    const std::array<Pipe, Process::fd_count> pipes = {
+        Pipe(true),
+        Pipe(true),
+        Pipe(true)
+    };
 
     // Configure Pipes
     for (const HANDLE fd : {pipes[0].read, pipes[1].read, pipes[2].write}) {
@@ -245,15 +249,17 @@ std::vector<unsigned char> *run_command(const char *const command[], int *exit_s
     child.close_fd(2);
     // Read stdout
     std::vector<unsigned char> *output = new std::vector<unsigned char>;
-    poll_fds({child.fds[0], child.fds[1]}, false, [&output](const int i, const size_t size, unsigned char *buf) {
+    poll_fds({child.fds[0], child.fds[1]}, {}, [&output](const int i, const size_t size, unsigned char *buf) {
         if (i == 0) {
             // stdout
             output->insert(output->end(), buf, buf + size);
         } else {
             // stderr
-            FILE *file = reborn_get_debug_fd();
-            fwrite(buf, size, 1, file);
-            fflush(file);
+            FILE *file = reborn_get_debug_file();
+            if (file) {
+                fwrite(buf, size, 1, file);
+                fflush(file);
+            }
         }
     });
 

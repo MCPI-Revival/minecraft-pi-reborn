@@ -3,6 +3,7 @@
 
 #include <libreborn/log.h>
 #include <libreborn/util/string.h>
+#include <libreborn/util/io.h>
 
 #include "writer.h"
 
@@ -16,7 +17,7 @@ static std::string get_filename(const std::string &dir) {
     int num = 1;
     do {
         std::string file = time + '-' + safe_to_string(num) + ".log";
-        log_filename = dir + '/' + file;
+        log_filename = dir + path_separator + file;
         num++;
     } while (access(log_filename.c_str(), F_OK) != -1);
 

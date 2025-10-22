@@ -6,6 +6,8 @@
 
 #ifndef _WIN32
 #include <csignal>
+#else
+#include <fcntl.h>
 #endif
 
 #include <libreborn/util/exec.h>
@@ -35,9 +37,7 @@ static std::string get_logs_folder() {
     return logs;
 }
 static LogWriter *log;
-#ifndef _WIN32
 static Pipe *log_pipe;
-#endif
 static void setup_log_file() {
     // Get Log Directory
     const std::string logs = get_logs_folder();
@@ -45,18 +45,28 @@ static void setup_log_file() {
     // Create File
     log = new LogWriter(logs);
 
-#ifndef _WIN32
     // Create Pipe
-    log_pipe = new Pipe();
-    reborn_set_log(log_pipe->write);
+    log_pipe = new Pipe(false);
+    const HANDLE log_handle = log_pipe->write;
+    reborn_set_log(
+#ifdef _WIN32
+        _open_osfhandle(intptr_t(log_handle), _O_WRONLY | _O_APPEND)
+#else
+        log_handle
+#endif
+    );
 
     // Create Symlink To Latest Log
-    const std::string latest_log = logs + "/latest.log";
+#ifndef _WIN32
+    const std::string latest_log = logs + path_separator + "latest.log";
     unlink(latest_log.c_str());
     if (symlink(log->name.c_str(), latest_log.c_str()) != 0) {
         WARN("Unable To Create Latest Log Symlink: %s", strerror(errno));
     }
 #endif
+
+    // Log
+    DEBUG("Writing To: %s", log->name.c_str());
 }
 
 // Show Crash Report
@@ -66,6 +76,23 @@ static void show_report(const std::string &filename) {
     const char *argv[] = {exe.c_str(), filename.c_str(), dir.c_str(), nullptr};
     const std::vector<unsigned char> *output = run_command(argv, nullptr);
     delete output;
+}
+
+// Utility Functions
+static void fwrite_with_flush(FILE *stream, const void *data, const size_t size) {
+    fwrite(data, size, 1, stream);
+    fflush(stream);
+}
+static std::optional<HANDLE> get_stdin() {
+#ifdef _WIN32
+    const HANDLE input_handle = GetStdHandle(STD_INPUT_HANDLE);
+    if (input_handle && input_handle != INVALID_HANDLE_VALUE) {
+        return input_handle;
+    }
+    return std::nullopt;
+#else
+    return STDIN_FILENO;
+#endif
 }
 
 // Setup
@@ -80,22 +107,14 @@ static void setup_logger_child() {
     setpgid(0, 0);
 }
 #endif
-static void fwrite_with_flush(FILE *stream, const void *data, const size_t size) {
-    fwrite(data, size, 1, stream);
-    fflush(stream);
-}
 static int setup_logger_parent(Process &child) {
     // This process will:
     // * Forward the child's output to the terminal and the log file.
     // * Forward the terminal's input to the child.
     // * Display the crash report dialog when needed.
 
-    // Set Debug Tag
-    reborn_debug_tag = "(Logger) ";
-    DEBUG("Writing To: %s", log->name.c_str());
-
-#ifndef _WIN32
     // Install Signal Handlers
+#ifndef _WIN32
     child_pid = child.pid;
     for (const int signal : {SIGINT, SIGTERM}) {
         struct sigaction action = {};
@@ -103,30 +122,36 @@ static int setup_logger_parent(Process &child) {
         action.sa_handler = &exit_handler;
         sigaction(signal, &action, nullptr);
     }
-
-    // Close Unneeded FD
-    close(log_pipe->write);
 #endif
+
+    // Get Pipes
+    std::vector fds = {
+        // Ranked In Order Of Priority
+        log_pipe->read, // Debug Log
+        child.fds[1], // stderr
+        child.fds[0] // stdout
+    };
+    std::unordered_set do_not_expect_to_close = {
+        log_pipe->read
+    };
+    const std::optional<HANDLE> input_handle = get_stdin();
+    if (input_handle.has_value()) {
+        fds.push_back(input_handle.value());
+        do_not_expect_to_close.insert(input_handle.value());
+    }
 
     // Poll
-    std::vector fds = {
-        child.fds[0],
-        child.fds[1]
-    };
-#ifndef _WIN32
-    fds.push_back(log_pipe->read);
-#endif
-    poll_fds(fds, true, [&child](const int i, const size_t size, unsigned char *buf) {
+    poll_fds(fds, do_not_expect_to_close, [&child](const int i, const size_t size, unsigned char *buf) {
         switch (i) {
-            case 0:
-            case 1: {
+            case 1:
+            case 2: {
                 // Source: Child's stdout/stderr
                 // Action: Print to the terminal
-                FILE *target = i == 0 ? stdout : stderr;
+                FILE *target = i == 1 ? stdout : stderr;
                 fwrite_with_flush(target, buf, size);
                 [[fallthrough]];
             }
-            case 2: {
+            case 0: {
                 // Source: Child's debug log
                 // Action: Write to the log file
                 log->write(buf, std::streamsize(size), false);
@@ -151,6 +176,11 @@ static int setup_logger_parent(Process &child) {
         }
     });
 
+    // Close Debug Log
+    reborn_set_log(-1); // This also closes log_pipe->write.
+    CloseHandle(log_pipe->read);
+    delete log_pipe;
+
     // Get Exit Status
     const int status = child.close();
     const bool is_crash = !is_exit_status_success(status);
@@ -170,12 +200,8 @@ static int setup_logger_parent(Process &child) {
     }
 
     // Close Log File
-#ifndef _WIN32
-    delete log_pipe;
-#endif
     const std::string log_filename = log->name;
     delete log;
-    reborn_set_log(-1);
 
     // Show Crash Log
     if (is_crash && !reborn_is_headless()) {
@@ -194,10 +220,9 @@ static int setup_logger_parent(Process &child) {
 
 // Main
 int main(MCPI_UNUSED const int argc, char *argv[]) {
-    //AllocConsole();
-    //AttachConsole(GetCurrentProcessId());
-    //freopen("CON", "w", stdout);
-    //freopen("CON", "w", stderr);
+    // Set Debug Tag
+    reborn_debug_tag = "(Logger) ";
+
     // Setup Logging
     setup_log_file();
 
