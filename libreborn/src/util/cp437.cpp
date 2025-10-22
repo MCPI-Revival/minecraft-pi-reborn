@@ -73,7 +73,7 @@ std::string to_cp437(const std::string &input) {
         // Find Corresponding CP-437 Character
         const unsigned char x = utf32_to_cp437(codepoint);
         // Add To String
-        cp437_str.push_back(x);
+        cp437_str.push_back(char(x));
     }
 
     // Return

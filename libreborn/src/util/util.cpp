@@ -1,8 +1,15 @@
 #include <fcntl.h>
-#include <sys/file.h>
 #include <sys/stat.h>
 #include <cstring>
 #include <unistd.h>
+
+#ifdef _WIN32
+#define WIN32_LEAN_AND_MEAN
+#include <windows.h>
+#include <direct.h>
+#else
+#include <sys/file.h>
+#endif
 
 #include <libreborn/util/util.h>
 #include <libreborn/util/io.h>
@@ -20,14 +27,27 @@ int align_up(int x, const int alignment) {
 }
 
 // Safe Version Of pipe()
+#define PIPE_ERROR "Unable To Create Pipe"
+#ifdef _WIN32
+Pipe::Pipe(): read(nullptr), write(nullptr) {
+    SECURITY_ATTRIBUTES attr;
+    attr.nLength = sizeof(attr);
+    attr.bInheritHandle = TRUE;
+    attr.lpSecurityDescriptor = nullptr;
+    if (!CreatePipe(const_cast<PHANDLE>(&read), const_cast<PHANDLE>(&write), &attr, 0)) {
+        ERR(PIPE_ERROR);
+    }
+}
+#else
 Pipe::Pipe(): read(-1), write(-1) {
     int out[2];
     if (pipe(out) != 0) {
-        ERR("Unable To Create Pipe: %s", strerror(errno));
+        ERR(PIPE_ERROR ": %s", strerror(errno));
     }
     const_cast<int &>(read) = out[0];
     const_cast<int &>(write) = out[1];
 }
+#endif
 
 // Check If Two Percentages Are Different Enough To Be Logged
 #define SIGNIFICANT_PROGRESS 5
@@ -46,34 +66,56 @@ bool is_progress_difference_significant(const int32_t new_val, const int32_t old
 }
 
 // Lock File
-int lock_file(const char *file) {
+#define LOCK_FILE_ERROR "Unable To Open Lock File: %s"
+#define LOCK_ERROR "Unable To Lock FileL %s"
+HANDLE lock_file(const char *file) {
     // Get A New Path
     const std::string lock = std::string(file) + ".lock";
     file = lock.c_str();
     // Lock
+#ifdef _WIN32
+    const HANDLE fd = CreateFileA(file, GENERIC_READ | GENERIC_WRITE, FILE_SHARE_READ | FILE_SHARE_WRITE, nullptr, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, nullptr);
+    if (fd == INVALID_HANDLE_VALUE) {
+        ERR(LOCK_FILE_ERROR, file);
+    }
+    if (!LockFile(fd, 0, 0, MAXDWORD, MAXDWORD)) {
+        ERR(LOCK_ERROR, file);
+    }
+#else
     const int fd = open(file, O_WRONLY | O_CREAT, S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH);
     if (fd < 0) {
-        ERR("Unable To Open Lock File: %s: %s", file, strerror(errno));
+        ERR(LOCK_FILE_ERROR ": %s", file, strerror(errno));
     }
     if (flock(fd, LOCK_EX) == -1) {
-        ERR("Unable To Lock File: %s: %s", file, strerror(errno));
+        ERR(LOCK_ERROR ": %s", file, strerror(errno));
     }
-    DEBUG("Locked File: %s: %i", file, fd);
+#endif
+    DEBUG("Locked File: %s: " HANDLE_PRINTF, file, fd);
     return fd;
 }
-void unlock_file(const int fd) {
+#define UNLOCK_ERROR "Unable To Unlock File"
+void unlock_file(const HANDLE fd) {
+#ifdef _WIN32
+    if (!UnlockFile(fd, 0, 0, MAXDWORD, MAXDWORD)) {
+        ERR(UNLOCK_ERROR);
+    }
+    CloseHandle(fd);
+#else
     if (flock(fd, LOCK_UN) == -1) {
-        ERR("Unable To Unlock File: %i: %s", fd, strerror(errno));
+        ERR(UNLOCK_ERROR ": %i: %s", fd, strerror(errno));
     }
     close(fd);
-    DEBUG("Unlocked File: %i", fd);
+#endif
+    DEBUG("Unlocked File: " HANDLE_PRINTF, fd);
 }
 
 // Check $DISPLAY
 void reborn_check_display() {
+#ifndef _WIN32
     if (!is_env_set("DISPLAY") && !is_env_set("WAYLAND_DISPLAY")) {
         ERR("No display attached! Make sure $DISPLAY or $WAYLAND_DISPLAY is set.");
     }
+#endif
 }
 
 // Home Subdirectory
@@ -83,7 +125,8 @@ const char *get_home_subdirectory_for_game_data() {
         return "";
     } else if (!reborn_is_server()) {
         // Store Game Data In "~/.minecraft-pi" Instead Of "~/.minecraft" To Avoid Conflicts
-        return "/.minecraft-pi";
+        static std::string str = path_separator + std::string(".minecraft-pi");
+        return str.c_str();
     } else {
         // Store Game Data In $HOME Root (In Server Mode, $HOME Is Changed To The Launch Directory)
         return "";
@@ -92,13 +135,21 @@ const char *get_home_subdirectory_for_game_data() {
 
 // Make Sure Directory Exists
 void ensure_directory(const char *path) {
+    // Create
     if (path[0] == '\0') {
         return;
     }
-    int ret = mkdir(path, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
+    int ret =
+#ifdef _WIN32
+        _mkdir(path)
+#else
+        mkdir(path, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH)
+#endif
+        ;
     if (ret != 0 && errno != EEXIST) {
         ERR("Unable To Create Directory: %s: %s", path, strerror(errno));
     }
+    // Check
     bool is_dir = false;
     struct stat obj = {};
     ret = stat(path, &obj);

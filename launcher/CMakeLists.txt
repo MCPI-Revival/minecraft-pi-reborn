@@ -18,8 +18,12 @@ add_library(launcher-util SHARED
     src/util/util.cpp
     src/util/sdk.cpp
     src/util/env.cpp
-    src/util/install.cpp
 )
+if(NOT MCPI_WIN32)
+    target_sources(launcher-util PRIVATE
+        src/util/install.cpp
+    )
+endif()
 target_link_libraries(launcher-util reborn-util)
 
 # Launcher
@@ -67,7 +71,9 @@ target_link_libraries(crash-report
 )
 
 # Runtime/Trampoline
-add_executable(runtime-exe src/bootstrap/runtime.cpp)
+add_executable(runtime-exe
+    src/bootstrap/runtime.cpp
+)
 set_target_properties(runtime-exe PROPERTIES OUTPUT_NAME runtime)
 target_link_libraries(runtime-exe reborn-util)
 if(TARGET runtime)
@@ -77,55 +83,30 @@ if(TARGET runtime)
     )
 endif()
 
+# Metadata
+add_subdirectory(data)
+
 # Install
 setup_library(launcher-ui TRUE FALSE)
 setup_library(launcher-util TRUE FALSE)
 function(install_bin target)
     install(TARGETS "${target}" DESTINATION "${MCPI_INSTALL_DIR}")
-    # RPath
-    set_target_properties("${target}" PROPERTIES INSTALL_RPATH "$ORIGIN/lib/native")
-    target_link_options("${target}" PRIVATE "LINKER:--disable-new-dtags")
+    if(NOT MCPI_WIN32)
+        # RPath
+        set_target_properties("${target}" PROPERTIES INSTALL_RPATH "$ORIGIN/lib/native")
+        target_link_options("${target}" PRIVATE "LINKER:--disable-new-dtags")
+    else()
+        # Manifest
+        target_sources("${target}" PRIVATE "${MCPI_MANIFEST}")
+    endif()
 endfunction()
 install_bin(launcher)
 install_bin(logger)
 install_bin(crash-report)
 install_bin(runtime-exe)
-install_symlink("../${MCPI_INSTALL_DIR}/launcher" "bin/${MCPI_APP_NAME}")
-
-# Changelog
-set_property(
-    DIRECTORY APPEND PROPERTY
-    CMAKE_CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/../docs/CHANGELOG.md"
-)
-execute_process(
-    COMMAND
-        "${CMAKE_COMMAND}" "-E" "env" "URL=${MCPI_CHANGELOG}"
-        "${CMAKE_CURRENT_SOURCE_DIR}/../scripts/misc/get-changelog.mjs" "appstream"
-    OUTPUT_VARIABLE MCPI_CHANGELOG_XML
-    OUTPUT_STRIP_TRAILING_WHITESPACE
-    COMMAND_ERROR_IS_FATAL ANY
-)
-
-# Data
-set(DATA_DIR "data")
-set_and_mkdir(CONFIGURED_DATA_DIR "${CMAKE_CURRENT_BINARY_DIR}/${DATA_DIR}")
-function(configure_and_install_data input_name output_path output_name is_desktop_file)
-    set(configured_path "${CONFIGURED_DATA_DIR}/${input_name}")
-    configure_file("${DATA_DIR}/${input_name}" "${configured_path}")
-    set(dir "${MCPI_SHARE_DIR}/${output_path}")
-    install(
-        FILES "${configured_path}"
-        DESTINATION "${dir}"
-        RENAME "${output_name}"
-    )
-    if(is_desktop_file)
-        set(full_path "${dir}/${output_name}")
-        cmake_path(RELATIVE_PATH full_path BASE_DIRECTORY "${MCPI_INSTALL_DIR}")
-        target_compile_definitions(launcher-util PRIVATE "DESKTOP_FILE_PATH=\"${full_path}\"")
-    endif()
-endfunction()
-configure_and_install_data(launcher.desktop applications "${MCPI_APP_ID}.desktop" TRUE)
-configure_and_install_data(appstream.xml metainfo "${MCPI_APP_ID}.appdata.xml" FALSE)
+if(NOT MCPI_WIN32)
+    install_symlink("../${MCPI_INSTALL_DIR}/launcher" "bin/${MCPI_APP_NAME}")
+endif()
 
 # AppImage
 if(MCPI_IS_APPIMAGE_BUILD)

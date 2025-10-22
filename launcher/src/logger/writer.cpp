@@ -1,4 +1,3 @@
-#include <fcntl.h>
 #include <vector>
 #include <unistd.h>
 
@@ -91,4 +90,5 @@ void LogWriter::write(const unsigned char *data, const std::streamsize size, con
 
     // Write
     file.write((const char *) output.data(), std::streamsize(output.size()));
+    file.flush();
 }

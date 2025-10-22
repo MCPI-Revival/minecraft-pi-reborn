@@ -30,7 +30,7 @@ static std::string _format_time(const char *fmt, const time_t raw_time) {
     }
     char buf[512];
     strftime(buf, sizeof(buf), fmt, time_info);
-    return std::string(buf);
+    return buf;
 }
 std::string format_time(const char *fmt) {
     time_t raw_time;

@@ -36,7 +36,9 @@ target_compile_definitions(glad
 )
 
 # Link
-target_link_libraries(glad PRIVATE dl)
+if(NOT MCPI_WIN32)
+    target_link_libraries(glad PRIVATE dl)
+endif()
 
 # Headers
 setup_header_dirs(glad

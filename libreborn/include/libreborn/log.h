@@ -1,11 +1,13 @@
 #pragma once
 
+#include <cstdio>
+
 // Log File
-int reborn_get_log_fd();
+FILE *reborn_get_log_fd();
 void reborn_set_log(int fd);
 // Debug Logging
 extern const char *reborn_debug_tag;
-int reborn_get_debug_fd();
+FILE *reborn_get_debug_fd();
 
 // Logging
 #define ATTR __attribute__((format(printf, 1, 2)))

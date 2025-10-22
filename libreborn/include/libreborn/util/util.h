@@ -1,14 +1,12 @@
 #pragma once
 
-#include <dlfcn.h>
+#include <cstdint>
 #include <string>
 
-#include "../log.h"
-
-// Align Number
-int align_up(int x, int alignment);
-
 // Hook Library Function
+#ifndef _WIN32
+#include <dlfcn.h>
+#include "../log.h"
 #define HOOK(name, return_type, args) \
     typedef return_type (*real_##name##_t)args; \
     MCPI_UNUSED static real_##name##_t real_##name() { \
@@ -23,6 +21,10 @@ int align_up(int x, int alignment);
         return func; \
     } \
     extern "C" __attribute__((used, visibility("default"))) return_type name args
+#endif
+
+// Align Number
+int align_up(int x, int alignment);
 
 // Check If Two Percentages Are Different Enough To Be Logged
 bool is_progress_difference_significant(int32_t new_val, int32_t old_val);
@@ -38,7 +40,7 @@ void ensure_directory(const char *path);
 
 // embed_resource()
 #define EMBEDDED_RESOURCE(name) \
-    extern unsigned char name[]; \
+    extern unsigned char (name)[]; \
     extern size_t name##_len
 
 // Profile Directory

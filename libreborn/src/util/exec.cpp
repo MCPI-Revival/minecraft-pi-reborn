@@ -1,32 +1,141 @@
-#include <pthread.h>
-#include <sys/prctl.h>
-#include <cerrno>
-#include <sys/wait.h>
-#include <unistd.h>
-#include <sys/poll.h>
 #include <cstring>
+
+#ifndef _WIN32
+#include <sys/wait.h>
+#include <sys/prctl.h>
+#else
+#define WIN32_LEAN_AND_MEAN
+#include <windows.h>
+#include <shellapi.h>
+#endif
 
 #include <libreborn/log.h>
 #include <libreborn/util/exec.h>
 #include <libreborn/util/io.h>
 #include <libreborn/util/string.h>
 
+// Safe execvpe()
+#ifdef _WIN32
+static std::string quote(const std::string &str) {
+    constexpr char slash = '\\';
+    std::string out;
+    // https://learn.microsoft.com/en-us/archive/blogs/twistylittlepassagesallalike/everyone-quotes-command-line-arguments-the-wrong-way
+    for (std::string::const_iterator it = str.begin(); it != str.end(); ++it) {
+        int slash_count = 0;
+        while (it != str.end() && *it == slash) {
+            ++it;
+            ++slash_count;
+        }
+        if (it == str.end()) {
+            out.append(slash_count * 2, slash);
+        } else {
+            if (*it == '"') {
+                slash_count *= 2;
+            }
+            out.append(slash_count, slash);
+            out.push_back(*it);
+        }
+    }
+    // Return
+    return '\"' + out + '\"';
+}
+static std::string make_cmd(const char *const argv[]) {
+    std::string cmd;
+    for (int i = 0; argv[i] != nullptr; i++) {
+        if (!cmd.empty()) {
+            cmd += ' ';
+        }
+        cmd += quote(argv[i]);
+    }
+    return cmd;
+}
+#endif
+static void log_command(const char *const argv[], const char *verb = "Running") {
+    DEBUG("%s Command:", verb);
+    for (int i = 0; argv[i] != nullptr; i++) {
+        DEBUG("    %s", argv[i]);
+    }
+}
+void safe_execvpe(const char *const argv[]) {
+    // Log
+    log_command(argv);
+
+    // Run
+#ifndef _WIN32
+    const int ret = execvpe(argv[0], (char *const *) argv, environ);
+#else
+    const std::string cmd = make_cmd(argv);
+    STARTUPINFO si = {};
+    si.cb = sizeof(si);
+    PROCESS_INFORMATION pi = {};
+    const int ret = CreateProcessA(
+        nullptr,
+        (LPSTR) cmd.c_str(),
+        nullptr,
+        nullptr,
+        FALSE,
+        CREATE_NO_WINDOW,
+        nullptr,
+        nullptr,
+        &si,
+        &pi
+    ) ? 0 : -1;
+#endif
+
+    // Check Result
+    if (ret == -1) {
+        ERR("Unable To Execute Program: %s: %s", argv[0], strerror(errno));
+    } else {
+#ifndef _WIN32
+        IMPOSSIBLE();
+#else
+        WaitForSingleObject(pi.hProcess, INFINITE);
+        DWORD exitCode;
+        GetExitCodeProcess(pi.hProcess, &exitCode);
+        CloseHandle(pi.hProcess);
+        CloseHandle(pi.hThread);
+        exit(int(exitCode));
+#endif
+    }
+}
+
 // Fork
-Process::Process(const pid_t pid_, const std::array<int, fd_count> &fds_): pid(pid_), fds(fds_) {}
+Process::Process(const process_t &pid_, const std::array<HANDLE, fd_count> &fds_):
+    pid(pid_),
+    fds(fds_) {}
 void Process::close_fd(const int i) {
     if (!closed.contains(i)) {
-        ::close(fds[i]);
+        HANDLE fd = fds.at(i);
+#ifdef _WIN32
+        CloseHandle(fd);
+#else
+        ::close(fd);
+#endif
         closed.insert(i);
     }
 }
 int Process::close() {
+    // Close Handles
     for (int i = 0; i < fd_count; i++) {
         close_fd(i);
     }
+    // Wait For Process To Exit
+#ifdef _WIN32
+    WaitForSingleObject(pid.hProcess, INFINITE);
+    DWORD exitCode;
+    GetExitCodeProcess(pid.hProcess, &exitCode);
+    CloseHandle(pid.hProcess);
+    CloseHandle(pid.hThread);
+    const int status = int(exitCode);
+#else
     int status;
     waitpid(pid, &status, 0);
+#endif
     return status;
 }
+
+// Spawn Processes
+#ifndef _WIN32
 #define PIPE_READ 0
 #define PIPE_WRITE 1
 std::optional<Process> fork_with_stdio() {
@@ -66,120 +175,111 @@ std::optional<Process> fork_with_stdio() {
         return Process(ret, {pipes[0].read, pipes[1].read, pipes[2].write});
     }
 }
-#define BUFFER_SIZE 1024
-void poll_fds(const std::vector<int> &fds, const std::function<void(int, size_t, unsigned char *)> &on_data) {
-    // Track Open FDs
-    int open_fds = int(fds.size());
-
-    // Setup Polling
-    pollfd *poll_fds = new pollfd[fds.size()];
-    for (std::vector<int>::size_type i = 0; i < fds.size(); i++) {
-        const int fd = fds[i];
-        poll_fds[i].fd = fd;
-        poll_fds[i].events = POLLIN;
-        if (fd == STDIN_FILENO) {
-            // Don't Wait For stdin To Close
-            open_fds--;
-        }
-    }
-
-    // Poll
-    while (open_fds > 0) {
-        const int poll_ret = poll(poll_fds, fds.size(), -1);
-        if (poll_ret == -1) {
-            if (errno == EINTR) {
-                continue;
-            } else {
-                ERR("Unable To Poll Data: %s", strerror(errno));
-            }
-        }
-
-        // Handle Data
-        for (std::vector<int>::size_type i = 0; i < fds.size(); i++) {
-            pollfd &poll_fd = poll_fds[i];
-            if (poll_fd.revents != 0 && poll_fd.events != 0) {
-                if (poll_fd.revents & POLLIN) {
-                    // Data Available From Child's stdout/stderr
-                    unsigned char buf[BUFFER_SIZE];
-                    const ssize_t bytes_read = read(poll_fd.fd, buf, BUFFER_SIZE);
-                    if (bytes_read == -1) {
-                        ERR("Unable To Read Data: %s", strerror(errno));
-                    }
-                    // Callback
-                    on_data(int(i), size_t(bytes_read), buf);
-                } else {
-                    // File Descriptor No Longer Accessible
-                    if (poll_fd.fd == STDIN_FILENO) {
-                        // This Shouldn't Happen
-                        IMPOSSIBLE();
-                    }
-                    poll_fd.events = 0;
-                    open_fds--;
-                }
-            }
-        }
-    }
-
-    // Cleanup
-    delete[] poll_fds;
-}
-
-// Safe execvpe()
-void safe_execvpe(const char *const argv[]) {
-    // Log
-    DEBUG("Running Command:");
-    for (int i = 0; argv[i] != nullptr; i++) {
-        DEBUG("    %s", argv[i]);
-    }
-    // Run
-    const int ret = execvpe(argv[0], (char *const *) argv, environ);
-    if (ret == -1) {
-        ERR("Unable To Execute Program: %s: %s", argv[0], strerror(errno));
-    } else {
-        IMPOSSIBLE();
-    }
-}
-
-// Run Command And Get Output
 #define CHILD_PROCESS_TAG "(Child Process) "
-std::vector<unsigned char> *run_command(const char *const command[], int *exit_status) {
+Process spawn_with_stdio(const char *const argv[]) {
     // Run
-    std::optional<Process> child = fork_with_stdio();
+    const std::optional<Process> child = fork_with_stdio();
     if (!child) {
         // Child Process
         reborn_debug_tag = CHILD_PROCESS_TAG;
         // Run
-        safe_execvpe(command);
-    } else {
-        // Close stdin
-        child->close_fd(2);
-        // Read stdout
-        std::vector<unsigned char> *output = new std::vector<unsigned char>;
-        poll_fds({child->fds[0], child->fds[1]}, [&output](const int i, const size_t size, unsigned char *buf) {
-            if (i == 0) {
-                // stdout
-                output->insert(output->end(), buf, buf + size);
-            } else {
-                // stderr
-                safe_write(reborn_get_debug_fd(), buf, size);
-            }
-        });
-
-        // Get Exit Status
-        const int status = child->close();
-        if (exit_status != nullptr) {
-            *exit_status = status;
-        }
-
-        // Add NULL-Terminator To Output
-        output->push_back(0);
-
-        // Return
-        return output;
+        safe_execvpe(argv);
     }
+    return child.value();
+}
+#else
+Process spawn_with_stdio(const char *const argv[]) {
+    // Log
+    log_command(argv, "Spawning");
+
+    // Store Output
+    const std::array<Pipe, Process::fd_count> pipes = {};
+
+    // Configure Pipes
+    for (const HANDLE fd : {pipes[0].read, pipes[1].read, pipes[2].write}) {
+        if (!SetHandleInformation(fd, HANDLE_FLAG_INHERIT, 0)) {
+            ERR("Unable To Disable Pipe Inheritance");
+        }
+    }
+
+    // Create Process
+    const std::string cmd = make_cmd(argv);
+    STARTUPINFO si = {};
+    si.hStdOutput = pipes[0].write;
+    si.hStdError = pipes[1].write;
+    si.hStdInput = pipes[2].read;
+    si.dwFlags |= STARTF_USESTDHANDLES;
+    si.cb = sizeof(si);
+    PROCESS_INFORMATION pi = {};
+    if (!CreateProcessA(
+        nullptr,
+        (LPSTR) cmd.c_str(),
+        nullptr,
+        nullptr,
+        TRUE,
+        CREATE_NO_WINDOW,
+        nullptr,
+        nullptr,
+        &si,
+        &pi
+    )) {
+        ERR("Unable To Spawn Process: %s", argv[0]);
+    }
+
+    // Close Unneeded File Descriptors
+    CloseHandle(pipes[0].write);
+    CloseHandle(pipes[1].write);
+    CloseHandle(pipes[2].read);
+
+    // Return
+    return Process(pi, {pipes[0].read, pipes[1].read, pipes[2].write});
+}
+#endif
+
+// Run Command And Get Output
+std::vector<unsigned char> *run_command(const char *const command[], int *exit_status) {
+    // Run
+    Process child = spawn_with_stdio(command);
+
+    // Close stdin
+    child.close_fd(2);
+    // Read stdout
+    std::vector<unsigned char> *output = new std::vector<unsigned char>;
+    poll_fds({child.fds[0], child.fds[1]}, false, [&output](const int i, const size_t size, unsigned char *buf) {
+        if (i == 0) {
+            // stdout
+            output->insert(output->end(), buf, buf + size);
+        } else {
+            // stderr
+            FILE *file = reborn_get_debug_fd();
+            fwrite(buf, size, 1, file);
+            fflush(file);
+        }
+    });
+
+    // Get Exit Status
+    const int status = child.close();
+    if (exit_status != nullptr) {
+        *exit_status = status;
+    }
+
+    // Add NULL-Terminator To Output
+    output->push_back(0);
+
+    // Return
+    return output;
 }
 
 // Get Exit Status String
+#ifdef _WIN32
+#define WIFEXITED(x) (true)
+#define WEXITSTATUS(x) int(x)
+#define WIFSIGNALED(x) (false)
+#define WTERMSIG(x) (0)
+#define WCOREDUMP(x) (false)
+#define SIGINT (1)
+#define SIGTERM SIGINT
+#endif
 std::string get_exit_status_string(const int status) {
     if (WIFEXITED(status)) {
         return ": Exit Code: " + safe_to_string(WEXITSTATUS(status));
@@ -193,7 +293,7 @@ std::string get_exit_status_string(const int status) {
 // Check Exit Status
 bool is_exit_status_success(const int status) {
     if (WIFEXITED(status)) {
-        return WEXITSTATUS(status) == 0;
+        return WEXITSTATUS(status) == EXIT_SUCCESS;
     } else if (WIFSIGNALED(status)) {
         const int signal_no = WTERMSIG(status);
         return signal_no == SIGINT || signal_no == SIGTERM;
@@ -204,6 +304,7 @@ bool is_exit_status_success(const int status) {
 
 // Open URL
 void open_url(const std::string &url) {
+#ifndef _WIN32
     int return_code;
     const char *command[] = {"xdg-open", url.c_str(), nullptr};
     const std::vector<unsigned char> *output = run_command(command, &return_code);
@@ -211,4 +312,7 @@ void open_url(const std::string &url) {
     if (!is_exit_status_success(return_code)) {
         WARN("Unable To Open URL: %s", url.c_str());
     }
+#else
+    ShellExecuteA(nullptr, "open", url.c_str(), nullptr, nullptr, SW_SHOWDEFAULT);
+#endif
 }

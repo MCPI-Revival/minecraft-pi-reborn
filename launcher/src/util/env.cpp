@@ -12,14 +12,17 @@ void setup_home() {
     std::string home;
     if (custom_profile_directory != nullptr) {
         // Custom Directory
-        home = safe_realpath(custom_profile_directory);
+        home = custom_profile_directory;
     } else if (!reborn_is_server()) {
         // Ensure $HOME
-        const char *value = getenv("HOME");
-        if (value == nullptr) {
-            ERR("$HOME Is Not Set");
-        }
-        home = value;
+        const char *env =
+#ifdef _WIN32
+            "APPDATA"
+#else
+            "HOME"
+#endif
+            ;
+        home = require_env(env);
         // Flatpak
         if (reborn_config.packaging == RebornConfig::PackagingType::FLATPAK) {
             home += std::string("/.var/app/") + reborn_config.app.id;
@@ -33,6 +36,7 @@ void setup_home() {
         home = launch_directory;
         free(launch_directory);
     }
+    home = safe_realpath(home);
     // Set
     set_and_print_env(_MCPI_HOME_ENV, home.c_str());
 }

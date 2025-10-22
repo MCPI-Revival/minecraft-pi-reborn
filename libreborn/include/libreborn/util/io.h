@@ -2,16 +2,27 @@
 
 #include <cstddef>
 
+#ifdef _WIN32
+#define WIN32_LEAN_AND_MEAN
+#include <windows.h>
+#define HANDLE_PRINTF "%p"
+static constexpr char path_separator = '\\';
+#else
+typedef int HANDLE;
+#define HANDLE_PRINTF "%i"
+static constexpr char path_separator = '/';
+#endif
+
 // Safe Version Of pipe()
 struct Pipe {
     Pipe();
-    const int read;
-    const int write;
+    const HANDLE read;
+    const HANDLE write;
 };
 
 // Lock File
-int lock_file(const char *file);
-void unlock_file(int fd);
+HANDLE lock_file(const char *file);
+void unlock_file(HANDLE fd);
 
 // Safe write()
 void safe_write(int fd, const void *buf, size_t size);

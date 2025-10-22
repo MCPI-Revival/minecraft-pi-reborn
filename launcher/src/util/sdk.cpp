@@ -14,7 +14,6 @@
 #include "util.h"
 
 // Utility Functions
-static constexpr char path_separator = '/';
 void make_directory(std::string path /* Must Be Absolute */) {
     path += path_separator;
     std::stringstream stream(path);
@@ -28,10 +27,10 @@ void make_directory(std::string path /* Must Be Absolute */) {
 }
 static void delete_recursively(const std::string &path, const bool allow_nonexistent_dir) {
     // Loop Through Children
-    const bool success = read_directory(path, [&path](const dirent *entry) {
+    const bool success = read_directory(path, [&path](const dirent *entry, const bool is_dir) {
         // Handle
         const std::string child = path + path_separator + entry->d_name;
-        if (entry->d_type == DT_DIR) {
+        if (is_dir) {
             delete_recursively(child, false);
         } else if (unlink(child.c_str()) != 0) {
             ERR("Unable To Delete File: %s: %s", child.c_str(), strerror(errno));
@@ -59,11 +58,11 @@ void copy_file(const std::string &src, const std::string &dst, const bool log) {
     }
 }
 static void copy_directory(const std::string &src, const std::string &dst) {
-    read_directory(src, [&src, &dst](const dirent *entry) {
+    read_directory(src, [&src, &dst](const dirent *entry, const bool is_dir) {
         const std::string name = path_separator + std::string(entry->d_name);
         const std::string in = src + name;
         const std::string out = dst + name;
-        if (entry->d_type == DT_DIR) {
+        if (is_dir) {
             ensure_directory(out.c_str());
             copy_directory(in, out);
         } else {
@@ -161,7 +160,7 @@ void copy_sdk(const std::string &binary_directory, const bool force) {
     const std::string root = get_sdk_root(home_get());
     ensure_directory(root.c_str());
     const std::string lock_file_path = root + path_separator;
-    const int lock_file_fd = lock_file(lock_file_path.c_str());
+    const HANDLE lock_file_fd = lock_file(lock_file_path.c_str());
 
     // Do
     do_copy_sdk(binary_directory, force);

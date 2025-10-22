@@ -4,6 +4,11 @@
 #include <unistd.h>
 #include <cstring>
 
+#ifdef _WIN32
+#define WIN32_LEAN_AND_MEAN
+#include <windows.h>
+#endif
+
 #include <libreborn/log.h>
 #include <libreborn/util/util.h>
 
@@ -12,18 +17,26 @@
 
 // Get All Mods In Folder
 static void load(std::vector<std::string> &ld_preload, const std::string &folder, int recursion_limit = 128);
-static void handle_file(std::vector<std::string> &ld_preload, const std::string &file, const int recursion_limit) {
-    // Check Type
+static void handle_file(std::vector<std::string> &ld_preload, const std::string &file, const bool is_dir, const int recursion_limit) {
+    // Check If File Is A Symbolic Link
+#ifdef _WIN32
+    const DWORD attr = GetFileAttributesA(file.c_str());
+    const bool is_symlink = (attr & FILE_ATTRIBUTE_REPARSE_POINT) != 0;
+#else
     struct stat file_stat = {};
-    lstat(file.c_str(), &file_stat);
-    if (S_ISDIR(file_stat.st_mode)) {
+    const int ret = lstat(file.c_str(), &file_stat);
+    const bool is_symlink = ret == 0 && S_ISLNK(file_stat.st_mode);
+#endif
+
+    // Check Type
+    if (is_dir) {
         // Recurse Into Directory
         load(ld_preload, std::string(file) + '/', recursion_limit - 1);
-    } else if (S_ISLNK(file_stat.st_mode)) {
+    } else if (is_symlink) {
         // Resolve Symlink
         const std::string resolved_file = safe_realpath(file);
-        handle_file(ld_preload, resolved_file, recursion_limit);
-    } else if (S_ISREG(file_stat.st_mode)) {
+        handle_file(ld_preload, resolved_file, is_dir, recursion_limit);
+    } else {
         // Check If File Is Accessible
         const int result = access(file.c_str(), R_OK);
         if (result == 0) {
@@ -45,11 +58,11 @@ static void load(std::vector<std::string> &ld_preload, const std::string &folder
     // Make Directory
     ensure_directory(folder.c_str());
     // Read
-    read_directory(folder, [&folder, &ld_preload, &recursion_limit](const dirent *entry) {
+    read_directory(folder, [&folder, &ld_preload, &recursion_limit](const dirent *entry, const bool is_dir) {
         // Get Full Name
         const std::string name = folder + entry->d_name;
         // Handle
-        handle_file(ld_preload, name, recursion_limit);
+        handle_file(ld_preload, name, is_dir, recursion_limit);
     });
 }
 

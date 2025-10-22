@@ -2,8 +2,11 @@
 #include <cstring>
 #include <cerrno>
 #include <cstdlib>
-#include <csignal>
 #include <string>
+
+#ifndef _WIN32
+#include <csignal>
+#endif
 
 #include <libreborn/util/exec.h>
 #include <libreborn/log.h>
@@ -15,22 +18,26 @@
 #include "../util/util.h"
 
 // Exit Handler
+#ifndef _WIN32
 static pid_t child_pid = -1;
 static void exit_handler(MCPI_UNUSED int signal) {
     // Murder
     kill(child_pid, SIGTERM);
 }
+#endif
 
 // Log File
 static std::string get_logs_folder() {
     const std::string home = home_get();
     ensure_directory(home.c_str());
-    const std::string logs = home + "/logs";
+    const std::string logs = home + path_separator + "logs";
     ensure_directory(logs.c_str());
     return logs;
 }
 static LogWriter *log;
+#ifndef _WIN32
 static Pipe *log_pipe;
+#endif
 static void setup_log_file() {
     // Get Log Directory
     const std::string logs = get_logs_folder();
@@ -38,6 +45,7 @@ static void setup_log_file() {
     // Create File
     log = new LogWriter(logs);
 
+#ifndef _WIN32
     // Create Pipe
     log_pipe = new Pipe();
     reborn_set_log(log_pipe->write);
@@ -48,11 +56,12 @@ static void setup_log_file() {
     if (symlink(log->name.c_str(), latest_log.c_str()) != 0) {
         WARN("Unable To Create Latest Log Symlink: %s", strerror(errno));
     }
+#endif
 }
 
 // Show Crash Report
 static void show_report(const std::string &filename) {
-    const std::string exe = get_binary_directory() + "/crash-report";
+    const std::string exe = get_binary_directory() + path_separator + "crash-report";
     const std::string dir = get_logs_folder();
     const char *argv[] = {exe.c_str(), filename.c_str(), dir.c_str(), nullptr};
     const std::vector<unsigned char> *output = run_command(argv, nullptr);
@@ -60,6 +69,7 @@ static void show_report(const std::string &filename) {
 }
 
 // Setup
+#ifndef _WIN32
 static void setup_logger_child() {
     // This process will run the actual program.
 
@@ -68,6 +78,11 @@ static void setup_logger_child() {
 
     // Create New Process Group
     setpgid(0, 0);
+}
+#endif
+static void fwrite_with_flush(FILE *stream, const void *data, const size_t size) {
+    fwrite(data, size, 1, stream);
+    fflush(stream);
 }
 static int setup_logger_parent(Process &child) {
     // This process will:
@@ -79,6 +94,7 @@ static int setup_logger_parent(Process &child) {
     reborn_debug_tag = "(Logger) ";
     DEBUG("Writing To: %s", log->name.c_str());
 
+#ifndef _WIN32
     // Install Signal Handlers
     child_pid = child.pid;
     for (const int signal : {SIGINT, SIGTERM}) {
@@ -90,22 +106,24 @@ static int setup_logger_parent(Process &child) {
 
     // Close Unneeded FD
     close(log_pipe->write);
+#endif
 
     // Poll
-    const std::vector fds = {
+    std::vector fds = {
         child.fds[0],
-        child.fds[1],
-        log_pipe->read,
-        STDIN_FILENO
+        child.fds[1]
     };
-    poll_fds(fds, [&child](const int i, const size_t size, unsigned char *buf) {
+#ifndef _WIN32
+    fds.push_back(log_pipe->read);
+#endif
+    poll_fds(fds, true, [&child](const int i, const size_t size, unsigned char *buf) {
         switch (i) {
             case 0:
             case 1: {
                 // Source: Child's stdout/stderr
                 // Action: Print to the terminal
-                const int target = i == 0 ? STDOUT_FILENO : STDERR_FILENO;
-                safe_write(target, buf, size);
+                FILE *target = i == 0 ? stdout : stderr;
+                fwrite_with_flush(target, buf, size);
                 [[fallthrough]];
             }
             case 2: {
@@ -117,7 +135,16 @@ static int setup_logger_parent(Process &child) {
             case 3: {
                 // Source: Parent's stdin
                 // Action: Write to the child's stdin
-                safe_write(child.fds[2], buf, size);
+                HANDLE fd = child.fds[2];
+#ifndef _WIN32
+                safe_write(fd, buf, size);
+#else
+                DWORD bytes_written;
+                const BOOL ret = WriteFile(fd, buf, size, &bytes_written, nullptr);
+                if (!ret && bytes_written != size) {
+                    ERR("Unable To Write To Child's Input");
+                }
+#endif
                 break;
             }
             default: {}
@@ -137,13 +164,15 @@ static int setup_logger_parent(Process &child) {
         // Print Exit Code Log Line
         const unsigned char *data = (const unsigned char *) exit_code_line;
         const std::streamsize size = std::streamsize(strlen(exit_code_line));
-        safe_write(STDERR_FILENO, data, size);
+        fwrite_with_flush(stderr, data, size);
         // Write Exit Code Log Line
         log->write(data, size, true);
     }
 
     // Close Log File
+#ifndef _WIN32
     delete log_pipe;
+#endif
     const std::string log_filename = log->name;
     delete log;
     reborn_set_log(-1);
@@ -154,15 +183,26 @@ static int setup_logger_parent(Process &child) {
     }
 
     // Exit
-    return WIFEXITED(status) ? WEXITSTATUS(status) : EXIT_FAILURE;
+    return
+#ifdef _WIN32
+        status
+#else
+        WIFEXITED(status) ? WEXITSTATUS(status) : EXIT_FAILURE
+#endif
+        ;
 }
 
 // Main
 int main(MCPI_UNUSED const int argc, char *argv[]) {
+    //AllocConsole();
+    //AttachConsole(GetCurrentProcessId());
+    //freopen("CON", "w", stdout);
+    //freopen("CON", "w", stderr);
     // Setup Logging
     setup_log_file();
 
     // Fork
+#ifndef _WIN32
     std::optional<Process> child = fork_with_stdio();
     if (!child) {
         // Child Process
@@ -173,4 +213,9 @@ int main(MCPI_UNUSED const int argc, char *argv[]) {
         // Parent Process
         return setup_logger_parent(*child);
     }
+#else
+    argv++;
+    Process child = spawn_with_stdio(argv);
+    return setup_logger_parent(child);
+#endif
 }

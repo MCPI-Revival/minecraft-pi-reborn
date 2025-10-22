@@ -6,7 +6,7 @@
 // Paths
 void chop_last_component(std::string &str);
 std::string safe_realpath(const std::string &path);
-bool read_directory(const std::string &path, const std::function<void(const struct dirent *)> &callback, bool allow_nonexistent_dir = false);
+bool read_directory(const std::string &path, const std::function<void(const struct dirent *, bool)> &callback, bool allow_nonexistent_dir = false);
 void make_directory(std::string path);
 void copy_file(const std::string &src, const std::string &dst, bool log = false);
 
@@ -19,8 +19,10 @@ std::string get_appimage_path();
 void copy_sdk(const std::string &binary_directory, bool force);
 
 // Copying Desktop File
+#ifndef _WIN32
 bool is_desktop_file_installed();
 void copy_desktop_file();
+#endif
 
 // Environment
 void setup_home();
