@@ -1,3 +1,5 @@
+#undef _FILE_OFFSET_BITS
+
 #include <cstdio>
 #include <cstdlib>
 

@@ -1,8 +1,5 @@
 project(launcher)
 
-# 64-Bit FS Support
-add_compile_definitions(_FILE_OFFSET_BITS=64)
-
 # UI Code
 add_library(launcher-ui SHARED
     src/ui/frame.cpp
@@ -27,7 +24,7 @@ endif()
 target_link_libraries(launcher-util reborn-util)
 
 # Launcher
-add_executable(launcher WIN32
+add_executable(launcher
     src/bootstrap/bootstrap.cpp
     src/bootstrap/mods.cpp
     src/bootstrap/assets.cpp
@@ -62,7 +59,7 @@ target_link_libraries(launcher
 )
 
 # Logger
-add_executable(logger WIN32
+add_executable(logger
     src/logger/logger.cpp
     src/logger/writer.cpp
 )
@@ -80,7 +77,7 @@ target_link_libraries(crash-report
 )
 
 # Runtime/Trampoline
-add_executable(runtime-exe WIN32
+add_executable(runtime-exe
     src/bootstrap/runtime.cpp
 )
 set_target_properties(runtime-exe PROPERTIES OUTPUT_NAME runtime)

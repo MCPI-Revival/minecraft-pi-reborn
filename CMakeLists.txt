@@ -57,7 +57,7 @@ string(CONCAT COMPILE_FLAGS_SETUP
     "add_link_options(\"LINKER:--no-undefined\")\n"
 
     # Default C Standard
-    "add_definitions(-D_GNU_SOURCE)\n"
+    "add_compile_definitions(_GNU_SOURCE _FILE_OFFSET_BITS=64)\n"
     "set(CMAKE_C_STANDARD 99)\n"
     "set(CMAKE_CXX_STANDARD 20)\n"
 

@@ -52,17 +52,21 @@ bool is_env_set(const char *name) {
 
 // Set WSLENV
 void set_wslenv() {
-    // https://devblogs.microsoft.com/commandline/share-environment-vars-between-wsl-and-windows/
+    // Get List Of Set Variables
     std::vector<std::string> variables;
-#define ENV(name, _, flags) variables.push_back(name##_ENV + std::string(flags));
+#define ENV(name, _, flags) \
+    if (is_env_set(name##_ENV)) { \
+        variables.push_back(name##_ENV + std::string(flags)); \
+    }
 #include <libreborn/env/list.h>
 #undef ENV
+    // https://devblogs.microsoft.com/commandline/share-environment-vars-between-wsl-and-windows/
     const char *wslenv = "WSLENV";
     const char *old_value = getenv(wslenv);
     std::string value = old_value ? old_value : "";
     for (const std::string &it : variables) {
         if (!value.empty()) {
-            value += ';';
+            value += ':';
         }
         value += it;
     }

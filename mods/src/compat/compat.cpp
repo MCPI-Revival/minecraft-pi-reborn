@@ -17,8 +17,11 @@ static void exit_handler(MCPI_UNUSED int data) {
 }
 void init_compat() {
     // Unlock Lock File
-    const int lock_fd = std::stoi(require_env(_MCPI_LOCK_FD_ENV));
-    unlock_file(lock_fd);
+    const char *lock_fd_str = getenv(_MCPI_LOCK_FD_ENV);
+    if (lock_fd_str) {
+        const int lock_fd = std::stoi(lock_fd_str);
+        unlock_file(lock_fd);
+    }
 
     // SDL
     _init_compat_sdl();

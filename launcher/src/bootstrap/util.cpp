@@ -38,8 +38,13 @@ std::string get_temp_dir() {
     if (ret == 0) {
         ERR("Unable To Get Temporary Directory");
     }
-    return std::string(path) + '\\';
+    std::string out = path;
 #else
-    return "/tmp/";
+    std::string out = "/tmp";
 #endif
+    // Add Trailing Path Seperator
+    if (!out.ends_with(path_separator)) {
+        out += path_separator;
+    }
+    return out;
 }

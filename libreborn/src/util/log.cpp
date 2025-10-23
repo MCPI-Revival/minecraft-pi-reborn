@@ -73,11 +73,7 @@ FILE *reborn_get_debug_file() {
 }
 
 // Logging
-#ifdef _WIN32
-#define control_code(x) ""
-#else
 #define control_code(x) "\x1b[" x "m"
-#endif
 #define reset control_code("0")
 static constexpr const char *log_start = reset "%s[%s]: ";
 static constexpr const char *log_end = reset "\n";
@@ -140,4 +136,9 @@ const char *reborn_get_crash_message(const char *reason) {
     write(log_end);
 #undef write
     return buf;
+}
+
+// Disable stdout Buffering
+__attribute__((constructor)) static void disable_stdout_buffering() {
+    setvbuf(stdout, nullptr, _IONBF, 0);
 }

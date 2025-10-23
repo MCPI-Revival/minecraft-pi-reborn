@@ -76,7 +76,13 @@ static std::string get_sdk_root(const std::string &home) {
     return home + path_separator + "sdk";
 }
 static std::string get_sdk_path_home() {
-    return get_sdk_root(home_get()) + path_separator + reborn_config.internal.sdk_dir;
+    std::string sdk_dir = reborn_config.internal.sdk_dir;
+    for (char &c : sdk_dir) {
+        if (c == linux_path_separator) {
+            c = path_separator;
+        }
+    }
+    return get_sdk_root(home_get()) + path_separator + sdk_dir;
 }
 static std::string get_sdk_path_bundled(const std::string &binary_directory) {
     return get_sdk_root(binary_directory);

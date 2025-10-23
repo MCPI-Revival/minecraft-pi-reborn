@@ -47,9 +47,16 @@ function(_install_arm_sysroot_config config)
     file(GLOB_RECURSE files LIST_DIRECTORIES FALSE RELATIVE "${dir}" "${dir}/*")
     foreach(file IN LISTS files)
         cmake_path(GET file PARENT_PATH parent)
+        cmake_path(GET file FILENAME name)
+        set(file "${dir}/${file}")
+        if(MCPI_WIN32)
+            # Windows Does Not Like Symlinks
+            file(REAL_PATH "${file}" file)
+        endif()
         install(
-            PROGRAMS "${dir}/${file}"
+            PROGRAMS "${file}"
             DESTINATION "${MCPI_INSTALL_DIR}/sysroot/${parent}"
+            RENAME "${name}"
             CONFIGURATIONS "${config}"
         )
     endforeach()

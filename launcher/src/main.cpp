@@ -28,9 +28,6 @@ static void setup_environment(const options_t &options) {
     bind_to_env(_MCPI_FORCE_HEADLESS_ENV, options.force_headless);
     bind_to_env(_MCPI_FORCE_NON_HEADLESS_ENV, options.force_non_headless);
 
-    // Setup WSLENV (If Needed)
-    set_wslenv();
-
     // Setup MCPI_HOME
     setup_home();
     // Create If Needed
@@ -71,9 +68,6 @@ static void handle_non_launch_commands(const options_t &options) {
 
 // Start The Game
 static void start_game(const options_t &options) {
-    // Disable stdout Buffering
-    setvbuf(stdout, nullptr, _IONBF, 0);
-
     // Configure Client Options
     if (!reborn_is_server()) {
         configure_client(options);

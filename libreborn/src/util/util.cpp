@@ -134,10 +134,18 @@ const char *get_home_subdirectory_for_game_data() {
 
 // Make Sure Directory Exists
 void ensure_directory(const char *path) {
-    // Create
-    if (path[0] == '\0') {
+    // Skip Empty Paths
+    const size_t path_len = strlen(path);
+    if (path_len == 0) {
         return;
     }
+    // Skip Just Drives Letters
+#ifdef _WIN32
+    if (path_len == 2 && path[1] == ':') {
+        return;
+    }
+#endif
+    // Create
     int ret =
 #ifdef _WIN32
         _mkdir(path)

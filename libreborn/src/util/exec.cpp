@@ -17,9 +17,13 @@
 // Safe execvpe()
 #ifdef _WIN32
 static std::string quote(const std::string &str) {
+    // https://learn.microsoft.com/en-us/archive/blogs/twistylittlepassagesallalike/everyone-quotes-command-line-arguments-the-wrong-way
+    if (!str.empty() && str.find_first_of (" \t\n\v\"") == std::string::npos) {
+        // No Quoting Needed
+        return str;
+    }
     constexpr char slash = '\\';
     std::string out;
-    // https://learn.microsoft.com/en-us/archive/blogs/twistylittlepassagesallalike/everyone-quotes-command-line-arguments-the-wrong-way
     for (std::string::const_iterator it = str.begin(); it != str.end(); ++it) {
         int slash_count = 0;
         while (it != str.end() && *it == slash) {
@@ -73,8 +77,8 @@ void safe_execvpe(const char *const argv[]) {
         (LPSTR) cmd.c_str(),
         nullptr,
         nullptr,
-        FALSE,
-        CREATE_NO_WINDOW,
+        TRUE,
+        0,
         nullptr,
         nullptr,
         &si,
@@ -221,7 +225,7 @@ Process spawn_with_stdio(const char *const argv[]) {
         nullptr,
         nullptr,
         TRUE,
-        CREATE_NO_WINDOW,
+        0,
         nullptr,
         nullptr,
         &si,

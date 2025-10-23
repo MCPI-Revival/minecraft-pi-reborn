@@ -51,6 +51,7 @@ void bootstrap(const options_t &options) {
     DEBUG("Fixing Environment...");
     set_and_print_env("LD_BIND_NOW", nullptr);
     set_and_print_env("LC_ALL", "C.UTF-8");
+    set_wslenv();
 
     // Start Game
     INFO("Starting Game...");

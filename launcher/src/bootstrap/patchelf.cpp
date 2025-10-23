@@ -15,10 +15,14 @@
 #include "bootstrap.h"
 
 // Duplicate MCPI Executable Into /tmp
+#ifndef _WIN32
+#define O_BINARY (0)
+#endif
 std::string get_patched_exe_path() {
     return get_temp_dir() + reborn_config.app.name;
 }
 static int create_file() {
+    const std::string patched_exe_path = get_patched_exe_path();
     // Lock File
     // Locks are not inheritable on Windows.
 #ifndef _WIN32
@@ -26,9 +30,8 @@ static int create_file() {
     set_and_print_env(_MCPI_LOCK_FD_ENV, safe_to_string(lock_fd).c_str());
 #endif
     // Generate New File
-    const std::string patched_exe_path = get_patched_exe_path();
     unlink(patched_exe_path.c_str());
-    const int fd = open(patched_exe_path.c_str(), O_WRONLY | O_CREAT, S_IRWXU);
+    const int fd = open(patched_exe_path.c_str(), O_WRONLY | O_CREAT | O_BINARY, S_IRWXU);
     if (fd <= 0) {
         ERR("Unable To Open Patched Executable: %s", strerror(errno));
     }
@@ -100,12 +103,10 @@ void patch_mcpi_elf_dependencies(const std::string &original_path, const std::st
     // Write Binary
     LIEF::ELF::Builder builder{*binary};
     builder.build();
-    __gnu_cxx::stdio_filebuf<char> buf(dup(fd), std::ios::out);
+    __gnu_cxx::stdio_filebuf<char> buf(fd, std::ios::out | std::ios::binary); // This takes ownership of the FD.
     std::ostream stream(&buf);
     builder.write(stream);
-
-    // Close File
-    close(fd);
+    stream.flush();
 }
 
 // Linker
