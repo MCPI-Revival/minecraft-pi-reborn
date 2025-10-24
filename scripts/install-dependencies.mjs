@@ -45,7 +45,9 @@ handlers.set(Modes.Build, function () {
         'libzstd-dev',
         'libcurl4-openssl-dev',
         'libglib2.0-dev',
-        'gperf'
+        'gperf',
+        // For Generating The ICO File
+        'imagemagick'
     );
 
     // Select Platform

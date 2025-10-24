@@ -17,8 +17,9 @@ find_package(Python REQUIRED QUIET)
 
 # Generate
 add_custom_command(OUTPUT ${GLAD_SOURCES}
-    COMMAND "${Python_EXECUTABLE}"
-    ARGS "-m" "glad"
+    COMMAND
+        "${Python_EXECUTABLE}"
+        "-m" "glad"
         "--out" "${GLAD_DIR}"
         "--api" "gl=1.1"
         "--generator" "c"

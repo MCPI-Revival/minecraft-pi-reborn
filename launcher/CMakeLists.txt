@@ -21,7 +21,9 @@ if(NOT MCPI_WIN32)
         src/util/install.cpp
     )
 endif()
-target_link_libraries(launcher-util reborn-util)
+target_link_libraries(launcher-util
+    reborn-util
+)
 
 # Launcher
 add_executable(launcher
@@ -80,8 +82,12 @@ target_link_libraries(crash-report
 add_executable(runtime-exe
     src/bootstrap/runtime.cpp
 )
-set_target_properties(runtime-exe PROPERTIES OUTPUT_NAME runtime)
-target_link_libraries(runtime-exe reborn-util)
+set_target_properties(runtime-exe PROPERTIES
+    OUTPUT_NAME runtime
+)
+target_link_libraries(runtime-exe
+    reborn-util
+)
 if(TARGET runtime)
     target_link_libraries(runtime-exe
         media-layer-trampoline
@@ -96,18 +102,25 @@ add_subdirectory(data)
 setup_library(launcher-ui TRUE FALSE)
 setup_library(launcher-util TRUE FALSE)
 function(install_bin target)
+    target_link_libraries("${target}"
+        launcher-meta
+    )
     install(TARGETS "${target}" DESTINATION "${MCPI_INSTALL_DIR}")
     if(NOT MCPI_WIN32)
         # RPath
-        set_target_properties("${target}" PROPERTIES INSTALL_RPATH "$ORIGIN/lib/native")
+        set_target_properties("${target}" PROPERTIES
+            INSTALL_RPATH "$ORIGIN/lib/native"
+        )
         target_link_options("${target}" PRIVATE "LINKER:--disable-new-dtags")
+    else()
         # Set Subsystem
         #set_target_properties("${target}" PROPERTIES
         #    WIN32_EXECUTABLE TRUE
         #)
-    else()
-        # Manifest
-        target_sources("${target}" PRIVATE "${MCPI_MANIFEST}")
+        # Original Filename
+        target_compile_definitions("${target}" PRIVATE
+            "$<$<COMPILE_LANGUAGE:RC>:VER_FILENAME=\\\"$<TARGET_FILE_NAME:${target}>\\\">"
+        )
     endif()
 endfunction()
 install_bin(launcher)
