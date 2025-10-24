@@ -169,7 +169,7 @@ struct InfoScreen final : CustomScreen {
         // Call Original Method
         CustomScreen::render(x, y, param_1);
         // Title
-        std::string title = "Reborn Information";
+        const std::string title = "Reborn Information";
         self->drawCenteredString(self->font, title, self->width / 2, title_padding, 0xffffffff);
         // Info Text
         for (int i = 0; i < info_size; i++) {
@@ -215,7 +215,8 @@ struct InfoScreen final : CustomScreen {
         } else if (button->id >= INFO_ID_START) {
             // Open Info URL
             const int i = button->id - INFO_ID_START;
-            media_open(info[i].button_url.c_str(), true);
+            const info_line &line = info[i];
+            media_open(line.button_url.c_str(), line.is_url);
         } else {
             CustomScreen::buttonClicked(button);
         }
