@@ -102,27 +102,18 @@ static int setup_logger_parent(Process &child) {
 #endif
 
     // Get Pipes
-    std::vector fds = {
+    const std::vector fds = {
         // Ranked In Order Of Priority
         log_pipe->read, // Debug Log
-        child.fds[1], // stderr
-        child.fds[0] // stdout
+        child.fds.at(1), // stderr
+        child.fds.at(0) // stdout
     };
-    std::unordered_set do_not_expect_to_close = {
+    const std::unordered_set do_not_expect_to_close = {
         log_pipe->read
     };
 
-    // Handle STDIN
-#ifndef _WIN32
-    const HANDLE input_handle = STDIN_FILENO;
-    fds.push_back(input_handle);
-    do_not_expect_to_close.insert(input_handle);
-#else
-    child.close_fd(2);
-#endif
-
     // Poll
-    poll_fds(fds, do_not_expect_to_close, [&child](const int i, const size_t size, unsigned char *buf) {
+    poll_fds(fds, do_not_expect_to_close, [](const int i, const size_t size, unsigned char *buf) {
         switch (i) {
             case 1:
             case 2: {
@@ -136,17 +127,6 @@ static int setup_logger_parent(Process &child) {
                 // Source: Child's debug log
                 // Action: Write to the log file
                 log->write(buf, std::streamsize(size), false);
-                break;
-            }
-            case 3: {
-                // Source: Parent's stdin
-                // Action: Write to the child's stdin
-#ifndef _WIN32
-                const HANDLE fd = child.fds.at(2);
-                safe_write(fd, buf, size);
-#else
-                (void) child;
-#endif
                 break;
             }
             default: {}

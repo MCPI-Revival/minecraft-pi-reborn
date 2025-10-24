@@ -20,15 +20,13 @@ typedef PROCESS_INFORMATION process_t;
 typedef pid_t process_t;
 #endif
 struct Process {
-    static constexpr int fd_count = 3;
+    static constexpr int fd_count = 2;
     Process(const process_t &pid_, const std::array<HANDLE, fd_count> &fds_);
     // Close
-    void close_fd(int i);
     [[nodiscard]] int close();
     // Data
     const process_t pid;
     const std::array<HANDLE, fd_count> fds;
-    std::unordered_set<int> closed;
 };
 #ifndef _WIN32
 std::optional<Process> fork_with_stdio();

@@ -70,7 +70,7 @@ void safe_execvpe(const char *const argv[]) {
 #else
     SetConsoleCtrlHandler(nullptr, TRUE);
     const std::string cmd = make_cmd(argv);
-    STARTUPINFO si = {};
+    STARTUPINFOA si = {};
     si.cb = sizeof(si);
     PROCESS_INFORMATION pi = {};
     const int ret = CreateProcessA(
@@ -108,17 +108,10 @@ void safe_execvpe(const char *const argv[]) {
 Process::Process(const process_t &pid_, const std::array<HANDLE, fd_count> &fds_):
     pid(pid_),
     fds(fds_) {}
-void Process::close_fd(const int i) {
-    if (!closed.contains(i)) {
-        const HANDLE fd = fds.at(i);
-        CloseHandle(fd);
-        closed.insert(i);
-    }
-}
 int Process::close() {
     // Close Handles
-    for (int i = 0; i < fd_count; i++) {
-        close_fd(i);
+    for (const HANDLE fd : fds) {
+        CloseHandle(fd);
     }
     // Wait For Process To Exit
 #ifdef _WIN32
@@ -143,7 +136,6 @@ std::optional<Process> fork_with_stdio() {
     // Store Output
     const std::array<Pipe, Process::fd_count> pipes = {
         Pipe(true),
-        Pipe(true),
         Pipe(true)
     };
 
@@ -155,9 +147,8 @@ std::optional<Process> fork_with_stdio() {
         // Child Process
 
         // Redirect stdio To Pipes
-        dup2(pipes[0].write, STDOUT_FILENO);
-        dup2(pipes[1].write, STDERR_FILENO);
-        dup2(pipes[2].read, STDIN_FILENO);
+        dup2(pipes.at(0).write, STDOUT_FILENO);
+        dup2(pipes.at(1).write, STDERR_FILENO);
         for (const Pipe &pipe : pipes) {
             close(pipe.write);
             close(pipe.read);
@@ -172,12 +163,11 @@ std::optional<Process> fork_with_stdio() {
         // Parent Process
 
         // Close Unneeded File Descriptors
-        close(pipes[0].write);
-        close(pipes[1].write);
-        close(pipes[2].read);
+        close(pipes.at(0).write);
+        close(pipes.at(1).write);
 
         // Return
-        return Process(ret, {pipes[0].read, pipes[1].read, pipes[2].write});
+        return Process(ret, {pipes.at(0).read, pipes.at(1).read});
     }
 }
 #define CHILD_PROCESS_TAG "(Child Process) "
@@ -200,12 +190,11 @@ Process spawn_with_stdio(const char *const argv[]) {
     // Store Output
     const std::array<Pipe, Process::fd_count> pipes = {
         Pipe(true),
-        Pipe(true),
         Pipe(true)
     };
 
     // Configure Pipes
-    for (const HANDLE fd : {pipes[0].read, pipes[1].read, pipes[2].write}) {
+    for (const HANDLE fd : {pipes.at(0).read, pipes.at(1).read}) {
         if (!SetHandleInformation(fd, HANDLE_FLAG_INHERIT, 0)) {
             ERR("Unable To Disable Pipe Inheritance");
         }
@@ -213,10 +202,10 @@ Process spawn_with_stdio(const char *const argv[]) {
 
     // Create Process
     const std::string cmd = make_cmd(argv);
-    STARTUPINFO si = {};
-    si.hStdOutput = pipes[0].write;
-    si.hStdError = pipes[1].write;
-    si.hStdInput = pipes[2].read;
+    STARTUPINFOA si = {};
+    si.hStdOutput = pipes.at(0).write;
+    si.hStdError = pipes.at(1).write;
+    si.hStdInput = GetStdHandle(STD_INPUT_HANDLE);
     si.dwFlags |= STARTF_USESTDHANDLES;
     si.cb = sizeof(si);
     PROCESS_INFORMATION pi = {};
@@ -236,12 +225,11 @@ Process spawn_with_stdio(const char *const argv[]) {
     }
 
     // Close Unneeded File Descriptors
-    CloseHandle(pipes[0].write);
-    CloseHandle(pipes[1].write);
-    CloseHandle(pipes[2].read);
+    CloseHandle(pipes.at(0).write);
+    CloseHandle(pipes.at(1).write);
 
     // Return
-    return Process(pi, {pipes[0].read, pipes[1].read, pipes[2].write});
+    return Process(pi, {pipes.at(0).read, pipes.at(1).read});
 }
 #endif
 
@@ -250,11 +238,9 @@ std::vector<unsigned char> *run_command(const char *const command[], int *exit_s
     // Run
     Process child = spawn_with_stdio(command);
 
-    // Close stdin
-    child.close_fd(2);
     // Read stdout
     std::vector<unsigned char> *output = new std::vector<unsigned char>;
-    poll_fds({child.fds[0], child.fds[1]}, {}, [&output](const int i, const size_t size, unsigned char *buf) {
+    poll_fds({child.fds.at(0), child.fds.at(1)}, {}, [&output](const int i, const size_t size, unsigned char *buf) {
         if (i == 0) {
             // stdout
             output->insert(output->end(), buf, buf + size);
