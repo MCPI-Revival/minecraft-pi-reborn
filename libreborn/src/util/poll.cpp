@@ -7,6 +7,72 @@
 #include <libreborn/util/exec.h>
 #include <libreborn/log.h>
 
+// Poll Single FD
+#ifdef _WIN32
+template <size_t buf_size>
+static bool poll_fd_console(const HANDLE fd, unsigned char buf[buf_size], size_t &bytes_read_out) {
+    // Get Available Events
+    DWORD available_events = 0;
+    if (!GetNumberOfConsoleInputEvents(fd, &available_events)) {
+        // Probably Closed
+        return false;
+    } else if (available_events == 0) {
+        // No Events To Read
+        return true;
+    }
+    available_events = std::min<DWORD>(available_events, buf_size);
+
+    // Read Events
+    INPUT_RECORD records[buf_size];
+    DWORD events_read = 0;
+    if (!ReadConsoleInputA(fd, records, available_events, &events_read)) {
+        // Probably Closed
+        return false;
+    }
+
+    // Convert To Characters
+    for (DWORD i = 0; i < events_read; i++) {
+        const INPUT_RECORD &record = records[i];
+        if (record.EventType == KEY_EVENT) {
+            const KEY_EVENT_RECORD &key_record = record.Event.KeyEvent;
+            if (key_record.bKeyDown) {
+                buf[bytes_read_out++] = key_record.uChar.AsciiChar;
+            }
+        }
+    }
+
+    // Success
+    return true;
+}
+template <size_t buf_size>
+static bool poll_fd_pipe(const HANDLE fd, unsigned char buf[buf_size], size_t &bytes_read_out) {
+    // Get Data Available
+    DWORD bytes_available = 0;
+    BOOL ret = PeekNamedPipe(fd, nullptr, 0, nullptr, &bytes_available, nullptr);
+    if (!ret) {
+        // Probably Closed
+        return false;
+    }
+
+    // Read Data
+    if (bytes_available > 0) {
+        DWORD bytes_read = 0;
+        ret = ReadFile(fd, buf, std::min<DWORD>(buf_size, bytes_available), &bytes_read, nullptr);
+        if (ret && bytes_read > 0) {
+            // Successfully Read Data
+            bytes_read_out = bytes_read;
+            return true;
+        } else {
+            // Mark As Closed
+            return false;
+        }
+    } else {
+        // No Data Available
+        return true;
+    }
+}
+#endif
+
 // Poll FDs
 #define BUFFER_SIZE 1024
 void poll_fds(std::vector<HANDLE> fds, const std::unordered_set<HANDLE> &do_not_expect_to_close, const std::function<void(int, size_t, unsigned char *)> &on_data) {
@@ -17,7 +83,15 @@ void poll_fds(std::vector<HANDLE> fds, const std::unordered_set<HANDLE> &do_not_
         handle_to_index[fds.at(i)] = int(i);
     }
 
+    // Detect Console Inputs
+    std::vector<bool> is_console;
+    for (const HANDLE &fd : fds) {
+        DWORD mode;
+        is_console.push_back(GetConsoleMode(fd, &mode));
+    }
+
     // Poll
+    unsigned char buf[BUFFER_SIZE];
     while (true) {
         // Count Open Pipes
         int open_fds = 0;
@@ -34,34 +108,32 @@ void poll_fds(std::vector<HANDLE> fds, const std::unordered_set<HANDLE> &do_not_
         // This is a really inefficient solution,
         // but Windows just doesn't have a nice way
         // to wait for pipes to be readable.
-        for (std::vector<HANDLE>::size_type j = 0; j < fds.size(); j++) {
-            // Check For Data Received
-            HANDLE fd = fds.at(j);
+        std::vector<HANDLE> to_remove;
+        for (const HANDLE fd : fds) {
+            // Get Index
             const int i = handle_to_index.at(fd);
 
-            // Get Data Available
-            DWORD bytes_available = 0;
-            BOOL ret = PeekNamedPipe(fd, nullptr, 0, nullptr, &bytes_available, nullptr);
+            // Read Data (If Available)
+            size_t bytes_read = 0;
+            const bool ret = is_console.at(i) ?
+                poll_fd_console<BUFFER_SIZE>(fd, buf, bytes_read) :
+                poll_fd_pipe<BUFFER_SIZE>(fd, buf, bytes_read);
             if (!ret) {
-                // Probably Closed
-                std::erase(fds, fd);
-                continue;
-            }
-
-            // Read Data
-            if (bytes_available > 0) {
-                unsigned char buf[BUFFER_SIZE];
-                DWORD bytes_read = 0;
-                ret = ReadFile(fd, buf, std::min<DWORD>(BUFFER_SIZE, bytes_available), &bytes_read, nullptr);
-                if (ret && bytes_read > 0) {
-                    // Callback
-                    on_data(i, bytes_read, buf);
-                } else {
-                    // Mark As Closed
-                    std::erase(fds, fd);
-                }
+                // Closed
+                to_remove.push_back(fd);
+            } else if (bytes_read > 0) {
+                // Callback
+                on_data(i, bytes_read, buf);
             }
         }
+
+        // Remove Closed FDs
+        for (const HANDLE fd : to_remove) {
+            std::erase(fds, fd);
+        }
+
+        // Prevent 100% CPU
+        Sleep(10);
     }
 #else
     // Setup Polling
@@ -74,6 +146,7 @@ void poll_fds(std::vector<HANDLE> fds, const std::unordered_set<HANDLE> &do_not_
     }
 
     // Poll
+    unsigned char buf[BUFFER_SIZE];
     while (true) {
         // Count Open FDs
         int open_fds = 0;
@@ -102,7 +175,6 @@ void poll_fds(std::vector<HANDLE> fds, const std::unordered_set<HANDLE> &do_not_
             if (poll_fd.revents != 0 && poll_fd.events != 0) {
                 if (poll_fd.revents & POLLIN) {
                     // Data Available From Child's stdout/stderr
-                    unsigned char buf[BUFFER_SIZE];
                     const ssize_t bytes_read = read(poll_fd.fd, buf, BUFFER_SIZE);
                     if (bytes_read == -1) {
                         ERR("Unable To Read Data: %s", strerror(errno));

@@ -19,15 +19,6 @@
 #include "writer.h"
 #include "../util/util.h"
 
-// Exit Handler
-#ifndef _WIN32
-static pid_t child_pid = -1;
-static void exit_handler(MCPI_UNUSED int signal) {
-    // Murder
-    kill(child_pid, SIGTERM);
-}
-#endif
-
 // Log File
 static std::string get_logs_folder() {
     const std::string home = home_get();
@@ -48,7 +39,7 @@ static void setup_log_file() {
     // Create Pipe
     log_pipe = new Pipe(false);
     const HANDLE log_handle = log_pipe->write;
-    reborn_set_log(
+    reborn_init_log(
 #ifdef _WIN32
         _open_osfhandle(intptr_t(log_handle), _O_WRONLY | _O_APPEND)
 #else
@@ -102,9 +93,6 @@ static void setup_logger_child() {
 
     // Close Unneeded FD
     close(log_pipe->read);
-
-    // Create New Process Group
-    setpgid(0, 0);
 }
 #endif
 static int setup_logger_parent(Process &child) {
@@ -113,15 +101,15 @@ static int setup_logger_parent(Process &child) {
     // * Forward the terminal's input to the child.
     // * Display the crash report dialog when needed.
 
-    // Install Signal Handlers
+    // Ignore Signals
+    // The terminal will automatically pass them
+    // to the child process.
 #ifndef _WIN32
-    child_pid = child.pid;
-    for (const int signal : {SIGINT, SIGTERM}) {
-        struct sigaction action = {};
-        action.sa_flags = SA_RESTART;
-        action.sa_handler = &exit_handler;
-        sigaction(signal, &action, nullptr);
+    for (const int signal_id : {SIGINT, SIGTERM}) {
+        signal(signal_id, SIG_IGN);
     }
+#else
+    SetConsoleCtrlHandler(nullptr, TRUE);
 #endif
 
     // Get Pipes
@@ -160,7 +148,7 @@ static int setup_logger_parent(Process &child) {
             case 3: {
                 // Source: Parent's stdin
                 // Action: Write to the child's stdin
-                HANDLE fd = child.fds[2];
+                HANDLE fd = child.fds.at(2);
 #ifndef _WIN32
                 safe_write(fd, buf, size);
 #else
@@ -177,7 +165,7 @@ static int setup_logger_parent(Process &child) {
     });
 
     // Close Debug Log
-    reborn_set_log(-1); // This also closes log_pipe->write.
+    reborn_init_log(-1); // This also closes log_pipe->write.
     CloseHandle(log_pipe->read);
     delete log_pipe;
 

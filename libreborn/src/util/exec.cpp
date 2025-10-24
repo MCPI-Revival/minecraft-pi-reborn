@@ -68,6 +68,7 @@ void safe_execvpe(const char *const argv[]) {
 #ifndef _WIN32
     const int ret = execvpe(argv[0], (char *const *) argv, environ);
 #else
+    SetConsoleCtrlHandler(nullptr, TRUE);
     const std::string cmd = make_cmd(argv);
     STARTUPINFO si = {};
     si.cb = sizeof(si);

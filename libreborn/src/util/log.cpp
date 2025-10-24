@@ -46,7 +46,7 @@ __attribute__((destructor)) static void close_log_file() {
     log_file = std::nullopt;
 }
 static pid_t logger_process = -1;
-void reborn_set_log(const int fd) {
+void reborn_init_log(const int fd) {
     // Configure Local State
     close_log_file();
     open_log_file_from_fd(fd);

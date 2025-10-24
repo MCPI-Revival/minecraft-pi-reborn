@@ -86,7 +86,7 @@ int main(const int argc, char *argv[]) {
     reborn_debug_tag = "(Launcher) ";
 
     // Debug Logging
-    reborn_set_log(-1);
+    reborn_init_log(-1);
     bind_to_env(MCPI_DEBUG_ENV, options.debug);
     bind_to_env(MCPI_QUIET_ENV, options.quiet);
 
