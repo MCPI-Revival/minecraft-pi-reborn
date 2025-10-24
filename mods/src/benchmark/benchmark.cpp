@@ -178,7 +178,7 @@ void init_benchmark() {
         // Track Ticks
         misc_run_on_tick(Minecraft_tick_injection);
         // Disable Interaction
-        media_set_interactable(0);
+        media_set_interactable(false);
         // Disable V-Sync
         media_disable_vsync();
         // Use PerformanceTestChunkSource

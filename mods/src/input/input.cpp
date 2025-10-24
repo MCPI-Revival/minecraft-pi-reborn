@@ -24,7 +24,7 @@ void init_input() {
 
     // Disable Raw Mouse Motion
     if (feature_has("Disable Raw Mouse Motion (Not Recommended)", server_disabled)) {
-        media_set_raw_mouse_motion_enabled(0);
+        media_set_raw_mouse_motion_enabled(false);
     }
 
     // Extra Key Codes

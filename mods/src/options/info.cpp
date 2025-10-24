@@ -1,6 +1,7 @@
-#include <libreborn/util/exec.h>
 #include <libreborn/util/util.h>
 #include <libreborn/config.h>
+
+#include <media-layer/core.h>
 
 #include <symbols/minecraft.h>
 
@@ -30,6 +31,7 @@ struct info_line {
     std::string (*get_text)();
     std::string button_url;
     std::string button_text;
+    bool is_url;
 };
 std::string info_sound_data_state = "N/A";
 const std::string sound_doc_url = std::string(reborn_config.docs.getting_started) + "#sound";
@@ -39,21 +41,24 @@ static info_line info[] = {
             return std::string("Version: ") + reborn_get_fancy_version();
         },
         .button_url = reborn_config.docs.changelog,
-        .button_text = "Changelog"
+        .button_text = "Changelog",
+        .is_url = true
     },
     {
         .get_text = []() {
             return std::string("Profile Directory");
         },
-        .button_url = std::string("file://") + home_get(),
-        .button_text = "Open"
+        .button_url = home_get(),
+        .button_text = "Open",
+        .is_url = false
     },
     {
         .get_text = []() {
             return std::string("Sound Data: ") + info_sound_data_state;
         },
         .button_url = sound_doc_url,
-        .button_text = "More Info"
+        .button_text = "More Info",
+        .is_url = true
     },
 };
 #define info_size int(sizeof(info) / sizeof(info_line))
@@ -206,11 +211,11 @@ struct InfoScreen final : CustomScreen {
             self->handleBackEvent(false);
         } else if (button->id == DISCORD_ID) {
             // Open Discord Invite
-            open_url(reborn_config.extra.discord_invite);
+            media_open(reborn_config.extra.discord_invite, true);
         } else if (button->id >= INFO_ID_START) {
             // Open Info URL
             const int i = button->id - INFO_ID_START;
-            open_url(info[i].button_url);
+            media_open(info[i].button_url.c_str(), true);
         } else {
             CustomScreen::buttonClicked(button);
         }

@@ -1,7 +1,6 @@
 #pragma once
 
 #include <cstring>
-#include <cstdlib>
 #include <utility>
 
 #include <libreborn/log.h>
@@ -52,11 +51,11 @@ inline void _handle_trampoline_arg<copy_array>(unsigned char *&out, const copy_a
 
 // Main Trampoline Function
 template <typename... Args>
-unsigned int _trampoline(const unsigned int id, const bool allow_early_return, Args&&... args) {
+unsigned int _trampoline(const unsigned int id, const bool allow_early_return, const Args&... args) {
     // Create Arguments
     static unsigned char out[MAX_TRAMPOLINE_ARGS_SIZE];
     unsigned char *end = out;
-    (_handle_trampoline_arg(end, std::forward<Args>(args)), ...); // https://stackoverflow.com/a/25683817
+    (_handle_trampoline_arg(end, args), ...); // https://stackoverflow.com/a/25683817
     const uint32_t length = end - out;
     // Call
     uint32_t ret = 0;

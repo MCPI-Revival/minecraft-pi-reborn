@@ -2,7 +2,8 @@
 #include <cstdint>
 
 #include <libreborn/patch.h>
-#include <libreborn/util/exec.h>
+
+#include <media-layer/core.h>
 
 #include <symbols/minecraft.h>
 
@@ -105,7 +106,7 @@ static void OptionsScreen_init_injection(OptionsScreen_init_t original, OptionsS
 
     // Add Button
     Touch_TButton *button = Touch_TButton::allocate();
-    std::string name = "Reborn";
+    const std::string name = "Reborn";
     button->constructor(INFO_BUTTON_ID, name);
     self->rendered_buttons.push_back((Button *) button);
     self->selectable_buttons.push_back((Button *) button);
@@ -166,7 +167,7 @@ static void OptionsScreen_removed_injection(OptionsScreen_removed_t original, Op
 static void OptionButton_toggle_injection(OptionButton_toggle_t original, OptionButton *self, Options *options) {
     if (self->option == &Options_Option::SOUND && info_sound_data_state != info_sound_data_loaded) {
         // Open
-        open_url(sound_doc_url);
+        media_open(sound_doc_url.c_str(), true);
     } else {
         // Call Original Method
         original(self, options);

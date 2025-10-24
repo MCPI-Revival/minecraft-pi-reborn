@@ -9,7 +9,7 @@
 
 // SDL Functions
 
-CALL(0, media_SDL_Init, int, (uint32_t flags))
+CALL(0, media_SDL_Init, int, (const uint32_t flags))
 #ifdef MEDIA_LAYER_TRAMPOLINE_GUEST
     return trampoline(false, flags);
 #else
@@ -58,7 +58,7 @@ CALL(4, media_toggle_fullscreen, void, ())
 #endif
 }
 
-CALL(5, media_SDL_WM_GrabInput, SDL_GrabMode, (SDL_GrabMode mode))
+CALL(5, media_SDL_WM_GrabInput, SDL_GrabMode, (const SDL_GrabMode mode))
 #ifdef MEDIA_LAYER_TRAMPOLINE_GUEST
     return (SDL_GrabMode) trampoline(false, mode);
 #else
@@ -66,7 +66,7 @@ CALL(5, media_SDL_WM_GrabInput, SDL_GrabMode, (SDL_GrabMode mode))
 #endif
 }
 
-CALL(6, media_SDL_ShowCursor, int, (int32_t toggle))
+CALL(6, media_SDL_ShowCursor, int, (const int32_t toggle))
 #ifdef MEDIA_LAYER_TRAMPOLINE_GUEST
     return trampoline(false, toggle);
 #else
@@ -105,7 +105,7 @@ CALL(10, media_get_framebuffer_size, void, (int *width, int *height))
 #endif
 }
 
-CALL(59, media_audio_update, void, (float volume, float x, float y, float z, float yaw))
+CALL(59, media_audio_update, void, (const float volume, const float x, const float y, const float z, const float yaw))
 #ifdef MEDIA_LAYER_TRAMPOLINE_GUEST
     trampoline(true, volume, x, y, z, yaw);
 #else
@@ -119,7 +119,7 @@ CALL(59, media_audio_update, void, (float volume, float x, float y, float z, flo
 #endif
 }
 
-CALL(60, media_audio_play, void, (const char *source, const char *name, float x, float y, float z, float pitch, float volume, int is_ui))
+CALL(60, media_audio_play, void, (const char *source, const char *name, const float x, const float y, const float z, const float pitch, const float volume, const int is_ui))
 #ifdef MEDIA_LAYER_TRAMPOLINE_GUEST
     trampoline(true, copy_array(source), copy_array(name), x, y, z, pitch, volume, is_ui);
 #else
@@ -136,11 +136,11 @@ CALL(60, media_audio_play, void, (const char *source, const char *name, float x,
 #endif
 }
 
-CALL(62, media_set_interactable, void, (int is_interactable))
+CALL(62, media_set_interactable, void, (const bool is_interactable))
 #ifdef MEDIA_LAYER_TRAMPOLINE_GUEST
     trampoline(true, is_interactable);
 #else
-    func(args.next<int>());
+    func(args.next<bool>());
     return 0;
 #endif
 }
@@ -154,16 +154,16 @@ CALL(63, media_disable_vsync, void, ())
 #endif
 }
 
-CALL(64, media_set_raw_mouse_motion_enabled, void, (int enabled))
+CALL(64, media_set_raw_mouse_motion_enabled, void, (const bool enabled))
 #ifdef MEDIA_LAYER_TRAMPOLINE_GUEST
     trampoline(true, enabled);
 #else
-    func(args.next<int>());
+    func(args.next<bool>());
     return 0;
 #endif
 }
 
-CALL(71, media_has_extension, int, (const char *name))
+CALL(71, media_has_extension, bool, (const char *name))
 #ifdef MEDIA_LAYER_TRAMPOLINE_GUEST
     return trampoline(false, copy_array(name));
 #else
@@ -193,7 +193,7 @@ CALL(77, media_end_offscreen_render, void, ())
 #endif
 }
 
-CALL(78, media_download_into_texture, void, (unsigned int texture, const char *url))
+CALL(78, media_download_into_texture, void, (const unsigned int texture, const char *url))
 #ifdef MEDIA_LAYER_TRAMPOLINE_GUEST
     trampoline(true, texture, copy_array(url));
 #else
@@ -209,6 +209,17 @@ CALL(79, media_apply_downloaded_textures, void, ())
     trampoline(true);
 #else
     func();
+    return 0;
+#endif
+}
+
+CALL(80, media_open, void, (const char *path, const bool is_url))
+#ifdef MEDIA_LAYER_TRAMPOLINE_GUEST
+    trampoline(true, copy_array(path), is_url);
+#else
+    const char *path = args.next_arr<char>();
+    const bool is_url = args.next<bool>();
+    func(path, is_url);
     return 0;
 #endif
 }

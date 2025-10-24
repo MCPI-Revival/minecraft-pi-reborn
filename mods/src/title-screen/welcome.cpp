@@ -3,7 +3,8 @@
 #include <libreborn/patch.h>
 #include <libreborn/config.h>
 #include <libreborn/util/util.h>
-#include <libreborn/util/exec.h>
+
+#include <media-layer/core.h>
 
 #include <symbols/minecraft.h>
 
@@ -113,9 +114,9 @@ struct WelcomeScreen final : CustomScreen {
     // Handle Button Click
     void buttonClicked(Button *button) override {
         if (button == getting_started) {
-            open_url(reborn_config.docs.getting_started);
+            media_open(reborn_config.docs.getting_started, true);
         } else if (button == changelog) {
-            open_url(reborn_config.docs.changelog);
+            media_open(reborn_config.docs.changelog, true);
         } else if (button == proceed) {
             mark_welcome_as_shown();
             self->minecraft->screen_chooser.setScreen(1);

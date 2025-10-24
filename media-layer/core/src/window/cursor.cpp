@@ -2,13 +2,13 @@
 
 // Enable/Disable Raw Mouse Motion
 bool raw_mouse_motion_enabled = true;
-void media_set_raw_mouse_motion_enabled(const int enabled) {
+void media_set_raw_mouse_motion_enabled(const bool enabled) {
     raw_mouse_motion_enabled = enabled;
     if (glfw_window) {
         glfwSetInputMode(glfw_window, GLFW_RAW_MOUSE_MOTION, GLFW_FALSE);
     }
     if (!raw_mouse_motion_enabled) {
-        WARN("Raw mouse motion has been DISABLED, this IS NOT recommended, and should only ever be used on systems that don't support or have broken raw mouse motion.");
+        WARN("Raw mouse motion has been DISABLED, this IS NOT recommended, and should only ever be used on systems that do not support or have broken raw mouse motion.");
     }
 }
 

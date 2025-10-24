@@ -2,8 +2,8 @@
 
 // Allow Disabling Interaction
 bool is_interactable = true;
-void media_set_interactable(const int toggle) {
-    if (bool(toggle) != is_interactable) {
+void media_set_interactable(const bool toggle) {
+    if (toggle != is_interactable) {
         is_interactable = toggle;
         _media_update_cursor();
     }
@@ -20,11 +20,11 @@ void media_get_framebuffer_size(int *width, int *height) {
 }
 
 // Check OpenGL Extension
-int media_has_extension(const char *name) {
+bool media_has_extension(const char *name) {
     if (glfw_window) {
         return glfwExtensionSupported(name);
     } else {
-        return 0;
+        return false;
     }
 }
 

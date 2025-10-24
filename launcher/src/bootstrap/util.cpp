@@ -22,7 +22,7 @@ std::string run_command_and_trim(const char *const command[], const char *action
 // Translate Windows Path To WSL Path
 std::string translate_native_path_to_linux(const std::string &path) {
 #ifdef _WIN32
-    const char *const command[] = {"wsl", "--exec", "wslpath", path.c_str(), nullptr};
+    const char *const command[] = {"wsl", "--exec", "wslpath", "-u", path.c_str(), nullptr};
     return run_command_and_trim(command, "Translate Native Path To Linux");
 #else
     return path;
