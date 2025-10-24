@@ -43,9 +43,16 @@ endfunction()
 
 # Install Sysroot (Skipping Empty Directories)
 function(_install_arm_sysroot_config config)
+    # Get List Of Libraries
     set(dir "${sysroot_dir_${config}}")
-    file(GLOB_RECURSE files LIST_DIRECTORIES FALSE RELATIVE "${dir}" "${dir}/*")
+    file(GLOB_RECURSE files
+        LIST_DIRECTORIES FALSE
+        RELATIVE "${dir}"
+        "${dir}/*"
+    )
+    # Iterate
     foreach(file IN LISTS files)
+        # Get File Path
         cmake_path(GET file PARENT_PATH parent)
         cmake_path(GET file FILENAME name)
         set(file "${dir}/${file}")
@@ -53,6 +60,7 @@ function(_install_arm_sysroot_config config)
             # Windows Does Not Like Symlinks
             file(REAL_PATH "${file}" file)
         endif()
+        # Install Library
         install(
             PROGRAMS "${file}"
             DESTINATION "${MCPI_INSTALL_DIR}/sysroot/${parent}"

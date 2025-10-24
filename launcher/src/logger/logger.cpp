@@ -74,17 +74,6 @@ static void fwrite_with_flush(FILE *stream, const void *data, const size_t size)
     fwrite(data, size, 1, stream);
     fflush(stream);
 }
-static std::optional<HANDLE> get_stdin() {
-#ifdef _WIN32
-    const HANDLE input_handle = GetStdHandle(STD_INPUT_HANDLE);
-    if (input_handle && input_handle != INVALID_HANDLE_VALUE) {
-        return input_handle;
-    }
-    return std::nullopt;
-#else
-    return STDIN_FILENO;
-#endif
-}
 
 // Setup
 #ifndef _WIN32
@@ -122,11 +111,15 @@ static int setup_logger_parent(Process &child) {
     std::unordered_set do_not_expect_to_close = {
         log_pipe->read
     };
-    const std::optional<HANDLE> input_handle = get_stdin();
-    if (input_handle.has_value()) {
-        fds.push_back(input_handle.value());
-        do_not_expect_to_close.insert(input_handle.value());
-    }
+
+    // Handle STDIN
+#ifndef _WIN32
+    const HANDLE input_handle = STDIN_FILENO;
+    fds.push_back(input_handle);
+    do_not_expect_to_close.insert(input_handle);
+#else
+    child.close_fd(2);
+#endif
 
     // Poll
     poll_fds(fds, do_not_expect_to_close, [&child](const int i, const size_t size, unsigned char *buf) {
@@ -148,15 +141,11 @@ static int setup_logger_parent(Process &child) {
             case 3: {
                 // Source: Parent's stdin
                 // Action: Write to the child's stdin
-                HANDLE fd = child.fds.at(2);
 #ifndef _WIN32
+                const HANDLE fd = child.fds.at(2);
                 safe_write(fd, buf, size);
 #else
-                DWORD bytes_written;
-                const BOOL ret = WriteFile(fd, buf, size, &bytes_written, nullptr);
-                if (!ret && bytes_written != size) {
-                    ERR("Unable To Write To Child's Input");
-                }
+                (void) child;
 #endif
                 break;
             }

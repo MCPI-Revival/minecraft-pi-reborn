@@ -44,7 +44,7 @@ cmake_language(EVAL CODE "${BUILD_MODE_SETUP}")
 include(cmake/options/extra-options.cmake)
 
 # Paths
-include(cmake/options/paths.cmake)
+include(cmake/paths.cmake)
 
 # Required Compile Flags
 set(RELEASE_MODE_GENERATOR "\$<CONFIG:${RELEASE_MODE}>")
@@ -122,6 +122,11 @@ if(BUILD_NATIVE_COMPONENTS)
 
     # Superbuild
     include(cmake/superbuild.cmake)
+
+    # Copy Windows Dependencies
+    if(MCPI_WIN32)
+        include(cmake/msys2.cmake)
+    endif()
 elseif(BUILD_ARM_COMPONENTS)
     # Build
     add_subdirectory(symbols)

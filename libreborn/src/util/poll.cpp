@@ -10,41 +10,6 @@
 // Poll Single FD
 #ifdef _WIN32
 template <size_t buf_size>
-static bool poll_fd_console(const HANDLE fd, unsigned char buf[buf_size], size_t &bytes_read_out) {
-    // Get Available Events
-    DWORD available_events = 0;
-    if (!GetNumberOfConsoleInputEvents(fd, &available_events)) {
-        // Probably Closed
-        return false;
-    } else if (available_events == 0) {
-        // No Events To Read
-        return true;
-    }
-    available_events = std::min<DWORD>(available_events, buf_size);
-
-    // Read Events
-    INPUT_RECORD records[buf_size];
-    DWORD events_read = 0;
-    if (!ReadConsoleInputA(fd, records, available_events, &events_read)) {
-        // Probably Closed
-        return false;
-    }
-
-    // Convert To Characters
-    for (DWORD i = 0; i < events_read; i++) {
-        const INPUT_RECORD &record = records[i];
-        if (record.EventType == KEY_EVENT) {
-            const KEY_EVENT_RECORD &key_record = record.Event.KeyEvent;
-            if (key_record.bKeyDown) {
-                buf[bytes_read_out++] = key_record.uChar.AsciiChar;
-            }
-        }
-    }
-
-    // Success
-    return true;
-}
-template <size_t buf_size>
 static bool poll_fd_pipe(const HANDLE fd, unsigned char buf[buf_size], size_t &bytes_read_out) {
     // Get Data Available
     DWORD bytes_available = 0;
@@ -115,9 +80,7 @@ void poll_fds(std::vector<HANDLE> fds, const std::unordered_set<HANDLE> &do_not_
 
             // Read Data (If Available)
             size_t bytes_read = 0;
-            const bool ret = is_console.at(i) ?
-                poll_fd_console<BUFFER_SIZE>(fd, buf, bytes_read) :
-                poll_fd_pipe<BUFFER_SIZE>(fd, buf, bytes_read);
+            const bool ret = poll_fd_pipe<BUFFER_SIZE>(fd, buf, bytes_read);
             if (!ret) {
                 // Closed
                 to_remove.push_back(fd);

@@ -69,7 +69,7 @@ target_link_libraries(logger
 )
 
 # Crash Report Dialog
-add_executable(crash-report WIN32
+add_executable(crash-report
     src/logger/crash-report.cpp
 )
 target_link_libraries(crash-report
@@ -101,6 +101,10 @@ function(install_bin target)
         # RPath
         set_target_properties("${target}" PROPERTIES INSTALL_RPATH "$ORIGIN/lib/native")
         target_link_options("${target}" PRIVATE "LINKER:--disable-new-dtags")
+        # Set Subsystem
+        #set_target_properties("${target}" PROPERTIES
+        #    WIN32_EXECUTABLE TRUE
+        #)
     else()
         # Manifest
         target_sources("${target}" PRIVATE "${MCPI_MANIFEST}")
