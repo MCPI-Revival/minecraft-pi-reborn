@@ -6,6 +6,7 @@
 FILE *reborn_get_log_file();
 void reborn_init_log(int fd);
 // Debug Logging
+#define DEBUG_TAG(x) "(" x ") "
 extern const char *reborn_debug_tag;
 FILE *reborn_get_debug_file();
 

@@ -10,7 +10,10 @@
 #include "bootstrap.h"
 
 // Bootstrap
-void bootstrap(const options_t &options) {
+int main(MCPI_UNUSED const int argc, MCPI_UNUSED char *argv[]) {
+    // Set Debug Tag
+    reborn_debug_tag = DEBUG_TAG("Bootstrapper");
+
     // Debug Information
     print_debug_information();
 
@@ -49,24 +52,22 @@ void bootstrap(const options_t &options) {
 
     // Fix Environment
     DEBUG("Fixing Environment...");
+#ifndef _WIN32
     set_and_print_env("LD_BIND_NOW", nullptr);
     set_and_print_env("LC_ALL", "C.UTF-8");
+#else
     set_wslenv();
+#endif
 
     // Start Game
     INFO("Starting Game...");
 
     // Run
-    const std::string runtime_exe = binary_directory + path_separator + "runtime";
-    const std::string logger_exe = binary_directory + path_separator + "logger";
     const std::string patched_exe = get_patched_exe_path();
-    std::vector<const char *> new_argv = {
-        runtime_exe.c_str(),
+    constexpr int new_argc = 1;
+    const char *new_argv[new_argc + 1] = {
         patched_exe.c_str(),
         nullptr
     };
-    if (!options.disable_logger) {
-        new_argv.insert(new_argv.begin(), logger_exe.c_str());
-    }
-    safe_execvpe(new_argv.data());
+    start_runtime(new_argc, new_argv);
 }

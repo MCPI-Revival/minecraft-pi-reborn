@@ -178,7 +178,7 @@ static int setup_logger_parent(Process &child) {
 // Main
 int main(MCPI_UNUSED const int argc, char *argv[]) {
     // Set Debug Tag
-    reborn_debug_tag = "(Logger) ";
+    reborn_debug_tag = DEBUG_TAG("Logger");
 
     // Setup Logging
     setup_log_file();

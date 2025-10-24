@@ -27,12 +27,6 @@ target_link_libraries(launcher-util
 
 # Launcher
 add_executable(launcher
-    src/bootstrap/bootstrap.cpp
-    src/bootstrap/mods.cpp
-    src/bootstrap/assets.cpp
-    src/bootstrap/patchelf.cpp
-    src/bootstrap/debug.cpp
-    src/bootstrap/util.cpp
     src/main.cpp
     src/client/configuration.cpp
     src/client/cache.cpp
@@ -55,9 +49,7 @@ endif()
 target_link_libraries(launcher
     launcher-ui
     launcher-util
-    LIB_LIEF
     trampoline-headers
-    pthread
 )
 
 # Logger
@@ -78,18 +70,23 @@ target_link_libraries(crash-report
     launcher-ui
 )
 
-# Runtime/Trampoline
-add_executable(runtime-exe
+# Bootstrapper
+add_executable(bootstrap
+    src/bootstrap/bootstrap.cpp
+    src/bootstrap/mods.cpp
+    src/bootstrap/assets.cpp
+    src/bootstrap/patchelf.cpp
+    src/bootstrap/debug.cpp
     src/bootstrap/runtime.cpp
+    src/bootstrap/util.cpp
 )
-set_target_properties(runtime-exe PROPERTIES
-    OUTPUT_NAME runtime
-)
-target_link_libraries(runtime-exe
+target_link_libraries(bootstrap
     reborn-util
+    launcher-util
+    LIB_LIEF
 )
 if(TARGET runtime)
-    target_link_libraries(runtime-exe
+    target_link_libraries(bootstrap
         media-layer-trampoline
         runtime
     )
@@ -126,7 +123,7 @@ endfunction()
 install_bin(launcher)
 install_bin(logger)
 install_bin(crash-report)
-install_bin(runtime-exe)
+install_bin(bootstrap)
 if(NOT MCPI_WIN32)
     install_symlink("../${MCPI_INSTALL_DIR}/launcher" "bin/${MCPI_APP_NAME}")
 endif()

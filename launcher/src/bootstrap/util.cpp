@@ -1,8 +1,8 @@
 #include <libreborn/log.h>
 #include <libreborn/util/exec.h>
+#include <libreborn/util/string.h>
 
 #include "bootstrap.h"
-#include "libreborn/util/string.h"
 
 // Run Command And Trim The Output
 std::string run_command_and_trim(const char *const command[], const char *action) {

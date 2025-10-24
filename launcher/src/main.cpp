@@ -2,10 +2,11 @@
 
 #include <libreborn/env/env.h>
 #include <libreborn/util/util.h>
+#include <libreborn/util/io.h>
+#include <libreborn/util/exec.h>
 #include <libreborn/config.h>
 #include <libreborn/log.h>
 
-#include "bootstrap/bootstrap.h"
 #include "options/parser.h"
 #include "util/util.h"
 #include "client/configuration.h"
@@ -74,16 +75,26 @@ static void start_game(const options_t &options) {
     }
 
     // Bootstrap
-    bootstrap(options);
+    const std::string binary_directory = get_binary_directory();
+    const std::string bootstrap_exe = binary_directory + path_separator + "bootstrap";
+    const std::string logger_exe = binary_directory + path_separator + "logger";
+    std::vector<const char *> new_argv = {
+        bootstrap_exe.c_str(),
+        nullptr
+    };
+    if (!options.disable_logger) {
+        new_argv.insert(new_argv.begin(), logger_exe.c_str());
+    }
+    safe_execvpe(new_argv.data());
 }
 
 // Main
 int main(const int argc, char *argv[]) {
+    // Set Debug Tag
+    reborn_debug_tag = DEBUG_TAG("Launcher");
+
     // Parse Options
     const options_t options = parse_options(argc, argv);
-
-    // Set Debug Tag
-    reborn_debug_tag = "(Launcher) ";
 
     // Debug Logging
     reborn_init_log(-1);

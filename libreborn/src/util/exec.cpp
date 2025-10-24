@@ -170,13 +170,12 @@ std::optional<Process> fork_with_stdio() {
         return Process(ret, {pipes.at(0).read, pipes.at(1).read});
     }
 }
-#define CHILD_PROCESS_TAG "(Child Process) "
 Process spawn_with_stdio(const char *const argv[]) {
     // Run
     const std::optional<Process> child = fork_with_stdio();
     if (!child) {
         // Child Process
-        reborn_debug_tag = CHILD_PROCESS_TAG;
+        reborn_debug_tag = DEBUG_TAG("Child Process");
         // Run
         safe_execvpe(argv);
     }
