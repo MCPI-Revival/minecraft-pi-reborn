@@ -4,6 +4,7 @@
 #include <SDL/SDL.h>
 
 #include "window/media.h"
+#include "base.h"
 
 // SDL Is Replaced With GLFW
 int media_SDL_Init(MCPI_UNUSED uint32_t flags) {
@@ -33,27 +34,37 @@ int media_SDL_PushEvent(const SDL_Event *event) {
 }
 
 // Open File Or URL
+void _media_translate_linux_path_to_native(std::string &path) {
+#ifdef _WIN32
+    const char *const command[] = {
+        "wsl",
+        WSL_FLAGS,
+        "--exec", "wslpath", "-w", path.c_str(),
+        nullptr
+    };
+    exit_status_t exit_code;
+    const std::vector<unsigned char> *output = run_command(command, &exit_code);
+    if (!is_exit_status_success(exit_code)) {
+        path.clear();
+        return;
+    }
+    path = (const char *) output->data();
+    delete output;
+    trim(path);
+#else
+    (void) path;
+#endif
+}
 void media_open(const char *path, const bool is_url) {
     // Convert To URL
     std::string url = path;
     if (!is_url) {
-#ifdef _WIN32
-        const char *const command[] = {
-            "wsl",
-            WSL_FLAGS,
-            "--exec", "wslpath", "-w", url.c_str(),
-            nullptr
-        };
-        exit_status_t exit_code;
-        const std::vector<unsigned char> *output = run_command(command, &exit_code);
-        if (!is_exit_status_success(exit_code)) {
+        _media_translate_linux_path_to_native(url);
+        if (url.empty()) {
             // Give Up
             return;
         }
-        url = (const char *) output->data();
-        delete output;
-        trim(url);
-#else
+#ifdef _WIN32
         url = "file://" + url;
 #endif
     }

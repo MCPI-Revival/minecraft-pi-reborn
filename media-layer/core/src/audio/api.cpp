@@ -93,7 +93,7 @@ void media_audio_update(const float volume, const float x, const float y, const 
 }
 
 // Play
-void media_audio_play(const char *source, const char *name, float x, float y, float z, float pitch, float volume, int is_ui) {
+void media_audio_play(const char *source, const char *name, const float x, const float y, const float z, const float pitch, const float volume, const int is_ui) {
     // Check
     if (_media_audio_is_loaded()) {
         // Load Sound
@@ -109,13 +109,11 @@ void media_audio_play(const char *source, const char *name, float x, float y, fl
                 // Create Source
                 alGenSources(1, &al_source);
                 // Special Out-Of-Memory Handling
-                {
-                    const ALenum err = alGetError();
-                    if (err == AL_OUT_OF_MEMORY) {
-                        return;
-                    } else {
-                        AL_ERROR_CHECK_MANUAL(err);
-                    }
+                const ALenum err = alGetError();
+                if (err == AL_OUT_OF_MEMORY) {
+                    return;
+                } else {
+                    AL_ERROR_CHECK_MANUAL(err);
                 }
             }
 
@@ -144,7 +142,7 @@ void media_audio_play(const char *source, const char *name, float x, float y, fl
             AL_ERROR_CHECK();
 
             // Set Buffer
-            alSourcei(al_source, AL_BUFFER, buffer);
+            alSourcei(al_source, AL_BUFFER, ALint(buffer));
             AL_ERROR_CHECK();
 
             // Play

@@ -1,15 +1,17 @@
 #include <unordered_map>
 #include <string>
 #include <functional>
+#include <ranges>
 
 #include <LIEF/ELF.hpp>
 
 #include <libreborn/log.h>
 
 #include "audio.h"
+#include "../base.h"
 
 // Load Symbol From ELF File
-static void load_symbol(const char *source, const char *name, std::function<void(const unsigned char *, uint32_t)> callback) {
+static void load_symbol(const char *source, const char *name, const std::function<void(const unsigned char *, uint32_t)> &callback) {
     static std::unordered_map<std::string, std::unique_ptr<LIEF::ELF::Binary>> sources = {};
     const std::string cpp_source = source;
     if (!sources.contains(cpp_source)) {
@@ -33,18 +35,30 @@ struct audio_metadata {
     int32_t frames;
 };
 
-// Load Sound Symbol Into ALunit
+// Load Sound From Source
 static ALuint load_sound(const char *source, const char *name) {
     // Check OpenAL
     if (!_media_audio_is_loaded()) {
         return 0;
     }
 
+    // Translate To Native Path
+    static std::string last_source;
+    static std::string last_source_native;
+    if (source != last_source) {
+        last_source = last_source_native = source;
+        _media_translate_linux_path_to_native(last_source_native);
+    }
+    if (last_source_native.empty()) {
+        return 0;
+    }
+    source = last_source_native.c_str();
+
     // Store Result
     ALuint buffer = 0;
 
     // Load Symbol
-    load_symbol(source, name, [name, &buffer](const unsigned char *symbol, uint32_t size) {
+    load_symbol(source, name, [name, &buffer](const unsigned char *symbol, const uint32_t size) {
         // Load Metadata
         if (size < sizeof (audio_metadata)) {
             WARN("Symbol Too Small To Contain Audio Metadata: %s", name);
@@ -83,7 +97,7 @@ static ALuint load_sound(const char *source, const char *name) {
         alBufferData(buffer, format, data, data_size, meta->sample_rate);
 
         // Check OpenAL Error
-        ALenum err = alGetError();
+        const ALenum err = alGetError();
         if (err != AL_NO_ERROR) {
             WARN("Unable To Store Audio Buffer: %s", alGetString(err));
             if (buffer && alIsBuffer(buffer)) {
@@ -120,9 +134,9 @@ ALuint _media_audio_get_buffer(const char *source, const char *name) {
 // Delete Buffers
 void _media_audio_delete_buffers() {
     if (_media_audio_is_loaded()) {
-        for (auto &it : buffers) {
-            if (it.second && alIsBuffer(it.second)) {
-                alDeleteBuffers(1, &it.second);
+        for (ALuint &val : buffers | std::views::values) {
+            if (val && alIsBuffer(val)) {
+                alDeleteBuffers(1, &val);
             }
         }
     }
