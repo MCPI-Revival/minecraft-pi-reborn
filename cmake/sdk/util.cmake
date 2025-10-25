@@ -41,7 +41,7 @@ function(setup_library target should_install should_export)
     if(should_install)
         install(TARGETS "${target}"
             RUNTIME DESTINATION "${MCPI_LIB_DIR}"
-            LIBRARY DESTINATION "${MCPI_LIB_DIR}"
+            LIBRARY DESTINATION "${MCPI_LIB_DIR}" NAMELINK_SKIP
         )
     endif()
     # SDK
