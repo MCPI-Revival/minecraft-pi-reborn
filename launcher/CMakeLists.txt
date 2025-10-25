@@ -16,11 +16,6 @@ add_library(launcher-util SHARED
     src/util/sdk.cpp
     src/util/env.cpp
 )
-if(NOT MCPI_WIN32)
-    target_sources(launcher-util PRIVATE
-        src/util/install.cpp
-    )
-endif()
 target_link_libraries(launcher-util
     reborn-util
 )
@@ -40,10 +35,12 @@ add_executable(launcher
 if(MCPI_WIN32)
     target_sources(launcher PRIVATE
         src/options/parser_win32.cpp
+        src/install/install_win32.cpp
     )
 else()
     target_sources(launcher PRIVATE
         src/options/parser.cpp
+        src/install/install.cpp
     )
 endif()
 target_link_libraries(launcher
@@ -116,6 +113,7 @@ function(install_bin target)
         #)
         # Original Filename
         target_compile_definitions("${target}" PRIVATE
+            # Windres Has Strange Quoting Rules
             "$<$<COMPILE_LANGUAGE:RC>:VER_FILENAME=\\\"$<TARGET_FILE_NAME:${target}>\\\">"
         )
     endif()

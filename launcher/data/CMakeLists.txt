@@ -9,7 +9,7 @@ function(configure_data input_path output_var)
 endfunction()
 
 # Install Data
-function(configure_and_install_data input_path output_path output_name is_desktop_file)
+function(configure_and_install_data input_path output_path output_name)
     configure_data("${input_path}" configured_path)
     set(dir "${MCPI_SHARE_DIR}/${output_path}")
     install(
@@ -17,11 +17,7 @@ function(configure_and_install_data input_path output_path output_name is_deskto
         DESTINATION "${dir}"
         RENAME "${output_name}"
     )
-    if(is_desktop_file)
-        set(full_path "${dir}/${output_name}")
-        cmake_path(RELATIVE_PATH full_path BASE_DIRECTORY "${MCPI_INSTALL_DIR}")
-        target_compile_definitions(launcher-util PRIVATE "DESKTOP_FILE_PATH=\"${full_path}\"")
-    endif()
+    set(full_path "${dir}/${output_name}" PARENT_SCOPE)
 endfunction()
 
 # Metadata Attached To The Binaries
@@ -48,8 +44,12 @@ if(NOT MCPI_WIN32)
     )
 
     # Linux-Specific
-    configure_and_install_data(linux/launcher.desktop applications "${MCPI_APP_ID}.desktop" TRUE)
-    configure_and_install_data(linux/appstream.xml metainfo "${MCPI_APP_ID}.appdata.xml" FALSE)
+    configure_and_install_data(linux/appstream.xml metainfo "${MCPI_APP_ID}.appdata.xml")
+    configure_and_install_data(linux/launcher.desktop applications "${MCPI_APP_ID}.desktop")
+    cmake_path(RELATIVE_PATH full_path BASE_DIRECTORY "${MCPI_INSTALL_DIR}")
+    target_compile_definitions(launcher PRIVATE
+        "DESKTOP_FILE_PATH=\"${full_path}\""
+    )
 else()
     # Windows-Specific
     set(MCPI_VERSION_WIN32 "${MCPI_VERSION}.0")

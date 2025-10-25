@@ -18,11 +18,5 @@ std::string get_appimage_path();
 // SDK
 void copy_sdk(const std::string &binary_directory, bool force);
 
-// Copying Desktop File
-#ifndef _WIN32
-bool is_desktop_file_installed();
-void copy_desktop_file();
-#endif
-
 // Environment
 void setup_home();

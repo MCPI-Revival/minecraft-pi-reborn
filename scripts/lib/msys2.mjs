@@ -11,16 +11,22 @@ export function getMsys2Root() {
 }
 
 // Install
-const varsScript = path.join('env', 'vars.src');
+function patchFile(file, callback) {
+    const oldData = fs.readFileSync(file, 'utf8');
+    const newData = callback(oldData);
+    if (oldData === newData) {
+        err(`Failed To Patch: ${file}`);
+    }
+    fs.writeFileSync(file, newData);
+}
 export function installMsys2() {
     const dir = getMsys2Root();
     fs.rmSync(dir, {recursive: true, force: true});
     run(['git', 'clone', 'https://github.com/HolyBlackCat/quasi-msys2.git', dir]);
     // Patch CMake Flags
-    const file = path.join(dir, varsScript);
-    let data = fs.readFileSync(file, 'utf8');
-    data = data.replace(' -DCMAKE_INSTALL_PREFIX=$MSYSTEM_PREFIX', '');
-    fs.writeFileSync(file, data);
+    patchFile(path.join(dir, 'env', 'vars.src'), data => {
+        return data.replace(' -DCMAKE_INSTALL_PREFIX=$MSYSTEM_PREFIX', '');
+    });
 }
 export function installMsys2Packages(packages) {
     const cmd = ['make', '-C', getMsys2Root(), 'install'];

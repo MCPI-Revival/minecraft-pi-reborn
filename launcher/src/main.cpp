@@ -9,6 +9,7 @@
 
 #include "options/parser.h"
 #include "util/util.h"
+#include "install/install.h"
 #include "client/configuration.h"
 #include "updater/updater.h"
 
@@ -58,13 +59,11 @@ static void handle_non_launch_commands(const options_t &options) {
         exit(EXIT_SUCCESS);
     }
     // Install Desktop File
-#ifndef _WIN32
     if (options.run_install) {
         copy_desktop_file();
         fflush(stdout);
         exit(EXIT_SUCCESS);
     }
-#endif
 }
 
 // Start The Game

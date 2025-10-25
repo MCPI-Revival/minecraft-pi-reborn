@@ -34,7 +34,9 @@ install(
 )
 set(ICON_PATH "${ICON_DIR}/${ICON_NAME}")
 cmake_path(RELATIVE_PATH ICON_PATH BASE_DIRECTORY "${MCPI_INSTALL_DIR}")
-target_compile_definitions(launcher-util PRIVATE "ICON_PATH=\"${ICON_PATH}\"")
+target_compile_definitions(launcher PRIVATE
+    "ICON_PATH=\"${ICON_PATH}\""
+)
 
 # Icon (ICO)
 set(ICO_INPUT "${CMAKE_CURRENT_SOURCE_DIR}/${ICON_FILE}")
@@ -51,7 +53,9 @@ add_custom_command(OUTPUT "${ICO_OUTPUT}"
 add_library(icon-ico INTERFACE
     "${ICO_OUTPUT}"
 )
-add_dependencies(launcher-meta icon-ico)
+target_link_libraries(launcher-meta INTERFACE
+    icon-ico
+)
 
 # AppImage
 if(MCPI_IS_APPIMAGE_BUILD)

@@ -27,14 +27,12 @@ void init_compat() {
     _init_compat_sdl();
 
     // Install Signal Handlers
-    struct sigaction act_sigint = {};
-    act_sigint.sa_flags = SA_RESTART;
-    act_sigint.sa_handler = &exit_handler;
-    sigaction(SIGINT, &act_sigint, nullptr);
-    struct sigaction act_sigterm = {};
-    act_sigterm.sa_flags = SA_RESTART;
-    act_sigterm.sa_handler = &exit_handler;
-    sigaction(SIGTERM, &act_sigterm, nullptr);
+    for (const int sig : {SIGINT, SIGTERM}) {
+        struct sigaction act = {};
+        act.sa_flags = SA_RESTART;
+        act.sa_handler = &exit_handler;
+        sigaction(sig, &act, nullptr);
+    }
 
     // Patches
     _patch_egl_calls();

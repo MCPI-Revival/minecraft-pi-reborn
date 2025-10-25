@@ -7,40 +7,39 @@
 IDI_ICON1 ICON "${MCPI_ICO_PATH}"
 
 // Versioning Information
-#ifdef NDEBUG
-#define VER_DEBUG 0
-#else
-#define VER_DEBUG VS_FF_DEBUG
-#endif
 VS_VERSION_INFO VERSIONINFO
-FILEVERSION ${MCPI_VERSION_RC}
-PRODUCTVERSION ${MCPI_VERSION_RC}
-FILEFLAGSMASK VS_FFI_FILEFLAGSMASK
-FILEFLAGS VER_DEBUG
-FILEOS VOS_NT_WINDOWS32
-FILETYPE VFT_APP
-FILESUBTYPE VFT2_UNKNOWN
-BEGIN
-    // Basic Information
-    BLOCK "StringFileInfo"
+    FILEVERSION ${MCPI_VERSION_RC}
+    PRODUCTVERSION ${MCPI_VERSION_RC}
+    FILEFLAGSMASK VS_FFI_FILEFLAGSMASK
+#ifndef NDEBUG
+	FILEFLAGS VS_FF_DEBUG
+#else
+	FILEFLAGS 0
+#endif
+    FILEOS VOS_NT_WINDOWS32
+    FILETYPE VFT_APP
+    FILESUBTYPE VFT2_UNKNOWN
     BEGIN
-        // U.S. English, ASCII
-        BLOCK "04090000"
-        // Values
+        // Basic Information
+        BLOCK "StringFileInfo"
         BEGIN
-            VALUE "CompanyName", "${MCPI_AUTHOR}"
-            VALUE "FileDescription", "${MCPI_APP_DESCRIPTION}"
-            VALUE "FileVersion", "${MCPI_VERSION}"
-            VALUE "InternalName", VER_FILENAME
-            VALUE "OriginalFilename", VER_FILENAME
-            VALUE "ProductName", "${MCPI_APP_TITLE}"
-            VALUE "ProductVersion", "${MCPI_VERSION}"
+            // U.S. English, ASCII
+            BLOCK "04090000"
+            // Values
+            BEGIN
+                VALUE "CompanyName", "${MCPI_AUTHOR}"
+                VALUE "FileDescription", "${MCPI_APP_DESCRIPTION}"
+                VALUE "FileVersion", "${MCPI_VERSION}"
+                VALUE "InternalName", VER_FILENAME
+                VALUE "OriginalFilename", VER_FILENAME
+                VALUE "ProductName", "${MCPI_APP_TITLE}"
+                VALUE "ProductVersion", "${MCPI_VERSION}"
+            END
+        END
+        // Localization Information
+        BLOCK "VarFileInfo"
+        BEGIN
+            // U.S. English, ASCII
+            VALUE "Translation", 0x409, 0x0000
         END
     END
-    // Localization Information
-    BLOCK "VarFileInfo"
-    BEGIN
-        // U.S. English, ASCII
-        VALUE "Translation", 0x409, 0x0000
-    END
-END

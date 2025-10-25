@@ -9,7 +9,8 @@
 #include <libreborn/util/exec.h>
 #include <libreborn/config.h>
 
-#include "util.h"
+#include "../util/util.h"
+#include "install.h"
 
 // Paths
 static std::string get_data_dir() {
@@ -19,11 +20,11 @@ static std::string get_data_dir() {
     } else {
         // Fallback
         const std::string home = require_env("HOME");
-        return home + "/.local/share";
+        return home + path_separator + ".local" + path_separator + "share";
     }
 }
 static std::string get_output_path(const std::string &path) {
-    const std::string target = "/share";
+    const std::string target = path_separator + std::string("share");
     size_t i = path.find(target);
     if (i == std::string::npos) {
         IMPOSSIBLE();
@@ -64,9 +65,10 @@ static void comment_line(const int fd, const std::string &target, const off_t of
     safe_write(fd, &c, 1);
 }
 static void patch_line(const int fd, const std::string &key, const std::string &value) {
-    // Comment-Out Old Value
+    // Comment Old Value
     const std::string target = key + '=';
-    comment_line(fd, '\n' + target, 1);
+    const std::string prefix = "\n";
+    comment_line(fd, prefix + target, off_t(prefix.size()));
     // Write New Value
     lseek(fd, 0, SEEK_END);
     const std::string line = target + value + '\n';
@@ -93,7 +95,7 @@ static void install_file(const std::string &path) {
     chop_last_component(output_dir);
     make_directory(output_dir);
     // Copy File
-    copy_file(binary_directory + '/' + path, output_path, true);
+    copy_file(binary_directory + path_separator + path, output_path, true);
 }
 static std::string get_exec() {
     return reborn_config.packaging == RebornConfig::PackagingType::APPIMAGE ? get_appimage_path() : get_binary();

@@ -5,7 +5,7 @@
 
 #include "../configuration.h"
 #include "../../updater/updater.h"
-#include "../../util/util.h"
+#include "../../install/install.h"
 
 // Utility Functions
 void ConfigurationUI::draw_centered_text(const std::string &str) {
@@ -41,7 +41,6 @@ void ConfigurationUI::draw_about() {
     });
 
     // Desktop File
-#ifndef _WIN32
     ImGui::Separator();
     ImGui::BeginDisabled(is_desktop_file_installed());
     draw_right_aligned_buttons({"Create Desktop Entry"}, [](MCPI_UNUSED int id, const bool was_clicked) {
@@ -50,7 +49,6 @@ void ConfigurationUI::draw_about() {
         }
     }, true);
     ImGui::EndDisabled();
-#endif
 
     // Updater
     Updater *updater = Updater::instance;
