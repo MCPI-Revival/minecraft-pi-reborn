@@ -6,8 +6,9 @@ configure_file(src/util/config.cpp.in "${CONFIG_FILE}" ESCAPE_QUOTES @ONLY)
 
 # Util
 add_library(reborn-util SHARED
-    src/util/exec.cpp
-    src/util/poll.cpp
+    src/util/exec/exec.cpp
+    src/util/exec/poll.cpp
+    src/util/exec/stdio.cpp
     src/util/string.cpp
     src/util/util.cpp
     src/util/log.cpp

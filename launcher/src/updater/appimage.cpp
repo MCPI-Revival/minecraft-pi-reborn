@@ -23,7 +23,7 @@ AppImageUpdater AppImageUpdater::instance;
 // Update
 template <typename... Args>
 static std::optional<std::string> run_wget(Args... args) {
-    int status = 0;
+    exit_status_t status = 0;
     const char *const command[] = {"wget", "-O", std::forward<Args>(args)..., nullptr};
     const std::vector<unsigned char> *output = run_command(command, &status);
     std::string output_str = (const char *) output->data();

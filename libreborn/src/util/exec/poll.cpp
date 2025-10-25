@@ -40,7 +40,7 @@ static bool poll_fd_pipe(const HANDLE fd, unsigned char buf[buf_size], size_t &b
 
 // Poll FDs
 #define BUFFER_SIZE 1024
-void poll_fds(std::vector<HANDLE> fds, const std::unordered_set<HANDLE> &do_not_expect_to_close, const std::function<void(int, size_t, unsigned char *)> &on_data) {
+void poll_fds(std::vector<HANDLE> fds, const std::unordered_set<HANDLE> &do_not_expect_to_close, const std::function<void(int, size_t, const unsigned char *)> &on_data) {
 #ifdef _WIN32
     // Track Indices
     std::unordered_map<HANDLE, int> handle_to_index;

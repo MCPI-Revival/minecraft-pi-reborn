@@ -19,15 +19,20 @@ __attribute__((noreturn)) void safe_execvpe(const char *const argv[]);
 // fork() With I/O
 #ifdef _WIN32
 typedef PROCESS_INFORMATION process_t;
+typedef DWORD exit_status_t;
 #else
 typedef pid_t process_t;
+typedef int exit_status_t;
 #endif
 struct Process {
     static constexpr int fd_count = 2;
-    Process(const process_t &pid_, const std::array<HANDLE, fd_count> &fds_);
+    explicit Process(const process_t &pid_, const std::array<HANDLE, fd_count> &fds_);
+    explicit Process(const std::array<HANDLE, fd_count> &fds_);
     // Close
-    [[nodiscard]] int close();
+    void close_fds() const;
+    [[nodiscard]] exit_status_t close();
     // Data
+    bool open;
     const process_t pid;
     const std::array<HANDLE, fd_count> fds;
 };
@@ -40,15 +45,15 @@ Process spawn_with_stdio(const char *const argv[]);
 void poll_fds(
     std::vector<HANDLE> fds,
     const std::unordered_set<HANDLE> &do_not_expect_to_close,
-    const std::function<void(int, size_t, unsigned char *)> &on_data
+    const std::function<void(int, size_t, const unsigned char *)> &on_data
 );
 
 // Run Command And Get Output
-std::vector<unsigned char> *run_command(const char *const command[], int *exit_status);
-bool is_exit_status_success(int status);
+std::vector<unsigned char> *run_command(const char *const command[], exit_status_t *exit_status);
+bool is_exit_status_success(exit_status_t status);
 
 // Get Exit Status String
-std::string get_exit_status_string(int status);
+std::string get_exit_status_string(exit_status_t status);
 
 // Open URL
 void open_url(const std::string &url);

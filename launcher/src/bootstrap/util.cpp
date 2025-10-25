@@ -6,7 +6,7 @@
 
 // Run Command And Trim The Output
 std::string run_command_and_trim(const char *const command[], const char *action) {
-    int status = 0;
+    exit_status_t status = 0;
     const std::vector<unsigned char> *output = run_command(command, &status);
     if (!is_exit_status_success(status)) {
         ERR("Unable To %s", action);

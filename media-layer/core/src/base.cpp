@@ -44,7 +44,7 @@ void media_open(const char *path, const bool is_url) {
             "--exec", "wslpath", "-w", url.c_str(),
             nullptr
         };
-        int exit_code;
+        exit_status_t exit_code;
         const std::vector<unsigned char> *output = run_command(command, &exit_code);
         if (!is_exit_status_success(exit_code)) {
             // Give Up

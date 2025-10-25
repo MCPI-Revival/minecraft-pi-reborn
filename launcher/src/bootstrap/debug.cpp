@@ -11,17 +11,6 @@ static void run_debug_command(const char *const command[], const char *prefix) {
     DEBUG("%s: %s", prefix, output_str.c_str());
 }
 void print_debug_information() {
-    // System Information
-    constexpr const char *const command[] = {
-#ifndef _WIN32
-        "uname", "-a",
-#else
-        "cmd", "/c", "ver",
-#endif
-        nullptr
-    };
-    run_debug_command(command, "System Information");
-
     // Version
     DEBUG("Reborn Version: %s", reborn_get_fancy_version().c_str());
 
@@ -31,4 +20,26 @@ void print_debug_information() {
         c = char(std::toupper(c));
     }
     DEBUG("Reborn Target Architecture: %s", arch.c_str());
+
+    // System Information
+    constexpr const char *const uname_command[] = {
+#ifndef _WIN32
+        "uname", "-a",
+#else
+        "cmd", "/c", "ver",
+#endif
+        nullptr
+    };
+    run_debug_command(uname_command, "System Information");
+
+    // WSL Kernel Version
+#ifdef _WIN32
+    constexpr const char *const wsl_command[] = {
+        "wsl",
+        WSL_FLAGS,
+        "--exec", "uname", "-a",
+        nullptr
+    };
+    run_debug_command(wsl_command, "WSL System Information");
+#endif
 }

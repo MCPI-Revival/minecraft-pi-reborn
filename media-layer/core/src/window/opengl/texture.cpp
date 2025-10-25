@@ -75,7 +75,7 @@ static void *loader_thread(void *user_data) {
     const std::string &url = data->url;
 
     // Download
-    int return_code;
+    exit_status_t return_code;
     const char *command[] = {"wget", "-O", "-", url.c_str(), nullptr};
     const std::vector<unsigned char> *output = run_command(command, &return_code);
 

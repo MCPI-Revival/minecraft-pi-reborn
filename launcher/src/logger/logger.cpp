@@ -113,7 +113,7 @@ static int setup_logger_parent(Process &child) {
     };
 
     // Poll
-    poll_fds(fds, do_not_expect_to_close, [](const int i, const size_t size, unsigned char *buf) {
+    poll_fds(fds, do_not_expect_to_close, [](const int i, const size_t size, const unsigned char *buf) {
         switch (i) {
             case 1:
             case 2: {
@@ -139,7 +139,7 @@ static int setup_logger_parent(Process &child) {
     delete log_pipe;
 
     // Get Exit Status
-    const int status = child.close();
+    const exit_status_t status = child.close();
     const bool is_crash = !is_exit_status_success(status);
 
     // Log Exit Code To The Log If Crash
@@ -168,7 +168,7 @@ static int setup_logger_parent(Process &child) {
     // Exit
     return
 #ifdef _WIN32
-        status
+        int(status)
 #else
         WIFEXITED(status) ? WEXITSTATUS(status) : EXIT_FAILURE
 #endif
