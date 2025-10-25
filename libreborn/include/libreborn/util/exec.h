@@ -50,7 +50,7 @@ void poll_fds(
 
 // Run Command And Get Output
 std::vector<unsigned char> *run_command(const char *const command[], exit_status_t *exit_status);
-bool is_exit_status_success(exit_status_t status);
+bool is_exit_status_success(exit_status_t status, bool allow_ctrl_c = false);
 
 // Get Exit Status String
 std::string get_exit_status_string(exit_status_t status);

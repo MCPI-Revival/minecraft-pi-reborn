@@ -140,7 +140,7 @@ static int setup_logger_parent(Process &child) {
 
     // Get Exit Status
     const exit_status_t status = child.close();
-    const bool is_crash = !is_exit_status_success(status);
+    const bool is_crash = !is_exit_status_success(status, true);
 
     // Log Exit Code To The Log If Crash
     if (is_crash) {

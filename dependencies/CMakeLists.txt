@@ -4,10 +4,6 @@ project(dependencies)
 if(BUILD_ARM_COMPONENTS OR BUILD_MEDIA_LAYER_CORE)
     add_subdirectory(stb_image)
 endif()
-# Minecraft: Pi Edition
-if(BUILD_ARM_COMPONENTS AND NOT MCPI_OPEN_SOURCE_ONLY)
-    add_subdirectory(minecraft-pi)
-endif()
 # LIEF
 if(BUILD_NATIVE_COMPONENTS OR BUILD_MEDIA_LAYER_CORE)
     add_subdirectory(LIEF)

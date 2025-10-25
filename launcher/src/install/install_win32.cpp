@@ -1,4 +1,5 @@
 #include <string>
+#include <unistd.h>
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 #include <shlobj.h>
@@ -58,7 +59,7 @@ static std::wstring get_shortcut_path() {
 }
 bool is_desktop_file_installed() {
     const std::wstring path = get_shortcut_path();
-    return _waccess(path.c_str(), 0) == 0;
+    return _waccess(path.c_str(), F_OK) == 0;
 }
 
 // Create Shortcut File

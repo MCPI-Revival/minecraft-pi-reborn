@@ -10,6 +10,9 @@ std::string get_temp_dir();
 
 // Debugging
 void print_debug_information();
+// Game
+std::string get_game_binary_path();
+void download_game();
 // Mods
 std::vector<std::string> bootstrap_mods(const std::string &binary_directory);
 // Assets

@@ -55,6 +55,12 @@ const RebornConfig reborn_config = {
         .sdk_dir = "@MCPI_SDK_DIR@"
     },
 
+    // Game Information
+    .game = {
+        .version = "@MCPI_GAME_VERSION@",
+        .download_url = "@MCPI_GAME_DOWNLOAD_URL@"
+    },
+
     // Packaging
     .packaging = get_packaging_type(),
     .appimage = {

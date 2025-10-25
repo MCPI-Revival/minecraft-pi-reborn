@@ -4,7 +4,10 @@
 #include <sys/stat.h>
 #include <dirent.h>
 #include <cstring>
+
+#ifndef _WIN32
 #include <unistd.h>
+#endif
 
 #include <libreborn/log.h>
 #include <libreborn/util/util.h>
@@ -15,7 +18,9 @@
 
 // Utility Functions
 void make_directory(std::string path /* Must Be Absolute */) {
-    path += path_separator;
+    if (!path.ends_with(path_separator)) {
+        path += path_separator;
+    }
     std::stringstream stream(path);
     path = "";
     std::string path_segment;
@@ -25,7 +30,7 @@ void make_directory(std::string path /* Must Be Absolute */) {
         path += path_separator;
     }
 }
-static void delete_recursively(const std::string &path, const bool allow_nonexistent_dir) {
+void delete_recursively(const std::string &path, const bool allow_nonexistent_dir) {
     // Loop Through Children
     const bool success = read_directory(path, [&path](const dirent *entry, const bool is_dir) {
         // Handle

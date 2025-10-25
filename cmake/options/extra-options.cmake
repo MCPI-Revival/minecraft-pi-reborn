@@ -1,6 +1,3 @@
-# Only Include Open-Source Code
-mcpi_option(OPEN_SOURCE_ONLY "Only Install Open-Source Code (Will Result In Broken Install)" BOOL FALSE)
-
 # Packaging Type
 set(no_packaging_type "none")
 mcpi_option(PACKAGING_TYPE "Packaging Type" STRING "${no_packaging_type}")
@@ -42,6 +39,10 @@ if(MCPI_USE_MEDIA_LAYER_TRAMPOLINE)
 else()
     set(BUILD_MEDIA_LAYER_CORE "${BUILD_ARM_COMPONENTS}")
 endif()
+
+# Game Download URL
+mcpi_option(GAME_VERSION "Game Version (Only Used For Downloading)" STRING "0.1.1")
+mcpi_option(GAME_DOWNLOAD_URL "Game Download URL" STRING "https://archive.org/download/MinecraftPi/minecraft-pi-${MCPI_GAME_VERSION}.tar.gz")
 
 # Author
 mcpi_option(AUTHOR "Author" STRING "TheBrokenRail")

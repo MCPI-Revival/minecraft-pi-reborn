@@ -70,6 +70,7 @@ target_link_libraries(crash-report
 # Bootstrapper
 add_executable(bootstrap
     src/bootstrap/bootstrap.cpp
+    src/bootstrap/download.cpp
     src/bootstrap/mods.cpp
     src/bootstrap/assets.cpp
     src/bootstrap/patchelf.cpp

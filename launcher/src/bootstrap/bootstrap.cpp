@@ -1,5 +1,6 @@
 #include <string>
 #include <vector>
+#include <unistd.h>
 
 #include <libreborn/log.h>
 #include <libreborn/env/env.h>
@@ -26,10 +27,13 @@ int main(MCPI_UNUSED const int argc, MCPI_UNUSED char *argv[]) {
         copy_sdk(binary_directory, false);
     }
 
-    // Resolve Binary Path
-    DEBUG("Resolving File Paths...");
-    std::string original_game_binary = binary_directory + path_separator + "game" + path_separator + "minecraft-pi";
-    original_game_binary = safe_realpath(original_game_binary);
+    // Download Game (If Needed)
+    const std::string original_game_binary = get_game_binary_path();
+    if (access(original_game_binary.c_str(), R_OK) != 0) {
+        download_game();
+    } else {
+        DEBUG("Game Already Downloaded");
+    }
     const char *custom_binary = getenv(MCPI_BINARY_ENV);
     const std::string game_binary = custom_binary ? safe_realpath(custom_binary) : original_game_binary;
 

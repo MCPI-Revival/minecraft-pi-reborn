@@ -38,6 +38,12 @@ struct RebornConfig {
         const char *sdk_dir;
     } internal;
 
+    // Game Information
+    struct {
+        const char *version;
+        const char *download_url;
+    } game;
+
     // Packaging
     enum class PackagingType {
         NONE,

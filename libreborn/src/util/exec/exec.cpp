@@ -124,10 +124,10 @@ std::string get_exit_status_string(const exit_status_t status) {
 }
 
 // Check Exit Status
-bool is_exit_status_success(const exit_status_t status) {
+bool is_exit_status_success(const exit_status_t status, const bool allow_ctrl_c) {
     if (WIFEXITED(status)) {
         return WEXITSTATUS(status) == EXIT_SUCCESS;
-    } else if (WIFSIGNALED(status)) {
+    } else if (allow_ctrl_c && WIFSIGNALED(status)) {
         const int signal_no = WTERMSIG(status);
         return signal_no == SIGINT || signal_no == SIGTERM;
     } else {
