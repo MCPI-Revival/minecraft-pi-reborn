@@ -58,6 +58,9 @@ std::string get_exit_status_string(exit_status_t status);
 // Open URL
 void open_url(const std::string &url);
 
+// Download From Internet
+const std::vector<unsigned char> *download_from_internet(const std::string &dest, const std::string &url);
+
 // WSL Command-Line Options
 #ifdef _WIN32
 #define WSL_FLAGS "--distribution", "Ubuntu"

@@ -15,6 +15,7 @@ struct pending_texture {
     // Texture Data
     const std::vector<unsigned char> *data = nullptr;
     // State
+    bool done = false;
     bool success = false;
     bool cancelled = false;
 };
@@ -28,7 +29,7 @@ void media_apply_downloaded_textures() {
     std::vector<const pending_texture *> done;
     for (const pending_texture *texture : pending_textures) {
         // Check Status
-        if (!texture->data) {
+        if (!texture->done) {
             // Not Finished Loading
             continue;
         }
@@ -75,12 +76,10 @@ static void *loader_thread(void *user_data) {
     const std::string &url = data->url;
 
     // Download
-    exit_status_t return_code;
-    const char *command[] = {"wget", "-O", "-", url.c_str(), nullptr};
-    const std::vector<unsigned char> *output = run_command(command, &return_code);
+    const std::vector<unsigned char> *output = download_from_internet("-", url);
 
     // Check Success
-    const bool success = is_exit_status_success(return_code);
+    const bool success = output != nullptr;
     if (success) {
         DEBUG("Downloaded Texture: %s", url.c_str());
     } else {
@@ -89,6 +88,7 @@ static void *loader_thread(void *user_data) {
 
     // Mark As Downloaded
     pthread_mutex_lock(&pending_textures_lock);
+    data->done = true;
     data->success = success;
     data->data = output;
     pthread_mutex_unlock(&pending_textures_lock);
@@ -114,6 +114,7 @@ void _media_cancel_download(const unsigned int texture_id) {
     for (pending_texture *texture : pending_textures) {
         if (texture->texture_id == texture_id) {
             DEBUG("Cancelled Texture Download: %s", texture->url.c_str());
+            texture->done = true;
             texture->cancelled = true;
         }
     }

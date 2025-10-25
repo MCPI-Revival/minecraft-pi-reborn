@@ -2,6 +2,7 @@
 
 #include <cstddef>
 
+// Platform-Specific Constants
 static constexpr char linux_path_separator = '/';
 #ifdef _WIN32
 #define WIN32_LEAN_AND_MEAN

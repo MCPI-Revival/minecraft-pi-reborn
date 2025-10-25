@@ -3,10 +3,6 @@
 #ifndef _WIN32
 #include <sys/wait.h>
 #include <sys/prctl.h>
-#else
-#define WIN32_LEAN_AND_MEAN
-#include <windows.h>
-#include <shellapi.h>
 #endif
 
 #include <libreborn/log.h>
@@ -137,19 +133,4 @@ bool is_exit_status_success(const exit_status_t status) {
     } else {
         return false;
     }
-}
-
-// Open URL
-void open_url(const std::string &url) {
-#ifndef _WIN32
-    int return_code;
-    const char *command[] = {"xdg-open", url.c_str(), nullptr};
-    const std::vector<unsigned char> *output = run_command(command, &return_code);
-    delete output;
-    if (!is_exit_status_success(return_code)) {
-        WARN("Unable To Open URL: %s", url.c_str());
-    }
-#else
-    ShellExecuteA(nullptr, "open", url.c_str(), nullptr, nullptr, SW_SHOWDEFAULT);
-#endif
 }

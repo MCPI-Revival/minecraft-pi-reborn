@@ -21,17 +21,14 @@ struct AppImageUpdater final : Updater {
 AppImageUpdater AppImageUpdater::instance;
 
 // Update
-template <typename... Args>
-static std::optional<std::string> run_wget(Args... args) {
-    exit_status_t status = 0;
-    const char *const command[] = {"wget", "-O", std::forward<Args>(args)..., nullptr};
-    const std::vector<unsigned char> *output = run_command(command, &status);
-    std::string output_str = (const char *) output->data();
-    delete output;
-    if (!is_exit_status_success(status)) {
-        return std::nullopt;
-    } else {
+static std::optional<std::string> run_wget(const std::string &dest, const std::string &url) {
+    const std::vector<unsigned char> *output = download_from_internet(dest, url);
+    if (output) {
+        std::string output_str = (const char *) output;
+        delete output;
         return output_str;
+    } else {
+        return std::nullopt;
     }
 }
 static std::string extract_from_json(const std::string &json_str, const std::string &key) {
@@ -86,7 +83,7 @@ bool AppImageUpdater::download(const std::string &version) {
     }
 
     // Download
-    const std::optional<std::string> out = run_wget(new_appimage_path.c_str(), url.c_str());
+    const std::optional<std::string> out = run_wget(new_appimage_path, url);
     bool ret = out.has_value();
     if (ret) {
         ret = chmod(new_appimage_path.c_str(), S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH) == 0;
@@ -106,6 +103,7 @@ bool AppImageUpdater::download(const std::string &version) {
 
 // Restart
 void AppImageUpdater::restart() {
-    const char *const command[] = {get_appimage_path().c_str(), nullptr};
+    const std::string path = get_appimage_path();
+    const char *const command[] = {path.c_str(), nullptr};
     safe_execvpe(command);
 }
