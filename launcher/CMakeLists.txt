@@ -77,6 +77,11 @@ add_executable(bootstrap
     src/bootstrap/runtime.cpp
     src/bootstrap/util.cpp
 )
+if(MCPI_WIN32)
+    target_sources(bootstrap PRIVATE
+        src/bootstrap/wsl.cpp
+    )
+endif()
 target_link_libraries(bootstrap
     reborn-util
     launcher-util

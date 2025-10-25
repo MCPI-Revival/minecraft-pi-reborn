@@ -43,7 +43,7 @@ static std::string quote(const std::string &str) {
     // Return
     return '\"' + out + '\"';
 }
-static std::string make_cmd(const char *const argv[]) {
+std::string make_cmd(const char *const argv[]) {
     std::string cmd;
     for (int i = 0; argv[i] != nullptr; i++) {
         if (!cmd.empty()) {

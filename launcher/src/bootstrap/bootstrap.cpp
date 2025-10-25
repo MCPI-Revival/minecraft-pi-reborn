@@ -51,12 +51,13 @@ int main(MCPI_UNUSED const int argc, MCPI_UNUSED char *argv[]) {
     patch_mcpi_elf_dependencies(game_binary, get_new_linker(binary_directory_linux), mcpi_ld_path, mcpi_ld_preload);
 
     // Fix Environment
-    DEBUG("Fixing Environment...");
 #ifndef _WIN32
+    DEBUG("Fixing Environment...");
     set_and_print_env("LD_BIND_NOW", nullptr);
     set_and_print_env("LC_ALL", "C.UTF-8");
 #else
-    set_wslenv();
+    DEBUG("Configuring WSL...");
+    configure_wsl();
 #endif
 
     // Start Game

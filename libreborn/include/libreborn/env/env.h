@@ -15,9 +15,6 @@ void clear_internal_env_vars();
 void setenv_safe(const char *name, const char *value);
 void set_and_print_env(const char *name, const char *value);
 
-// Setup WSL
-void set_wslenv();
-
 // Get Value
 const char *require_env(const char *name);
 bool is_env_set(const char *name);

@@ -38,7 +38,12 @@ void media_open(const char *path, const bool is_url) {
     std::string url = path;
     if (!is_url) {
 #ifdef _WIN32
-        const char *const command[] = {"wsl", "--exec", "wslpath", "-w", url.c_str(), nullptr};
+        const char *const command[] = {
+            "wsl",
+            WSL_FLAGS,
+            "--exec", "wslpath", "-w", url.c_str(),
+            nullptr
+        };
         int exit_code;
         const std::vector<unsigned char> *output = run_command(command, &exit_code);
         if (!is_exit_status_success(exit_code)) {

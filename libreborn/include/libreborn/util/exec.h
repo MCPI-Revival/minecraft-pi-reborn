@@ -11,6 +11,9 @@
 
 // Safe execvpe()
 // On Windows, this spawns a child process.
+#ifdef _WIN32
+std::string make_cmd(const char *const argv[]);
+#endif
 __attribute__((noreturn)) void safe_execvpe(const char *const argv[]);
 
 // fork() With I/O
@@ -49,3 +52,8 @@ std::string get_exit_status_string(int status);
 
 // Open URL
 void open_url(const std::string &url);
+
+// WSL Command-Line Options
+#ifdef _WIN32
+#define WSL_FLAGS "--distribution", "Ubuntu"
+#endif
