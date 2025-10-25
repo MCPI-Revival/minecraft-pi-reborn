@@ -22,8 +22,17 @@ add_library(reborn-util SHARED
 embed_resource(reborn-util src/util/env/flags/available-feature-flags)
 target_link_libraries(reborn-util PRIVATE utf8cpp)
 if(TARGET glfw)
-    target_sources(reborn-util PRIVATE src/util/glfw.cpp)
-    target_link_libraries(reborn-util PRIVATE glfw)
+    target_sources(reborn-util PRIVATE
+        src/util/glfw/glfw.cpp
+    )
+    target_link_libraries(reborn-util PRIVATE
+        glfw
+    )
+    if(MCPI_WIN32)
+        target_sources(reborn-util PRIVATE
+            src/util/glfw/icon_win32.cpp
+        )
+    endif()
 endif()
 target_compile_definitions(reborn-util PUBLIC
     "MCPI_UNUSED=__attribute__((unused))"

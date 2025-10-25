@@ -1,10 +1,9 @@
-#define GLFW_INCLUDE_NONE
-#include <GLFW/glfw3.h>
+#include "glfw.h"
 
-#include <libreborn/util/glfw.h>
 #include <libreborn/util/util.h>
-#include <libreborn/log.h>
 #include <libreborn/config.h>
+
+#include "glfw.h"
 
 // Handle GLFW Error
 static void glfw_error(const int error, const char *description) {
@@ -34,6 +33,10 @@ GLFWwindow *create_glfw_window(const char *title, const int width, const int hei
     if (!window) {
         ERR("Unable To Create GLFW Window");
     }
+    // Set Icon
+#ifdef _WIN32
+    _reborn_set_window_icon(window);
+#endif
     // Make Window Context Current
     glfwMakeContextCurrent(window);
     // Return
