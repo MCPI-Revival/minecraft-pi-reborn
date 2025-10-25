@@ -113,25 +113,27 @@ static int setup_logger_parent(Process &child) {
     };
 
     // Poll
-    poll_fds(fds, do_not_expect_to_close, [](const int i, const size_t size, const unsigned char *buf) {
-        switch (i) {
-            case 1:
-            case 2: {
-                // Source: Child's stdout/stderr
-                // Action: Print to the terminal
-                FILE *target = i == 1 ? stdout : stderr;
-                fwrite_with_flush(target, buf, size);
-                [[fallthrough]];
+    if (child.open) {
+        poll_fds(fds, do_not_expect_to_close, [](const int i, const size_t size, const unsigned char *buf) {
+            switch (i) {
+                case 1:
+                case 2: {
+                    // Source: Child's stdout/stderr
+                    // Action: Print to the terminal
+                    FILE *target = i == 1 ? stdout : stderr;
+                    fwrite_with_flush(target, buf, size);
+                    [[fallthrough]];
+                }
+                case 0: {
+                    // Source: Child's debug log
+                    // Action: Write to the log file
+                    log->write(buf, std::streamsize(size), false);
+                    break;
+                }
+                default: {}
             }
-            case 0: {
-                // Source: Child's debug log
-                // Action: Write to the log file
-                log->write(buf, std::streamsize(size), false);
-                break;
-            }
-            default: {}
-        }
-    });
+        });
+    }
 
     // Close Debug Log
     reborn_init_log(-1); // This also closes log_pipe->write.

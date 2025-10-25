@@ -172,19 +172,21 @@ std::vector<unsigned char> *run_command(const char *const command[], exit_status
 
     // Read stdout
     std::vector<unsigned char> *output = new std::vector<unsigned char>;
-    poll_fds({child.fds.at(0), child.fds.at(1)}, {}, [&output](const int i, const size_t size, const unsigned char *buf) {
-        if (i == 0) {
-            // stdout
-            output->insert(output->end(), buf, buf + size);
-        } else {
-            // stderr
-            FILE *file = reborn_get_debug_file();
-            if (file) {
-                fwrite(buf, size, 1, file);
-                fflush(file);
+    if (child.open) {
+        poll_fds({child.fds.at(0), child.fds.at(1)}, {}, [&output](const int i, const size_t size, const unsigned char *buf) {
+            if (i == 0) {
+                // stdout
+                output->insert(output->end(), buf, buf + size);
+            } else {
+                // stderr
+                FILE *file = reborn_get_debug_file();
+                if (file) {
+                    fwrite(buf, size, 1, file);
+                    fflush(file);
+                }
             }
-        }
-    });
+        });
+    }
 
     // Get Exit Status
     const exit_status_t status = child.close();
