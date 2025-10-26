@@ -139,7 +139,7 @@ Process spawn_with_stdio(const char *const argv[]) {
         nullptr,
         nullptr,
         TRUE,
-        0,
+        CREATE_NO_WINDOW,
         nullptr,
         nullptr,
         &si,

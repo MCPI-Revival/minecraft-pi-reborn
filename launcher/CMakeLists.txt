@@ -117,9 +117,9 @@ function(install_bin target)
         target_link_options("${target}" PRIVATE "LINKER:--disable-new-dtags")
     else()
         # Set Subsystem
-        #set_target_properties("${target}" PROPERTIES
-        #    WIN32_EXECUTABLE TRUE
-        #)
+        set_target_properties("${target}" PROPERTIES
+            WIN32_EXECUTABLE TRUE
+        )
         # Original Filename
         target_compile_definitions("${target}" PRIVATE
             # Windres Has Strange Quoting Rules
