@@ -52,7 +52,13 @@ void LogWriter::write(const unsigned char *data, const std::streamsize size, con
     }
     for (std::streamsize i = 0; i < size; i++) {
         static constexpr char ESC = '\x1b';
+        static constexpr char CR = '\r';
+        static constexpr char NUL = '\0';
         unsigned char c = data[i];
+        if (c == CR || c == NUL) {
+            // Strip UTF-16 And Windows-Specific Formatting
+            continue;
+        }
         switch (state) {
             case State::NORMAL: {
                 // Check If A Control Code Is Starting
