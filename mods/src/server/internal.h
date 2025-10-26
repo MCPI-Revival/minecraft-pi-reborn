@@ -8,8 +8,6 @@
 MCPI_INTERNAL std::string get_rak_net_guid_ip(RakNet_RakPeer *rak_peer, const RakNet_RakNetGUID &guid);
 
 MCPI_INTERNAL void handle_commands(Minecraft *minecraft);
-MCPI_INTERNAL void start_reading_commands();
-MCPI_INTERNAL void stop_reading_commands();
 
 MCPI_INTERNAL void _init_server_playerdata();
 MCPI_INTERNAL void _load_playerdata(ServerPlayer *player);

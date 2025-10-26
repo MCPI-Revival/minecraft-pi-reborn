@@ -1,7 +1,4 @@
 #include <fstream>
-#include <vector>
-#include <array>
-#include <unordered_map>
 
 #include <libreborn/patch.h>
 #include <libreborn/util/util.h>
@@ -9,7 +6,6 @@
 #include <mods/misc/misc.h>
 #include <mods/api/api.h>
 #include <mods/multiplayer/packets.h>
-#include <mods/server/server.h>
 
 #include "internal.h"
 

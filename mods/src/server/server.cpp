@@ -1,13 +1,4 @@
-#include <string>
-#include <cstdint>
-#include <cstdio>
 #include <fstream>
-#include <vector>
-
-#include <sys/ioctl.h>
-#include <pthread.h>
-
-#include <unistd.h>
 
 #include <SDL/SDL.h>
 
@@ -119,8 +110,6 @@ static void handle_server_stop(Minecraft *minecraft) {
             }
         }
         minecraft->leaveGame(false);
-        // Kill Reader Thread
-        stop_reading_commands();
         // Stop Game
         SDL_Event event;
         event.type = SDL_QUIT;
@@ -276,9 +265,6 @@ void init_server() {
 
     // Handle Newly Joined Players
     overwrite_call((void *) 0x75e54, ServerSideNetworkHandler_popPendingPlayer, ServerSideNetworkHandler_onReady_ClientGeneration_ServerSideNetworkHandler_popPendingPlayer_injection);
-
-    // Start Reading STDIN
-    start_reading_commands();
 
     // Player Data
     if (get_server_properties().get_bool(get_property_types().player_data)) {

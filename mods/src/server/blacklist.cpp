@@ -4,7 +4,6 @@
 #include <mods/server/server.h>
 
 #include <fstream>
-#include <unordered_set>
 
 #include "internal.h"
 

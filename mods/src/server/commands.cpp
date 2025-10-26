@@ -1,5 +1,5 @@
-#include <fstream>
-#include <cstdint>
+#include <unistd.h>
+#include <sys/ioctl.h>
 
 #include <libreborn/log.h>
 #include <libreborn/util/string.h>
@@ -75,30 +75,24 @@ static void kick_callback(MCPI_UNUSED Minecraft *minecraft, const std::string &u
     INFO("Kicked: %s", username.c_str());
 }
 
-// Read STDIN Thread
-static pthread_t read_stdin_thread_obj;
-static volatile bool stdin_line_ready = false;
-static std::string stdin_line;
-static void *read_stdin_thread(MCPI_UNUSED void *data) {
-    // Loop
-    char *line = nullptr;
-    size_t len = 0;
-    while (getline(&line, &len, stdin) != -1) {
-        stdin_line = line;
-        stdin_line_ready = true;
-        // Wait For Line To Be Read
-        while (stdin_line_ready) {}
+// Read STDIN
+static std::string check_stdin() {
+    FILE *file = stdin;
+    const int fd = fileno(file);
+    std::string out;
+    if (isatty(fd)) {
+        int available_bytes = 0;
+        const int ret = ioctl(fd, FIONREAD, &available_bytes);
+        if (ret == 0 && available_bytes > 0) {
+            char *line = nullptr;
+            size_t len = 0;
+            if (getline(&line, &len, file) > 0) {
+                out = line;
+            }
+            free(line);
+        }
     }
-    free(line);
-    return nullptr;
-}
-void start_reading_commands() {
-    pthread_create(&read_stdin_thread_obj, nullptr, read_stdin_thread, nullptr);
-}
-void stop_reading_commands() {
-    pthread_cancel(read_stdin_thread_obj);
-    pthread_join(read_stdin_thread_obj, nullptr);
-    stdin_line_ready = false;
+    return out;
 }
 
 // Handle Commands
@@ -243,31 +237,35 @@ std::vector<ServerCommand> *server_get_commands(Minecraft *minecraft, ServerSide
 }
 void handle_commands(Minecraft *minecraft) {
     // Check If Level Is Generated
-    if (minecraft->isLevelGenerated() && stdin_line_ready) {
-        // Read Line
-        std::string data = std::move(stdin_line);
-        data.pop_back(); // Remove Newline
-        stdin_line_ready = false;
-        // Command Ready; Run It
-        ServerSideNetworkHandler *server_side_network_handler = (ServerSideNetworkHandler *) minecraft->network_handler;
-        if (server_side_network_handler != nullptr) {
-            // Generate Command List
-            const std::vector<ServerCommand> *commands = server_get_commands(minecraft, server_side_network_handler);
-            // Run
-            bool success = false;
-            for (const ServerCommand &command : *commands) {
-                const bool valid = command.has_args() ? data.rfind(command.name, 0) == 0 : data == command.name;
-                if (valid) {
-                    command.callback(data.substr(command.name.length()));
-                    success = true;
-                    break;
-                }
+    if (!minecraft->isLevelGenerated()) {
+        return;
+    }
+    // Read Line
+    std::string data = check_stdin();
+    if (data.empty()) {
+        return;
+    }
+    data.pop_back(); // Remove Newline
+
+    // Command Ready; Run It
+    ServerSideNetworkHandler *server_side_network_handler = (ServerSideNetworkHandler *) minecraft->network_handler;
+    if (server_side_network_handler != nullptr) {
+        // Generate Command List
+        const std::vector<ServerCommand> *commands = server_get_commands(minecraft, server_side_network_handler);
+        // Run
+        bool success = false;
+        for (const ServerCommand &command : *commands) {
+            const bool valid = command.has_args() ? data.rfind(command.name, 0) == 0 : data == command.name;
+            if (valid) {
+                command.callback(data.substr(command.name.length()));
+                success = true;
+                break;
             }
-            if (!success) {
-                WARN("Invalid Command: %s", data.c_str());
-            }
-            // Free
-            delete commands;
         }
+        if (!success) {
+            WARN("Invalid Command: %s", data.c_str());
+        }
+        // Free
+        delete commands;
     }
 }
