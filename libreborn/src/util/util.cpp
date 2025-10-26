@@ -7,6 +7,7 @@
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 #include <direct.h>
+#include <shlobj.h>
 #else
 #include <sys/file.h>
 #endif
@@ -184,3 +185,15 @@ std::string home_get() {
     const char *home = require_env(_MCPI_HOME_ENV);
     return std::string(home) + std::string(get_home_subdirectory_for_game_data());
 }
+
+// Initialize COM
+#ifdef _WIN32
+bool init_com() {
+    const HRESULT ret = CoInitializeEx(nullptr, COINIT_APARTMENTTHREADED);
+    const bool success = ret == S_OK;
+    if (!success) {
+        WARN("Unable To Initialize COM: %ld", ret);
+    }
+    return success;
+}
+#endif

@@ -1,5 +1,4 @@
 #include <vector>
-#include <string>
 
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
@@ -15,7 +14,7 @@ void _reborn_set_window_icon(GLFWwindow *window) {
     }
 
     // Get Icon
-    const HICON icon = (HICON) LoadImageA(instance, "IDI_ICON1", IMAGE_ICON, 0, 0, LR_DEFAULTSIZE);
+    const HICON icon = (HICON) LoadImageW(instance, L"IDI_ICON1", IMAGE_ICON, 0, 0, LR_DEFAULTSIZE);
     if (!icon) {
         return;
     }
@@ -24,7 +23,7 @@ void _reborn_set_window_icon(GLFWwindow *window) {
     ICONINFO icon_info = {};
     GetIconInfo(icon, &icon_info);
     BITMAP icon_color = {};
-    GetObjectA(icon_info.hbmColor, sizeof(icon_color), &icon_color);
+    GetObjectW(icon_info.hbmColor, sizeof(icon_color), &icon_color);
     const int width = icon_color.bmWidth;
     const int height = icon_color.bmHeight;
     constexpr int channels = 4;

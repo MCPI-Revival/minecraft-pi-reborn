@@ -34,8 +34,11 @@ add_executable(launcher
 )
 if(MCPI_WIN32)
     target_sources(launcher PRIVATE
-        src/options/parser_win32.cpp
-        src/install/install_win32.cpp
+        src/options/parser-win32.cpp
+        src/install/install-win32.cpp
+    )
+    target_link_libraries(launcher
+        shlwapi
     )
 else()
     target_sources(launcher PRIVATE

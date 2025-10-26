@@ -30,6 +30,11 @@ static void setup_environment(const options_t &options) {
     bind_to_env(_MCPI_FORCE_HEADLESS_ENV, options.force_headless);
     bind_to_env(_MCPI_FORCE_NON_HEADLESS_ENV, options.force_non_headless);
 
+    // Configure Taskbar Behavior
+#ifdef _WIN32
+    set_relaunch_env();
+#endif
+
     // Setup MCPI_HOME
     setup_home();
     // Create If Needed

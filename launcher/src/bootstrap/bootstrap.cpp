@@ -15,6 +15,9 @@ int main(MCPI_UNUSED const int argc, MCPI_UNUSED char *argv[]) {
     // Set Debug Tag
     reborn_debug_tag = DEBUG_TAG("Bootstrapper");
 
+    // Make Sure Launcher Was Run
+    require_env(_MCPI_HOME_ENV);
+
     // Debug Information
     print_debug_information();
 

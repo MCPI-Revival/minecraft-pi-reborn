@@ -32,7 +32,8 @@ const RebornConfig reborn_config = {
     .app = {
         .title = "@MCPI_APP_TITLE@",
         .id = "@MCPI_APP_ID@",
-        .name = "@MCPI_APP_NAME@"
+        .name = "@MCPI_APP_NAME@",
+        .description = "@MCPI_APP_DESCRIPTION@"
     },
 
     // Extra Options

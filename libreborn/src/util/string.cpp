@@ -2,6 +2,11 @@
 #include <ctime>
 #include <cstring>
 
+#ifdef _WIN32
+#define WIN32_LEAN_AND_MEAN
+#include <windows.h>
+#endif
+
 #include <libreborn/util/string.h>
 #include <libreborn/log.h>
 
@@ -57,6 +62,19 @@ void trim(std::string &str) {
     rtrim(str);
     ltrim(str);
 }
+
+// Convert String
+#ifdef _WIN32
+std::wstring convert_utf8_to_wstring(const std::string &str) {
+    std::wstring out;
+    const int size = MultiByteToWideChar(CP_UTF8, 0, str.c_str(), -1, nullptr, 0);
+    if (size > 0) {
+        out.resize(size + 10);
+        MultiByteToWideChar(CP_UTF8, 0, str.c_str(), -1, out.data(), int(out.size()));
+    }
+    return out;
+}
+#endif
 
 // Safe std::to_string
 // Because C++26 Changed It

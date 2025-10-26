@@ -57,8 +57,6 @@ exit_status_t Process::close() {
 
 // Spawn Processes
 #ifndef _WIN32
-#define PIPE_READ 0
-#define PIPE_WRITE 1
 std::optional<Process> fork_with_stdio() {
     // Store Output
     const std::array<Pipe, Process::fd_count> pipes = {

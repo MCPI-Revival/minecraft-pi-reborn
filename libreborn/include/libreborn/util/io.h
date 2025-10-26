@@ -29,3 +29,8 @@ void unlock_file(HANDLE fd);
 
 // Safe write()
 void safe_write(int fd, const void *buf, size_t size);
+
+// Initialize COM
+#ifdef _WIN32
+bool init_com();
+#endif

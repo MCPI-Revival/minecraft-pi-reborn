@@ -29,3 +29,6 @@ ENV(_MCPI_HOME, "", "/p")
 ENV(MCPI_PROFILE_DIRECTORY, "Custom Profile Directory", "/p")
 // Lock File
 ENV(_MCPI_LOCK_FD, "", "")
+// Taskbar Behavior (Used By Windows)
+ENV(_MCPI_RELAUNCH_COMMAND, "", "")
+ENV(_MCPI_RELAUNCH_DISPLAY_NAME_RESOURCE, "", "")

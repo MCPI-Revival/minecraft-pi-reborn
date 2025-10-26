@@ -17,6 +17,11 @@ std::string format_time(const char *fmt, int time);
 // Trimming
 void trim(std::string &str);
 
+// Convert To Windows String
+#ifdef _WIN32
+std::wstring convert_utf8_to_wstring(const std::string &str);
+#endif
+
 // Safe std::to_string
 #define def(type) std::string safe_to_string(type x)
 def(float);

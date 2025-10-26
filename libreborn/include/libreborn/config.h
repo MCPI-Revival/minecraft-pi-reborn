@@ -16,6 +16,7 @@ struct RebornConfig {
         const char *title;
         const char *id;
         const char *name;
+        const char *description;
     } app;
 
     // Extra Options

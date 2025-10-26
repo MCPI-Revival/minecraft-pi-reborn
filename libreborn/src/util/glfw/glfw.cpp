@@ -1,6 +1,5 @@
-#include "glfw.h"
-
 #include <libreborn/util/util.h>
+#include <libreborn/util/string.h>
 #include <libreborn/config.h>
 
 #include "glfw.h"
@@ -26,15 +25,15 @@ GLFWwindow *create_glfw_window(const char *title, const int width, const int hei
     glfwWindowHint(GLFW_SCALE_FRAMEBUFFER, GLFW_TRUE);
     // App ID
     const char *id = reborn_config.app.id;
-    glfwWindowHintString(GLFW_X11_CLASS_NAME, id);
-    glfwWindowHintString(GLFW_WAYLAND_APP_ID, id);
+    _reborn_set_app_id_global(id);
     // Create Window
     GLFWwindow *window = glfwCreateWindow(width, height, title, nullptr, nullptr);
     if (!window) {
         ERR("Unable To Create GLFW Window");
     }
-    // Set Icon
+    // Configure Window
 #ifdef _WIN32
+    _reborn_set_app_id_and_relaunch_behavior(window, id);
     _reborn_set_window_icon(window);
 #endif
     // Make Window Context Current
@@ -49,6 +48,10 @@ void cleanup_glfw(GLFWwindow *window) {
     glfwSetErrorCallback(nullptr);
     // Workaround Segmentation Fault On NVIDIA
     glfwPollEvents();
+    // Clear Properties
+#ifdef _WIN32
+    _reborn_free_window_properties(window);
+#endif
     // Terminate GLFW
     glfwDestroyWindow(window);
     glfwTerminate();

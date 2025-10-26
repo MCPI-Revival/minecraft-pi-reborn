@@ -63,4 +63,7 @@ else()
         DIRECTORY ..
         PROPERTIES OBJECT_DEPENDS "${MCPI_ICO_PATH};${MCPI_MANIFEST_PATH}"
     )
+    target_compile_definitions(launcher-meta INTERFACE
+        "$<$<AND:$<COMPILE_LANGUAGE:RC>,$<CONFIG:Debug>>:VER_DEBUG>"
+    )
 endif()
