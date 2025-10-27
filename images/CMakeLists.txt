@@ -44,7 +44,7 @@ get_target_property(ICO_OUTPUT launcher-meta ICO_PATH)
 add_custom_command(OUTPUT "${ICO_OUTPUT}"
     DEPENDS "${ICO_INPUT}"
     COMMAND
-        "magick" "convert"
+        "convert"
         "${ICO_INPUT}"
         "-define" "icon:auto-resize=16,32,48,64,256"
         "${ICO_OUTPUT}"
