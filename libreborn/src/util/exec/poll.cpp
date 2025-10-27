@@ -2,44 +2,98 @@
 #include <sys/poll.h>
 #include <cstring>
 #include <unistd.h>
+#include <sys/ioctl.h>
 #endif
 
 #include <libreborn/util/exec.h>
 #include <libreborn/log.h>
 
-// Poll Single FD
+// Buffer Size
+#define BUFFER_SIZE 1024
+
+// Utility Functions
+static bool get_bytes_available(const HANDLE fd, int &bytes_available_out) {
 #ifdef _WIN32
-template <size_t buf_size>
-static bool poll_fd_pipe(const HANDLE fd, unsigned char buf[buf_size], size_t &bytes_read_out) {
-    // Get Data Available
     DWORD bytes_available = 0;
-    BOOL ret = PeekNamedPipe(fd, nullptr, 0, nullptr, &bytes_available, nullptr);
+    const BOOL ret = PeekNamedPipe(fd, nullptr, 0, nullptr, &bytes_available, nullptr);
     if (!ret) {
-        // Probably Closed
         return false;
     }
+    bytes_available_out = int(bytes_available);
+#else
+    int available_bytes = 0;
+    const int ret = ioctl(fd, FIONREAD, &available_bytes);
+    if (ret != 0) {
+        return false;
+    }
+    bytes_available_out = available_bytes;
+#endif
+    return true;
+}
+static bool read_fd(const HANDLE fd, unsigned char *buf, const size_t size, size_t &bytes_read_out) {
+#ifdef _WIN32
+    DWORD bytes_read = 0;
+    const bool ret = ReadFile(fd, buf, size, &bytes_read, nullptr);
+    if (!ret) {
+        return false;
+    }
+#else
+    const ssize_t bytes_read = read(fd, buf, size);
+    if (bytes_read < 0) {
+        return false;
+    }
+#endif
+    bytes_read_out = size_t(bytes_read);
+    return true;
+}
 
-    // Read Data
-    if (bytes_available > 0) {
-        DWORD bytes_read = 0;
-        ret = ReadFile(fd, buf, std::min<DWORD>(buf_size, bytes_available), &bytes_read, nullptr);
-        if (ret && bytes_read > 0) {
-            // Successfully Read Data
-            bytes_read_out = bytes_read;
+// Poll Single FD
+static bool poll_fd(const int i, const HANDLE fd, unsigned char buf[BUFFER_SIZE], const std::function<void(int, size_t, const unsigned char *)> &on_data) {
+    while (true) {
+        // Get Data Available
+        int bytes_available = 0;
+        bool ret = get_bytes_available(fd, bytes_available);
+        if (!ret) {
+            // Probably Closed
+            return false;
+        }
+        if (bytes_available <= 0) {
+            // No Data Available
             return true;
-        } else {
+        }
+
+        // Read Data
+        const size_t bytes_to_read = std::min<size_t>(BUFFER_SIZE, bytes_available);
+        size_t bytes_read = 0;
+        ret = read_fd(fd, buf, bytes_to_read, bytes_read);
+        if (!ret) {
+            // Read Failure
             // Mark As Closed
             return false;
         }
-    } else {
+        if (bytes_read > 0) {
+            // Successfully Read Data
+            on_data(i, bytes_read, buf);
+        }
+    }
+}
+#ifndef _WIN32
+static bool poll_fd(const int i, const pollfd &fd, unsigned char buf[BUFFER_SIZE], const std::function<void(int, size_t, const unsigned char *)> &on_data) {
+    // Check poll() Result
+    if (fd.revents == 0 || fd.events == 0) {
         // No Data Available
         return true;
     }
+    if (!(fd.revents & POLLIN)) {
+        // File Descriptor No Longer Accessible
+        return false;
+    }
+    // Read Data
+    return poll_fd(i, fd.fd, buf, on_data);
 }
 #endif
 
 // Poll FDs
-#define BUFFER_SIZE 1024
 void poll_fds(std::vector<HANDLE> fds, const std::unordered_set<HANDLE> &do_not_expect_to_close, const std::function<void(int, size_t, const unsigned char *)> &on_data) {
 #ifdef _WIN32
     // Track Indices
@@ -79,14 +133,10 @@ void poll_fds(std::vector<HANDLE> fds, const std::unordered_set<HANDLE> &do_not_
             const int i = handle_to_index.at(fd);
 
             // Read Data (If Available)
-            size_t bytes_read = 0;
-            const bool ret = poll_fd_pipe<BUFFER_SIZE>(fd, buf, bytes_read);
+            const bool ret = poll_fd(i, fd, buf, on_data);
             if (!ret) {
                 // Closed
                 to_remove.push_back(fd);
-            } else if (bytes_read > 0) {
-                // Callback
-                on_data(i, bytes_read, buf);
             }
         }
 
@@ -134,20 +184,11 @@ void poll_fds(std::vector<HANDLE> fds, const std::unordered_set<HANDLE> &do_not_
 
         // Handle Data
         for (std::vector<int>::size_type i = 0; i < fds.size(); i++) {
-            pollfd &poll_fd = poll_fds[i];
-            if (poll_fd.revents != 0 && poll_fd.events != 0) {
-                if (poll_fd.revents & POLLIN) {
-                    // Data Available From Child's stdout/stderr
-                    const ssize_t bytes_read = read(poll_fd.fd, buf, BUFFER_SIZE);
-                    if (bytes_read == -1) {
-                        ERR("Unable To Read Data: %s", strerror(errno));
-                    }
-                    // Callback
-                    on_data(int(i), size_t(bytes_read), buf);
-                } else {
-                    // File Descriptor No Longer Accessible
-                    poll_fd.events = 0;
-                }
+            pollfd &fd = poll_fds.at(i);
+            const bool ret = poll_fd(int(i), fd, buf, on_data);
+            if (!ret) {
+                // Closed
+                fd.events = 0;
             }
         }
     }
