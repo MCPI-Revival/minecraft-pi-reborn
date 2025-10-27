@@ -92,6 +92,7 @@ handlers.set(Modes.Build, function () {
             // Compiler
             'clang',
             'lld',
+            'llvm',
             // Compiler (For QEMU)
             'gcc',
             'g++'
