@@ -19,7 +19,7 @@ jobs:
                   - AMD64
                   - ARM64
                   - ARMHF
-        name: Build
+        name: Build (${{ matrix.arch }})
         runs-on: ubuntu-latest
         container: node:lts-bookworm # Minimum-Supported OS
         steps:
@@ -39,6 +39,28 @@ jobs:
             uses: actions/upload-artifact@v3
             with:
                 name: ${{ matrix.arch }}
+                path: ./out/*
+                if-no-files-found: error
+
+    # Build Project (For Windows)
+    build-windows:
+        name: Build (Windows)
+        runs-on: ubuntu-latest
+        steps:
+          - name: Checkout Repository
+            uses: actions/checkout@v4
+            with:
+                submodules: true
+          # Dependencies
+          - name: Install Dependencies
+            run: ./scripts/install-dependencies.mjs build windows
+          # Build
+          - name: Build
+            run: ./scripts/build.mjs zip windows
+          - name: Upload Artifacts
+            uses: actions/upload-artifact@v3
+            with:
+                name: Windows
                 path: ./out/*
                 if-no-files-found: error
 
@@ -129,6 +151,7 @@ jobs:
     release:
         needs:
           - build
+          - build-windows
           - test
           - lint
           - example-mods
