@@ -1,6 +1,6 @@
 [Desktop Entry]
 Name=${MCPI_APP_TITLE}
-Comment=Fun with Blocks
+Comment=${MCPI_APP_DESCRIPTION}
 Icon=${MCPI_APP_ID}
 Exec=${MCPI_APP_NAME}
 Type=Application

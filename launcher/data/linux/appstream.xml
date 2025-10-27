@@ -26,7 +26,7 @@
     <project_license>LicenseRef-proprietary</project_license>
 
     <developer id="${MCPI_AUTHOR_ID}">
-        <name>${MCPI_AUTHOR} &amp; Mojang AB</name>
+        <name>${MCPI_AUTHOR_LONG_SAFE}</name>
     </developer>
 
     <url type="homepage">${MCPI_REPO}</url>

@@ -13,6 +13,7 @@ macro(setup_packaging_type name)
         set("${var}" FALSE)
     endif()
 endmacro()
+setup_packaging_type(Zip)
 setup_packaging_type(AppImage)
 setup_packaging_type(Flatpak)
 setup_packaging_type(Debian)
@@ -46,6 +47,7 @@ mcpi_option(GAME_DOWNLOAD_URL "Game Download URL" STRING "https://archive.org/do
 
 # Author
 mcpi_option(AUTHOR "Author" STRING "TheBrokenRail")
+mcpi_option(AUTHOR_LONG "Author (Long Version)" STRING "${MCPI_AUTHOR} & Mojang AB")
 mcpi_option(AUTHOR_ID "Author ID" STRING "com.thebrokenrail")
 
 # App Information
@@ -92,6 +94,9 @@ check_arch("__aarch64__" "arm64")
 check_arch("__x86_64__" "amd64")
 check_symbol_exists("_WIN32" "" MCPI_WIN32)
 unset(CMAKE_REQUIRED_QUIET)
+if(MCPI_WIN32)
+    string(PREPEND MCPI_ARCH "windows-")
+endif()
 macro(get_package_file_name out version)
     set("${out}" "${MCPI_APP_NAME}-${version}-${MCPI_ARCH}")
 endmacro()

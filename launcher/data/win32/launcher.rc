@@ -32,7 +32,7 @@ VS_VERSION_INFO VERSIONINFO
             BLOCK "04090000"
             // Values
             BEGIN
-                VALUE "CompanyName", "${MCPI_AUTHOR}"
+                VALUE "CompanyName", "${MCPI_AUTHOR_LONG}"
                 VALUE "FileDescription", "${MCPI_APP_DESCRIPTION}"
                 VALUE "FileVersion", "${MCPI_VERSION}"
                 VALUE "InternalName", VER_FILENAME

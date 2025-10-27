@@ -44,6 +44,7 @@ if(NOT MCPI_WIN32)
     )
 
     # Linux-Specific
+    string(REPLACE "&" "&amp;" MCPI_AUTHOR_LONG_SAFE "${MCPI_AUTHOR_LONG}")
     configure_and_install_data(linux/appstream.xml metainfo "${MCPI_APP_ID}.appdata.xml")
     configure_and_install_data(linux/launcher.desktop applications "${MCPI_APP_ID}.desktop")
     cmake_path(RELATIVE_PATH full_path BASE_DIRECTORY "${MCPI_INSTALL_DIR}")

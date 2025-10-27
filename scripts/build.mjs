@@ -37,6 +37,7 @@ function parseCMakeOption(arg) {
 // Options
 const PackageTypes = {
     None: null,
+    Zip: null,
     AppImage: null,
     Flatpak: null,
     Debian: null
@@ -55,8 +56,8 @@ const options = {
 parseOptions(options, parseCMakeOption);
 
 // CPack
-const useCPack = [PackageTypes.AppImage, PackageTypes.Debian].includes(options.packageType);
-const cpackExtensions = ['.AppImage', '.deb'];
+const useCPack = [PackageTypes.Zip, PackageTypes.AppImage, PackageTypes.Debian].includes(options.packageType);
+const cpackExtensions = ['.zip', '.AppImage', '.deb'];
 
 // Check Options
 if (options.packageType === PackageTypes.Flatpak && options.architecture !== Architectures.Host) {
@@ -66,7 +67,8 @@ if (useCPack && options.install) {
     err('Cannot Install When Using CPack');
 }
 const isWindows = options.architecture === Architectures.Windows;
-if (isWindows && (options.install || options.packageType !== PackageTypes.None)) {
+const usesLinuxOnlyPackaging = [PackageTypes.AppImage, PackageTypes.Flatpak, PackageTypes.Debian].includes(options.packageType);
+if (isWindows && (options.install || usesLinuxOnlyPackaging)) {
     err('Windows Builds Do Not Support Packaging');
 }
 

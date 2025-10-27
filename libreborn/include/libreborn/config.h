@@ -48,6 +48,7 @@ struct RebornConfig {
     // Packaging
     enum class PackagingType {
         NONE,
+        ZIP,
         APPIMAGE,
         FLATPAK,
         DEBIAN

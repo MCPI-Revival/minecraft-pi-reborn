@@ -8,6 +8,8 @@ static RebornConfig::PackagingType get_packaging_type() {
     const std::string value = "@MCPI_PACKAGING_TYPE@";
     if (value == "none") {
         return RebornConfig::PackagingType::NONE;
+    } else if (value == "zip") {
+        return RebornConfig::PackagingType::ZIP;
     } else if (value == "appimage") {
         return RebornConfig::PackagingType::APPIMAGE;
     } else if (value == "flatpak") {
