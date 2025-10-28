@@ -39,6 +39,18 @@ Unfortunately, it does not support 32-bit ARM systems.
 
 It can be installed through [Flathub](https://flathub.org/apps/details/com.thebrokenrail.MCPIReborn).
 
+### Debian Packages
+On Debian-based systems (like Ubuntu),
+another supported method is Debian (`.deb`) packages.
+
+To install, run:
+```sh
+sudo curl https://gitea.thebrokenrail.com/api/packages/minecraft-pi-reborn/debian/repository.key -o /etc/apt/keyrings/gitea-minecraft-pi-reborn.asc
+echo 'deb [signed-by=/etc/apt/keyrings/gitea-minecraft-pi-reborn.asc] https://gitea.thebrokenrail.com/api/packages/minecraft-pi-reborn/debian stable main' | sudo tee -a /etc/apt/sources.list.d/gitea.list
+sudo apt update
+sudo apt install minecraft-pi-reborn
+```
+
 ### Pi-Apps
 The final supported method is [Pi-Apps](https://github.com/Botspot/pi-apps).
 It is a ["well-maintained collection of app installation-scripts"](https://github.com/Botspot/pi-apps#:~:text=well-maintained%20collection%20of%20app%20installation-scripts) that includes support for MCPI-Reborn.

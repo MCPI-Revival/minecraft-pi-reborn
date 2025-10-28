@@ -52,7 +52,11 @@
         <control>pointing</control>
         <control>keyboard</control>
         <display_length compare="ge">360</display_length>
+        <internet>always</internet>
     </recommends>
+    <requires>
+        <internet>first-run</internet>
+    </requires>
 
     <content_rating type="oars-1.1">
         <content_attribute id="violence-cartoon">moderate</content_attribute>

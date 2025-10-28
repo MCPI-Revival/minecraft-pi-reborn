@@ -34,6 +34,14 @@ elseif(MCPI_IS_DEBIAN_BUILD)
     set(CPACK_DEBIAN_PACKAGE_ARCHITECTURE "${MCPI_ARCH}")
     set(CPACK_DEBIAN_PACKAGE_SECTION "games")
     set(CPACK_DEBIAN_PACKAGE_DEPENDS "libc6, libstdc++6, libopenal1, libglib2.0-0t64 | libglib2.0-0")
+    string(CONCAT CPACK_DEBIAN_PACKAGE_RECOMMENDS
+        # OpenGL
+        "libegl1, libglx0, libopengl0, "
+        # Wayland
+        "libdecor-0-0, libwayland-client0, libwayland-cursor0, libwayland-egl1, "
+        # X11
+        "libx11-6, libx11-xcb1, libxcursor1, libxext6, libxi6, libxinerama1, libxkbcommon0, libxrandr2, libxrender1"
+    )
     set(CPACK_DEBIAN_PACKAGE_MAINTAINER "${MCPI_AUTHOR}")
     set(CPACK_DEBIAN_PACKAGE_HOMEPAGE "${MCPI_REPO}")
     set(CPACK_DEBIAN_PACKAGE_DESCRIPTION "${MCPI_APP_DESCRIPTION}")
