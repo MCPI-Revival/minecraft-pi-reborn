@@ -54,7 +54,7 @@ const RebornConfig reborn_config = {
 
     // Internal
     .internal = {
-        .use_prebuilt_armhf_toolchain = MCPI_USE_PREBUILT_ARMHF_TOOLCHAIN == 1,
+        .use_prebuilt_armhf_toolchain = MCPI_USE_PREBUILT_ARMHF_TOOLCHAIN,
         .sdk_dir = "@MCPI_SDK_DIR@"
     },
 
@@ -66,10 +66,13 @@ const RebornConfig reborn_config = {
 
     // Packaging
     .packaging = get_packaging_type(),
-    .appimage = {
-        .json_url = "@MCPI_APPIMAGE_JSON_URL@",
-        .version_placeholder = "@MCPI_APPIMAGE_VERSION_PLACEHOLDER@",
-        .download_url = "@MCPI_APPIMAGE_DOWNLOAD_URL@"
+
+    // Updater
+    .updater = {
+        .json_url = "@MCPI_UPDATER_JSON_URL@",
+        .version_placeholder = "@MCPI_UPDATER_VERSION_PLACEHOLDER@",
+        .web_url = "@MCPI_UPDATER_WEB_URL@",
+        .appimage_download_url = "@MCPI_APPIMAGE_DOWNLOAD_URL@"
     }
 };
 
@@ -97,6 +100,12 @@ std::string reborn_get_fancy_version() {
     }
     // Return
     return std::string("v") + reborn_config.general.version + extra;
+}
+
+// Package Managers
+bool reborn_is_using_package_manager() {
+    const RebornConfig::PackagingType &type = reborn_config.packaging;
+    return type == RebornConfig::PackagingType::FLATPAK || type == RebornConfig::PackagingType::DEBIAN;
 }
 
 // Runtime Configuration

@@ -10,6 +10,10 @@ ConfigurationUI::ConfigurationUI(State &state_, bool &save_settings_):
 
 // Render
 int ConfigurationUI::render() {
+    // Tick Updater
+    updater.tick();
+
+    // Draw Window
     if (ImGui::BeginChild("Main", ImVec2(0, -ImGui::GetFrameHeightWithSpacing() /* Leave Room For Bottom Row */), ImGuiChildFlags_None, ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse)) {
         // Tabs
         if (ImGui::BeginTabBar("TabBar")) {
@@ -37,6 +41,7 @@ int ConfigurationUI::render() {
         }
     }
     ImGui::EndChild();
+
     // Bottom Row
     return draw_bottom();
 }
@@ -45,7 +50,7 @@ int ConfigurationUI::render() {
 int ConfigurationUI::draw_bottom() const {
     // Reset Settings
     const State default_state;
-    std::vector<std::tuple<std::string, std::string, const State *>> reset_options = {
+    const std::vector<std::tuple<std::string, std::string, const State *>> reset_options = {
         {"Revert", "Last Saved", &original_state},
         {"Reset", "Default", &default_state},
     };
@@ -61,17 +66,23 @@ int ConfigurationUI::draw_bottom() const {
     }
 
     // Right-Align Buttons
+    const bool can_launch = updater.can_launch_safely();
     int ret = 0;
-    draw_right_aligned_buttons({quit_text, "Launch"}, [&ret](const int id, const bool was_clicked) {
+    draw_right_aligned_buttons({quit_text, "Launch"}, [&ret, &can_launch](const int id, const bool was_clicked) {
         if (id == 0) {
             // Quit
             if (was_clicked) {
                 ret = -1;
             }
             ImGui::SetItemTooltip("Changes Will Not Be Saved!");
-        } else if (was_clicked) {
+            // Disable Launch Button (If Needed)
+            ImGui::BeginDisabled(!can_launch);
+        } else {
             // Launch
-            ret = 1;
+            if (was_clicked) {
+                ret = 1;
+            }
+            ImGui::EndDisabled();
         }
     });
 

@@ -47,6 +47,9 @@ if(NOT MCPI_WIN32)
     string(REPLACE "&" "&amp;" MCPI_AUTHOR_LONG_SAFE "${MCPI_AUTHOR_LONG}")
     configure_and_install_data(linux/appstream.xml metainfo "${MCPI_APP_ID}.appdata.xml")
     configure_and_install_data(linux/launcher.desktop applications "${MCPI_APP_ID}.desktop")
+    if(MCPI_IS_APPIMAGE_BUILD)
+        install_symlink("${full_path}" "${MCPI_APP_ID}.desktop")
+    endif()
     cmake_path(RELATIVE_PATH full_path BASE_DIRECTORY "${MCPI_INSTALL_DIR}")
     target_compile_definitions(launcher PRIVATE
         "DESKTOP_FILE_PATH=\"${full_path}\""

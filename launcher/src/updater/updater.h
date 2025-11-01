@@ -2,40 +2,62 @@
 
 #include <string>
 #include <optional>
+#include <functional>
 
 // Update Status
 enum class UpdateStatus {
     NOT_STARTED,
     CHECKING,
     UP_TO_DATE,
+    UPDATE_AVAILABLE,
     DOWNLOADING,
     RESTART_NEEDED,
     UNKNOWN_ERROR
 };
 
 // Updater
-struct Updater {
-    // Instance
-    static Updater *instance;
-
+struct Updater final {
     // Constructor
     Updater();
-    virtual ~Updater() = default;
+    ~Updater();
 
-    // Methods
+    // Get Status
     [[nodiscard]] std::string get_status() const;
-    void log_status(bool is_ui) const;
+    [[nodiscard]] bool can_launch_safely() const;
+
+    // Asynchronous Mode
     [[nodiscard]] bool can_start() const;
+    void tick();
     void start();
+
+    // Synchronous Mode
     void run();
 
-protected:
-    // Implementation
-    virtual std::optional<std::string> check() = 0;
-    virtual bool download(const std::string &version) = 0;
-    virtual void restart() = 0;
-
 private:
+    // Implementation
+    void check();
+    typedef std::function<bool(const std::string &version)> Downloader;
+    [[nodiscard]] std::optional<Downloader> get_downloader(bool is_ui) const;
+    void download(bool is_ui);
+    static void restart();
+
+    // Logging
+    void log_error(bool is_sync) const;
+
+    // Thread
+    pthread_t thread;
+    volatile bool is_running;
+    volatile bool is_done;
+    void wait();
+    static void *thread_func(void *user_data);
+    void start_thread(const std::function<void(Updater *)> &func);
+
     // Properties
-    UpdateStatus status = UpdateStatus::NOT_STARTED;
+    UpdateStatus status;
+    std::string latest_version;
+    bool has_started_download;
 };
+
+// Helper Methods
+std::optional<std::string> run_wget(const std::string &dest, const std::string &url);
+void add_version_to_url(std::string &url, const std::string &version);

@@ -1,90 +1,101 @@
-#include <pthread.h>
-
 #include <libreborn/log.h>
 #include <libreborn/config.h>
 
 #include "updater.h"
 
-// Instance
-Updater *Updater::instance = nullptr;
-Updater::Updater() {
-    instance = this;
+// Constructor
+Updater::Updater():
+    thread(),
+    is_running(false),
+    is_done(false),
+    status(UpdateStatus::NOT_STARTED),
+    has_started_download(false) {}
+
+// Error Logging
+void Updater::log_error(const bool is_sync) const {
+    if (status == UpdateStatus::UNKNOWN_ERROR) {
+        CONDITIONAL_ERR(is_sync, "Unable To Update");
+    }
 }
 
-// Check Status
+// Asynchronous Mode
+bool Updater::can_launch_safely() const {
+    return !has_started_download;
+}
 bool Updater::can_start() const {
-    return status == UpdateStatus::NOT_STARTED || status == UpdateStatus::RESTART_NEEDED;
+    if (is_running) {
+        return false;
+    }
+    return status == UpdateStatus::NOT_STARTED ||
+        status == UpdateStatus::UPDATE_AVAILABLE ||
+        status == UpdateStatus::RESTART_NEEDED;
 }
 std::string Updater::get_status() const {
     switch (status) {
-        case UpdateStatus::NOT_STARTED: return "Update";
-        case UpdateStatus::RESTART_NEEDED: return "Restart!";
+        case UpdateStatus::NOT_STARTED: return "Check For Updates";
         case UpdateStatus::CHECKING: return "Checking...";
         case UpdateStatus::UP_TO_DATE: return "Up-To-Date";
+        case UpdateStatus::UPDATE_AVAILABLE: return "Download Update";
         case UpdateStatus::DOWNLOADING: return "Downloading...";
+        case UpdateStatus::RESTART_NEEDED: return "Restart Required";
         case UpdateStatus::UNKNOWN_ERROR: return "Error";
         default: return "";
     }
 }
-void Updater::log_status(const bool is_ui) const {
-    if (status == UpdateStatus::UNKNOWN_ERROR) {
-        CONDITIONAL_ERR(!is_ui, "Unable To Update");
-    } else if (status == UpdateStatus::UP_TO_DATE) {
-        INFO("Already Up-To-Date");
-    } else {
-        if (status != UpdateStatus::RESTART_NEEDED) {
-            IMPOSSIBLE();
-        }
-        INFO("Update Completed");
-    }
-}
-
-// Run
-static void *update_thread(void *data) {
-    Updater *updater = (Updater *) data;
-    updater->run();
-    updater->log_status(true);
-    return nullptr;
-}
 void Updater::start() {
+    if (!can_start()) {
+        IMPOSSIBLE();
+    }
     switch (status) {
-        case UpdateStatus::NOT_STARTED: {
-            pthread_t thread;
-            pthread_create(&thread, nullptr, update_thread, this);
-            break;
-        }
-        case UpdateStatus::RESTART_NEEDED: {
-            restart();
-            break;
-        }
+        case UpdateStatus::NOT_STARTED: check(); break;
+        case UpdateStatus::UPDATE_AVAILABLE: download(true); break;
+        case UpdateStatus::RESTART_NEEDED: restart(); break;
         default: IMPOSSIBLE();
     }
 }
+
+// Synchronous Mode
 void Updater::run() {
-    if (status != UpdateStatus::NOT_STARTED) {
+    if (status != UpdateStatus::NOT_STARTED || !can_start()) {
         IMPOSSIBLE();
     }
-    // Check Latest Version
-    status = UpdateStatus::CHECKING;
-    const std::string current_version = reborn_config.general.version;
-    INFO("Current Version: %s", current_version.c_str());
-    const std::optional<std::string> latest_version = check();
-    if (!latest_version.has_value()) {
-        // Error
-        status = UpdateStatus::UNKNOWN_ERROR;
-        return;
+    check();
+    wait();
+    if (status == UpdateStatus::UPDATE_AVAILABLE) {
+        download(false);
+        wait();
+        if (status == UpdateStatus::UPDATE_AVAILABLE) {
+            WARN("Unable To Download Updates Automatically");
+        }
     }
-    INFO("New Version: %s", latest_version.value().c_str());
-    if (latest_version.value() == current_version) {
-        // Up-To-Date
-        status = UpdateStatus::UP_TO_DATE;
-        return;
+    log_error(true);
+}
+
+// Download Update
+void Updater::download(const bool is_ui) {
+    const std::optional<Downloader> downloader = get_downloader(is_ui);
+    if (downloader.has_value()) {
+        status = UpdateStatus::DOWNLOADING;
+        has_started_download = true;
+        INFO("Downloading Update...");
+        start_thread([downloader](Updater *self) {
+            const bool ret = downloader.value()(self->latest_version);
+            if (ret) {
+                INFO("Update Completed");
+            }
+            self->status = ret ? UpdateStatus::RESTART_NEEDED : UpdateStatus::UNKNOWN_ERROR;
+        });
     }
-    // Download
-    INFO("Downloading Update...");
-    status = UpdateStatus::DOWNLOADING;
-    if (!download(latest_version.value())) {
-        // Error
-        status = UpdateStatus::UNKNOWN_ERROR;
+}
+
+// Add Version To URL
+void add_version_to_url(std::string &url, const std::string &version) {
+    while (true) {
+        const std::string placeholder = reborn_config.updater.version_placeholder;
+        const std::string::size_type pos = url.find(placeholder);
+        if (pos == std::string::npos) {
+            break;
+        }
+        url.replace(pos, placeholder.size(), version);
     }
 }

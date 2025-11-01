@@ -54,16 +54,22 @@ struct RebornConfig {
         DEBIAN
     };
     PackagingType packaging;
+
+    // Updater
     struct {
         const char *json_url;
         const char *version_placeholder;
-        const char *download_url;
-    } appimage;
+        const char *web_url;
+        const char *appimage_download_url;
+    } updater;
 };
 extern const RebornConfig reborn_config;
 
 // Fancy Version Name
 std::string reborn_get_fancy_version();
+
+// Check If A Package Manager Is Being Used
+bool reborn_is_using_package_manager();
 
 // Runtime Configuration
 bool reborn_is_headless();

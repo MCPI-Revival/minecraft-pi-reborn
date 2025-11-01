@@ -58,6 +58,9 @@ static std::wstring get_shortcut_path(const std::wstring &start_menu_path) {
     return out;
 }
 bool is_desktop_file_installed() {
+    if (reborn_is_using_package_manager()) {
+        return true;
+    }
     const std::wstring path = get_shortcut_path(get_start_menu_path());
     return _waccess(path.c_str(), F_OK) == 0;
 }

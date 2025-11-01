@@ -53,13 +53,8 @@ static void handle_non_launch_commands(const options_t &options) {
     }
     // Updater
     if (options.run_update) {
-        Updater *updater = Updater::instance;
-        if (updater) {
-            updater->run();
-            updater->log_status(false);
-        } else {
-            ERR("Built-In Updater Unavailable, Use System Package Manager");
-        }
+        Updater updater;
+        updater.run();
         fflush(stdout);
         exit(EXIT_SUCCESS);
     }

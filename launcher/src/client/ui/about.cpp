@@ -51,15 +51,17 @@ void ConfigurationUI::draw_about() {
     ImGui::EndDisabled();
 
     // Updater
-    Updater *updater = Updater::instance;
-    if (updater) {
+    if (!reborn_is_using_package_manager()) {
         ImGui::Separator();
-        ImGui::BeginDisabled(!updater->can_start());
-        draw_right_aligned_buttons({updater->get_status().c_str()}, [&updater](MCPI_UNUSED int id, const bool was_clicked) {
-            if (was_clicked) {
-                updater->start();
-            }
+        ImGui::BeginDisabled(!updater.can_start());
+        const std::string status = updater.get_status();
+        bool ret = false;
+        draw_right_aligned_buttons({status.c_str()}, [&ret](MCPI_UNUSED int id, const bool was_clicked) {
+            ret = was_clicked;
         }, true);
+        if (ret) {
+            updater.start();
+        }
         ImGui::EndDisabled();
     }
 }

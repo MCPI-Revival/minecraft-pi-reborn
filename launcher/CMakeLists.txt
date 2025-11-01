@@ -31,6 +31,8 @@ add_executable(launcher
     src/client/ui/servers.cpp
     src/client/ui/about.cpp
     src/updater/updater.cpp
+    src/updater/checker.cpp
+    src/updater/thread.cpp
 )
 if(MCPI_WIN32)
     target_sources(launcher PRIVATE
@@ -44,6 +46,15 @@ else()
     target_sources(launcher PRIVATE
         src/options/parser.cpp
         src/install/install.cpp
+    )
+endif()
+if(MCPI_IS_APPIMAGE_BUILD)
+    target_sources(launcher PRIVATE
+        src/updater/downloader/appimage.cpp
+    )
+else()
+    target_sources(launcher PRIVATE
+        src/updater/downloader/none.cpp
     )
 endif()
 target_link_libraries(launcher
@@ -132,13 +143,9 @@ install_bin(logger)
 install_bin(crash-report)
 install_bin(bootstrap)
 if(NOT MCPI_WIN32)
-    install_symlink("../${MCPI_INSTALL_DIR}/launcher" "bin/${MCPI_APP_NAME}")
-endif()
-
-# AppImage
-if(MCPI_IS_APPIMAGE_BUILD)
-    install_symlink("bin/${MCPI_APP_NAME}" "AppRun")
-    install_symlink("${MCPI_SHARE_DIR}/applications/${MCPI_APP_ID}.desktop" "${MCPI_APP_ID}.desktop")
-    # Updater
-    target_sources(launcher PRIVATE src/updater/appimage.cpp)
+    set(bin "bin/${MCPI_APP_NAME}")
+    install_symlink("../${MCPI_INSTALL_DIR}/launcher" "${bin}")
+    if(MCPI_IS_APPIMAGE_BUILD)
+        install_symlink("${bin}" "AppRun")
+    endif()
 endif()

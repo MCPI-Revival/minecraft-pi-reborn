@@ -4,6 +4,7 @@
 
 #include "../options/parser.h"
 #include "../ui/frame.h"
+#include "../updater/updater.h"
 
 #include <libreborn/env/flags.h>
 #include <libreborn/env/servers.h>
@@ -48,12 +49,13 @@ private:
     // About
     static void draw_centered_text(const std::string &str);
     static void draw_links(const std::vector<std::pair<std::string, std::string>> &links);
-    static void draw_about();
+    void draw_about();
     // State
     const State original_state;
     State &state;
     bool &save_settings;
     ImGuiTextFilter filter;
+    Updater updater;
 };
 
 // Handle Non-Launch Commands

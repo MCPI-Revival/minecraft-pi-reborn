@@ -80,7 +80,7 @@ static bool is_file_installed(const std::string &path) {
     return access(get_output_path(path).c_str(), F_OK) == 0;
 }
 bool is_desktop_file_installed() {
-    if (reborn_config.packaging == RebornConfig::PackagingType::FLATPAK || reborn_config.packaging == RebornConfig::PackagingType::DEBIAN) {
+    if (reborn_is_using_package_manager()) {
         // Package Manger Handles Desktop Entries
         return true;
     } else {
