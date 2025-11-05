@@ -19,12 +19,7 @@
 
 // Check If Shortcut Was Installed
 static std::wstring get_start_menu_path() {
-    static bool initialized = false;
-    static std::wstring out;
-    if (initialized) {
-        return out;
-    }
-    initialized = true;
+    std::wstring out;
     // Get Path
     if (init_com()) {
         PWSTR path = nullptr;
@@ -41,7 +36,7 @@ static std::wstring get_start_menu_path() {
     // Return
     return out;
 }
-static std::wstring get_shortcut_path(const std::wstring &start_menu_path) {
+static std::wstring get_shortcut_path() {
     static bool initialized = false;
     static std::wstring out;
     if (initialized) {
@@ -49,19 +44,16 @@ static std::wstring get_shortcut_path(const std::wstring &start_menu_path) {
     }
     initialized = true;
     // Add Suffix
-    out = start_menu_path;
+    out = get_start_menu_path();
     if (!out.empty()) {
-        const std::string name = reborn_config.app.name;
+        const std::string name = reborn_config.app.id;
         const std::string suffix = path_separator + name + ".lnk";
         out += convert_utf8_to_wstring(suffix);
     }
     return out;
 }
 bool is_desktop_file_installed() {
-    if (reborn_is_using_package_manager()) {
-        return true;
-    }
-    const std::wstring path = get_shortcut_path(get_start_menu_path());
+    const std::wstring path = get_shortcut_path();
     return _waccess(path.c_str(), F_OK) == 0;
 }
 
@@ -133,16 +125,30 @@ static bool create_link(const std::wstring &path) {
 }
 #undef check
 void copy_desktop_file() {
-    const std::wstring start_menu_path = get_start_menu_path();
-    const std::wstring path = get_shortcut_path(start_menu_path);
+    const std::wstring path = get_shortcut_path();
     if (!path.empty() && init_com()) {
         // Create Link
+        _wunlink(path.c_str());
         const bool success = create_link(path);
         // Free
         CoUninitialize();
         if (!success) {
             WARN("Unable To Create Start Menu Shortcut");
             _wunlink(path.c_str());
+        } else {
+            INFO("Created Shortcut: %ls", path.c_str());
         }
+    }
+}
+
+// Uninstallation
+void remove_desktop_file() {
+    const std::wstring path = get_shortcut_path();
+    if (!path.empty()) {
+        const int ret = _wunlink(path.c_str());
+        if (ret != 0 && errno != ENOENT) {
+            ERR("Unable To Delete Shortcut: %ls: %s", path.c_str(), strerror(errno));
+        }
+        INFO("Deleted Shortcut: %ls", path.c_str());
     }
 }

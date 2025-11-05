@@ -4,6 +4,7 @@ project(launcher)
 add_library(launcher-ui SHARED
     src/ui/frame.cpp
     src/ui/color.cpp
+    src/ui/util.cpp
 )
 target_link_libraries(launcher-ui
     reborn-util

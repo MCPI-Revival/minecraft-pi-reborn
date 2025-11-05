@@ -27,6 +27,7 @@ struct CrashReport final : Frame {
             }
         }
     }
+
     // Render Function
     int render() override {
         // Text
@@ -36,6 +37,7 @@ struct CrashReport final : Frame {
         ImGui::TextWrapped("Need help? Consider asking on the Discord server!");
         ImGui::Spacing();
         ImGui::TextWrapped("If you believe this is a problem with %s itself, please upload this crash report to the #bugs Discord channel.", title);
+
         // Log
         if (ImGui::BeginChild("Log", ImVec2(0, -ImGui::GetFrameHeightWithSpacing() /* Leave Room For Bottom Row */), ImGuiChildFlags_Borders, ImGuiWindowFlags_HorizontalScrollbar)) {
             ImGui::PushFont(monospace, monospace->LegacySize);
@@ -47,6 +49,7 @@ struct CrashReport final : Frame {
             }
         }
         ImGui::EndChild();
+
         // Buttons
         if (ImGui::Button("Join Discord")) {
             open_url(reborn_config.extra.discord_invite);
@@ -58,25 +61,23 @@ struct CrashReport final : Frame {
         }
         ImGui::EndDisabled();
         ImGui::SameLine();
+
         // Right-Aligned
         int ret = 0;
-        const std::string &log_ref = log;
-        draw_right_aligned_buttons({"Copy", quit_text}, [&ret, &log_ref](const int id, const bool was_clicked) {
-            if (was_clicked) {
-                if (id == 0) {
-                    // Disable V-Sync
-                    // (On Wayland, This Fixes Issues With The Clipboard)
-                    glfwSwapInterval(0);
-                    // Copy Log
-                    ImGui::SetClipboardText(log_ref.c_str());
-                } else {
-                    // Exit
-                    ret = 1;
-                }
-            }
-        });
+        const int clicked_button = draw_aligned_buttons({"Copy", quit_text}, {});
+        if (clicked_button == 0) {
+            // Disable V-Sync
+            // (On Wayland, This Fixes Issues With The Clipboard)
+            glfwSwapInterval(0);
+            // Copy Log
+            ImGui::SetClipboardText(log.c_str());
+        } else if (clicked_button == 1) {
+            // Exit
+            ret = 1;
+        }
         return ret;
     }
+
     // Properties
     bool first_render;
     const char *logs_dir;

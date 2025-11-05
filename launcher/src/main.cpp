@@ -64,6 +64,11 @@ static void handle_non_launch_commands(const options_t &options) {
         fflush(stdout);
         exit(EXIT_SUCCESS);
     }
+    if (options.run_uninstall) {
+        remove_desktop_file();
+        fflush(stdout);
+        exit(EXIT_SUCCESS);
+    }
 }
 
 // Start The Game

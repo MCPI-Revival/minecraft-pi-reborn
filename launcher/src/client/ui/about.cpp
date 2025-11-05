@@ -19,11 +19,12 @@ void ConfigurationUI::draw_links(const std::vector<std::pair<std::string, std::s
     for (const std::string &text : links | std::views::keys) {
         buttons.push_back(text.c_str());
     }
-    draw_right_aligned_buttons(buttons, [&links](const int id, const bool was_clicked) {
-        if (was_clicked) {
-            open_url(links[id].second);
-        }
-    }, true);
+    const int ret = draw_aligned_buttons(buttons, {
+        .should_center = true
+    });
+    if (ret >= 0) {
+        open_url(links.at(ret).second);
+    }
 }
 
 // About
@@ -41,27 +42,32 @@ void ConfigurationUI::draw_about() {
     });
 
     // Desktop File
-    ImGui::Separator();
-    ImGui::BeginDisabled(is_desktop_file_installed());
-    draw_right_aligned_buttons({"Create Desktop Entry"}, [](MCPI_UNUSED int id, const bool was_clicked) {
-        if (was_clicked) {
-            copy_desktop_file();
+    if (!reborn_is_using_package_manager()) {
+        ImGui::Separator();
+        const bool is_desktop_entry_installed = is_desktop_file_installed();
+        const std::string desktop_entry_button = std::string(is_desktop_entry_installed ? "Remove" : "Create") + " Desktop Entry";
+        const int ret = draw_aligned_buttons({desktop_entry_button.c_str()}, {
+            .should_center = true
+        });
+        if (ret == 0) {
+            if (is_desktop_entry_installed) {
+                remove_desktop_file();
+            } else {
+                copy_desktop_file();
+            }
         }
-    }, true);
-    ImGui::EndDisabled();
+    }
 
     // Updater
     if (!reborn_is_using_package_manager()) {
         ImGui::Separator();
-        ImGui::BeginDisabled(!updater.can_start());
         const std::string status = updater.get_status();
-        bool ret = false;
-        draw_right_aligned_buttons({status.c_str()}, [&ret](MCPI_UNUSED int id, const bool was_clicked) {
-            ret = was_clicked;
-        }, true);
-        if (ret) {
+        const int ret = draw_aligned_buttons({status.c_str()}, {
+            .should_center = true,
+            .disabled = {!updater.can_start()}
+        });
+        if (ret == 0) {
             updater.start();
         }
-        ImGui::EndDisabled();
     }
 }

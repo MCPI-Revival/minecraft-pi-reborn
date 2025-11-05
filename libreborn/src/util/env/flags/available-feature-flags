@@ -62,7 +62,7 @@ CATEGORY Rendering
     CATEGORY Optimizations
         TRUE Optimize Chunk Sorting
         TRUE Multidraw Rendering
-        TRUE Increase Render Chunk Size
+        FALSE Increase Render Chunk Size
         TRUE Batch Font Rendering
     CATEGORY Camera
         TRUE Enable Camera Rendering

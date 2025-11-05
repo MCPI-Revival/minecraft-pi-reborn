@@ -37,7 +37,7 @@ static void setup_log_file() {
     log = new LogWriter(logs);
 
     // Create Pipe
-    log_pipe = new Pipe(false);
+    log_pipe = new Pipe();
     const HANDLE log_handle = log_pipe->write;
     reborn_init_log(
 #ifdef _WIN32

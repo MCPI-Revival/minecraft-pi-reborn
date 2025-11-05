@@ -12,6 +12,7 @@
 #include <libreborn/log.h>
 #include <libreborn/util/util.h>
 #include <libreborn/util/io.h>
+#include <libreborn/env/env.h>
 
 #include "bootstrap.h"
 #include "../util/util.h"
@@ -73,10 +74,11 @@ std::vector<std::string> bootstrap_mods(const std::string &binary_directory) {
     std::vector<std::string> preload;
 
     // Load
-    const std::vector folders = {
-        home_get(),
-        binary_directory
-    };
+    std::vector<std::string> folders;
+    if (!is_env_set(_MCPI_BENCHMARK_ENV)) {
+        folders.push_back(home_get());
+    }
+    folders.push_back(binary_directory);
     for (std::string mods_folder : folders) {
         mods_folder += path_separator + std::string("mods") + path_separator;
         load(preload, mods_folder);

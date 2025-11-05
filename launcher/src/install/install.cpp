@@ -75,18 +75,15 @@ static void patch_line(const int fd, const std::string &key, const std::string &
     safe_write(fd, line.c_str(), line.size());
 }
 
-// Installation
+// Check Status
 static bool is_file_installed(const std::string &path) {
     return access(get_output_path(path).c_str(), F_OK) == 0;
 }
 bool is_desktop_file_installed() {
-    if (reborn_is_using_package_manager()) {
-        // Package Manger Handles Desktop Entries
-        return true;
-    } else {
-        return is_file_installed(DESKTOP_FILE_PATH) && is_file_installed(ICON_PATH);
-    }
+    return is_file_installed(DESKTOP_FILE_PATH) && is_file_installed(ICON_PATH);
 }
+
+// Installation
 static void install_file(const std::string &path) {
     const std::string binary_directory = get_binary_directory();
     const std::string output_path = get_output_path(path);
@@ -100,13 +97,25 @@ static void install_file(const std::string &path) {
 static std::string get_exec() {
     return reborn_config.packaging == RebornConfig::PackagingType::APPIMAGE ? get_appimage_path() : get_binary();
 }
+static void update_desktop_database(std::string desktop_file) {
+    chop_last_component(desktop_file);
+    const char *const command[] = {"update-desktop-database", desktop_file.c_str(), nullptr};
+    exit_status_t status = 0;
+    const std::vector<unsigned char> *output = run_command(command, &status);
+    delete output;
+    if (is_exit_status_success(status)) {
+        INFO("Updated Desktop Database");
+    } else {
+        WARN("Unable To Update Desktop Database");
+    }
+}
 void copy_desktop_file() {
     // Copy Files
     install_file(DESKTOP_FILE_PATH);
     install_file(ICON_PATH);
 
     // Patch Desktop File
-    std::string desktop_file = get_output_path(DESKTOP_FILE_PATH);
+    const std::string desktop_file = get_output_path(DESKTOP_FILE_PATH);
     const int fd = open(desktop_file.c_str(), O_RDWR);
     if (fd < 0) {
         ERR("Unable To Open Desktop File: %s", strerror(errno));
@@ -116,8 +125,20 @@ void copy_desktop_file() {
     close(fd);
 
     // Invalidate Desktop Cache
-    chop_last_component(desktop_file);
-    const char *const command[] = {"update-desktop-database", desktop_file.c_str(), nullptr};
-    const std::vector<unsigned char> *output = run_command(command, nullptr);
-    delete output;
+    update_desktop_database(desktop_file);
+}
+
+// Uninstallation
+static void uninstall_file(const std::string &path) {
+    const std::string output_path = get_output_path(path);
+    const int ret = unlink(output_path.c_str());
+    if (ret != 0 && errno != ENOENT) {
+        ERR("Unable To Uninstall File: %s: %s", output_path.c_str(), strerror(errno));
+    }
+    INFO("Uninstalled: %s", output_path.c_str());
+}
+void remove_desktop_file() {
+    uninstall_file(DESKTOP_FILE_PATH);
+    uninstall_file(ICON_PATH);
+    update_desktop_database(get_output_path(DESKTOP_FILE_PATH));
 }

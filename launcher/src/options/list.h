@@ -13,3 +13,4 @@ OPTION(force_non_headless, "force-non-headless", -10, "Force Enable Game Renderi
 OPTION(server_mode, "server", -11, "Run In Server-Mode")
 OPTION(run_update, "update", -13, "Run Updater (If Available)")
 OPTION(run_install, "install-desktop-entry", -14, "Install Desktop File And Icon")
+OPTION(run_uninstall, "uninstall-desktop-entry", -15, "Uninstall Desktop File And Icon")
