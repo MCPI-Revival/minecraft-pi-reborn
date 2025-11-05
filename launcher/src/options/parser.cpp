@@ -32,17 +32,16 @@ static argp_option options_data[] = {
 };
 
 // Parse Options
-#define OPTION(name, ignored, key, ...) \
-    case key: options->name = true; break;
 static error_t parse_opt(const int key, MCPI_UNUSED char *arg, argp_state *state) {
     options_t *options = (options_t *) state->input;
     switch (key) {
+#define OPTION(name, ignored, key, ...) case key: options->name = true; break;
 #include "list.h"
+#undef OPTION
         default: return ARGP_ERR_UNKNOWN;
     }
     return 0;
 }
-#undef OPTION
 static argp argp = {options_data, parse_opt, nullptr, doc, nullptr, nullptr, nullptr};
 options_t parse_options(const int argc, char *argv[]) {
     options_t options = {};
