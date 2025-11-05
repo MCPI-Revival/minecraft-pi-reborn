@@ -18,7 +18,7 @@ static constexpr char path_separator = linux_path_separator;
 
 // Safe Version Of pipe()
 struct Pipe {
-    explicit Pipe(bool inheritable_on_windows);
+    explicit Pipe();
     const HANDLE read;
     const HANDLE write;
 };

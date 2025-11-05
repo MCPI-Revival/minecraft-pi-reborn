@@ -76,14 +76,6 @@ static void fwrite_with_flush(FILE *stream, const void *data, const size_t size)
 }
 
 // Setup
-#ifndef _WIN32
-static void setup_logger_child() {
-    // This process will run the actual program.
-
-    // Close Unneeded FD
-    close(log_pipe->read);
-}
-#endif
 static int setup_logger_parent(Process &child) {
     // This process will:
     // * Forward the child's output to the terminal and the log file.
@@ -102,38 +94,37 @@ static int setup_logger_parent(Process &child) {
 #endif
 
     // Get Pipes
-    const std::vector fds = {
-        // Ranked In Order Of Priority
-        log_pipe->read, // Debug Log
-        child.fds.at(1), // stderr
-        child.fds.at(0) // stdout
-    };
+    // Ranked In Order Of Priority
+    std::vector<HANDLE> fds;;
+    fds.push_back(log_pipe->read); // Debug Log
+    if (child.open) {
+        fds.push_back(child.fds.at(1)); // stderr
+        fds.push_back(child.fds.at(0)); // stdout
+    }
     const std::unordered_set do_not_expect_to_close = {
         log_pipe->read
     };
 
     // Poll
-    if (child.open) {
-        poll_fds(fds, do_not_expect_to_close, [](const int i, const size_t size, const unsigned char *buf) {
-            switch (i) {
-                case 1:
-                case 2: {
-                    // Source: Child's stdout/stderr
-                    // Action: Print to the terminal
-                    FILE *target = i == 1 ? stdout : stderr;
-                    fwrite_with_flush(target, buf, size);
-                    [[fallthrough]];
-                }
-                case 0: {
-                    // Source: Child's debug log
-                    // Action: Write to the log file
-                    log->write(buf, std::streamsize(size), false);
-                    break;
-                }
-                default: {}
+    poll_fds(fds, do_not_expect_to_close, [](const int i, const size_t size, const unsigned char *buf) {
+        switch (i) {
+            case 1:
+            case 2: {
+                // Source: Child's stdout/stderr
+                // Action: Print to the terminal
+                FILE *target = i == 1 ? stdout : stderr;
+                fwrite_with_flush(target, buf, size);
+                [[fallthrough]];
             }
-        });
-    }
+            case 0: {
+                // Source: Child's debug log
+                // Action: Write to the log file
+                log->write(buf, std::streamsize(size), false);
+                break;
+            }
+            default: {}
+        }
+    });
 
     // Close Debug Log
     reborn_init_log(-1); // This also closes log_pipe->write.
@@ -186,20 +177,7 @@ int main(MCPI_UNUSED const int argc, char *argv[]) {
     setup_log_file();
 
     // Fork
-#ifndef _WIN32
-    std::optional<Process> child = fork_with_stdio();
-    if (!child) {
-        // Child Process
-        setup_logger_child();
-        argv++;
-        safe_execvpe(argv);
-    } else {
-        // Parent Process
-        return setup_logger_parent(*child);
-    }
-#else
     argv++;
     Process child = spawn_with_stdio(argv);
     return setup_logger_parent(child);
-#endif
 }

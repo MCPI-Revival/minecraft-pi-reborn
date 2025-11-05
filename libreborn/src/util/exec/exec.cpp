@@ -63,8 +63,9 @@ void safe_execvpe(const char *const argv[]) {
 
     // Run
 #ifndef _WIN32
-    const bool success = execvpe(argv[0], (char *const *) argv, environ) != -1;
-    const std::string error = strerror(errno);
+    const char *exe = argv[0];
+    const bool success = exe ? execvpe(exe, (char *const *) argv, environ) != -1 : false;
+    const std::string error = strerror(exe ? errno : ENOENT);
 #else
     SetConsoleCtrlHandler(nullptr, TRUE);
     const std::string cmd = make_cmd(argv);

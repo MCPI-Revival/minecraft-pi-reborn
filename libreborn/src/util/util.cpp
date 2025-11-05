@@ -30,17 +30,17 @@ int align_up(int x, const int alignment) {
 // Safe Version Of pipe()
 #define PIPE_ERROR "Unable To Create Pipe"
 #ifdef _WIN32
-Pipe::Pipe(const bool inheritable_on_windows): read(nullptr), write(nullptr) {
+Pipe::Pipe(): read(nullptr), write(nullptr) {
     SECURITY_ATTRIBUTES attr;
     attr.nLength = sizeof(attr);
-    attr.bInheritHandle = inheritable_on_windows ? TRUE : FALSE;
+    attr.bInheritHandle = TRUE;
     attr.lpSecurityDescriptor = nullptr;
     if (!CreatePipe(const_cast<PHANDLE>(&read), const_cast<PHANDLE>(&write), &attr, 0)) {
         ERR(PIPE_ERROR);
     }
 }
 #else
-Pipe::Pipe(const bool): read(-1), write(-1) {
+Pipe::Pipe(): read(-1), write(-1) {
     int out[2];
     if (pipe(out) != 0) {
         ERR(PIPE_ERROR ": %s", strerror(errno));

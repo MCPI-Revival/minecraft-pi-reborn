@@ -27,7 +27,13 @@ FILE *reborn_get_log_file() {
         return log_file.value();
     }
     // Open Log File
-    const char *fd_str = getenv(_MCPI_LOG_FD_ENV);
+    const char *fd_str =
+#ifndef _WIN32
+        getenv(_MCPI_LOG_FD_ENV)
+#else
+        nullptr
+#endif
+        ;
     if (fd_str) {
         int fd = std::stoi(fd_str);
         fd = dup(fd); // Prevent the real FD from being closed.

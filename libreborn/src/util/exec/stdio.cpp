@@ -59,10 +59,7 @@ exit_status_t Process::close() {
 #ifndef _WIN32
 std::optional<Process> fork_with_stdio() {
     // Store Output
-    const std::array<Pipe, Process::fd_count> pipes = {
-        Pipe(true),
-        Pipe(true)
-    };
+    const std::array<Pipe, Process::fd_count> pipes;
 
     // Fork
     const pid_t ret = fork();
@@ -112,10 +109,7 @@ Process spawn_with_stdio(const char *const argv[]) {
     log_command(argv, "Spawning");
 
     // Store Output
-    const std::array<Pipe, Process::fd_count> pipes = {
-        Pipe(true),
-        Pipe(true)
-    };
+    const std::array<Pipe, Process::fd_count> pipes;
 
     // Configure Pipes
     for (const HANDLE fd : {pipes.at(0).read, pipes.at(1).read}) {

@@ -102,27 +102,9 @@ void poll_fds(std::vector<HANDLE> fds, const std::unordered_set<HANDLE> &do_not_
         handle_to_index[fds.at(i)] = int(i);
     }
 
-    // Detect Console Inputs
-    std::vector<bool> is_console;
-    for (const HANDLE &fd : fds) {
-        DWORD mode;
-        is_console.push_back(GetConsoleMode(fd, &mode));
-    }
-
     // Poll
     unsigned char buf[BUFFER_SIZE];
     while (true) {
-        // Count Open Pipes
-        int open_fds = 0;
-        for (const HANDLE &fd : fds) {
-            if (!do_not_expect_to_close.contains(fd)) {
-                open_fds++;
-            }
-        }
-        if (open_fds <= 0) {
-            break;
-        }
-
         // Wait For Data
         // This is a really inefficient solution,
         // but Windows just doesn't have a nice way
@@ -145,6 +127,17 @@ void poll_fds(std::vector<HANDLE> fds, const std::unordered_set<HANDLE> &do_not_
             std::erase(fds, fd);
         }
 
+        // Count Open Pipes
+        int open_fds = 0;
+        for (const HANDLE &fd : fds) {
+            if (!do_not_expect_to_close.contains(fd)) {
+                open_fds++;
+            }
+        }
+        if (open_fds <= 0) {
+            break;
+        }
+
         // Prevent 100% CPU
         Sleep(10);
     }
@@ -161,17 +154,6 @@ void poll_fds(std::vector<HANDLE> fds, const std::unordered_set<HANDLE> &do_not_
     // Poll
     unsigned char buf[BUFFER_SIZE];
     while (true) {
-        // Count Open FDs
-        int open_fds = 0;
-        for (const pollfd &fd : poll_fds) {
-            if (fd.events != 0 && !do_not_expect_to_close.contains(fd.fd)) {
-                open_fds++;
-            }
-        }
-        if (open_fds <= 0) {
-            break;
-        }
-
         // Wait For Data
         const int poll_ret = poll(poll_fds.data(), poll_fds.size(), -1);
         if (poll_ret == -1) {
@@ -190,6 +172,17 @@ void poll_fds(std::vector<HANDLE> fds, const std::unordered_set<HANDLE> &do_not_
                 // Closed
                 fd.events = 0;
             }
+        }
+
+        // Count Open FDs
+        int open_fds = 0;
+        for (const pollfd &fd : poll_fds) {
+            if (fd.events != 0 && !do_not_expect_to_close.contains(fd.fd)) {
+                open_fds++;
+            }
+        }
+        if (open_fds <= 0) {
+            break;
         }
     }
 #endif
