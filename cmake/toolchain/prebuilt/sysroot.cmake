@@ -41,6 +41,26 @@ function(build_sysroot)
     endforeach()
 endfunction()
 
+# Install Licenses
+function(_install_license name)
+    foreach(file IN LISTS ARGN)
+        install(
+            FILES "${toolchain_dir}/share/licenses/${name}/${file}"
+            DESTINATION "${MCPI_LEGAL_DIR}/sysroot/${name}"
+        )
+    endforeach()
+endfunction()
+function(_install_licenses)
+    _install_license(gcc
+        COPYING.RUNTIME
+    )
+    _install_license(glibc
+        COPYING
+        COPYING.LIB
+        LICENSES
+    )
+endfunction()
+
 # Install Sysroot (Skipping Empty Directories)
 function(_install_arm_sysroot_config config)
     # Get List Of Libraries
@@ -72,4 +92,5 @@ endfunction()
 function(install_arm_sysroot)
     _install_arm_sysroot_config(debug)
     _install_arm_sysroot_config(release)
+    _install_licenses()
 endfunction()

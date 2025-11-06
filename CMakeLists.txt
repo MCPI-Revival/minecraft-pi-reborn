@@ -46,6 +46,9 @@ include(cmake/options/extra-options.cmake)
 # Paths
 include(cmake/paths.cmake)
 
+# License
+install(FILES LICENSE DESTINATION "${MCPI_LEGAL_DIR}")
+
 # Required Compile Flags
 set(RELEASE_MODE_GENERATOR "\$<CONFIG:${RELEASE_MODE}>")
 string(CONCAT COMPILE_FLAGS_SETUP
