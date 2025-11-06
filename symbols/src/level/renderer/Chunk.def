@@ -18,7 +18,7 @@ property bool dirty = 0xad;
 property Level *level = 0x0;
 property uint display_lists = 0xa4;
 
-method float distanceToSqr(const Entity *entity) = 0x47ba0;
+method float distanceToSqr(const Entity *entity) const = 0x47ba0;
 method int getList(int a) = 0x47e48;
 method RenderChunk *getRenderChunk(int a) = 0x47e74;
 method void renderBB() = 0x47ed8;

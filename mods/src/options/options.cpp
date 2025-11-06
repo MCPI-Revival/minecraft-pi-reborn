@@ -19,7 +19,7 @@
 #include "internal.h"
 
 // Force Mob Spawning
-static bool LevelData_getSpawnMobs_injection(MCPI_UNUSED LevelData_getSpawnMobs_t original, MCPI_UNUSED LevelData *level_data) {
+static bool LevelData_getSpawnMobs_injection(MCPI_UNUSED LevelData_getSpawnMobs_t original, MCPI_UNUSED const LevelData *level_data) {
     return true;
 }
 

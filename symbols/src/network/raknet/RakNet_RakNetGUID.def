@@ -1,7 +1,7 @@
 size 0x10;
 mark-as-simple;
 
-method bool equals(const RakNet_RakNetGUID &right) = 0xd663c;
+method bool equals(const RakNet_RakNetGUID &right) const = 0xd663c;
 static-method unsigned long ToUint32(const RakNet_RakNetGUID &g) = 0xd682c;
 
 property unsigned long long param_1 = 0x0;

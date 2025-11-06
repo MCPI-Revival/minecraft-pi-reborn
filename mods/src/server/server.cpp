@@ -89,7 +89,7 @@ static void start_world(Minecraft *minecraft) {
 }
 
 // Force Game-Mode To Match Server Settings
-static int LevelData_getTagData_CompoundTag_getInt_injection(MCPI_UNUSED CompoundTag *self, const std::string &key) {
+static int LevelData_getTagData_CompoundTag_getInt_injection(MCPI_UNUSED const CompoundTag *self, const std::string &key) {
     if (key != "GameType") {
         IMPOSSIBLE();
     }
@@ -174,6 +174,32 @@ static Player *ServerSideNetworkHandler_onReady_ClientGeneration_ServerSideNetwo
 
     // Return
     return player;
+}
+
+// Crash On Failed Level Loads
+static bool load_success;
+static bool file_exists;
+static void ExternalFileLevelStorage_readLevelData_LevelData_v1_read_injection(LevelData *self, RakNet_BitStream &bit_stream, const int param_1) {
+    load_success = true;
+    self->v1_read(bit_stream, param_1);
+}
+static void ExternalFileLevelStorage_readLevelData_LevelData_getTagData_injection(LevelData *self, const CompoundTag *tag) {
+    load_success = true;
+    self->getTagData(tag);
+}
+static size_t ExternalFileLevelStorage_readLevelData_fread_injection(void *ptr, const size_t size, const size_t n, FILE *stream) {
+    file_exists = true;
+    return fread(ptr, size, n, stream);
+}
+static bool ExternalFileLevelStorage_readLevelData_injection(ExternalFileLevelStorage_readLevelData_t original, const std::string &directory, LevelData &data) {
+    load_success = false;
+    file_exists = false;
+    const bool ret = original(directory, data);
+    const bool load_fail = !ret || !load_success;
+    if (file_exists && load_fail) {
+        ERR("Corrupted Level Detected!");
+    }
+    return ret;
 }
 
 // Get MOTD
@@ -265,6 +291,12 @@ void init_server() {
 
     // Handle Newly Joined Players
     overwrite_call((void *) 0x75e54, ServerSideNetworkHandler_popPendingPlayer, ServerSideNetworkHandler_onReady_ClientGeneration_ServerSideNetworkHandler_popPendingPlayer_injection);
+
+    // Detect Corrupt Levels
+    overwrite_calls(ExternalFileLevelStorage_readLevelData, ExternalFileLevelStorage_readLevelData_injection);
+    overwrite_call((void *) 0xb8d14, LevelData_v1_read, ExternalFileLevelStorage_readLevelData_LevelData_v1_read_injection);
+    overwrite_call((void *) 0xb8d58, LevelData_getTagData, ExternalFileLevelStorage_readLevelData_LevelData_getTagData_injection);
+    overwrite_call_manual((void *) 0xb8c7c, (void *) ExternalFileLevelStorage_readLevelData_fread_injection);
 
     // Player Data
     if (get_server_properties().get_bool(get_property_types().player_data)) {

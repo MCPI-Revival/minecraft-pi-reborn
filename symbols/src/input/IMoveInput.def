@@ -1,1 +1,3 @@
+vtable 0x1066f8;
+
 property bool is_sneaking = 0xe;

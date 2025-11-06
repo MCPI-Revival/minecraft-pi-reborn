@@ -9,8 +9,8 @@ static-method ItemInstance *fromTag(CompoundTag *tag) = 0x9a124;
 static-method bool isArmorItem(const ItemInstance *item) = 0x9a288;
 
 method CompoundTag *save(CompoundTag *tag) = 0x9a31c;
-method int getMaxStackSize() = 0x99ac8;
-method bool isNull() = 0x999b0;
+method int getMaxStackSize() const = 0x99ac8;
+method bool isNull() const = 0x999b0;
 method void setNull() = 0x999cc;
 method void setAuxValue(int aux) = 0x99c30;
 

@@ -3,3 +3,4 @@ extends EntityRenderer;
 vtable 0x107e58;
 
 virtual-method void renderNameTag(Mob *mob, const std::string &name, float x, float y, float z, int param_1) = 0x34;
+virtual-method void additionalRendering(Mob *mob) = 0x38;

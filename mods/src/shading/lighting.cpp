@@ -102,7 +102,7 @@ struct FallingSandRenderer {
                 return 0;
             }
         }
-        Material *getMaterial(const int x, const int y, const int z) override {
+        const Material *getMaterial(const int x, const int y, const int z) override {
             if (x == point && y == point && z == point) {
                 return Tile::tiles[id]->material;
             } else {

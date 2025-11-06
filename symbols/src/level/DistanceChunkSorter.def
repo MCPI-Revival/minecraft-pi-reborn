@@ -2,6 +2,7 @@ size 0x4;
 
 property Mob *mob = 0x0;
 
-method bool compare(Chunk *param_1, Chunk *param_2) = 0x5118c; // Actually Called _ZN19DistanceChunkSorterclEPK5ChunkS2_
+// Actually Called _ZN19DistanceChunkSorterclEPK5ChunkS2_
+method bool compare(Chunk *param_1, Chunk *param_2) = 0x5118c;
 
 mark-as-simple;

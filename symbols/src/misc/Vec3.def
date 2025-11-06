@@ -1,6 +1,6 @@
 size 0xc;
 
-method Vec3 normalized() = 0x5eae4;
+method Vec3 normalized() const = 0x5eae4;
 
 property float x = 0x0;
 property float y = 0x4;

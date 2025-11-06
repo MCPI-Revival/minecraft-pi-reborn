@@ -1,4 +1,5 @@
 #undef _FILE_OFFSET_BITS
+#undef _TIME_BITS
 #define __USE_LARGEFILE64
 
 #include <dirent.h>

@@ -11,8 +11,8 @@ virtual-method void playerTouch(Player *player) = 0x70;
 virtual-method bool isPlayer() = 0x94;
 virtual-method bool hurt(Entity *attacker, int damage) = 0xa4;
 // See https://mcpirevival.miraheze.org/wiki/Minecraft:_Pi_Edition_Complete_Entity_List for these two
-virtual-method int getEntityTypeId() = 0xdc;
-virtual-method int getCreatureBaseType() = 0xe0;
+virtual-method int getEntityTypeId() const = 0xdc;
+virtual-method int getCreatureBaseType() const = 0xe0;
 virtual-method bool isMob() = 0xe8;
 virtual-method bool isItemEntity() = 0xec;
 // HangingEntity is a painting

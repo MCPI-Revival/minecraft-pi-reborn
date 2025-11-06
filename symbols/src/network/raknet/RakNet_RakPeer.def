@@ -1,7 +1,7 @@
 vtable 0x135430;
 
 virtual-method RakNet_StartupResult Startup(ushort maxConnections, uchar *socketDescriptors, uint socketDescriptorCount, int threadPriority) = 0x8;
-virtual-method RakNet_SystemAddress GetSystemAddressFromGuid(RakNet_RakNetGUID guid) = 0xd0;
+virtual-method RakNet_SystemAddress GetSystemAddressFromGuid(RakNet_RakNetGUID guid) const = 0xd0;
 virtual-method bool IsBanned(const char *ip) = 0x94;
 virtual-method bool Ping(const char *host, ushort remotePort, bool onlyReplyOnAcceptingConnections, uint connectionSocketIndex) = 0xa0;
 virtual-method uint Send(RakNet_BitStream *bitStream, RakNet_PacketPriority priority, RakNet_PacketReliability reliability, char orderingChannel, const RakNet_AddressOrGUID *systemIdentifier, bool broadcast, uint forceReceiptNumber) = 0x58;

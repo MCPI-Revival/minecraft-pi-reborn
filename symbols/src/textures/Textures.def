@@ -8,7 +8,7 @@ method uint loadAndBindTexture(const std::string &name) = 0x539cc;
 method uint loadTexture(const std::string &name, bool param_1) = 0x53800;
 method uint assignTexture(const std::string &name, const Texture &data) = 0x5354c;
 method void addDynamicTexture(DynamicTexture *texture) = 0x534f8;
-method Texture *getTemporaryTextureData(uint id) = 0x53168;
+method const Texture *getTemporaryTextureData(uint id) = 0x53168;
 
 property bool blur = 0x39;
 property std::vector<DynamicTexture *> dynamic_textures = 0x40;

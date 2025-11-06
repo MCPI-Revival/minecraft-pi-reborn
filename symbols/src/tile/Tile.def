@@ -50,8 +50,8 @@ virtual-method bool getSignal2(LevelSource *level, int x, int y, int z, int dire
 // Called by Level_hasDirectSignal
 virtual-method bool getDirectSignal(Level *level, int x, int y, int z, int direction) = 0xc8;
 virtual-method void entityInside(Level *level, int x, int y, int z, Entity *entity) = 0xcc;
-virtual-method std::string getName() = 0xd8;
-virtual-method std::string getDescriptionId() = 0xdc;
+virtual-method std::string getName() const = 0xd8;
+virtual-method std::string getDescriptionId() const = 0xdc;
 virtual-method Tile *setDescriptionId(const std::string &description_id) = 0xe0;
 virtual-method Tile *setSoundType(const Tile_SoundType &sound_type) = 0xe8;
 virtual-method Tile *setLightEmission(float light) = 0xf0;
@@ -73,7 +73,7 @@ property float destroyTime = 0x34;
 property float explodeable = 0x38;
 property int category = 0x3c;
 property AABB aabb = 0x40;
-property Material *material = 0x2c;
+property const Material *material = 0x2c;
 
 static-method int transformToValidBlockId(int tile_id, int x, int y, int z) = 0xc327c;
 

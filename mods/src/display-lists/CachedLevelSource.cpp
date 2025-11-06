@@ -164,7 +164,7 @@ bool CachedLevelSource::isEmptyTile(const int x, const int y, const int z) {
 float CachedLevelSource::getBrightness(const int x, const int y, const int z) {
     return block.brightness;
 }
-Material *CachedLevelSource::getMaterial(const int x, const int y, const int z) {
+const Material *CachedLevelSource::getMaterial(const int x, const int y, const int z) {
     return block.material;
 }
 bool CachedLevelSource::_should_render(const int x, const int y, const int z) const {

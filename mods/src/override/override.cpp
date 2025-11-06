@@ -1,8 +1,8 @@
 #undef _FILE_OFFSET_BITS
+#undef _TIME_BITS
 
 #include <cstdio>
 #include <cstdlib>
-
 #include <unistd.h>
 #include <fcntl.h>
 

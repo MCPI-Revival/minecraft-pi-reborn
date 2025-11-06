@@ -1,6 +1,8 @@
-method int getTime() = 0xba970;
+method int getTime() const = 0xba970;
 method void setTime(int time) = 0xbab28;
-method bool getSpawnMobs() = 0xbabec;
+method bool getSpawnMobs() const = 0xbabec;
+method void v1_read(RakNet_BitStream &bit_stream, int param_1) = 0xbb04c;
+method void getTagData(const CompoundTag *tag) = 0xbabfc;
 
 property int time = 0x68;
 property int seed = 0x58;

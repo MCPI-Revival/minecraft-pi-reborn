@@ -19,10 +19,10 @@ virtual-method void hurtEnemy(ItemInstance *itemInstance, Mob *mob) = 0x44;
 virtual-method bool mineBlock(ItemInstance *instance, int tile_id, int x, int y, int z) = 0x48;
 // Not just enemy, but any entity
 virtual-method void interactEnemy(ItemInstance *item_instance, Mob *mob) = 0x54;
-virtual-method bool isFood() = 0x64;
-virtual-method bool isArmor() = 0x68;
+virtual-method bool isFood() const = 0x64;
+virtual-method bool isArmor() const = 0x68;
 virtual-method Item *setDescriptionId(const std::string &name) = 0x6c;
-virtual-method std::string getDescriptionId(const ItemInstance *item_instance) = 0x7c;
+virtual-method std::string getDescriptionId(const ItemInstance *item_instance) const = 0x7c;
 // This returns an Item*, but it's never called normally so it doesn't matter if we invent a better system over top of it
 virtual-method ItemInstance *getCraftingRemainingItem(ItemInstance *item_instance) = 0x84;
 // Swing = 0, eating = 1, drinking = 2, bow = 4, anything else is nothing

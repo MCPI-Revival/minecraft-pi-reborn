@@ -14,7 +14,7 @@ struct Bucket final : CustomItem {
     explicit Bucket(const int id):  CustomItem(id) {}
 
     // Description And Texture
-    std::string getDescriptionId(const ItemInstance *item_instance) override {
+    std::string getDescriptionId(const ItemInstance *item_instance) const override {
         if (item_instance->auxiliary == Tile::water->id) {
             return "item.bucketWater";
         } else if (item_instance->auxiliary == Tile::lava->id) {
@@ -100,7 +100,7 @@ struct Bucket final : CustomItem {
             }
             // Get Current Tile
             bool valid = false;
-            Material *material = level->getMaterial(x, y, z);
+            const Material *material = level->getMaterial(x, y, z);
             if (material != nullptr) {
                 valid = !material->isSolid();
             }
@@ -143,7 +143,7 @@ struct Bucket final : CustomItem {
     int getUseAnimation() override {
         return 2;
     }
-    bool isFood() override {
+    [[nodiscard]] bool isFood() const override {
         return true;
     }
     ItemInstance *use(ItemInstance *item_instance, MCPI_UNUSED Level *level, Player *player) override {
@@ -189,7 +189,7 @@ static void Item_initItems_injection() {
 }
 
 // Change Max Stack Size Based On Auxiliary
-static int32_t ItemInstance_getMaxStackSize_injection(ItemInstance_getMaxStackSize_t original, ItemInstance *item_instance) {
+static int32_t ItemInstance_getMaxStackSize_injection(ItemInstance_getMaxStackSize_t original, const ItemInstance *item_instance) {
     if (item_instance->id == bucket->id && item_instance->auxiliary == 0) {
         // Custom Value
         return 16;

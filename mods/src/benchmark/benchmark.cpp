@@ -163,7 +163,7 @@ static RandomLevelSource *PerformanceTestChunkSource_constructor(MCPI_UNUSED Ran
     self2->level = level;
     return self;
 }
-static bool LevelData_getSpawnMobs_injection(MCPI_UNUSED LevelData_getSpawnMobs_t original, MCPI_UNUSED LevelData *level_data) {
+static bool LevelData_getSpawnMobs_injection(MCPI_UNUSED LevelData_getSpawnMobs_t original, MCPI_UNUSED const LevelData *level_data) {
     return false;
 }
 

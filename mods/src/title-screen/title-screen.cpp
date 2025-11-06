@@ -56,7 +56,7 @@ static void StartMenuScreen_buttonClicked_injection(StartMenuScreen_buttonClicke
 // Fix High-Resolution Title
 static constexpr int title_width = 256;
 static constexpr int title_height = 64;
-static Texture *StartMenuScreen_render_Textures_getTemporaryTextureData_injection(Textures *self, uint id) {
+static const Texture *StartMenuScreen_render_Textures_getTemporaryTextureData_injection(Textures *self, uint id) {
     // Call Original Method
     const Texture *out = self->getTemporaryTextureData(id);
     // Patch
@@ -119,7 +119,7 @@ static void StartMenuScreen_render_Screen_renderBackground_injection(StartMenuSc
     t.vertexUV(x - w, y, self->z, 0, 0);
     t.draw();
 }
-static Texture *StartMenuScreen_render_Textures_getTemporaryTextureData_injection_modern(MCPI_UNUSED Textures *self, MCPI_UNUSED uint id) {
+static const Texture *StartMenuScreen_render_Textures_getTemporaryTextureData_injection_modern(MCPI_UNUSED Textures *self, MCPI_UNUSED uint id) {
     return nullptr;
 }
 
@@ -174,7 +174,7 @@ void init_title_screen() {
     }
 
     // High-Resolution Title
-    Texture *(*new_classic_title_getTemporaryTextureData)(Textures *, uint) = nullptr;
+    const Texture *(*new_classic_title_getTemporaryTextureData)(Textures *, uint) = nullptr;
     if (feature_has("Allow High-Resolution Title", server_disabled) || modern_logo) {
         // Touch
         overwrite_call((void *) 0x3df2c, Textures_getTemporaryTextureData, StartMenuScreen_render_Textures_getTemporaryTextureData_injection);

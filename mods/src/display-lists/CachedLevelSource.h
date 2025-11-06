@@ -18,7 +18,7 @@ struct CachedLevelSource final : CustomLevelSource {
         bool is_empty = true;
         int raw_brightness = 0;
         float brightness = 0;
-        Material *material = nullptr;
+        const Material *material = nullptr;
         bool should_render = false;
     } data[MAX_SIZE][MAX_SIZE][MAX_SIZE]; // [X][Z][Y]
     bool should_render = false;
@@ -43,6 +43,6 @@ struct CachedLevelSource final : CustomLevelSource {
     int getData(int x, int y, int z) override;
     bool isEmptyTile(int x, int y, int z) override;
     float getBrightness(int x, int y, int z) override;
-    Material *getMaterial(int x, int y, int z) override;
+    const Material *getMaterial(int x, int y, int z) override;
     [[nodiscard]] bool _should_render(int x, int y, int z) const;
 };
