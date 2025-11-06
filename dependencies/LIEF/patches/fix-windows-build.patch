@@ -1,51 +1,82 @@
---- a/include/LIEF/COFF/Binary.hpp
-+++ b/include/LIEF/COFF/Binary.hpp
-@@ -225,7 +225,6 @@ class LIEF_API Binary {
-   std::string to_string() const;
+--- a/src/Abstract/Header.cpp
++++ b/src/Abstract/Header.cpp
+@@ -16,9 +16,15 @@
+ #include "LIEF/Visitor.hpp"
+ #include "LIEF/Abstract/Header.hpp"
  
-   LIEF_API friend std::ostream& operator<<(std::ostream& os, const Binary& bin) {
--    os << bin.to_string();
-     return os;
++#if defined(LIEF_ELF_SUPPORT)
+ #include "LIEF/ELF/Binary.hpp"
++#endif
++#if defined(LIEF_MACHO_SUPPORT)
+ #include "LIEF/MachO/Binary.hpp"
++#endif
++#if defined(LIEF_PE_SUPPORT)
+ #include "LIEF/PE/Binary.hpp"
++#endif
+ 
+ #include <spdlog/fmt/fmt.h>
+ 
+@@ -37,6 +43,7 @@ static constexpr auto ARRAY_MODES = {
+   Header::MODES::BITS_64, Header::MODES::THUMB,
+ };
+ 
++#if defined(LIEF_ELF_SUPPORT)
+ Header Header::from(const ELF::Binary& elf) {
+   if constexpr (!lief_elf_support) {
+     return {};
+@@ -131,7 +138,9 @@ Header Header::from(const ELF::Binary& elf) {
+ 
+   return hdr;
+ }
++#endif
+ 
++#if defined(LIEF_PE_SUPPORT)
+ Header Header::from(const PE::Binary& pe) {
+   if constexpr (!lief_pe_support) {
+     return {};
+@@ -195,7 +204,9 @@ Header Header::from(const PE::Binary& pe) {
    }
-
---- a/include/LIEF/COFF/Symbol.hpp
-+++ b/include/LIEF/COFF/Symbol.hpp
-@@ -259,7 +259,6 @@ class LIEF_API Symbol : public LIEF::Symbol {
-   LIEF_API friend
-     std::ostream& operator<<(std::ostream& os, const Symbol& entry)
-   {
--    os << entry.to_string();
-     return os;
-   }
-
---- a/include/LIEF/PE/ResourcesManager.hpp
-+++ b/include/LIEF/PE/ResourcesManager.hpp
-@@ -92,7 +92,6 @@ class LIEF_API ResourcesManager : public Object {
-     friend LIEF_API
-       std::ostream& operator<<(std::ostream& os, const string_entry_t& str)
-     {
--      os << std::to_string(str.id) << ", " << str.string_u8();
-       return os;
-     }
-   };
---- a/include/LIEF/PE/resources/ResourceStringTable.hpp
-+++ b/include/LIEF/PE/resources/ResourceStringTable.hpp
-@@ -54,7 +54,7 @@ class LIEF_API ResourceStringTable : public Object {
-     }
+   return hdr;
+ }
++#endif
  
-     std::string to_string() const {
--      return key_u8() + ": " + value_u8();
-+      return "";
-     }
++#if defined(LIEF_MACHO_SUPPORT)
+ Header Header::from(const MachO::Binary& macho) {
+   if constexpr (!lief_macho_support) {
+     return {};
+@@ -290,6 +301,7 @@ Header Header::from(const MachO::Binary& macho) {
  
-     friend LIEF_API
---- a/include/LIEF/PE/resources/ResourceVersion.hpp
-+++ b/include/LIEF/PE/resources/ResourceVersion.hpp
-@@ -276,7 +276,6 @@ class LIEF_API ResourceVersion : public Object {
-     LIEF_API friend
-       std::ostream& operator<<(std::ostream& os, const fixed_file_info_t& info)
-     {
--      os << info.to_string();
-       return os;
-     }
-   };
+   return hdr;
+ }
++#endif
+ 
+ std::vector<Header::MODES> Header::modes_list() const {
+   std::vector<MODES> flags;
+--- a/src/asm/asm.cpp
++++ b/src/asm/asm.cpp
+@@ -49,7 +49,9 @@
+ #include "LIEF/asm/powerpc/registers.hpp"
+ 
+ #include "LIEF/Abstract/Binary.hpp"
++#if defined(LIEF_COFF_SUPPORT)
+ #include "LIEF/COFF/Binary.hpp"
++#endif
+ 
+ #include "internal_utils.hpp"
+ #include "messages.hpp"
+@@ -104,6 +106,7 @@ assembly::Engine* Binary::get_engine(uint64_t) const {
+ }
+ 
+ 
++#if defined(LIEF_COFF_SUPPORT)
+ namespace COFF {
+ assembly::Engine* Binary::get_engine(uint64_t) const {
+   return nullptr;
+@@ -126,6 +129,7 @@ Binary::instructions_it Binary::disassemble(const uint8_t* /*buffer*/, size_t /*
+   return make_empty_iterator<assembly::Instruction>();
+ }
+ }
++#endif
+ 
+ namespace assembly {
+ namespace details {

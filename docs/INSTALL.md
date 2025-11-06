@@ -16,8 +16,8 @@ It supports running on 32-bit ARM (known as `armhf`), 64-bit ARM (known as `arm6
 ## Instructions
 
 > [!TIP]
-> To integrate it with your application launcher,
-> open the game launcher, click `About`, and click `Create Desktop Entry`.
+> To integrate the game with your desktop environment,
+> open the game launcher, select `About`, and click `Create Desktop Entry`.
 
 ### AppImage (Linux)
 The first supported way to install MCPI-Reborn is with an [AppImage](https://appimage.org).
