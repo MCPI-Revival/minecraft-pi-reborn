@@ -34,6 +34,20 @@ static LevelRenderer *LevelRenderer_destructor_injection(LevelRenderer_destructo
     return original(self);
 }
 
+// Cached Level Source
+static CachedLevelSource &get_cached_level_source() {
+    static CachedLevelSource source;
+    return source;
+}
+Level *get_level_from_cached_level_source(const LevelSource *level_source) {
+    const CachedLevelSource &cached_level_source = get_cached_level_source();
+    if (level_source == cached_level_source.self) {
+        return cached_level_source.level;
+    } else {
+        return nullptr;
+    }
+}
+
 // Build Chunk
 static void Chunk_rebuild_injection(MCPI_UNUSED Chunk_rebuild_t original, Chunk *self) {
     // Prepare
@@ -55,7 +69,7 @@ static void Chunk_rebuild_injection(MCPI_UNUSED Chunk_rebuild_t original, Chunk 
     Tesselator &t = Tesselator::instance;
 
     // Get Chunk Information
-    static CachedLevelSource source;
+    CachedLevelSource &source = get_cached_level_source();
     source.level = level;
     source._cache(x0, y0, z0, x1, y1, z1);
     if (!source.should_render) {

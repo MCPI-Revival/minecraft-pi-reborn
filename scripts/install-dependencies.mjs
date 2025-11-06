@@ -45,8 +45,7 @@ handlers.set(Modes.Build, function () {
         'libzstd-dev',
         'libcurl4-openssl-dev',
         'libglib2.0-dev',
-        'gperf',
-        'libfyaml-dev'
+        'gperf'
     );
 
     // Select Platform

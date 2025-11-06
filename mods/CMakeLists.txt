@@ -121,6 +121,7 @@ add_library(mods SHARED
     src/shading/tesselator.cpp
     src/shading/lighting.cpp
     src/shading/normals.cpp
+    src/shading/FallingSandRenderer.cpp
 )
 
 # Install Splashes

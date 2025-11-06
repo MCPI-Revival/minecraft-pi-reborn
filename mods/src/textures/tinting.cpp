@@ -5,6 +5,8 @@
 #include <GLES/gl.h>
 
 #include <mods/feature/feature.h>
+#include <mods/shading/FallingSandRenderer.h>
+#include <mods/display-lists/display-lists.h>
 
 #include "internal.h"
 
@@ -31,6 +33,16 @@ static void Minecraft_init_injection(Minecraft_init_t original, Minecraft *self)
     grass_colors_loaded = true;
 }
 static Level *get_level_from_source(LevelSource *source) {
+    // Test Custom Level Sources
+    Level *level = get_level_from_falling_sand_renderer(source);
+    if (level) {
+        return level;
+    }
+    level = get_level_from_cached_level_source(source);
+    if (level) {
+        return level;
+    }
+    // Test If Level Source Is A Level
     const void *vtable = source->vtable;
     static std::unordered_set level_vtables = {
         (const void *) Level::VTable::base,
@@ -40,11 +52,13 @@ static Level *get_level_from_source(LevelSource *source) {
     };
     if (level_vtables.contains(vtable)) {
         return (Level *) source;
-    } else if (vtable == (const void *) Region::VTable::base) {
-        return ((Region *) source)->level;
-    } else {
-        return nullptr;
     }
+    // Test If Level Source Is A Region
+    if (vtable == (const void *) Region::VTable::base) {
+        return ((Region *) source)->level;
+    }
+    // Unable To Retrieve Level
+    return nullptr;
 }
 static int32_t GrassTile_getColor_injection(GrassTile_getColor_t original, GrassTile *tile, LevelSource *level_source, const int32_t x, const int32_t y, const int32_t z) {
     // Get Level
@@ -92,11 +106,8 @@ struct GrassSideTile final : CustomTile {
     }
 };
 static Tile *get_fake_grass_side_tile() {
-    static Tile *out = nullptr;
-    if (out == nullptr) {
-        out = (new GrassSideTile(0, 38, Material::dirt))->self;
-    }
-    return out;
+    static GrassSideTile out(0, 38, Material::dirt);
+    return out.self;
 }
 static bool TileRenderer_tesselateBlockInWorld_injection(TileRenderer_tesselateBlockInWorld_t original, TileRenderer *self, Tile *tile, const int x, const int y, const int z) {
     const bool ret = original(self, tile, x, y, z);

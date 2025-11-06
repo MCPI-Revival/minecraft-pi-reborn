@@ -17,7 +17,7 @@ force_set(CMAKE_INSTALL_BINDIR "." FILEPATH)
 # Versions
 set(NINJA_VERSION "v1.13.1")
 set(APPIMAGETOOL_VERSION "continuous")
-set(APPSTREAM_VERSION "v1.1.1")
+set(APPSTREAM_VERSION "v1.0.6")
 
 # Ninja
 include(FetchContent)
