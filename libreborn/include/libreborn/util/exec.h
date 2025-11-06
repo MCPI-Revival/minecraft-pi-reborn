@@ -63,5 +63,5 @@ const std::vector<unsigned char> *download_from_internet(const std::string &dest
 
 // WSL Command-Line Options
 #ifdef _WIN32
-#define WSL_FLAGS "--distribution", "Ubuntu"
+#define WSL_FLAGS "--distribution", "MCPI-Reborn"
 #endif

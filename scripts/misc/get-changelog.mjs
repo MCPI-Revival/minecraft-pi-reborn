@@ -22,7 +22,7 @@ if (options.mode === Modes.AppStream) {
     const time = new Date(Math.max(version.time.getTime(), changelog.time.getTime()));
     const date = time.toISOString().split('T')[0];
     console.log(`<release version="${version.data}" date="${date}">`);
-    console.log('<url>' + process.env.URL + '</url>');
+    console.log(`<url>${process.env.URL}</url>`);
 }
 
 // Parse Changelog
@@ -63,7 +63,7 @@ if (options.mode === Modes.Release) {
                 line = line.replace(code, '</code>');
             }
             // Output
-            console.log('<li>' + line + '</li>');
+            console.log(`<li>${line}</li>`);
         }
     }
     console.log('</ul>');

@@ -1,25 +1,32 @@
+---
+gitea: none
+include_toc: true
+---
+
 # Installation
 There are multiple supported ways to install MCPI-Reborn.
 
 ## System Requirements
 MCPI-Reborn requires support for OpenGL ES v1.5 (unlike the original game, which used OpenGL ES v1.1).
-It also only supports Linux-based systems.
+It also only supports Linux-based systems and Windows 10/11.
 
 In addition, while the original game could only be run on the Raspberry Pi, MCPI-Reborn is much more flexible.
 It supports running on 32-bit ARM (known as `armhf`), 64-bit ARM (known as `arm64`), and 64-bit x86 (known as `amd64`).
 
-## Methods
+## Instructions
 
-### AppImage
+> [!TIP]
+> To integrate it with your application launcher,
+> open the game launcher, click `About`, and click `Create Desktop Entry`.
+
+### AppImage (Linux)
 The first supported way to install MCPI-Reborn is with an [AppImage](https://appimage.org).
 An AppImage is a portable application format that allows users to run software without installation.
 
-To run MCPI-Reborn, all you need to do is [download the latest AppImage](https://gitea.thebrokenrail.com/minecraft-pi-reborn/minecraft-pi-reborn/releases/latest) for your architecture and run it.
+To run MCPI-Reborn,
+all you need to do is [download the latest AppImage](https://gitea.thebrokenrail.com/minecraft-pi-reborn/minecraft-pi-reborn/releases/latest) for your architecture and run it.
 
 More details can be found [here](https://docs.appimage.org/introduction/quickstart.html#how-to-run-an-appimage).
-
-> [!TIP]
-> To integrate it with your application launcher, open the game launcher, click `About`, and click `Create Desktop Entry`.
 
 <details>
 <summary><b>Additional System Requirements</b></summary>
@@ -32,27 +39,47 @@ sudo apt install -y libopenal1 libglib2.0-0
 ```
 </details>
 
-### Flatpak
+### Flatpak (Linux)
 The next method is the official [Flatpak](https://www.flatpak.org/).
 This method has the additional benefit of built-in sandboxing.
 Unfortunately, it does not support 32-bit ARM systems.
 
 It can be installed through [Flathub](https://flathub.org/apps/details/com.thebrokenrail.MCPIReborn).
 
-### Debian Packages
+### Debian Packages (Linux)
 On Debian-based systems (like Ubuntu),
-another supported method is Debian (`.deb`) packages.
+another supported method is Debian packages (`.deb` files).
 
 To install, run:
 ```sh
-sudo curl https://gitea.thebrokenrail.com/api/packages/minecraft-pi-reborn/debian/repository.key -o /etc/apt/keyrings/gitea-minecraft-pi-reborn.asc
-echo 'deb [signed-by=/etc/apt/keyrings/gitea-minecraft-pi-reborn.asc] https://gitea.thebrokenrail.com/api/packages/minecraft-pi-reborn/debian stable main' | sudo tee -a /etc/apt/sources.list.d/gitea.list
+sudo curl https://gitea.thebrokenrail.com/api/packages/minecraft-pi-reborn/debian/repository.key -o /etc/apt/keyrings/minecraft-pi-reborn.asc
+echo 'deb [signed-by=/etc/apt/keyrings/minecraft-pi-reborn.asc] https://gitea.thebrokenrail.com/api/packages/minecraft-pi-reborn/debian stable main' | sudo tee -a /etc/apt/sources.list.d/minecraft-pi-reborn.list
 sudo apt update
 sudo apt install minecraft-pi-reborn
 ```
 
-### Pi-Apps
-The final supported method is [Pi-Apps](https://github.com/Botspot/pi-apps).
-It is a ["well-maintained collection of app installation-scripts"](https://github.com/Botspot/pi-apps#:~:text=well-maintained%20collection%20of%20app%20installation-scripts) that includes support for MCPI-Reborn.
+### Pi-Apps (Linux)
+On [certain supported system](https://github.com/Botspot/pi-apps?tab=readme-ov-file#supported-systems),
+it can also be installed from [Pi-Apps](https://github.com/Botspot/pi-apps).
+This is a ["well-maintained collection of app installation-scripts"](https://github.com/Botspot/pi-apps#:~:text=well-maintained%20collection%20of%20app%20installation-scripts) that includes support for MCPI-Reborn.
 
-The list of systems supported by Pi-Apps can be found [here](https://github.com/Botspot/pi-apps?tab=readme-ov-file#supported-systems).
+### Windows
+MCPI-Reborn also supports Windows 10/11.
+
+This requires at least Windows 10 version 1903 (build 18362).
+It internally relies on [WSL 1](https://learn.microsoft.com/en-us/windows/wsl/compare-versions).
+
+Installation is relatively simple:
+
+1. Install WSL 1 (if it is not already installed):
+   ```powershell
+   wsl --install --enable-wsl1 --no-distribution
+   ```
+   This will require a reboot afterward.
+2. Create a dedicated WSL container for MCPI-Reborn:
+   ```powershell
+   wsl --install --distribution Ubuntu-24.04 --version 1 --name MCPI-Reborn
+   ```
+3. [Download the latest ZIP archive](https://gitea.thebrokenrail.com/minecraft-pi-reborn/minecraft-pi-reborn/releases/latest) for Windows.
+4. Extract it.
+5. Run `launcher.exe`.
