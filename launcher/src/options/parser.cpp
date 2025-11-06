@@ -7,9 +7,9 @@
 #include "parser.h"
 
 // Globals
-static std::string version = std::string("Reborn ") + reborn_get_fancy_version();
+static std::string version = std::string("Reborn ") + reborn_get_fancy_version() + '\n' + RELEASE_DATE_STR;
 const char *argp_program_version = version.c_str();
-static std::string bug_address = std::string("<") + reborn_config.extra.discord_invite + '>';
+static std::string bug_address = '<' + std::string(reborn_config.extra.discord_invite) + '>';
 const char *argp_program_bug_address = bug_address.c_str();
 static char doc[] = "Minecraft: Pi Edition Modding Project";
 

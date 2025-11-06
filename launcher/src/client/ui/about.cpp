@@ -32,6 +32,7 @@ void ConfigurationUI::draw_about() {
     // Text
     draw_centered_text(std::string("By ") + reborn_config.general.author);
     draw_centered_text(std::string("Version ") + reborn_config.general.version);
+    draw_centered_text(RELEASE_DATE_STR);
 
     // Links
     ImGui::Separator();

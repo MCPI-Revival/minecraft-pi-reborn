@@ -5,7 +5,8 @@ import { createEnum, parseOptions, PositionalArg } from '../lib/options.mjs';
 // Parse Options
 const Modes = {
     Release: null,
-    AppStream: null
+    AppStream: null,
+    Date: null
 };
 createEnum(Modes);
 const options = {
@@ -17,10 +18,16 @@ parseOptions(options, null);
 const version = getVersion();
 const changelog = readFile('docs', 'CHANGELOG.md');
 
+// Get Date
+const time = new Date(Math.max(version.time.getTime(), changelog.time.getTime()));
+const date = time.toISOString().split('T')[0];
+if (options.mode === Modes.Date) {
+    console.log(date);
+    process.exit();
+}
+
 // Print Version
 if (options.mode === Modes.AppStream) {
-    const time = new Date(Math.max(version.time.getTime(), changelog.time.getTime()));
-    const date = time.toISOString().split('T')[0];
     console.log(`<release version="${version.data}" date="${date}">`);
     console.log(`<url>${process.env.URL}</url>`);
 }

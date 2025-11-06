@@ -20,28 +20,37 @@ function(configure_and_install_data input_path output_path output_name)
     set(full_path "${dir}/${output_name}" PARENT_SCOPE)
 endfunction()
 
-# Metadata Attached To The Binaries
-add_library(launcher-meta INTERFACE)
-
-# Configure Metadata
-if(NOT MCPI_WIN32)
-    # Changelog
-    set_property(
-        DIRECTORY APPEND PROPERTY
-        CMAKE_CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/../../docs/CHANGELOG.md"
-    )
+# Read Changelog
+set_property(
+    DIRECTORY APPEND PROPERTY
+    CMAKE_CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/../../docs/CHANGELOG.md"
+)
+macro(read_changelog mode out)
     execute_process(
         COMMAND
             "${CMAKE_COMMAND}" "-E" "env" "URL=${MCPI_CHANGELOG}"
-            "${CMAKE_CURRENT_SOURCE_DIR}/../../scripts/misc/get-changelog.mjs" "appstream"
-        OUTPUT_VARIABLE MCPI_CHANGELOG_XML
+            "${CMAKE_CURRENT_SOURCE_DIR}/../../scripts/misc/get-changelog.mjs" "${mode}"
+        OUTPUT_VARIABLE "${out}"
         OUTPUT_STRIP_TRAILING_WHITESPACE
         COMMAND_ERROR_IS_FATAL ANY
     )
+endmacro()
 
-    # Linux-Specific
+# Metadata Attached To The Binaries
+add_library(launcher-meta INTERFACE)
+read_changelog(date MCPI_VERSION_DATE)
+target_compile_definitions(launcher-meta INTERFACE
+    "RELEASE_DATE_STR=\"Released ${MCPI_VERSION_DATE}\""
+)
+
+# Configure Metadata
+if(NOT MCPI_WIN32)
+    # AppStream
+    read_changelog(appstream MCPI_CHANGELOG_XML)
     string(REPLACE "&" "&amp;" MCPI_AUTHOR_LONG_SAFE "${MCPI_AUTHOR_LONG}")
     configure_and_install_data(linux/appstream.xml metainfo "${MCPI_APP_ID}.appdata.xml")
+
+    # Desktop Entry
     configure_and_install_data(linux/launcher.desktop applications "${MCPI_APP_ID}.desktop")
     if(MCPI_IS_APPIMAGE_BUILD)
         install_symlink("${full_path}" "${MCPI_APP_ID}.desktop")
@@ -56,10 +65,14 @@ else()
     set_target_properties(launcher-meta PROPERTIES
         ICO_PATH "${MCPI_ICO_PATH}"
     )
+    set(resources "${MCPI_ICO_PATH}")
 
-    # Windows-Specific
+    # Manifest
     set(MCPI_VERSION_WIN32 "${MCPI_VERSION}.0")
     configure_data(win32/launcher.manifest MCPI_MANIFEST_PATH)
+    list(APPEND resources "${MCPI_MANIFEST_PATH}")
+
+    # Resources
     string(REPLACE "." "," MCPI_VERSION_RC "${MCPI_VERSION_WIN32}")
     configure_data(win32/launcher.rc MCPI_RC_PATH)
     target_sources(launcher-meta INTERFACE
@@ -67,7 +80,7 @@ else()
     )
     set_source_files_properties("${MCPI_RC_PATH}"
         DIRECTORY ..
-        PROPERTIES OBJECT_DEPENDS "${MCPI_ICO_PATH};${MCPI_MANIFEST_PATH}"
+        PROPERTIES OBJECT_DEPENDS "${resources}"
     )
     target_compile_definitions(launcher-meta INTERFACE
         "$<$<AND:$<COMPILE_LANGUAGE:RC>,$<CONFIG:Debug>>:VER_DEBUG>"
