@@ -34,28 +34,30 @@ install(
 )
 set(ICON_PATH "${ICON_DIR}/${ICON_NAME}")
 cmake_path(RELATIVE_PATH ICON_PATH BASE_DIRECTORY "${MCPI_INSTALL_DIR}")
-target_compile_definitions(launcher PRIVATE
+target_compile_definitions(launcher-meta INTERFACE
     "ICON_PATH=\"${ICON_PATH}\""
 )
 
 # Icon (ICO)
-set(ICO_INPUT "${CMAKE_CURRENT_SOURCE_DIR}/${ICON_FILE}")
-get_target_property(ICO_OUTPUT launcher-meta ICO_PATH)
-add_custom_command(OUTPUT "${ICO_OUTPUT}"
-    DEPENDS "${ICO_INPUT}"
-    COMMAND
-        "convert"
-        "${ICO_INPUT}"
-        "-define" "icon:auto-resize=16,32,48,64,256"
+if(MCPI_WIN32)
+    set(ICO_INPUT "${CMAKE_CURRENT_SOURCE_DIR}/${ICON_FILE}")
+    get_target_property(ICO_OUTPUT launcher-meta ICO_PATH)
+    add_custom_command(OUTPUT "${ICO_OUTPUT}"
+        DEPENDS "${ICO_INPUT}"
+        COMMAND
+            "convert"
+            "${ICO_INPUT}"
+            "-define" "icon:auto-resize=16,32,48,64,256"
+            "${ICO_OUTPUT}"
+        VERBATIM
+    )
+    add_library(icon-ico INTERFACE
         "${ICO_OUTPUT}"
-    VERBATIM
-)
-add_library(icon-ico INTERFACE
-    "${ICO_OUTPUT}"
-)
-target_link_libraries(launcher-meta INTERFACE
-    icon-ico
-)
+    )
+    target_link_libraries(launcher-meta INTERFACE
+        icon-ico
+    )
+endif()
 
 # AppImage
 if(MCPI_IS_APPIMAGE_BUILD)

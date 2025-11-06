@@ -22,10 +22,6 @@ endfunction()
 
 # Metadata Attached To The Binaries
 add_library(launcher-meta INTERFACE)
-set(MCPI_ICO_PATH "${CMAKE_CURRENT_BINARY_DIR}/icon.ico")
-set_target_properties(launcher-meta PROPERTIES
-    ICO_PATH "${MCPI_ICO_PATH}"
-)
 
 # Configure Metadata
 if(NOT MCPI_WIN32)
@@ -51,10 +47,16 @@ if(NOT MCPI_WIN32)
         install_symlink("${full_path}" "${MCPI_APP_ID}.desktop")
     endif()
     cmake_path(RELATIVE_PATH full_path BASE_DIRECTORY "${MCPI_INSTALL_DIR}")
-    target_compile_definitions(launcher PRIVATE
+    target_compile_definitions(launcher-meta INTERFACE
         "DESKTOP_FILE_PATH=\"${full_path}\""
     )
 else()
+    # Icon
+    set(MCPI_ICO_PATH "${CMAKE_CURRENT_BINARY_DIR}/icon.ico")
+    set_target_properties(launcher-meta PROPERTIES
+        ICO_PATH "${MCPI_ICO_PATH}"
+    )
+
     # Windows-Specific
     set(MCPI_VERSION_WIN32 "${MCPI_VERSION}.0")
     configure_data(win32/launcher.manifest MCPI_MANIFEST_PATH)

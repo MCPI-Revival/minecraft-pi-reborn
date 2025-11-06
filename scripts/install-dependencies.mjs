@@ -45,9 +45,7 @@ handlers.set(Modes.Build, function () {
         'libzstd-dev',
         'libcurl4-openssl-dev',
         'libglib2.0-dev',
-        'gperf',
-        // For Generating The ICO File
-        'imagemagick'
+        'gperf'
     );
 
     // Select Platform
@@ -95,7 +93,9 @@ handlers.set(Modes.Build, function () {
             'llvm',
             // Compiler (For QEMU)
             'gcc',
-            'g++'
+            'g++',
+            // For Generating The ICO File
+            'imagemagick'
         );
     }
 
