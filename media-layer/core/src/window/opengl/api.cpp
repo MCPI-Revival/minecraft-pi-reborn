@@ -274,9 +274,3 @@ GL_FUNC(glCallLists, void, (GLsizei n, GLenum type,  const GLvoid *lists))
 void media_glCallLists(const GLsizei n, const GLenum type,  const GLvoid *lists) {
     real_glCallLists()(n, type, lists);
 }
-
-// GL_EXT_multi_draw_arrays
-GL_FUNC(glMultiDrawArraysEXT, void, (GLenum mode, const GLint *first, const GLsizei *count, GLsizei drawcount))
-void media_glMultiDrawArrays(const GLenum mode, const GLint *first, const GLsizei *count, const GLsizei drawcount) {
-    real_glMultiDrawArraysEXT()(mode, first, count, drawcount);
-}

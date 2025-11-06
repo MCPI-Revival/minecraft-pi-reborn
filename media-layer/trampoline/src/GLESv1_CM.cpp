@@ -169,21 +169,6 @@ CALL(15, media_glDrawArrays, void, (const GLenum mode, const GLint first, const 
 #endif
 }
 
-CALL(70, media_glMultiDrawArrays, void, (const GLenum mode, const GLint *first, const GLsizei *count, const GLsizei drawcount))
-#ifdef MEDIA_LAYER_TRAMPOLINE_GUEST
-    trampoline(true, gl_state, mode, copy_array(drawcount, first), copy_array(drawcount, count));
-#else
-    const gl_state_t &gl_state = args.next<gl_state_t>();
-    gl_state.send_to_driver();
-    const GLenum mode = args.next<GLenum>();
-    uint32_t drawcount;
-    const GLint *first = args.next_arr<GLint>(&drawcount);
-    const GLsizei *count = args.next_arr<GLsizei>();
-    func(mode, first, count, GLsizei(drawcount));
-    return 0;
-#endif
-}
-
 CALL(16, media_glColor4f, void, (const GLfloat red, const GLfloat green, const GLfloat blue, const GLfloat alpha))
 #ifdef MEDIA_LAYER_TRAMPOLINE_GUEST
     trampoline(true, red, green, blue, alpha);

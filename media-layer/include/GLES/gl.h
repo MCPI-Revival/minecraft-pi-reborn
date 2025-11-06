@@ -173,7 +173,6 @@ void media_glGenBuffers(GLsizei n, GLuint *buffers);
 GLenum media_glGetError();
 void media_glBufferSubData(GLenum target, GLintptr offset, GLsizeiptr size, const void *data);
 void media_glPixelStorei(GLenum pname, GLint param);
-void media_glMultiDrawArrays(GLenum mode, const GLint *first, const GLsizei *count, GLsizei drawcount);
 void media_glNormalPointer(GLenum type, GLsizei stride, const void *pointer);
 void media_glLightfv(GLenum light, GLenum pname, const GLfloat *params);
 void media_glColorMaterial(GLenum face, GLenum mode);

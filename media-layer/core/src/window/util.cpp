@@ -19,15 +19,6 @@ void media_get_framebuffer_size(int *width, int *height) {
     }
 }
 
-// Check OpenGL Extension
-bool media_has_extension(const char *name) {
-    if (glfw_window) {
-        return glfwExtensionSupported(name);
-    } else {
-        return false;
-    }
-}
-
 // Swap Buffers
 void media_swap_buffers() {
     if (glfw_window) {

@@ -163,14 +163,6 @@ CALL(64, media_set_raw_mouse_motion_enabled, void, (const bool enabled))
 #endif
 }
 
-CALL(71, media_has_extension, bool, (const char *name))
-#ifdef MEDIA_LAYER_TRAMPOLINE_GUEST
-    return trampoline(false, copy_array(name));
-#else
-    return func(args.next_arr<char>());
-#endif
-}
-
 CALL(76, media_begin_offscreen_render, void, (const int width, const int height))
 #ifdef MEDIA_LAYER_TRAMPOLINE_GUEST
     trampoline(true, width, height);
