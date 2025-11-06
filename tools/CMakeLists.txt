@@ -15,18 +15,18 @@ force_set(CMAKE_INSTALL_PREFIX "${CMAKE_CURRENT_SOURCE_DIR}/bin" FILEPATH)
 force_set(CMAKE_INSTALL_BINDIR "." FILEPATH)
 
 # Versions
-set(NINJA_VERSION "v1.13.0")
+set(NINJA_VERSION "v1.13.1")
 set(APPIMAGETOOL_VERSION "continuous")
-set(APPSTREAM_VERSION "v1.0.5")
+set(APPSTREAM_VERSION "v1.1.1")
 
 # Ninja
 include(FetchContent)
-FetchContent_Declare(ninja
+FetchContent_Declare("ninja-${NINJA_VERSION}"
     GIT_REPOSITORY "https://github.com/ninja-build/ninja.git"
     GIT_TAG "${NINJA_VERSION}"
 )
-FetchContent_MakeAvailable(ninja)
-install(PROGRAMS "${ninja_SOURCE_DIR}/misc/jobserver_pool.py" TYPE BIN)
+FetchContent_MakeAvailable("ninja-${NINJA_VERSION}")
+install(PROGRAMS "${ninja-${NINJA_VERSION}_SOURCE_DIR}/misc/jobserver_pool.py" TYPE BIN)
 
 # Download AppImageTool
 set(APPIMAGETOOL_NAME "appimagetool")
@@ -51,7 +51,7 @@ install(PROGRAMS "${CMAKE_CURRENT_BINARY_DIR}/${APPIMAGETOOL_NAME}" TYPE BIN)
 
 # AppStream
 include(ExternalProject)
-ExternalProject_Add(appstream
+ExternalProject_Add("appstream-${APPSTREAM_VERSION}"
     GIT_REPOSITORY "https://github.com/ximion/appstream.git"
     GIT_TAG "${APPSTREAM_VERSION}"
     # Patch
@@ -75,5 +75,5 @@ ExternalProject_Add(appstream
     INSTALL_COMMAND "meson" "install" "--quiet"
     USES_TERMINAL_INSTALL TRUE
 )
-ExternalProject_Get_Property(appstream INSTALL_DIR)
+ExternalProject_Get_Property("appstream-${APPSTREAM_VERSION}" INSTALL_DIR)
 install(PROGRAMS "${INSTALL_DIR}/bin/appstreamcli" TYPE BIN)
