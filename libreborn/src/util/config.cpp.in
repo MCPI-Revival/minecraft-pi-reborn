@@ -1,3 +1,8 @@
+#include <vector>
+#ifndef _WIN32
+#include <unistd.h>
+#endif
+
 #include <libreborn/config.h>
 #include <libreborn/log.h>
 #include <libreborn/env/env.h>
@@ -76,30 +81,35 @@ const RebornConfig reborn_config = {
     }
 };
 
+// Detect WSL
+static bool is_wsl() {
+#ifdef _WIN32
+    return true;
+#else
+    // https://superuser.com/a/1749811
+    return access("/usr/bin/wslinfo", X_OK) == 0;
+#endif
+}
+
 // Fancy Version Name
 std::string reborn_get_fancy_version() {
     // Add Packaging Info
-    std::string extra;
+    std::vector<std::string> extras;
     switch (reborn_config.packaging) {
-        case RebornConfig::PackagingType::APPIMAGE: {
-            extra = "AppImage";
-            break;
-        }
-        case RebornConfig::PackagingType::FLATPAK: {
-            extra = "Flatpak";
-            break;
-        }
-        case RebornConfig::PackagingType::DEBIAN: {
-            extra = "Debian";
-            break;
-        }
+        case RebornConfig::PackagingType::APPIMAGE: extras.emplace_back("AppImage"); break;
+        case RebornConfig::PackagingType::FLATPAK: extras.emplace_back("Flatpak"); break;
+        case RebornConfig::PackagingType::DEBIAN: extras.emplace_back("Debian");  break;
         default: {}
     }
-    if (!extra.empty()) {
-        extra = " (" + extra + ')';
+    if (is_wsl()) {
+        extras.emplace_back("WSL");
     }
     // Return
-    return std::string("v") + reborn_config.general.version + extra;
+    std::string ret = std::string("v") + reborn_config.general.version;
+    for (const std::string &extra : extras) {
+        ret += " (" + extra + ')';
+    }
+    return ret;
 }
 
 // Package Managers
