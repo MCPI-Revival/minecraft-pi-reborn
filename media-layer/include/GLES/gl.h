@@ -100,6 +100,8 @@ extern "C" {
 #define GL_AMBIENT_AND_DIFFUSE 0x1602
 #define GL_LIGHT_MODEL_AMBIENT 0xb53
 #define GL_STREAM_DRAW 0x88e0
+#define GL_UNSIGNED_INT 0x1405
+#define GL_COMPILE 0x1300
 
 typedef float GLfloat;
 typedef float GLclampf;
@@ -176,6 +178,11 @@ void media_glNormalPointer(GLenum type, GLsizei stride, const void *pointer);
 void media_glLightfv(GLenum light, GLenum pname, const GLfloat *params);
 void media_glColorMaterial(GLenum face, GLenum mode);
 void media_glLightModelfv(GLenum pname, const GLfloat *params);
+GLuint media_glGenLists(GLsizei range);
+void media_glDeleteLists(GLuint list, GLsizei range);
+void media_glNewList(GLuint list, GLenum mode);
+void media_glEndList();
+void media_glCallLists(GLsizei n, GLenum type, const GLvoid *lists);
 
 extern unsigned int media_context_id;
 

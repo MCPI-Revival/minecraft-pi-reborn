@@ -64,7 +64,7 @@ void media_open(const char *path, const bool is_url) {
             // Give Up
             return;
         }
-#ifdef _WIN32
+#ifndef _WIN32
         url = "file://" + url;
 #endif
     }

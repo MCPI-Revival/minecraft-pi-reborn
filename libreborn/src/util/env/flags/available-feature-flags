@@ -61,9 +61,8 @@ CATEGORY User Interface
 CATEGORY Rendering
     CATEGORY Optimizations
         TRUE Optimize Chunk Sorting
-        TRUE Multidraw Rendering
+        TRUE Use OpenGL Display Lists
         FALSE Increase Render Chunk Size
-        TRUE Batch Font Rendering
     CATEGORY Camera
         TRUE Enable Camera Rendering
         TRUE Render Camera Legs

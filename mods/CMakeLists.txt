@@ -86,6 +86,7 @@ add_library(mods SHARED
     src/server/blacklist.cpp
     src/server/playerdata.cpp
     # multiplayer
+    src/multiplayer/init.cpp
     src/multiplayer/server-list.cpp
     src/multiplayer/raknet.cpp
     src/multiplayer/misc.cpp
@@ -102,10 +103,11 @@ add_library(mods SHARED
     src/init/init.cpp
     # f3
     src/f3/f3.cpp
-    # multidraw
-    src/multidraw/glue.cpp
-    src/multidraw/buffer.cpp
-    src/multidraw/storage.cpp
+    # display-lists
+    src/display-lists/chunks.cpp
+    src/display-lists/CachedLevelSource.cpp
+    src/display-lists/font.cpp
+    src/display-lists/init.cpp
     # classic-ui
     src/classic-ui/classic-ui.cpp
     # api

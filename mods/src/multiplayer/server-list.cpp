@@ -13,8 +13,6 @@
 #include <libreborn/env/servers.h>
 #include <libreborn/env/env.h>
 
-#include <mods/init/init.h>
-#include <mods/feature/feature.h>
 #include <mods/misc/misc.h>
 
 #include "internal.h"
@@ -99,23 +97,9 @@ static void RakNetInstance_pingForHosts_injection(RakNetInstance_pingForHosts_t 
 }
 
 // Init
-void init_multiplayer() {
-    // Inject Code
-    if (feature_has("External Server Support", server_disabled)) {
-        overwrite_calls(RakNetInstance_pingForHosts, RakNetInstance_pingForHosts_injection);
-        misc_run_on_init([](MCPI_UNUSED Minecraft *mc) {
-            start_resolution();
-        });
-    }
-
-    // Init Other Fixes
-    _init_multiplayer_raknet();
-    _init_multiplayer_misc();
-    _init_multiplayer_syncing();
-    _init_multiplayer_inventory();
-
-    // Improved Chunk Loading
-    if (feature_has("Improve Multiplayer Chunk Loading", server_enabled)) {
-        _init_multiplayer_loading();
-    }
+void _init_multiplayer_server_list() {
+    overwrite_calls(RakNetInstance_pingForHosts, RakNetInstance_pingForHosts_injection);
+    misc_run_on_init([](MCPI_UNUSED Minecraft *mc) {
+        start_resolution();
+    });
 }

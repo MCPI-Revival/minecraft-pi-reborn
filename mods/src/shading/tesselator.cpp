@@ -7,6 +7,8 @@
 #include <libreborn/patch.h>
 #include <symbols/minecraft.h>
 
+#include <mods/display-lists/display-lists.h>
+
 #include "internal.h"
 
 // Structures
@@ -117,7 +119,7 @@ static RenderChunk Tesselator_end_injection_impl(Tesselator *self, const bool us
         out.buffer = use_given_buffer ? buffer : get_next_buffer();
         media_glBindBuffer(GL_ARRAY_BUFFER, out.buffer);
         const uint vertex_size = sizeof(Vertex);
-        media_glBufferData(GL_ARRAY_BUFFER, out.vertices * vertex_size, vertices.data, GL_STATIC_DRAW);
+        media_glBufferData(GL_ARRAY_BUFFER, out.vertices * vertex_size, vertices.data, use_given_buffer ? GL_STATIC_DRAW : GL_DYNAMIC_DRAW);
     }
     // Finish
     self->clear();
@@ -132,12 +134,13 @@ static RenderChunk Tesselator_end_injection(Tesselator *self, const bool use_giv
     }
 }
 
+// Enable Real GL_QUADS
+static bool enable_real_quads = false;
+
 // Draw To Screen
-static void Tesselator_draw_injection(Tesselator *self) {
+impl_template
+static void Tesselator_draw_injection_impl(Tesselator *self) {
     // Check
-    if (are_vertices_flat) {
-        IMPOSSIBLE();
-    }
     if (!self->active) {
         IMPOSSIBLE();
     }
@@ -145,31 +148,31 @@ static void Tesselator_draw_injection(Tesselator *self) {
         return;
     }
     // Render
-    const VertexArray<CustomVertexShaded> &vertices = CustomTesselator::instance.vertices;
+    const VertexArray<Vertex> &vertices = CustomTesselator::instance.*VertexPtr;
     const int vertex_count = vertices.size;
     if (vertex_count > 0) {
         // Upload
-        constexpr uint vertex_size = sizeof(CustomVertexShaded);
+        constexpr uint vertex_size = sizeof(Vertex);
         const GLuint buffer = get_next_buffer();
         media_glBindBuffer(GL_ARRAY_BUFFER, buffer);
-        media_glBufferData(GL_ARRAY_BUFFER, vertex_count * vertex_size, vertices.data, GL_STREAM_DRAW);
+        media_glBufferData(GL_ARRAY_BUFFER, vertex_count * vertex_size, vertices.data, GL_DYNAMIC_DRAW);
         // Setup State
         if (self->has_texture) {
-            media_glTexCoordPointer(2, GL_FLOAT, vertex_size, (void *) offsetof(CustomVertexShaded, base.uv));
+            media_glTexCoordPointer(2, GL_FLOAT, vertex_size, (void *) offsetof(CustomVertexFlat, uv));
             media_glEnableClientState(GL_TEXTURE_COORD_ARRAY);
         }
         if (self->has_color) {
-            media_glColorPointer(4, GL_UNSIGNED_BYTE, vertex_size, (void *) offsetof(CustomVertexShaded, base.color));
+            media_glColorPointer(4, GL_UNSIGNED_BYTE, vertex_size, (void *) offsetof(CustomVertexFlat, color));
             media_glEnableClientState(GL_COLOR_ARRAY);
         }
         if (!are_vertices_flat && CustomTesselator::instance.normal) {
             media_glNormalPointer(GL_BYTE, vertex_size, (void *) offsetof(CustomVertexShaded, normal));
             media_glEnableClientState(GL_NORMAL_ARRAY);
         }
-        media_glVertexPointer(3, GL_FLOAT, vertex_size, (void *) offsetof(CustomVertexShaded, base.pos));
+        media_glVertexPointer(3, GL_FLOAT, vertex_size, (void *) offsetof(CustomVertexFlat, pos));
         media_glEnableClientState(GL_VERTEX_ARRAY);
         int mode = self->mode;
-        if (mode == GL_QUADS) {
+        if (!enable_real_quads && mode == GL_QUADS) {
             mode = GL_TRIANGLES;
         }
         // Draw
@@ -183,6 +186,13 @@ static void Tesselator_draw_injection(Tesselator *self) {
     // Finish
     self->clear();
     self->active = false;
+}
+static void Tesselator_draw_injection(Tesselator *self) {
+    if (are_vertices_flat) {
+        Tesselator_draw_injection_impl<CustomVertexFlat, &CustomTesselator::vertices_flat>(self);
+    } else {
+        Tesselator_draw_injection_impl<CustomVertexShaded, &CustomTesselator::vertices>(self);
+    }
 }
 
 // Draw Buffer
@@ -215,7 +225,7 @@ static void Tesselator_vertex_injection_impl(Tesselator *self, const Vertex *ver
     VertexArray<Vertex> &vertices = CustomTesselator::instance.*VertexPtr;
     vertices.push_back(*vertex);
     // Convert To Triangles
-    if (self->mode == GL_QUADS) {
+    if (!enable_real_quads && self->mode == GL_QUADS) {
         int &tracker = CustomTesselator::instance.quad_to_triangle_tracker;
         if (tracker == 3) {
             tracker = 0;
@@ -270,8 +280,10 @@ static void Tesselator_normal_injection(MCPI_UNUSED Tesselator *self, const floa
 static void Chunk_rebuild_injection(Chunk_rebuild_t original, Chunk *self) {
     // Call Original Method
     are_vertices_flat = true;
+    enable_real_quads = display_lists_enabled_for_chunk_rendering;
     original(self);
     are_vertices_flat = false;
+    enable_real_quads = false;
 }
 
 // Init

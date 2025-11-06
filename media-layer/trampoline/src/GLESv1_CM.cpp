@@ -45,6 +45,7 @@ struct gl_state_t {
     bool color_array_enabled = false;
     bool tex_coord_array_enabled = false;
     bool normal_array_enabled = false;
+    bool in_display_list = false;
     // Update State
     bool &get_array_enabled(const GLenum array) {
         switch (array) {
@@ -82,8 +83,10 @@ struct gl_state_t {
         send_array_to_driver(GL_COLOR_ARRAY);
         send_array_to_driver(GL_TEXTURE_COORD_ARRAY);
         send_array_to_driver(GL_NORMAL_ARRAY);
-        media_glBindBuffer(GL_ARRAY_BUFFER, bound_array_buffer);
-        media_glBindTexture(GL_TEXTURE_2D, bound_texture);
+        if (!in_display_list) {
+            media_glBindBuffer(GL_ARRAY_BUFFER, bound_array_buffer);
+            media_glBindTexture(GL_TEXTURE_2D, bound_texture);
+        }
     }
 #endif
 };
@@ -850,6 +853,65 @@ CALL(75, media_glLightModelfv, void, (const GLenum pname, const GLfloat *params)
     const GLenum pname = args.next<GLenum>();
     const GLfloat *params = args.next_arr<GLfloat>();
     func(pname, params);
+    return 0;
+#endif
+}
+
+CALL(81, media_glGenLists, GLuint, (const GLsizei range))
+#ifdef MEDIA_LAYER_TRAMPOLINE_GUEST
+    return trampoline(false, range);
+#else
+    return func(args.next<GLsizei>());
+#endif
+}
+
+CALL(82, media_glDeleteLists, void, (const GLuint list, const GLsizei range))
+#ifdef MEDIA_LAYER_TRAMPOLINE_GUEST
+    trampoline(true, list, range);
+#else
+    const GLuint list = args.next<GLuint>();
+    const GLsizei range = args.next<GLsizei>();
+    func(list, range);
+    return 0;
+#endif
+}
+
+CALL(83, media_glNewList, void, (const GLuint list, const GLenum mode))
+#ifdef MEDIA_LAYER_TRAMPOLINE_GUEST
+    gl_state.in_display_list = true;
+    trampoline(true, list, mode);
+#else
+    const GLuint list = args.next<GLuint>();
+    const GLenum mode = args.next<GLenum>();
+    func(list, mode);
+    return 0;
+#endif
+}
+
+CALL(84, media_glEndList, void, ())
+#ifdef MEDIA_LAYER_TRAMPOLINE_GUEST
+    gl_state.in_display_list = false;
+    trampoline(true);
+#else
+    func();
+    return 0;
+#endif
+}
+
+CALL(85, media_glCallLists, void, (const GLsizei n, const GLenum type, const GLvoid *lists))
+#ifdef MEDIA_LAYER_TRAMPOLINE_GUEST
+    if (type != GL_UNSIGNED_INT) {
+        IMPOSSIBLE();
+    }
+    const GLuint *int_lists = (const GLuint *) lists;
+    trampoline(true, gl_state, type, copy_array(n, int_lists));
+#else
+    const gl_state_t &gl_state = args.next<gl_state_t>();
+    gl_state.send_to_driver();
+    const GLenum type = args.next<GLenum>();
+    uint32_t n;
+    const GLuint *lists = args.next_arr<GLuint>(&n);
+    func(GLsizei(n), type, lists);
     return 0;
 #endif
 }

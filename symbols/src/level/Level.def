@@ -60,8 +60,9 @@ method void updateLight(const LightLayer &layer, int x0, int y0, int z0, int x1,
 method void _init(const std::string &name, const LevelSettings &settings, int param_1, Dimension *param_2) = 0xa5768;
 method Pos getSharedSpawnPos() = 0xa6010;
 method bool isUnobstructed(const AABB &aabb) = 0xa5b50;
-method bool mayPlace(int tile_id, int x, int y, int z, bool param_1, unsigned char param_2) = 0xa5bd0;
+method bool mayPlace(int tile_id, int x, int y, int z, bool param_1, uchar param_2) = 0xa5bd0;
 method void prepare() = 0xa5bac;
+method LevelChunk *getChunk(int x, int z) = 0xa330c;
 
 virtual-method void tick() = 0x28;
 virtual-method void updateSleepingPlayerList() = 0x2c;
@@ -70,7 +71,7 @@ virtual-method ChunkCache *createChunkSource() = 0x30;
 property bool is_client_side = 0x11;
 property bool done_generating = 0x12;
 property std::vector<Entity *> entities = 0x20;
-property std::vector<TileEntity *> tileentities = 0x50;
+property std::vector<TileEntity *> tile_entities = 0x50;
 property std::vector<Player *> players = 0x60;
 property Dimension *dimension = 0x74;
 property bool no_update = 0x70;
@@ -78,3 +79,4 @@ property ChunkSource *chunk_source = 0xa5c;
 property LevelData data = 0xa64;
 property RakNetInstance *rak_net_instance = 0x78;
 property LevelStorage *storage = 0xa60;
+property int field_6c = 0x6c;

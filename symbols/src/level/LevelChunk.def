@@ -8,6 +8,8 @@ virtual-method bool setTileAndData(int x, int y, int z, int tile_id, int data) =
 virtual-method bool setTile(int x, int y, int z, int tile_id) = 0x64;
 virtual-method int getHeightmap(int x, int z) = 0xc;
 virtual-method int getTile(int x, int y, int z) = 0x60;
+virtual-method int getData(int x, int y, int z) = 0x6c;
+virtual-method int getRawBrightness(int x, int y, int z, int param_1) = 0x20;
 
 method void setTileRaw(int x, int y, int z, int tile_id) = 0xaffdc;
 method TileEntity *getTileEntity(int x, int y, int z) = 0xb0c9c;
@@ -21,3 +23,5 @@ property DataLayer light_block = 0x28;
 property uchar dirty_columns[256] = 0x134;
 property bool loaded_from_disk = 0x24b;
 property Level *level = 0xc;
+
+static-property bool touchedSky = 0x1809c8;

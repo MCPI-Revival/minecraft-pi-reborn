@@ -1,13 +1,22 @@
 property int x = 0x4;
 property int y = 0x8;
 property int z = 0xc;
-property bool field_1c[3] = 0x1c;
+property int width = 0x10;
+property int height = 0x14;
+property int depth = 0x18;
 property bool visible = 0x4c;
 property bool occlusion_visible = 0x4d;
 property bool occlusion_querying = 0x4e;
 property int occlusion_id = 0x50;
 property AABB aabb = 0x30;
 property int id = 0x48;
+property bool built = 0xac;
+property bool touched_sky = 0x54;
+property bool is_empty = 0xae;
+property bool is_layer_empty[3] = 0x1c;
+property bool dirty = 0xad;
+property Level *level = 0x0;
+property uint display_lists = 0xa4;
 
 method float distanceToSqr(const Entity *entity) = 0x47ba0;
 method int getList(int a) = 0x47e48;

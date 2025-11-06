@@ -18,6 +18,7 @@ __attribute__((constructor)) static void init() {
     }
     init_multiplayer();
     if (!reborn_is_headless()) {
+        init_display_lists();
         init_sound();
         init_shading();
     }
@@ -49,7 +50,6 @@ __attribute__((constructor)) static void init() {
     if (!reborn_is_headless()) {
         init_screenshot();
         init_f3();
-        init_multidraw();
         init_classic_ui();
     }
 }

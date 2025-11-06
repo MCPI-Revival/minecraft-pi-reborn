@@ -109,7 +109,7 @@ static void Minecraft_update_injection(Minecraft *minecraft) {
         unsigned long long int current_ticks = ticks - world_loaded_ticks;
 
         // Log
-        int32_t status = (((double) current_time) / ((double) BENCHMARK_LENGTH)) * 100;
+        int32_t status = int32_t((double(current_time) / double(BENCHMARK_LENGTH)) * 100);
         if (status > 100) {
             status = 100;
         }
@@ -127,7 +127,7 @@ static void Minecraft_update_injection(Minecraft *minecraft) {
             event.type = SDL_MOUSEMOTION;
             event.motion.x = 0;
             event.motion.y = 0;
-            event.motion.xrel = (rotation_diff > INT16_MAX) ? INT16_MAX : int16_t(rotation_diff);
+            event.motion.xrel = (rotation_diff > INT16_MAX) ? int16_t(INT16_MAX) : int16_t(rotation_diff);
             event.motion.yrel = 0;
             media_SDL_PushEvent(&event);
             // Reset Rotation Timer

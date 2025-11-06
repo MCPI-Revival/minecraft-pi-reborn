@@ -12,7 +12,7 @@
 #include <media-layer/core.h>
 
 #include <mods/feature/feature.h>
-#include <mods/multidraw/multidraw.h>
+#include <mods/display-lists/display-lists.h>
 
 #include "internal.h"
 
@@ -78,15 +78,15 @@ static void sort_chunks(Chunk **chunks_begin, Chunk **chunks_end, const Distance
     for (int i = 0; i < chunks_size; i++) {
         Chunk *chunk = chunks_begin[i];
         float distance = chunk->distanceToSqr((Entity *) sorter.mob);
-        if ((1024.0 <= distance) && chunk->y < 0x40) {
-            distance *= 10.0;
+        if (distance > 1024 && chunk->y < 64) {
+            distance *= 10;
         }
         data[i].chunk = chunk;
         data[i].distance = distance;
     }
 
     // Sort
-    std::sort(data, data + chunks_size, [](chunk_data &a, chunk_data &b) {
+    std::sort(data, data + chunks_size, [](const chunk_data &a, const chunk_data &b) {
         return a.distance < b.distance;
     });
     for (int i = 0; i < chunks_size; i++) {
@@ -160,7 +160,7 @@ static void render_fire(EntityRenderer *self, Entity *entity, const float x, flo
 }
 
 // Entity Shadows
-static void render_shadow_tile(Tile *tile, const float x, const float y, const float z, int xt, int yt, int zt, const float pow, const float r, const float xo, const float yo, const float zo) {
+static void render_shadow_tile(Tile *tile, const float x, const float y, const float z, const int xt, const int yt, const int zt, const float pow, const float r, const float xo, const float yo, const float zo) {
     Tesselator &t = Tesselator::instance;
     if (!tile->isCubeShaped()) {
         return;
@@ -172,15 +172,15 @@ static void render_shadow_tile(Tile *tile, const float x, const float y, const f
         a = 1;
     }
     t.color(255, 255, 255, int(a * 255));
-    float x0 = float(xt) + tile->x1 + xo;
-    float x1 = float(xt) + tile->x2 + xo;
-    float y0 = float(yt) + tile->y1 + yo + 1.0f / 64.0f;
-    float z0 = float(zt) + tile->z1 + zo;
-    float z1 = float(zt) + tile->z2 + zo;
-    float u0 = (x - x0) / 2 / r + 0.5f;
-    float u1 = (x - x1) / 2 / r + 0.5f;
-    float v0 = (z - z0) / 2 / r + 0.5f;
-    float v1 = (z - z1) / 2 / r + 0.5f;
+    const float x0 = float(xt) + tile->x1 + xo;
+    const float x1 = float(xt) + tile->x2 + xo;
+    const float y0 = float(yt) + tile->y1 + yo + 1.0f / 64.0f;
+    const float z0 = float(zt) + tile->z1 + zo;
+    const float z1 = float(zt) + tile->z2 + zo;
+    const float u0 = (x - x0) / 2 / r + 0.5f;
+    const float u1 = (x - x1) / 2 / r + 0.5f;
+    const float v0 = (z - z0) / 2 / r + 0.5f;
+    const float v1 = (z - z1) / 2 / r + 0.5f;
     t.vertexUV(x0, y0, z0, u0, v0);
     t.vertexUV(x0, y0, z1, u0, v1);
     t.vertexUV(x1, y0, z1, u1, v1);
@@ -213,7 +213,7 @@ static void render_shadow(const EntityRenderer *self, Entity *entity, const floa
         }
     }
     const float ex = entity->old_x + (entity->x - entity->old_x) * a;
-    float ey = entity->old_y + (entity->y - entity->old_y) * a + entity->getShadowHeightOffs() - entity->height_offset;
+    const float ey = entity->old_y + (entity->y - entity->old_y) * a + entity->getShadowHeightOffs() - entity->height_offset;
     const float ez = entity->old_z + (entity->z - entity->old_z) * a;
     const int x0 = Mth::floor(ex - r);
     const int x1 = Mth::floor(ex + r);

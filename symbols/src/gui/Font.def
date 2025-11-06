@@ -4,3 +4,10 @@ method void draw_raw(const char *string, float x, float y, uint color) = 0x25148
 method void drawShadow(const std::string &string, float x, float y, uint color) = 0x250ec;
 method void drawShadow_raw(const char *string, float x, float y, uint color) = 0x25150;
 method void drawSlow(const char *text, float x, float y, uint color, bool param_1) = 0x24fa8;
+method void init(Options *options) = 0x24b4c;
+method void buildChar(uchar c, float x, float y) = 0x24eb4;
+
+property int character_widths[256] = 0x8;
+property uint display_lists = 0x808;
+property Textures *textures = 0x1818;
+property std::string texture_name = 0x1814;

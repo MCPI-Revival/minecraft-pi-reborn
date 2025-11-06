@@ -254,6 +254,26 @@ GL_FUNC(glLightModelfv, void, (GLenum pname, const GLfloat *params))
 void media_glLightModelfv(const GLenum pname, const GLfloat *params) {
     real_glLightModelfv()(pname, params);
 }
+GL_FUNC(glGenLists, GLuint, (GLsizei range))
+GLuint media_glGenLists(const GLsizei range) {
+    return real_glGenLists()(range);
+}
+GL_FUNC(glDeleteLists, void, (GLuint list, GLsizei range))
+void media_glDeleteLists(const GLuint list, const GLsizei range) {
+    real_glDeleteLists()(list, range);
+}
+GL_FUNC(glNewList, void, (GLuint list, GLenum mode))
+void media_glNewList(const GLuint list, const GLenum mode) {
+    real_glNewList()(list, mode);
+}
+GL_FUNC(glEndList, void, ())
+void media_glEndList() {
+    real_glEndList()();
+}
+GL_FUNC(glCallLists, void, (GLsizei n, GLenum type,  const GLvoid *lists))
+void media_glCallLists(const GLsizei n, const GLenum type,  const GLvoid *lists) {
+    real_glCallLists()(n, type, lists);
+}
 
 // GL_EXT_multi_draw_arrays
 GL_FUNC(glMultiDrawArraysEXT, void, (GLenum mode, const GLint *first, const GLsizei *count, GLsizei drawcount))

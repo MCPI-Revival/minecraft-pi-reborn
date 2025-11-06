@@ -6,7 +6,7 @@ vtable-size 0x28;
 generate-custom-wrapper;
 
 virtual-method int getTile(int x, int y, int z) = 0x8;
-virtual-method int isEmptyTile(int x, int y, int z) = 0xc;
+virtual-method bool isEmptyTile(int x, int y, int z) = 0xc;
 virtual-method float getBrightness(int x, int y, int z) = 0x10;
 virtual-method int getData(int x, int y, int z) = 0x14;
 virtual-method Material *getMaterial(int x, int y, int z) = 0x18;

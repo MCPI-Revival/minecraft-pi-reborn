@@ -293,22 +293,6 @@ static void Minecraft_setSize_injection(Minecraft_setSize_t original, Minecraft 
     original(self, width, height);
 }
 
-// Batch Font Rendering
-template <typename... Args>
-static void Font_draw_injection(const std::function<void(Font *, Args...)> &original, Font *self, Args... args) {
-    Tesselator &t = Tesselator::instance;
-    const bool was_already_overridden = t.void_begin_end;
-    if (!was_already_overridden) {
-        t.begin(GL_QUADS);
-        t.voidBeginAndEndCalls(true);
-    }
-    original(self, std::forward<Args>(args)...);
-    if (!was_already_overridden) {
-        t.voidBeginAndEndCalls(false);
-        t.draw();
-    }
-}
-
 // Screen Overlay
 static void ItemInHandRenderer_renderScreenEffect_injection(MCPI_UNUSED ItemInHandRenderer_renderScreenEffect_t original, ItemInHandRenderer *self, float param_1) {
     media_glDisable(GL_ALPHA_TEST);
@@ -494,13 +478,6 @@ void _init_misc_ui() {
     if (feature_has("Enable Sign Screen", server_disabled)) {
         // Fix Signs
         overwrite_calls(LocalPlayer_openTextEdit, LocalPlayer_openTextEdit_injection);
-    }
-
-    // Batch Font Rendering
-    if (feature_has("Batch Font Rendering", server_disabled)) {
-        overwrite_calls(Font_drawSlow, Font_draw_injection<const char *, float, float, unsigned int, bool>);
-        overwrite_calls(Font_drawShadow, Font_draw_injection<const std::string &, float, float, unsigned int>);
-        overwrite_calls(Font_drawShadow_raw, Font_draw_injection<const char *, float, float, unsigned int>);
     }
 
     // Fix Screen Overlays
