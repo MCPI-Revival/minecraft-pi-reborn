@@ -46,7 +46,7 @@ jobs:
     build-windows:
         name: Build (Windows)
         runs-on: ubuntu-latest
-        container: node:lts-bookworm
+        container: node:lts-trixie # Matches WSL Container
         steps:
           - name: Checkout Repository
             uses: actions/checkout@v4

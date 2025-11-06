@@ -80,6 +80,8 @@ Installation is relatively simple:
    ```powershell
    wsl --install --distribution Ubuntu-24.04 --version 1 --name MCPI-Reborn
    ```
+   This will ask you to set a username and password for the container.
+   These values do not matter and can be anything.
 3. [Download the latest ZIP archive](https://gitea.thebrokenrail.com/minecraft-pi-reborn/minecraft-pi-reborn/releases/latest) for Windows.
 4. Extract it.
 5. Run `launcher.exe`.
