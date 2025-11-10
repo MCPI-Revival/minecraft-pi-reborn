@@ -312,7 +312,10 @@ static void GameRenderer_render_glColorMask_injection(const bool red, const bool
     game_render_anaglyph_color_mask[3] = alpha;
     media_glColorMask(red, green, blue, alpha);
 }
-static int GameRenderer_render_LevelRenderer_render_injection(LevelRenderer *self, Mob *mob, int param_1, float delta) {
+static int GameRenderer_render_LevelRenderer_render_injection(LevelRenderer *self, Mob *mob, const int param_1, const float delta) {
+    if (self->minecraft->options.ambient_occlusion) {
+        media_glShadeModel(GL_SMOOTH);
+    }
     media_glColorMask(false, false, false, false);
     const int water_chunks = self->render(mob, param_1, delta);
     media_glColorMask(true, true, true, true);
@@ -322,6 +325,7 @@ static int GameRenderer_render_LevelRenderer_render_injection(LevelRenderer *sel
     if (water_chunks > 0) {
         LevelRenderer_renderSameAsLast(self, delta);
     }
+    media_glShadeModel(GL_FLAT);
     return water_chunks;
 }
 
