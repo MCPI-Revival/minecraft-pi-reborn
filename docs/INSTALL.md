@@ -24,7 +24,7 @@ The first supported way to install MCPI-Reborn is with an [AppImage](https://app
 An AppImage is a portable application format that allows users to run software without installation.
 
 To run MCPI-Reborn,
-all you need to do is [download the latest AppImage](https://gitea.thebrokenrail.com/minecraft-pi-reborn/minecraft-pi-reborn/releases/latest) for your architecture and run it.
+all you need to do is download the [latest AppImage](https://gitea.thebrokenrail.com/minecraft-pi-reborn/minecraft-pi-reborn/releases/latest) for your architecture and run it.
 
 More details can be found [here](https://docs.appimage.org/introduction/quickstart.html#how-to-run-an-appimage).
 
@@ -82,6 +82,6 @@ Installation is relatively simple:
    ```
    This will ask you to set a username and password for the container.
    These values do not matter and can be anything.
-3. [Download the latest ZIP archive](https://gitea.thebrokenrail.com/minecraft-pi-reborn/minecraft-pi-reborn/releases/latest) for Windows.
+3. Download the [latest ZIP archive](https://gitea.thebrokenrail.com/minecraft-pi-reborn/minecraft-pi-reborn/releases/latest) for Windows.
 4. Extract it.
 5. Run `launcher.exe`.

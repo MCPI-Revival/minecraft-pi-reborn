@@ -205,4 +205,9 @@ void init_textures() {
 
     // Block Tinting
     _init_textures_tinting();
+
+    // Ice
+    if (feature_has("Translucent Ice", server_disabled)) {
+        _patch_ice_texture();
+    }
 }

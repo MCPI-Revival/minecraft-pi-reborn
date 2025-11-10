@@ -85,10 +85,12 @@ CATEGORY Textures
     CATEGORY Tinting
         FALSE Add Biome Colors To Grass
         FALSE Disable Block Tinting
+    CATEGORY Animation
+        TRUE Animated Water
+        TRUE Animated Lava
+        TRUE Animated Fire
     TRUE Regenerate "gui_blocks" Atlas
-    TRUE Animated Water
-    TRUE Animated Lava
-    TRUE Animated Fire
+    FALSE Translucent Ice
 CATEGORY Input
     TRUE Disable Autojump By Default
     TRUE Bind "Q" Key To Item Dropping

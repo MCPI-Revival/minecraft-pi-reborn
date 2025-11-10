@@ -77,6 +77,7 @@ add_library(mods SHARED
     src/textures/lava.cpp
     src/textures/headless.cpp
     src/textures/tinting.cpp
+    src/textures/ice.cpp
     # fps
     src/fps/fps.cpp
     # server

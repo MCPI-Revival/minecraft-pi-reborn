@@ -81,6 +81,7 @@ include_toc: true
     * `Sync Chunks To Disk After Saving` (Enabled By Default)
     * `Implement "Quit and copy map" Button` (Enabled By Default)
     * `Only Send Messages To Fully Connected Players` (Enabled By Default)
+    * `Translucent Ice` (Disabled By Default)
   * New Bug Fixes (All Enabled By Default)
     * `Fix Held Item Caching`
     * `Fix Pigmen Burning In The Sun`

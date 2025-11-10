@@ -203,6 +203,7 @@ set(SRC
     src/tile/CropTile.def
     src/tile/ChestTile.def
     src/tile/TorchTile.def
+    src/tile/IceTile.def
     src/misc/Strings.def
     src/misc/I18n.def
     src/misc/SimpleFoodData.def
