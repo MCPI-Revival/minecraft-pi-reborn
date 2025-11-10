@@ -81,17 +81,33 @@ static void patch_texture(Minecraft *minecraft) {
     // Patch
     const uchar *old_texture = texture_data->data;
     uchar *new_texture = new uchar[dst_line_size * height];
+    bool success = true;
     for (int y = 0; y < height; y++) {
         for (int x = 0; x < width; x++) {
             const int src_position = ((src_y + y) * src_line_size) + ((src_x + x) * src_channels);
             const int dst_position = (y * dst_line_size) + (x * dst_channels);
-            new_texture[dst_position] = r_map.at(old_texture[src_position]);
-            new_texture[dst_position + 1] = g_map.at(old_texture[src_position + 1]);
-            new_texture[dst_position + 2] = old_texture[src_position + 2];
+            uchar r = old_texture[src_position];
+            uchar g = old_texture[src_position + 1];
+            const uchar b = old_texture[src_position + 2];
+            if (r_map.contains(r) && g_map.contains(g)) {
+                r = r_map.at(r);
+                g = g_map.at(g);
+            } else {
+                // Unexpected Color
+                // Do Not Patch The Texture
+                WARN("Unable To Patch Ice Texture");
+                success = false;
+                break;
+            }
+            new_texture[dst_position] = r;
+            new_texture[dst_position + 1] = g;
+            new_texture[dst_position + 2] = b;
             new_texture[dst_position + 3] = desired_alpha;
         }
     }
-    media_glTexSubImage2D(GL_TEXTURE_2D, 0, src_x, src_y, width, height, GL_RGBA, GL_UNSIGNED_BYTE, new_texture);
+    if (success) {
+        media_glTexSubImage2D(GL_TEXTURE_2D, 0, src_x, src_y, width, height, GL_RGBA, GL_UNSIGNED_BYTE, new_texture);
+    }
     delete[] new_texture;
 }
 
