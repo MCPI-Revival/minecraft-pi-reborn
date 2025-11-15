@@ -25,6 +25,7 @@ struct CustomVertexShaded {
 // Vertex Array
 template <typename T>
 struct VertexArray {
+    explicit VertexArray(int max_size);
     VertexArray();
     ~VertexArray();
     void push_back(const T &value);

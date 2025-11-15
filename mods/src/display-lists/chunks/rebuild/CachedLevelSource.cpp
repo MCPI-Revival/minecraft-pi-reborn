@@ -18,15 +18,16 @@ static constexpr unsigned int chunk_shift_factor = std::bit_width(level_chunk_si
 
 // Define cached region
 // and copy tiles.
-void CachedLevelSource::_cache(Level *level_, const int x0_, const int y0_, const int z0_, const int x1_, const int y1_, const int z1_) {
-    level = level_;
+void CachedLevelSource::_prepare_cache(Level *level, const int x0_, const int y0_, const int z0_, const int x1_, const int y1_, const int z1_) {
     x0 = x0_ - BORDER;
     y0 = y0_ - BORDER;
     z0 = z0_ - BORDER;
     x1 = x1_ + BORDER;
     y1 = y1_ + BORDER;
     z1 = z1_ + BORDER;
-    _copy_chunks();
+    _copy_chunks(level);
+}
+void CachedLevelSource::_cache() {
     _copy_tiles();
     _check_if_should_render();
 }
@@ -50,7 +51,7 @@ LevelChunk *CachedLevelSource::_clone(LevelChunk *chunk) {
         return out;
     }
 }
-void CachedLevelSource::_copy_chunks() {
+void CachedLevelSource::_copy_chunks(Level *level) {
     // Copy Chunks
     chunk_x0 = to_chunk_pos(x0);
     const int chunk_x1 = to_chunk_pos(x1 - 1);
@@ -60,7 +61,7 @@ void CachedLevelSource::_copy_chunks() {
     chunks_z = chunk_z1 - chunk_z0 + 1;
     for (int chunk_x = 0; chunk_x < chunks_x; chunk_x++) {
         for (int chunk_z = 0; chunk_z < chunks_z; chunk_z++) {
-            chunks[chunk_x][chunk_z] = _clone(level->getChunk(chunk_x, chunk_z));
+            chunks[chunk_x][chunk_z] = _clone(level->getChunk(chunk_x + chunk_x0, chunk_z + chunk_z0));
         }
     }
 
@@ -109,6 +110,7 @@ void CachedLevelSource::_copy_tiles() {
     }
 
     // Delete Chunks
+    // They are no longer needed.
     for (int chunk_x = 0; chunk_x < chunks_x; chunk_x++) {
         for (int chunk_z = 0; chunk_z < chunks_z; chunk_z++) {
             LevelChunk *chunk = chunks[chunk_x][chunk_z];
@@ -171,6 +173,9 @@ void CachedLevelSource::_check_if_should_render() {
 
 // Calculate The Adjusted Raw Brightness Of A Tile
 int CachedLevelSource::_get_raw_brightness(LevelChunk *chunk, const int x, const int y, const int z) {
+    // See LevelChunk::getRawBrightness
+    // This function was re-implemented to avoid modifying
+    // the LevelChunk::touchedSky global variable.
     int light_sky = chunk->getBrightness(LightLayer::Sky, x, y, z);
     if (light_sky > 0) {
         touched_sky = true;

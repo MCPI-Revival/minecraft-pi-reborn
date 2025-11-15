@@ -55,6 +55,7 @@ include_toc: true
     * `Add Welcome Screen` (Enabled By Default)
     * `F3 Debug Information` (Enabled By Default)
     * `Use OpenGL Display Lists` (Enabled By Default)
+      * This also enables multi-thread chunk rebuilding.
     * `Add Missing Language Strings` (Enabled By Default)
     * `Hide Crosshair In Third-Person` (Enabled By Default)
     * `Render Camera Legs` (Enabled By Default)

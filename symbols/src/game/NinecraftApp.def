@@ -3,3 +3,4 @@ extends Minecraft;
 vtable 0x1023b8;
 
 method void initGLStates() = 0x148c8;
+method void teardown() = 0x147f0;

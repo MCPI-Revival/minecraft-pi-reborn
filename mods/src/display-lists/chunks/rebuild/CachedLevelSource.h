@@ -25,7 +25,6 @@ struct CachedLevelSource final : CustomLevelSource {
     } data[MAX_SIZE][MAX_SIZE][MAX_SIZE]; // [X][Z][Y]
     LevelChunk *chunks[MAX_LEVEL_CHUNKS][MAX_LEVEL_CHUNKS] = {};
     bool should_render = false;
-    Level *level = nullptr;
     bool touched_sky = false;
     float light_ramp[MAX_BRIGHTNESS + 1] = {};
     int level_field_6c = 0;
@@ -43,9 +42,10 @@ struct CachedLevelSource final : CustomLevelSource {
     int chunks_z = 0;
 
     // Store Properties
-    void _cache(Level *level_, int x0_, int y0_, int z0_, int x1_, int y1_, int z1_);
+    void _prepare_cache(Level *level, int x0_, int y0_, int z0_, int x1_, int y1_, int z1_);
     static LevelChunk *_clone(LevelChunk *chunk);
-    void _copy_chunks();
+    void _copy_chunks(Level *level);
+    void _cache();
     void _copy_tiles();
     void _check_if_should_render();
     int _get_raw_brightness(LevelChunk *chunk, int x, int y, int z);

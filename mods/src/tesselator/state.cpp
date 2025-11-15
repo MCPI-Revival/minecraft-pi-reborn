@@ -12,6 +12,10 @@ CustomTesselator::CustomTesselator(const bool create_buffers) {
     next_buffer_index = 0;
     are_vertices_flat = false;
     enable_real_quads = false;
+    offset.x = 0;
+    offset.y = 0;
+    offset.z = 0;
+    reset_scale();
     clear();
 }
 void CustomTesselator::clear() {
@@ -19,10 +23,6 @@ void CustomTesselator::clear() {
     vertices_flat.clear();
     active = false;
     void_begin_end = false;
-    offset.x = 0;
-    offset.y = 0;
-    offset.z = 0;
-    reset_scale();
     uv.reset();
     no_color = false;
     color.reset();
@@ -30,8 +30,8 @@ void CustomTesselator::clear() {
     quad_to_triangle_tracker = 0;
 }
 void CustomTesselator::reset_scale() {
-    scale_x = 1.0f;
-    scale_y = 1.0f;
+    scale_x = 1;
+    scale_y = 1;
 }
 static void Tesselator_clear_injection(MCPI_UNUSED Tesselator *self) {
     advanced_tesselator_get().clear();

@@ -25,6 +25,7 @@ HOOK(media_SDL_ShowCursor, int, (int toggle)) {
 
 // Intercept SDL Events
 static bool enable_text_events;
+bool _compat_has_stopped = false;
 HOOK(media_SDL_PollEvent, int, (SDL_Event *event)) {
     // In Server Mode, Exit Requests Are Handled In src/server/server.cpp
     // Check If Exit Is Requested
@@ -68,6 +69,11 @@ HOOK(media_SDL_PollEvent, int, (SDL_Event *event)) {
                     }
                     handled = true;
                 }
+                break;
+            }
+            case SDL_QUIT: {
+                // Record Stop
+                _compat_has_stopped = true;
                 break;
             }
             default: {}

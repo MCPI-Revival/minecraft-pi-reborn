@@ -7,10 +7,13 @@ static constexpr int max_vertices = 524288;
 
 // Constructor
 template <typename T>
-VertexArray<T>::VertexArray() {
-    data = new T[max_vertices];
+VertexArray<T>::VertexArray(const int max_size) {
+    data = new T[max_size];
     clear();
 }
+template <typename T>
+VertexArray<T>::VertexArray():
+    VertexArray(max_vertices) {}
 template <typename T>
 VertexArray<T>::~VertexArray() {
     delete[] data;
@@ -32,7 +35,7 @@ void VertexArray<T>::clear() {
 // Copy
 template<typename T>
 const VertexArray<T> *VertexArray<T>::copy() const {
-    VertexArray *out = new VertexArray();
+    VertexArray *out = new VertexArray(size);
     out->size = size;
     memcpy(out->data, data, size * sizeof(T));
     return out;

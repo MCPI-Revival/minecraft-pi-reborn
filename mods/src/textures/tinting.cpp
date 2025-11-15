@@ -38,10 +38,6 @@ static Level *get_level_from_source(LevelSource *source) {
     if (level) {
         return level;
     }
-    level = get_level_from_cached_level_source(source);
-    if (level) {
-        return level;
-    }
     // Test If Level Source Is A Level
     const void *vtable = source->vtable;
     static std::unordered_set level_vtables = {
@@ -60,16 +56,26 @@ static Level *get_level_from_source(LevelSource *source) {
     // Unable To Retrieve Level
     return nullptr;
 }
+static BiomeSource *get_biome_source_from_level_source(LevelSource *source) {
+    BiomeSource *biome_source = get_biome_source_on_chunk_rebuild_thread();
+    if (biome_source) {
+        return biome_source;
+    }
+    Level *level = get_level_from_source(source);
+    if (level) {
+        return level->getBiomeSource();
+    }
+    return nullptr;
+}
 static int32_t GrassTile_getColor_injection(GrassTile_getColor_t original, GrassTile *tile, LevelSource *level_source, const int32_t x, const int32_t y, const int32_t z) {
     // Get Level
-    Level *level = get_level_from_source(level_source);
-    if (!level) {
+    BiomeSource *biome_source = get_biome_source_from_level_source(level_source);
+    if (!biome_source) {
         // Call Original Method
         return original(tile, level_source, x, y, z);
     }
 
     // Find Biome Temperature
-    BiomeSource *biome_source = level->getBiomeSource();
     biome_source->getBiomeBlock(x, z, 1, 1);
     const float temperature = biome_source->temperature[0];
     float downfall = biome_source->downfall[0];

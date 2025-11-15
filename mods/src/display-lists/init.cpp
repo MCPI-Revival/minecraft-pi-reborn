@@ -6,7 +6,8 @@
 // Init
 void init_display_lists() {
     if (feature_has("Use OpenGL Display Lists", server_disabled)) {
-        _init_display_lists_chunks();
+        _init_display_lists_chunks_rebuild();
+        _init_display_lists_chunks_render();
         _init_display_lists_font();
     }
 }

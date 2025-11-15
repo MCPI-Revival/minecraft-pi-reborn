@@ -105,8 +105,12 @@ add_library(mods SHARED
     # f3
     src/f3/f3.cpp
     # display-lists
-    src/display-lists/chunks.cpp
-    src/display-lists/CachedLevelSource.cpp
+    src/display-lists/chunks/rebuild/CachedLevelSource.cpp
+    src/display-lists/chunks/rebuild/ThreadVector.cpp
+    src/display-lists/chunks/rebuild/rebuild.cpp
+    src/display-lists/chunks/rebuild/thread.cpp
+    src/display-lists/chunks/rebuild/biome-source.cpp
+    src/display-lists/chunks/render.cpp
     src/display-lists/font.cpp
     src/display-lists/init.cpp
     # classic-ui

@@ -1,17 +1,13 @@
 #include <pthread.h>
 
-#include <mods/display-lists/display-lists.h>
-
 #include "internal.h"
 
 // Handle Terrain Rendering
 static void Chunk_rebuild_injection(Chunk_rebuild_t original, Chunk *self) {
     CustomTesselator &t = advanced_tesselator_get();
     t.are_vertices_flat = true;
-    t.enable_real_quads = display_lists_enabled_for_chunk_rendering;
     original(self);
     t.are_vertices_flat = false;
-    t.enable_real_quads = false;
 }
 
 // Init

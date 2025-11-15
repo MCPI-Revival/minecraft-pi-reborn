@@ -1,10 +1,9 @@
 #pragma once
 
 struct LevelRenderer;
-struct Level;
-struct LevelSource;
+struct BiomeSource;
 
-extern bool display_lists_enabled_for_chunk_rendering;
-
-extern "C" void LevelRenderer_renderSameAsLast(LevelRenderer *self, float delta);
-extern "C" Level *get_level_from_cached_level_source(const LevelSource *level_source);
+extern "C" {
+void LevelRenderer_renderSameAsLast(LevelRenderer *self, float delta);
+BiomeSource *get_biome_source_on_chunk_rebuild_thread();
+}

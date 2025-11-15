@@ -63,6 +63,7 @@ method bool isUnobstructed(const AABB &aabb) = 0xa5b50;
 method bool mayPlace(int tile_id, int x, int y, int z, bool param_1, uchar param_2) = 0xa5bd0;
 method void prepare() = 0xa5bac;
 method LevelChunk *getChunk(int x, int z) = 0xa330c;
+method int getSeed() = 0xa5ff8;
 
 virtual-method void tick() = 0x28;
 virtual-method void updateSleepingPlayerList() = 0x2c;

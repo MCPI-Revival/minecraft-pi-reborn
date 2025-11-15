@@ -14,10 +14,12 @@ method void renderHitOutline(Player *player, const HitResult &hit_result, int i,
 method int renderChunks(int start, int end, int a, float b) = 0x4f35c;
 method void renderEntities(Vec3 pos, void *unknown, float a) = 0x500ec;
 method void onGraphicsReset() = 0x4e508;
+method void setLevel(Level *level) = 0x4d1d8;
 
 property Minecraft *minecraft = 0xb4;
 property RenderList render_list = 0x34;
 property Chunk **chunks = 0x98;
+property int chunks_length = 0x9c;
 property bool occlusion_check = 0xb8;
 property Level *level = 0x84;
 property int num_buffers = 0xd0;
