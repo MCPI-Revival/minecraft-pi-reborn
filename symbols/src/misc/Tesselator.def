@@ -1,3 +1,6 @@
+constructor (int param_1) = 0x52fc4;
+method Tesselator *destructor(int unknown) = 0x52f88;
+
 method void init() = 0x5289c;
 method void clear() = 0x528ac;
 
@@ -10,6 +13,7 @@ method void voidBeginAndEndCalls(bool x) = 0x52f74;
 
 method void colorABGR(uint color) = 0x52b54;
 method void color(int r, int g, int b, int a) = 0x52a48;
+method uint getColor() = 0x52a40;
 method void noColor() = 0x52d54;
 method void enableColor() = 0x52f7c;
 

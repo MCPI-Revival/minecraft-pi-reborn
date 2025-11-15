@@ -4,12 +4,10 @@
 
 // Helpful Macros
 #define block data[x - x0][z - z0][y - y0]
-static constexpr unsigned int chunk_size = 16;
-static constexpr unsigned int chunk_shift_factor = std::bit_width(chunk_size) - 1;
-#define op_chunk_pos(x, op) ((x) op chunk_shift_factor)
-#define to_chunk_pos(x) op_chunk_pos((x), >>)
-#define from_chunk_pos(x) op_chunk_pos((x), <<)
-#define to_local_pos(x) ((x) & (chunk_size - 1))
+static constexpr unsigned int level_chunk_size = CachedLevelSource::LEVEL_CHUNK_SIZE;
+static constexpr unsigned int chunk_shift_factor = std::bit_width(level_chunk_size) - 1;
+#define to_chunk_pos(x) ((x) >> chunk_shift_factor)
+#define to_local_pos(x) ((x) & (level_chunk_size - 1))
 #define is_in_chunk(extra) \
     (x >= (x0 + (extra)) && x < (x1 - (extra)) \
     && y >= (y0 + (extra)) && y < (y1 - (extra)) && \
@@ -20,15 +18,57 @@ static constexpr unsigned int chunk_shift_factor = std::bit_width(chunk_size) - 
 
 // Define cached region
 // and copy tiles.
-void CachedLevelSource::_cache(const int x0_, const int y0_, const int z0_, const int x1_, const int y1_, const int z1_) {
+void CachedLevelSource::_cache(Level *level_, const int x0_, const int y0_, const int z0_, const int x1_, const int y1_, const int z1_) {
+    level = level_;
     x0 = x0_ - BORDER;
     y0 = y0_ - BORDER;
     z0 = z0_ - BORDER;
     x1 = x1_ + BORDER;
     y1 = y1_ + BORDER;
     z1 = z1_ + BORDER;
+    _copy_chunks();
     _copy_tiles();
     _check_if_should_render();
+}
+
+// Copy Chunks
+LevelChunk *CachedLevelSource::_clone(LevelChunk *chunk) {
+    if (chunk->isEmpty()) {
+        EmptyLevelChunk *out = EmptyLevelChunk::allocate();
+        ((LevelChunk *) out)->constructor(nullptr, nullptr, 0, 0);
+        out->vtable = EmptyLevelChunk::VTable::base;
+        out->prevent_save = true;
+        return (LevelChunk *) out;
+    } else {
+        uchar *blocks = new uchar[chunk->blocks_length];
+        memcpy(blocks, chunk->blocks, chunk->blocks_length);
+        LevelChunk *out = LevelChunk::allocate();
+        out->constructor(nullptr, blocks, 0, 0);
+        memcpy(out->data.data, chunk->data.data, chunk->data.length);
+        memcpy(out->light_sky.data, chunk->light_sky.data, chunk->light_sky.length);
+        memcpy(out->light_block.data, chunk->light_block.data, chunk->light_block.length);
+        return out;
+    }
+}
+void CachedLevelSource::_copy_chunks() {
+    // Copy Chunks
+    chunk_x0 = to_chunk_pos(x0);
+    const int chunk_x1 = to_chunk_pos(x1 - 1);
+    chunk_z0 = to_chunk_pos(z0);
+    const int chunk_z1 = to_chunk_pos(z1 - 1);
+    chunks_x = chunk_x1 - chunk_x0 + 1;
+    chunks_z = chunk_z1 - chunk_z0 + 1;
+    for (int chunk_x = 0; chunk_x < chunks_x; chunk_x++) {
+        for (int chunk_z = 0; chunk_z < chunks_z; chunk_z++) {
+            chunks[chunk_x][chunk_z] = _clone(level->getChunk(chunk_x, chunk_z));
+        }
+    }
+
+    // Copy Level Information
+    for (int i = 0; i <= MAX_BRIGHTNESS; i++) {
+        light_ramp[i] = level->dimension->light_ramp[i];
+    }
+    level_field_6c = level->field_6c;
 }
 
 // Copy Tile Information From Level
@@ -37,32 +77,30 @@ void CachedLevelSource::_copy_tiles() {
     // See: Level::getRawBrightness
     constexpr int under_world_brightness = 0;
     constexpr int max_brightness = 15;
-    const int over_world_brightness = std::max(max_brightness - level->field_6c, under_world_brightness);
+    const int over_world_brightness = std::max(max_brightness - level_field_6c, under_world_brightness);
 
     // Cache Tile Information
+    touched_sky = false;
     for (int x = x0; x < x1; x++) {
+        const int chunk_x = to_chunk_pos(x);
         for (int z = z0; z < z1; z++) {
-            // Get Chunk
-            const int chunk_x = to_chunk_pos(x);
-            const int min_local_x = std::max(x0, from_chunk_pos(chunk_x));
             const int chunk_z = to_chunk_pos(z);
-            const int min_local_z = std::max(z0, from_chunk_pos(chunk_z));
-            LevelChunk *&chunk = chunks[x - x0][z - z0];
-            chunk = x == min_local_x && z == min_local_z
-                ? level->getChunk(chunk_x, chunk_z)
-                : chunks[min_local_x - x0][min_local_z - z0];
-
-            // Copy Tiles
+            LevelChunk *chunk = chunks[chunk_x - chunk_x0][chunk_z - chunk_z0];
             for (int y = y0; y < y1; y++) {
                 const bool over_world = y > MAX_Y;
                 const bool valid_y = y >= MIN_Y && !over_world;
                 Data &obj = block;
+                if (valid_y) {
 #define xyz to_local_pos(x), y, to_local_pos(z)
-                obj.id = valid_y ? chunk->getTile(xyz) : 0;
-                obj.data = valid_y ? chunk->getData(xyz) : 0;
-                obj.raw_brightness = valid_y ? chunk->getRawBrightness(xyz, 0)
-                    : (over_world ? over_world_brightness : under_world_brightness);
+                    obj.id = chunk->getTile(xyz);
+                    obj.data = chunk->getData(xyz);
+                    obj.raw_brightness = _get_raw_brightness(chunk, xyz);
 #undef xyz
+                } else {
+                    obj.id = 0;
+                    obj.data = 0;
+                    obj.raw_brightness = over_world ? over_world_brightness : under_world_brightness;
+                }
                 obj.is_empty = obj.id <= 0;
                 obj.material = obj.is_empty ? Material::air : Tile::tiles[obj.id]->material;
                 obj.should_render = false;
@@ -70,10 +108,18 @@ void CachedLevelSource::_copy_tiles() {
         }
     }
 
+    // Delete Chunks
+    for (int chunk_x = 0; chunk_x < chunks_x; chunk_x++) {
+        for (int chunk_z = 0; chunk_z < chunks_z; chunk_z++) {
+            LevelChunk *chunk = chunks[chunk_x][chunk_z];
+            chunk->deleteBlockData();
+            chunk->destructor_deleting();
+        }
+    }
+
     // Cache Brightness
     // This is a separate loop because brightness
     // calculations may require neighbor tiles.
-    const float *light_ramp = level->dimension->light_ramp;
     for (int x = x0; x < x1; x++) {
         for (int z = z0; z < z1; z++) {
             for (int y = y0; y < y1; y++) {
@@ -124,6 +170,15 @@ void CachedLevelSource::_check_if_should_render() {
 }
 
 // Calculate The Adjusted Raw Brightness Of A Tile
+int CachedLevelSource::_get_raw_brightness(LevelChunk *chunk, const int x, const int y, const int z) {
+    int light_sky = chunk->getBrightness(LightLayer::Sky, x, y, z);
+    if (light_sky > 0) {
+        touched_sky = true;
+    }
+    light_sky -= level_field_6c;
+    const int light_block = chunk->getBrightness(LightLayer::Block, x, y, z);
+    return std::max(light_sky, light_block);
+}
 int CachedLevelSource::_get_raw_brightness(int x, int y, int z, const bool param_1) const {
     // See: Level::getRawBrightness
     const Data &obj = block;

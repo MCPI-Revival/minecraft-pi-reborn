@@ -1,1 +1,2 @@
 property uchar *data = 0x0;
+property int length = 0x4;

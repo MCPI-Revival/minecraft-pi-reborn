@@ -64,14 +64,12 @@ static void Chunk_rebuild_injection(MCPI_UNUSED Chunk_rebuild_t original, Chunk 
         empty = true;
     }
     self->is_empty = true;
-    LevelChunk::touchedSky = false;
     Level *level = self->level;
     Tesselator &t = Tesselator::instance;
 
     // Get Chunk Information
     CachedLevelSource &source = get_cached_level_source();
-    source.level = level;
-    source._cache(x0, y0, z0, x1, y1, z1);
+    source._cache(level, x0, y0, z0, x1, y1, z1);
     if (!source.should_render) {
         // Empty Chunk
         self->touched_sky = false;
@@ -128,7 +126,7 @@ static void Chunk_rebuild_injection(MCPI_UNUSED Chunk_rebuild_t original, Chunk 
 
     // Clean Up
     ::operator delete(tile_renderer);
-    self->touched_sky = LevelChunk::touchedSky;
+    self->touched_sky = source.touched_sky;
     self->built = true;
 }
 
@@ -157,7 +155,7 @@ static int LevelRenderer_renderChunks_injection(MCPI_UNUSED LevelRenderer_render
     for (int i = start; i < end; i++) {
         Chunk *chunk = self->chunks[i];
         // Check If Chunk Is Visible
-        if (!chunk->is_layer_empty[a] && chunk->visible) {
+        if (!chunk->is_empty && !chunk->is_layer_empty[a] && chunk->visible) {
             const GLuint list = chunk->getList(a);
             if (list > 0) {
                 display_lists[num_display_lists++] = list;

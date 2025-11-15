@@ -117,9 +117,14 @@ add_library(mods SHARED
     src/api/compat.cpp
     src/api/misc.cpp
     src/api/socket.cpp
+    # tesselator
+    src/tesselator/init.cpp
+    src/tesselator/state.cpp
+    src/tesselator/vertex-array.cpp
+    src/tesselator/vertex.cpp
+    src/tesselator/draw.cpp
     # shading
     src/shading/init.cpp
-    src/shading/tesselator.cpp
     src/shading/lighting.cpp
     src/shading/normals.cpp
     src/shading/FallingSandRenderer.cpp

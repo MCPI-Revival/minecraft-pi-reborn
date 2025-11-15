@@ -1,0 +1,4 @@
+extends LevelChunk;
+
+vtable 0x10fbf8;
+size 0x2d0;

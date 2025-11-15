@@ -106,6 +106,7 @@ set(SRC
     src/level/ExternalFileLevelStorage.def
     src/level/Biome.def
     src/level/LevelChunk.def
+    src/level/EmptyLevelChunk.def
     src/level/ChunkSource.def
     src/level/ChunkCache.def
     src/level/ChunkStorage.def
