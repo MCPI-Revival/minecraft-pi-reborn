@@ -17,7 +17,7 @@ struct chunk_rebuild_data {
     int y1 = 0;
     int z1 = 0;
 };
-MCPI_UNUSED extern ThreadVector _chunks_to_rebuild;
+MCPI_INTERNAL extern ThreadVector _chunks_to_rebuild;
 
 // Messages Received From Rebuild Thread
 static constexpr int num_layers = 3;
@@ -28,16 +28,17 @@ struct rebuilt_chunk_data {
     bool touched_sky = false;
     const VertexArray<CustomVertexFlat> *vertices[num_layers] = {};
 };
-MCPI_UNUSED extern ThreadVector _rebuilt_chunks;
+MCPI_INTERNAL extern ThreadVector _rebuilt_chunks;
+MCPI_INTERNAL void _free_rebuilt_chunk_data(const rebuilt_chunk_data *chunk);
 
 // Configure Rendering
-MCPI_UNUSED void _configure_tesselator_for_chunk_rebuild(bool enable);
+MCPI_INTERNAL void _configure_tesselator_for_chunk_rebuild(bool enable);
 
 // Biome Data
-MCPI_UNUSED void _init_threaded_biome_source();
-MCPI_UNUSED void _create_biome_source(int seed);
-MCPI_UNUSED void _free_biome_source();
+MCPI_INTERNAL void _init_threaded_biome_source();
+MCPI_INTERNAL void _create_biome_source(int seed);
+MCPI_INTERNAL void _free_biome_source();
 
 // Start/Stop
-MCPI_UNUSED void _stop_chunk_rebuild_thread();
-MCPI_UNUSED void _start_chunk_rebuild_thread(Level *level);
+MCPI_INTERNAL void _stop_chunk_rebuild_thread();
+MCPI_INTERNAL void _start_chunk_rebuild_thread(Level *level);

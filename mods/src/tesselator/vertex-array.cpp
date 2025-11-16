@@ -44,7 +44,6 @@ template<typename T>
 void VertexArray<T>::receive(const VertexArray *other) {
     memcpy(data, other->data, other->size * sizeof(T));
     size = other->size;
-    delete other;
 }
 
 // Instantiate Templates

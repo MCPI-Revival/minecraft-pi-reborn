@@ -126,9 +126,18 @@ static bool chunk_rebuild_thread_running = false;
 void _stop_chunk_rebuild_thread() {
     // Kill Thread
     if (chunk_rebuild_thread_running) {
+        // Signal Stop
         _chunks_to_rebuild.add(nullptr, nullptr);
+        // Wait For Thread To Stop
         pthread_join(chunk_rebuild_thread, nullptr);
         chunk_rebuild_thread_running = false;
+        // Free Remaining Messages
+        std::vector<void *> data;
+        _rebuilt_chunks.receive(data, false);
+        for (const void *msg : data) {
+            const rebuilt_chunk_data *chunk = (const rebuilt_chunk_data *) msg;
+            _free_rebuilt_chunk_data(chunk);
+        }
     }
 }
 void _start_chunk_rebuild_thread(Level *level) {

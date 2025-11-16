@@ -29,7 +29,7 @@ static void NinecraftApp_teardown_injection(NinecraftApp_teardown_t original, Ni
     original(self);
 }
 
-// Trigger Chunk Build
+// Trigger Chunk Rebuild
 static void Chunk_rebuild_injection(MCPI_UNUSED Chunk_rebuild_t original, Chunk *self) {
     if (!self->dirty) {
         return;
@@ -48,7 +48,7 @@ static void Chunk_rebuild_injection(MCPI_UNUSED Chunk_rebuild_t original, Chunk 
     _chunks_to_rebuild.add(self, data);
 }
 
-// Receive Built Chunks
+// Receive Rebuilt Chunks
 static void render_rebuilt_chunk(const rebuilt_chunk_data *chunk_data) {
     // Render Chunk
     Chunk *chunk = chunk_data->chunk;
@@ -89,9 +89,9 @@ static void LevelRenderer_tick_injection(LevelRenderer_tick_t original, LevelRen
     // Receive Built Chunks
     std::vector<void *> data;
     _rebuilt_chunks.receive(data, false);
-    for (void *msg : data) {
+    for (const void *msg : data) {
         // Check If Chunk Is Valid
-        const rebuilt_chunk_data *chunk_data = (rebuilt_chunk_data *) msg;
+        const rebuilt_chunk_data *chunk_data = (const rebuilt_chunk_data *) msg;
         bool valid = false;
         for (int i = 0; i < self->chunks_length; i++) {
             if (self->chunks[i] == chunk_data->chunk) {
@@ -104,8 +104,16 @@ static void LevelRenderer_tick_injection(LevelRenderer_tick_t original, LevelRen
         if (valid) {
             render_rebuilt_chunk(chunk_data);
         }
-        delete chunk_data;
+        _free_rebuilt_chunk_data(chunk_data);
     }
+}
+
+// Free Rebuilt Chunk Data
+void _free_rebuilt_chunk_data(const rebuilt_chunk_data *chunk) {
+    for (const VertexArray<CustomVertexFlat> *ptr : chunk->vertices) {
+        delete ptr;
+    }
+    delete chunk;
 }
 
 // Init
