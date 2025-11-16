@@ -395,6 +395,17 @@ static int Level_getTopTile_injection(Level_getTopTile_t original, Level *self, 
 static void TorchTile_onPlace_injection(MCPI_UNUSED TorchTile_onPlace_t original, TorchTile *self, Level *level, const int x, const int y, const int z) {
     Tile_onPlace->get(false)((Tile *) self, level, x, y, z);
 }
+static int TorchTile_getPlacedOnFaceDataValue_injection(MCPI_UNUSED TorchTile_getPlacedOnFaceDataValue_t original, MCPI_UNUSED TorchTile *self, Level *level, const int x, const int y, const int z, const int face, MCPI_UNUSED const float hit_x, MCPI_UNUSED const float hit_y, MCPI_UNUSED const float hit_z, const int item_auxiliary) {
+    int data = item_auxiliary;
+#define test(a, b, ...) if ((data == 0 || face == (a)) && __VA_ARGS__) data = (b)
+    test(1, 5, TorchTile::isConnection(level, x, y - 1, z));
+    test(2, 4, level->isSolidBlockingTile(x, y, z + 1));
+    test(3, 3, level->isSolidBlockingTile(x, y, z - 1));
+    test(4, 2, level->isSolidBlockingTile(x + 1, y, z));
+    test(5, 1, level->isSolidBlockingTile(x - 1, y, z));
+#undef test
+    return data;
+}
 
 // Fix Egg Behavior
 static void ThrownEgg_onHit_Chicken_moveTo_injection(Chicken *self, const float x, const float y, const float z, const float yaw, const float pitch) {
@@ -597,6 +608,7 @@ void init_misc() {
     // Fix Torch Placement
     if (feature_has("Fix Torch Placement", server_enabled)) {
         overwrite_calls(TorchTile_onPlace, TorchTile_onPlace_injection);
+        overwrite_calls(TorchTile_getPlacedOnFaceDataValue, TorchTile_getPlacedOnFaceDataValue_injection);
     }
 
     // Fix Egg Behavior

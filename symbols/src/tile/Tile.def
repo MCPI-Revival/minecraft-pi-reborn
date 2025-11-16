@@ -60,6 +60,7 @@ virtual-method Tile *setDestroyTime(float destroy_time) = 0xf8;
 virtual-method void spawnResources(Level *level, int x, int y, int z, int data, float chance) = 0x80;
 virtual-method Tile *setLightBlock(int strength) = 0xec;
 virtual-method bool shouldRenderFace(LevelSource *level_source, int x, int y, int z, int face) = 0x24;
+virtual-method int getPlacedOnFaceDataValue(Level *level, int x, int y, int z, int face, float hit_x, float hit_y, float hit_z, int item_auxiliary) = 0xa4;
 
 property int texture = 0x4;
 property int id = 0x8;

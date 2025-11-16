@@ -1,3 +1,5 @@
 extends Tile;
 
 vtable 0x113478;
+
+static-method bool isConnection(Level *level, int x, int y, int z) = 0xc2fe0;
