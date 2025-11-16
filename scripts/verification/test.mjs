@@ -12,7 +12,7 @@ const Modes = {
 };
 createEnum(Modes);
 const options = {
-    modes: PositionalArg(0, Modes),
+    mode: PositionalArg(0, Modes),
     architecture: PositionalArg(1, ArchitecturesMinusHost)
 };
 parseOptions(options, null);

@@ -680,5 +680,6 @@ void _init_misc_graphics() {
         overwrite_calls(NinecraftApp_initGLStates, nop<NinecraftApp_initGLStates_t, NinecraftApp *>);
         overwrite_calls(Gui_onConfigChanged, nop<Gui_onConfigChanged_t, Gui *, const Config &>);
         overwrite_calls(LevelRenderer_generateSky, nop<LevelRenderer_generateSky_t, LevelRenderer *>);
+        overwrite_calls_manual((void *) 0xdd40, (void *) nop<GLsizei, const GLuint *>); // glDeleteBuffers
     }
 }
