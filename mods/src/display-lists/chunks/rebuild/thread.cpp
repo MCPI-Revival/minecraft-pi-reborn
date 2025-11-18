@@ -1,3 +1,5 @@
+#include <malloc.h>
+
 #include <libreborn/log.h>
 
 #include "thread.h"
@@ -5,6 +7,19 @@
 // Input/Output
 ThreadVector _chunks_to_rebuild;
 ThreadVector _rebuilt_chunks;
+
+// Render A Single Tile Thread-Safely
+static bool render_tile(TileRenderer *tile_renderer, Tile *tile, const int x, const int y, const int z) {
+    const size_t tile_size = malloc_usable_size(tile);
+    if (tile_size <= 0) {
+        IMPOSSIBLE();
+    }
+    Tile *tile_copy = (Tile *) ::operator new(tile_size);
+    memcpy((void *) tile_copy, (const void *) tile, tile_size);
+    const bool ret = tile_renderer->tesselateInWorld(tile_copy, x, y, z);
+    ::operator delete(tile_copy);
+    return ret;
+}
 
 // Build Chunk
 static void build_chunk(chunk_rebuild_data *data, rebuilt_chunk_data *out) {
@@ -57,7 +72,7 @@ static void build_chunk(chunk_rebuild_data *data, rebuilt_chunk_data *out) {
                             started = true;
                             t.begin(GL_QUADS);
                         }
-                        rendered |= tile_renderer->tesselateInWorld(tile, x, y, z);
+                        rendered |= render_tile(tile_renderer, tile, x, y, z);
                     }
                 }
             }
