@@ -8,17 +8,18 @@
 ThreadVector _chunks_to_rebuild;
 ThreadVector _rebuilt_chunks;
 
-// Render A Single Tile Thread-Safely
+// Render a single tile without
+// interfering with the main thread.
 static bool render_tile(TileRenderer *tile_renderer, Tile *tile, const int x, const int y, const int z) {
+    static constexpr size_t buffer_size = 8192;
+    thread_local uchar buffer[buffer_size];
     const size_t tile_size = malloc_usable_size(tile);
-    if (tile_size <= 0) {
+    if (tile_size <= 0 || tile_size > buffer_size) {
         IMPOSSIBLE();
     }
-    Tile *tile_copy = (Tile *) ::operator new(tile_size);
-    memcpy((void *) tile_copy, (const void *) tile, tile_size);
-    const bool ret = tile_renderer->tesselateInWorld(tile_copy, x, y, z);
-    ::operator delete(tile_copy);
-    return ret;
+    memcpy(buffer, (const void *) tile, tile_size);
+    Tile *tile_copy = (Tile *) buffer;
+    return tile_renderer->tesselateInWorld(tile_copy, x, y, z);
 }
 
 // Build Chunk
