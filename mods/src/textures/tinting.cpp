@@ -103,12 +103,13 @@ static int32_t TallGrass_getColor_injection(TallGrass_getColor_t original, TallG
 
 // Grass Side Tinting
 struct GrassSideTile final : CustomTile {
-    GrassSideTile(const int id, const int texture, const Material *material) : CustomTile(id, texture, material) {}
+    GrassSideTile(const int id, const int texture, const Material *material):
+        CustomTile(id, texture, material) {}
     bool shouldRenderFace(LevelSource *level_source, const int x, const int y, const int z, const int face) override {
         return face > 1 && CustomTile::shouldRenderFace(level_source, x, y, z, face);
     }
     int getColor(LevelSource *level_source, const int x, const int y, const int z) override {
-        return GrassTile::VTable::base->getColor((GrassTile *) self, level_source, x, y, z);
+        return GrassTile::VTable::base->getColor((GrassTile *) (Tile *) self, level_source, x, y, z);
     }
 };
 static Tile *get_fake_grass_side_tile() {

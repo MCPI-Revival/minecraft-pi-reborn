@@ -11,7 +11,8 @@
 // Custom Tile
 struct Cake final : CustomTile {
     // Constructor
-    Cake(const int id, const int texture, const Material *material): CustomTile(id, texture, material) {}
+    Cake(const int id, const int texture, const Material *material):
+        CustomTile(id, texture, material) {}
 
     // Textures
     int getTexture2(const int face, MCPI_UNUSED int data) override {
@@ -52,7 +53,7 @@ struct Cake final : CustomTile {
     }
 
     // Size
-    static void getShape(const int data, float &x0, float &y0, float &z0, float &x1, float &y1, float &z1) {
+    static void _getShape(const int data, float &x0, float &y0, float &z0, float &x1, float &y1, float &z1) {
         x0 = CAKE_LEN;
         y0 = 0;
         z0 = x0;
@@ -61,19 +62,19 @@ struct Cake final : CustomTile {
         z1 = x1;
         z1 -= (1 - (CAKE_LEN * 2)) * (float(data) / float(CAKE_SLICE_COUNT));
     }
-    void updateShape(const int data) const {
+    void _updateShape(const int data) {
         float x0, y0, z0;
         float x1, y1, z1;
-        getShape(data, x0, y0, z0, x1, y1, z1);
-        self->setShape(
+        _getShape(data, x0, y0, z0, x1, y1, z1);
+        setShape(
             x0, y0, z0,
             x1, y1, z1
         );
     }
     void updateDefaultShape() override {
-        updateShape(0);
+        _updateShape(0);
     }
-    static int getData(LevelSource *level, const int x, const int y, const int z) {
+    static int _getData(LevelSource *level, const int x, const int y, const int z) {
         int data = level->getData(x, y, z);
         if (data >= CAKE_SLICE_COUNT) {
             data = 0;
@@ -82,16 +83,16 @@ struct Cake final : CustomTile {
     }
     void updateShape(LevelSource *level, const int x, const int y, const int z) override {
         // Get Cake
-        const int data = getData(level, x, y, z);
+        const int data = _getData(level, x, y, z);
         // Get Slice Amount
-        updateShape(data);
+        _updateShape(data);
     }
     AABB *getAABB(Level *level, const int x, const int y, const int z) override {
         // Get Shape
-        const int data = getData((LevelSource *) level, x, y, z);
+        const int data = _getData((LevelSource *) level, x, y, z);
         float x0, y0, z0;
         float x1, y1, z1;
-        getShape(data, x0, y0, z0, x1, y1, z1);
+        _getShape(data, x0, y0, z0, x1, y1, z1);
 
         // Corner 1
         AABB *aabb = &self->aabb;

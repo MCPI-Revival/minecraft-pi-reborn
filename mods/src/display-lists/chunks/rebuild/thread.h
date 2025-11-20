@@ -39,6 +39,9 @@ MCPI_INTERNAL void _init_threaded_biome_source();
 MCPI_INTERNAL void _create_biome_source(int seed);
 MCPI_INTERNAL void _free_biome_source();
 
+// Tile Rendering
+MCPI_INTERNAL bool _render_tile(TileRenderer *tile_renderer, Tile *tile, int x, int y, int z);
+
 // Start/Stop
 MCPI_INTERNAL void _stop_chunk_rebuild_thread();
 MCPI_INTERNAL void _start_chunk_rebuild_thread(Level *level);

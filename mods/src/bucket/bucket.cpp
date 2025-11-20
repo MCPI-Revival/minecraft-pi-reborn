@@ -11,7 +11,8 @@
 #define MILK_AUX 1
 struct Bucket final : CustomItem {
     // Constructor
-    explicit Bucket(const int id):  CustomItem(id) {}
+    explicit Bucket(const int id):
+        CustomItem(id) {}
 
     // Description And Texture
     std::string getDescriptionId(const ItemInstance *item_instance) const override {
@@ -38,7 +39,7 @@ struct Bucket final : CustomItem {
     }
 
     // Filling
-    bool fill_bucket(ItemInstance *item_instance, const Player *player, const int new_auxiliary) const {
+    bool _fill_bucket(ItemInstance *item_instance, const Player *player, const int new_auxiliary) const {
         Inventory *inventory = player->inventory;
         if (inventory->is_creative) {
             return true;
@@ -77,7 +78,7 @@ struct Bucket final : CustomItem {
             }
             if (new_auxiliary != 0) {
                 // Valid
-                if (fill_bucket(item_instance, player, new_auxiliary)) {
+                if (_fill_bucket(item_instance, player, new_auxiliary)) {
                     level->setTileAndData(x, y, z, 0, 0);
                     return true;
                 } else {
@@ -204,7 +205,7 @@ static bool Cow_interact_injection(Cow_interact_t original, Cow *self, Player *p
     ItemInstance *item = player->inventory->getSelected();
     if (item && item->id == bucket->id && item->auxiliary == 0) {
         // Fill With Milk
-        custom_get<Bucket>(bucket)->fill_bucket(item, player, 1);
+        custom_get<Bucket>(bucket)->_fill_bucket(item, player, 1);
         return true;
     }
     return original(self, player);

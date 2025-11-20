@@ -110,6 +110,7 @@ add_library(mods SHARED
     src/display-lists/chunks/rebuild/rebuild.cpp
     src/display-lists/chunks/rebuild/thread.cpp
     src/display-lists/chunks/rebuild/biome-source.cpp
+    src/display-lists/chunks/rebuild/tile-renderer.cpp
     src/display-lists/chunks/render.cpp
     src/display-lists/font.cpp
     src/display-lists/init.cpp

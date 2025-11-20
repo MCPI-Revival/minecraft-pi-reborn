@@ -94,11 +94,11 @@ struct WelcomeScreen final : CustomScreen {
     // Rendering
     void render(const int x, const int y, const float param_1) override {
         // Background
-        self->renderBackground();
+        renderBackground();
         // Call Original Method
         CustomScreen::render(x, y, param_1);
         // Text
-        self->drawCenteredString(self->font, line1, self->width / 2, text_y, 0xFFFFFFFF);
+        drawCenteredString(self->font, line1, self->width / 2, text_y, 0xFFFFFFFF);
     }
     // Positioning
     void setupPositions() override {

@@ -170,11 +170,11 @@ struct InfoScreen final : CustomScreen {
         CustomScreen::render(x, y, param_1);
         // Title
         const std::string title = "Reborn Information";
-        self->drawCenteredString(self->font, title, self->width / 2, title_padding, 0xffffffff);
+        drawCenteredString(self->font, title, self->width / 2, title_padding, 0xffffffff);
         // Info Text
         for (int i = 0; i < info_size; i++) {
             std::string text = info[i].get_text();
-            self->drawString(self->font, text, positioned_info[i].text.x, positioned_info[i].text.y, 0xffffffff);
+            drawString(self->font, text, positioned_info[i].text.x, positioned_info[i].text.y, 0xffffffff);
         }
     }
     // Positioning
@@ -208,7 +208,7 @@ struct InfoScreen final : CustomScreen {
     void buttonClicked(Button *button) override {
         if (button->id == BACK_ID) {
             // Back
-            self->handleBackEvent(false);
+            handleBackEvent(false);
         } else if (button->id == DISCORD_ID) {
             // Open Discord Invite
             media_open(reborn_config.extra.discord_invite, true);
