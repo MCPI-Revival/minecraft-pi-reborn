@@ -35,6 +35,22 @@ static void setup_environment(const options_t &options) {
     set_relaunch_env();
 #endif
 
+    // Configure Console Window
+#ifdef _WIN32
+    if (reborn_is_headless()) {
+        const HANDLE old_out = GetStdHandle(STD_OUTPUT_HANDLE);
+        const bool missing_out = !old_out || old_out == INVALID_HANDLE_VALUE;
+        if (missing_out && AllocConsole()) {
+            const wchar_t *out_name = L"CONOUT$";
+            const wchar_t *in_name = L"CONIN$";
+            FILE *file;
+            _wfreopen_s(&file, out_name, L"w", stdout);
+            _wfreopen_s(&file, out_name, L"w", stderr);
+            _wfreopen_s(&file, in_name, L"r", stdin);
+        }
+    }
+#endif
+
     // Setup MCPI_HOME
     setup_home();
     // Create If Needed
