@@ -40,7 +40,6 @@ static void patch_texture(Minecraft *minecraft) {
     constexpr int rgba = rgb + 1;
 
     // Color Conversion
-    constexpr uchar desired_alpha = 159;
     const std::unordered_map<uchar, uchar> r_map = {
         {170, 119},
         {184, 142},
@@ -50,6 +49,12 @@ static void patch_texture(Minecraft *minecraft) {
         {201, 169},
         {215, 191},
         {255, 255}
+    };
+    const std::unordered_map<uchar, uchar> b_map = {
+        {255, 255}
+    };
+    const std::unordered_map<uchar, uchar> a_map = {
+        {255, 159}
     };
 
     // Get Texture Data
@@ -82,27 +87,42 @@ static void patch_texture(Minecraft *minecraft) {
     const uchar *old_texture = texture_data->data;
     uchar *new_texture = new uchar[dst_line_size * height];
     bool success = true;
-    for (int y = 0; y < height; y++) {
-        for (int x = 0; x < width; x++) {
+    for (int y = 0; y < height && success; y++) {
+        for (int x = 0; x < width && success; x++) {
+            // Extract Color Channels
             const int src_position = ((src_y + y) * src_line_size) + ((src_x + x) * src_channels);
             const int dst_position = (y * dst_line_size) + (x * dst_channels);
             uchar r = old_texture[src_position];
             uchar g = old_texture[src_position + 1];
-            const uchar b = old_texture[src_position + 2];
-            if (r_map.contains(r) && g_map.contains(g)) {
-                r = r_map.at(r);
-                g = g_map.at(g);
-            } else {
-                // Unexpected Color
-                // Do Not Patch The Texture
-                WARN("Unable To Patch Ice Texture");
-                success = false;
-                break;
+            uchar b = old_texture[src_position + 2];
+            uchar a = old_texture[src_position + 3];
+            // Map Color Channels
+            const std::vector<std::pair<uchar &, const std::unordered_map<uchar, uchar> &>> color_maps = {
+                {r, r_map},
+                {g, g_map},
+                {b, b_map},
+                {a, a_map}
+            };
+            for (const std::pair<uchar &, const std::unordered_map<uchar, uchar> &> &pair : color_maps) {
+                uchar &i = pair.first;
+                const std::unordered_map<uchar, uchar> &map = pair.second;
+                if (map.contains(i)) {
+                    i = map.at(i);
+                } else {
+                    // Unexpected Color
+                    // Do Not Patch The Texture
+                    WARN("Unable To Patch Ice Texture");
+                    success = false;
+                    break;
+                }
             }
-            new_texture[dst_position] = r;
-            new_texture[dst_position + 1] = g;
-            new_texture[dst_position + 2] = b;
-            new_texture[dst_position + 3] = desired_alpha;
+            // Set New Color
+            if (success) {
+                new_texture[dst_position] = r;
+                new_texture[dst_position + 1] = g;
+                new_texture[dst_position + 2] = b;
+                new_texture[dst_position + 3] = a;
+            }
         }
     }
     if (success) {
