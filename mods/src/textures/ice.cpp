@@ -20,7 +20,7 @@ static bool IceTile_shouldRenderFace_injection(IceTile *self, LevelSource *level
     if (id == self->id) {
         return false;
     }
-    return Tile_shouldRenderFace->get(false)((Tile *) self, level, x, y, z, 1 - face);
+    return Tile_shouldRenderFace->get(false)((Tile *) self, level, x, y, z, face);
 }
 
 // Patch Texture

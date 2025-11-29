@@ -46,6 +46,30 @@ static RenderChunk Tesselator_end_injection(MCPI_UNUSED Tesselator *self, const 
     }
 }
 
+// Setup/Cleanup State For Drawing
+static void begin_draw(const GLsizei vertex_size, const bool has_texture, const bool has_color, const bool has_normal) {
+    if (has_texture) {
+        media_glTexCoordPointer(2, GL_FLOAT, vertex_size, (void *) offsetof(CustomVertexFlat, uv));
+        media_glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+    }
+    if (has_color) {
+        media_glColorPointer(4, GL_UNSIGNED_BYTE, vertex_size, (void *) offsetof(CustomVertexFlat, color));
+        media_glEnableClientState(GL_COLOR_ARRAY);
+    }
+    if (has_normal) {
+        media_glNormalPointer(GL_BYTE, vertex_size, (void *) offsetof(CustomVertexShaded, normal));
+        media_glEnableClientState(GL_NORMAL_ARRAY);
+    }
+    media_glVertexPointer(3, GL_FLOAT, vertex_size, (void *) offsetof(CustomVertexFlat, pos));
+    media_glEnableClientState(GL_VERTEX_ARRAY);
+}
+static void end_draw() {
+    media_glDisableClientState(GL_VERTEX_ARRAY);
+    media_glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+    media_glDisableClientState(GL_COLOR_ARRAY);
+    media_glDisableClientState(GL_NORMAL_ARRAY);
+}
+
 // Draw To Screen
 TEMPLATE
 static void Tesselator_draw_injection_impl(CustomTesselator &t) {
@@ -67,34 +91,14 @@ static void Tesselator_draw_injection_impl(CustomTesselator &t) {
         media_glBindBuffer(GL_ARRAY_BUFFER, buffer);
         media_glBufferData(GL_ARRAY_BUFFER, vertex_count * vertex_size, vertices.data, GL_DYNAMIC_DRAW);
 
-        // Setup State
-        if (t.uv.has_value()) {
-            media_glTexCoordPointer(2, GL_FLOAT, vertex_size, (void *) offsetof(CustomVertexFlat, uv));
-            media_glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-        }
-        if (t.color.has_value()) {
-            media_glColorPointer(4, GL_UNSIGNED_BYTE, vertex_size, (void *) offsetof(CustomVertexFlat, color));
-            media_glEnableClientState(GL_COLOR_ARRAY);
-        }
-        if (t.normal.has_value()) {
-            media_glNormalPointer(GL_BYTE, vertex_size, (void *) offsetof(CustomVertexShaded, normal));
-            media_glEnableClientState(GL_NORMAL_ARRAY);
-        }
-        media_glVertexPointer(3, GL_FLOAT, vertex_size, (void *) offsetof(CustomVertexFlat, pos));
-        media_glEnableClientState(GL_VERTEX_ARRAY);
+        // Draw
+        begin_draw(vertex_size, t.uv.has_value(), t.color.has_value(), t.normal.has_value());
         GLenum mode = t.mode;
         if (!t.enable_real_quads && mode == GL_QUADS) {
             mode = GL_TRIANGLES;
         }
-
-        // Draw
         media_glDrawArrays(mode, 0, vertex_count);
-
-        // Clean Up
-        media_glDisableClientState(GL_VERTEX_ARRAY);
-        media_glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-        media_glDisableClientState(GL_COLOR_ARRAY);
-        media_glDisableClientState(GL_NORMAL_ARRAY);
+        end_draw();
     }
 
     // Finish
@@ -116,23 +120,12 @@ static void Common_drawArrayVT_injection(const int buffer, const int vertices, i
         IMPOSSIBLE();
     }
 
-    // Setup
-    vertex_size = sizeof(CustomVertexShaded);
-    media_glBindBuffer(GL_ARRAY_BUFFER, buffer);
-    media_glTexCoordPointer(2, GL_FLOAT, vertex_size, (void *) offsetof(CustomVertexShaded, base.uv));
-    media_glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-    media_glVertexPointer(3, GL_FLOAT, vertex_size, (void *) offsetof(CustomVertexShaded, base.pos));
-    media_glEnableClientState(GL_VERTEX_ARRAY);
-    media_glNormalPointer(GL_BYTE, vertex_size, (void *) offsetof(CustomVertexShaded, normal));
-    media_glEnableClientState(GL_NORMAL_ARRAY);
-
     // Draw
+    media_glBindBuffer(GL_ARRAY_BUFFER, buffer);
+    vertex_size = sizeof(CustomVertexShaded);
+    begin_draw(vertex_size, true, false, true);
     media_glDrawArrays(mode, 0, vertices);
-
-    // Clean Up
-    media_glDisableClientState(GL_VERTEX_ARRAY);
-    media_glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-    media_glDisableClientState(GL_NORMAL_ARRAY);
+    end_draw();
 }
 
 // Patch
