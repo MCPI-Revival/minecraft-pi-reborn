@@ -8,7 +8,6 @@
 #include <symbols/minecraft.h>
 
 #include <media-layer/core.h>
-#include <SDL/SDL.h>
 
 #include <mods/init/init.h>
 #include <mods/compat/compat.h>
@@ -20,10 +19,10 @@
 // Config
 #define BENCHMARK_GAME_MODE 0 // Survival Mode
 #define BENCHMARK_SEED 2048 // Random Number
-#define BENCHMARK_WORLD_NAME "_Benchmark" // Random Number
+#define BENCHMARK_WORLD_NAME "_Benchmark"
 #define BENCHMARK_LENGTH (180ll * NANOSECONDS_IN_SECOND) // 3 Minutes
-#define BENCHMARK_ROTATION_INTERVAL ((long long int) (0.02f * NANOSECONDS_IN_SECOND))
-#define BENCHMARK_ROTATION_AMOUNT 10
+#define BENCHMARK_ROTATION_AMOUNT 90 // Amount To Rotate Per Second
+#define BENCHMARK_ROTATION_PITCH 25
 
 // Create/Start World
 static void start_world(Minecraft *minecraft) {
@@ -90,7 +89,7 @@ static void Minecraft_update_injection(Minecraft *minecraft) {
     }
 
     // Get Current Time
-    long long int now = get_time();
+    const long long int now = get_time();
 
     // Detect World Loaded
     if (!world_loaded && minecraft->isLevelGenerated()) {
@@ -104,9 +103,9 @@ static void Minecraft_update_injection(Minecraft *minecraft) {
     // Run Benchmark
     if (!exit_requested && world_loaded) {
         // Get Time
-        long long int current_time = now - world_loaded_time;
-        unsigned long long int current_frames = frames - world_loaded_frames;
-        unsigned long long int current_ticks = ticks - world_loaded_ticks;
+        const long long int current_time = now - world_loaded_time;
+        const unsigned long long int current_frames = frames - world_loaded_frames;
+        const unsigned long long int current_ticks = ticks - world_loaded_ticks;
 
         // Log
         int32_t status = int32_t((double(current_time) / double(BENCHMARK_LENGTH)) * 100);
@@ -119,19 +118,14 @@ static void Minecraft_update_injection(Minecraft *minecraft) {
         }
 
         // Rotate Player
-        static long long int rotation_so_far = 0;
-        long long int ideal_rotation = (BENCHMARK_ROTATION_AMOUNT * current_time) / BENCHMARK_ROTATION_INTERVAL;
-        long long int rotation_diff = ideal_rotation - rotation_so_far;
-        if (rotation_diff >= BENCHMARK_ROTATION_AMOUNT) {
-            SDL_Event event;
-            event.type = SDL_MOUSEMOTION;
-            event.motion.x = 0;
-            event.motion.y = 0;
-            event.motion.xrel = (rotation_diff > INT16_MAX) ? int16_t(INT16_MAX) : int16_t(rotation_diff);
-            event.motion.yrel = 0;
-            media_SDL_PushEvent(&event);
-            // Reset Rotation Timer
-            rotation_so_far += event.motion.xrel;
+        LocalPlayer *player = minecraft->player;
+        if (player) {
+            const float current_time_seconds = float(current_time) / NANOSECONDS_IN_SECOND;
+            const float new_yaw = BENCHMARK_ROTATION_AMOUNT * current_time_seconds;
+            const float old_yaw = player->yaw;
+            player->yaw = new_yaw;
+            player->old_yaw = old_yaw;
+            player->pitch = player->old_pitch = BENCHMARK_ROTATION_PITCH;
         }
 
         // Check If Benchmark Is Over
