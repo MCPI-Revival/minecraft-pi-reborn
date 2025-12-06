@@ -45,11 +45,8 @@ struct SplashLine {
         return (float(screen->width) / 2.0f) + x_offset;
     }
     [[nodiscard]] float get_region() const {
-        float region = float(screen->start_button.y - version_text_bottom);
-        if (region < 0) {
-            region = 0;
-        }
-        return region;
+        const float region = float(screen->start_button.y - version_text_bottom);
+        return std::max(0.0f, region);
     }
     [[nodiscard]] float origin_y() const {
         return float(version_text_bottom) + (get_region() / y_factor);
@@ -59,31 +56,35 @@ struct SplashLine {
     }
 
     // Find Endpoint
-    [[nodiscard]] float from_x(float x) const {
-        x -= origin_x();
-        return x / std::cos(angle_rad());
+    static float _from(float x, const float origin, const bool use_sin) {
+        x -= origin;
+        const float z = use_sin ? std::sin(angle_rad()) : std::cos(angle_rad());
+        return std::abs(z) > 0.00005f ? (x / z) : std::numeric_limits<float>::max();
     }
-    [[nodiscard]] float from_y(float y) const {
-        y -= origin_y();
-        return y / std::sin(angle_rad());
+    [[nodiscard]] float from_x(const float x) const {
+        return _from(x, origin_x(), false);
+    }
+    [[nodiscard]] float from_y(const float y) const {
+        return _from(y, origin_y(), true);
     }
     [[nodiscard]] float end() const {
         const float end_x = float(screen->width) * (1 - padding);
-        const float end_y = float(screen->width) * padding;
+        const float end_y = float(screen->height) * padding;
         return std::min(from_x(end_x), from_y(end_y));
     }
 
     // Get Scale
-    [[nodiscard]] float get_max_scale(bool &bad_y_factor) const {
-        float region = get_region();
-        region /= y_factor;
-        const float splash_line_height = region * std::cos(angle_rad());
+    [[nodiscard]] float get_max_scale(bool &should_reposition_y) const {
+        const float desired_height = get_region() / y_factor;
+        const float splash_line_height = desired_height * (std::abs(std::sin(angle_rad())) + std::abs(std::cos(angle_rad())));
         float scale = splash_line_height / line_height;
         if (scale > max_scale) {
             scale = max_scale;
-            bad_y_factor = true;
+            // Try Repositioning
+            should_reposition_y = true;
         }
         if (scale < min_scale) {
+            // Not Enough Room, Give Up
             scale = 0;
         }
         return scale;
@@ -92,7 +93,7 @@ struct SplashLine {
 
 // Draw Splash
 static std::string current_splash;
-static bool draw_splash(const StartMenuScreen *screen, const float y_factor, const bool allow_bad_y_factor) {
+static bool draw_splash(const StartMenuScreen *screen, const float y_factor, const bool force) {
     // Position
     const SplashLine line(screen, y_factor);
     const float x = line.origin_x();
@@ -100,9 +101,9 @@ static bool draw_splash(const StartMenuScreen *screen, const float y_factor, con
 
     // Choose Scale
     const float max_width = line.end();
-    bool bad_y_factor = false;
-    float scale = line.get_max_scale(bad_y_factor);
-    if (bad_y_factor && !allow_bad_y_factor) {
+    bool should_reposition_y = false;
+    float scale = line.get_max_scale(should_reposition_y);
+    if (should_reposition_y && !force) {
         // Try With Another Y-Factor
         return false;
     }
@@ -134,7 +135,7 @@ static bool draw_splash(const StartMenuScreen *screen, const float y_factor, con
     // Scale
     media_glTranslatef(splash_width / 2.0f, 0, 0);
     media_glScalef(scale, scale, 1);
-    media_glTranslatef(-text_width / 2.0f, 0, 0);
+    media_glTranslatef(-float(text_width) / 2.0f, 0, 0);
 
     // Render
     constexpr float y_offset = -float(line_height - 1) / 2.0f;
@@ -172,13 +173,11 @@ static void StartMenuScreen_render_injection(StartMenuScreen_render_t original, 
         }
         // Draw
         float y_factor = 2.0f;
-        bool allow_bad_y_factor = false;
-        while (true) {
-            if (draw_splash(screen, y_factor, allow_bad_y_factor)) {
+        for (const bool force : {false, true}) {
+            if (draw_splash(screen, y_factor, force)) {
                 break;
             } else {
                 y_factor++;
-                allow_bad_y_factor = true;
             }
         }
     }

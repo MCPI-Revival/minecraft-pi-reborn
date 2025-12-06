@@ -31,7 +31,7 @@ They also have the following additional members:
 * `backup`: A pointer to the original method.
 * `get`: A method that will retrieve a pointer to the method.
   * It accepts a single boolean argument. This should bet to `true` if (and only if) the returned value will be stored.
-* `get_vtable_addr`: A method that will return a pointer to the method's [VTable](https://en.wikipedia.org/wiki/Virtual_method_table?useskin=vector) entry (if applicable).
+* `get_vtable_addr`: A method that will return a pointer to the method's VTable entry (if applicable).
 * Any additional members are implementation details and *should not be relied upon*.
 
 ## `overwrite_calls`

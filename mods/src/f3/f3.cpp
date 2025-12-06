@@ -124,9 +124,9 @@ static std::vector<std::string> get_debug_info_right(const Minecraft *minecraft)
             z = float(target.z);
             type = "Tile";
             if (minecraft->level) {
-                const int id = minecraft->level->getTile(x, y, z);
+                const int id = minecraft->level->getTile(int(x), int(y), int(z));
                 std::string name;
-                if (Tile *tile = Tile::tiles[id]) {
+                if (const Tile *tile = Tile::tiles[id]) {
                     const std::string description_id = tile->getDescriptionId();
                     name = description_id + ".name";
                     if (I18n::_strings.contains(name)) {
@@ -181,10 +181,10 @@ static void render_debug_line(Gui *gui, const std::string &line, int x, const in
         const int screen_width = int(float(gui->minecraft->screen_width) * Gui::InvGuiScale);
         x = screen_width - x - width + 1;
     }
-    int x1 = x - 1;
-    int y1 = y - 1;
-    int x2 = x + width;
-    int y2 = y + line_height;
+    const int x1 = x - 1;
+    const int y1 = y - 1;
+    const int x2 = x + width;
+    const int y2 = y + line_height;
     if (pass == 0) {
         gui->fill(x1, y1, x2, y2, debug_background_color);
     }

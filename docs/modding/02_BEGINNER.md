@@ -78,6 +78,8 @@ And to get the wrapper corresponding to a plain object, use the `custom_get<T>` 
 However, this function *does not* check that the provided pointer is attached to a wrapper.
 Make sure you know exactly what object you're working with before using this.
 
+A wrapper's [VTable](https://en.wikipedia.org/wiki/Virtual_method_table?useskin=vector) can be accessed using the static method `Custom*::get_vtable()`.
+
 ### Construction
 Due to technical limitations, game classes cannot be directly constructed using `new`.
 Instead, the class must be manually allocated before calling the constructor separately.
