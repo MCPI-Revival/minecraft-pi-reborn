@@ -21,19 +21,25 @@ static long long int get_time() {
 // Tracker
 struct Tracker {
     // State
-    long long int counter = 0;
-    long long int last_time = get_time();
+    long long int counter;
+    long long int last_time;
     // Properties
     double &out;
     const std::function<void()> callback;
+
     // Constructor
     Tracker(double &out_, const std::function<void()> &callback_):
+        counter(0),
+        last_time(get_time()),
         out(out_),
         callback(callback_) {}
+
     // Update
-    void update() {
+    void count() {
         // Update Counter
         counter++;
+    }
+    void update() {
         // Get Delta
         const long long int time = get_time();
         const long long int delta = time - last_time;
@@ -51,7 +57,7 @@ struct Tracker {
     }
 };
 
-// Track FPS
+// Trackers
 static bool log_fps;
 double fps = 0;
 static void fps_callback() {
@@ -61,22 +67,24 @@ static void fps_callback() {
     }
 }
 static Tracker fps_tracker(fps, fps_callback);
-static void update_fps() {
-    fps_tracker.update();
-}
-
-// Track TPS
 double tps = 0;
 static Tracker tps_tracker(tps, nullptr);
-static void update_tps(MCPI_UNUSED Minecraft *minecraft) {
+
+// Recalculate Values
+static void on_frame() {
+    fps_tracker.count();
+    fps_tracker.update();
     tps_tracker.update();
+}
+static void on_tick(MCPI_UNUSED Minecraft *minecraft) {
+    tps_tracker.count();
 }
 
 // Init
 void init_fps() {
     if (!reborn_is_headless()) {
-        misc_run_on_swap_buffers(update_fps);
+        misc_run_on_swap_buffers(on_frame);
         log_fps = feature_has("Log FPS", server_disabled);
     }
-    misc_run_on_tick(update_tps);
+    misc_run_on_tick(on_tick);
 }
