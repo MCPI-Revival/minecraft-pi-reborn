@@ -104,6 +104,13 @@ if(CMAKE_C_COMPILER_ID STREQUAL "GNU")
         add_compile_options(-Wno-array-bounds -Wno-stringop-overread)
     endif()
 endif()
+if(MCPI_WIN32)
+    add_compile_definitions(
+        __MINGW_MSVC_COMPAT_WARNINGS
+        _CRT_SECURE_NO_WARNINGS
+        _CRT_NONSTDC_NO_DEPRECATE
+    )
+endif()
 
 # Build
 add_subdirectory(libreborn)
