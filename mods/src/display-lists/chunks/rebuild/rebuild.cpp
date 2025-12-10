@@ -20,7 +20,7 @@ static void LevelRenderer_setLevel_injection(LevelRenderer_setLevel_t original, 
         _stop_chunk_rebuild_thread();
     }
 }
-static LevelRenderer *LevelRenderer_destructor_injection_2(LevelRenderer_destructor_complete_t original, LevelRenderer *self) {
+static LevelRenderer *LevelRenderer_destructor_injection(LevelRenderer_destructor_complete_t original, LevelRenderer *self) {
     _stop_chunk_rebuild_thread();
     return original(self);
 }
@@ -120,7 +120,7 @@ void _free_rebuilt_chunk_data(const rebuilt_chunk_data *chunk) {
 void _init_display_lists_chunks_rebuild() {
     // Start/Stop Thread
     overwrite_calls(LevelRenderer_setLevel, LevelRenderer_setLevel_injection);
-    overwrite_calls(LevelRenderer_destructor_complete, LevelRenderer_destructor_injection_2);
+    overwrite_calls(LevelRenderer_destructor_complete, LevelRenderer_destructor_injection);
     overwrite_calls(NinecraftApp_teardown, NinecraftApp_teardown_injection);
 
     // Build Chunks

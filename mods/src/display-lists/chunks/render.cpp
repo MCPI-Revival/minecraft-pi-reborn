@@ -27,7 +27,7 @@ static void LevelRenderer_onGraphicsReset_injection(LevelRenderer_onGraphicsRese
     // Call Original Method
     original(self);
 }
-static LevelRenderer *LevelRenderer_destructor_injection_1(LevelRenderer_destructor_complete_t original, LevelRenderer *self) {
+static LevelRenderer *LevelRenderer_destructor_injection(LevelRenderer_destructor_complete_t original, LevelRenderer *self) {
     // Delete Display Lists
     delete_lists(self);
     // Call Original Method
@@ -89,7 +89,7 @@ void _init_display_lists_chunks_render() {
     // Create/Delete Display Lists
     overwrite_calls(LevelRenderer_constructor, LevelRenderer_constructor_injection);
     overwrite_calls(LevelRenderer_onGraphicsReset, LevelRenderer_onGraphicsReset_injection);
-    overwrite_calls(LevelRenderer_destructor_complete, LevelRenderer_destructor_injection_1);
+    overwrite_calls(LevelRenderer_destructor_complete, LevelRenderer_destructor_injection);
 
     // Disable Creating/Deleting Buffers
     for (const uint32_t addr : {0x4e6f8, 0x4e51c, 0x4e564}) {

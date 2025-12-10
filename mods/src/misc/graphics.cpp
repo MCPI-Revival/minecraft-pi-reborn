@@ -5,6 +5,7 @@
 #include <libreborn/patch.h>
 #include <libreborn/config.h>
 #include <libreborn/env/env.h>
+#include <libreborn/util/util.h>
 
 #include <symbols/minecraft.h>
 
@@ -276,6 +277,17 @@ static void EntityRenderDispatcher_assign_injection(EntityRenderDispatcher_assig
 }
 
 // Modify Entity Rendering
+static bool is_lighting_enabled = false;
+#define TRACK_LIGHTING(mode, val) \
+    HOOK(mode, void, (const GLenum cap)) { \
+        if (cap == GL_LIGHTING) { \
+            is_lighting_enabled = val; \
+        } \
+        real_##mode()(cap); \
+    }
+TRACK_LIGHTING(media_glEnable, true)
+TRACK_LIGHTING(media_glDisable, false)
+#undef TRACK_LIGHTING
 static bool should_render_fire;
 static bool should_render_shadows;
 static void EntityRenderDispatcher_render_EntityRenderer_render_injection(EntityRenderer *self, Entity *entity, float x, float y, float z, float rot, float unknown) {
@@ -287,7 +299,7 @@ static void EntityRenderDispatcher_render_EntityRenderer_render_injection(Entity
     }
     // Render Fire
     if (should_render_fire) {
-        const bool was_lighting_enabled = media_glIsEnabled(GL_LIGHTING);
+        const bool was_lighting_enabled = is_lighting_enabled;
         media_glDisable(GL_LIGHTING);
         render_fire(self, entity, x, y, z);
         if (was_lighting_enabled) {

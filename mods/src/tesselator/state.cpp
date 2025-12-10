@@ -2,14 +2,8 @@
 
 // Init
 CustomTesselator::CustomTesselator(const bool create_buffers) {
-    if (create_buffers) {
-        buffer_count = 128;
-        buffers = new GLuint[buffer_count];
-    } else {
-        buffers = nullptr;
-        buffer_count = 0;
-    }
-    next_buffer_index = 0;
+    has_buffer = create_buffers;
+    buffer_size = 0;
     are_vertices_flat = false;
     enable_real_quads = false;
     offset.x = 0;
@@ -37,15 +31,14 @@ static void Tesselator_clear_injection(MCPI_UNUSED Tesselator *self) {
     advanced_tesselator_get().clear();
 }
 static void Tesselator_init_injection(MCPI_UNUSED Tesselator *self) {
-    const CustomTesselator &t = advanced_tesselator_get();
-    if (t.buffer_count > 0) {
-        media_glGenBuffers(t.buffer_count, t.buffers);
+    CustomTesselator &t = advanced_tesselator_get();
+    if (t.has_buffer > 0) {
+        media_glGenBuffers(1, &t.buffer);
     }
 }
 CustomTesselator::~CustomTesselator() {
-    if (buffer_count > 0) {
-        media_glDeleteBuffers(buffer_count, buffers);
-        delete[] buffers;
+    if (has_buffer) {
+        media_glDeleteBuffers(1, &buffer);
     }
 }
 
@@ -64,7 +57,7 @@ static void Tesselator_begin_injection(MCPI_UNUSED Tesselator *self, const int m
 static void Tesselator_voidBeginAndEndCalls_injection(Tesselator *self, const bool x) {
     CustomTesselator &t = advanced_tesselator_get();
     t.void_begin_end = x;
-    if (t.buffer_count > 0) {
+    if (t.has_buffer) {
         // On Main-Thread
         self->void_begin_end = x;
     }

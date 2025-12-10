@@ -63,13 +63,15 @@ static void Minecraft_tick_injection(const Minecraft *minecraft) {
 #define PIXEL_SIZE 4
 static int get_line_size(const int width) {
     int line_size = width * PIXEL_SIZE;
-    {
-        // Handle Alignment
-        int alignment;
+    // Handle Alignment
+    static int alignment;
+    static bool loaded = false;
+    if (!loaded) {
         media_glGetIntegerv(GL_UNPACK_ALIGNMENT, &alignment);
-        // Round
-        line_size = align_up(line_size, alignment);
+        loaded = true;
     }
+    // Round
+    line_size = align_up(line_size, alignment);
     return line_size;
 }
 static unsigned char *scale_texture(const unsigned char *src, const GLsizei old_width, const GLsizei old_height, const GLsizei new_width, const GLsizei new_height) {

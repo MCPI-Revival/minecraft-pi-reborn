@@ -4,7 +4,7 @@
 static void clamp_color(int &x) {
     x = std::max(0, std::min(255, x));
 }
-static void Tesselator_color_injection(MCPI_UNUSED Tesselator *self, int r, int g, int b, int a) {
+__attribute__((hot)) static void Tesselator_color_injection(MCPI_UNUSED Tesselator *self, int r, int g, int b, int a) {
     CustomTesselator &t = advanced_tesselator_get();
     if (t.no_color) {
         return;
@@ -15,7 +15,7 @@ static void Tesselator_color_injection(MCPI_UNUSED Tesselator *self, int r, int 
     clamp_color(a);
     t.color = (a << 24) | (b << 16) | (g << 8) | (r << 0);
 }
-static void Tesselator_colorABGR_injection(MCPI_UNUSED Tesselator *self, const uint color) {
+__attribute__((hot)) static void Tesselator_colorABGR_injection(MCPI_UNUSED Tesselator *self, const uint color) {
     CustomTesselator &t = advanced_tesselator_get();
     if (t.no_color) {
         return;
@@ -26,15 +26,15 @@ static uint Tesselator_getColor_injection(MCPI_UNUSED Tesselator *self) {
     const std::optional<uint> color = advanced_tesselator_get().color;
     return color.value_or(0);
 }
-static void Tesselator_noColor_injection(MCPI_UNUSED Tesselator *self) {
+__attribute__((hot)) static void Tesselator_noColor_injection(MCPI_UNUSED Tesselator *self) {
     advanced_tesselator_get().no_color = true;
 }
-static void Tesselator_enableColor_injection(MCPI_UNUSED Tesselator *self) {
+__attribute__((hot)) static void Tesselator_enableColor_injection(MCPI_UNUSED Tesselator *self) {
     advanced_tesselator_get().no_color = false;
 }
 
 // Specify Texture
-static void Tesselator_tex_injection(MCPI_UNUSED Tesselator *self, const float u, const float v) {
+__attribute__((hot)) static void Tesselator_tex_injection(MCPI_UNUSED Tesselator *self, const float u, const float v) {
     CustomTesselator &t = advanced_tesselator_get();
     t.uv = {
         .u = u,
@@ -43,7 +43,7 @@ static void Tesselator_tex_injection(MCPI_UNUSED Tesselator *self, const float u
 }
 
 // Specify Normal
-static void Tesselator_normal_injection(MCPI_UNUSED Tesselator *self, const float nx, const float ny, const float nz) {
+__attribute__((hot)) static void Tesselator_normal_injection(MCPI_UNUSED Tesselator *self, const float nx, const float ny, const float nz) {
     CustomTesselator &t = advanced_tesselator_get();
     if (t.are_vertices_flat) {
         IMPOSSIBLE();
@@ -83,7 +83,7 @@ static void Tesselator_addOffset_injection(MCPI_UNUSED Tesselator *self, const f
 
 // Add Vertex
 TEMPLATE
-static void Tesselator_vertex_injection_impl(CustomTesselator &t, const Vertex *vertex) {
+__attribute__((hot, always_inline)) static inline void Tesselator_vertex_injection_impl(CustomTesselator &t, const Vertex *vertex) {
     // Add To Vector
     VertexArray<Vertex> &vertices = t.*VertexPtr;
     vertices.push_back(*vertex);
@@ -103,7 +103,7 @@ static void Tesselator_vertex_injection_impl(CustomTesselator &t, const Vertex *
         }
     }
 }
-static void Tesselator_vertex_injection(MCPI_UNUSED Tesselator *self, const float x, const float y, const float z) {
+__attribute__((hot)) static void Tesselator_vertex_injection(MCPI_UNUSED Tesselator *self, const float x, const float y, const float z) {
     // Create Vertex
     CustomTesselator &t = advanced_tesselator_get();
     CustomVertexShaded vertex = {};
@@ -128,7 +128,7 @@ static void Tesselator_vertex_injection(MCPI_UNUSED Tesselator *self, const floa
         return Tesselator_vertex_injection_impl<CustomVertexShaded, &CustomTesselator::vertices>(t, &vertex);
     }
 }
-static void Tesselator_vertexUV_injection(MCPI_UNUSED Tesselator *self, const float x, const float y, const float z, const float u, const float v) {
+__attribute__((hot)) static void Tesselator_vertexUV_injection(MCPI_UNUSED Tesselator *self, const float x, const float y, const float z, const float u, const float v) {
     Tesselator_tex_injection(nullptr, u, v);
     Tesselator_vertex_injection(nullptr, x, y, z);
 }

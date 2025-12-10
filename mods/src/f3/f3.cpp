@@ -214,13 +214,14 @@ static void Gui_renderDebugInfo_injection(MCPI_UNUSED Gui_renderDebugInfo_t orig
             render_debug_info(self, get_debug_info_left(self->minecraft), false, pass);
             render_debug_info(self, get_debug_info_right(self->minecraft), true, pass);
             t.voidBeginAndEndCalls(false);
-            if (pass == 0) {
+            const bool use_blend = pass == 0;
+            if (use_blend) {
                 media_glEnable(GL_BLEND);
                 media_glDisable(GL_TEXTURE_2D);
                 media_glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
             }
             t.draw();
-            if (pass == 0) {
+            if (use_blend) {
                 media_glEnable(GL_TEXTURE_2D);
                 media_glDisable(GL_BLEND);
             }

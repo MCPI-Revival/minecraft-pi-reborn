@@ -10,8 +10,13 @@
 
 // Compile Trampoline Arguments
 template <typename T>
-void _handle_trampoline_arg(unsigned char *&out, const T &arg) {
+__attribute__((hot, always_inline)) static inline void _handle_trampoline_arg(unsigned char *&out, const T &arg) {
     block_pointer(T);
+    const uintptr_t diff = uintptr_t(out) % alignof(T);
+    if (diff > 0) [[unlikely]] {
+        // Bad Alignment
+        IMPOSSIBLE();
+    }
     *(T *) out = arg;
     out += sizeof(T);
 }
@@ -25,16 +30,19 @@ struct copy_array {
         }
         size = length * sizeof(T);
         data = arr;
+        align = alignof(T[]);
     }
     explicit copy_array(const char *str) {
         size = str != nullptr ? (strlen(str) + 1) : 0;
         data = str;
+        align = 1;
     }
     uint32_t size;
     const void *data;
+    int align;
 };
 template <>
-inline void _handle_trampoline_arg<copy_array>(unsigned char *&out, const copy_array &arg) {
+__attribute__((hot, always_inline)) inline void _handle_trampoline_arg<copy_array>(unsigned char *&out, const copy_array &arg) {
     // Send Size
     _handle_trampoline_arg(out, arg.size);
     // Send Data
@@ -43,6 +51,11 @@ inline void _handle_trampoline_arg<copy_array>(unsigned char *&out, const copy_a
         if (just_send_pointer) {
             _handle_trampoline_arg(out, uint32_t(arg.data));
         } else {
+            const uintptr_t diff = uintptr_t(out) % arg.align;
+            if (diff > 0) [[unlikely]] {
+                // Bad Alignment
+                IMPOSSIBLE();
+            }
             memcpy(out, arg.data, arg.size);
             out += arg.size;
         }
@@ -51,7 +64,7 @@ inline void _handle_trampoline_arg<copy_array>(unsigned char *&out, const copy_a
 
 // Main Trampoline Function
 template <typename... Args>
-unsigned int _trampoline(const unsigned int id, const bool allow_early_return, const Args&... args) {
+__attribute__((hot, always_inline)) static inline unsigned int _trampoline(const unsigned int id, const bool allow_early_return, const Args&... args) {
     // Create Arguments
     static unsigned char out[MAX_TRAMPOLINE_ARGS_SIZE];
     unsigned char *end = out;
@@ -60,7 +73,7 @@ unsigned int _trampoline(const unsigned int id, const bool allow_early_return, c
     // Call
     uint32_t ret = 0;
     const uint32_t err = raw_trampoline(id, allow_early_return ? nullptr : &ret, length, out);
-    if (err != 0) {
+    if (err != 0) [[unlikely]] {
         ERR("Trampoline Error: %u", err);
     }
     return ret;

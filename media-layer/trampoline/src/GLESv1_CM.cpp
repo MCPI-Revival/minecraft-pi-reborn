@@ -24,60 +24,76 @@ CALL(11, media_glFogfv, void, (const GLenum pname, const GLfloat *params))
 
 // Track GL State
 struct gl_array_details_t {
-    GLint size = -1;
+    bool dirty = false;
+    bool enabled = false;
+    GLint size = 0;
     GLenum type = 0;
     GLsizei stride = 0;
     uint32_t pointer = 0;
+    void update(const bool enabled_, const GLint size_, const GLenum type_, const GLsizei stride_, const uint32_t pointer_) {
+        if (enabled != enabled_ || size != size_ || type != type_ || stride != stride_ || pointer != pointer_) {
+            // Array Details Have Changed!
+            enabled = enabled_;
+            size = size_;
+            type = type_;
+            stride = stride_;
+            pointer = pointer_;
+            dirty = true;
+        }
+    }
 };
-#ifdef MEDIA_LAYER_TRAMPOLINE_GUEST
-struct gl_array_details_obj_t {
-    gl_array_details_t media_glVertexPointer;
-    gl_array_details_t media_glColorPointer;
-    gl_array_details_t media_glTexCoordPointer;
-    gl_array_details_t media_glNormalPointer;
-};
-static gl_array_details_obj_t gl_array_details;
-#endif
 struct gl_state_t {
     GLuint bound_array_buffer = 0;
     GLuint bound_texture = 0;
-    bool vertex_array_enabled = false;
-    bool color_array_enabled = false;
-    bool tex_coord_array_enabled = false;
-    bool normal_array_enabled = false;
+    struct {
+        gl_array_details_t media_glVertexPointer;
+        gl_array_details_t media_glColorPointer;
+        gl_array_details_t media_glTexCoordPointer;
+        gl_array_details_t media_glNormalPointer;
+        void set_all_dirty(const bool x) {
+            media_glVertexPointer.dirty = x;
+            media_glColorPointer.dirty = x;
+            media_glTexCoordPointer.dirty = x;
+            media_glNormalPointer.dirty = x;
+        }
+    } array_details;
     bool in_display_list = false;
-    // Update State
-    bool &get_array_enabled(const GLenum array) {
+
+    // Get Array Details
+    gl_array_details_t &get_array_details(const GLenum array) {
         switch (array) {
-            case GL_VERTEX_ARRAY: {
-                return vertex_array_enabled;
-            }
-            case GL_COLOR_ARRAY: {
-                return color_array_enabled;
-            }
-            case GL_TEXTURE_COORD_ARRAY: {
-                return tex_coord_array_enabled;
-            }
-            case GL_NORMAL_ARRAY: {
-                return normal_array_enabled;
-            }
-            default: {
-                ERR("Unsupported Array Type: %i", array);
-            }
+            case GL_VERTEX_ARRAY: return array_details.media_glVertexPointer;
+            case GL_COLOR_ARRAY: return array_details.media_glColorPointer;
+            case GL_TEXTURE_COORD_ARRAY: return array_details.media_glTexCoordPointer;
+            case GL_NORMAL_ARRAY: return array_details.media_glNormalPointer;
+            default: ERR("Unsupported Array Type: %i", array);
         }
     }
-    [[nodiscard]] bool get_array_enabled_const(const GLenum array) const {
-        return const_cast<gl_state_t *>(this)->get_array_enabled(array);
+    [[nodiscard]] const gl_array_details_t &get_array_details_const(const GLenum array) const {
+        return const_cast<gl_state_t *>(this)->get_array_details(array);
     }
+
 #ifndef MEDIA_LAYER_TRAMPOLINE_GUEST
+    // Send Array State To Driver
     void send_array_to_driver(const GLenum array) const {
-        const bool state = get_array_enabled_const(array);
-        if (state) {
+        const gl_array_details_t &state = get_array_details_const(array);
+        if (!in_display_list && !state.dirty) {
+            return;
+        }
+        if (state.enabled) {
             media_glEnableClientState(array);
+            switch (array) {
+                case GL_VERTEX_ARRAY: media_glVertexPointer(state.size, state.type, state.stride, (void *) (uintptr_t) state.pointer); break;
+                case GL_COLOR_ARRAY: media_glColorPointer(state.size, state.type, state.stride, (void *) (uintptr_t) state.pointer); break;
+                case GL_TEXTURE_COORD_ARRAY: media_glTexCoordPointer(state.size, state.type, state.stride, (void *) (uintptr_t) state.pointer); break;
+                case GL_NORMAL_ARRAY: media_glNormalPointer(state.type, state.stride, (void *) (uintptr_t) state.pointer); break;
+                default: IMPOSSIBLE();
+            }
         } else {
             media_glDisableClientState(array);
         }
     }
+    // Send State To Driver
     void send_to_driver() const {
         send_array_to_driver(GL_VERTEX_ARRAY);
         send_array_to_driver(GL_COLOR_ARRAY);
@@ -97,43 +113,27 @@ static gl_state_t gl_state;
 // Backup/Restore State (For Offscreen Rendering)
 #ifdef MEDIA_LAYER_TRAMPOLINE_GUEST
 static gl_state_t gl_state_backup;
-static gl_array_details_obj_t gl_array_details_backup;
 void _media_backup_gl_state() {
     gl_state_backup = gl_state;
-    gl_array_details_backup = gl_array_details;
     gl_state = gl_state_t();
-    gl_array_details = gl_array_details_obj_t();
 }
 void _media_restore_gl_state() {
     gl_state = gl_state_backup;
-    gl_array_details = gl_array_details_backup;
 }
 #endif
 
 // 'pointer' Is Only Supported As An Integer, Not As An Actual Pointer
 #ifdef MEDIA_LAYER_TRAMPOLINE_GUEST
-#define CALL_GL_POINTER(unique_id, name) \
-    CALL(unique_id, name, void, (GLint size, GLenum type, GLsizei stride, const void *pointer)) \
-        gl_array_details_t &state = gl_array_details.name; \
-        if (state.size != size || state.type != type || state.stride != stride || state.pointer != uint32_t(pointer)) { \
-            state.size = size; \
-            state.type = type; \
-            state.stride = stride; \
-            state.pointer = uint32_t(pointer); \
-            trampoline(true, gl_state.bound_array_buffer, state); \
-        } \
+#define CALL_GL_POINTER(name) \
+    void name(GLint size, GLenum type, GLsizei stride, const void *pointer) { \
+        gl_array_details_t &obj = gl_state.array_details.name; \
+        obj.update(obj.enabled, size, type, stride, uint32_t(pointer)); \
     }
 #else
-#define CALL_GL_POINTER(unique_id, name) \
-    CALL(unique_id, name, unused, ()) \
-        media_glBindBuffer(GL_ARRAY_BUFFER, args.next<GLuint>()); \
-        const gl_array_details_t &state = args.next<gl_array_details_t>(); \
-        func(state.size, state.type, state.stride, (const void *) uintptr_t(state.pointer)); \
-        return 0; \
-    }
+#define CALL_GL_POINTER(name)
 #endif
 
-CALL_GL_POINTER(12, media_glVertexPointer)
+CALL_GL_POINTER(media_glVertexPointer)
 
 CALL(13, media_glLineWidth, void, (const GLfloat width))
 #ifdef MEDIA_LAYER_TRAMPOLINE_GUEST
@@ -158,6 +158,7 @@ CALL(14, media_glBlendFunc, void, (const GLenum sfactor, const GLenum dfactor))
 CALL(15, media_glDrawArrays, void, (const GLenum mode, const GLint first, const GLsizei count))
 #ifdef MEDIA_LAYER_TRAMPOLINE_GUEST
     trampoline(true, gl_state, mode, first, count);
+    gl_state.array_details.set_all_dirty(false);
 #else
     const gl_state_t &gl_state = args.next<gl_state_t>();
     gl_state.send_to_driver();
@@ -236,7 +237,7 @@ CALL(21, media_glMatrixMode, void, (const GLenum mode))
 #endif
 }
 
-CALL_GL_POINTER(22, media_glColorPointer)
+CALL_GL_POINTER(media_glColorPointer)
 
 CALL(23, media_glScissor, void, (const GLint x, const GLint y, const GLsizei width, const GLsizei height))
 #ifdef MEDIA_LAYER_TRAMPOLINE_GUEST
@@ -265,7 +266,8 @@ CALL(24, media_glTexParameteri, void, (const GLenum target, const GLenum pname, 
 }
 
 // Get Size (In Memory) Of Specified Texture
-static int get_texture_size(const GLsizei width, const GLsizei height, const GLenum format, const GLenum type, bool is_upload) {
+template <bool is_upload>
+static int get_texture_size(const GLsizei width, const GLsizei height, const GLenum format, const GLenum type) {
     // Calculate Per-Pixel Multiplier
     int multiplier;
     if (type == GL_UNSIGNED_BYTE) {
@@ -288,20 +290,20 @@ static int get_texture_size(const GLsizei width, const GLsizei height, const GLe
     }
     // Calculate Line Size
     int line_size = width * multiplier;
-    {
-        // Handle Alignment
-        int alignment;
+    static int alignment;
+    static bool loaded = false;
+    if (!loaded) {
         media_glGetIntegerv(is_upload ? GL_UNPACK_ALIGNMENT : GL_PACK_ALIGNMENT, &alignment);
-        // Round
-        line_size = align_up(line_size, alignment);
+        loaded = true;
     }
+    line_size = align_up(line_size, alignment);
     // Return
     return line_size * height;
 }
 
 CALL(25, media_glTexImage2D, void, (const GLenum target, const GLint level, const GLint internalformat, const GLsizei width, const GLsizei height, const GLint border, const GLenum format, const GLenum type, const void *pixels))
 #ifdef MEDIA_LAYER_TRAMPOLINE_GUEST
-    trampoline(true, gl_state.bound_texture, target, level, internalformat, width, height, border, format, type, copy_array(get_texture_size(width, height, format, type, true), (const unsigned char *) pixels));
+    trampoline(true, gl_state.bound_texture, target, level, internalformat, width, height, border, format, type, copy_array(get_texture_size<true>(width, height, format, type), (const unsigned char *) pixels));
 #else
     media_glBindTexture(GL_TEXTURE_2D, args.next<GLuint>());
     const GLenum target = args.next<GLenum>();
@@ -329,7 +331,8 @@ CALL(26, media_glEnable, void, (const GLenum cap))
 
 #ifdef MEDIA_LAYER_TRAMPOLINE_GUEST
 void media_glEnableClientState(const GLenum array) {
-    gl_state.get_array_enabled(array) = true;
+    gl_array_details_t &details = gl_state.get_array_details(array);
+    details.update(true, details.size, details.type, details.stride, details.pointer);
 }
 #endif
 
@@ -344,30 +347,12 @@ CALL(28, media_glPolygonOffset, void, (const GLfloat factor, const GLfloat units
 #endif
 }
 
-CALL_GL_POINTER(41, media_glTexCoordPointer)
+CALL_GL_POINTER(media_glTexCoordPointer)
 
 #ifdef MEDIA_LAYER_TRAMPOLINE_GUEST
 void media_glDisableClientState(const GLenum array) {
-    gl_state.get_array_enabled(array) = false;
-    switch (array) {
-        case GL_VERTEX_ARRAY: {
-            gl_array_details.media_glVertexPointer.size = -1;
-            break;
-        }
-        case GL_COLOR_ARRAY: {
-            gl_array_details.media_glColorPointer.size = -1;
-            break;
-        }
-        case GL_TEXTURE_COORD_ARRAY: {
-            gl_array_details.media_glTexCoordPointer.size = -1;
-            break;
-        }
-        case GL_NORMAL_ARRAY: {
-            gl_array_details.media_glNormalPointer.size = -1;
-            break;
-        }
-        default: {}
-    }
+    gl_array_details_t &details = gl_state.get_array_details(array);
+    details.update(false, details.size, details.type, details.stride, details.pointer);
 }
 #endif
 
@@ -394,14 +379,14 @@ CALL(31, media_glDepthFunc, void, (const GLenum func))
 #ifdef MEDIA_LAYER_TRAMPOLINE_GUEST
 void media_glBindBuffer(const GLenum target, const GLuint buffer) {
     if (target == GL_ARRAY_BUFFER) {
-        gl_state.bound_array_buffer = buffer;
+        GLuint &bound_buffer = gl_state.bound_array_buffer;
+        if (buffer != bound_buffer) {
+            bound_buffer = buffer;
+            gl_state.array_details.set_all_dirty(true);
+        }
     } else {
         ERR("Unsupported Buffer Binding: %u", target);
     }
-    gl_array_details.media_glVertexPointer.size = -1;
-    gl_array_details.media_glColorPointer.size = -1;
-    gl_array_details.media_glTexCoordPointer.size = -1;
-    gl_array_details.media_glNormalPointer.size = -1;
 }
 #endif
 
@@ -517,7 +502,7 @@ CALL(43, media_glColorMask, void, (const GLboolean red, const GLboolean green, c
 
 CALL(44, media_glTexSubImage2D, void, (const GLenum target, const GLint level, const GLint xoffset, const GLint yoffset, const GLsizei width, const GLsizei height, const GLenum format, const GLenum type, const void *pixels))
 #ifdef MEDIA_LAYER_TRAMPOLINE_GUEST
-    trampoline(true, gl_state.bound_texture, target, level, xoffset, yoffset, width, height, format, type, copy_array(get_texture_size(width, height, format, type, true), (const unsigned char *) pixels));
+    trampoline(true, gl_state.bound_texture, target, level, xoffset, yoffset, width, height, format, type, copy_array(get_texture_size<true>(width, height, format, type), (const unsigned char *) pixels));
 #else
     media_glBindTexture(GL_TEXTURE_2D, args.next<GLuint>());
     const GLenum target = args.next<GLenum>();
@@ -569,32 +554,16 @@ CALL(47, media_glAlphaFunc, void, (GLenum func, const GLclampf ref))
 #endif
 }
 
-#ifdef MEDIA_LAYER_TRAMPOLINE_HOST
-static int get_glGetFloatv_params_size(const GLenum pname) {
-    switch (pname) {
-        case GL_MODELVIEW_MATRIX:
-        case GL_PROJECTION_MATRIX: {
-            return 16;
-        }
-        case GL_ALIASED_LINE_WIDTH_RANGE: {
-            return 2;
-        }
-        default: {
-            ERR("Unsupported glGetFloatv Property: %u", pname);
-        }
-    }
-}
-#endif
 CALL(48, media_glGetFloatv, void, (const GLenum pname, GLfloat *params))
 #ifdef MEDIA_LAYER_TRAMPOLINE_GUEST
     trampoline(false, pname, uint32_t(params));
 #else
     const GLenum pname = args.next<GLenum>();
-    const int size = get_glGetFloatv_params_size(pname);
-    GLfloat *params = new GLfloat[size];
+    constexpr int matrx_size = 16;
+    GLfloat params[matrx_size];
     func(pname, params);
+    const int size = pname == GL_ALIASED_LINE_WIDTH_RANGE ? 2 : matrx_size;
     writer(args.next<uint32_t>(), params, size * sizeof(GLfloat));
-    delete[] params;
     return 0;
 #endif
 }
@@ -754,7 +723,7 @@ CALL(65, media_glReadPixels, void, (const GLint x, const GLint y, const GLsizei 
     const GLsizei height = args.next<GLsizei>();
     const GLenum format = args.next<GLenum>();
     const GLenum type = args.next<GLenum>();
-    const int data_size = get_texture_size(width, height, format, type, false);
+    const int data_size = get_texture_size<false>(width, height, format, type);
     unsigned char *data = new unsigned char[data_size];
     func(x, y, width, height, format, type, data);
     writer(args.next<uint32_t>(), data, data_size);
@@ -790,23 +759,12 @@ CALL(69, media_glBufferSubData, void, (const GLenum target, const GLintptr offse
 #endif
 }
 
-CALL(72, media_glNormalPointer, void, (const GLenum type, const GLsizei stride, const void *pointer))
 #ifdef MEDIA_LAYER_TRAMPOLINE_GUEST
-    gl_array_details_t &state = gl_array_details.media_glNormalPointer;
-    if (state.size == -1 || state.type != type || state.stride != stride || state.pointer != uint32_t(pointer)) {
-        state.size = 0;
-        state.type = type;
-        state.stride = stride;
-        state.pointer = uint32_t(pointer);
-        trampoline(true, gl_state.bound_array_buffer, state);
-    }
-#else
-    media_glBindBuffer(GL_ARRAY_BUFFER, args.next<GLuint>());
-    const gl_array_details_t &state = args.next<gl_array_details_t>();
-    func(state.type, state.stride, (const void *) uintptr_t(state.pointer));
-    return 0;
-#endif
+void media_glNormalPointer(const GLenum type, const GLsizei stride, const void *pointer) {
+    gl_array_details_t &obj = gl_state.array_details.media_glNormalPointer;
+    obj.update(obj.enabled, 0, type, stride, uint32_t(pointer));
 }
+#endif
 
 CALL(73, media_glLightfv, void, (const GLenum light, const GLenum pname, const GLfloat *params))
 #ifdef MEDIA_LAYER_TRAMPOLINE_GUEST
@@ -890,6 +848,7 @@ CALL(85, media_glCallLists, void, (const GLsizei n, const GLenum type, const GLv
     }
     const GLuint *int_lists = (const GLuint *) lists;
     trampoline(true, gl_state, type, copy_array(n, int_lists));
+    gl_state.array_details.set_all_dirty(false);
 #else
     const gl_state_t &gl_state = args.next<gl_state_t>();
     gl_state.send_to_driver();

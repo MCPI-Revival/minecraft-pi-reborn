@@ -69,9 +69,9 @@ struct CustomTesselator {
     int quad_to_triangle_tracker;
 
     // Buffers
-    GLsizei buffer_count;
-    GLuint *buffers;
-    uint next_buffer_index;
+    bool has_buffer;
+    GLuint buffer;
+    GLsizeiptr buffer_size;
 };
 
 // Method
