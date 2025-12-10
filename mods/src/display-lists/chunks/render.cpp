@@ -84,6 +84,11 @@ void LevelRenderer_renderSameAsLast(LevelRenderer *self, const float delta) {
     }
 }
 
+// Better Empty Chunk Logic
+static bool Chunk_isEmpty_injection(Chunk *self) {
+    return !self->built || self->is_empty;
+}
+
 // Init
 void _init_display_lists_chunks_render() {
     // Create/Delete Display Lists
@@ -100,4 +105,5 @@ void _init_display_lists_chunks_render() {
     // Render Chunks
     enabled = true;
     overwrite_calls(LevelRenderer_renderChunks, LevelRenderer_renderChunks_injection);
+    overwrite_call((void *) Chunk_isEmpty->backup, Chunk_isEmpty, Chunk_isEmpty_injection, true);
 }

@@ -1,3 +1,5 @@
+#include <malloc.h>
+
 #include <libreborn/log.h>
 
 #include "thread.h"
@@ -116,6 +118,9 @@ static void *chunk_building_thread_func(void *arg) {
             // Send Result
             _rebuilt_chunks.add(chunk->chunk, out);
             delete chunk;
+
+            // Force Release Memory
+            malloc_trim(0);
         }
     }
 }

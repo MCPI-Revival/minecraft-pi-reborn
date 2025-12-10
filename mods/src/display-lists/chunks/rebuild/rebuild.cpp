@@ -87,7 +87,7 @@ static void LevelRenderer_tick_injection(LevelRenderer_tick_t original, LevelRen
     original(self);
 
     // Receive Built Chunks
-    std::vector<void *> data;
+    static std::vector<void *> data;
     _rebuilt_chunks.receive(data, false);
     for (const void *msg : data) {
         // Check If Chunk Is Valid

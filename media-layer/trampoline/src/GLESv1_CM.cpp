@@ -95,14 +95,14 @@ struct gl_state_t {
     }
     // Send State To Driver
     void send_to_driver() const {
-        send_array_to_driver(GL_VERTEX_ARRAY);
-        send_array_to_driver(GL_COLOR_ARRAY);
-        send_array_to_driver(GL_TEXTURE_COORD_ARRAY);
-        send_array_to_driver(GL_NORMAL_ARRAY);
         if (!in_display_list) {
             media_glBindBuffer(GL_ARRAY_BUFFER, bound_array_buffer);
             media_glBindTexture(GL_TEXTURE_2D, bound_texture);
         }
+        send_array_to_driver(GL_VERTEX_ARRAY);
+        send_array_to_driver(GL_COLOR_ARRAY);
+        send_array_to_driver(GL_TEXTURE_COORD_ARRAY);
+        send_array_to_driver(GL_NORMAL_ARRAY);
     }
 #endif
 };
