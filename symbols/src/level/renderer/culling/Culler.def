@@ -1,0 +1,9 @@
+vtable 0x4a770;
+vtable-size 0x18;
+
+size 0x4;
+
+virtual-method bool isVisible(const AABB &aabb) = 0x8;
+virtual-method bool cubeInFrustum(float x1, float y1, float z1, float x2, float y2, float z2) = 0xc;
+virtual-method bool cubeFullyInFrustum(float x1, float y1, float z1, float x2, float y2, float z2) = 0x10;
+virtual-method void prepare(float x, float y, float z) = 0x14;

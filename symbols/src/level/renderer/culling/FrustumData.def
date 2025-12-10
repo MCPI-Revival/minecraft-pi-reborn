@@ -1,0 +1,6 @@
+size 0x4c0;
+
+property float data[16][16] = 0x0;
+property float projection[16] = 0x400;
+property float model_view[16] = 0x440;
+property float model_view_projection[16] = 0x480;

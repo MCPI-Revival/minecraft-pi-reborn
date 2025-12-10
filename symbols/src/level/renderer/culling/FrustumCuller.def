@@ -1,0 +1,11 @@
+extends Culler;
+
+vtable 0x106878;
+vtable-size 0x18;
+
+size 0x4d0;
+
+property FrustumData data = 0x4;
+property float x = 0x4c4;
+property float y = 0x4c8;
+property float z = 0x4cc;

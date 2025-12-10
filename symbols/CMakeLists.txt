@@ -132,6 +132,9 @@ set(SRC
     src/level/Region.def
     src/level/RegionFile.def
     src/level/DataLayer.def
+    src/level/renderer/culling/Culler.def
+    src/level/renderer/culling/FrustumCuller.def
+    src/level/renderer/culling/FrustumData.def
     src/item/ItemRenderer.def
     src/item/ItemInHandRenderer.def
     src/item/AuxDataTileItem.def
