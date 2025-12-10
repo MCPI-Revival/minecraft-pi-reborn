@@ -530,6 +530,29 @@ static int safe_log2(const int x) {
     return z;
 }
 
+// Optimized Culling
+static bool FrustumCuller_cubeInFrustum_injection(FrustumCuller *self, const float x1, const float y1, const float z1, const float x2, const float y2, const float z2) {
+    for (int i = 0; i < 6; i++) {
+        // Get Components
+        const float a = self->data.data[i][0];
+        const float b = self->data.data[i][1];
+        const float c = self->data.data[i][2];
+        const float d = self->data.data[i][3];
+        // Find "Positive Vertex"
+        const float x = (a > 0 ? x2 : x1) - self->x;
+        const float y = (b > 0 ? y2 : y1) - self->y;
+        const float z = (c > 0 ? z2 : z1) - self->z;
+        // Check
+        if (((a * x) + (b * y) + (c * z) + d) < 0) {
+            return false;
+        }
+    }
+    return true;
+}
+static bool FrustumCuller_isVisible_injection(FrustumCuller *self, const AABB &aabb) {
+    return FrustumCuller_cubeInFrustum_injection(self, aabb.x1, aabb.y1, aabb.z1, aabb.x2, aabb.y2, aabb.z2);
+}
+
 // Init
 void _init_misc_graphics() {
     // Disable V-Sync
@@ -681,6 +704,12 @@ void _init_misc_graphics() {
         patch((void *) 0x4f1ec, render_chunk_patch_seven);
         patch((void *) 0x4f1fc, render_chunk_patch_seven);
         patch((void *) 0x4f20c, render_chunk_patch_seven);
+    }
+
+    // Optimized Culling
+    if (feature_has("Optimize Frustum Culling", server_disabled)) {
+        overwrite_call((void *) FrustumCuller_cubeInFrustum->backup, FrustumCuller_cubeInFrustum, FrustumCuller_cubeInFrustum_injection, true);
+        overwrite_call((void *) FrustumCuller_isVisible->backup, FrustumCuller_isVisible, FrustumCuller_isVisible_injection, true);
     }
 
     // Don't Render Game In Headless Mode

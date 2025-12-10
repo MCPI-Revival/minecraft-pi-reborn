@@ -61,6 +61,7 @@ CATEGORY User Interface
 CATEGORY Rendering
     CATEGORY Optimizations
         TRUE Optimize Chunk Sorting
+        TRUE Optimize Frustum Culling
         TRUE Use OpenGL Display Lists
         FALSE Increase Render Chunk Size
     CATEGORY Camera

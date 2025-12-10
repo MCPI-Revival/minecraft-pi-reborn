@@ -83,6 +83,7 @@ include_toc: true
     * `Implement "Quit and copy map" Button` (Enabled By Default)
     * `Only Send Messages To Fully Connected Players` (Enabled By Default)
     * `Translucent Ice` (Disabled By Default)
+    * `Optimize Frustum Culling` (Enabled By Default)
   * New Bug Fixes (All Enabled By Default)
     * `Fix Held Item Caching`
     * `Fix Pigmen Burning In The Sun`
