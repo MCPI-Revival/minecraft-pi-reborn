@@ -1,5 +1,5 @@
 #include <libreborn/patch.h>
-#include <symbols/minecraft.h>
+#include <symbols/AppPlatform_linux.h>
 
 #include "internal.h"
 

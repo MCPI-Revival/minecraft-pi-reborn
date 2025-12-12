@@ -3,9 +3,25 @@
 #include <string>
 #include <unordered_set>
 
-#include <symbols/minecraft.h>
+#include <symbols/RakNet_RakPeer.h>
+#include <symbols/ServerPlayer.h>
+#include <symbols/Level.h>
+#include <symbols/RakNetInstance.h>
+#include <symbols/Minecraft.h>
+#include <symbols/RakNet_AddressOrGUID.h>
+#include <symbols/NetEventCallback.h>
+#include <symbols/ServerSideNetworkHandler.h>
+#include <symbols/SendInventoryPacket.h>
+#include <symbols/ExternalFileLevelStorage.h>
+#include <symbols/Inventory.h>
+#include <symbols/ContainerSetContentPacket.h>
+#include <symbols/Packet.h>
+#include <symbols/LevelSettings.h>
+#include <symbols/ProgressScreen.h>
+#include <symbols/ChunkSource.h>
+#include <symbols/CompoundTag.h>
 
-MCPI_INTERNAL std::string get_rak_net_guid_ip(RakNet_RakPeer *rak_peer, const RakNet_RakNetGUID &guid);
+MCPI_INTERNAL std::string get_rak_net_guid_ip(const RakNet_RakPeer *rak_peer, const RakNet_RakNetGUID &guid);
 
 MCPI_INTERNAL void handle_commands(Minecraft *minecraft);
 

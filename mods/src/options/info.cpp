@@ -3,7 +3,11 @@
 
 #include <media-layer/core.h>
 
-#include <symbols/minecraft.h>
+#include <symbols/Screen.h>
+#include <symbols/Button.h>
+#include <symbols/Font.h>
+#include <symbols/OptionsScreen.h>
+#include <symbols/Minecraft.h>
 
 #include <mods/touch/touch.h>
 #include <mods/misc/misc.h>
@@ -63,7 +67,7 @@ static info_line info[] = {
 };
 #define info_size int(sizeof(info) / sizeof(info_line))
 
-// Positioned Info
+// Positioned Information
 struct info_pos {
     int x;
     int y;

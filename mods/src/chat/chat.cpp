@@ -1,7 +1,14 @@
 #include <libreborn/patch.h>
 #include <libreborn/util/string.h>
 
-#include <symbols/minecraft.h>
+#include <symbols/ChatPacket.h>
+#include <symbols/Packet.h>
+#include <symbols/ServerSideNetworkHandler.h>
+#include <symbols/ServerPlayer.h>
+#include <symbols/MessagePacket.h>
+#include <symbols/Level.h>
+#include <symbols/RakNetInstance.h>
+#include <symbols/RakNet_RakString_SharedString.h>
 
 #include <mods/init/init.h>
 #include <mods/feature/feature.h>

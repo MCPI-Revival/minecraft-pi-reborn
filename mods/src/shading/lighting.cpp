@@ -1,5 +1,21 @@
 #include <GLES/gl.h>
-#include <symbols/minecraft.h>
+
+#include <symbols/Vec3.h>
+#include <symbols/LevelRenderer.h>
+#include <symbols/ItemInHandRenderer.h>
+#include <symbols/FallingTileRenderer.h>
+#include <symbols/FallingTile.h>
+#include <symbols/Mth.h>
+#include <symbols/Tile.h>
+#include <symbols/TileRenderer.h>
+#include <symbols/MobRenderer.h>
+#include <symbols/ArmorScreen.h>
+#include <symbols/ArrowRenderer.h>
+#include <symbols/Tesselator.h>
+#include <symbols/ItemRenderer.h>
+#include <symbols/ItemSpriteRenderer.h>
+#include <symbols/PaintingRenderer.h>
+
 #include <libreborn/patch.h>
 
 #include "internal.h"

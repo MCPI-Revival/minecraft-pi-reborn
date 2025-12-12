@@ -15,7 +15,40 @@
 #include <libreborn/util/util.h>
 #include <libreborn/env/env.h>
 
-#include <symbols/minecraft.h>
+#include <symbols/LoginPacket.h>
+#include <symbols/RakNet_RakString_SharedString.h>
+#include <symbols/FurnaceScreen.h>
+#include <symbols/FurnaceTileEntity.h>
+#include <symbols/ItemInstance.h>
+#include <symbols/FillingContainer.h>
+#include <symbols/Player.h>
+#include <symbols/Inventory.h>
+#include <symbols/RandomLevelSource.h>
+#include <symbols/PathfinderMob.h>
+#include <symbols/Entity.h>
+#include <symbols/AppPlatform.h>
+#include <symbols/PaneCraftingScreen.h>
+#include <symbols/CItem.h>
+#include <symbols/Item.h>
+#include <symbols/Minecraft.h>
+#include <symbols/LocalPlayer.h>
+#include <symbols/I18n.h>
+#include <symbols/Tile.h>
+#include <symbols/DoorTile.h>
+#include <symbols/Level.h>
+#include <symbols/Mth.h>
+#include <symbols/Monster.h>
+#include <symbols/ChestTile.h>
+#include <symbols/Screen.h>
+#include <symbols/TextEditScreen.h>
+#include <symbols/SignTileEntity.h>
+#include <symbols/TorchTile.h>
+#include <symbols/Chicken.h>
+#include <symbols/RegionFile.h>
+#include <symbols/AppPlatform_linux.h>
+#include <symbols/Zombie.h>
+#include <symbols/Skeleton.h>
+#include <symbols/NinecraftApp.h>
 
 #include <mods/init/init.h>
 #include <mods/feature/feature.h>
@@ -201,7 +234,7 @@ static void PaneCraftingScreen_craftSelectedItem_PaneCraftingScreen_recheckRecip
         Item *requested_item = Item::items[requested_item_instance.id];
         ItemInstance *craftingRemainingItem = requested_item->getCraftingRemainingItem(&requested_item_instance);
         if (craftingRemainingItem != nullptr) {
-            // Add or drop remainder
+            // Add or drop the remainder.
             LocalPlayer *player = self->minecraft->player;
             if (!player->inventory->add(craftingRemainingItem)) {
                 // Drop

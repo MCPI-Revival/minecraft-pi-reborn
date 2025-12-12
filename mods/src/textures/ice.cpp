@@ -1,7 +1,12 @@
 #include <libreborn/patch.h>
 #include <libreborn/util/util.h>
 
-#include <symbols/minecraft.h>
+#include <symbols/IceTile.h>
+#include <symbols/LevelSource.h>
+#include <symbols/Minecraft.h>
+#include <symbols/Textures.h>
+#include <symbols/Texture.h>
+
 #include <GLES/gl.h>
 
 #include <mods/misc/misc.h>
@@ -31,7 +36,7 @@ static int get_line_size(const int width, const int channels) {
     line_size = align_up(line_size, alignment);
     return line_size;
 }
-static void patch_texture(Minecraft *minecraft) {
+static void patch_texture(const Minecraft *minecraft) {
     // Constants
     constexpr int atlas_size_in_tiles = 16;
     constexpr int tile_size = 16;

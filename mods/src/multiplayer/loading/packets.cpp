@@ -102,10 +102,8 @@ static void ClientSideNetworkHandler_handle_ChunkDataPacket_injection(ClientSide
         chunk->x = packet->x;
         chunk->z = packet->z;
         int compressed_len;
-        static int total = 0;
         bool success = packet->data.Read_int(&compressed_len);
         if (success) {
-            total += compressed_len;
             uchar *compressed = new uchar[compressed_len];
             success = packet->data.Read_bytes(compressed, compressed_len);
             if (success) {

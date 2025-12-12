@@ -1,7 +1,25 @@
 #include <unordered_set>
 
 #include <libreborn/patch.h>
-#include <symbols/minecraft.h>
+
+#include <symbols/Minecraft.h>
+#include <symbols/Textures.h>
+#include <symbols/Texture.h>
+#include <symbols/LevelSource.h>
+#include <symbols/Level.h>
+#include <symbols/ServerLevel.h>
+#include <symbols/MultiPlayerLevel.h>
+#include <symbols/Region.h>
+#include <symbols/CreatorLevel.h>
+#include <symbols/GrassTile.h>
+#include <symbols/BiomeSource.h>
+#include <symbols/TallGrass.h>
+#include <symbols/Material.h>
+#include <symbols/TileRenderer.h>
+#include <symbols/StemTile.h>
+#include <symbols/LiquidTile.h>
+#include <symbols/LeafTile.h>
+
 #include <GLES/gl.h>
 
 #include <mods/feature/feature.h>
@@ -126,8 +144,8 @@ static bool TileRenderer_tesselateBlockInWorld_injection(TileRenderer_tesselateB
 
 // No Block Tinting
 template <typename T>
-static int32_t Tile_getColor_injection(MCPI_UNUSED const std::function<int(T *, LevelSource *, int, int, int)> &original, MCPI_UNUSED T *self, MCPI_UNUSED LevelSource *level_source, MCPI_UNUSED int x, MCPI_UNUSED int y, MCPI_UNUSED int z) {
-    return 0xffffff;
+static int32_t Tile_getColor_injection(MCPI_UNUSED const std::function<int(T *, LevelSource *, int, int, int)> &original, T *self, LevelSource *level_source, const int x, const int y, const int z) {
+    return Tile_getColor->get(false)((Tile *) self, level_source, x, y, z);
 }
 
 // Init

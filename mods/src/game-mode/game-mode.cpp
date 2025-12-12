@@ -1,6 +1,12 @@
 #include <libreborn/patch.h>
 
-#include <symbols/minecraft.h>
+#include <symbols/Minecraft.h>
+#include <symbols/GameMode.h>
+#include <symbols/CreatorMode.h>
+#include <symbols/SurvivalMode.h>
+#include <symbols/LocalPlayer.h>
+#include <symbols/ServerLevel.h>
+#include <symbols/CreatorLevel.h>
 
 #include <mods/init/init.h>
 #include <mods/feature/feature.h>

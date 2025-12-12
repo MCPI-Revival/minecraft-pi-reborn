@@ -1,4 +1,15 @@
-#include <symbols/minecraft.h>
+#include <symbols/Mob.h>
+#include <symbols/Level.h>
+#include <symbols/Entity.h>
+#include <symbols/LocalPlayer.h>
+#include <symbols/PlayerActionPacket.h>
+#include <symbols/Packet.h>
+#include <symbols/RakNetInstance.h>
+#include <symbols/ServerSideNetworkHandler.h>
+#include <symbols/LevelChunk.h>
+#include <symbols/Tile.h>
+#include <symbols/SetSpawnPositionPacket.h>
+
 #include <libreborn/patch.h>
 
 #include <mods/feature/feature.h>

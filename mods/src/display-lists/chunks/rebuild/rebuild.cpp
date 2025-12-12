@@ -1,6 +1,11 @@
 #include <libreborn/patch.h>
 
-#include <symbols/minecraft.h>
+#include <symbols/LevelRenderer.h>
+#include <symbols/NinecraftApp.h>
+#include <symbols/Chunk.h>
+#include <symbols/Level.h>
+#include <symbols/Tesselator.h>
+
 #include <GLES/gl.h>
 
 #include <mods/tesselator/tesselator.h>

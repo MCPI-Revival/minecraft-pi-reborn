@@ -2,7 +2,7 @@
 #include <libreborn/env/env.h>
 #include <libreborn/util/util.h>
 
-#include <symbols/minecraft.h>
+#include <symbols/Strings.h>
 
 #include "internal.h"
 

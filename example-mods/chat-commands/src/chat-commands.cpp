@@ -1,7 +1,9 @@
 #include <libreborn/util/util.h>
 #include <libreborn/util/string.h>
 
-#include <symbols/minecraft.h>
+#include <symbols/Minecraft.h>
+#include <symbols/CommandServer.h>
+#include <symbols/ChatPacket.h>
 
 #include <mods/chat/chat.h>
 #include <mods/misc/misc.h>

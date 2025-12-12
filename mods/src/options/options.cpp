@@ -10,7 +10,10 @@
 #include <libreborn/util/util.h>
 #include <libreborn/config.h>
 
-#include <symbols/minecraft.h>
+#include <symbols/LevelData.h>
+#include <symbols/Minecraft.h>
+#include <symbols/TileRenderer.h>
+#include <symbols/Strings.h>
 
 #include <mods/feature/feature.h>
 #include <mods/init/init.h>
@@ -85,7 +88,7 @@ def(fancy_grapohics, "gfx_fancygraphics");
 def(anaglyph_3d, "gfx_anaglyph");
 def(view_bobbing, "gfx_viewbobbing");
 #undef def
-static void Options_save_Options_addOptionToSaveOutput_injection(Options *options, std::vector<std::string> *data, std::string option, int32_t value) {
+static void Options_save_Options_addOptionToSaveOutput_injection(Options *options, std::vector<std::string> *data, std::string option, const int32_t value) {
     // Call Original Method
     options->addOptionToSaveOutput(data, option, value);
 

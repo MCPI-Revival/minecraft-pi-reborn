@@ -2,7 +2,11 @@
 #include <unistd.h>
 
 #include <libreborn/patch.h>
-#include <symbols/minecraft.h>
+
+#include <symbols/SoundEngine.h>
+#include <symbols/Options.h>
+#include <symbols/Mob.h>
+
 #include <media-layer/audio.h>
 
 #include "internal.h"

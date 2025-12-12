@@ -1,4 +1,12 @@
-#include <symbols/minecraft.h>
+#include <symbols/Tile.h>
+#include <symbols/LevelSource.h>
+#include <symbols/Level.h>
+#include <symbols/Player.h>
+#include <symbols/Material.h>
+#include <symbols/Item.h>
+#include <symbols/TilePlanterItem.h>
+#include <symbols/Recipes.h>
+#include <symbols/FillingContainer.h>
 
 #include <mods/feature/feature.h>
 #include <mods/init/init.h>

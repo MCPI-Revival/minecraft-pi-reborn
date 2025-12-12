@@ -105,7 +105,11 @@ void media_download_into_texture(const unsigned int texture, const char *url) {
     pending_textures.push_back(data);
     pthread_mutex_unlock(&pending_textures_lock);
     // Start Thread
-    pthread_create(&data->thread, nullptr, loader_thread, data);
+    const int ret = pthread_create(&data->thread, nullptr, loader_thread, data);
+    if (ret != 0) {
+        delete data;
+        IMPOSSIBLE();
+    }
 }
 
 // Cancel Download

@@ -4,7 +4,33 @@
 #include <vector>
 #include <optional>
 
-#include <symbols/minecraft.h>
+#include <symbols/CommandServer.h>
+#include <symbols/Vec3.h>
+#include <symbols/Minecraft.h>
+#include <symbols/Level.h>
+#include <symbols/Entity.h>
+#include <symbols/TileEntity.h>
+#include <symbols/SignTileEntity.h>
+#include <symbols/Mob.h>
+#include <symbols/ItemInstance.h>
+#include <symbols/ItemEntity.h>
+#include <symbols/LocalPlayer.h>
+#include <symbols/Item.h>
+#include <symbols/RakNetInstance.h>
+#include <symbols/Packet.h>
+#include <symbols/SetEntityMotionPacket.h>
+#include <symbols/TileEvent.h>
+#include <symbols/Arrow.h>
+#include <symbols/Throwable.h>
+#include <symbols/GameMode.h>
+#include <symbols/CreatorMode.h>
+#include <symbols/ItemInHandRenderer.h>
+#include <symbols/LevelListener.h>
+#include <symbols/LevelRenderer.h>
+#include <symbols/MovePlayerPacket.h>
+#include <symbols/ClientSideNetworkHandler.h>
+#include <symbols/ServerSideNetworkHandler.h>
+#include <symbols/ChatPacket.h>
 
 MCPI_INTERNAL extern bool api_compat_mode;
 

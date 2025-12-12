@@ -1,3 +1,5 @@
+#include <symbols/Tesselator.h>
+
 #include "internal.h"
 
 // Specify Color

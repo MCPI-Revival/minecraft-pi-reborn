@@ -1,6 +1,10 @@
 #pragma once
 
-#include <symbols/minecraft.h>
+struct ServerSideNetworkHandler;
+struct RakNet_RakNetGUID;
+struct ChatPacket;
+struct Player;
+struct Minecraft;
 
 extern "C" {
 // Override using the HOOK() macro to provide customized chat behavior.

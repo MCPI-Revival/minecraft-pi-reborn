@@ -2,6 +2,11 @@
 
 #include <libreborn/log.h>
 
+#include <symbols/Tesselator.h>
+#include <symbols/TileRenderer.h>
+#include <symbols/Tile.h>
+#include <symbols/Level.h>
+
 #include "thread.h"
 
 // Input/Output
@@ -151,6 +156,10 @@ void _start_chunk_rebuild_thread(Level *level) {
     }
     chunk_rebuild_thread_data *data = new chunk_rebuild_thread_data;
     data->seed = level->getSeed();
-    pthread_create(&chunk_rebuild_thread, nullptr, chunk_building_thread_func, data);
+    const int ret = pthread_create(&chunk_rebuild_thread, nullptr, chunk_building_thread_func, data);
+    if (ret != 0) {
+        delete data;
+        IMPOSSIBLE();
+    }
     chunk_rebuild_thread_running = true;
 }

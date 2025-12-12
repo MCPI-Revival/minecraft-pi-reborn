@@ -1,6 +1,12 @@
 #include <GLES/gl.h>
 
+#include <symbols/Tile.h>
+#include <symbols/TileRenderer.h>
+#include <symbols/Material.h>
+#include <symbols/Tesselator.h>
+
 #include <mods/shading/FallingSandRenderer.h>
+
 #include "FallingSandRenderer.h"
 
 // Custom Level Source

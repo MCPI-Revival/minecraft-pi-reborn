@@ -3,7 +3,7 @@
 #include <optional>
 
 #include <GLES/gl.h>
-#include <symbols/minecraft.h>
+#include <symbols/Vec3.h>
 
 // Structures
 struct UV {

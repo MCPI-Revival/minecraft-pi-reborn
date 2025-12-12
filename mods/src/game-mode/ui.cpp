@@ -1,7 +1,17 @@
 #include <string>
 #include <set>
 
-#include <symbols/minecraft.h>
+#include <symbols/LevelSummary.h>
+#include <symbols/Minecraft.h>
+#include <symbols/LevelStorageSource.h>
+#include <symbols/Button.h>
+#include <symbols/Strings.h>
+#include <symbols/Util.h>
+#include <symbols/LevelSettings.h>
+#include <symbols/ProgressScreen.h>
+#include <symbols/SelectWorldScreen.h>
+#include <symbols/Touch_SelectWorldScreen.h>
+#include <symbols/Common.h>
 
 #include <libreborn/patch.h>
 #include <libreborn/util/util.h>

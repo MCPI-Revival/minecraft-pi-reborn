@@ -9,7 +9,11 @@
 #include <libreborn/config.h>
 #include <libreborn/env/env.h>
 
-#include <symbols/minecraft.h>
+#include <symbols/Textures.h>
+#include <symbols/Texture.h>
+#include <symbols/DynamicTexture.h>
+#include <symbols/Minecraft.h>
+#include <symbols/AppPlatform_linux.h>
 
 #include <mods/misc/misc.h>
 #include <mods/feature/feature.h>

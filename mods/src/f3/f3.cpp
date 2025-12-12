@@ -3,7 +3,17 @@
 #include <sstream>
 #include <cmath>
 
-#include <symbols/minecraft.h>
+#include <symbols/Minecraft.h>
+#include <symbols/Level.h>
+#include <symbols/ClientSideNetworkHandler.h>
+#include <symbols/LocalPlayer.h>
+#include <symbols/CommandServer.h>
+#include <symbols/Tile.h>
+#include <symbols/I18n.h>
+#include <symbols/Entity.h>
+#include <symbols/Font.h>
+#include <symbols/Tesselator.h>
+
 #include <libreborn/patch.h>
 #include <libreborn/util/string.h>
 #include <GLES/gl.h>
@@ -136,7 +146,7 @@ static std::vector<std::string> get_debug_info_right(const Minecraft *minecraft)
                     }
                 }
                 type_info.push_back(format_type(id, name));
-                type_info.push_back("Data: " + safe_to_string(minecraft->level->getData(x, y, z)));
+                type_info.push_back("Data: " + safe_to_string(minecraft->level->getData(int(x), int(y), int(z))));
             }
             xyz_precision = 0;
         } else {

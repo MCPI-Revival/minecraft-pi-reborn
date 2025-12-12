@@ -4,7 +4,31 @@
 #include <libreborn/env/env.h>
 #include <libreborn/util/util.h>
 
-#include <symbols/minecraft.h>
+#include <symbols/Minecraft.h>
+#include <symbols/LocalPlayer.h>
+#include <symbols/Inventory.h>
+#include <symbols/Item.h>
+#include <symbols/FoodItem.h>
+#include <symbols/Screen.h>
+#include <symbols/GameRenderer.h>
+#include <symbols/Mouse.h>
+#include <symbols/Common.h>
+#include <symbols/FurnaceTileEntity.h>
+#include <symbols/PauseScreen.h>
+#include <symbols/RakNetInstance.h>
+#include <symbols/LevelRenderer.h>
+#include <symbols/Button.h>
+#include <symbols/SoundEngine.h>
+#include <symbols/TextEditScreen.h>
+#include <symbols/ItemInHandRenderer.h>
+#include <symbols/Textures.h>
+#include <symbols/Mth.h>
+#include <symbols/Level.h>
+#include <symbols/Tile.h>
+#include <symbols/ChunkSource.h>
+#include <symbols/LevelChunk.h>
+#include <symbols/RenameMPLevelScreen.h>
+#include <symbols/Strings.h>
 
 #include <media-layer/core.h>
 
@@ -59,7 +83,7 @@ static void Gui_renderHearts_GuiComponent_blit_overlay_hearts_injection(GuiCompo
     if (x2 == 52) {
         heal_amount_drawing += 2;
     } else if (x2 == 61 && heal_amount) {
-        // Half heart, flipped
+        // Half-heart, flipped
         get_blit_with_classic_hud_offset()(gui, x1, y1, PINK_HEART_FULL, 0, w1, h1, w2, h2);
         heal_amount_drawing += 1;
     }

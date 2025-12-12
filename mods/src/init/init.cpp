@@ -2,7 +2,7 @@
 #include <libreborn/config.h>
 
 #include <mods/init/init.h>
-#include <symbols/minecraft.h>
+#include <symbols/Minecraft.h>
 
 // Init
 __attribute__((constructor)) static void init() {

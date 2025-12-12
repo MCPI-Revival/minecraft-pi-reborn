@@ -7,8 +7,6 @@
 #include <libreborn/util/string.h>
 #include <libreborn/util/util.h>
 
-#include <symbols/minecraft.h>
-
 #include <mods/server/server.h>
 #include <mods/init/init.h>
 #include <mods/compat/compat.h>
@@ -177,8 +175,8 @@ static Player *ServerSideNetworkHandler_onReady_ClientGeneration_ServerSideNetwo
 }
 
 // Crash On Failed Level Loads
-static bool load_success;
-static bool file_exists;
+static volatile bool load_success;
+static volatile bool file_exists;
 static void ExternalFileLevelStorage_readLevelData_LevelData_v1_read_injection(LevelData *self, RakNet_BitStream &bit_stream, const int param_1) {
     load_success = true;
     self->v1_read(bit_stream, param_1);

@@ -1,4 +1,13 @@
 #include <bit>
+#include <new>
+
+#include <symbols/LevelChunk.h>
+#include <symbols/EmptyLevelChunk.h>
+#include <symbols/Level.h>
+#include <symbols/Dimension.h>
+#include <symbols/Tile.h>
+#include <symbols/Material.h>
+#include <symbols/LightLayer.h>
 
 #include "CachedLevelSource.h"
 

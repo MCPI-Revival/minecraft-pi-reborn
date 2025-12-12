@@ -1,3 +1,6 @@
+#include <symbols/Tesselator.h>
+#include <symbols/Common.h>
+
 #include "internal.h"
 
 // Draw To Buffer

@@ -1,7 +1,8 @@
 #include <libreborn/patch.h>
 #include <libreborn/config.h>
 
-#include <symbols/minecraft.h>
+#include <symbols/Strings.h>
+#include <symbols/Common.h>
 
 #include <mods/version/version.h>
 #include <mods/init/init.h>

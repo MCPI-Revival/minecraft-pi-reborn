@@ -1,6 +1,12 @@
 #include <libreborn/patch.h>
 
-#include <symbols/minecraft.h>
+#include <symbols/Item.h>
+#include <symbols/Inventory.h>
+#include <symbols/Tile.h>
+#include <symbols/TileItem.h>
+#include <symbols/AuxDataTileItem.h>
+#include <symbols/LocalPlayer.h>
+#include <symbols/Minecraft.h>
 
 #include <mods/init/init.h>
 #include <mods/feature/feature.h>

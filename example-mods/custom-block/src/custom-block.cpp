@@ -1,4 +1,11 @@
-#include <symbols/minecraft.h>
+#include <symbols/Tile.h>
+#include <symbols/Player.h>
+#include <symbols/Level.h>
+#include <symbols/Material.h>
+#include <symbols/FillingContainer.h>
+#include <symbols/ItemInstance.h>
+#include <symbols/I18n.h>
+
 #include <mods/misc/misc.h>
 
 // Custom Tile

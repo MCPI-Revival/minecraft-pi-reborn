@@ -1,6 +1,9 @@
 #pragma once
 
-#include <symbols/minecraft.h>
+#include <string>
+
+struct GuiComponent;
+struct Font;
 
 struct TextInputBox {
     explicit TextInputBox(const std::string &placeholder = "", const std::string &text = "");

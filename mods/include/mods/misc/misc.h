@@ -1,8 +1,16 @@
 #pragma once
 
 #include <functional>
+#include <map>
 
-#include <symbols/minecraft.h>
+struct Player;
+struct Minecraft;
+struct Mob;
+struct Recipes;
+struct FurnaceRecipes;
+struct FillingContainer;
+struct Entity;
+struct Level;
 
 extern "C" {
 int32_t misc_get_real_selected_slot(const Player *player);

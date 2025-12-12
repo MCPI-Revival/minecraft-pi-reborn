@@ -53,5 +53,9 @@ void Updater::start_thread(const std::function<void(Updater *)> &func) {
     thread_data *data = new thread_data;
     data->self = this;
     data->func = func;
-    pthread_create(&thread, nullptr, thread_func, data);
+    const int ret = pthread_create(&thread, nullptr, thread_func, data);
+    if (ret != 0) {
+        delete data;
+        IMPOSSIBLE();
+    }
 }

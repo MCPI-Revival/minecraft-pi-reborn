@@ -1,5 +1,7 @@
 #include <pthread.h>
 
+#include <symbols/Chunk.h>
+
 #include "internal.h"
 
 // Handle Terrain Rendering

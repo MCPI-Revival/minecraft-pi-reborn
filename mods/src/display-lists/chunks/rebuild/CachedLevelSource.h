@@ -1,6 +1,6 @@
 #pragma once
 
-#include <symbols/minecraft.h>
+#include <symbols/LevelSource.h>
 
 // Cache Chunk Information
 struct CachedLevelSource final : CustomLevelSource {

@@ -1,6 +1,12 @@
 #include <libreborn/patch.h>
 
-#include <symbols/minecraft.h>
+#include <symbols/Minecraft.h>
+#include <symbols/Screen.h>
+#include <symbols/OptionsScreen.h>
+#include <symbols/InBedScreen.h>
+#include <symbols/Touch_IngameBlockSelectionScreen.h>
+#include <symbols/LocalPlayer.h>
+
 #include <SDL/SDL.h>
 
 #include "internal.h"

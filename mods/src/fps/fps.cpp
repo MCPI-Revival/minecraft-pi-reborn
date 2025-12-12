@@ -1,8 +1,6 @@
 #include <libreborn/log.h>
 #include <libreborn/config.h>
 
-#include <symbols/minecraft.h>
-
 #include <mods/init/init.h>
 #include <mods/misc/misc.h>
 #include <mods/feature/feature.h>

@@ -2,7 +2,7 @@
 
 #include <string>
 
-#include <symbols/minecraft.h>
+#include <symbols/Minecraft.h>
 
 // Message Limitations
 #define MAX_CHAT_MESSAGE_LENGTH 256

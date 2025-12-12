@@ -16,7 +16,7 @@ static void x11_nop() {
 }
 static int SDL_GetWMInfo_injection(SDL_SysWMinfo *info) {
     // Return Fake Lock Functions Since XLib Isn't Directly Used
-    SDL_SysWMinfo ret;
+    SDL_SysWMinfo ret = {};
     ret.info.x11.lock_func = x11_nop;
     ret.info.x11.unlock_func = x11_nop;
     ret.info.x11.display = nullptr;

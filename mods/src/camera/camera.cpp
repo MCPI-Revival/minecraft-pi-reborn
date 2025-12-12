@@ -1,6 +1,11 @@
 #include <libreborn/patch.h>
 
-#include <symbols/minecraft.h>
+#include <symbols/AppPlatform.h>
+#include <symbols/EntityRenderDispatcher.h>
+#include <symbols/TripodCameraRenderer.h>
+#include <symbols/Level.h>
+#include <symbols/Tesselator.h>
+#include <symbols/TileRenderer.h>
 
 #include <GLES/gl.h>
 

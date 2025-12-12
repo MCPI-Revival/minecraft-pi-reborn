@@ -4,7 +4,7 @@
 #include <libreborn/util/util.h>
 #include <libreborn/config.h>
 
-#include <symbols/minecraft.h>
+#include <symbols/Keyboard.h>
 
 #include <mods/compat/compat.h>
 #include <mods/input/input.h>

@@ -2,7 +2,7 @@
 #include <media-layer/core.h>
 
 #include <libreborn/patch.h>
-#include <symbols/minecraft.h>
+#include <symbols/Minecraft.h>
 
 #include <mods/misc/misc.h>
 

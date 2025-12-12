@@ -1,6 +1,6 @@
 #pragma once
 
-#include <symbols/minecraft.h>
+#include <functional>
 
 #include "properties.h"
 
@@ -13,8 +13,12 @@ struct ServerCommand {
     [[nodiscard]] std::string get_full_help(int max_lhs_length) const;
 };
 
+struct Minecraft;
+struct ServerSideNetworkHandler;
+struct ServerPlayer;
+
+ServerProperties &get_server_properties();
 extern "C" {
 std::vector<ServerCommand> *server_get_commands(Minecraft *minecraft, ServerSideNetworkHandler *server_side_network_handler);
-ServerProperties &get_server_properties();
 void server_kick(const ServerPlayer *player);
 }

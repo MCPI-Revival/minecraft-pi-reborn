@@ -4,8 +4,6 @@
 #include <libreborn/log.h>
 #include <libreborn/util/string.h>
 
-#include <symbols/minecraft.h>
-
 #include <mods/misc/misc.h>
 #include <mods/compat/compat.h>
 #include <mods/fps/fps.h>
@@ -57,7 +55,7 @@ static void kill_callback(MCPI_UNUSED Minecraft *minecraft, const std::string &u
 
 // List Player
 static void list_callback(Minecraft *minecraft, const std::string &username, Player *player) {
-    RakNet_RakPeer *rak_peer = minecraft->rak_net_instance->peer;
+    const RakNet_RakPeer *rak_peer = minecraft->rak_net_instance->peer;
     const RakNet_RakNetGUID guid = ((ServerPlayer *) player)->guid;
     INFO(" - %s (%s)", username.c_str(), get_rak_net_guid_ip(rak_peer, guid).c_str());
 }

@@ -2,11 +2,16 @@
 #include <cstdint>
 
 #include <libreborn/patch.h>
-#include <symbols/minecraft.h>
+
+#include <symbols/DynamicTexture.h>
+#include <symbols/Tile.h>
+#include <symbols/Mth.h>
+#include <symbols/Random.h>
+#include <symbols/Textures.h>
 
 #include "internal.h"
 
-// Lava texture code was originally decompiled by @iProgramMC as part of ReMinecraftPE.
+// @iProgramMC originally decompiled the lava texture code as part of ReMinecraftPE.
 // See: https://github.com/ReMinecraftPE/mcpe
 
 // LavaTexture
@@ -154,7 +159,7 @@ struct FireTexture final : CustomDynamicTexture {
         for (int i = 0; i < 16; i++) {
             for (int j = 0; j < 20; j++) {
                 int l = 18;
-                float f1 = m_data1[i + ((j + 1) % 20) * 16] * l;
+                float f1 = m_data1[i + ((j + 1) % 20) * 16] * float(l);
                 for (int i1 = i - 1; i1 <= i + 1; i1++) {
                     for (int k1 = j; k1 <= j + 1; k1++) {
                         const int i2 = i1;
@@ -173,7 +178,7 @@ struct FireTexture final : CustomDynamicTexture {
                         uint8_t b[4];
                     } a = {};
                     a.x = m_random->genrand_int32();
-                    m_data2[i + j * 16] = 0.2f + (((a.b[3] / 256.0f) * 0.1f) + ((((a.b[0] / 256.0f) * (a.b[1] / 256.0f)) * (a.b[2] / 256.0f)) * 4.0f));
+                    m_data2[i + j * 16] = 0.2f + (((float(a.b[3]) / 256.0f) * 0.1f) + ((((float(a.b[0]) / 256.0f) * (float(a.b[1]) / 256.0f)) * (float(a.b[2]) / 256.0f)) * 4.0f));
                 }
             }
         }

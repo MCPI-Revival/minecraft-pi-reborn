@@ -1,4 +1,7 @@
-#include <symbols/minecraft.h>
+#include <symbols/GuiComponent.h>
+#include <symbols/Minecraft.h>
+#include <symbols/Font.h>
+
 #include <libreborn/patch.h>
 
 #include <mods/init/init.h>
@@ -16,7 +19,7 @@
 #define DEFAULT_BUBBLES_PADDING 1
 #define NUMBER_OF_SLOTS 9
 static bool use_classic_hud = false;
-static void Gui_renderHearts_GuiComponent_blit_hearts_injection(GuiComponent *component, int32_t x_dest, int32_t y_dest, int32_t x_src, int32_t y_src, int32_t width_dest, int32_t height_dest, int32_t width_src, int32_t height_src) {
+static void Gui_renderHearts_GuiComponent_blit_hearts_injection(GuiComponent *component, int32_t x_dest, int32_t y_dest, const int32_t x_src, const int32_t y_src, const int32_t width_dest, const int32_t height_dest, const int32_t width_src, const int32_t height_src) {
     const Minecraft *minecraft = ((Gui *) component)->minecraft;
     x_dest -= DEFAULT_HUD_PADDING;
     const float width = float(minecraft->screen_width) * Gui::InvGuiScale;
@@ -104,7 +107,7 @@ static void Gui_renderSlotText_injection_inventory(Gui *self, const ItemInstance
 template <auto *const func>
 static void Gui_renderSlotText_Font_draw_injection(Font *self, const char *raw_string, float x, float y, uint color) {
     // Fix X
-    std::string string = raw_string;
+    const std::string string = raw_string;
     x -= self->width(string);
     // Fix Color
     if (color == 0xffcccccc) {

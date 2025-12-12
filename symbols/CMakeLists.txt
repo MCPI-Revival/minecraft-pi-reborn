@@ -252,30 +252,28 @@ set_and_mkdir(INCLUDE_OUTPUT_DIR "${GENERATED_DIR}/include")
 set_and_mkdir(HEADER_OUTPUT_DIR "${INCLUDE_OUTPUT_DIR}/symbols")
 set_and_mkdir(SRC_OUTPUT_DIR "${GENERATED_DIR}/src")
 
-# Generated Header File
-set(HEADER_OUTPUT_FILE "${HEADER_OUTPUT_DIR}/minecraft.h")
-
 # Generated Source Files
-set(SRC_OUTPUT_FILES "")
+set(OUTPUT_FILES "")
 foreach(file IN LISTS SRC)
     cmake_path(GET file EXTENSION file_ext)
     if(file_ext STREQUAL ".def")
         cmake_path(GET file STEM file)
-        list(APPEND SRC_OUTPUT_FILES "${SRC_OUTPUT_DIR}/${file}.cpp")
+        list(APPEND OUTPUT_FILES "${SRC_OUTPUT_DIR}/${file}.cpp")
+        list(APPEND OUTPUT_FILES "${HEADER_OUTPUT_DIR}/${file}.h")
     endif()
 endforeach()
+list(APPEND OUTPUT_FILES "${HEADER_OUTPUT_DIR}/__common.h")
 
 # Generate
 set(INPUT_FILES "")
 foreach(file IN LISTS SRC)
     list(APPEND INPUT_FILES "${CMAKE_CURRENT_SOURCE_DIR}/${file}")
 endforeach()
-set(OUTPUT_FILES ${SRC_OUTPUT_FILES} "${HEADER_OUTPUT_FILE}")
 add_custom_command(OUTPUT ${OUTPUT_FILES}
     DEPENDS ${INPUT_FILES}
     COMMAND
         "npm" "start" "--silent" "--"
-        "${SRC_OUTPUT_DIR}" "${HEADER_OUTPUT_FILE}"
+        "${SRC_OUTPUT_DIR}" "${HEADER_OUTPUT_DIR}"
         ${INPUT_FILES}
     WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/../dependencies/symbol-processor/src"
     VERBATIM

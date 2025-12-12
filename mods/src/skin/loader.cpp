@@ -2,7 +2,7 @@
 #include <libreborn/env/env.h>
 #include <libreborn/config.h>
 
-#include <symbols/minecraft.h>
+#include <symbols/Textures.h>
 
 #include <media-layer/core.h>
 

@@ -1,7 +1,5 @@
 #pragma once
 
-#include <symbols/minecraft.h>
-
 MCPI_INTERNAL extern const std::string sound_doc_url;
 
 MCPI_INTERNAL void _init_options_ui();

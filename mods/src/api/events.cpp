@@ -189,7 +189,7 @@ static void Arrow_tick_injection(Arrow_tick_t original, Arrow *self) {
     current_shooter = self->level->getEntity(self->getAuxData());
     original(self);
 }
-static bool Arrow_tick_Entity_hurt_injection(Entity *self, MCPI_UNUSED Entity *cause, int damage) {
+static bool Arrow_tick_Entity_hurt_injection(Entity *self, MCPI_UNUSED Entity *cause, const int damage) {
     on_projectile_hit(current_shooter, self);
     // Call Original Method
     return self->hurt(cause, damage);

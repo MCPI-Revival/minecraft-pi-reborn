@@ -3,7 +3,16 @@
 
 #include <libreborn/patch.h>
 #include <libreborn/env/env.h>
-#include <symbols/minecraft.h>
+
+#include <symbols/Minecraft.h>
+#include <symbols/Textures.h>
+#include <symbols/StartMenuScreen.h>
+#include <symbols/Texture.h>
+#include <symbols/Strings.h>
+#include <symbols/Tesselator.h>
+#include <symbols/Touch_StartMenuScreen.h>
+#include <symbols/Mth.h>
+
 #include <GLES/gl.h>
 
 #include <mods/feature/feature.h>

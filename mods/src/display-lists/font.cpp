@@ -1,5 +1,8 @@
 #include <libreborn/patch.h>
-#include <symbols/minecraft.h>
+
+#include <symbols/Font.h>
+#include <symbols/Tesselator.h>
+#include <symbols/Textures.h>
 
 #include <GLES/gl.h>
 

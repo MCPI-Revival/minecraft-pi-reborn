@@ -64,8 +64,8 @@ bool Blacklist::contains(const std::string &ip) const {
 }
 
 // Get IP Address
-std::string get_rak_net_guid_ip(RakNet_RakPeer *rak_peer, const RakNet_RakNetGUID &guid) {
-    RakNet_SystemAddress address = rak_peer->GetSystemAddressFromGuid(guid);
+std::string get_rak_net_guid_ip(const RakNet_RakPeer *rak_peer, const RakNet_RakNetGUID &guid) {
+    const RakNet_SystemAddress address = rak_peer->GetSystemAddressFromGuid(guid);
     // Get IP
     return address.ToString(false, '|');
 }

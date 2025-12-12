@@ -1,4 +1,5 @@
-#include <symbols/minecraft.h>
+#include <symbols/Button.h>
+#include <symbols/Strings.h>
 
 #include <mods/text-input-box/TextInputScreen.h>
 #include <mods/misc/misc.h>

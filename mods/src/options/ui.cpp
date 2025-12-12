@@ -5,7 +5,12 @@
 
 #include <media-layer/core.h>
 
-#include <symbols/minecraft.h>
+#include <symbols/OptionButton.h>
+#include <symbols/Options_Option.h>
+#include <symbols/OptionsScreen.h>
+#include <symbols/OptionsPane.h>
+#include <symbols/Touch_TButton.h>
+#include <symbols/Minecraft.h>
 
 #include <mods/feature/feature.h>
 #include <mods/options/options.h>

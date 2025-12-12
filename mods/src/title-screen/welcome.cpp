@@ -6,7 +6,9 @@
 
 #include <media-layer/core.h>
 
-#include <symbols/minecraft.h>
+#include <symbols/Button.h>
+#include <symbols/Screen.h>
+#include <symbols/Minecraft.h>
 
 #include <mods/touch/touch.h>
 #include <mods/misc/misc.h>

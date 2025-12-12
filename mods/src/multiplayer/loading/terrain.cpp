@@ -1,4 +1,3 @@
-#include <symbols/minecraft.h>
 #include <libreborn/patch.h>
 
 #include "internal.h"

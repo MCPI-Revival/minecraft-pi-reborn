@@ -2,7 +2,14 @@
 
 #include <libreborn/patch.h>
 
-#include <symbols/minecraft.h>
+#include <symbols/Player.h>
+#include <symbols/ServerPlayer.h>
+#include <symbols/LocalPlayer.h>
+#include <symbols/Entity.h>
+#include <symbols/Level.h>
+#include <symbols/RakNetInstance.h>
+#include <symbols/ServerSideNetworkHandler.h>
+#include <symbols/Minecraft.h>
 
 #include <mods/init/init.h>
 #include <mods/feature/feature.h>

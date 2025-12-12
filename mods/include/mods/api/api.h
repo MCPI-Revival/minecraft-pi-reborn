@@ -1,7 +1,10 @@
 #pragma once
 
 #include <string>
-#include <symbols/minecraft.h>
+
+struct Player;
+struct Entity;
+struct RakNet_RakNetGUID;
 
 extern "C" {
 void api_add_chat_event(const Player *sender, const std::string &message);

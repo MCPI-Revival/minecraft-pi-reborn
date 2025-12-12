@@ -1,5 +1,8 @@
-#include <symbols/minecraft.h>
 #include <libreborn/patch.h>
+
+#include <symbols/Minecraft.h>
+#include <symbols/LocalPlayer.h>
+#include <symbols/Inventory.h>
 
 #include "internal.h"
 #include <mods/input/input.h>

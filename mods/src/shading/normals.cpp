@@ -1,6 +1,11 @@
 #include <cstdint>
 
-#include <symbols/minecraft.h>
+#include <symbols/Vec3.h>
+#include <symbols/PolygonQuad.h>
+#include <symbols/Tesselator.h>
+#include <symbols/Tile.h>
+#include <symbols/TileRenderer.h>
+
 #include <libreborn/patch.h>
 
 #include "internal.h"

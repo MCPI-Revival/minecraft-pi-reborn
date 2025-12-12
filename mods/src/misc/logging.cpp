@@ -4,7 +4,8 @@
 #include <libreborn/util/string.h>
 #include <libreborn/util/util.h>
 
-#include <symbols/minecraft.h>
+#include <symbols/Minecraft.h>
+#include <symbols/Level.h>
 
 #include "internal.h"
 #include <mods/misc/misc.h>

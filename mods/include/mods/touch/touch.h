@@ -1,6 +1,6 @@
 #pragma once
 
-#include <symbols/minecraft.h>
+struct Button;
 
 extern int touch_gui;
 extern "C" {

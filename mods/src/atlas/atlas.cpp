@@ -3,7 +3,15 @@
 #include <libreborn/patch.h>
 #include <libreborn/util/util.h>
 
-#include <symbols/minecraft.h>
+#include <symbols/Item.h>
+#include <symbols/ItemRenderer.h>
+#include <symbols/Tile.h>
+#include <symbols/TileRenderer.h>
+#include <symbols/NinecraftApp.h>
+#include <symbols/Textures.h>
+#include <symbols/Texture.h>
+#include <symbols/CropTile.h>
+#include <symbols/Tesselator.h>
 
 #include <media-layer/core.h>
 

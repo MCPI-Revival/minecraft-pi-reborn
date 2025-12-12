@@ -7,7 +7,8 @@
 #include <netdb.h>
 #include <arpa/inet.h>
 
-#include <symbols/minecraft.h>
+#include <symbols/RakNetInstance.h>
+#include <symbols/RakNet_RakPeer.h>
 
 #include <libreborn/patch.h>
 #include <libreborn/env/servers.h>
@@ -66,7 +67,10 @@ static void start_resolution() {
     }
     // Start Thread
     pthread_t thread;
-    pthread_create(&thread, nullptr, resolve_thread, nullptr);
+    const int ret = pthread_create(&thread, nullptr, resolve_thread, nullptr);
+    if (ret != 0) {
+        IMPOSSIBLE();
+    }
     pthread_detach(thread);
 }
 

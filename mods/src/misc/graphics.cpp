@@ -7,7 +7,36 @@
 #include <libreborn/env/env.h>
 #include <libreborn/util/util.h>
 
-#include <symbols/minecraft.h>
+#include <symbols/Common.h>
+#include <symbols/Dimension.h>
+#include <symbols/DistanceChunkSorter.h>
+#include <symbols/Chunk.h>
+#include <symbols/Entity.h>
+#include <symbols/Tile.h>
+#include <symbols/EntityRenderer.h>
+#include <symbols/Tesselator.h>
+#include <symbols/EntityRenderDispatcher.h>
+#include <symbols/Minecraft.h>
+#include <symbols/Level.h>
+#include <symbols/Textures.h>
+#include <symbols/Mob.h>
+#include <symbols/Mth.h>
+#include <symbols/ArmorScreen.h>
+#include <symbols/LevelRenderer.h>
+#include <symbols/CarriedTile.h>
+#include <symbols/HumanoidMobRenderer.h>
+#include <symbols/PlayerRenderer.h>
+#include <symbols/HumanoidModel.h>
+#include <symbols/ChestTileEntity.h>
+#include <symbols/ContainerMenu.h>
+#include <symbols/Container.h>
+#include <symbols/ItemRenderer.h>
+#include <symbols/ItemEntity.h>
+#include <symbols/TileRenderer.h>
+#include <symbols/ItemInHandRenderer.h>
+#include <symbols/FrustumCuller.h>
+#include <symbols/GameRenderer.h>
+#include <symbols/NinecraftApp.h>
 
 #include <GLES/gl.h>
 #include <media-layer/core.h>

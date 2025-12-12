@@ -1,5 +1,8 @@
 #include <libreborn/util/util.h>
-#include <symbols/minecraft.h>
+
+#include <symbols/Minecraft.h>
+#include <symbols/ServerSideNetworkHandler.h>
+
 #include <mods/server/server.h>
 
 // Add Server Command

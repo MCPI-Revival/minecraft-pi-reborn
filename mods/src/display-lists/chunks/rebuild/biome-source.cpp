@@ -1,5 +1,8 @@
 #include <libreborn/patch.h>
 
+#include <symbols/BiomeSource.h>
+#include <symbols/Level.h>
+
 #include <mods/display-lists/display-lists.h>
 
 #include "thread.h"

@@ -1,7 +1,7 @@
 #include <mods/input/input.h>
 #include <mods/feature/feature.h>
 
-#include <symbols/minecraft.h>
+#include <symbols/Common.h>
 
 #include <libreborn/patch.h>
 

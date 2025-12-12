@@ -1,6 +1,6 @@
 #pragma once
 
-#include <symbols/minecraft.h>
+#include <symbols/LevelSource.h>
 
 // Render Falling Sand
 struct FallingSandRenderer {

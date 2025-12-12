@@ -1,7 +1,10 @@
 #include <cstdint>
 
 #include <libreborn/patch.h>
-#include <symbols/minecraft.h>
+
+#include <symbols/Textures.h>
+#include <symbols/Player.h>
+#include <symbols/Minecraft.h>
 
 #include <mods/init/init.h>
 #include <mods/feature/feature.h>

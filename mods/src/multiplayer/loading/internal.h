@@ -2,7 +2,29 @@
 
 #include <array>
 
-#include <symbols/minecraft.h>
+#include <symbols/ClientSideNetworkHandler.h>
+#include <symbols/ServerSideNetworkHandler.h>
+#include <symbols/Minecraft.h>
+#include <symbols/DisconnectionScreen.h>
+#include <symbols/Strings.h>
+#include <symbols/ReadyPacket.h>
+#include <symbols/Packet.h>
+#include <symbols/Level.h>
+#include <symbols/Tile.h>
+#include <symbols/RakNetInstance.h>
+#include <symbols/StartGamePacket.h>
+#include <symbols/RakNet_BitStream.h>
+#include <symbols/RequestChunkPacket.h>
+#include <symbols/ChunkSource.h>
+#include <symbols/LevelChunk.h>
+#include <symbols/RakNet_AddressOrGUID.h>
+#include <symbols/RakNet_RakPeer.h>
+#include <symbols/ChunkDataPacket.h>
+#include <symbols/UpdateBlockPacket.h>
+#include <symbols/RandomLevelSource.h>
+#include <symbols/BiomeSource.h>
+#include <symbols/CThread.h>
+
 #include <mods/misc/misc.h>
 
 #include "../internal.h"

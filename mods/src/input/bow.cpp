@@ -1,6 +1,8 @@
 #include <libreborn/patch.h>
 
-#include <symbols/minecraft.h>
+#include <symbols/Minecraft.h>
+#include <symbols/GameMode.h>
+#include <symbols/LocalPlayer.h>
 
 #include <mods/feature/feature.h>
 #include "internal.h"

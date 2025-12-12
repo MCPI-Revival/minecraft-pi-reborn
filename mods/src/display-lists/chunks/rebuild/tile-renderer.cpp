@@ -1,6 +1,9 @@
 #include <malloc.h>
 #include <libreborn/log.h>
 
+#include <symbols/Tile.h>
+#include <symbols/TileRenderer.h>
+
 #include "thread.h"
 
 // Copy an object without calling any constructors or destructors.

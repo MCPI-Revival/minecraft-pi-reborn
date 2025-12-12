@@ -1,6 +1,6 @@
 #pragma once
 
-#include <symbols/minecraft.h>
+#include <symbols/Screen.h>
 
 #include <mods/text-input-box/TextInputBox.h>
 

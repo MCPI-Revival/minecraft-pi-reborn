@@ -1,4 +1,14 @@
-#include <symbols/minecraft.h>
+#include <symbols/ServerSideNetworkHandler.h>
+#include <symbols/Player.h>
+#include <symbols/Level.h>
+#include <symbols/UpdateBlockPacket.h>
+#include <symbols/Packet.h>
+#include <symbols/RakNetInstance.h>
+#include <symbols/ClientSideNetworkHandler.h>
+#include <symbols/Tile.h>
+#include <symbols/Minecraft.h>
+#include <symbols/LocalPlayer.h>
+#include <symbols/RemovePlayerPacket.h>
 
 #include <libreborn/patch.h>
 #include <mods/feature/feature.h>

@@ -1,6 +1,6 @@
 #include <string>
-#include <cstdlib>
 #include <ctime>
+#include <ranges>
 
 #include <libreborn/log.h>
 #include <media-layer/audio.h>
@@ -355,7 +355,7 @@ __attribute__((constructor)) static void init_rand_seed() {
 // Pick Sound
 std::string _sound_pick(const std::string &sound) {
     if (sound_repository.contains(sound)) {
-        // Sound Exists
+        // The Sound Exists
         std::vector<std::string> &options = sound_repository[sound];
         return options[rand() % options.size()];
     } else {
@@ -369,8 +369,8 @@ std::string _sound_pick(const std::string &sound) {
 void _sound_resolve_all() {
     const std::string source = _sound_get_source_file();
     if (!source.empty()) {
-        for (const std::pair<const std::string, std::vector<std::string>> &it : sound_repository) {
-            for (const std::string &name : it.second) {
+        for (const std::vector<std::string> &val : sound_repository | std::views::values) {
+            for (const std::string &name : val) {
                 // Zero Volume Prevents An OpenAL Source From Being Allocated While Still Resolving The Sound
                 media_audio_play(source.c_str(), name.c_str(), 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f);
             }

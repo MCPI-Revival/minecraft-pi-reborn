@@ -1,5 +1,14 @@
 #include <libreborn/patch.h>
-#include <symbols/minecraft.h>
+
+#include <symbols/ClientSideNetworkHandler.h>
+#include <symbols/ContainerSetContentPacket.h>
+#include <symbols/Minecraft.h>
+#include <symbols/LocalPlayer.h>
+#include <symbols/Inventory.h>
+#include <symbols/SendInventoryPacket.h>
+#include <symbols/Packet.h>
+#include <symbols/Level.h>
+#include <symbols/RakNetInstance.h>
 
 #include <mods/multiplayer/packets.h>
 #include <mods/feature/feature.h>

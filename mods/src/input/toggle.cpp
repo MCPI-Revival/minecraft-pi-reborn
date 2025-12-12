@@ -1,6 +1,9 @@
 #include <libreborn/patch.h>
 
-#include <symbols/minecraft.h>
+#include <symbols/Minecraft.h>
+#include <symbols/Entity.h>
+#include <symbols/GameRenderer.h>
+#include <symbols/ParticleEngine.h>
 
 #include "internal.h"
 #include <mods/input/input.h>

@@ -1,5 +1,8 @@
 #include <libreborn/log.h>
-#include <symbols/minecraft.h>
+
+#include <symbols/FillingContainer.h>
+#include <symbols/ItemInstance.h>
+
 #include <mods/misc/misc.h>
 
 // The Actual Mod

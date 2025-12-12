@@ -1,6 +1,18 @@
 #include <libreborn/patch.h>
 
-#include <symbols/minecraft.h>
+#include <symbols/Item.h>
+#include <symbols/Tile.h>
+#include <symbols/Player.h>
+#include <symbols/LocalPlayer.h>
+#include <symbols/Inventory.h>
+#include <symbols/Level.h>
+#include <symbols/Material.h>
+#include <symbols/FoodItem.h>
+#include <symbols/Cow.h>
+#include <symbols/Minecraft.h>
+#include <symbols/Recipes.h>
+#include <symbols/FurnaceTileEntity.h>
+#include <symbols/I18n.h>
 
 #include <mods/feature/feature.h>
 #include <mods/init/init.h>

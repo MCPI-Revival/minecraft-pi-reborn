@@ -2,7 +2,9 @@
 
 #include <libreborn/patch.h>
 
-#include <symbols/minecraft.h>
+#include <symbols/MouseBuildInput.h>
+#include <symbols/Minecraft.h>
+#include <symbols/LocalPlayer.h>
 
 #include <mods/feature/feature.h>
 #include "internal.h"

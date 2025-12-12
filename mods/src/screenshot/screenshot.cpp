@@ -11,7 +11,7 @@
 #include <libreborn/config.h>
 
 #include <GLES/gl.h>
-#include <symbols/minecraft.h>
+#include <symbols/Minecraft.h>
 
 #include <mods/screenshot/screenshot.h>
 #include <mods/misc/misc.h>

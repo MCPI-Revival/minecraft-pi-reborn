@@ -4,7 +4,28 @@
 #include <libreborn/util/util.h>
 #include <libreborn/util/string.h>
 
-#include <symbols/minecraft.h>
+#include <symbols/FillingContainer.h>
+#include <symbols/Minecraft.h>
+#include <symbols/Recipes.h>
+#include <symbols/FurnaceRecipes.h>
+#include <symbols/Tile.h>
+#include <symbols/Item.h>
+#include <symbols/I18n.h>
+#include <symbols/Screen.h>
+#include <symbols/Textures.h>
+#include <symbols/Tesselator.h>
+#include <symbols/Particle.h>
+#include <symbols/TripodCamera.h>
+#include <symbols/CameraEntity.h>
+#include <symbols/Entity.h>
+#include <symbols/Player.h>
+#include <symbols/MobFactory.h>
+#include <symbols/EntityFactory.h>
+#include <symbols/Painting.h>
+#include <symbols/FallingTile.h>
+#include <symbols/ItemEntity.h>
+#include <symbols/Level.h>
+
 #include <GLES/gl.h>
 #include <media-layer/core.h>
 
@@ -14,7 +35,7 @@
 // Callbacks
 template <typename... Args>
 struct Callbacks {
-    std::vector<std::function<void(Args...)>> functions;
+    std::vector<std::function<void(Args...)>> functions = {};
     void run(Args... args) {
         for (const std::function<void(Args...)> &func : functions) {
             func(std::forward<Args>(args)...);
@@ -156,9 +177,10 @@ std::pair<std::string, std::string> misc_get_entity_type_name(Entity *entity) {
             return format_entity_name("Player");
         } else {
             const EntityType type = static_cast<EntityType>(entity->getEntityTypeId());
-            if (misc_get_entity_type_names().contains(type)) {
+            const std::map<EntityType, std::pair<std::string, std::string>> &names = misc_get_entity_type_names();
+            if (names.contains(type)) {
                 // Normal Entity
-                return misc_get_entity_type_names()[type];
+                return names.at(type);
             } else if (type == EntityType::UNKNOWN) {
                 // Special Entity
                 static std::unordered_map<const void *, std::string> vtable_to_name = {
@@ -168,7 +190,7 @@ std::pair<std::string, std::string> misc_get_entity_type_name(Entity *entity) {
                 };
                 const void *vtable = entity->vtable;
                 if (vtable_to_name.contains(vtable)) {
-                    return format_entity_name(vtable_to_name[vtable]);
+                    return format_entity_name(vtable_to_name.at(vtable));
                 }
             }
         }

@@ -1,4 +1,5 @@
-#include <symbols/minecraft.h>
+#include <symbols/RakNetInstance.h>
+#include <symbols/RakNet_RakPeer.h>
 
 #include <libreborn/config.h>
 #include <libreborn/patch.h>

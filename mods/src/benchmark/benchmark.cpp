@@ -5,7 +5,14 @@
 #include <libreborn/env/env.h>
 #include <libreborn/config.h>
 
-#include <symbols/minecraft.h>
+#include <symbols/LevelSettings.h>
+#include <symbols/LevelStorageSource.h>
+#include <symbols/Minecraft.h>
+#include <symbols/ProgressScreen.h>
+#include <symbols/LocalPlayer.h>
+#include <symbols/RandomLevelSource.h>
+#include <symbols/PerformanceTestChunkSource.h>
+#include <symbols/LevelData.h>
 
 #include <media-layer/core.h>
 

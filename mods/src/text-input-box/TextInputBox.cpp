@@ -1,5 +1,9 @@
 #include <libreborn/log.h>
 
+#include <symbols/GuiComponent.h>
+#include <symbols/Common.h>
+#include <symbols/Font.h>
+
 #include <mods/text-input-box/TextInputBox.h>
 #include <mods/input/input.h>
 #include <mods/misc/misc.h>

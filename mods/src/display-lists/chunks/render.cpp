@@ -1,6 +1,10 @@
 #include <libreborn/patch.h>
 
-#include <symbols/minecraft.h>
+#include <symbols/LevelRenderer.h>
+#include <symbols/Minecraft.h>
+#include <symbols/Mob.h>
+#include <symbols/Chunk.h>
+
 #include <GLES/gl.h>
 
 #include <mods/display-lists/display-lists.h>

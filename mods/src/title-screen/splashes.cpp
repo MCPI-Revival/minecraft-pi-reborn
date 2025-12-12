@@ -4,7 +4,11 @@
 #include <libreborn/patch.h>
 #include <libreborn/env/env.h>
 
-#include <symbols/minecraft.h>
+#include <symbols/StartMenuScreen.h>
+#include <symbols/Font.h>
+#include <symbols/Common.h>
+#include <symbols/Mth.h>
+
 #include <GLES/gl.h>
 
 #include <mods/misc/misc.h>

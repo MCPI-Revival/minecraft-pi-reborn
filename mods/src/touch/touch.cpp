@@ -2,11 +2,15 @@
 
 #include <libreborn/patch.h>
 
+#include <symbols/Minecraft.h>
+#include <symbols/Touch_IngameBlockSelectionScreen.h>
+#include <symbols/Button.h>
+#include <symbols/Mouse.h>
+#include <symbols/Touch_TButton.h>
+
 #include <mods/feature/feature.h>
 #include <mods/init/init.h>
 #include <mods/touch/touch.h>
-
-#include <symbols/minecraft.h>
 
 // Enable Touch GUI
 static bool Minecraft_isTouchscreen_injection_one(MCPI_UNUSED Minecraft *minecraft) {
