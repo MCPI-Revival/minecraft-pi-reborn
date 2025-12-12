@@ -21,7 +21,8 @@ function(add_symbol_library name)
     set_and_mkdir(SRC_OUTPUT_DIR "${GENERATED_DIR}/src")
 
     # Process Input/Output Files
-    set(OUTPUT_FILES "")
+    set(OUTPUT_FILES_HEADERS "")
+    set(OUTPUT_FILES_SOURCES "")
     set(INPUT_FILES "")
     foreach(file IN LISTS ARGN)
         list(APPEND INPUT_FILES "${CMAKE_CURRENT_SOURCE_DIR}/${file}")
@@ -29,13 +30,18 @@ function(add_symbol_library name)
         cmake_path(GET file EXTENSION file_ext)
         if(file_ext STREQUAL ".def")
             cmake_path(GET file STEM file)
-            list(APPEND OUTPUT_FILES "${SRC_OUTPUT_DIR}/${file}.cpp")
-            list(APPEND OUTPUT_FILES "${HEADER_OUTPUT_DIR}/${file}.h")
+            list(APPEND OUTPUT_FILES_SOURCES "${SRC_OUTPUT_DIR}/${file}.cpp")
+            list(APPEND OUTPUT_FILES_HEADERS "${HEADER_OUTPUT_DIR}/${file}.h")
         endif()
     endforeach()
-    list(APPEND OUTPUT_FILES "${HEADER_OUTPUT_DIR}/__common.h")
+    list(APPEND OUTPUT_FILES_HEADER "${HEADER_OUTPUT_DIR}/__common.h")
+    set(OUTPUT_FILES
+        ${OUTPUT_FILES_HEADERS}
+        ${OUTPUT_FILES_SOURCES}
+    )
 
     # Generate
+    list(LENGTH INPUT_FILES INPUT_FILES_LENGTH)
     add_custom_command(OUTPUT ${OUTPUT_FILES}
         DEPENDS ${INPUT_FILES}
         COMMAND
@@ -43,6 +49,7 @@ function(add_symbol_library name)
             "${SRC_OUTPUT_DIR}" "${HEADER_OUTPUT_DIR}"
             ${INPUT_FILES}
         WORKING_DIRECTORY "${SYMBOL_PROCESSOR_SRC}"
+        COMMENT "Processing ${INPUT_FILES_LENGTH} Symbol Definition Files..."
         VERBATIM
     )
 
@@ -54,5 +61,8 @@ function(add_symbol_library name)
 
     # Setup Headers
     setup_header_dirs(symbols "${INCLUDE_OUTPUT_DIR}")
-    set("${name}_INCLUDE_DIR" "${INCLUDE_OUTPUT_DIR}" PARENT_SCOPE)
+
+    # Export Variables
+    set("${name}_HEADER_DIR" "${INCLUDE_OUTPUT_DIR}" PARENT_SCOPE)
+    set("${name}_HEADERS" "${OUTPUT_FILES_HEADERS}" PARENT_SCOPE)
 endfunction()

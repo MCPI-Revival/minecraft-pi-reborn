@@ -248,3 +248,55 @@ add_symbol_library(symbols
 
 # Install
 setup_library(symbols TRUE TRUE)
+
+# Build Doxygen
+find_package(Doxygen REQUIRED COMPONENTS
+    doxygen
+    dot
+)
+set(DOXYGEN_PROJECT_NAME "${MCPI_APP_TITLE} - Symbols")
+set(DOXYGEN_PROJECT_VERSION "${MCPI_VERSION}")
+set(DOXYGEN_PROJECT_BRIEF "${MCPI_APP_DESCRIPTION}")
+set(DOXYGEN_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/docs")
+set(DOXYGEN_CREATE_SUBDIRS "YES")
+set(DOXYGEN_QUIET "YES")
+set(DOXYGEN_HTML_COLORSTYLE "DARK")
+set(DOXYGEN_COLLABORATION_GRAPH "NO")
+set(DOXYGEN_DOT_IMAGE_FORMAT "svg")
+set(DOXYGEN_SHOW_FILES "NO")
+set(DOXYGEN_VERBATIM_HEADERS "NO")
+set(DOXYGEN_ALPHABETICAL_INDEX "NO")
+set(DOXYGEN_STRIP_FROM_INC_PATH "${symbols_HEADER_DIR}")
+set(DOXYGEN_EXTRACT_ALL "YES")
+set(DOXYGEN_BUILTIN_STL_SUPPORT "YES")
+set(DOXYGEN_PREDEFINED "DOXYGEN")
+set(DOXYGEN_EXCLUDE_SYMBOLS "__*")
+set(doxygen_archive "symbols-doxygen")
+doxygen_add_docs("${doxygen_archive}"
+    ${symbols_HEADERS}
+    WORKING_DIRECTORY "${symbols_HEADER_DIR}"
+    COMMENT "Generating Doxygen For Symbols..."
+    USE_STAMP_FILE
+    ALL
+)
+
+# Install Doxygen As An Archive
+string(CONCAT doxygen_archive_script
+    # Prepare
+    "set(in \"${DOXYGEN_OUTPUT_DIRECTORY}/html\")\n"
+    "set(out \"\$ENV{DESTDIR}\${CMAKE_INSTALL_PREFIX}/${MCPI_SDK_DIR}/${doxygen_archive}.tar.xz\")\n"
+    # Create Archive
+    "execute_process(\n"
+    "    COMMAND tar --create\n"
+    "        --xz\n"
+    "        --file \"\${out}\"\n"
+    "        --directory \"\${in}\"\n"
+    "        --sort name\n"
+    "        --mtime \"UTC 1970-01-01\"\n"
+    "        --owner 0 --group 0\n"
+    "        --numeric-owner\n"
+    "        .\n"
+    "    COMMAND_ERROR_IS_FATAL ANY\n"
+    ")\n"
+)
+install(CODE "${doxygen_archive_script}")
