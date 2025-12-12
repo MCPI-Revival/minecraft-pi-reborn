@@ -60,7 +60,7 @@ static void lighting_turn_off() {
 }
 
 // Entity Rendering
-static void LevelRenderer_renderEntities_injection(LevelRenderer_renderEntities_t original, LevelRenderer *self, Vec3 pos, Culler *culler, const float a) {
+static void LevelRenderer_renderEntities_injection(LevelRenderer_renderEntities_t original, LevelRenderer *self, const Vec3 &pos, Culler *culler, const float a) {
     lighting_turn_on();
     original(self, pos, culler, a);
     lighting_turn_off();

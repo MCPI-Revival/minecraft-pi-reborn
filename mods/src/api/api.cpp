@@ -138,7 +138,7 @@ static SignTileEntity *get_sign(const CommandServer *server, const int x, const 
 }
 
 // Check If The Entity Is Selected
-static bool is_entity_selected(Entity *entity, const int target_type) {
+static bool is_entity_selected(const Entity *entity, const int target_type) {
     const int type = entity->getEntityTypeId();
     return type > 0 && (target_type == no_entity_id || target_type == type);
 }

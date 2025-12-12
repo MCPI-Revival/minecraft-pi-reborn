@@ -229,7 +229,7 @@ static void CreatorMode_releaseUsingItem_ItemInstance_setAuxValue_injection(Item
 }
 
 // Creative Inventory
-static void inventory_add_item(FillingContainer *inventory, Item *item, int32_t auxiliary) {
+static void inventory_add_item(FillingContainer *inventory, const Item *item, const int32_t auxiliary) {
     ItemInstance *item_instance = new ItemInstance;
     item_instance = item_instance->constructor_item_extra(item, 1, auxiliary);
     inventory->addItem(item_instance);

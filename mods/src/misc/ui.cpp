@@ -275,7 +275,7 @@ static void Minecraft_handleMouseDown_injection(Minecraft_handleMouseDown_t orig
 }
 
 // Open Sign Screen
-static void LocalPlayer_openTextEdit_injection(MCPI_UNUSED LocalPlayer_openTextEdit_t original, LocalPlayer *local_player, TileEntity *sign) {
+static void LocalPlayer_openTextEdit_injection(MCPI_UNUSED LocalPlayer_openTextEdit_t original, const LocalPlayer *local_player, TileEntity *sign) {
     if (sign->type == 4) {
         Minecraft *minecraft = local_player->minecraft;
         TextEditScreen *screen = TextEditScreen::allocate();

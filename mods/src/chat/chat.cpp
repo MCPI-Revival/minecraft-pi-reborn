@@ -52,7 +52,7 @@ void chat_send_message_to_clients(ServerSideNetworkHandler *server_side_network_
 }
 
 // Only Send Messages To Fully Connected Players
-static void ServerSideNetworkHandler_displayGameMessage_injection(MCPI_UNUSED ServerSideNetworkHandler_displayGameMessage_t original, ServerSideNetworkHandler *self, const std::string &message) {
+static void ServerSideNetworkHandler_displayGameMessage_injection(MCPI_UNUSED ServerSideNetworkHandler_displayGameMessage_t original, const ServerSideNetworkHandler *self, const std::string &message) {
     // Display Locally
     self->minecraft->gui.addMessage(message);
     // Create Packet

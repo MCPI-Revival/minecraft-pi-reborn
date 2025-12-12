@@ -26,7 +26,7 @@ static unsigned char *operator_new_IngameBlockSelectionScreen_injection(MCPI_UNU
 }
 
 // Improved Button Hover Behavior
-static int32_t Button_hovered_injection(MCPI_UNUSED Button_hovered_t original, MCPI_UNUSED Button *button, MCPI_UNUSED Minecraft *minecraft, MCPI_UNUSED int32_t click_x, MCPI_UNUSED int32_t click_y) {
+static int32_t Button_hovered_injection(MCPI_UNUSED Button_hovered_t original, const Button *button, MCPI_UNUSED Minecraft *minecraft, MCPI_UNUSED int32_t click_x, MCPI_UNUSED int32_t click_y) {
     // Get Mouse Position
     const int32_t x = Mouse::getX() * Gui::InvGuiScale;
     const int32_t y = (Mouse::getY() * Gui::InvGuiScale) - 1; // Screen::mouseEvent Offsets Mouse Events

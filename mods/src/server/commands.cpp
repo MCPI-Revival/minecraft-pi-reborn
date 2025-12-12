@@ -21,8 +21,8 @@ static Level *get_level(const Minecraft *minecraft) {
 }
 
 // Find Players With Username And Run Callback
-typedef void (*player_callback_t)(Minecraft *minecraft, const std::string &username, Player *player);
-static void find_players(Minecraft *minecraft, const std::string &target_username, const player_callback_t callback, const bool all_players) {
+typedef std::function<void(Minecraft *minecraft, const std::string &username, Player *player)> player_callback_t;
+static void find_players(Minecraft *minecraft, const std::string &target_username, const player_callback_t &callback, const bool all_players) {
     Level *level = get_level(minecraft);
     const std::vector<Player *> players = get_players_in_level(level);
     bool found_player = all_players;
@@ -54,7 +54,7 @@ static void kill_callback(MCPI_UNUSED Minecraft *minecraft, const std::string &u
 }
 
 // List Player
-static void list_callback(Minecraft *minecraft, const std::string &username, Player *player) {
+static void list_callback(const Minecraft *minecraft, const std::string &username, Player *player) {
     const RakNet_RakPeer *rak_peer = minecraft->rak_net_instance->peer;
     const RakNet_RakNetGUID guid = ((ServerPlayer *) player)->guid;
     INFO(" - %s (%s)", username.c_str(), get_rak_net_guid_ip(rak_peer, guid).c_str());

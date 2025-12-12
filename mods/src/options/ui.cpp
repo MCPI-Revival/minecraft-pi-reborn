@@ -31,7 +31,7 @@ static OptionButton *OptionsPane_unknown_toggle_creating_function_OptionButton_i
 }
 
 // Modify Option Toggles
-static void OptionsPane_unknown_toggle_creating_function_injection(OptionsPane_unknown_toggle_creating_function_t original, OptionsPane *options_pane, const uint32_t group_id, std::string *name_ptr, Options_Option *option) {
+static void OptionsPane_unknown_toggle_creating_function_injection(OptionsPane_unknown_toggle_creating_function_t original, OptionsPane *options_pane, const uint32_t group_id, const std::string *name_ptr, Options_Option *option) {
     // Modify
     const std::string name = *name_ptr;
     std::string new_name = name;

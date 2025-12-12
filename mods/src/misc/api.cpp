@@ -120,7 +120,7 @@ void misc_run_on_items_setup(const std::function<void()> &func) {
     });
 }
 void misc_run_on_language_setup(const std::function<void()> &func) {
-    overwrite_calls(I18n_loadLanguage, [func](I18n_loadLanguage_t original, AppPlatform *self, std::string language_name) {
+    overwrite_calls(I18n_loadLanguage, [func](I18n_loadLanguage_t original, AppPlatform *self, const std::string &language_name) {
         original(self, language_name);
         func();
     });

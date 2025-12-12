@@ -72,7 +72,7 @@ static void SoundEngine_play_injection(MCPI_UNUSED SoundEngine_play_t original, 
 }
 
 // Refresh Data
-static void SoundEngine_update_injection(MCPI_UNUSED SoundEngine_update_t original, SoundEngine *sound_engine, Mob *listener_mob, MCPI_UNUSED float listener_angle) {
+static void SoundEngine_update_injection(MCPI_UNUSED SoundEngine_update_t original, const SoundEngine *sound_engine, const Mob *listener_mob, MCPI_UNUSED float listener_angle) {
     // Variables
     static float volume = 0;
     static float x = 0;
@@ -81,7 +81,7 @@ static void SoundEngine_update_injection(MCPI_UNUSED SoundEngine_update_t origin
     static float yaw = 0;
 
     // SoundEngine Properties
-    Options *options = sound_engine->options;
+    const Options *options = sound_engine->options;
 
     // Volume
     const int32_t sound_enabled = options->sound;
