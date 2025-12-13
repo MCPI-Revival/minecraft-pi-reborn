@@ -11,7 +11,9 @@ check(double, 8);
 
 // Align Pointer To Boundary
 #define def(...) \
-    __attribute__((hot, always_inline)) static inline void align_up_to_boundary(__VA_ARGS__ &ptr, const int align) { \
+    template <typename T> \
+    __attribute__((hot, always_inline)) static inline void align_up_to_boundary(__VA_ARGS__ &ptr) { \
+        constexpr int align = alignof(T); \
         const uintptr_t diff = uintptr_t(ptr) % align; \
         if (diff > 0) { \
             ptr += align - diff; \

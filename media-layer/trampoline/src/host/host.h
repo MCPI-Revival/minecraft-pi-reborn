@@ -31,7 +31,7 @@ struct TrampolineArguments {
     template <typename T>
     __attribute__((hot, always_inline)) const T &next() {
         block_pointer(T);
-        align_up_to_boundary(raw_args, alignof(T));
+        align_up_to_boundary<T>(raw_args);
         const T &ret = *(const T *) raw_args;
         raw_args += sizeof(T);
         return ret;
@@ -50,7 +50,7 @@ struct TrampolineArguments {
         } else if (just_read_pointer) {
             return (const T *) (uintptr_t) (QEMU_GUEST_BASE + next<uint32_t>());
         } else {
-            align_up_to_boundary(raw_args, alignof(T));
+            align_up_to_boundary<T>(raw_args);
             const T *ret = (const T *) raw_args;
             raw_args += size;
             return ret;

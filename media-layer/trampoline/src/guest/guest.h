@@ -12,7 +12,7 @@
 template <typename T>
 __attribute__((hot, always_inline)) static inline void _handle_trampoline_arg(unsigned char *&out, const T &arg) {
     block_pointer(T);
-    align_up_to_boundary(out, alignof(T));
+    align_up_to_boundary<T>(out);
     constexpr size_t size = sizeof(T);
     memcpy(out, &arg, size);
     out += size;
