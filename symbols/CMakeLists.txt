@@ -250,10 +250,7 @@ add_symbol_library(symbols
 setup_library(symbols TRUE TRUE)
 
 # Build Doxygen
-find_package(Doxygen REQUIRED COMPONENTS
-    doxygen
-    dot
-)
+find_package(Doxygen REQUIRED)
 set(DOXYGEN_PROJECT_NAME "${MCPI_APP_TITLE} - Symbols")
 set(DOXYGEN_PROJECT_VERSION "${MCPI_VERSION}")
 set(DOXYGEN_PROJECT_BRIEF "${MCPI_APP_DESCRIPTION}")
@@ -262,6 +259,13 @@ set(DOXYGEN_CREATE_SUBDIRS "YES")
 set(DOXYGEN_QUIET "YES")
 set(DOXYGEN_HTML_COLORSTYLE "DARK")
 set(DOXYGEN_COLLABORATION_GRAPH "NO")
+if(TARGET Doxygen::dot)
+    set(DOXYGEN_HAVE_DOT "YES")
+    set(DOXYGEN_CLASS_GRAPH "YES")
+else()
+    set(DOXYGEN_HAVE_DOT "NO")
+    set(DOXYGEN_CLASS_GRAPH "TEXT")
+endif()
 set(DOXYGEN_DOT_IMAGE_FORMAT "svg")
 set(DOXYGEN_SHOW_FILES "NO")
 set(DOXYGEN_VERBATIM_HEADERS "NO")
@@ -271,32 +275,35 @@ set(DOXYGEN_EXTRACT_ALL "YES")
 set(DOXYGEN_BUILTIN_STL_SUPPORT "YES")
 set(DOXYGEN_PREDEFINED "DOXYGEN")
 set(DOXYGEN_EXCLUDE_SYMBOLS "__*")
-set(doxygen_archive "symbols-doxygen")
-doxygen_add_docs("${doxygen_archive}"
+set(doxygen_archive_name "symbols-doxygen")
+doxygen_add_docs("${doxygen_archive_name}"
     ${symbols_HEADERS}
     WORKING_DIRECTORY "${symbols_HEADER_DIR}"
     COMMENT "Generating Doxygen For Symbols..."
     USE_STAMP_FILE
+)
+
+# Compress Doxygen
+set(doxygen_stamp "${CMAKE_CURRENT_BINARY_DIR}/${doxygen_archive_name}.stamp")
+set(doxygen_archive_path "${DOXYGEN_OUTPUT_DIRECTORY}/${doxygen_archive_name}.tar.xz")
+add_custom_command(OUTPUT "${doxygen_archive_path}"
+    DEPENDS "${doxygen_stamp}"
+    COMMAND tar --create
+        --xz
+        --file "${doxygen_archive_path}"
+        --directory "${DOXYGEN_OUTPUT_DIRECTORY}/html"
+        --sort name
+        --mtime "UTC 1970-01-01"
+        --owner 0 --group 0
+        --numeric-owner
+        .
+    COMMENT "Compressing Doxygen..."
+    VERBATIM
+)
+add_custom_target("compress-${doxygen_archive_name}"
     ALL
+    DEPENDS "${doxygen_archive_path}"
 )
 
 # Install Doxygen As An Archive
-string(CONCAT doxygen_archive_script
-    # Prepare
-    "set(in \"${DOXYGEN_OUTPUT_DIRECTORY}/html\")\n"
-    "set(out \"\$ENV{DESTDIR}\${CMAKE_INSTALL_PREFIX}/${MCPI_SDK_DIR}/${doxygen_archive}.tar.xz\")\n"
-    # Create Archive
-    "execute_process(\n"
-    "    COMMAND tar --create\n"
-    "        --xz\n"
-    "        --file \"\${out}\"\n"
-    "        --directory \"\${in}\"\n"
-    "        --sort name\n"
-    "        --mtime \"UTC 1970-01-01\"\n"
-    "        --owner 0 --group 0\n"
-    "        --numeric-owner\n"
-    "        .\n"
-    "    COMMAND_ERROR_IS_FATAL ANY\n"
-    ")\n"
-)
-install(CODE "${doxygen_archive_script}")
+install(FILES "${doxygen_archive_path}" DESTINATION "${MCPI_SDK_DIR}")
