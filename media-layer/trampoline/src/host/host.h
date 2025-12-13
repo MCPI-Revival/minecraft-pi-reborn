@@ -29,15 +29,16 @@ struct TrampolineArguments {
 
     // Read Next Value
     template <typename T>
-    const T &next() {
+    __attribute__((hot, always_inline)) const T &next() {
         block_pointer(T);
+        align_up_to_boundary(raw_args, alignof(T));
         const T &ret = *(const T *) raw_args;
         raw_args += sizeof(T);
         return ret;
     }
     // Read Next Array
     template <typename T>
-    const T *next_arr(uint32_t *length = nullptr) {
+    __attribute__((hot, always_inline)) const T *next_arr(uint32_t *length = nullptr) {
         block_pointer(T);
         const uint32_t size = next<uint32_t>();
         if (length != nullptr) {
@@ -49,6 +50,7 @@ struct TrampolineArguments {
         } else if (just_read_pointer) {
             return (const T *) (uintptr_t) (QEMU_GUEST_BASE + next<uint32_t>());
         } else {
+            align_up_to_boundary(raw_args, alignof(T));
             const T *ret = (const T *) raw_args;
             raw_args += size;
             return ret;
