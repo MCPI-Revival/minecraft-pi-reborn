@@ -98,8 +98,6 @@
 #define GL_STREAM_DRAW 0x88e0
 #define GL_UNSIGNED_INT 0x1405
 #define GL_COMPILE 0x1300
-#define GL_UNSIGNED_SHORT 0x1403
-#define GL_ELEMENT_ARRAY_BUFFER 0x8893
 
 typedef float GLfloat;
 typedef float GLclampf;

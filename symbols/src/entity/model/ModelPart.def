@@ -1,3 +1,4 @@
+method void compile(float scale) = 0x413bc;
 method void render(float scale) = 0x416dc;
 
 property float x = 0x0;
@@ -6,3 +7,6 @@ property float z = 0x8;
 property float xRot = 0xc;
 property float yRot = 0x10;
 property float zRot = 0x14;
+property bool compiled = 0x49;
+property std::vector<Cube *> cubes = 0x1c;
+property uint buffer = 0x50;

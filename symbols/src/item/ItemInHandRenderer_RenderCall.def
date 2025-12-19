@@ -1,0 +1,8 @@
+size 0x24;
+
+property int id = 0x0;
+property RenderChunk chunk = 0x4;
+property std::string texture = 0x1c;
+property bool is_item = 0x20;
+
+mark-as-simple;

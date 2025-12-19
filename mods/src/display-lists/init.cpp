@@ -9,5 +9,6 @@ void init_display_lists() {
         _init_display_lists_chunks_rebuild();
         _init_display_lists_chunks_render();
         _init_display_lists_font();
+        _init_display_lists_tesselator();
     }
 }

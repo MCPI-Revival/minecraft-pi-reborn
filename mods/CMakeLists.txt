@@ -113,6 +113,7 @@ add_library(mods SHARED
     src/display-lists/chunks/rebuild/tile-renderer.cpp
     src/display-lists/chunks/render.cpp
     src/display-lists/font.cpp
+    src/display-lists/tesselator.cpp
     src/display-lists/init.cpp
     # classic-ui
     src/classic-ui/classic-ui.cpp

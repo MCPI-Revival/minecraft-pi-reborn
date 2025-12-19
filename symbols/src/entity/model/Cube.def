@@ -1,0 +1,1 @@
+method void compile(Tesselator &t, float scale) = 0x4119c;

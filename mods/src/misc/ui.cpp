@@ -317,6 +317,28 @@ static void Minecraft_setSize_injection(Minecraft_setSize_t original, Minecraft 
     original(self, width, height);
 }
 
+// Fix Invalid ItemInHandRenderer Cache
+static void ItemInHandRenderer_renderItem_injection(ItemInHandRenderer_renderItem_t original, ItemInHandRenderer *self, Mob *mob, ItemInstance *item) {
+    // Create Hash
+    const int32_t id = item->id;
+    const int32_t aux = item->auxiliary;
+    const int32_t hash = (id << 16) | aux;
+
+    // Check If Item Needs To Be Re-Rendered
+    ItemInHandRenderer_RenderCall &call = self->render_calls[0];
+    if (call.id != hash) {
+        call.id = -1;
+    }
+
+    // Call Original Method
+    original(self, mob, item);
+
+    // Attach Hash To Render Call
+    if (call.id >= 0) {
+        call.id = hash;
+    }
+}
+
 // Screen Overlay
 static void ItemInHandRenderer_renderScreenEffect_injection(MCPI_UNUSED ItemInHandRenderer_renderScreenEffect_t original, ItemInHandRenderer *self, float param_1) {
     media_glDisable(GL_ALPHA_TEST);
@@ -480,14 +502,14 @@ void _init_misc_ui() {
         patch((void *) 0x24d74, nop_patch);
     }
 
-    // Fix Invalid ItemInHandRenderer Texture Cache
+    // Fix Invalid ItemInHandRenderer Cache
     if (feature_has("Fix Held Item Caching", server_disabled)) {
-        // This works by forcing MCPI to always use the branch that enables using the
-        // cache, but then patches that to do the opposite.
-        uchar ensure_equal_patch[] = {0x07, 0x00, 0x57, 0xe1}; // "cmp r7, r7"
-        patch((void *) 0x4b938, ensure_equal_patch);
-        uchar set_true_patch[] = {0x01, 0x30, 0xa0, 0x03}; // "moveq r3, #0x1"
-        patch((void *) 0x4b93c, set_true_patch);
+        // Always Use The First Render Call Object
+        // No Need To Maintain Multiple Cached Rendered Items
+        unsigned char use_first_render_call_patch[4] = {0x00, 0x40, 0xa0, 0xe3}; // "mov r4, #0x0"
+        patch((void *) 0x4b834, use_first_render_call_patch);
+        // Correctly Re-Tessellate The Cached Render Call When The Item Changes
+        overwrite_calls(ItemInHandRenderer_renderItem, ItemInHandRenderer_renderItem_injection);
     }
 
     // Click Buttons On Mouse Down

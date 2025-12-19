@@ -11,7 +11,7 @@ __attribute__((hot, always_inline)) static inline RenderChunk Tesselator_end_inj
     if (!t.active) {
         NOT_TESSELLATING();
     }
-    RenderChunk out;
+    RenderChunk out = {};
     out.constructor();
     if (t.void_begin_end) {
         return out;
