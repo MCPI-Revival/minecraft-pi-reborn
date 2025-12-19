@@ -1,5 +1,8 @@
 #include <libreborn/log.h>
 #include <libreborn/config.h>
+#include <libreborn/patch.h>
+
+#include <symbols/Chunk.h>
 
 #include <mods/init/init.h>
 #include <mods/misc/misc.h>
@@ -67,15 +70,22 @@ static void fps_callback() {
 static Tracker fps_tracker(fps, fps_callback);
 double tps = 0;
 static Tracker tps_tracker(tps, nullptr);
+double chunk_updates = 0;
+static Tracker chunk_updates_tracker(chunk_updates, nullptr);
 
 // Recalculate Values
 static void on_frame() {
     fps_tracker.count();
     fps_tracker.update();
     tps_tracker.update();
+    chunk_updates_tracker.update();
 }
 static void on_tick(MCPI_UNUSED Minecraft *minecraft) {
     tps_tracker.count();
+}
+static void on_chunk_update(Chunk_rebuild_t original, Chunk *chunk) {
+    original(chunk);
+    chunk_updates_tracker.count();
 }
 
 // Init
@@ -85,4 +95,5 @@ void init_fps() {
         log_fps = feature_has("Log FPS", server_disabled);
     }
     misc_run_on_tick(on_tick);
+    overwrite_calls(Chunk_rebuild, on_chunk_update);
 }

@@ -6,6 +6,8 @@
 
 #include <GLES/gl.h>
 
+#include <mods/tesselator/tesselator.h>
+
 #include "internal.h"
 
 // Create Display lists
@@ -16,6 +18,8 @@ static void Font_init_injection(Font_init_t original, Font *self, Options *optio
     // Generate Lists
     constexpr int character_count = sizeof(self->character_widths) / sizeof(int);
     self->display_lists = media_glGenLists(character_count);
+    CustomTesselator &advanced_t = advanced_tesselator_get();
+    advanced_t.are_vertices_flat = true;
     for (int i = 0; i < character_count; i++) {
         media_glNewList(self->display_lists + i, GL_COMPILE);
         Tesselator &t = Tesselator::instance;
@@ -25,16 +29,13 @@ static void Font_init_injection(Font_init_t original, Font *self, Options *optio
         media_glTranslatef(GLfloat(self->character_widths[i]), 0, 0);
         media_glEndList();
     }
+    advanced_t.are_vertices_flat = false;
 }
 
 // Custom Rendering
-static void Font_drawSlow_injection(MCPI_UNUSED Font_drawSlow_t original, Font *self, const char *text, float x, float y, uint color, bool param_1) {
+static void Font_drawSlow_injection(MCPI_UNUSED Font_drawSlow_t original, const Font *self, const char *text, const float x, const float y, uint color, const bool param_1) {
     // Check Text
-    if (!text) {
-        return;
-    }
-    const size_t text_length = strlen(text);
-    if (text_length == 0) {
+    if (!text || text[0] == '\0') {
         return;
     }
 
@@ -59,16 +60,17 @@ static void Font_drawSlow_injection(MCPI_UNUSED Font_drawSlow_t original, Font *
     media_glColor4f(r, g, b, a);
 
     // Build Text
-    std::vector<int> list;
-    list.reserve(text_length);
-    for (size_t i = 0; i < text_length; i++) {
-        list.push_back(self->display_lists + uchar(text[i]));
+    static constexpr int max_text_size = 512;
+    static GLuint list[max_text_size];
+    int text_size;
+    for (text_size = 0; text_size < max_text_size && text[text_size] != '\0'; text_size++) {
+        list[text_size] = self->display_lists + uchar(text[text_size]);
     }
 
     // Render
     media_glPushMatrix();
     media_glTranslatef(x, y, 0);
-    media_glCallLists(list.size(), GL_UNSIGNED_INT, list.data());
+    media_glCallLists(text_size, GL_UNSIGNED_INT, list);
     media_glPopMatrix();
 
     // Reset Color
@@ -77,6 +79,7 @@ static void Font_drawSlow_injection(MCPI_UNUSED Font_drawSlow_t original, Font *
 
 // Init
 void _init_display_lists_font() {
+    advanced_tesselator_enable();
     overwrite_calls(Font_init, Font_init_injection);
     overwrite_calls(Font_drawSlow, Font_drawSlow_injection);
 }

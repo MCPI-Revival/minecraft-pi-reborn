@@ -7,7 +7,6 @@ CustomTesselator::CustomTesselator(const bool create_buffers) {
     has_buffer = create_buffers;
     buffer_size = 0;
     are_vertices_flat = false;
-    enable_real_quads = false;
     offset.x = 0;
     offset.y = 0;
     offset.z = 0;
@@ -23,7 +22,6 @@ void CustomTesselator::clear() {
     no_color = false;
     color.reset();
     normal.reset();
-    quad_to_triangle_tracker = 0;
 }
 void CustomTesselator::reset_scale() {
     scale_x = 1;

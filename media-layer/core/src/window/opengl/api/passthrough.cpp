@@ -1,30 +1,7 @@
-#include <GLES/gl.h>
-#define GLFW_INCLUDE_NONE
-#include <GLFW/glfw3.h>
+#include "internal.h"
 
-#include <libreborn/log.h>
-
-#include "../media.h"
-
-// Load GL Function
+// Track Current Context
 unsigned int media_context_id = 0;
-#define GL_FUNC(name, return_type, args) \
-    typedef return_type (*real_##name##_t)args; \
-    MCPI_UNUSED static real_##name##_t real_##name() { \
-        static real_##name##_t func = nullptr; \
-        static unsigned int old_context = 0; \
-        if (!func || old_context != media_context_id) { \
-            old_context = media_context_id; \
-            if (glfw_window == nullptr) { \
-                IMPOSSIBLE(); \
-            } \
-            func = (real_##name##_t) glfwGetProcAddress(#name); \
-            if (!func) { \
-                ERR("Error Resolving OpenGL Function: " #name); \
-            } \
-        } \
-        return func; \
-    }
 
 // Passthrough Functions
 GL_FUNC(glFogfv, void, (GLenum pname, const GLfloat *params))

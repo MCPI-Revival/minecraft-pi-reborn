@@ -118,6 +118,8 @@ static std::vector<std::string> get_debug_info_right(const Minecraft *minecraft)
     std::vector<std::string> info;
     // TPS
     info.push_back("TPS: " + to_string_with_precision(tps, debug_precision));
+    // Chunk Updates
+    info.push_back("Chunk Updates: " + to_string_with_precision(chunk_updates, debug_precision));
     // Target Information
     const HitResult &target = minecraft->hit_result;
     if (target.type != 2) {

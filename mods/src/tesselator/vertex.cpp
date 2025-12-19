@@ -86,24 +86,9 @@ static void Tesselator_addOffset_injection(MCPI_UNUSED Tesselator *self, const f
 // Add Vertex
 TEMPLATE
 __attribute__((hot, always_inline)) static inline void Tesselator_vertex_injection_impl(CustomTesselator &t, const Vertex *vertex) {
-    // Add To Vector
+    // Add To Vertex Array
     VertexArray<Vertex> &vertices = t.*VertexPtr;
     vertices.push_back(*vertex);
-    // Convert To Triangles
-    if (!t.enable_real_quads && t.mode == GL_QUADS) {
-        int &tracker = t.quad_to_triangle_tracker;
-        if (tracker == 3) {
-            tracker = 0;
-        } else {
-            if (tracker == 2) {
-                const int last_vertex = vertices.size - 1;
-                for (const int i : {-2, 0}) {
-                    vertices.push_back(vertices.data[last_vertex + i]);
-                }
-            }
-            tracker++;
-        }
-    }
 }
 __attribute__((hot)) static void Tesselator_vertex_injection(MCPI_UNUSED Tesselator *self, const float x, const float y, const float z) {
     // Create Vertex

@@ -97,11 +97,7 @@ __attribute__((hot, always_inline)) static inline void Tesselator_draw_injection
 
         // Draw
         begin_draw(vertex_size, t.uv.has_value(), t.color.has_value(), t.normal.has_value());
-        GLenum mode = t.mode;
-        if (!t.enable_real_quads && mode == GL_QUADS) {
-            mode = GL_TRIANGLES;
-        }
-        media_glDrawArrays(mode, 0, vertex_count);
+        media_glDrawArrays(t.mode, 0, vertex_count);
     }
 
     // Finish
@@ -117,10 +113,15 @@ __attribute__((hot)) static void Tesselator_draw_injection(MCPI_UNUSED Tesselato
 }
 
 // Draw Buffer
-__attribute__((hot)) static void Common_drawArrayVT_injection(const int buffer, const int vertices, int vertex_size, const uint mode) {
+__attribute__((hot)) static void Common_drawArrayVT_injection(const int buffer, int vertices, int vertex_size, uint mode) {
     // Check
     if (advanced_tesselator_get().are_vertices_flat) {
         IMPOSSIBLE();
+    }
+
+    // "Triangles" Are Really Quads
+    if (mode == GL_TRIANGLES) {
+        mode = GL_QUADS;
     }
 
     // Draw

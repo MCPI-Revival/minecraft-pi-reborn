@@ -89,7 +89,6 @@ static void build_chunk(chunk_rebuild_data *data, rebuilt_chunk_data *out) {
 void _configure_tesselator_for_chunk_rebuild(const bool enable) {
     CustomTesselator &t = advanced_tesselator_get();
     t.are_vertices_flat = enable;
-    t.enable_real_quads = enable;
 }
 
 // Chunk Building Thread

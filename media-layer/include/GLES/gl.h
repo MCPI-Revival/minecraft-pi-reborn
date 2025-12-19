@@ -1,11 +1,7 @@
 #pragma once
 
-#include <stdio.h>
-#include <stdint.h>
-
-#ifdef __cplusplus
-extern "C" {
-#endif
+#include <cstdio>
+#include <cstdint>
 
 #define GL_FALSE 0
 #define GL_ARRAY_BUFFER_BINDING 0x8894
@@ -102,6 +98,8 @@ extern "C" {
 #define GL_STREAM_DRAW 0x88e0
 #define GL_UNSIGNED_INT 0x1405
 #define GL_COMPILE 0x1300
+#define GL_UNSIGNED_SHORT 0x1403
+#define GL_ELEMENT_ARRAY_BUFFER 0x8893
 
 typedef float GLfloat;
 typedef float GLclampf;
@@ -119,6 +117,7 @@ typedef unsigned int GLenum;
 typedef char GLchar;
 typedef void GLvoid;
 
+extern "C" {
 void media_glFogfv(GLenum pname, const GLfloat *params);
 void media_glVertexPointer(GLint size, GLenum type, GLsizei stride, const void *pointer);
 void media_glLineWidth(GLfloat width);
@@ -182,9 +181,6 @@ void media_glDeleteLists(GLuint list, GLsizei range);
 void media_glNewList(GLuint list, GLenum mode);
 void media_glEndList();
 void media_glCallLists(GLsizei n, GLenum type, const GLvoid *lists);
+}
 
 extern unsigned int media_context_id;
-
-#ifdef __cplusplus
-}
-#endif

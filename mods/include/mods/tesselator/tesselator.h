@@ -55,7 +55,6 @@ struct CustomTesselator {
     GLenum mode;
     bool void_begin_end;
     bool are_vertices_flat;
-    bool enable_real_quads;
 
     // Next Vertex Information
     Vec3 offset;
@@ -66,7 +65,6 @@ struct CustomTesselator {
     bool no_color;
     std::optional<uint> color;
     std::optional<uint32_t> normal;
-    int quad_to_triangle_tracker;
 
     // Buffers
     bool has_buffer;
