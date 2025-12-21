@@ -41,9 +41,19 @@ else()
     set(BUILD_MEDIA_LAYER_CORE "${BUILD_ARM_COMPONENTS}")
 endif()
 
+# Download Timeout
+# This is used for game download, skins, etc,
+# No large files are downloaded, so this should be small.
+mcpi_option(DOWNLOAD_TIMEOUT "Default Timeout For Downloading Files (In Seconds)" STRING "30")
+
 # Game Download URL
 mcpi_option(GAME_VERSION "Game Version (Only Used For Downloading)" STRING "0.1.1")
-mcpi_option(GAME_DOWNLOAD_URL "Game Download URL" STRING "https://archive.org/download/MinecraftPi/minecraft-pi-${MCPI_GAME_VERSION}.tar.gz")
+mcpi_option(GAME_DOWNLOAD_URL "Game Download URL" STRING
+    "https://www.minecraft.net/content/dam/minecraftnet/games/minecraft/software/minecraft-pi-${MCPI_GAME_VERSION}.tar.gz.zip"
+    "https://archive.org/download/MinecraftPi/minecraft-pi-${MCPI_GAME_VERSION}.tar.gz"
+    "https://archive.org/download/minecraft-pi-${MCPI_GAME_VERSION}/minecraft-pi-${MCPI_GAME_VERSION}.tar.gz"
+)
+mcpi_option(GAME_DOWNLOAD_USER_AGENT "Game Download User Agent (Needed For minecraft.net)" STRING "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36")
 
 # Author
 mcpi_option(AUTHOR "Author" STRING "TheBrokenRail")

@@ -59,7 +59,7 @@ std::string get_exit_status_string(exit_status_t status);
 void open_url(const std::string &url);
 
 // Download From Internet
-const std::vector<unsigned char> *download_from_internet(const std::string &dest, const std::string &url);
+const std::vector<unsigned char> *download_from_internet(const std::string &dest, const std::string &url, const std::optional<std::string> &user_agent = std::nullopt);
 
 // WSL Command-Line Options
 #ifdef _WIN32

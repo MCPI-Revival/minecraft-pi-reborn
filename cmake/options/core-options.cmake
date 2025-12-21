@@ -13,9 +13,9 @@ endif()
 
 # Specify Options
 set(MCPI_OPTIONS "")
-function(mcpi_option name description type default)
+function(mcpi_option name description type)
     set(full_name "MCPI_${name}")
-    set("${full_name}" "${default}" CACHE "${type}" "${description}")
+    set("${full_name}" "${ARGN}" CACHE "${type}" "${description}")
     list(APPEND MCPI_OPTIONS "-D${full_name}:${type}=${${full_name}}")
     set(MCPI_OPTIONS "${MCPI_OPTIONS}" PARENT_SCOPE)
 endfunction()

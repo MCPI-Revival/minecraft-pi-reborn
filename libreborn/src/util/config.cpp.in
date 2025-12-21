@@ -45,6 +45,7 @@ const RebornConfig reborn_config = {
 
     // Extra Options
     .extra = {
+        .download_timeout = "@MCPI_DOWNLOAD_TIMEOUT@",
         .skin_server = "@MCPI_SKIN_SERVER@",
         .discord_invite = "@MCPI_DISCORD_INVITE@",
         .repo_url = "@MCPI_REPO@"
@@ -66,7 +67,8 @@ const RebornConfig reborn_config = {
     // Game Information
     .game = {
         .version = "@MCPI_GAME_VERSION@",
-        .download_url = "@MCPI_GAME_DOWNLOAD_URL@"
+        .download_url = "@MCPI_GAME_DOWNLOAD_URL@",
+        .download_user_agent = "@MCPI_GAME_DOWNLOAD_USER_AGENT@"
     },
 
     // Packaging

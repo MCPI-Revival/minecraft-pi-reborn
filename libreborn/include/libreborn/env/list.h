@@ -24,6 +24,7 @@ ENV(MCPI_BLOCK_OUTLINE_WIDTH, "Custom Width For Block Outline (In Pixels)", "")
 ENV(MCPI_GUI_SCALE, "Custom GUI Scale", "")
 ENV(MCPI_BINARY, "Custom Game Binary", "/p")
 ENV(MCPI_PROMOTIONAL, "Promotional Mdoe (Used For Consistent Screenshots)", "")
+ENV(MCPI_DOWNLOAD_TIMEOUT, "Custom Timeout For Downloading Files (In Seconds)", "")
 // $HOME
 ENV(_MCPI_HOME, "", "/p")
 ENV(MCPI_PROFILE_DIRECTORY, "Custom Profile Directory", "/p")

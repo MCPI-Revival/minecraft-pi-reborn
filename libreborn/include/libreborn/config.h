@@ -21,6 +21,7 @@ struct RebornConfig {
 
     // Extra Options
     struct {
+        const char *download_timeout;
         const char *skin_server;
         const char *discord_invite;
         const char *repo_url;
@@ -43,6 +44,7 @@ struct RebornConfig {
     struct {
         const char *version;
         const char *download_url;
+        const char *download_user_agent;
     } game;
 
     // Packaging
