@@ -10,25 +10,7 @@ CustomTesselator::CustomTesselator(const bool create_buffers) {
     offset.x = 0;
     offset.y = 0;
     offset.z = 0;
-    reset_scale();
-    clear();
-}
-void CustomTesselator::clear() {
-    vertices.clear();
-    vertices_flat.clear();
-    active = false;
-    void_begin_end = false;
-    uv.reset();
-    no_color = false;
-    color.reset();
-    normal.reset();
-}
-void CustomTesselator::reset_scale() {
-    scale_x = 1;
-    scale_y = 1;
-}
-static void Tesselator_clear_injection(MCPI_UNUSED Tesselator *self) {
-    advanced_tesselator_get().clear();
+    clear(true);
 }
 static void Tesselator_init_injection(MCPI_UNUSED Tesselator *self) {
     CustomTesselator &t = advanced_tesselator_get();
@@ -42,6 +24,28 @@ CustomTesselator::~CustomTesselator() {
     }
 }
 
+// (Partially) Reset State
+void CustomTesselator::clear(const bool full) {
+    vertices.clear();
+    vertices_flat.clear();
+    voidBeginAndEndCalls(false);
+    if (full) {
+        uv.reset();
+        no_color = false;
+        color.reset();
+        normal.reset();
+        active = false;
+        reset_scale();
+    }
+}
+void CustomTesselator::reset_scale() {
+    scale_x = 1;
+    scale_y = 1;
+}
+static void Tesselator_clear_injection(MCPI_UNUSED Tesselator *self) {
+    advanced_tesselator_get().clear(false);
+}
+
 // Begin
 static void Tesselator_begin_injection(MCPI_UNUSED Tesselator *self, const int mode) {
     CustomTesselator &t = advanced_tesselator_get();
@@ -50,17 +54,19 @@ static void Tesselator_begin_injection(MCPI_UNUSED Tesselator *self, const int m
     } else if (t.active) {
         ERR("Already Tessellating");
     }
-    t.clear();
+    t.clear(true);
     t.active = true;
     t.mode = mode;
 }
-static void Tesselator_voidBeginAndEndCalls_injection(Tesselator *self, const bool x) {
-    CustomTesselator &t = advanced_tesselator_get();
-    t.void_begin_end = x;
-    if (t.has_buffer) {
+void CustomTesselator::voidBeginAndEndCalls(const bool x) {
+    void_begin_end = x;
+    if (has_buffer) {
         // On Main-Thread
-        self->void_begin_end = x;
+        Tesselator::instance.void_begin_end = x;
     }
+}
+static void Tesselator_voidBeginAndEndCalls_injection(MCPI_UNUSED Tesselator *self, const bool x) {
+    advanced_tesselator_get().voidBeginAndEndCalls(x);
 }
 
 // Patch

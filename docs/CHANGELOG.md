@@ -115,6 +115,7 @@ include_toc: true
     * `Correctly Handle Empty Slots When Receiving Inventory Data`
     * `Stop Doors And Trapdoors Closing When Updated`
     * `Force Saving Level Data On World Exit`
+    * `Fix 3D Item Rendering With High-Resolution Textures`
   * Existing Functionality (All Enabled By Default)
     * `Fix Screen Rendering When Hiding HUD`
     * `Sanitize Usernames`

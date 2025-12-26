@@ -318,53 +318,6 @@ static void Minecraft_setSize_injection(Minecraft_setSize_t original, Minecraft 
     original(self, width, height);
 }
 
-// Fix Invalid ItemInHandRenderer Cache
-static std::unordered_map<int, ItemInHandRenderer_RenderCall> held_item_cache;
-static void ItemInHandRenderer_renderItem_injection(ItemInHandRenderer_renderItem_t original, ItemInHandRenderer *self, Mob *mob, ItemInstance *item) {
-    // Create Hash
-    const int32_t id = item->id;
-    const int32_t aux = item->auxiliary;
-    const int32_t hash = (id << 16) | aux;
-
-    // Create Buffer If Needed
-    if (!held_item_cache.contains(hash)) {
-        ItemInHandRenderer_RenderCall call = {};
-        call.chunk.constructor();
-        media_glGenBuffers(1, &call.chunk.buffer);
-        call.id = -1;
-        held_item_cache.insert({hash, call});
-    }
-
-    // Call Original Method
-    ItemInHandRenderer_RenderCall &slot = held_item_cache.at(hash);
-    ItemInHandRenderer_RenderCall &selected_call = self->render_calls[0];
-    selected_call = slot;
-    original(self, mob, item);
-
-    // Store Result
-    if (selected_call.id < 0) {
-        IMPOSSIBLE();
-    }
-    slot = selected_call;
-}
-static void ItemInHandRenderer_onGraphicsReset_injection(ItemInHandRenderer_onGraphicsReset_t original, ItemInHandRenderer *self) {
-    // Clear Cache
-    held_item_cache.clear();
-    // Call Original Method
-    original(self);
-}
-static void *GameRenderer_destructor_injection(GameRenderer_destructor_t original, GameRenderer *self, const int unknown) {
-    // Free Buffers
-    // This is placed inside GameRenderer's destructor
-    // because ItemInHandRenderer does not have one.
-    for (const ItemInHandRenderer_RenderCall &call : held_item_cache | std::ranges::views::values) {
-        media_glDeleteBuffers(1, &call.chunk.buffer);
-    }
-    held_item_cache.clear();
-    // Call Original Method
-    return original(self, unknown);
-}
-
 // Screen Overlay
 static void ItemInHandRenderer_renderScreenEffect_injection(MCPI_UNUSED ItemInHandRenderer_renderScreenEffect_t original, ItemInHandRenderer *self, float param_1) {
     media_glDisable(GL_ALPHA_TEST);
@@ -526,25 +479,6 @@ void _init_misc_ui() {
         patch((void *) 0x24d6c, nop_patch);
         patch((void *) 0x24d70, nop_patch);
         patch((void *) 0x24d74, nop_patch);
-    }
-
-    // Fix Invalid ItemInHandRenderer Cache
-    if (feature_has("Fix Held Item Caching", server_disabled)) {
-        // Always Use The First Render Call Object
-        // This Will Be Populated Using A Custom Cache
-        unsigned char use_first_render_call_patch[4] = {0x00, 0x40, 0xa0, 0xe3}; // "mov r4, #0x0"
-        patch((void *) 0x4b834, use_first_render_call_patch);
-        unsigned char disable_old_cache_invalidation_check_patch[4] = {0x03, 0x00, 0x53, 0xe1}; // "cmp r3, r3"
-        patch((void *) 0x4b968, disable_old_cache_invalidation_check_patch);
-        // Manually Handle OpenGL Buffer Allocation
-        unsigned char nop_patch[4] = {0x00, 0xf0, 0x20, 0xe3}; // "nop"
-        for (const uint32_t addr : {0x4b6fc, 0x4cdc8}) {
-            patch((void *) addr, nop_patch);
-        }
-        overwrite_calls(ItemInHandRenderer_onGraphicsReset, ItemInHandRenderer_onGraphicsReset_injection);
-        overwrite_calls(GameRenderer_destructor, GameRenderer_destructor_injection);
-        // Implement A Custom (Improved) Held Item Cache
-        overwrite_calls(ItemInHandRenderer_renderItem, ItemInHandRenderer_renderItem_injection);
     }
 
     // Click Buttons On Mouse Down

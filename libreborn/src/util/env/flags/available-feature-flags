@@ -127,6 +127,7 @@ CATEGORY Bug Fixes
         TRUE Fix Sugar Position In Hand
         TRUE Fix Switching Perspective While Sneaking
         TRUE Fix Held Item Poking Through Screen Overlay
+        TRUE Fix 3D Item Rendering With High-Resolution Textures
     CATEGORY Network
         TRUE Patch RakNet Security Bug
         TRUE Prevent Unnecessary Server Pinging

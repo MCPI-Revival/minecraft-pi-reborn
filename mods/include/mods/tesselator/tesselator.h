@@ -50,7 +50,8 @@ struct CustomTesselator {
     VertexArray<CustomVertexFlat> vertices_flat;
 
     // State
-    void clear();
+    void clear(bool full);
+    void voidBeginAndEndCalls(bool x);
     bool active;
     GLenum mode;
     bool void_begin_end;

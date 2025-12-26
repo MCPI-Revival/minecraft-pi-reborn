@@ -26,15 +26,17 @@
 
 // Animated Water
 static void tick_textures(Textures *textures) {
+    constexpr int atlas_size = 16;
+    constexpr int atlas_tile_size = 16;
     for (DynamicTexture *texture : textures->dynamic_textures) {
         texture->tick();
         texture->bindTexture(textures);
         for (int x = 0; x < texture->texture_size; x++) {
             for (int y = 0; y < texture->texture_size; y++) {
                 const Texture *data = textures->getTemporaryTextureData(textures->current_texture);
-                const int x_offset = 16 * ((texture->texture_index % 16) + x);
-                const int y_offset = 16 * ((texture->texture_index / 16) + y);
-                media_glTexSubImage2D_with_scaling(data, x_offset, y_offset, 16, 16, 256, 256, texture->pixels);
+                const int x_offset = atlas_tile_size * ((texture->texture_index % atlas_size) + x);
+                const int y_offset = atlas_tile_size * ((texture->texture_index / atlas_size) + y);
+                media_glTexSubImage2D_with_scaling(data, x_offset, y_offset, atlas_tile_size, atlas_tile_size, atlas_size * atlas_tile_size, atlas_size * atlas_tile_size, texture->pixels);
             }
         }
         if (textures->current_texture == textures->loadTexture("terrain.png", true)) {

@@ -462,74 +462,6 @@ static ContainerMenu *ContainerMenu_destructor_injection(ContainerMenu_destructo
     return original(container_menu);
 }
 
-// 3D Dropped Items
-static bool disable_hand_positioning = false;
-static void ItemInHandRenderer_renderItem_glTranslatef_injection(const float x, const float y, const float z) {
-    if (disable_hand_positioning) {
-        media_glPopMatrix();
-        media_glPushMatrix();
-    } else {
-        media_glTranslatef(x, y, z);
-    }
-}
-static void ItemRenderer_render_injection(ItemRenderer_render_t original, ItemRenderer *self, Entity *entity, const float x, const float y, const float z, const float a, const float b) {
-    // Get Item
-    const ItemEntity *item_entity = (ItemEntity *) entity;
-    ItemInstance item = item_entity->item;
-    // Check If Item Is Tile
-    if (item.id < 256 && TileRenderer::canRender(Tile::tiles[item.id]->getRenderShape())) {
-        // Call Original Method
-        original(self, entity, x, y, z, a, b);
-    } else {
-        // 3D Item
-        self->random.setSeed(187);
-        media_glPushMatrix();
-
-        // Count
-        int count;
-        if (item.count < 2) {
-            count = 1;
-        } else if (item.count < 16) {
-            count = 2;
-        } else if (item.count < 32) {
-            count = 3;
-        } else {
-            count = 4;
-        }
-
-        // Bob
-        const float age = float(item_entity->age) + b;
-        const float bob = (Mth::sin((age / 10.0f) + item_entity->bob_offset) * 0.1f) + 0.1f;
-        media_glTranslatef(x, y + bob, z);
-
-        // Scale
-        media_glScalef(0.5f, 0.5f, 0.5f);
-
-        // Spin
-        const float spin = ((age / 20.0f) + item_entity->bob_offset) * float(180.0f / M_PI);
-        media_glRotatef(spin, 0, 1, 0);
-
-        // Position
-        constexpr float xo = 0.5f;
-        constexpr float yo = 0.25f;
-        constexpr float width = 1 / 16.0f;
-        constexpr float margin = 0.35f / 16.0f;
-        constexpr float zo = width + margin;
-        media_glTranslatef(-xo, -yo, -((zo * float(count)) / 2));
-
-        // Draw
-        disable_hand_positioning = true;
-        for (int i = 0; i < count; i++) {
-            media_glTranslatef(0, 0, zo);
-            EntityRenderer::entityRenderDispatcher->item_renderer->renderItem(nullptr, &item);
-        }
-        disable_hand_positioning = false;
-
-        // Finish
-        media_glPopMatrix();
-    }
-}
-
 // Vignette
 static void Gui_renderProgressIndicator_injection(Gui_renderProgressIndicator_t original, Gui *self, const bool is_touch, int width, int height, float a) {
     // Render
@@ -677,12 +609,6 @@ void _init_misc_graphics() {
     }
     if (feature_has("Always Save Chest Tile Entities", server_enabled)) {
         overwrite_calls(ChestTileEntity_shouldSave, ChestTileEntity_shouldSave_injection);
-    }
-
-    // 3D Dropped Items
-    if (feature_has("3D Dropped Items", server_disabled)) {
-        overwrite_calls(ItemRenderer_render, ItemRenderer_render_injection);
-        overwrite_call_manual((void *) 0x4bf34, (void *) ItemInHandRenderer_renderItem_glTranslatef_injection);
     }
 
     // Vignette

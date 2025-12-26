@@ -34,6 +34,7 @@ add_library(mods SHARED
     src/misc/ui.cpp
     src/misc/home.cpp
     src/misc/base64.cpp
+    src/misc/item-rendering.cpp
     # options
     src/options/options.cpp
     src/options/ui.cpp

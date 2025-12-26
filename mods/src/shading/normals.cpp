@@ -8,6 +8,8 @@
 
 #include <libreborn/patch.h>
 
+#include <mods/shading/shading.h>
+
 #include "internal.h"
 
 // PolygonQuad
@@ -45,8 +47,17 @@ add_normal_before(Tile, getTexture2)
 add_normal_before(TileRenderer, tesselateCrossTexture)
 add_normal_before(Tile, updateDefaultShape)
 
+// Safe Way For Other Mods To Use Normals
+static bool normals_enabled = false;
+void safe_normal(const float x, const float y, const float z) {
+    if (normals_enabled) {
+        Tesselator::instance.normal(x, y, z);
+    }
+}
+
 // Init
 void _init_normals() {
+    normals_enabled = true;
     // PolygonQuad::render
     overwrite_calls(PolygonQuad_render, PolygonQuad_render_injection);
     // ItemInHandRenderer::renderItem

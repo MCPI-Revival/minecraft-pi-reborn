@@ -26,6 +26,7 @@ static void build_chunk(chunk_rebuild_data *data, rebuilt_chunk_data *out) {
     out->touched_sky = false;
     out->chunk = data->chunk;
     Tesselator &t = Tesselator::instance;
+    CustomTesselator &advanced_t = advanced_tesselator_get();
 
     // Get Chunk Information
     CachedLevelSource &source = data->source;
@@ -72,11 +73,11 @@ static void build_chunk(chunk_rebuild_data *data, rebuilt_chunk_data *out) {
         // Save Layer
         if (started) {
             if (rendered) {
-                out->vertices[layer] = advanced_tesselator_get().vertices_flat.copy();
+                out->vertices[layer] = advanced_t.vertices_flat.copy();
                 out->is_layer_empty[layer] = false;
                 out->is_empty = false;
             }
-            t.clear();
+            advanced_t.clear(true);
         }
     }
 

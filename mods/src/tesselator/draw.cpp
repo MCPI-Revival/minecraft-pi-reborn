@@ -31,7 +31,7 @@ __attribute__((hot, always_inline)) static inline RenderChunk Tesselator_end_inj
     }
 
     // Finish
-    t.clear();
+    t.clear(true);
     return out;
 }
 __attribute__((hot)) static RenderChunk Tesselator_end_injection(MCPI_UNUSED Tesselator *self, const bool use_given_buffer, const int buffer) {
@@ -101,7 +101,7 @@ __attribute__((hot, always_inline)) static inline void Tesselator_draw_injection
     }
 
     // Finish
-    t.clear();
+    t.clear(true);
 }
 __attribute__((hot)) static void Tesselator_draw_injection(MCPI_UNUSED Tesselator *self) {
     CustomTesselator &t = advanced_tesselator_get();

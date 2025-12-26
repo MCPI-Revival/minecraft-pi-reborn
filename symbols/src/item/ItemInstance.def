@@ -13,6 +13,7 @@ method int getMaxStackSize() const = 0x99ac8;
 method bool isNull() const = 0x999b0;
 method void setNull() = 0x999cc;
 method void setAuxValue(int aux) = 0x99c30;
+method int getIcon() const = 0x9a190;
 
 property int count = 0x0;
 property int id = 0x4;
