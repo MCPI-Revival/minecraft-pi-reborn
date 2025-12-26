@@ -1,7 +1,7 @@
 size 0x4c;
 
 constructor (Options *options, AppPlatform *app_platform) = 0x530e4;
-method void *destructor() = 0x53458;
+method void *destructor(int unknown) = 0x53458;
 
 method void tick(bool param_1) = 0x531c4;
 method uint loadAndBindTexture(const std::string &name) = 0x539cc;

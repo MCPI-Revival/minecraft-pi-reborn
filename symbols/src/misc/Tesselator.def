@@ -1,5 +1,5 @@
 constructor (int param_1) = 0x52fc4;
-method Tesselator *destructor(int unknown) = 0x52f88;
+method void *destructor(int unknown) = 0x52f88;
 
 method void init() = 0x5289c;
 method void clear() = 0x528ac;

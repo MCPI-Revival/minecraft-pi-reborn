@@ -4,9 +4,12 @@ property ItemInstance item = 0xc;
 property Minecraft *minecraft = 0x18;
 property ItemInHandRenderer_RenderCall render_calls[512] = 0xdc;
 
+constructor (Minecraft *minecraft) = 0x4b678;
+
 method void renderItem(Mob *mob, ItemInstance *item) = 0x4b824;
 method void render(float param_1) = 0x4bfcc;
 method void renderFire(float param_1) = 0x4ca84;
 method void renderTex(float param_1, int param_2) = 0x4c7d4;
 method void renderScreenEffect(float param_1) = 0x4cc40;
 method void tick() = 0x4b78c;
+method void onGraphicsReset() = 0x4cdb4;
