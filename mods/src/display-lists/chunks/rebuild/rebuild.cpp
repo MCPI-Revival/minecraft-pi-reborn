@@ -53,7 +53,7 @@ static void Chunk_rebuild_injection(MCPI_UNUSED Chunk_rebuild_t original, Chunk 
     _chunks_to_rebuild.add(self, data);
 }
 
-// Receive Rebuilt Chunks
+// Render A Rebuilt Chunk
 static void render_rebuilt_chunk(const rebuilt_chunk_data *chunk_data) {
     // Render Chunk
     Chunk *chunk = chunk_data->chunk;
@@ -87,14 +87,26 @@ static void render_rebuilt_chunk(const rebuilt_chunk_data *chunk_data) {
         }
     }
 }
+
+// Receive Rebuilt Chunks
+static constexpr int MAX_CHUNK_RENDERS_PER_FRAME = 15;
+static std::vector<void *> delayed_messages;
+void _receive_rebuilt_chunks(std::vector<void *> &data) {
+    _rebuilt_chunks.receive(data, false);
+    data.insert(data.begin(), delayed_messages.begin(), delayed_messages.end());
+    delayed_messages.clear();
+}
 static void LevelRenderer_tick_injection(LevelRenderer_tick_t original, LevelRenderer *self) {
     // Call Original Method
     original(self);
 
     // Receive Built Chunks
     static std::vector<void *> data;
-    _rebuilt_chunks.receive(data, false);
-    for (const void *msg : data) {
+    _receive_rebuilt_chunks(data);
+
+    // Render Rebuilt Chunks
+    int count = 0;
+    for (void *msg : data) {
         // Check If Chunk Is Valid
         const rebuilt_chunk_data *chunk_data = (const rebuilt_chunk_data *) msg;
         bool valid = false;
@@ -106,10 +118,21 @@ static void LevelRenderer_tick_injection(LevelRenderer_tick_t original, LevelRen
         }
 
         // Render
-        if (valid) {
-            render_rebuilt_chunk(chunk_data);
+        if (count >= MAX_CHUNK_RENDERS_PER_FRAME) {
+            // Delay Until Next Frame
+            if (valid) {
+                delayed_messages.push_back(msg);
+            } else {
+                _free_rebuilt_chunk_data(chunk_data);
+            }
+        } else {
+            // Render It Now
+            if (valid) {
+                render_rebuilt_chunk(chunk_data);
+            }
+            _free_rebuilt_chunk_data(chunk_data);
         }
-        _free_rebuilt_chunk_data(chunk_data);
+        count++;
     }
 }
 

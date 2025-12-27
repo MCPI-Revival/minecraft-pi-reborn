@@ -123,7 +123,10 @@ add_library(mods SHARED
     src/api/events.cpp
     src/api/compat.cpp
     src/api/misc.cpp
-    src/api/socket.cpp
+    src/api/socket/time-limiter.cpp
+    src/api/socket/read.cpp
+    src/api/socket/write.cpp
+    src/api/socket/socket.cpp
     # tesselator
     src/tesselator/init.cpp
     src/tesselator/state.cpp

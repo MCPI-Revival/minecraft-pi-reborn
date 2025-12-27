@@ -143,7 +143,7 @@ void _stop_chunk_rebuild_thread() {
         chunk_rebuild_thread_running = false;
         // Free Remaining Messages
         std::vector<void *> data;
-        _rebuilt_chunks.receive(data, false);
+        _receive_rebuilt_chunks(data);
         for (const void *msg : data) {
             const rebuilt_chunk_data *chunk = (const rebuilt_chunk_data *) msg;
             _free_rebuilt_chunk_data(chunk);

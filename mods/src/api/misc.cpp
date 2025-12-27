@@ -1,5 +1,3 @@
-#include <unistd.h>
-
 #include <libreborn/patch.h>
 #include <libreborn/util/string.h>
 
@@ -33,37 +31,6 @@ static void LevelRenderer_entityRemoved_injection(LevelRenderer *self, Entity *e
     if ((Entity *) minecraft->camera == entity) {
         minecraft->camera = (Mob *) minecraft->player;
     }
-}
-
-// Close Sockets
-static void CommandServer__close_injection_1(CommandServer__close_t original, CommandServer *self) {
-    // Close
-    for (const ConnectedClient &client : self->clients) {
-        close(client.sock);
-    }
-    self->clients.clear();
-    // Call Original Method
-    original(self);
-}
-static void Minecraft_leaveGame_injection(Minecraft_leaveGame_t original, Minecraft *self, const bool save_remote_level) {
-    // Destroy Server
-    CommandServer *&server = self->command_server;
-    if (server) {
-        server->destructor(0);
-        ::operator delete(server);
-        server = nullptr;
-    }
-    // Call Original Method
-    original(self, save_remote_level);
-}
-static bool CommandServer__updateClient_injection_1(CommandServer__updateClient_t original, CommandServer *self, ConnectedClient &client) {
-    // Call Original Method
-    const bool ret = original(self, client);
-    // Close Socket If Needed
-    if (!ret) {
-        close(client.sock);
-    }
-    return ret;
 }
 
 // Properly Teleport Players
@@ -134,11 +101,6 @@ void _init_api_misc() {
     }
     if (feature_has("Fix Crash When Spectated Entity Is Removed", server_enabled)) {
         patch_vtable(LevelRenderer_entityRemoved, LevelRenderer_entityRemoved_injection);
-    }
-    if (feature_has("Correctly Close API Sockets", server_enabled)) {
-        overwrite_calls(CommandServer__close, CommandServer__close_injection_1);
-        overwrite_calls(Minecraft_leaveGame, Minecraft_leaveGame_injection);
-        overwrite_calls(CommandServer__updateClient, CommandServer__updateClient_injection_1);
     }
     if (feature_has("Fix Moving Players With The API In Multiplayer", server_enabled)) {
         overwrite_calls(ClientSideNetworkHandler_handle_MovePlayerPacket, ClientSideNetworkHandler_handle_MovePlayerPacket_injection);

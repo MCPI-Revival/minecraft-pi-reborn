@@ -29,6 +29,7 @@ struct rebuilt_chunk_data {
     const VertexArray<CustomVertexFlat> *vertices[num_layers] = {};
 };
 MCPI_INTERNAL extern ThreadVector _rebuilt_chunks;
+MCPI_INTERNAL void _receive_rebuilt_chunks(std::vector<void *> &data);
 MCPI_INTERNAL void _free_rebuilt_chunk_data(const rebuilt_chunk_data *chunk);
 
 // Configure Rendering

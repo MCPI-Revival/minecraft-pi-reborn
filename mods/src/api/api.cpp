@@ -172,7 +172,7 @@ static ItemInstance *get_selected_item(Entity *entity) {
     next_string(out##_str, true); \
     type out; \
     try { \
-        out = func(out##_str); \
+        (out) = func(out##_str); \
     } catch (...) { \
         return CommandServer::Fail; \
     } \
