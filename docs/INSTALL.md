@@ -7,11 +7,18 @@ include_toc: true
 There are multiple supported ways to install MCPI-Reborn.
 
 ## System Requirements
-MCPI-Reborn requires support for OpenGL ES v1.5 (unlike the original game, which used OpenGL ES v1.1).
-It also only supports Linux-based systems and Windows 10/11.
+The original game only supported running on the Raspberry Pi.
+However, this project is much more flexible:
 
-In addition, while the original game could only be run on the Raspberry Pi, MCPI-Reborn is much more flexible.
-It supports running on 32-bit ARM (known as `armhf`), 64-bit ARM (known as `arm64`), and 64-bit x86 (known as `amd64`).
+* Operating System:
+  * GNU/Linux
+  * Windows 10/11
+* Hardware:
+  * 32-Bit ARM (Known As `armhf`)
+  * 64-Bit ARM (Known As `arm64`)
+  * 64-Bit x86 (Known As `amd64`)
+* Graphics:
+  * OpenGL v1.5 Or Higher
 
 ## Instructions
 
