@@ -27,9 +27,10 @@ if (options.mode === Modes.Date) {
 }
 
 // Print Version
+const url = process.env.URL;
 if (options.mode === Modes.AppStream) {
     console.log(`<release version="${version.data}" date="${date}">`);
-    console.log(`<url>${process.env.URL}</url>`);
+    console.log(`<url>${url}</url>`);
 }
 
 // Parse Changelog
@@ -52,6 +53,20 @@ for (const line of lines) {
         // Found Entry
         out.push(line);
     }
+}
+
+// Add Header
+if (options.mode === Modes.Release) {
+    const discord = process.env.DISCORD_URL;
+    out.unshift(
+        '## Links',
+        `* [Installation Guide](${url}/docs/INSTALL.md)`,
+        `* [Getting Started Guide](${url}/docs/GETTING_STARTED.md)`,
+        `* [Documentation](${url}/docs)`,
+        `* [Discord](${discord})`,
+        '',
+        '## Changelog'
+    );
 }
 
 // Print

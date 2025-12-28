@@ -11,3 +11,6 @@ SLUG="${ORGANIZATION}/${REPOSITORY}"
 echo "Target: ${SERVER}/${SLUG}"
 VERSION="$(cat VERSION)"
 echo "Version: ${VERSION}"
+
+# Discord Invite URL
+export DISCORD_URL='https://discord.gg/HAErXkUkpR'
