@@ -158,8 +158,6 @@ jobs:
           - example-mods
         name: Release
         runs-on: ubuntu-latest
-        env:
-            RELEASE_TOKEN: ${{ secrets.RELEASE_TOKEN }}
         steps:
           - name: Checkout Repository
             uses: actions/checkout@v4
@@ -172,4 +170,7 @@ jobs:
                 path: out
           # Run
           - name: Run
-            run: ./scripts/release/run.sh ${{ startsWith(github.ref, 'refs/tags/') }} ${{ github.ref_name }}
+            run: ./scripts/release/run.mjs
+            env:
+                REF: ${{ github.ref }}
+                RELEASE_TOKEN: ${{ secrets.RELEASE_TOKEN }}

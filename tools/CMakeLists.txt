@@ -15,7 +15,7 @@ force_set(CMAKE_INSTALL_PREFIX "${CMAKE_CURRENT_SOURCE_DIR}/bin" FILEPATH)
 force_set(CMAKE_INSTALL_BINDIR "." FILEPATH)
 
 # Versions
-set(NINJA_VERSION "v1.13.1")
+set(NINJA_VERSION "v1.13.2")
 set(APPIMAGETOOL_VERSION "continuous")
 set(APPSTREAM_VERSION "v1.0.6")
 
@@ -37,17 +37,18 @@ safe_download(
     "https://github.com/AppImage/appimagetool/releases/download/${APPIMAGETOOL_VERSION}/appimagetool-${ARCH}.AppImage"
     "${APPIMAGETOOL_BIN}"
 )
-# Fix
 execute_process(
-    COMMAND "${CMAKE_CURRENT_SOURCE_DIR}/../scripts/misc/fix-appimage-for-docker.sh" "${APPIMAGETOOL_BIN}"
+    COMMAND "${CMAKE_CURRENT_SOURCE_DIR}/../scripts/misc/fix-appimage-for-docker.sh"
+        "${APPIMAGETOOL_BIN}"
     COMMAND_ERROR_IS_FATAL ANY
 )
 # Install
-file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/${APPIMAGETOOL_NAME}"
+set(APPIMAGETOOL_SCRIPT "${CMAKE_CURRENT_BINARY_DIR}/${APPIMAGETOOL_NAME}")
+file(WRITE "${APPIMAGETOOL_SCRIPT}"
     "#!/bin/sh\n"
     "exec \"${APPIMAGETOOL_BIN}\" --appimage-extract-and-run \"\$@\"\n"
 )
-install(PROGRAMS "${CMAKE_CURRENT_BINARY_DIR}/${APPIMAGETOOL_NAME}" TYPE BIN)
+install(PROGRAMS "${APPIMAGETOOL_SCRIPT}" TYPE BIN)
 
 # AppStream
 include(ExternalProject)

@@ -18,3 +18,4 @@
 /.idea
 /quasi-msys2
 /*.trace
+/scripts/release/lib/.tea-*

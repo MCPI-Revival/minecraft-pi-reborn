@@ -7,7 +7,8 @@ import {
     addPackageForHost,
     doesPackageExist,
     getPackageForHost,
-    installPackages, setupApt
+    installPackages,
+    setupApt
 } from './lib/apt.mjs';
 import { installMsys2, installMsys2Packages } from './lib/msys2.mjs';
 
