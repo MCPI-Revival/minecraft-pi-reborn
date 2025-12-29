@@ -42,7 +42,7 @@ This is equivalent to <a href="https://releases.ubuntu.com/jammy/">Ubuntu 22.04<
 
 It also requires some additional packages. To install them, run:
 ```sh
-sudo apt install -y libopenal1 libglib2.0-0
+sudo apt install -y libpulse0 libglib2.0-0
 ```
 </details>
 

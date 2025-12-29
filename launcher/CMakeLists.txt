@@ -62,6 +62,7 @@ target_link_libraries(launcher
     launcher-ui
     launcher-util
     trampoline-headers
+    Threads::Threads
 )
 
 # Logger

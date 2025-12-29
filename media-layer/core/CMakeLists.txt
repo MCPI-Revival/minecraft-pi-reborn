@@ -19,17 +19,17 @@ add_library(media-layer-core SHARED
 setup_library(media-layer-core TRUE TRUE)
 
 # Link
-find_package(OpenAL REQUIRED)
 target_link_libraries(media-layer-core
     PUBLIC
         media-layer-headers
         reborn-util
     PRIVATE
-        OpenAL::OpenAL
+        openal
         m
         glfw
         LIB_LIEF
         stb_image
+        Threads::Threads
 )
 if(NOT MCPI_WIN32)
     target_link_libraries(media-layer-core PUBLIC

@@ -77,6 +77,9 @@ if(BUILD_ARM_COMPONENTS)
 endif()
 cmake_language(EVAL CODE "${COMPILE_FLAGS_SETUP}")
 
+# Multithreading
+find_package(Threads REQUIRED)
+
 # Build Dependencies
 add_subdirectory(dependencies)
 

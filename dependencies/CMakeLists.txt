@@ -14,6 +14,10 @@ add_subdirectory(runtime)
 if(BUILD_NATIVE_COMPONENTS OR BUILD_MEDIA_LAYER_CORE)
     add_subdirectory(glfw)
 endif()
+# OpenAL
+if(BUILD_MEDIA_LAYER_CORE)
+    add_subdirectory(openal)
+endif()
 # ImGui
 if(BUILD_NATIVE_COMPONENTS)
     add_subdirectory(imgui)

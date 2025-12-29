@@ -27,3 +27,6 @@
 [submodule "dependencies/imgui/glad/src"]
 	path = dependencies/imgui/glad/src
 	url = https://github.com/Dav1dde/glad.git
+[submodule "dependencies/openal/src"]
+	path = dependencies/openal/src
+	url = https://github.com/kcat/openal-soft.git

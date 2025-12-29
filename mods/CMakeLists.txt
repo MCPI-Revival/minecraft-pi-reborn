@@ -164,5 +164,5 @@ target_link_libraries(mods
     PRIVATE
         stb_image
         dl
-        pthread
+        Threads::Threads
 )

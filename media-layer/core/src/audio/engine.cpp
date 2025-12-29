@@ -40,7 +40,7 @@ void _media_audio_init() {
 
     // Enable AL_SOURCE_DISTANCE_MODEL
     alEnable(AL_SOURCE_DISTANCE_MODEL);
-    ALenum al_err = alGetError();
+    const ALenum al_err = alGetError();
     if (al_err != AL_NO_ERROR) {
         ERR("Unable To Enable AL_SOURCE_DISTANCE_MODEL: %s", alGetString(al_err));
     }
@@ -74,10 +74,9 @@ void _media_audio_cleanup() {
         }
 
         // Close Device
-        alcCloseDevice(device);
-        err = alcGetError(device);
-        if (err != ALC_NO_ERROR) {
-            ERR("Unable To Close Audio Device: %s", alcGetString(device, err));
+        const ALCboolean ret = alcCloseDevice(device);
+        if (!ret) {
+            ERR("Unable To Close Audio Device");
         }
 
         // Log

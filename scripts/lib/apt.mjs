@@ -26,13 +26,19 @@ export function doesPackageExist(name) {
 let archSuffix = '';
 export function setupApt(architecture) {
     architecture = convertArchitectureToLinux(architecture);
-    if (architecture !== Architectures.Host) {
+    const addArch = architecture !== Architectures.Host;
+    if (addArch) {
         const arch = architecture.name;
         run(['dpkg', '--add-architecture', arch]);
         archSuffix = ':' + arch;
     }
     run(['apt-get', 'update']);
-    run(['apt-get', 'dist-upgrade', '-y']);
+    if (addArch) {
+        // Foreign-Architectures Packages Need To
+        // Match Native Packages, So Make Sure
+        // Native Packages Are Up To Date
+        run(['apt-get', 'dist-upgrade', '-y']);
+    }
 }
 
 // Install Packages

@@ -63,8 +63,8 @@ handlers.set(Modes.Build, function () {
             addPackageForBuild('crossbuild-essential-' + options.architecture.name);
         }
 
-        // Main Dependencies
-        addPackageForHost('libopenal-dev');
+        // OpenAL Dependencies
+        addPackageForHost('libpulse-dev');
 
         // GLFW Dependencies
         addPackageForBuild('libwayland-bin');
@@ -132,10 +132,7 @@ handlers.set(Modes.Build, function () {
     // Setup MSYS2
     if (options.architecture === Architectures.Windows) {
         installMsys2();
-        installMsys2Packages([
-            'gcc',
-            'openal'
-        ]);
+        installMsys2Packages(['gcc']);
     }
 });
 
