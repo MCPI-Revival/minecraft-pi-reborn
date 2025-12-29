@@ -10,7 +10,7 @@ ENV(_MCPI_VANILLA_ASSETS_PATH, "", "/p")
 ENV(_MCPI_BENCHMARK, "", "")
 ENV(_MCPI_ONLY_GENERATE, "", "")
 // Logging
-ENV(_MCPI_LOG_FD, "", "")
+ENV(_MCPI_LOG_FD, "", "[") // This is not a typo, it signals that this should not be passed to WSL.
 ENV(MCPI_DEBUG, "Enable Debug Logging", "")
 ENV(MCPI_QUIET, "Silence Most Logging", "")
 // Server/Headless

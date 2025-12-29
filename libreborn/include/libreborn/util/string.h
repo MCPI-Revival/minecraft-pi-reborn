@@ -27,4 +27,5 @@ std::wstring convert_utf8_to_wstring(const std::string &str);
 def(float);
 def(int);
 def(size_t);
+def(void *);
 #undef def

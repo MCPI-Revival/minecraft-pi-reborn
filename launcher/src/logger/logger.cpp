@@ -12,6 +12,7 @@
 
 #include <libreborn/util/exec.h>
 #include <libreborn/log.h>
+#include <libreborn/util/logger.h>
 #include <libreborn/util/util.h>
 #include <libreborn/util/io.h>
 #include <libreborn/config.h>
@@ -39,13 +40,7 @@ static void setup_log_file() {
     // Create Pipe
     log_pipe = new Pipe();
     const HANDLE log_handle = log_pipe->write;
-    reborn_init_log(
-#ifdef _WIN32
-        _open_osfhandle(intptr_t(log_handle), _O_WRONLY | _O_APPEND)
-#else
-        log_handle
-#endif
-    );
+    reborn_init_log(log_handle);
 
     // Create Symlink To Latest Log
 #ifndef _WIN32
@@ -127,7 +122,7 @@ static int setup_logger_parent(Process &child) {
     });
 
     // Close Debug Log
-    reborn_init_log(-1); // This also closes log_pipe->write.
+    reborn_init_log(std::nullopt); // This also closes log_pipe->write.
     CloseHandle(log_pipe->read);
     delete log_pipe;
 

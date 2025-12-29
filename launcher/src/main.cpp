@@ -4,6 +4,7 @@
 #include <libreborn/util/util.h>
 #include <libreborn/util/io.h>
 #include <libreborn/util/exec.h>
+#include <libreborn/util/logger.h>
 #include <libreborn/config.h>
 #include <libreborn/log.h>
 
@@ -117,7 +118,7 @@ int main(const int argc, char *argv[]) {
     const options_t options = parse_options(argc, argv);
 
     // Debug Logging
-    reborn_init_log(-1);
+    reborn_init_log(std::nullopt);
     bind_to_env(MCPI_DEBUG_ENV, options.debug);
     bind_to_env(MCPI_QUIET_ENV, options.quiet);
 

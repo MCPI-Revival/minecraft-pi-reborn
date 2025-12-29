@@ -1,6 +1,7 @@
 #include <algorithm>
 #include <ctime>
 #include <cstring>
+#include <cstdint>
 
 #ifdef _WIN32
 #define WIN32_LEAN_AND_MEAN
@@ -89,3 +90,6 @@ def(float, "%f")
 def(int, "%d")
 def(size_t, "%zu")
 #undef def
+std::string safe_to_string(void *x) {
+    return safe_to_string(uintptr_t(x));
+}

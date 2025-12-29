@@ -10,7 +10,7 @@ static void set_wslenv() {
     // Get List Of Set Variables
     std::vector<std::string> variables;
 #define ENV(name, _, flags) \
-    if (is_env_set(name##_ENV)) { \
+    if (is_env_set(name##_ENV) && (flags)[0] != '[') { \
         variables.push_back(name##_ENV + std::string(flags)); \
     }
 #include <libreborn/env/list.h>

@@ -1,15 +1,5 @@
 #pragma once
 
-#include <cstdio>
-
-// Log File
-FILE *reborn_get_log_file();
-void reborn_init_log(int fd);
-// Debug Logging
-#define DEBUG_TAG(x) "(" x ") "
-extern const char *reborn_debug_tag;
-FILE *reborn_get_debug_file();
-
 // Logging
 #define ATTR __attribute__((format(printf, 1, 2)))
 ATTR void INFO(const char *format, ...);
@@ -29,6 +19,6 @@ ATTR __attribute__((noreturn)) void _ERR(const char *format, ...);
         } \
     })
 
-// Crash Message
-// This is not thread-safe.
-const char *reborn_get_crash_message(const char *reason);
+// Debug Logging
+#define DEBUG_TAG(x) "(" x ") "
+extern const char *reborn_debug_tag;

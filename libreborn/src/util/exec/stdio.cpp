@@ -6,6 +6,7 @@
 
 #include <libreborn/util/exec.h>
 #include <libreborn/util/io.h>
+#include <libreborn/util/logger.h>
 #include <libreborn/log.h>
 
 #include "exec.h"
