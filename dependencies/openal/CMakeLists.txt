@@ -243,4 +243,10 @@ target_include_directories(openal
 setup_library(openal TRUE TRUE)
 
 # License
-install(FILES src/COPYING src/LICENSE-pffft DESTINATION "${MCPI_LEGAL_DIR}/OpenAL")
+install(
+    FILES
+        src/COPYING
+        src/LICENSE-pffft
+        src/BSD-3Clause
+    DESTINATION "${MCPI_LEGAL_DIR}/OpenAL"
+)

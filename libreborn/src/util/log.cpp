@@ -28,7 +28,7 @@ static void duplicate_handle(HANDLE &handle) {
 #else
     const int out = dup(handle);
     if (out < 0) {
-        ERR("Unable To Duplicate FD: %i", out);
+        ERR("Unable To Duplicate FD: %i", handle);
     }
     handle = out;
 #endif
