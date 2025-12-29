@@ -69,11 +69,3 @@ function(fix_flags property)
 endfunction()
 fix_flags(COMPILE_DEFINITIONS)
 fix_flags(INTERFACE_COMPILE_DEFINITIONS)
-
-# Patch
-execute_process(
-    COMMAND "patch" "-p1" "--forward" "--reject-file=-"
-    WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/src"
-    INPUT_FILE "${CMAKE_CURRENT_SOURCE_DIR}/patches/fix-windows-build.patch"
-    OUTPUT_QUIET
-)
