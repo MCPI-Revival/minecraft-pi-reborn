@@ -5,6 +5,7 @@
 #include <symbols/Common.h>
 #include <symbols/ModelPart.h>
 #include <symbols/Cube.h>
+#include <symbols/Minecraft.h>
 
 #include <GLES/gl.h>
 
@@ -74,6 +75,14 @@ HOOK(media_glDeleteBuffers, void, (GLsizei n, const GLuint *buffers)) {
     }
 }
 
+// Handle Graphics Reset
+static void Minecraft_onGraphicsReset_injection(Minecraft_onGraphicsReset_t original, Minecraft *self) {
+    // Clear Map
+    buffer_to_display_list.clear();
+    // Call Original Method
+    original(self);
+}
+
 // Init
 void _init_display_lists_tesselator() {
     advanced_tesselator_enable();
@@ -82,4 +91,5 @@ void _init_display_lists_tesselator() {
     replace(Common_drawArrayVT);
     ignore_patch_conflict = false;
     overwrite_calls(ModelPart_compile, ModelPart_compile_injection);
+    overwrite_calls(Minecraft_onGraphicsReset, Minecraft_onGraphicsReset_injection);
 }

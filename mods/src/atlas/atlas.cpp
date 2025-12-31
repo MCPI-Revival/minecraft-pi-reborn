@@ -1,16 +1,17 @@
+#include "internal.h"
+
 #include <GLES/gl.h>
 
 #include <libreborn/patch.h>
 #include <libreborn/util/util.h>
+#include <libreborn/env/env.h>
 
 #include <symbols/Item.h>
 #include <symbols/ItemRenderer.h>
 #include <symbols/Tile.h>
-#include <symbols/TileRenderer.h>
 #include <symbols/NinecraftApp.h>
 #include <symbols/Textures.h>
 #include <symbols/Texture.h>
-#include <symbols/CropTile.h>
 #include <symbols/Tesselator.h>
 
 #include <media-layer/core.h>
@@ -19,90 +20,25 @@
 #include <mods/misc/misc.h>
 #include <mods/textures/textures.h>
 #include <mods/atlas/atlas.h>
+#include <mods/screenshot/screenshot.h>
 #include <mods/init/init.h>
 
-// Atlas Texture
-constexpr int atlas_texture_size = 2048; // Must Be Power Of Two
+// Texture Name
+static constexpr const char *atlas_texture_name = "gui/gui_blocks.png";
 
-// Atlas Dimensions
-constexpr int atlas_entry_size = 48;
-constexpr int atlas_size_entries = atlas_texture_size / atlas_entry_size;
-
-// Render Atlas
-static int get_atlas_key(Item *item, const int data) {
+// Atlas Information (Keys And Positions)
+int _atlas_get_key(Item *item, const int data) {
+    _atlas_active = true;
     const int id = item->id;
     const int icon = item->getIcon(data);
-    return (id << 16) | icon;
+    const int key = (id << 16) | icon;
+    _atlas_active = false;
+    return key;
 }
-static std::unordered_map<int, std::pair<int, int>> atlas_key_to_pos;
-static std::unordered_map<int, std::vector<std::pair<int, int>>> tile_texture_to_atlas_pos;
-static bool is_flat_tile(const int id) {
-    // Check If An Item Is A Tile
-    if (id < 256) {
-        Tile *tile = Tile::tiles[id];
-        // Check If It Renders Without A Model ("Flat" Rendering)
-        if (tile && !TileRenderer::canRender(tile->getRenderShape())) {
-            return true;
-        }
-    }
-    return false;
-}
-static void render_atlas(Textures *textures) {
-    int x = 0;
-    int y = 0;
-    // Loop Over All Possible IDs
-    constexpr int id_count = int(sizeof(Item::items) / sizeof(Item *));
-    for (int id = 0; id < id_count; id++) {
-        Item *item = Item::items[id];
-        if (!item) {
-            // Invalid ID
-            continue;
-        }
-        // Count Unique Textures
-        constexpr int amount_of_data_values_to_check = 512;
-        std::unordered_map<int, int> key_to_data;
-        for (int data = amount_of_data_values_to_check - 1; data >= 0; data--) {
-            int key = get_atlas_key(item, data);
-            key_to_data[key] = data;
-        }
-        // Loop Over All Data Values With Unique Textures
-        for (const std::pair<int, int> info : key_to_data) {
-            const int key = info.first;
-            const int data = info.second;
-            // Check Remaining Space (Leave Last Slot Empty)
-            constexpr int last_entry_pos = atlas_size_entries - 1;
-            if (x == last_entry_pos && y == last_entry_pos) {
-                WARN("Out Of gui_blocks Atlas Space!");
-                return;
-            }
-            // Position
-            media_glPushMatrix();
-            media_glTranslatef(atlas_entry_size * x, atlas_entry_size * y, 0);
-            constexpr float scale = atlas_entry_size / 16.0f;
-            media_glScalef(scale, scale, 1);
-            // Render
-            ItemInstance obj = {
-                .count = 1,
-                .id = id,
-                .auxiliary = data
-            };
-            ItemRenderer::renderGuiItemCorrect(nullptr, textures, &obj, 0, 0);
-            media_glPopMatrix();
-            // Store
-            atlas_key_to_pos[key] = {x, y};
-            if (is_flat_tile(id)) {
-                int icon = item->getIcon(data);
-                tile_texture_to_atlas_pos[icon].push_back(atlas_key_to_pos[key]);
-            }
-            // Advance To Next Slot
-            x++;
-            if (x >= atlas_size_entries) {
-                x = 0;
-                y++;
-            }
-        }
-    }
-}
+std::unordered_map<int, std::pair<int, int>> _atlas_key_to_pos;
+std::unordered_map<int, std::vector<std::pair<int, int>>> _tile_texture_to_atlas_pos;
+
+// Render Atlas
 static void generate_atlas(Minecraft *minecraft) {
     // Setup Offscreen Rendering
     media_begin_offscreen_render(atlas_texture_size, atlas_texture_size);
@@ -121,38 +57,31 @@ static void generate_atlas(Minecraft *minecraft) {
 
     // Render
     Textures *textures = minecraft->textures;
-    render_atlas(textures);
+    _atlas_render(textures);
 
     // Copy Open Inventory Button
-    textures->loadAndBindTexture("terrain.png");
-    constexpr int in_icon_x = 209;
-    constexpr int in_icon_y = 214;
-    constexpr int in_icon_width = 14;
-    constexpr int in_icon_height = 4;
-    constexpr int out_icon_width = in_icon_width * 2;
-    constexpr int out_icon_height = in_icon_height * 2;
-    constexpr int out_icon_x = atlas_texture_size - out_icon_width;
-    constexpr int out_icon_y = atlas_texture_size - out_icon_height;
-    minecraft->gui.blit(out_icon_x, out_icon_y, in_icon_x, in_icon_y, out_icon_width, out_icon_height, in_icon_width, in_icon_height);
+    _atlas_copy_inventory_button(textures, &minecraft->gui);
 
-    // Read Texture
-    int line_size = atlas_texture_size * 4;
-    {
-        // Handle Alignment
-        int alignment;
-        media_glGetIntegerv(GL_PACK_ALIGNMENT, &alignment);
-        // Round
-        line_size = align_up(line_size, alignment);
+    // Dump
+    if (is_env_set(MCPI_DUMP_ATLAS_ENV)) {
+        screenshot_take(nullptr, "atlas-dumps");
     }
-    Texture texture;
+
+    // Get Line Size
+    int line_size = atlas_texture_size * 4;
+    int alignment;
+    media_glGetIntegerv(GL_PACK_ALIGNMENT, &alignment);
+    line_size = align_up(line_size, alignment);
+    // Read Texture
+    Texture texture = {};
     texture.width = atlas_texture_size;
     texture.height = atlas_texture_size;
-    texture.field3_0xc = 0;
-    texture.field4_0x10 = true;
-    texture.field5_0x11 = false;
+    texture.data_size = atlas_texture_size * line_size;
+    texture.has_alpha = true;
+    texture.prevent_freeing_data = false;
     texture.field6_0x14 = 0;
     texture.field7_0x18 = -1;
-    texture.data = new unsigned char[atlas_texture_size * line_size];
+    texture.data = new unsigned char[texture.data_size];
     media_glReadPixels(0, 0, atlas_texture_size, atlas_texture_size, GL_RGBA, GL_UNSIGNED_BYTE, texture.data);
     for (int y = 0; y < (texture.height / 2); y++) {
         for (int x = 0; x < (texture.width * 4); x++) {
@@ -166,38 +95,47 @@ static void generate_atlas(Minecraft *minecraft) {
     media_end_offscreen_render();
 
     // Upload Texture
-    minecraft->textures->assignTexture("gui/gui_blocks.png", texture);
+    textures->assignTexture(atlas_texture_name, texture);
     DEBUG("Generated gui_blocks Atlas");
+}
+static void Minecraft_onGraphicsReset_injection(Minecraft_onGraphicsReset_t original, Minecraft *self) {
+    // Call Original Method
+    original(self);
+    // Regenerate Atlas
+    generate_atlas(self);
 }
 
 // Use New Atlas
 static void ItemRenderer_renderGuiItem_two_injection(MCPI_UNUSED ItemRenderer_renderGuiItem_two_t original, MCPI_UNUSED Font *font, Textures *textures, const ItemInstance *item_instance_ptr, const float x, const float y, const float w, const float h, MCPI_UNUSED bool param_5) {
-    // "Carried" Items
+    // Replace "Carried" Items
     ItemInstance item_instance = *item_instance_ptr;
     if (item_instance.id == Tile::leaves->id) {
         item_instance.id = Tile::leaves_carried->id;
     } else if (item_instance.id == Tile::grass->id) {
         item_instance.id = Tile::grass_carried->id;
     }
-    // Get Position
+
+    // Get Position In Atlas
     Item *item = Item::items[item_instance.id];
     if (!item) {
         return;
     }
-    const int key = get_atlas_key(item, item_instance.auxiliary);
-    if (!atlas_key_to_pos.contains(key)) {
+    const int key = _atlas_get_key(item, item_instance.auxiliary);
+    if (!_atlas_key_to_pos.contains(key)) {
         WARN("Skipping Item Not In gui_blocks Atlas: %i:%i", item_instance.id, item_instance.auxiliary);
         return;
     }
-    const std::pair<int, int> &pos = atlas_key_to_pos[key];
+    const std::pair<int, int> &pos = _atlas_key_to_pos.at(key);
+
     // Convert To UV
     constexpr float scale = float(atlas_texture_size) / atlas_entry_size;
     const float u0 = float(pos.first) / scale;
     const float u1 = float(pos.first + 1) / scale;
     const float v0 = float(pos.second) / scale;
     const float v1 = float(pos.second + 1) / scale;
+
     // Render
-    textures->loadAndBindTexture("gui/gui_blocks.png");
+    textures->loadAndBindTexture(atlas_texture_name);
     Tesselator &t = Tesselator::instance;
     t.begin(GL_QUADS);
     t.colorABGR(item_instance.count > 0 ? 0xffffffff : 0x60ffffff);
@@ -208,36 +146,14 @@ static void ItemRenderer_renderGuiItem_two_injection(MCPI_UNUSED ItemRenderer_re
     t.draw();
 }
 
-// Fix Buggy Crop Textures
-#define MAX_CROP_DATA 7
-static int CropTile_getTexture2_injection(CropTile_getTexture2_t original, CropTile *self, const int face, int data) {
-    if (data > MAX_CROP_DATA) {
-        data = MAX_CROP_DATA;
-    }
-    return original(self, face, data);
-}
-
-// Fix Open Inventory Button
-static void Gui_renderToolBar_GuiComponent_blit_injection(GuiComponent *self, const int x_dest, const int y_dest, MCPI_UNUSED const int x_src, MCPI_UNUSED const int y_src, const int width_dest, const int height_dest, const int width_src, const int height_src) {
-    constexpr float size_scale = 2.0f / atlas_texture_size;
-    constexpr float u1 = 1.0f;
-    const float u0 = u1 - (float(width_src) * size_scale);
-    constexpr float v1 = 1.0f;
-    const float v0 = v1 - (float(height_src) * size_scale);
-    Tesselator &t = Tesselator::instance;
-    t.begin(GL_QUADS);
-    t.vertexUV(float(x_dest), float(y_dest + height_dest), self->z, u0, v1);
-    t.vertexUV(float(x_dest + width_dest), float(y_dest + height_dest), self->z, u1, v1);
-    t.vertexUV(float(x_dest + width_dest), float(y_dest), self->z, u1, v0);
-    t.vertexUV(float(x_dest), float(y_dest), self->z, u0, v0);
-    t.draw();
-}
-
 // Update Dynamic Textures In Atlas
 void atlas_update_tile(Textures *textures, const int texture, const unsigned char *pixels) {
     // Update Texture
-    for (const std::pair<int, int> &pos : tile_texture_to_atlas_pos[texture]) {
-        const uint32_t atlas_id = textures->loadAndBindTexture("gui/gui_blocks.png");
+    if (!_tile_texture_to_atlas_pos.contains(texture)) {
+        return;
+    }
+    for (const std::pair<int, int> &pos : _tile_texture_to_atlas_pos.at(texture)) {
+        const uint32_t atlas_id = textures->loadAndBindTexture(atlas_texture_name);
         const Texture *atlas_data = textures->getTemporaryTextureData(atlas_id);
         constexpr int texture_size = 16;
         constexpr float fake_atlas_size = atlas_texture_size * (float(texture_size) / atlas_entry_size);
@@ -250,8 +166,8 @@ void init_atlas() {
     // Generate Atlas
     if (feature_has("Regenerate \"gui_blocks\" Atlas", server_disabled)) {
         misc_run_on_init(generate_atlas);
-        overwrite_calls(CropTile_getTexture2, CropTile_getTexture2_injection);
+        overwrite_calls(Minecraft_onGraphicsReset, Minecraft_onGraphicsReset_injection);
         overwrite_calls(ItemRenderer_renderGuiItem_two, ItemRenderer_renderGuiItem_two_injection);
-        overwrite_call((void *) 0x26f50, GuiComponent_blit, Gui_renderToolBar_GuiComponent_blit_injection);
+        _atlas_init_special_cases();
     }
 }

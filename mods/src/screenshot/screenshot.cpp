@@ -1,8 +1,6 @@
 #include <cstdlib>
-#include <cstdio>
 #include <unistd.h>
 
-#include "stb_image.h"
 #include "stb_image_write.h"
 
 #include <libreborn/log.h>
@@ -20,13 +18,19 @@
 #include <mods/feature/feature.h>
 
 // Ensure Screenshots Folder Exists
-static std::string get_screenshot_dir() {
-    std::string dir = std::string(home_get()) + "/screenshots";
+static std::string get_screenshot_dir(const std::string &sub = "") {
+    std::string dir = home_get();
+    dir += "/screenshots";
     ensure_directory(dir.c_str());
+    if (!sub.empty()) {
+        dir += '/';
+        dir += sub;
+        ensure_directory(dir.c_str());
+    }
     return dir;
 }
-static std::string get_screenshot(const std::string &filename) {
-    return get_screenshot_dir() + '/' + filename;
+static std::string get_screenshot(const std::string &filename, const std::string &dir) {
+    return get_screenshot_dir(dir) + '/' + filename;
 }
 
 // Take Screenshot
@@ -37,7 +41,7 @@ static int save_png(const char *filename, const unsigned char *pixels, const int
     // Write Image
     return !stbi_write_png(filename, width, height, 4, pixels, line_size);
 }
-void screenshot_take(Gui *gui) {
+void screenshot_take(Gui *gui, const char *dir) {
     // Check
     if (reborn_is_headless()) {
         IMPOSSIBLE();
@@ -49,15 +53,18 @@ void screenshot_take(Gui *gui) {
     // Prevent Overwriting Screenshots
     int num = 0;
     std::string filename;
+    std::string file;
     do {
+        // Get File Name
         filename = time;
         if (num > 0) {
             filename += '-' + safe_to_string(num);
         }
         filename += ".png";
+        // Get Full Path
+        file = get_screenshot(filename, dir);
         num++;
-    } while (access(get_screenshot(filename).c_str(), F_OK) != -1);
-    const std::string file = get_screenshot(filename);
+    } while (access(file.c_str(), F_OK) != -1);
 
     // Get Image Size
     GLint viewport[4];

@@ -5,7 +5,6 @@
 // Init
 CustomTesselator::CustomTesselator(const bool create_buffers) {
     has_buffer = create_buffers;
-    buffer_size = 0;
     are_vertices_flat = false;
     offset.x = 0;
     offset.y = 0;
@@ -14,8 +13,9 @@ CustomTesselator::CustomTesselator(const bool create_buffers) {
 }
 static void Tesselator_init_injection(MCPI_UNUSED Tesselator *self) {
     CustomTesselator &t = advanced_tesselator_get();
-    if (t.has_buffer > 0) {
+    if (t.has_buffer) {
         media_glGenBuffers(1, &t.buffer);
+        t.buffer_size = 0;
     }
 }
 CustomTesselator::~CustomTesselator() {

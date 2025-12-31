@@ -1,0 +1,10 @@
+size 0x1c;
+
+vtable 0x102470;
+vtable-size 0x40;
+
+virtual-method void update() = 0x24;
+virtual-method int handleBack(bool do_nothing) = 0x34;
+virtual-method void init() = 0x38;
+virtual-method AppPlatform *platform() = 0x8;
+virtual-method void onGraphicsReset() = 0x3c;

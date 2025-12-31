@@ -63,6 +63,8 @@ add_library(mods SHARED
     src/input/keys.cpp
     # atlas
     src/atlas/atlas.cpp
+    src/atlas/render.cpp
+    src/atlas/special-cases.cpp
     # title-screen
     src/title-screen/title-screen.cpp
     src/title-screen/splashes.cpp

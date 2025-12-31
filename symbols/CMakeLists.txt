@@ -5,6 +5,7 @@ add_symbol_library(symbols
     src/game/options/Options_Option.def
     src/game/options/OptionsFile.def
     src/game/options/Options.def
+    src/game/App.def
     src/game/Minecraft.def
     src/game/mode/GameMode.def
     src/game/mode/CreatorMode.def

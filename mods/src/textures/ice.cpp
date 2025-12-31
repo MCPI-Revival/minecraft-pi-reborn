@@ -83,7 +83,7 @@ static void patch_texture(const Minecraft *minecraft) {
     src_y = int(float(src_y) * y_scale);
     const int width = int(float(tile_size) * x_scale);
     const int height = int(float(tile_size) * y_scale);
-    const int src_channels = texture_data->field4_0x10 ? rgba : rgb;
+    const int src_channels = texture_data->has_alpha ? rgba : rgb;
     constexpr int dst_channels = rgba;
     const int src_line_size = get_line_size(texture_data->width, src_channels);
     const int dst_line_size = get_line_size(width, dst_channels);
@@ -135,6 +135,12 @@ static void patch_texture(const Minecraft *minecraft) {
     }
     delete[] new_texture;
 }
+static void Minecraft_onGraphicsReset_injection(Minecraft_onGraphicsReset_t original, Minecraft *self) {
+    // Call Original Method
+    original(self);
+    // Patch Texture
+    patch_texture(self);
+}
 
 // Init
 void _patch_ice_texture() {
@@ -142,4 +148,5 @@ void _patch_ice_texture() {
     patch_vtable(IceTile_isSolidRender, IceTile_isSolidRender_injection);
     patch_vtable(IceTile_shouldRenderFace, IceTile_shouldRenderFace_injection);
     misc_run_on_init(patch_texture);
+    overwrite_calls(Minecraft_onGraphicsReset, Minecraft_onGraphicsReset_injection);
 }

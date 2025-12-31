@@ -134,7 +134,7 @@ void media_glTexSubImage2D_with_scaling(const Texture *target, const GLint xoffs
 
 // Load Textures
 static Texture AppPlatform_linux_loadTexture_injection(MCPI_UNUSED AppPlatform_linux_loadTexture_t original, MCPI_UNUSED AppPlatform_linux *app_platform, const std::string &path, const bool b) {
-    Texture out;
+    Texture out = {};
     std::string real_path = path;
     if (b) {
         real_path = "data/images/" + real_path;
@@ -144,9 +144,9 @@ static Texture AppPlatform_linux_loadTexture_injection(MCPI_UNUSED AppPlatform_l
     out.width = 0;
     out.height = 0;
     out.data = nullptr;
-    out.field3_0xc = 0;
-    out.field4_0x10 = true;
-    out.field5_0x11 = false;
+    out.data_size = 0;
+    out.has_alpha = true;
+    out.prevent_freeing_data = false;
     out.field6_0x14 = 0;
     out.field7_0x18 = -1;
 
@@ -163,6 +163,7 @@ static Texture AppPlatform_linux_loadTexture_injection(MCPI_UNUSED AppPlatform_l
     // Get Line Size
     const int line_width = width * desired_channels;
     const int size = height * line_width;
+    out.data_size = size;
     // Check Alignment
     int alignment;
     media_glGetIntegerv(GL_PACK_ALIGNMENT, &alignment);
