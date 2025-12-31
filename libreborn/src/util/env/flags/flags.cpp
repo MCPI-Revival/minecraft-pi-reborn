@@ -35,22 +35,35 @@ Flags::Flags(const std::string &data) {
             }
             stack.resize(indent + 1);
             FlagNode &parent = *stack.back();
+
             // Add New Node
+            const bool is_root = indent == 0;
             if (FlagNode::handle_line_prefix("CATEGORY", line)) {
                 // New Category
                 FlagNode &category = parent.add_category(line);
                 stack.push_back(&category);
+            } else if (FlagNode::handle_line_prefix("COMMENT", line)) {
+                // Set Comment/Tooltip
+                if (is_root) {
+                    ERR("Cannot Set Tooltip Outside Category: %s", line.c_str());
+                }
+                parent.comment = line;
             } else {
                 // Add Flag
-                if (indent == 0) {
+                if (!parent.is_category()) {
+                    ERR("Parent Is Not A Category: %s", line.c_str());
+                } else if (is_root) {
                     ERR("Feature Flag Outside Of Category: %s", line.c_str());
                 }
-                parent.add_flag(line);
+                FlagNode &flag = parent.add_flag(line);
+                stack.push_back(&flag);
             }
         }
     }
+
     // Sort
     root.sort();
+
     // Check For Duplicates
     std::unordered_set<std::string> seen;
     root.for_each_const([&seen](const FlagNode &node) {
@@ -62,10 +75,12 @@ Flags::Flags(const std::string &data) {
         }
     });
 }
+
+// Utility/Conversion Methods
 std::string Flags::to_string() const {
     std::string out;
     root.for_each_const([&out](const FlagNode &flag) {
-        if (flag.value) {
+        if (flag.value.value()) {
             if (!out.empty()) {
                 out += FLAG_SEPERATOR_CHAR;
             }
@@ -95,7 +110,7 @@ bool Flags::operator==(const Flags &other) const {
 std::unordered_map<std::string, bool> Flags::to_cache() const {
     std::unordered_map<std::string, bool> out;
     root.for_each_const([&out](const FlagNode &flag) {
-        out[flag.name] = flag.value;
+        out[flag.name] = flag.value.value();
     });
     return out;
 }

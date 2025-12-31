@@ -1,4 +1,4 @@
-#include "frame.h"
+#include "../frame.h"
 
 // Get Width Of A Frame (Like A Button)
 float Frame::get_frame_width(const char *str) {

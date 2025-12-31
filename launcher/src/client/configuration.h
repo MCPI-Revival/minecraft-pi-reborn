@@ -43,6 +43,7 @@ private:
     void draw_advanced();
     void draw_category(FlagNode &category);
     bool should_draw_category(const FlagNode &category);
+    static void add_flag_tooltip(const FlagNode &flag);
     // Server List
     void draw_servers() const;
     void draw_server_list() const;

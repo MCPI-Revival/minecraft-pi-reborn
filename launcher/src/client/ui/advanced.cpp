@@ -1,6 +1,7 @@
 #include <algorithm>
 
 #include <libreborn/util/string.h>
+#include <libreborn/log.h>
 
 #include "../configuration.h"
 
@@ -24,8 +25,13 @@ void ConfigurationUI::draw_advanced() {
             if (!should_draw_category(category)) {
                 continue;
             }
+            if (!category.is_category()) {
+                IMPOSSIBLE();
+            }
             const std::string label = get_label_for_flag_node(category);
-            if (ImGui::CollapsingHeader(label.c_str())) {
+            const bool ret = ImGui::CollapsingHeader(label.c_str());
+            add_flag_tooltip(category);
+            if (ret) {
                 draw_category(category);
             }
         }
@@ -40,20 +46,23 @@ void ConfigurationUI::draw_category(FlagNode &category) {
             continue;
         }
         const std::string label = get_label_for_flag_node(child);
-        if (!child.children.empty()) {
+        if (child.is_category()) {
             // Sub-Category
-            if (ImGui::TreeNodeEx(label.c_str(), ImGuiTreeNodeFlags_SpanAvailWidth)) {
+            const bool ret = ImGui::TreeNodeEx(label.c_str(), ImGuiTreeNodeFlags_SpanAvailWidth);
+            add_flag_tooltip(child);
+            if (ret) {
                 draw_category(child);
                 ImGui::TreePop();
             }
         } else {
             // Flag
-            ImGui::Checkbox(label.c_str(), &child.value);
+            ImGui::Checkbox(label.c_str(), &child.value.value());
+            add_flag_tooltip(child);
         }
     }
 }
 bool ConfigurationUI::should_draw_category(const FlagNode &category) {
-    if (category.children.empty()) {
+    if (!category.is_category()) {
         // Flag
         return filter.PassFilter(category.name.c_str());
     } else {
@@ -61,5 +70,18 @@ bool ConfigurationUI::should_draw_category(const FlagNode &category) {
         return std::ranges::any_of(category.children, [this](const FlagNode &child) {
             return should_draw_category(child);
         });
+    }
+}
+
+// Tooltips
+void ConfigurationUI::add_flag_tooltip(const FlagNode &flag) {
+    if (!flag.comment.empty() && ImGui::BeginItemTooltip()) {
+        const float max_width = get_max_tooltip_width();
+        const float padding = ImGui::GetCursorPosX();
+        const float wrap_pos = max_width - padding;
+        ImGui::PushTextWrapPos(wrap_pos);
+        ImGui::TextUnformatted(flag.comment.c_str());
+        ImGui::PopTextWrapPos();
+        ImGui::EndTooltip();
     }
 }

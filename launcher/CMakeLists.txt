@@ -3,8 +3,10 @@ project(launcher)
 # UI Code
 add_library(launcher-ui SHARED
     src/ui/frame.cpp
-    src/ui/color.cpp
-    src/ui/util.cpp
+    src/ui/style/style.cpp
+    src/ui/style/color.cpp
+    src/ui/util/util.cpp
+    src/ui/util/tooltip.cpp
 )
 target_link_libraries(launcher-ui
     reborn-util

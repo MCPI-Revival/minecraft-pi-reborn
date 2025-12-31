@@ -29,6 +29,7 @@ protected:
     };
     static int draw_aligned_buttons(const std::vector<const char *> &buttons, const AlignedButtonConfig &config);
     static constexpr const char *quit_text = "Quit";
+    static float get_max_tooltip_width();
 
 private:
     // Properties

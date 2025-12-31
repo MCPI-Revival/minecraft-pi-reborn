@@ -1,16 +1,24 @@
 #pragma once
 
-// Debian Bookworm Does Not Support std::format
-// Always Use fmtlib
 // Original: https://github.com/kcat/openal-soft/blob/78a2ddb791163ae0d603937c88613523d27fa22d/common/alformat.hpp
 
+// Include Formatting Library
+#define add(x) \
+    namespace al { \
+        using x::format; \
+        using x::format_args; \
+        using x::format_string; \
+        using x::make_format_args; \
+        using x::string_view; \
+        using x::vformat; \
+    }
+#ifdef _WIN32
+// The Windows WASAPI Backend Requires std::format
+#include <format>
+add(std)
+#else
+// Debian Bookworm Does Not Support std::format
 #include <fmt/format.h>
-
-namespace al {
-    using fmt::format;
-    using fmt::format_args;
-    using fmt::format_string;
-    using fmt::make_format_args;
-    using fmt::string_view;
-    using fmt::vformat;
-}
+add(fmt)
+#endif
+#undef add

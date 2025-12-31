@@ -162,8 +162,6 @@ void init_creative() {
         patch((void *) 0x99010, nop_patch);
         // Allow Nether Reactor
         patch((void *) 0xc0290, nop_patch);
-        // Item Dropping
-        overwrite_call(Gui_tick_Minecraft_isCreativeMode_addr, Minecraft_isCreativeMode, Gui_tick_Minecraft_isCreativeMode_injection);
     }
 
     // Inventory Behavior
@@ -174,6 +172,8 @@ void init_creative() {
         patch((void *) 0x92098, nop_patch); // FillingContainer::removeResource(int)
         unsigned char inv_creative_check_r3_patch[4] = {0x03, 0x00, 0x53, 0xe1}; // "cmp r3, r3"
         patch((void *) 0x923c0, inv_creative_check_r3_patch); // FillingContainer::removeResource(ItemInstance const&, bool)
+        // Item Dropping
+        overwrite_call(Gui_tick_Minecraft_isCreativeMode_addr, Minecraft_isCreativeMode, Gui_tick_Minecraft_isCreativeMode_injection);
     }
 
     // "Craft" And "Armor" Buttons

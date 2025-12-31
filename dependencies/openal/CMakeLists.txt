@@ -101,7 +101,6 @@ add_library(openal SHARED
     src/alc/backends/base.cpp
     src/alc/backends/loopback.cpp
     src/alc/backends/null.cpp
-    # String Formatting
     # https://github.com/kcat/openal-soft/blob/78a2ddb791163ae0d603937c88613523d27fa22d/fmt-11.2.0/CMakeLists.txt#L122
     src/fmt-11.2.0/src/format.cc
     src/fmt-11.2.0/src/os.cc
@@ -150,23 +149,29 @@ set_target_properties(openal PROPERTIES
 # Optimizations
 # https://github.com/kcat/openal-soft/blob/78a2ddb791163ae0d603937c88613523d27fa22d/CMakeLists.txt#L978
 include(CheckIncludeFile)
-function(add_optimization var header source)
-    set(CMAKE_REQUIRED_QUIET TRUE)
+function(al_check_header header)
     check_include_file("${header}" "AL_HAVE_${header}")
+endfunction()
+function(al_add_optimization var header source)
+    set(CMAKE_REQUIRED_QUIET TRUE)
+    al_check_header("${header}")
     unset(CMAKE_REQUIRED_QUIET)
     if("${AL_HAVE_${header}}")
         target_sources(openal PRIVATE "${source}")
         set("${var}" TRUE)
     endif()
 endfunction()
-add_optimization(HAVE_SSE xmmintrin.h src/core/mixer/mixer_sse.cpp)
-add_optimization(HAVE_SSE2 emmintrin.h src/core/mixer/mixer_sse2.cpp)
+al_add_optimization(HAVE_SSE xmmintrin.h src/core/mixer/mixer_sse.cpp)
+al_add_optimization(HAVE_SSE2 emmintrin.h src/core/mixer/mixer_sse2.cpp)
 if(HAVE_SSE2)
     set(HAVE_SSE_INTRINSICS TRUE)
 endif()
-add_optimization(HAVE_SSE3 pmmintrin.h src/core/mixer/mixer_sse3.cpp)
-add_optimization(HAVE_SSE4_1 smmintrin.h src/core/mixer/mixer_sse41.cpp)
-add_optimization(HAVE_NEON arm_neon.h src/core/mixer/mixer_neon.cpp)
+al_add_optimization(HAVE_SSE3 pmmintrin.h src/core/mixer/mixer_sse3.cpp)
+al_add_optimization(HAVE_SSE4_1 smmintrin.h src/core/mixer/mixer_sse41.cpp)
+al_add_optimization(HAVE_NEON arm_neon.h src/core/mixer/mixer_neon.cpp)
+if(HAVE_NEON)
+    set(HAVE_NEON_INTRINSICS TRUE)
+endif()
 
 # Libraries
 target_link_libraries(openal
@@ -200,30 +205,59 @@ else()
     target_link_libraries(openal avrt)
 endif()
 
+# Check For CPUID Intrinsic
+include(CheckCSourceCompiles)
+function(al_intrinsic_check header source_var source)
+    # Check Header
+    set(CMAKE_REQUIRED_QUIET TRUE)
+    al_check_header("${header}")
+    if("${AL_HAVE_${header}}")
+        string(REPLACE "." "_" header_var "${header}")
+        string(TOUPPER "${header_var}" header_var)
+        set("HAVE_${header_var}" TRUE PARENT_SCOPE)
+        # Check Source
+        check_c_source_compiles("#include <${header}>\n${source}" "AL_${source_var}")
+        if("${AL_${source_var}}")
+            set("${source_var}" TRUE PARENT_SCOPE)
+        endif()
+    endif()
+    unset(CMAKE_REQUIRED_QUIET)
+endfunction()
+al_intrinsic_check(cpuid.h HAVE_GCC_GET_CPUID "
+    int main() {
+        unsigned int eax, ebx, ecx, edx;
+        return __get_cpuid(0, &eax, &ebx, &ecx, &edx);
+    }
+")
+al_intrinsic_check(intrin.h HAVE_CPUID_INTRINSIC "
+    int main() {
+        int regs[4];
+        __cpuid(regs, 0);
+        return regs[0];
+    }
+")
+
 # Create Empty Version File
 # https://github.com/kcat/openal-soft/blob/78a2ddb791163ae0d603937c88613523d27fa22d/CMakeLists.txt#L1412
 set(GIT_BRANCH "")
 set(GIT_COMMIT_HASH "")
-function(configure_header file)
+function(al_configure_header file)
     configure_file(
         "${CMAKE_CURRENT_SOURCE_DIR}/src/${file}.in"
         "${CMAKE_CURRENT_BINARY_DIR}/${file}"
     )
 endfunction()
-configure_header(version.h)
+al_configure_header(version.h)
 
 # Generate Configuration Headers
-set(HAVE_CPUID_H TRUE)
-set(HAVE_GCC_GET_CPUID TRUE)
-set(HAVE_CPUID_INTRINSIC TRUE)
 set(HAVE_PTHREAD_SETSCHEDPARAM TRUE)
 set(HAVE_PTHREAD_SETNAME_NP TRUE)
 if(MCPI_WIN32)
     set(HAVE_GUIDDEF_H TRUE)
 endif()
-configure_header(config.h)
-configure_header(config_backends.h)
-configure_header(config_simd.h)
+al_configure_header(config.h)
+al_configure_header(config_backends.h)
+al_configure_header(config_simd.h)
 
 # Headers
 target_include_directories(openal

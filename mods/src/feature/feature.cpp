@@ -1,5 +1,3 @@
-#include <cstdlib>
-
 #include <libreborn/log.h>
 #include <libreborn/config.h>
 #include <libreborn/env/env.h>
@@ -36,7 +34,7 @@ bool feature_has(const char *name, const bool enabled_in_server_mode) {
     int ret = -1;
     flags.root.for_each_const([&ret, &name](const FlagNode &flag) {
         if (flag.name == std::string(name)) {
-            ret = flag.value;
+            ret = flag.value.value();
         }
     });
     if (ret == -1) {

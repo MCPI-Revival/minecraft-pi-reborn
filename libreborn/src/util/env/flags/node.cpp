@@ -10,16 +10,18 @@ void FlagNode::reset_id_counter() {
 }
 FlagNode::FlagNode(const std::string &name_) {
     name = name_;
-    value = false;
     id = next_id++;
 }
-FlagNode::FlagNode(): FlagNode("Root") {}
+FlagNode::FlagNode():
+    FlagNode("Root") {}
 void FlagNode::sort() {
     // Sort
     std::ranges::sort(children, [](const FlagNode &a, const FlagNode &b) {
         // Place Categories Before Flags
-        if (a.children.empty() != b.children.empty()) {
-            return a.children.empty() < b.children.empty();
+        const bool a_is_category = a.is_category();
+        const bool b_is_category = b.is_category();
+        if (a_is_category != b_is_category) {
+            return b_is_category < a_is_category;
         } else {
             // Sort Alphabetically
             return a.name < b.name;
@@ -30,11 +32,14 @@ void FlagNode::sort() {
         child.sort();
     }
 }
+bool FlagNode::is_category() const {
+    return !value.has_value();
+}
 
 // Iteration
 void FlagNode::for_each(const std::function<void(FlagNode &)> &callback) {
     for (FlagNode &child : children) {
-        if (child.children.empty()) {
+        if (!child.is_category()) {
             callback(child);
         } else {
             child.for_each(callback);
@@ -59,28 +64,27 @@ std::unordered_map<std::string, bool> FlagNode::flag_prefixes = {
     {"TRUE", true},
     {"FALSE", false}
 };
-void FlagNode::add_flag(std::string line) {
+FlagNode &FlagNode::add_flag(std::string line) {
     // Parse
-    bool value_set = false;
-    bool new_value = false;
+    std::optional<bool> new_value;
     for (const std::pair<const std::string, bool> &it : flag_prefixes) {
         if (handle_line_prefix(it.first, line)) {
             new_value = it.second;
-            value_set = true;
             break;
         }
     }
     // Check
-    if (!value_set) {
+    if (!new_value.has_value()) {
         ERR("Invalid Feature Flag Line: %s", line.c_str());
     }
-    if (line.rfind(FLAG_SEPERATOR_CHAR, 0) != std::string::npos) {
+    if (line.find(FLAG_SEPERATOR_CHAR) != std::string::npos) {
         ERR("Feature Flag Contains Invalid Character");
     }
     // Create
     FlagNode out(line);
     out.value = new_value;
     children.push_back(out);
+    return children.back();
 }
 FlagNode &FlagNode::add_category(const std::string &new_name) {
     const FlagNode out(new_name);

@@ -1,4 +1,5 @@
 CATEGORY Additions
+    COMMENT These control new features not present in the original game.
     CATEGORY Chat
         TRUE Implement Chat
         FALSE Hide Chat Messages
@@ -7,18 +8,24 @@ CATEGORY Additions
         TRUE Add Welcome Screen
         TRUE Implement Create World Dialog
     CATEGORY API
+        COMMENT These customize the official scripting API.
         TRUE Implement RaspberryJuice API
         TRUE Optimize API Sockets
+            COMMENT This allows each connection to handle more commands per tick.
         TRUE Improve API Chat Messages
     TRUE Add Buckets
     TRUE Add Cake
     TRUE Load Custom Skins
+        COMMENT This loads skins from the internet using the username.
 CATEGORY Creative Mode
     CATEGORY Inventory
         FALSE Expand Creative Mode Inventory
+            COMMENT This adds extra items to the inventory.
         FALSE Maximize Creative Mode Inventory Stack Size
         FALSE Force Survival Mode Inventory UI
+            COMMENT This enables the armor and crafting UI elements.
         FALSE Force Survival Mode Inventory Behavior
+            COMMENT This allows collecting and dropping items.
     FALSE Display Slot Count In Creative Mode
     FALSE Remove Creative Mode Restrictions
     TRUE Disable Hostile AI In Creative Mode
@@ -36,12 +43,15 @@ CATEGORY User Interface
             TRUE Fix Options Screen
             TRUE Add Reborn Info To Options
         TRUE Force Touch UI Inventory
+            COMMENT The non-touch inventory UI is extremely limited.
         TRUE Fix Pause Menu
         TRUE Display Date In Select World Screen
         TRUE Enable Sign Screen
         TRUE Implement "Quit and copy map" Button
     CATEGORY HUD
+        COMMENT These customize the head-up display. This includes the health bar and toolbar.
         TRUE Classic HUD
+            COMMENT This repositions HUD elements to match the Java Edition.
         TRUE Translucent Toolbar
         FALSE Food Overlay
         TRUE Render Selected Item Text
@@ -51,19 +61,27 @@ CATEGORY User Interface
         TRUE Load Language Files
         TRUE Add Missing Language Strings
     FALSE Full Touch UI
+        COMMENT This does not add touchscreen support.
     TRUE Force Touch UI Button Behavior
+        COMMENT This disables keyboard navigation in favor of more traditional behavior.
     TRUE Improved Cursor Rendering
     TRUE Remove Forced UI Lag
     TRUE Improved Button Hover Behavior
+        COMMENT The original game only showed a hover effect when the mouse was pressed down.
     TRUE Classic Item Count UI
+        COMMENT This repositions and rescales the item count to match the Java Edition.
     TRUE Click Buttons On Mouse Down
     TRUE Improved UI Scaling
+        COMMENT This improves scaling on HiDPI monitors.
 CATEGORY Rendering
     CATEGORY Optimizations
         TRUE Optimize Chunk Sorting
+            COMMENT This reduces lag spikes.
         TRUE Optimize Frustum Culling
         TRUE Use OpenGL Display Lists
+            COMMENT This also moves chunk rebuilding off of the main thread.
         FALSE Increase Render Chunk Size
+            COMMENT This improves performance but can cause lag spikes on some systems.
     CATEGORY Camera
         TRUE Enable Camera Rendering
         TRUE Render Camera Legs
@@ -73,10 +91,13 @@ CATEGORY Rendering
         TRUE Hide Block Outline When UI Is Hidden
     TRUE Display Nametags By Default
     TRUE Disable V-Sync
+        COMMENT This may increase FPS but can cause screen tearing.
     TRUE 3D Chest Model
     TRUE Use Java Beta 1.3 Light Ramp
     TRUE Render Fire In Third-Person
+        COMMENT This also affects non-player entities.
     TRUE Improved Water Rendering
+        COMMENT This also affects other translucent blocks.
     TRUE Proper OpenGL Buffer Generation
     TRUE 3D Dropped Items
     TRUE Render Entity Shadows
@@ -85,6 +106,7 @@ CATEGORY Rendering
 CATEGORY Textures
     CATEGORY Tinting
         FALSE Add Biome Colors To Grass
+            COMMENT This may negatively impact performance.
         FALSE Disable Block Tinting
     CATEGORY Animation
         TRUE Animated Water
@@ -93,8 +115,9 @@ CATEGORY Textures
     TRUE Regenerate "gui_blocks" Atlas
     FALSE Translucent Ice
 CATEGORY Input
+    COMMENT These customize how the game is controlled.
     TRUE Disable Autojump By Default
-    TRUE Bind "Q" Key To Item Dropping
+    TRUE Bind 'Q' Key To Item Dropping
     TRUE Bind Common Toggleable Options To Function Keys
     FALSE Disable Raw Mouse Motion (Not Recommended)
     FALSE Disable Speed Bridging
@@ -104,6 +127,7 @@ CATEGORY Input
 CATEGORY Multiplayer
     TRUE Allow Joining Survival Mode Servers
     TRUE External Server Support
+        COMMENT This allows connecting to servers outside the local network.
     TRUE Improve Multiplayer Chunk Loading
     TRUE Sanitize Usernames
     TRUE Allow Servers To Overwrite Armor
@@ -178,6 +202,7 @@ CATEGORY Logging
 CATEGORY Miscellaneous
     TRUE Fullscreen Support
     TRUE Always Save Chest Tile Entities
+        COMMENT This is necessary for the 3D chest model to work correctly.
     TRUE Screenshot Support
     TRUE Add Camera Functionality
     TRUE Update Default Options
