@@ -1,5 +1,4 @@
 #include <libreborn/util/util.h>
-#include <libreborn/util/string.h>
 #include <libreborn/config.h>
 
 #include "glfw.h"
@@ -46,8 +45,6 @@ GLFWwindow *create_glfw_window(const char *title, const int width, const int hei
 void cleanup_glfw(GLFWwindow *window) {
     // Ignore GLFW Errors During Termination
     glfwSetErrorCallback(nullptr);
-    // Workaround Segmentation Fault On NVIDIA
-    glfwPollEvents();
     // Clear Properties
 #ifdef _WIN32
     _reborn_free_window_properties(window);
