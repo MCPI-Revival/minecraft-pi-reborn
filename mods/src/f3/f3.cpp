@@ -209,35 +209,41 @@ static void render_debug_line(Gui *gui, const std::string &line, int x, const in
 static bool debug_info_shown = false;
 static constexpr int debug_margin = 2;
 static constexpr int debug_line_padding = 1;
-static void render_debug_info(Gui *self, const std::vector<std::string> &info, const bool right_aligned, const int pass) {
-    int y = debug_margin;
-    for (const std::string &line : info) {
-        render_debug_line(self, line, debug_margin, y, right_aligned, pass);
-        y += line_height;
-        y += debug_line_padding;
+static void render_debug_info(Gui *self, const std::vector<std::pair<bool, std::vector<std::string>>> &all_info, const int pass) {
+    for (const std::pair<bool, std::vector<std::string>> &info : all_info) {
+        int y = debug_margin;
+        for (const std::string &line : info.second) {
+            render_debug_line(self, line, debug_margin, y, info.first, pass);
+            y += line_height;
+            y += debug_line_padding;
+        }
     }
 }
 static void Gui_renderDebugInfo_injection(MCPI_UNUSED Gui_renderDebugInfo_t original, Gui *self) {
     if (debug_info_shown) {
-        for (int pass = 0; pass < 2; pass++) {
-            Tesselator &t = Tesselator::instance;
-            t.begin(GL_QUADS);
-            t.voidBeginAndEndCalls(true);
-            render_debug_info(self, get_debug_info_left(self->minecraft), false, pass);
-            render_debug_info(self, get_debug_info_right(self->minecraft), true, pass);
-            t.voidBeginAndEndCalls(false);
-            const bool use_blend = pass == 0;
-            if (use_blend) {
-                media_glEnable(GL_BLEND);
-                media_glDisable(GL_TEXTURE_2D);
-                media_glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-            }
-            t.draw();
-            if (use_blend) {
-                media_glEnable(GL_TEXTURE_2D);
-                media_glDisable(GL_BLEND);
-            }
-        }
+        // Get F3 Information
+        const Minecraft *minecraft = self->minecraft;
+        const std::vector<std::pair<bool, std::vector<std::string>>> all_info = {
+            {false, get_debug_info_left(minecraft)},
+            {true, get_debug_info_right(minecraft)}
+        };
+
+        // Draw Background
+        Tesselator &t = Tesselator::instance;
+        t.begin(GL_QUADS);
+        t.voidBeginAndEndCalls(true);
+        render_debug_info(self, all_info, 0);
+        t.voidBeginAndEndCalls(false);
+        media_glEnable(GL_BLEND);
+        media_glDisable(GL_TEXTURE_2D);
+        media_glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+        t.draw();
+        media_glEnable(GL_TEXTURE_2D);
+        media_glDisable(GL_BLEND);
+
+        // Draw Text
+        // This should already be batched.
+        render_debug_info(self, all_info, 1);
     }
 }
 

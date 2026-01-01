@@ -33,7 +33,14 @@ static void Font_init_injection(Font_init_t original, Font *self, Options *optio
 }
 
 // Custom Rendering
-static void Font_drawSlow_injection(MCPI_UNUSED Font_drawSlow_t original, const Font *self, const char *text, const float x, const float y, uint color, const bool param_1) {
+static void Font_drawSlow_injection(Font_drawSlow_t original, Font *self, const char *text, const float x, const float y, uint color, const bool param_1) {
+    // If this is part of a batched render, do the old/slow method.
+    const Tesselator &t = Tesselator::instance;
+    if (t.void_begin_end) {
+        original(self, text, x, y, color, param_1);
+        return;
+    }
+
     // Check Text
     if (!text || text[0] == '\0') {
         return;
