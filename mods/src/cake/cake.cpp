@@ -1,3 +1,5 @@
+#include <libreborn/patch.h>
+
 #include <symbols/Tile.h>
 #include <symbols/LevelSource.h>
 #include <symbols/Level.h>
@@ -7,6 +9,7 @@
 #include <symbols/TilePlanterItem.h>
 #include <symbols/Recipes.h>
 #include <symbols/FillingContainer.h>
+#include <symbols/TileRenderer.h>
 
 #include <mods/feature/feature.h>
 #include <mods/init/init.h>
@@ -223,7 +226,7 @@ static void Recipes_injection(Recipes *recipes) {
         .letter = 'm'
     };
     // Cake
-    ItemInstance cake_item_obj = {
+    const ItemInstance cake_item_obj = {
         .count = 1,
         .id = cake_item->id,
         .auxiliary = 0
@@ -234,6 +237,26 @@ static void Recipes_injection(Recipes *recipes) {
     const std::string line3 = "www";
     const std::vector ingredients = {milk, sugar, wheat, eggs};
     recipes->addShapedRecipe_3(cake_item_obj, line1, line2, line3, ingredients);
+}
+
+// Fix East Texture
+static void mirror_horizontally(TileRenderer *self) {
+    self->mirror_texture_horizontally = !self->mirror_texture_horizontally;
+}
+static void TileRenderer_renderEast_injection(MCPI_UNUSED TileRenderer_renderEast_t original, TileRenderer *self, Tile *tile, const int x, const int y, const int z, const int texture) {
+    // Mirror If Needed
+    const bool should_mirror = tile->id == cake->id;
+    if (should_mirror) {
+        mirror_horizontally(self);
+    }
+
+    // Call Original Method
+    original(self, tile, x, y, z, texture);
+
+    // Reverse Mirroring
+    if (should_mirror) {
+        mirror_horizontally(self);
+    }
 }
 
 // Init
@@ -247,5 +270,6 @@ void init_cake() {
             // The recipe needs milk buckets
             misc_run_on_recipes_setup(Recipes_injection);
         }
+        overwrite_calls(TileRenderer_renderEast, TileRenderer_renderEast_injection);
     }
 }

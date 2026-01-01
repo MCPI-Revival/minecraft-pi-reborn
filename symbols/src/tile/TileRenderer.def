@@ -11,6 +11,13 @@ method void renderTile(Tile *tile, int data) = 0x5dcb0;
 method void tesselateTorch(Tile *tile, float x, float y, float z, float top_x, float top_z) = 0x54254;
 method void tesselateCrossTexture(Tile *tile, int data, float x, float y, float z) = 0x547cc;
 method void renderBlock(Tile *tile, LevelSource *level, int x, int y, int z) = 0x59540;
+method void renderNorth(Tile *tile, int x, int y, int z, int texture) = 0x561b0;
+method void renderSouth(Tile *tile, int x, int y, int z, int texture) = 0x56418;
+method void renderEast(Tile *tile, int x, int y, int z, int texture) = 0x568e8;
+method void renderWest(Tile *tile, int x, int y, int z, int texture) = 0x56680;
+method void renderFaceUp(Tile *tile, int x, int y, int z, int texture) = 0x55f64;
+method void renderFaceDown(Tile *tile, int x, int y, int z, int texture) = 0x5549c;
 
 property LevelSource *level = 0x0;
 property bool disable_culling = 0x9;
+property bool mirror_texture_horizontally = 0x8;
