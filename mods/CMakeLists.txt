@@ -85,7 +85,8 @@ add_library(mods SHARED
     src/fps/fps.cpp
     # server
     src/server/server.cpp
-    src/server/commands.cpp
+    src/server/commands/util.cpp
+    src/server/commands/commands.cpp
     src/server/properties.cpp
     src/server/blacklist.cpp
     src/server/playerdata.cpp

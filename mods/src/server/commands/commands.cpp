@@ -1,5 +1,4 @@
-#include <unistd.h>
-#include <sys/ioctl.h>
+#include <optional>
 
 #include <libreborn/log.h>
 #include <libreborn/util/string.h>
@@ -7,24 +6,14 @@
 #include <mods/misc/misc.h>
 #include <mods/compat/compat.h>
 #include <mods/fps/fps.h>
-#include <mods/server/server.h>
 
 #include "internal.h"
-
-// Get Vector Of Players In Level
-static std::vector<Player *> get_players_in_level(Level *level) {
-    return level->players;
-}
-// Get Level From Minecraft
-static Level *get_level(const Minecraft *minecraft) {
-    return minecraft->level;
-}
 
 // Find Players With Username And Run Callback
 typedef std::function<void(Minecraft *minecraft, const std::string &username, Player *player)> player_callback_t;
 static void find_players(Minecraft *minecraft, const std::string &target_username, const player_callback_t &callback, const bool all_players) {
-    Level *level = get_level(minecraft);
-    const std::vector<Player *> players = get_players_in_level(level);
+    const Level *level = minecraft->level;
+    const std::vector<Player *> players = level->players;
     bool found_player = all_players;
     for (Player *player : players) {
         // Iterate Players
@@ -63,7 +52,7 @@ static void list_callback(const Minecraft *minecraft, const std::string &usernam
 // Kick Player
 void server_kick(const ServerPlayer *player) {
     const RakNet_RakNetGUID &guid = player->guid;
-    RakNet_AddressOrGUID target;
+    RakNet_AddressOrGUID target = {};
     target.constructor(guid);
     player->level->rak_net_instance->peer->CloseConnection(&target, true, 0, HIGH_PRIORITY);
     player->minecraft->network_handler->onDisconnect(guid);
@@ -73,46 +62,7 @@ static void kick_callback(MCPI_UNUSED Minecraft *minecraft, const std::string &u
     INFO("Kicked: %s", username.c_str());
 }
 
-// Read STDIN
-static std::string check_stdin() {
-    FILE *file = stdin;
-    const int fd = fileno(file);
-    std::string out;
-    if (isatty(fd)) {
-        int available_bytes = 0;
-        const int ret = ioctl(fd, FIONREAD, &available_bytes);
-        if (ret == 0 && available_bytes > 0) {
-            char *line = nullptr;
-            size_t len = 0;
-            if (getline(&line, &len, file) > 0) {
-                out = line;
-            }
-            free(line);
-        }
-    }
-    return out;
-}
-
-// Handle Commands
-bool ServerCommand::has_args() const {
-    return name[name.length() - 1] == ' ';
-}
-std::string ServerCommand::get_lhs_help() const {
-    std::string out;
-    out.append(4, ' ');
-    out += name;
-    if (has_args()) {
-        out += "<Arguments>";
-    }
-    return out;
-}
-std::string ServerCommand::get_full_help(const int max_lhs_length) const {
-    std::string out = get_lhs_help();
-    out.append(max_lhs_length - out.length(), ' ');
-    out += " - ";
-    out += comment;
-    return out;
-}
+// Built-In Commands
 std::vector<ServerCommand> *server_get_commands(Minecraft *minecraft, ServerSideNetworkHandler *server_side_network_handler) {
     std::vector<ServerCommand> *commands = new std::vector<ServerCommand>;
     // Ban Player
@@ -178,7 +128,7 @@ std::vector<ServerCommand> *server_get_commands(Minecraft *minecraft, ServerSide
         .callback = [server_side_network_handler](const std::string &cmd) {
             // Format Message
             const std::string message = "[Server] " + cmd;
-            std::string cpp_string = to_cp437(message);
+            const std::string cpp_string = to_cp437(message);
             // Post Message To Chat
             server_side_network_handler->displayGameMessage(cpp_string);
         }
@@ -212,58 +162,51 @@ std::vector<ServerCommand> *server_get_commands(Minecraft *minecraft, ServerSide
         }
     });
 
+    // Time
+    commands->push_back({
+        .name = "get-time",
+        .comment = "Get The Current Time (In Ticks)",
+        .callback = [minecraft](MCPI_UNUSED const std::string &cmd) {
+            INFO("Time: %i", minecraft->level->data.time);
+            minecraft->level->data.time = 12000;
+        }
+    });
+    commands->push_back({
+        .name = "set-time ",
+        .comment = "Set The Current Time",
+        .callback = [minecraft](const std::string &cmd) {
+            std::optional<int> new_time;
+            if (cmd == "day") {
+                new_time = 1000;
+            } else if (cmd == "night") {
+                new_time = 13000;
+            } else {
+                try {
+                    const int x = std::stoi(cmd);
+                    if (x >= 0) {
+                        new_time = x;
+                    }
+                } catch (...) {}
+            }
+            if (new_time.has_value()) {
+                const int x = new_time.value();
+                minecraft->level->data.time = x;
+                INFO("Set Time To: %i", x);
+            } else {
+                WARN("Invalid Time: %s", cmd.c_str());
+            }
+        }
+    });
+
     // Help Page
     commands->push_back({
         .name = "help",
         .comment = "Print This Message",
         .callback = [commands](MCPI_UNUSED const std::string &cmd) {
-            INFO("All Commands:");
-            std::string::size_type max_lhs_length = 0;
-            for (const ServerCommand &command : *commands) {
-                const std::string::size_type lhs_length = command.get_lhs_help().length();
-                if (lhs_length > max_lhs_length) {
-                    max_lhs_length = lhs_length;
-                }
-            }
-            for (const ServerCommand &command : *commands) {
-                INFO("%s", command.get_full_help(max_lhs_length).c_str());
-            }
+            print_server_help(*commands);
         }
     });
+
     // Return
     return commands;
-}
-void handle_commands(Minecraft *minecraft) {
-    // Check If Level Is Generated
-    if (!minecraft->isLevelGenerated()) {
-        return;
-    }
-    // Read Line
-    std::string data = check_stdin();
-    if (data.empty()) {
-        return;
-    }
-    data.pop_back(); // Remove Newline
-
-    // Command Ready; Run It
-    ServerSideNetworkHandler *server_side_network_handler = (ServerSideNetworkHandler *) minecraft->network_handler;
-    if (server_side_network_handler != nullptr) {
-        // Generate Command List
-        const std::vector<ServerCommand> *commands = server_get_commands(minecraft, server_side_network_handler);
-        // Run
-        bool success = false;
-        for (const ServerCommand &command : *commands) {
-            const bool valid = command.has_args() ? data.rfind(command.name, 0) == 0 : data == command.name;
-            if (valid) {
-                command.callback(data.substr(command.name.length()));
-                success = true;
-                break;
-            }
-        }
-        if (!success) {
-            WARN("Invalid Command: %s", data.c_str());
-        }
-        // Free
-        delete commands;
-    }
 }
