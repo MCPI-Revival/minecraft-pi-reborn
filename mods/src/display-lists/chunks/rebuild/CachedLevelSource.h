@@ -27,7 +27,7 @@ struct CachedLevelSource final : CustomLevelSource {
     bool should_render = false;
     bool touched_sky = false;
     float light_ramp[MAX_BRIGHTNESS + 1] = {};
-    int level_field_6c = 0;
+    int level_sky_darken = 0;
 
     // Region
     int x0 = 0;

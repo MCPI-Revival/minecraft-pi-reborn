@@ -23,9 +23,15 @@ MCPI_INTERNAL extern ThreadVector _chunks_to_rebuild;
 static constexpr int num_layers = 3;
 struct rebuilt_chunk_data {
     Chunk *chunk = nullptr;
-    bool is_empty = true;
-    bool is_layer_empty[num_layers] = {};
+    struct empty {
+        empty();
+        bool value = true;
+        bool layers[num_layers] = {};
+        void apply(Chunk *out) const;
+        void set(int layer);
+    } is_empty;
     bool touched_sky = false;
+    int old_sky_darken = 0;
     const VertexArray<CustomVertexFlat> *vertices[num_layers] = {};
 };
 MCPI_INTERNAL extern ThreadVector _rebuilt_chunks;

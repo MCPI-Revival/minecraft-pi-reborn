@@ -113,7 +113,7 @@ __attribute__((hot)) static void Tesselator_draw_injection(MCPI_UNUSED Tesselato
 }
 
 // Draw Buffer
-__attribute__((hot)) static void Common_drawArrayVT_injection(const int buffer, int vertices, int vertex_size, uint mode) {
+__attribute__((hot)) static void Common_drawArrayVT_injection(const int buffer, const int vertices, int vertex_size, uint mode) {
     // Check
     if (advanced_tesselator_get().are_vertices_flat) {
         IMPOSSIBLE();
@@ -130,10 +130,14 @@ __attribute__((hot)) static void Common_drawArrayVT_injection(const int buffer, 
     begin_draw(vertex_size, true, false, true);
     media_glDrawArrays(mode, 0, vertices);
 }
+__attribute__((hot)) static void RenderList_renderChunks_glDrawArrays_injection(MCPI_UNUSED const GLenum mode, const GLint first, const GLsizei count) {
+    media_glDrawArrays(GL_QUADS, first, count);
+}
 
 // Patch
 void _tesselator_init_draw() {
     replace(Tesselator_end);
     replace(Tesselator_draw);
     replace(Common_drawArrayVT);
+    overwrite_call_manual((void *) 0x527b0, (void *) RenderList_renderChunks_glDrawArrays_injection);
 }

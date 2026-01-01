@@ -78,16 +78,16 @@ void CachedLevelSource::_copy_chunks(Level *level) {
     for (int i = 0; i <= MAX_BRIGHTNESS; i++) {
         light_ramp[i] = level->dimension->light_ramp[i];
     }
-    level_field_6c = level->field_6c;
+    level_sky_darken = level->sky_darken;
 }
 
 // Copy Tile Information From Level
 void CachedLevelSource::_copy_tiles() {
     // Raw Brightness Constants
     // See: Level::getRawBrightness
-    constexpr int under_world_brightness = 0;
+    constexpr int under_world_brightness = 0; // Brightness When Under The World
     constexpr int max_brightness = 15;
-    const int over_world_brightness = std::max(max_brightness - level_field_6c, under_world_brightness);
+    const int over_world_brightness = std::max(max_brightness - level_sky_darken, under_world_brightness); // Brightness When Above The World
 
     // Cache Tile Information
     touched_sky = false;
@@ -189,7 +189,7 @@ int CachedLevelSource::_get_raw_brightness(LevelChunk *chunk, const int x, const
     if (light_sky > 0) {
         touched_sky = true;
     }
-    light_sky -= level_field_6c;
+    light_sky -= level_sky_darken;
     const int light_block = chunk->getBrightness(LightLayer::Block, x, y, z);
     return std::max(light_sky, light_block);
 }

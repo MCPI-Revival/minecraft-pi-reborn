@@ -1,6 +1,10 @@
 extends LevelSource;
 
+size 0xb7c;
+constructor (LevelStorage *storage, const std::string &name, const LevelSettings &settings, int param_4, Dimension *dimension) = 0xa65e4;
+
 vtable 0x10fcf0;
+vtable-size 0x34;
 
 method void saveGame() = 0xa6408;
 // This is called by the above method.
@@ -80,4 +84,4 @@ property ChunkSource *chunk_source = 0xa5c;
 property LevelData data = 0xa64;
 property RakNetInstance *rak_net_instance = 0x78;
 property LevelStorage *storage = 0xa60;
-property int field_6c = 0x6c;
+property int sky_darken = 0x6c;

@@ -54,36 +54,47 @@ static void Chunk_rebuild_injection(MCPI_UNUSED Chunk_rebuild_t original, Chunk 
 }
 
 // Render A Rebuilt Chunk
-static void render_rebuilt_chunk(const rebuilt_chunk_data *chunk_data) {
+static void render_rebuilt_chunk(const rebuilt_chunk_data *chunk_data, LevelRenderer *level_renderer) {
     // Render Chunk
     Chunk *chunk = chunk_data->chunk;
-    chunk->is_empty = chunk_data->is_empty;
+    chunk_data->is_empty.apply(chunk);
     chunk->touched_sky = chunk_data->touched_sky;
     chunk->built = true;
     for (int layer = 0; layer < num_layers; layer++) {
-        // Render Chunk Layer
-        const bool is_empty = chunk_data->is_layer_empty[layer];
-        chunk->is_layer_empty[layer] = is_empty;
-        if (!is_empty) {
-            // Prepare To Draw
-            media_glNewList(chunk->display_lists + layer, GL_COMPILE);
-            _configure_tesselator_for_chunk_rebuild(true);
-            Tesselator &t = Tesselator::instance;
-            t.begin(GL_QUADS);
+        // Skip Empty Layers
+        if (chunk->is_layer_empty[layer]) {
+            continue;
+        }
 
-            // Set Vertices
-            advanced_tesselator_get().vertices_flat.receive(chunk_data->vertices[layer]);
+        // Prepare To Draw
+        media_glNewList(chunk->display_lists + layer, GL_COMPILE);
+        _configure_tesselator_for_chunk_rebuild(true);
+        Tesselator &t = Tesselator::instance;
+        t.begin(GL_QUADS);
 
-            // Enable Colors And Texturing
-            t.color(0, 0, 0, 0);
-            t.tex(0, 0);
+        // Set Vertices
+        advanced_tesselator_get().vertices_flat.receive(chunk_data->vertices[layer]);
 
-            // Draw
-            t.draw();
+        // Enable Colors And Texturing
+        t.color(0, 0, 0, 0);
+        t.tex(0, 0);
 
-            // Finish Display List
-            media_glEndList();
-            _configure_tesselator_for_chunk_rebuild(false);
+        // Draw
+        t.draw();
+
+        // Finish Display List
+        media_glEndList();
+        _configure_tesselator_for_chunk_rebuild(false);
+    }
+
+    // Trigger Another Rebuild If Sky Color Has Changed
+    if (!chunk->isDirty() && chunk->touched_sky) {
+        const int new_sky_darken = level_renderer->level->sky_darken; // Current Sky Color
+        const int old_sky_darken = chunk_data->old_sky_darken; // Sky Color When The Rebuild Was Triggerred
+        if (new_sky_darken != old_sky_darken) {
+            // Mark As Dirty
+            chunk->setDirty();
+            level_renderer->dirty_chunks.push_back(chunk);
         }
     }
 }
@@ -128,7 +139,7 @@ static void LevelRenderer_tick_injection(LevelRenderer_tick_t original, LevelRen
         } else {
             // Render It Now
             if (valid) {
-                render_rebuilt_chunk(chunk_data);
+                render_rebuilt_chunk(chunk_data, self);
             }
             _free_rebuilt_chunk_data(chunk_data);
         }

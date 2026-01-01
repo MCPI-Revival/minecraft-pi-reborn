@@ -23,5 +23,6 @@ method int getList(int a) = 0x47e48;
 method RenderChunk *getRenderChunk(int a) = 0x47e74;
 method void renderBB() = 0x47ed8;
 method void setDirty() = 0x47ef0;
+method bool isDirty() = 0x47f08;
 method bool isEmpty() = 0x47edc;
 method void rebuild() = 0x47884;

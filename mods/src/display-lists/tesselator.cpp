@@ -63,6 +63,14 @@ static void ModelPart_compile_injection(MCPI_UNUSED ModelPart_compile_t original
     self->compiled = true;
 }
 
+// Fix Items Being Too Bright
+static void ItemInHandRenderer_renderItem_Tesselator_begin_injection(Tesselator *self) {
+    // Call Original Method
+    self->begin_quads();
+    // Prevent Color Data From Being Included
+    self->noColor();
+}
+
 // Properly Delete Display Lists
 HOOK(media_glDeleteBuffers, void, (GLsizei n, const GLuint *buffers)) {
     real_media_glDeleteBuffers()(n, buffers);
@@ -91,5 +99,7 @@ void _init_display_lists_tesselator() {
     replace(Common_drawArrayVT);
     ignore_patch_conflict = false;
     overwrite_calls(ModelPart_compile, ModelPart_compile_injection);
+    overwrite_call((void *) 0x4b9a0, Tesselator_begin_quads, ItemInHandRenderer_renderItem_Tesselator_begin_injection);
+    overwrite_call((void *) 0x4babc, Tesselator_begin_quads, ItemInHandRenderer_renderItem_Tesselator_begin_injection);
     overwrite_calls(Minecraft_onGraphicsReset, Minecraft_onGraphicsReset_injection);
 }

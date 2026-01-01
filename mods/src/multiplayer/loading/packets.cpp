@@ -56,6 +56,8 @@ static void ServerSideNetworkHandler_handle_RequestChunkPacket_injection(ServerS
     if (!chunk) {
         return;
     }
+    multiplayer_negate(packet->x);
+    multiplayer_negate(packet->z);
 
     // Compress Data
     static ChunkData::Raw data;
@@ -79,7 +81,7 @@ static void ServerSideNetworkHandler_handle_RequestChunkPacket_injection(ServerS
     stream->Write_bytes(compressed, compressed_len);
 
     // Send Packet
-    RakNet_AddressOrGUID target;
+    RakNet_AddressOrGUID target = {};
     target.constructor(rak_net_guid);
     self->peer->Send(stream, HIGH_PRIORITY, RELIABLE, 0, &target, false, 0);
 
@@ -94,34 +96,46 @@ bool _multiplayer_is_loading_chunks(const ClientSideNetworkHandler *self) {
     return _server_using_improved_loading && self->level == nullptr;
 }
 static void ClientSideNetworkHandler_handle_ChunkDataPacket_injection(ClientSideNetworkHandler_handle_ChunkDataPacket_t original, ClientSideNetworkHandler *self, const RakNet_RakNetGUID &rak_net_guid, ChunkDataPacket *packet) {
-    if (_multiplayer_is_loading_chunks(self)) {
-        // Improved Chunk Loading
-        ChunkData *chunk = new ChunkData;
-
-        // Parse Packet
-        chunk->x = packet->x;
-        chunk->z = packet->z;
-        int compressed_len;
-        bool success = packet->data.Read_int(&compressed_len);
-        if (success) {
-            uchar *compressed = new uchar[compressed_len];
-            success = packet->data.Read_bytes(compressed, compressed_len);
-            if (success) {
-                ChunkData::Raw &out = chunk->raw;
-                stbi_zlib_decode_buffer((char *) &out, sizeof(out), (const char *) compressed, compressed_len);
-            }
-            delete[] compressed;
+    if (!_multiplayer_is_loading_chunks(self)) {
+        // Expecting A Normal/Vanilla Packet
+        if (packet->x < 0) {
+            ERR("Unexpected Enhanced ChunkDataPacket");
         }
-
-        // Add Chunk To Queue
-        _multiplayer_chunk_received(chunk);
-        // Request Next Chunk
-        _request_full_chunk = true;
-        self->requestNextChunk();
-    } else {
         // Call Original Method
         original(self, rak_net_guid, packet);
+        return;
     }
+
+    // Expecting A Custom/Enhanced Packet
+    if (packet->x >= 0) {
+        ERR("Unexpected Vanilla ChunkDataPacket");
+    }
+    multiplayer_negate(packet->x);
+    multiplayer_negate(packet->z);
+
+    // Improved Chunk Loading
+    ChunkData *chunk = new ChunkData;
+
+    // Parse Packet
+    chunk->x = packet->x;
+    chunk->z = packet->z;
+    int compressed_len;
+    bool success = packet->data.Read_int(&compressed_len);
+    if (success) {
+        uchar *compressed = new uchar[compressed_len];
+        success = packet->data.Read_bytes(compressed, compressed_len);
+        if (success) {
+            ChunkData::Raw &out = chunk->raw;
+            stbi_zlib_decode_buffer((char *) &out, sizeof(out), (const char *) compressed, compressed_len);
+        }
+        delete[] compressed;
+    }
+
+    // Add Chunk To Queue
+    _multiplayer_chunk_received(chunk);
+    // Request Next Chunk
+    _request_full_chunk = true;
+    self->requestNextChunk();
 }
 
 // Buffer Block Updates Received While Chunks Are Loading

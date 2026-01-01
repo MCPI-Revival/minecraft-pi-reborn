@@ -9,32 +9,47 @@
 
 #include "thread.h"
 
+#include "symbols/Chunk.h"
+
+// Empty layer Tracking
+rebuilt_chunk_data::empty::empty() {
+    for (bool &layer : layers) {
+        layer = value;
+    }
+}
+void rebuilt_chunk_data::empty::apply(Chunk *out) const {
+    out->is_empty = value;
+    for (int i = 0; i < num_layers; i++) {
+        out->is_layer_empty[i] = layers[i];
+    }
+}
+void rebuilt_chunk_data::empty::set(const int layer) {
+    value = false;
+    layers[layer] = value;
+}
+
 // Input/Output
 ThreadVector _chunks_to_rebuild;
 ThreadVector _rebuilt_chunks;
 
 // Build Chunk
 static void build_chunk(chunk_rebuild_data *data, rebuilt_chunk_data *out) {
-    // Prepare
-    for (bool &empty : out->is_layer_empty) {
-        empty = true;
-    }
-    for (const VertexArray<CustomVertexFlat> *&ptr : out->vertices) {
-        ptr = nullptr;
-    }
-    out->is_empty = true;
-    out->touched_sky = false;
-    out->chunk = data->chunk;
+    // Get Tesselator
     Tesselator &t = Tesselator::instance;
     CustomTesselator &advanced_t = advanced_tesselator_get();
 
     // Get Chunk Information
+    out->chunk = data->chunk;
     CachedLevelSource &source = data->source;
     source._cache();
+    out->old_sky_darken = source.level_sky_darken;
     if (!source.should_render) {
-        // Empty Chunk
+        // Empty Chunk, Skip Tessellating
         return;
     }
+    out->touched_sky = source.touched_sky;
+
+    // Create Tile Renderer
     TileRenderer *tile_renderer = TileRenderer::allocate();
     tile_renderer->constructor(source.self);
 
@@ -74,8 +89,7 @@ static void build_chunk(chunk_rebuild_data *data, rebuilt_chunk_data *out) {
         if (started) {
             if (rendered) {
                 out->vertices[layer] = advanced_t.vertices_flat.copy();
-                out->is_layer_empty[layer] = false;
-                out->is_empty = false;
+                out->is_empty.set(layer);
             }
             advanced_t.clear(true);
         }
@@ -83,7 +97,6 @@ static void build_chunk(chunk_rebuild_data *data, rebuilt_chunk_data *out) {
 
     // Clean Up
     ::operator delete(tile_renderer);
-    out->touched_sky = source.touched_sky;
 }
 
 // Configure Rendering
@@ -122,9 +135,9 @@ static void *chunk_building_thread_func(void *arg) {
 
             // Send Result
             _rebuilt_chunks.add(chunk->chunk, out);
-            delete chunk;
 
             // Force Release Memory
+            delete chunk;
             malloc_trim(0);
         }
     }

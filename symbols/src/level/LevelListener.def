@@ -1,3 +1,5 @@
 vtable 0x1068e0;
+vtable-size 0x48;
 
 virtual-method void entityRemoved(Entity *entity) = 0x38;
+virtual-method void skyColorChanged() = 0x14;
