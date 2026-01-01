@@ -1,6 +1,9 @@
 #include <sstream>
+#include <unordered_set>
+#include <ranges>
 
 #include <libreborn/env/env.h>
+#include <libreborn/log.h>
 
 #include "configuration.h"
 #include "cache.h"
@@ -83,4 +86,24 @@ void configure_client(const options_t &options) {
 
     // Update Environment
     state.update(true);
+
+    // Print Non-Default Feature Flags (For Debugging)
+    std::unordered_set<std::string> non_default_flags;
+    std::unordered_map<std::string, bool> current_flags = state.flags.to_cache();
+    std::unordered_map<std::string, bool> default_flags = Flags::get().to_cache();
+    for (const std::string &flag : current_flags | std::views::keys) {
+        const bool current_value = current_flags.at(flag);
+        const bool default_value = default_flags.at(flag);
+        if (current_value != default_value) {
+            non_default_flags.insert(flag);
+        }
+    }
+    std::string non_default_flags_str;
+    for (const std::string &flag : non_default_flags) {
+        if (!non_default_flags_str.empty()) {
+            non_default_flags_str += ", ";
+        }
+        non_default_flags_str += flag;
+    }
+    DEBUG("Non-Default Feature Flags: %s", non_default_flags_str.c_str());
 }

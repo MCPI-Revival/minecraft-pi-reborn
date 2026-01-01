@@ -77,7 +77,7 @@ static void *GameRenderer_destructor_injection(GameRenderer_destructor_t origina
     // Free Buffers
     // This is placed inside GameRenderer's destructor
     // because ItemInHandRenderer does not have one.
-    for (const ItemInHandRenderer_RenderCall &call : held_item_cache | std::ranges::views::values) {
+    for (const ItemInHandRenderer_RenderCall &call : held_item_cache | std::views::values) {
         media_glDeleteBuffers(1, &call.chunk.buffer);
     }
     held_item_cache.clear();
