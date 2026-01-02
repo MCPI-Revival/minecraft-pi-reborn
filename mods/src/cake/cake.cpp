@@ -16,8 +16,9 @@
 #include <mods/misc/misc.h>
 #include <mods/bucket/bucket.h>
 
+// Constants
 #define CAKE_LEN 0.0625f
-#define CAKE_SLICE_COUNT 6
+#define CAKE_SLICE_COUNT 7
 
 // Custom Tile
 struct Cake final : CustomTile {
