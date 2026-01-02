@@ -43,8 +43,10 @@ static void handle_file(std::vector<std::string> &ld_preload, const std::string 
         const int result = access(file.c_str(), R_OK);
         if (result == 0) {
             // Add To LD_PRELOAD
-            DEBUG("Found Mod: %s", file.c_str());
-            ld_preload.push_back(file);
+            if (file.ends_with(".so")) {
+                DEBUG("Found Mod: %s", file.c_str());
+                ld_preload.push_back(file);
+            }
         } else if (result == -1 && errno != 0) {
             // Fail
             WARN("Unable To Access: %s: %s", file.c_str(), strerror(errno));

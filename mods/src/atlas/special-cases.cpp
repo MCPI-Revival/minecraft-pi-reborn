@@ -11,7 +11,7 @@
 
 // Fix Buggy Crop Textures
 thread_local bool _atlas_active = false;
-#define MAX_CROP_DATA 8
+#define MAX_CROP_DATA 7
 static int CropTile_getTexture2_injection(CropTile_getTexture2_t original, CropTile *self, const int face, int data) {
     if (data > MAX_CROP_DATA && _atlas_active) {
         data = MAX_CROP_DATA;
