@@ -53,13 +53,9 @@ std::string _sound_get_source_file() {
 }
 
 // Play Sound
-// The pitch value is unsued because it causes glitchy sounds, it is seemingly unused in MCPE as well.
-static void play(const std::string &name, const float x, const float y, const float z, const float volume, float pitch, const bool is_ui) {
+static void play(const std::string &name, const float x, const float y, const float z, const float volume, const float pitch, const bool is_ui) {
     const std::string source = _sound_get_source_file();
     const std::string resolved_name = _sound_pick(name);
-    if (pitch < 0.01f) {
-        pitch = 1;
-    }
     if (source.size() > 0 && resolved_name.size() > 0) {
         media_audio_play(source.c_str(), resolved_name.c_str(), x, y, z, pitch, volume, is_ui);
     }

@@ -93,7 +93,7 @@ void media_audio_update(const float volume, const float x, const float y, const 
 }
 
 // Play
-void media_audio_play(const char *source, const char *name, const float x, const float y, const float z, const float pitch, const float volume, const int is_ui) {
+void media_audio_play(const char *source, const char *name, const float x, const float y, const float z, const float pitch, float volume, const int is_ui) {
     // Check
     if (_media_audio_is_loaded()) {
         // Load Sound
@@ -117,6 +117,21 @@ void media_audio_play(const char *source, const char *name, const float x, const
                 }
             }
 
+            // Set Attenuation
+            float sound_distance = 16;
+            if (volume > 1) {
+                sound_distance *= volume;
+                volume = 1;
+            }
+            alSourcei(al_source, AL_DISTANCE_MODEL, AL_LINEAR_DISTANCE);
+            AL_ERROR_CHECK();
+            alSourcef(al_source, AL_MAX_DISTANCE, sound_distance);
+            AL_ERROR_CHECK();
+            alSourcef(al_source, AL_ROLLOFF_FACTOR, 1);
+            AL_ERROR_CHECK();
+            alSourcef(al_source, AL_REFERENCE_DISTANCE, 0);
+            AL_ERROR_CHECK();
+
             // Set Properties
             alSourcef(al_source, AL_PITCH, pitch);
             AL_ERROR_CHECK();
@@ -129,16 +144,6 @@ void media_audio_play(const char *source, const char *name, const float x, const
             alSourcei(al_source, AL_LOOPING, AL_FALSE);
             AL_ERROR_CHECK();
             alSourcei(al_source, AL_SOURCE_RELATIVE, is_ui ? AL_TRUE : AL_FALSE);
-            AL_ERROR_CHECK();
-
-            // Set Attenuation
-            alSourcei(al_source, AL_DISTANCE_MODEL, AL_LINEAR_DISTANCE_CLAMPED);
-            AL_ERROR_CHECK();
-            alSourcef(al_source, AL_MAX_DISTANCE, 16.0f);
-            AL_ERROR_CHECK();
-            alSourcef(al_source, AL_ROLLOFF_FACTOR, 6.0f);
-            AL_ERROR_CHECK();
-            alSourcef(al_source, AL_REFERENCE_DISTANCE, 5.0f);
             AL_ERROR_CHECK();
 
             // Set Buffer
