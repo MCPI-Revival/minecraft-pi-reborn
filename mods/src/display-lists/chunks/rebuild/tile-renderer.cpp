@@ -1,9 +1,10 @@
 #include <malloc.h>
+#include <unordered_set>
+
 #include <libreborn/log.h>
 
 #include <symbols/Tile.h>
 #include <symbols/TileRenderer.h>
-#include <symbols/LeafTile.h>
 
 #include "thread.h"
 
@@ -41,18 +42,28 @@ static Tile *copy_tile(Tile *tile) {
     return tile_copy;
 }
 
+// Special Case: Some tiles render incorrectly when copied.
+// Thankfully, they do not need to be copied as they have a fixed shape.
+static std::unordered_set do_not_copy_tiles = {
+    // TileRenderer explicitly checks for these.
+    &Tile::grass,
+    &Tile::tallgrass,
+    // LeafTile's (terribly coded) getTexture() method breaks when copied.
+    &Tile::leaves,
+    &Tile::leaves_carried
+};
+
 // Render a single tile without interfering with the main thread.
 bool _render_tile(TileRenderer *tile_renderer, Tile *tile, const int x, const int y, const int z) {
     // Get Tile
-    Tile *tile_copy = nullptr;
-    if (tile->vtable == (const Tile::VTable *) LeafTile::VTable::base) {
-        // Special Case: LeafTile's (terribly coded) getTexture() method breaks when copied.
-        // Thankfully, it does not need to be copied as it has a fixed shape.
-        tile_copy = tile;
-    } else {
-        // Copy The Tile
-        tile_copy = copy_tile(tile);
+    bool should_copy = true;
+    for (Tile **tile_ptr : do_not_copy_tiles) {
+        if (*tile_ptr == tile) {
+            should_copy = false;
+            break;
+        }
     }
+    Tile *tile_copy = should_copy ? copy_tile(tile) : tile;
     // Render Tile
     return tile_renderer->tesselateInWorld(tile_copy, x, y, z);
 }
