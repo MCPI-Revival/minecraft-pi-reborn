@@ -1,3 +1,8 @@
+#ifdef _WIN32
+#define WIN32_LEAN_AND_MEAN
+#include <windows.h>
+#endif
+
 #include <libreborn/util/util.h>
 #include <libreborn/config.h>
 
@@ -28,7 +33,11 @@ GLFWwindow *create_glfw_window(const char *title, const int width, const int hei
     // Create Window
     GLFWwindow *window = glfwCreateWindow(width, height, title, nullptr, nullptr);
     if (!window) {
-        ERR("Unable To Create GLFW Window");
+        const char *err = "Unable To Create GLFW Window";
+#ifdef _WIN32
+        MessageBoxA(nullptr, err, title, MB_ICONERROR | MB_OK);
+#endif
+        ERR("%s", err);
     }
     // Configure Window
 #ifdef _WIN32
