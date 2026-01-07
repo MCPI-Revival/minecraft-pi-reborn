@@ -18,6 +18,7 @@ void media_disable_vsync() {
 
 // Init Media Layer
 #define GL_VERSION 0x1f02
+#define GL_RENDERER 0x1f01
 typedef const char *(*glGetString_t)(unsigned int name);
 void media_SDL_WM_SetCaption(const char *title, MCPI_UNUSED const char *icon) {
     // Disable In Headless Mode
@@ -44,6 +45,7 @@ void media_SDL_WM_SetCaption(const char *title, MCPI_UNUSED const char *icon) {
     // Debug
     const glGetString_t glGetString = (glGetString_t) glfwGetProcAddress("glGetString");
     DEBUG("Using OpenGL %s", (*glGetString)(GL_VERSION));
+    DEBUG("Running On %s", (*glGetString)(GL_RENDERER));
 
     // Init OpenAL
     _media_audio_init();
