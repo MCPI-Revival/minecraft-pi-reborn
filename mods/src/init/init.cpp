@@ -19,6 +19,7 @@ __attribute__((constructor)) static void init() {
     init_multiplayer();
     if (!reborn_is_headless()) {
         init_display_lists();
+        init_chunk_rebuilding();
         init_sound();
         init_shading();
     }

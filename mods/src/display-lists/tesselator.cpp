@@ -17,6 +17,9 @@
 static std::unordered_map<GLuint, GLuint> buffer_to_display_list;
 
 // Draw To Buffer
+unsigned int _display_lists_get_for_buffer(const unsigned int buffer) {
+    return buffer_to_display_list.at(buffer);
+}
 __attribute__((hot)) static RenderChunk Tesselator_end_injection(Tesselator *self, const bool use_given_buffer, const int buffer) {
     // Check
     const CustomTesselator &t = advanced_tesselator_get();
@@ -31,9 +34,9 @@ __attribute__((hot)) static RenderChunk Tesselator_end_injection(Tesselator *sel
         IMPOSSIBLE();
     }
     if (!buffer_to_display_list.contains(buffer)) {
-        buffer_to_display_list[buffer] = media_glGenLists(1);
+        buffer_to_display_list.insert({buffer, media_glGenLists(1)});
     }
-    const GLuint list = buffer_to_display_list.at(buffer);
+    const GLuint list = _display_lists_get_for_buffer(buffer);
 
     // Render
     media_glNewList(list, GL_COMPILE);
@@ -48,7 +51,7 @@ __attribute__((hot)) static RenderChunk Tesselator_end_injection(Tesselator *sel
 // Draw Buffer
 __attribute__((hot)) static void Common_drawArrayVT_injection(const int buffer, MCPI_UNUSED const int vertices, MCPI_UNUSED int vertex_size, MCPI_UNUSED uint mode) {
     // These Are Really Display Lists
-    const GLuint list = buffer_to_display_list.at(buffer);
+    const GLuint list = _display_lists_get_for_buffer(buffer);
     media_glCallLists(1, GL_UNSIGNED_INT, &list);
 }
 
@@ -77,7 +80,7 @@ HOOK(media_glDeleteBuffers, void, (GLsizei n, const GLuint *buffers)) {
     for (int i = 0; i < n; i++) {
         const GLuint buffer = buffers[i];
         if (buffer_to_display_list.contains(buffer)) {
-            media_glDeleteLists(buffer_to_display_list.at(buffer), 1);
+            media_glDeleteLists(_display_lists_get_for_buffer(buffer), 1);
             buffer_to_display_list.erase(buffer);
         }
     }

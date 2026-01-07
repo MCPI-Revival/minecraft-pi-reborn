@@ -109,18 +109,19 @@ add_library(mods SHARED
     # f3
     src/f3/f3.cpp
     # display-lists
-    src/display-lists/chunks/rebuild/CachedLevelSource.cpp
-    src/display-lists/chunks/rebuild/thread/ThreadVector.cpp
-    src/display-lists/chunks/rebuild/thread/thread.cpp
-    src/display-lists/chunks/rebuild/thread/worker.cpp
-    src/display-lists/chunks/rebuild/thread/messages.cpp
-    src/display-lists/chunks/rebuild/rebuild.cpp
-    src/display-lists/chunks/rebuild/biome-source.cpp
-    src/display-lists/chunks/rebuild/tile-renderer.cpp
-    src/display-lists/chunks/render.cpp
     src/display-lists/font.cpp
     src/display-lists/tesselator.cpp
+    src/display-lists/chunks.cpp
     src/display-lists/init.cpp
+    # chunk-rebuilding
+    src/chunk-rebuilding/thread/ThreadVector.cpp
+    src/chunk-rebuilding/thread/thread.cpp
+    src/chunk-rebuilding/thread/worker.cpp
+    src/chunk-rebuilding/thread/messages.cpp
+    src/chunk-rebuilding/CachedLevelSource.cpp
+    src/chunk-rebuilding/rebuild.cpp
+    src/chunk-rebuilding/biome-source.cpp
+    src/chunk-rebuilding/tile-renderer.cpp
     # classic-ui
     src/classic-ui/classic-ui.cpp
     # api

@@ -54,7 +54,7 @@ static std::unordered_set do_not_copy_tiles = {
 };
 
 // Render a single tile without interfering with the main thread.
-bool _render_tile(TileRenderer *tile_renderer, Tile *tile, const int x, const int y, const int z) {
+bool _render_tile_safely(TileRenderer *tile_renderer, Tile *tile, const int x, const int y, const int z) {
     // Get Tile
     bool should_copy = true;
     for (Tile **tile_ptr : do_not_copy_tiles) {

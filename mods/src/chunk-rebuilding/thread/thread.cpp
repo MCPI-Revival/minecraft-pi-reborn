@@ -56,7 +56,7 @@ static void build_chunk(chunk_rebuild_data *data, rebuilt_chunk_data *out) {
                             started = true;
                             t.begin(GL_QUADS);
                         }
-                        rendered |= _render_tile(tile_renderer, tile, x, y, z);
+                        rendered |= _render_tile_safely(tile_renderer, tile, x, y, z);
                     }
                 }
             }

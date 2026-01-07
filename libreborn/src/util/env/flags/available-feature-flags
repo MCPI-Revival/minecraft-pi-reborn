@@ -79,9 +79,9 @@ CATEGORY Rendering
             COMMENT This reduces lag spikes.
         TRUE Optimize Frustum Culling
         TRUE Use OpenGL Display Lists
-            COMMENT This also moves chunk rebuilding off of the main thread.
         FALSE Increase Render Chunk Size
             COMMENT This improves performance but can cause lag spikes on some systems.
+        TRUE Multithreaded Chunk Rebuilding
     CATEGORY Camera
         TRUE Enable Camera Rendering
         TRUE Render Camera Legs

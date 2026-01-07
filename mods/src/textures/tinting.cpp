@@ -24,7 +24,7 @@
 
 #include <mods/feature/feature.h>
 #include <mods/shading/FallingSandRenderer.h>
-#include <mods/display-lists/display-lists.h>
+#include <mods/chunk-rebuilding/chunk-rebuilding.h>
 
 #include "internal.h"
 

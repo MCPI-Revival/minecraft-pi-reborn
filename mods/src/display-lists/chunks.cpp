@@ -1,42 +1,16 @@
+#include "internal.h"
+
 #include <libreborn/patch.h>
 
 #include <symbols/LevelRenderer.h>
 #include <symbols/Minecraft.h>
 #include <symbols/Mob.h>
 #include <symbols/Chunk.h>
+#include <symbols/RenderChunk.h>
 
 #include <GLES/gl.h>
 
 #include <mods/display-lists/display-lists.h>
-
-#include "../internal.h"
-
-// Create/Delete Display Lists
-static void create_lists(LevelRenderer *self) {
-    self->display_lists = media_glGenLists(self->num_buffers);
-}
-static void delete_lists(const LevelRenderer *self) {
-    media_glDeleteLists(self->display_lists, self->num_buffers);
-}
-static LevelRenderer *LevelRenderer_constructor_injection(LevelRenderer_constructor_t original, LevelRenderer *self, Minecraft *minecraft) {
-    // Call Original Method
-    original(self, minecraft);
-    // Create Display Lists
-    create_lists(self);
-    return self;
-}
-static void LevelRenderer_onGraphicsReset_injection(LevelRenderer_onGraphicsReset_t original, LevelRenderer *self) {
-    // Re-Create Display Lists
-    create_lists(self);
-    // Call Original Method
-    original(self);
-}
-static LevelRenderer *LevelRenderer_destructor_injection(LevelRenderer_destructor_complete_t original, LevelRenderer *self) {
-    // Delete Display Lists
-    delete_lists(self);
-    // Call Original Method
-    return original(self);
-}
 
 // Render
 #define MAX_DISPLAY_LISTS 4096
@@ -63,11 +37,14 @@ static int LevelRenderer_renderChunks_injection(MCPI_UNUSED LevelRenderer_render
     for (int i = start; i < end; i++) {
         Chunk *chunk = self->chunks[i];
         // Check If Chunk Is Visible
-        if (!chunk->is_empty && !chunk->is_layer_empty[a] && chunk->visible) {
-            const GLuint list = chunk->getList(a);
-            if (list > 0) {
-                display_lists[num_display_lists++] = list;
-            }
+        if (chunk->visible && !chunk->is_empty && !chunk->is_layer_empty[a]) {
+            // Chunk::rebuild uses Tesselator::end when finished rebuilding.
+            // This is automatically converted to an OpenGL Display List by
+            // tesselator.cpp. This retrieves that Display List.
+            const RenderChunk *render_chunk = chunk->getRenderChunk(a);
+            const GLuint buffer = render_chunk->buffer;
+            const GLuint list = _display_lists_get_for_buffer(buffer);
+            display_lists[num_display_lists++] = list;
         }
     }
 
@@ -95,19 +72,10 @@ static bool Chunk_isEmpty_injection(Chunk *self) {
 
 // Init
 void _init_display_lists_chunks_render() {
-    // Create/Delete Display Lists
-    overwrite_calls(LevelRenderer_constructor, LevelRenderer_constructor_injection);
-    overwrite_calls(LevelRenderer_onGraphicsReset, LevelRenderer_onGraphicsReset_injection);
-    overwrite_calls(LevelRenderer_destructor_complete, LevelRenderer_destructor_injection);
-
-    // Disable Creating/Deleting Buffers
-    for (const uint32_t addr : {0x4e6f8, 0x4e51c, 0x4e564}) {
-        unsigned char nop_patch[4] = {0x00, 0xf0, 0x20, 0xe3}; // "nop"
-        patch((void *) addr, nop_patch);
-    }
-
-    // Render Chunks
     enabled = true;
     overwrite_calls(LevelRenderer_renderChunks, LevelRenderer_renderChunks_injection);
     replace_func(Chunk_isEmpty);
+    // Disable Offsetting Rebuilt Chunks
+    unsigned char nop_patch[4] = {0x00, 0xf0, 0x20, 0xe3}; // "nop"
+    patch((void *) 0x479fc, nop_patch);
 }

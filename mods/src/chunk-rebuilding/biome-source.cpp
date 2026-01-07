@@ -8,7 +8,7 @@
 #include <symbols/BiomeSource.h>
 #include <symbols/Level.h>
 
-#include <mods/display-lists/display-lists.h>
+#include <mods/chunk-rebuilding/chunk-rebuilding.h>
 
 // Allow Creating BiomeSource Without Level
 static thread_local std::optional<int> forced_biome_source_seed;

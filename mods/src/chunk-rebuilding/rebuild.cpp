@@ -1,4 +1,3 @@
-#include "../../internal.h"
 #include "thread/worker.h"
 #include "thread/messages.h"
 #include "rebuild.h"
@@ -12,9 +11,9 @@
 #include <symbols/Level.h>
 #include <symbols/Tesselator.h>
 
-#include <GLES/gl.h>
-
+#include <mods/feature/feature.h>
 #include <mods/tesselator/tesselator.h>
+#include <mods/init/init.h>
 
 // Start/Stop Thread
 static void LevelRenderer_setLevel_injection(LevelRenderer_setLevel_t original, LevelRenderer *self, Level *level) {
@@ -76,7 +75,6 @@ static void render_rebuilt_chunk(const rebuilt_chunk_data *chunk_data, LevelRend
         }
 
         // Prepare To Draw
-        media_glNewList(chunk->display_lists + layer, GL_COMPILE);
         _configure_tesselator_for_chunk_rebuild(true);
         Tesselator &t = Tesselator::instance;
         t.begin(GL_QUADS);
@@ -89,10 +87,9 @@ static void render_rebuilt_chunk(const rebuilt_chunk_data *chunk_data, LevelRend
         t.tex(0, 0);
 
         // Draw
-        t.draw();
-
-        // Finish Display List
-        media_glEndList();
+        const GLuint buffer = chunk->buffers[layer];
+        RenderChunk *render_chunk = chunk->getRenderChunk(layer);
+        *render_chunk = t.end(true, int(buffer));
         _configure_tesselator_for_chunk_rebuild(false);
     }
 
@@ -142,7 +139,12 @@ static void GameRenderer_render_injection(GameRenderer_render_t original, GameRe
 }
 
 // Init
-void _init_display_lists_chunks_rebuild() {
+void init_chunk_rebuilding() {
+    // Check Feature Flag
+    if (!feature_has("Multithreaded Chunk Rebuilding", server_disabled)) {
+        return;
+    }
+
     // Start/Stop Thread
     overwrite_calls(LevelRenderer_setLevel, LevelRenderer_setLevel_injection);
     overwrite_calls(LevelRenderer_destructor_complete, LevelRenderer_destructor_injection);
