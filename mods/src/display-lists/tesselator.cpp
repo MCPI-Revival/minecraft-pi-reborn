@@ -95,8 +95,8 @@ static void Minecraft_onGraphicsReset_injection(Minecraft_onGraphicsReset_t orig
 void _init_display_lists_tesselator() {
     advanced_tesselator_enable();
     ignore_patch_conflict = true;
-    replace(Tesselator_end);
-    replace(Common_drawArrayVT);
+    replace_func(Tesselator_end);
+    replace_func(Common_drawArrayVT);
     ignore_patch_conflict = false;
     overwrite_calls(ModelPart_compile, ModelPart_compile_injection);
     overwrite_call((void *) 0x4b9a0, Tesselator_begin_quads, ItemInHandRenderer_renderItem_Tesselator_begin_injection);

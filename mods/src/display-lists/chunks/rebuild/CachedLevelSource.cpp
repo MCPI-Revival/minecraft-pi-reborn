@@ -1,3 +1,5 @@
+#include "CachedLevelSource.h"
+
 #include <bit>
 #include <new>
 
@@ -8,8 +10,6 @@
 #include <symbols/Tile.h>
 #include <symbols/Material.h>
 #include <symbols/LightLayer.h>
-
-#include "CachedLevelSource.h"
 
 // Helpful Macros
 #define block data[x - x0][z - z0][y - y0]

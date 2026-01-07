@@ -1,6 +1,6 @@
 #pragma once
 
-#define replace(name) \
+#define replace_func(name) \
     overwrite_call((void *) (name)->backup, name, name##_injection, true)
 
 MCPI_INTERNAL void _init_display_lists_chunks_rebuild();

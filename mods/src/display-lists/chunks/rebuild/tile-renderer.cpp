@@ -1,3 +1,5 @@
+#include "rebuild.h"
+
 #include <malloc.h>
 #include <unordered_set>
 
@@ -5,8 +7,6 @@
 
 #include <symbols/Tile.h>
 #include <symbols/TileRenderer.h>
-
-#include "thread.h"
 
 // Copy an object without calling any constructors or destructors.
 // THIS IS UNSAFE, use it with care.

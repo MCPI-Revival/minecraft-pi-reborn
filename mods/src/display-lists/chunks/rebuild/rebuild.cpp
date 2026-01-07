@@ -1,6 +1,12 @@
+#include "../../internal.h"
+#include "thread/worker.h"
+#include "thread/messages.h"
+#include "rebuild.h"
+
 #include <libreborn/patch.h>
 
 #include <symbols/LevelRenderer.h>
+#include <symbols/GameRenderer.h>
 #include <symbols/NinecraftApp.h>
 #include <symbols/Chunk.h>
 #include <symbols/Level.h>
@@ -9,9 +15,6 @@
 #include <GLES/gl.h>
 
 #include <mods/tesselator/tesselator.h>
-
-#include "../../internal.h"
-#include "thread.h"
 
 // Start/Stop Thread
 static void LevelRenderer_setLevel_injection(LevelRenderer_setLevel_t original, LevelRenderer *self, Level *level) {
@@ -50,7 +53,13 @@ static void Chunk_rebuild_injection(MCPI_UNUSED Chunk_rebuild_t original, Chunk 
     data->y1 = self->y + self->height;
     data->z1 = self->z + self->depth;
     data->source._prepare_cache(level, data->x0, data->y0, data->z0, data->x1, data->y1, data->z1);
-    _chunks_to_rebuild.add(self, data);
+    _start_chunk_rebuild(self, data);
+}
+
+// Configure Rendering
+void _configure_tesselator_for_chunk_rebuild(const bool enable) {
+    CustomTesselator &t = advanced_tesselator_get();
+    t.are_vertices_flat = enable;
 }
 
 // Render A Rebuilt Chunk
@@ -100,59 +109,36 @@ static void render_rebuilt_chunk(const rebuilt_chunk_data *chunk_data, LevelRend
 }
 
 // Receive Rebuilt Chunks
-static constexpr int MAX_CHUNK_RENDERS_PER_FRAME = 15;
-static std::vector<void *> delayed_messages;
-void _receive_rebuilt_chunks(std::vector<void *> &data) {
-    _rebuilt_chunks.receive(data, false);
-    data.insert(data.begin(), delayed_messages.begin(), delayed_messages.end());
-    delayed_messages.clear();
-}
-static void LevelRenderer_tick_injection(LevelRenderer_tick_t original, LevelRenderer *self) {
-    // Call Original Method
-    original(self);
-
+static void GameRenderer_render_injection(GameRenderer_render_t original, GameRenderer *self, const float param_1) {
     // Receive Built Chunks
     static std::vector<void *> data;
     _receive_rebuilt_chunks(data);
 
     // Render Rebuilt Chunks
-    int count = 0;
-    for (void *msg : data) {
+    Minecraft *minecraft = self->minecraft;
+    LevelRenderer *level_renderer = minecraft->level_renderer;
+    for (const void *msg : data) {
         // Check If Chunk Is Valid
         const rebuilt_chunk_data *chunk_data = (const rebuilt_chunk_data *) msg;
         bool valid = false;
-        for (int i = 0; i < self->chunks_length; i++) {
-            if (self->chunks[i] == chunk_data->chunk) {
-                valid = true;
-                break;
+        if (minecraft->isLevelGenerated() && level_renderer && level_renderer->chunks) {
+            for (int i = 0; i < level_renderer->chunks_length; i++) {
+                if (level_renderer->chunks[i] == chunk_data->chunk) {
+                    valid = true;
+                    break;
+                }
             }
         }
 
         // Render
-        if (count >= MAX_CHUNK_RENDERS_PER_FRAME) {
-            // Delay Until Next Frame
-            if (valid) {
-                delayed_messages.push_back(msg);
-            } else {
-                _free_rebuilt_chunk_data(chunk_data);
-            }
-        } else {
-            // Render It Now
-            if (valid) {
-                render_rebuilt_chunk(chunk_data, self);
-            }
-            _free_rebuilt_chunk_data(chunk_data);
+        if (valid) {
+            render_rebuilt_chunk(chunk_data, level_renderer);
         }
-        count++;
+        _free_rebuilt_chunk_data(chunk_data);
     }
-}
 
-// Free Rebuilt Chunk Data
-void _free_rebuilt_chunk_data(const rebuilt_chunk_data *chunk) {
-    for (const VertexArray<CustomVertexFlat> *ptr : chunk->vertices) {
-        delete ptr;
-    }
-    delete chunk;
+    // Call Original Method
+    original(self, param_1);
 }
 
 // Init
@@ -165,7 +151,7 @@ void _init_display_lists_chunks_rebuild() {
     // Build Chunks
     advanced_tesselator_enable();
     overwrite_calls(Chunk_rebuild, Chunk_rebuild_injection);
-    overwrite_calls(LevelRenderer_tick, LevelRenderer_tick_injection);
+    overwrite_calls(GameRenderer_render, GameRenderer_render_injection);
 
     // Setup Biome Data
     _init_threaded_biome_source();

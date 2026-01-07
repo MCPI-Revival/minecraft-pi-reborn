@@ -109,5 +109,5 @@ void _init_display_lists_chunks_render() {
     // Render Chunks
     enabled = true;
     overwrite_calls(LevelRenderer_renderChunks, LevelRenderer_renderChunks_injection);
-    replace(Chunk_isEmpty);
+    replace_func(Chunk_isEmpty);
 }

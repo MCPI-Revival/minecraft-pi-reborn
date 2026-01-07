@@ -1,11 +1,14 @@
+#include "rebuild.h"
+
+#include <optional>
+#include <cstdint>
+
 #include <libreborn/patch.h>
 
 #include <symbols/BiomeSource.h>
 #include <symbols/Level.h>
 
 #include <mods/display-lists/display-lists.h>
-
-#include "thread.h"
 
 // Allow Creating BiomeSource Without Level
 static thread_local std::optional<int> forced_biome_source_seed;

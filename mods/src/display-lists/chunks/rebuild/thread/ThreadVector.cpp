@@ -1,6 +1,6 @@
-#include <ranges>
-
 #include "ThreadVector.h"
+
+#include <ranges>
 
 // Add Data
 void ThreadVector::add(void *key, void *value) {

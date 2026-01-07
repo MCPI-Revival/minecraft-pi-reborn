@@ -1,36 +1,12 @@
-#include <malloc.h>
+#include "worker.h"
+#include "messages.h"
+#include "../rebuild.h"
 
-#include <libreborn/log.h>
+#include <malloc.h>
 
 #include <symbols/Tesselator.h>
 #include <symbols/TileRenderer.h>
 #include <symbols/Tile.h>
-#include <symbols/Level.h>
-
-#include "thread.h"
-
-#include "symbols/Chunk.h"
-
-// Empty layer Tracking
-rebuilt_chunk_data::empty::empty() {
-    for (bool &layer : layers) {
-        layer = value;
-    }
-}
-void rebuilt_chunk_data::empty::apply(Chunk *out) const {
-    out->is_empty = value;
-    for (int i = 0; i < num_layers; i++) {
-        out->is_layer_empty[i] = layers[i];
-    }
-}
-void rebuilt_chunk_data::empty::set(const int layer) {
-    value = false;
-    layers[layer] = value;
-}
-
-// Input/Output
-ThreadVector _chunks_to_rebuild;
-ThreadVector _rebuilt_chunks;
 
 // Build Chunk
 static void build_chunk(chunk_rebuild_data *data, rebuilt_chunk_data *out) {
@@ -99,27 +75,17 @@ static void build_chunk(chunk_rebuild_data *data, rebuilt_chunk_data *out) {
     ::operator delete(tile_renderer);
 }
 
-// Configure Rendering
-void _configure_tesselator_for_chunk_rebuild(const bool enable) {
-    CustomTesselator &t = advanced_tesselator_get();
-    t.are_vertices_flat = enable;
-}
-
 // Chunk Building Thread
-struct chunk_rebuild_thread_data {
-    int seed = 0;
-};
-static void *chunk_building_thread_func(void *arg) {
+void *RebuildWorker::run(void *arg) {
     // Configure
+    RebuildWorker *self = (RebuildWorker *) arg;
     _configure_tesselator_for_chunk_rebuild(true);
-    const chunk_rebuild_thread_data *thread_data = (const chunk_rebuild_thread_data *) arg;
-    _create_biome_source(thread_data->seed);
-    delete thread_data;
+    _create_biome_source(self->seed);
 
     // Loop
     while (true) {
         std::vector<void *> data;
-        _chunks_to_rebuild.receive(data, true);
+        self->input.receive(data, true);
         for (void *msg : data) {
             // Check
             if (!msg) {
@@ -134,45 +100,11 @@ static void *chunk_building_thread_func(void *arg) {
             build_chunk(chunk, out);
 
             // Send Result
-            _rebuilt_chunks.add(chunk->chunk, out);
+            self->output.add(chunk->chunk, out);
 
             // Force Release Memory
             delete chunk;
             malloc_trim(0);
         }
     }
-}
-
-// Start/Stop
-static pthread_t chunk_rebuild_thread;
-static bool chunk_rebuild_thread_running = false;
-void _stop_chunk_rebuild_thread() {
-    // Kill Thread
-    if (chunk_rebuild_thread_running) {
-        // Signal Stop
-        _chunks_to_rebuild.add(nullptr, nullptr);
-        // Wait For Thread To Stop
-        pthread_join(chunk_rebuild_thread, nullptr);
-        chunk_rebuild_thread_running = false;
-        // Free Remaining Messages
-        std::vector<void *> data;
-        _receive_rebuilt_chunks(data);
-        for (const void *msg : data) {
-            const rebuilt_chunk_data *chunk = (const rebuilt_chunk_data *) msg;
-            _free_rebuilt_chunk_data(chunk);
-        }
-    }
-}
-void _start_chunk_rebuild_thread(Level *level) {
-    if (chunk_rebuild_thread_running) {
-        IMPOSSIBLE();
-    }
-    chunk_rebuild_thread_data *data = new chunk_rebuild_thread_data;
-    data->seed = level->getSeed();
-    const int ret = pthread_create(&chunk_rebuild_thread, nullptr, chunk_building_thread_func, data);
-    if (ret != 0) {
-        delete data;
-        IMPOSSIBLE();
-    }
-    chunk_rebuild_thread_running = true;
 }
