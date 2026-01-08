@@ -84,6 +84,9 @@ include_toc: true
     * `Only Send Messages To Fully Connected Players` (Enabled By Default)
     * `Translucent Ice` (Disabled By Default)
     * `Optimize Frustum Culling` (Enabled By Default)
+    * `Outline Entity Hitboxes` (Disabled By Default)
+    * `Outline Level Chunks` (Disabled By Default)
+    * `Outline Render Chunks` (Disabled By Default)
   * New Bug Fixes (All Enabled By Default)
     * `Fix Held Item Caching`
     * `Fix Pigmen Burning In The Sun`

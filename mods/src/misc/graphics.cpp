@@ -30,10 +30,6 @@
 #include <symbols/ChestTileEntity.h>
 #include <symbols/ContainerMenu.h>
 #include <symbols/Container.h>
-#include <symbols/ItemRenderer.h>
-#include <symbols/ItemEntity.h>
-#include <symbols/TileRenderer.h>
-#include <symbols/ItemInHandRenderer.h>
 #include <symbols/FrustumCuller.h>
 #include <symbols/GameRenderer.h>
 #include <symbols/NinecraftApp.h>
@@ -43,6 +39,7 @@
 
 #include <mods/feature/feature.h>
 #include <mods/display-lists/display-lists.h>
+#include <mods/misc/misc.h>
 
 #include "internal.h"
 
@@ -54,10 +51,7 @@ static void anGenBuffers_injection(MCPI_UNUSED Common_anGenBuffers_t original, c
 }
 
 // Custom Outline Color
-static void LevelRenderer_render_AABB_glColor4f_injection(MCPI_UNUSED GLfloat red, MCPI_UNUSED GLfloat green, MCPI_UNUSED GLfloat blue, MCPI_UNUSED GLfloat alpha) {
-    // Set Color
-    media_glColor4f(0, 0, 0, 0.4);
-
+void misc_set_nice_line_width() {
     // Find Line Width
     const char *custom_line_width = getenv(MCPI_BLOCK_OUTLINE_WIDTH_ENV);
     float line_width;
@@ -69,8 +63,12 @@ static void LevelRenderer_render_AABB_glColor4f_injection(MCPI_UNUSED GLfloat re
         line_width = 1.5f / Gui::InvGuiScale;
     }
     // Clamp Line Width
-    float range[2];
-    media_glGetFloatv(GL_ALIASED_LINE_WIDTH_RANGE, range);
+    static bool loaded_range = false;
+    static float range[2];
+    if (!loaded_range) {
+        media_glGetFloatv(GL_ALIASED_LINE_WIDTH_RANGE, range);
+        loaded_range = true;
+    }
     if (range[1] < line_width) {
         line_width = range[1];
     } else if (range[0] > line_width) {
@@ -78,6 +76,12 @@ static void LevelRenderer_render_AABB_glColor4f_injection(MCPI_UNUSED GLfloat re
     }
     // Set Line Width
     media_glLineWidth(line_width);
+}
+static void LevelRenderer_render_AABB_glColor4f_injection(MCPI_UNUSED GLfloat red, MCPI_UNUSED GLfloat green, MCPI_UNUSED GLfloat blue, MCPI_UNUSED GLfloat alpha) {
+    // Set Color
+    media_glColor4f(0, 0, 0, 0.4);
+    // Set Line Width
+    misc_set_nice_line_width();
 }
 
 // Java Light Ramp

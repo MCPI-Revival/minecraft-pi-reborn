@@ -25,6 +25,8 @@
 #include <mods/fps/fps.h>
 #include <mods/init/init.h>
 
+#include "internal.h"
+
 // Get Debug Information
 static std::string to_string_with_precision(const double x, const int precision) {
     std::stringstream stream;
@@ -260,4 +262,5 @@ void init_f3() {
             }
         });
     }
+    _init_f3_outlining();
 }

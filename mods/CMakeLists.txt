@@ -108,6 +108,7 @@ add_library(mods SHARED
     src/init/init.cpp
     # f3
     src/f3/f3.cpp
+    src/f3/outlining.cpp
     # display-lists
     src/display-lists/font.cpp
     src/display-lists/tesselator.cpp

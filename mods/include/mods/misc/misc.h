@@ -16,6 +16,7 @@ struct Level;
 extern "C" {
 int32_t misc_get_real_selected_slot(const Player *player);
 void misc_render_background(int color, const Minecraft *minecraft, int x, int y, int width, int height);
+void misc_set_nice_line_width();
 
 extern bool is_in_chat;
 extern bool food_overlay;

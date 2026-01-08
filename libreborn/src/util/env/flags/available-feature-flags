@@ -89,6 +89,10 @@ CATEGORY Rendering
         TRUE Show Block Outlines
         TRUE Replace Block Highlight With Outline
         TRUE Hide Block Outline When UI Is Hidden
+    CATEGORY Debugging
+        FALSE Outline Entity Hitboxes
+        FALSE Outline Level Chunks
+        FALSE Outline Render Chunks
     TRUE Display Nametags By Default
     TRUE Disable V-Sync
         COMMENT This may increase FPS but can cause screen tearing.
