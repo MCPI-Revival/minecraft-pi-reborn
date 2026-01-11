@@ -33,7 +33,7 @@ VS_VERSION_INFO VERSIONINFO
             // Values
             BEGIN
                 VALUE "CompanyName", "${MCPI_AUTHOR_LONG}"
-                VALUE "FileDescription", "${MCPI_APP_DESCRIPTION}"
+                VALUE "FileDescription", "${MCPI_APP_TITLE}"
                 VALUE "FileVersion", "${MCPI_VERSION}"
                 VALUE "InternalName", VER_FILENAME
                 VALUE "OriginalFilename", VER_FILENAME
