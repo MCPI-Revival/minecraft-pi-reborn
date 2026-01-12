@@ -24,6 +24,7 @@ virtual-method void baseTick() = 0x38;
 virtual-method bool isSneaking() = 0x88;
 virtual-method float getShadowHeightOffs() = 0x60;
 virtual-method bool isInWall() = 0x48;
+virtual-method float getHeadHeight() = 0x5c;
 
 property float x = 0x4;
 property float y = 0x8;

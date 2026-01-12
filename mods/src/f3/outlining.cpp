@@ -44,6 +44,7 @@ static void begin_lines() {
 static void end_lines(const bool disable_lighting) {
     std::vector<GLenum> flags;
     flags.push_back(GL_TEXTURE_2D);
+    flags.push_back(GL_FOG);
     if (disable_lighting) {
         flags.push_back(GL_LIGHTING);
     }
@@ -111,7 +112,7 @@ static int LevelRenderer_renderChunks_injection(LevelRenderer_renderChunks_t ori
 
     // Start Drawing
     begin_lines();
-    const Mob *camera = self->minecraft->camera;
+    Mob *camera = self->minecraft->camera;
     const float offset_x = camera->old_x + ((camera->x - camera->old_x) * b);
     const float offset_y = camera->old_y + ((camera->y - camera->old_y) * b);
     const float offset_z = camera->old_z + ((camera->z - camera->old_z) * b);
@@ -132,7 +133,8 @@ static int LevelRenderer_renderChunks_injection(LevelRenderer_renderChunks_t ori
                 const int z1 = z0 + chunk->depth;
                 // Check Whether Camera Is Inside
                 const bool inside_x = camera->x >= float(x0) && camera->x < float(x1);
-                const bool inside_y = camera->y >= float(y0) && camera->y < float(y1);
+                const float camera_y = camera->y + camera->getHeadHeight();
+                const bool inside_y = camera_y >= float(y0) && camera_y < float(y1);
                 const bool inside_z = camera->z >= float(z0) && camera->z < float(z1);
                 if (inside_x && inside_y && inside_z) {
                     // Found The Chunk
