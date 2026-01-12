@@ -389,7 +389,7 @@ static void PlayerRenderer_render_injection(PlayerRenderer *model_renderer, Enti
 
 // 3D Chests
 static int32_t TileRenderer_tesselateInWorld_Tile_getRenderShape_injection(Tile *tile) {
-    if (tile == Tile::chest) {
+    if (tile->id == Tile::chest->id) {
         // Don't Render "Simple" Chest Model
         return -1;
     } else {

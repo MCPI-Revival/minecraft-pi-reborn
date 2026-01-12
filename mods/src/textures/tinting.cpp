@@ -136,7 +136,7 @@ static Tile *get_fake_grass_side_tile() {
 }
 static bool TileRenderer_tesselateBlockInWorld_injection(TileRenderer_tesselateBlockInWorld_t original, TileRenderer *self, Tile *tile, const int x, const int y, const int z) {
     const bool ret = original(self, tile, x, y, z);
-    if (tile == Tile::grass && tile->getTexture3(self->level, x, y, z, 2) == 3) {
+    if (tile->id == Tile::grass->id && tile->getTexture3(self->level, x, y, z, 2) == 3) {
         original(self, get_fake_grass_side_tile(), x, y, z);
     }
     return ret;
