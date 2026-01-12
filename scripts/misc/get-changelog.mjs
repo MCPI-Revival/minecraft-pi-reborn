@@ -19,7 +19,10 @@ const version = getVersion();
 const changelog = readFile('docs', 'CHANGELOG.md');
 
 // Get Date
-const time = new Date(Math.max(version.time.getTime(), changelog.time.getTime()));
+function maxDate(a, b) {
+    return a.getTime() > b.getTime() ? a : b;
+}
+const time = maxDate(version.time, changelog.time);
 const date = time.toISOString().split('T')[0];
 if (options.mode === Modes.Date) {
     console.log(date);
@@ -60,12 +63,14 @@ if (options.mode === Modes.Release) {
     const discord = process.env.DISCORD_URL;
     out.unshift(
         '## Links',
+        '',
         `* [Installation Guide](${url}/docs/INSTALL.md)`,
         `* [Getting Started Guide](${url}/docs/GETTING_STARTED.md)`,
         `* [Documentation](${url}/docs)`,
         `* [Discord](${discord})`,
         '',
-        '## Changelog'
+        '## Changelog',
+        ''
     );
 }
 

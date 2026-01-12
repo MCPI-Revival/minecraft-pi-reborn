@@ -57,6 +57,11 @@ export async function createRelease(dryRun, tag) {
     // Create Release
     await login(dryRun);
     info('Creating Release: ' + tag);
+    await tea(dryRun, true, [
+        'releases', 'delete',
+        '--repo', SLUG,
+        tag
+    ]);
     await tea(dryRun, false, [
         'releases', 'create',
         '--repo', SLUG,

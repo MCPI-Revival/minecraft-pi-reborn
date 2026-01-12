@@ -19,6 +19,7 @@ void advanced_tesselator_enable() {
     if (initialized) {
         return;
     }
+    DEBUG("Enabling Advanced Tesselator...");
     _tesselator_init_state();
     _tesselator_init_vertex();
     _tesselator_init_draw();

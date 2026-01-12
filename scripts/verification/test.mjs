@@ -32,7 +32,11 @@ fs.mkdirSync(tmp);
 process.env.MCPI_PROFILE_DIRECTORY = tmp;
 
 // Run
-const args = [appimage, '--appimage-extract-and-run'];
+const args = [
+    appimage,
+    '--appimage-extract-and-run',
+    '--debug'
+];
 if (options.mode === Modes.Client) {
     args.push(
         '--default',
