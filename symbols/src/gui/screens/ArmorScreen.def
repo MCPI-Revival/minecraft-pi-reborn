@@ -1,3 +1,13 @@
 extends Screen;
 
+size 0x1e4;
+constructor () = 0x297ac;
+
+vtable-size 0x80;
+vtable 0x103ac8;
+
 method void renderPlayer(float param_1, float param_2) = 0x29cd0;
+method void updateItems() = 0x2a0b0;
+method void setupInventoryPane() = 0x29a00;
+
+property std::vector<const ItemInstance *> items = 0x1c0;

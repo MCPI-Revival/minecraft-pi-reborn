@@ -11,7 +11,8 @@ struct copy_array {
         size = length * sizeof(T);
         data = arr;
     }
-    explicit copy_array(const T *str) requires std::is_same_v<T, char> {
+    template <typename U = T, typename = std::enable_if_t<std::is_same_v<U, char>>>
+    explicit copy_array(const T *str) {
         size = str != nullptr ? (strlen(str) + 1) : 0;
         data = str;
     }

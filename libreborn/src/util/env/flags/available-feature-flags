@@ -156,6 +156,7 @@ CATEGORY Bug Fixes
         TRUE Fix Switching Perspective While Sneaking
         TRUE Fix Held Item Poking Through Screen Overlay
         TRUE Fix 3D Item Rendering With High-Resolution Textures
+        TRUE Fix Armor Screen Rendering When Player Is Dead/Hurt
     CATEGORY Network
         TRUE Patch RakNet Security Bug
         TRUE Prevent Unnecessary Server Pinging
@@ -188,7 +189,7 @@ CATEGORY Bug Fixes
     CATEGORY Crashes
         TRUE Fix Crash When Generating Certain Seeds
         TRUE Close Editor When Sign Is Destroyed
-        TRUE Close Current Screen On Death
+        TRUE Fix Armor/Furnace Screen From Crashing On Death
     CATEGORY API
         TRUE Fix HUD When Spectating Other Players
         TRUE Fix Crash When Spectated Entity Is Removed

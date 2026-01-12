@@ -1,5 +1,14 @@
 extends Screen;
 
+size 0x1d4;
+constructor (Player *player, FurnaceTileEntity *tile_entity) = 0x31770;
+
+vtable-size 0x80;
+vtable 0x1044e0;
+
 method bool handleAddItem(int slot, const ItemInstance *item) = 0x327a0;
+method void updateItems() = 0x32a74;
+method void setupInventoryPane() = 0x31f4c;
 
 property FurnaceTileEntity *tile_entity = 0x1d0;
+property std::vector<const ItemInstance *> items = 0x1a0;

@@ -30,6 +30,8 @@
 #include <symbols/LevelChunk.h>
 #include <symbols/RenameMPLevelScreen.h>
 #include <symbols/Strings.h>
+#include <symbols/ArmorScreen.h>
+#include <symbols/FurnaceScreen.h>
 
 #include <media-layer/core.h>
 
@@ -163,14 +165,27 @@ static void Screen_render_injection(Screen_render_t original, Screen *screen, co
     original(screen, param_1, param_2, param_3);
 }
 
-// Close Current Screen On Death To Prevent Bugs
-static void LocalPlayer_die_injection(LocalPlayer_die_t original, LocalPlayer *entity, Entity *cause) {
-    // Close Screen
-    Minecraft *minecraft = entity->minecraft;
-    minecraft->setScreen(nullptr);
+// Fix Armor/Furnace Screen From Crashing On Death
+template <typename Self>
+static void ArmorScreen_render_injection(const std::function<void(Self *, int, int, float)> &original, Self *self, const int x, const int y, const float param_1) {
+    // Update Items
+    const size_t old_size = self->items.size();
+    self->updateItems();
+    const size_t new_size = self->items.size();
+    if (new_size != old_size) {
+        self->setupInventoryPane();
+    }
 
     // Call Original Method
-    original(entity, cause);
+    original(self, x, y, param_1);
+}
+
+// Prevent Dead/Hurt Player Rendering From Contaminating Armor Screen
+static void ArmorScreen_renderPlayer_injection(ArmorScreen_renderPlayer_t original, ArmorScreen *self, const float param_1, const float param_2) {
+    // Call Original Method
+    original(self, param_1, param_2);
+    // Reset OpenGL
+    media_glColor4f(1, 1, 1, 1);
 }
 
 // Custom Cursor Rendering
@@ -418,9 +433,15 @@ void _init_misc_ui() {
         overwrite_calls(Screen_render, Screen_render_injection);
     }
 
-    // Close Current Screen On Death To Prevent Bugs
-    if (feature_has("Close Current Screen On Death", server_disabled)) {
-        overwrite_calls(LocalPlayer_die, LocalPlayer_die_injection);
+    // Fix Crash On Player Death
+    if (feature_has("Fix Armor/Furnace Screen From Crashing On Death", server_disabled)) {
+        overwrite_calls(ArmorScreen_render, ArmorScreen_render_injection<ArmorScreen>);
+        overwrite_calls(FurnaceScreen_render, ArmorScreen_render_injection<FurnaceScreen>);
+    }
+
+    // Fix Armor Screen Rendering With Dead/Hurt Player
+    if (feature_has("Fix Armor Screen Rendering When Player Is Dead/Hurt", server_disabled)) {
+        overwrite_calls(ArmorScreen_renderPlayer, ArmorScreen_renderPlayer_injection);
     }
 
     // Improved Cursor Rendering

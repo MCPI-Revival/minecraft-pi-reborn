@@ -119,6 +119,8 @@ include_toc: true
     * `Stop Doors And Trapdoors Closing When Updated`
     * `Force Saving Level Data On World Exit`
     * `Fix 3D Item Rendering With High-Resolution Textures`
+    * `Fix Armor/Furnace Screen From Crashing On Death`
+    * `Fix Armor Screen Rendering When Player Is Dead/Hurt`
   * Existing Functionality (All Enabled By Default)
     * `Fix Screen Rendering When Hiding HUD`
     * `Sanitize Usernames`
@@ -162,6 +164,7 @@ include_toc: true
   * `Fix Camera Rendering` To `Enable Camera Rendering`
 * Removed `Property Scale Animated Textures` Feature Flag
 * Removed `Remove Invalid Item Background` Feature Flag
+* Removed `Close Current Screen On Death` Feature Flag
 * Improve Death Messages
 * Massive Build System Improvements
 * Fix Item Dropping When Killing Players From The Server Console
