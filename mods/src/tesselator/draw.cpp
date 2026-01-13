@@ -27,7 +27,7 @@ __attribute__((hot, always_inline)) static inline RenderChunk Tesselator_end_inj
         out.buffer = use_given_buffer ? buffer : t.buffer;
         media_glBindBuffer(GL_ARRAY_BUFFER, out.buffer);
         const uint vertex_size = sizeof(Vertex);
-        media_glBufferData(GL_ARRAY_BUFFER, out.vertices * vertex_size, vertices.data, use_given_buffer ? GL_STATIC_DRAW : GL_DYNAMIC_DRAW);
+        media_glBufferData(GL_ARRAY_BUFFER, out.vertices * vertex_size, vertices.data, GL_STATIC_DRAW);
     }
 
     // Finish
@@ -89,7 +89,7 @@ __attribute__((hot, always_inline)) static inline void Tesselator_draw_injection
         GLsizeiptr &buffer_size = t.buffer_size;
         const GLsizeiptr data_size = vertex_count * vertex_size;
         if (data_size > buffer_size) {
-            media_glBufferData(GL_ARRAY_BUFFER, data_size, vertices.data, GL_DYNAMIC_DRAW);
+            media_glBufferData(GL_ARRAY_BUFFER, data_size, vertices.data, GL_STREAM_DRAW);
             buffer_size = data_size;
         } else {
             media_glBufferSubData(GL_ARRAY_BUFFER, 0, data_size, vertices.data);
