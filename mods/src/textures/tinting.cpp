@@ -110,12 +110,13 @@ static int32_t GrassTile_getColor_injection(GrassTile_getColor_t original, Grass
     return (int32_t) color;
 }
 static int32_t TallGrass_getColor_injection(TallGrass_getColor_t original, TallGrass *tile, LevelSource *level_source, const int32_t x, const int32_t y, const int32_t z) {
-    const int32_t original_color = original(tile, level_source, x, y, z);
-    if (original_color == 0x339933) {
-        return GrassTile_getColor_injection(nullptr, nullptr, level_source, x, y, z);
-    } else {
+    const int data = level_source->getData(x, y, z);
+    if (data == 0) {
         // Dead Bush
-        return original_color;
+        return original(tile, level_source, x, y, z);
+    } else {
+        // Tall Grass/Fern
+        return GrassTile_getColor_injection(nullptr, nullptr, level_source, x, y, z);
     }
 }
 

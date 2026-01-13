@@ -19,3 +19,7 @@ property std::string name = 0x28;
 
 // This is a Biome*[64x64], temp x humidity
 static-property Biome *map[4096] = 0x17c970;
+
+// Biomes
+static-property Biome *desert = 0x17c960;
+static-property Biome *swampland = 0x17c948;

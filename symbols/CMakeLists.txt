@@ -106,7 +106,8 @@ add_symbol_library(symbols
     src/level/LevelSource.def
     src/level/ExternalFileLevelStorageSource.def
     src/level/ExternalFileLevelStorage.def
-    src/level/Biome.def
+    src/level/biome/Biome.def
+    src/level/biome/BiomeSource.def
     src/level/LevelChunk.def
     src/level/EmptyLevelChunk.def
     src/level/ChunkSource.def
@@ -130,7 +131,6 @@ add_symbol_library(symbols
     src/level/DistanceChunkSorter.def
     src/level/renderer/Chunk.def
     src/level/LevelStorage.def
-    src/level/BiomeSource.def
     src/level/Region.def
     src/level/RegionFile.def
     src/level/DataLayer.def
