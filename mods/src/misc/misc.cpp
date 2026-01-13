@@ -7,7 +7,6 @@
 #include <fstream>
 #include <streambuf>
 
-#include <GLES/gl.h>
 #include <media-layer/core.h>
 
 #include <libreborn/patch.h>
@@ -49,6 +48,10 @@
 #include <symbols/Zombie.h>
 #include <symbols/Skeleton.h>
 #include <symbols/NinecraftApp.h>
+#include <symbols/BiomeSource.h>
+#include <symbols/ReedsFeature.h>
+#include <symbols/Feature.h>
+#include <symbols/Biome.h>
 
 #include <mods/init/init.h>
 #include <mods/feature/feature.h>
@@ -154,14 +157,34 @@ static void RandomLevelSource_buildSurface_injection(RandomLevelSource_buildSurf
     // Call Original Method
     original(random_level_source, chunk_x, chunk_y, chunk_data, biomes);
 
-    // Get Level
-    Level *level = random_level_source->level;
-
-    // Get Cave Feature
-    LargeCaveFeature *cave_feature = &random_level_source->cave_feature;
-
     // Generate
+    Level *level = random_level_source->level;
+    LargeCaveFeature *cave_feature = &random_level_source->cave_feature;
     cave_feature->apply((ChunkSource *) random_level_source, level, chunk_x, chunk_y, chunk_data, 0);
+}
+
+// Tall Grass
+static Biome *tall_grass_biome = nullptr;
+static Biome *RandomLevelSource_postProcess_BiomeSource_getBiome_injection(BiomeSource *self, const int x, const int z) {
+    tall_grass_biome = self->getBiome(x, z);
+    return tall_grass_biome;
+}
+static bool RandomLevelSource_postProcess_ReedsFeature_place_injection(ReedsFeature *self, Level *level, Random *random, int x, int y, int z) {
+    // Place Tall Grass
+    if (tall_grass_biome) {
+        // Repurpose First Loop Iteration
+        bool ret = false;
+        Feature *feature = tall_grass_biome->getGrassFeature(random);
+        if (feature) {
+            ret = feature->place(level, random, x, y, z);
+            feature->destructor_deleting();
+        }
+        tall_grass_biome = nullptr;
+        return ret;
+    }
+
+    // Call Original Method
+    return self->place(level, random, x, y, z);
 }
 
 // Disable Hostile AI In Creative Mode
@@ -207,7 +230,7 @@ static AppPlatform_readAssetFile_return_value AppPlatform_readAssetFile_injectio
     std::ifstream stream("data/" + path, std::ios::binary | std::ios::ate);
     if (!stream) {
         // Does Not Exist
-        AppPlatform_readAssetFile_return_value ret;
+        AppPlatform_readAssetFile_return_value ret = {};
         ret.length = -1;
         ret.data = nullptr;
         return ret;
@@ -219,7 +242,7 @@ static AppPlatform_readAssetFile_return_value AppPlatform_readAssetFile_injectio
     stream.read(buf, len);
     stream.close();
     // Return String
-    AppPlatform_readAssetFile_return_value ret;
+    AppPlatform_readAssetFile_return_value ret = {};
     ret.length = int(len);
     ret.data = strdup(buf);
     return ret;
@@ -520,6 +543,18 @@ void init_misc() {
     // Generate Caves
     if (feature_has("Generate Caves", server_generate_caves)) {
         overwrite_calls(RandomLevelSource_buildSurface, RandomLevelSource_buildSurface_injection);
+    }
+
+    // Tall Grass
+    if (feature_has("Generate Tall Grass", server_generate_tall_grass)) {
+        // Add Extra Iteration To Sugar-Cane Loop
+        // First Loop Will Be Repurposed For Tall-Grass
+        const unsigned char *instruction = (const unsigned char *) 0xb2e64;
+        unsigned char extra_loop_patch[4] = {instruction[0], instruction[1], instruction[2], 0x5a}; // Change "bne" To "bpl"
+        patch((void *) instruction, extra_loop_patch);
+        // Generate
+        overwrite_call((void *) 0xb229c, BiomeSource_getBiome, RandomLevelSource_postProcess_BiomeSource_getBiome_injection);
+        overwrite_call((void *) 0xb2e54, ReedsFeature_place, RandomLevelSource_postProcess_ReedsFeature_place_injection);
     }
 
     // Disable Hostile AI In Creative Mode

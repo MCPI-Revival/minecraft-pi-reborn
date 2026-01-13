@@ -2,11 +2,13 @@ static-property float tempScale = 0x110254;
 static-property float downfallScale = 0x110250;
 
 vtable 0x110218;
+vtable-size 0x1c;
 
 size 0x1da0;
 constructor (Level *level) = 0xaf75c;
 
 virtual-method Biome **getBiomeBlock(int x, int z, int param_1, int param_2) = 0x14;
+virtual-method Biome *getBiome(int x, int z) = 0xc;
 
 property float *temperature = 0x4;
 property float *downfall = 0x8;

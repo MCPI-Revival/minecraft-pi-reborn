@@ -99,6 +99,7 @@ add_symbol_library(symbols
     src/level/container/ContainerMenu.def
     src/level/container/Inventory.def
     src/level/feature/Feature.def
+    src/level/feature/ReedsFeature.def
     src/level/feature/LargeFeature.def
     src/level/feature/LargeCaveFeature.def
     src/level/Material.def

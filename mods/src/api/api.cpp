@@ -144,8 +144,8 @@ static bool is_entity_selected(const Entity *entity, const int target_type) {
 }
 
 // Get Selected Item
-static ItemInstance *get_selected_item(Entity *entity) {
-    ItemInstance *item = nullptr;
+static const ItemInstance *get_selected_item(Entity *entity) {
+    const ItemInstance *item = nullptr;
     if (entity->isMob()) {
         // Mob/Player
         item = ((Mob *) entity)->getCarriedItem();
@@ -617,7 +617,7 @@ static std::string CommandServer_parse_injection(CommandServer_parse_t original,
             // Parse
             get_entity(Fail);
             // Get Item
-            ItemInstance *item = get_selected_item(entity);
+            const ItemInstance *item = get_selected_item(entity);
             if (!item) {
                 // Entity Does Not Carry Items
                 return CommandServer::Fail;

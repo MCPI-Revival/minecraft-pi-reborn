@@ -1,4 +1,5 @@
 #include <fstream>
+#include <limits>
 
 #include <SDL/SDL.h>
 
@@ -24,48 +25,48 @@ static void init_only_generate() {
 }
 
 // Server Properties
+struct RebornServerProperties : ServerProperties {
+    const ServerProperty<std::string> message_of_the_day = ServerProperty<std::string>(*this, "motd", "Minecraft Server", "Message Of The Day");
+    const ServerProperty<bool> show_minecon_badge = ServerProperty(*this, "show-minecon-badge", false, "Show The MineCon Badge Next To MOTD In Server List");
+    const ServerProperty<int> game_mode = ServerProperty(*this, "game-mode", 0, "Game Mode (0 = Survival, 1 = Creative)");
+    const ServerProperty<int> port = ServerProperty(*this, "port", DEFAULT_MULTIPLAYER_PORT, "Port");
+    const ServerProperty<std::string> seed = ServerProperty<std::string>(*this, "seed", "", "World Seed (Blank = Random Seed)");
+    const ServerProperty<bool> force_mob_spawning = ServerProperty(*this, "force-mob-spawning", false, "Force Mob Spawning");
+    const ServerProperty<bool> peaceful_mode = ServerProperty(*this, "peaceful-mode", false, "Peaceful Mode");
+    const ServerProperty<std::string> world_name = ServerProperty<std::string>(*this, "world-name", "world", "World To Select");
+    const ServerProperty<int> max_players = ServerProperty(*this, "max-players", 4, "Maximum Player Count");
+    const ServerProperty<bool> enable_whitelist = ServerProperty(*this, "whitelist", false, "Enable Whitelist");
+    const ServerProperty<bool> death_messages = ServerProperty(*this, "death-messages", true, "Enable Death Messages");
+    const ServerProperty<bool> generate_caves = ServerProperty(*this, "generate-caves", true, "Generate Caves");
+    const ServerProperty<bool> generate_tall_grass = ServerProperty(*this, "generate-tall-grass", false, "Generate Tall Grass");
+    const ServerProperty<bool> player_data = ServerProperty(*this, "track-player-data", false, "Save/Load Player Data");
+    const ServerProperty<bool> is_vanilla_compatible = ServerProperty(*this, "is-vanilla-compatible", false, "Whether The Server Is Compatible With Vanilla Clients");
+    // Singleton
+    static RebornServerProperties &get() {
+        static RebornServerProperties properties;
+        return properties;
+    }
+};
 ServerProperties &get_server_properties() {
-    static ServerProperties properties;
-    return properties;
-}
-
-// Default Server Properties
-static const auto &get_property_types() {
-    static struct {
-        const ServerProperty message_of_the_day = ServerProperty("motd", "Minecraft Server", "Message Of The Day");
-        const ServerProperty show_minecon_badge = ServerProperty("show-minecon-badge", "false", "Show The MineCon Badge Next To MOTD In Server List");
-        const ServerProperty game_mode = ServerProperty("game-mode", "0", "Game Mode (0 = Survival, 1 = Creative)");
-        const ServerProperty port = ServerProperty("port", safe_to_string(DEFAULT_MULTIPLAYER_PORT), "Port");
-        const ServerProperty seed = ServerProperty("seed", "", "World Seed (Blank = Random Seed)");
-        const ServerProperty force_mob_spawning = ServerProperty("force-mob-spawning", "false", "Force Mob Spawning");
-        const ServerProperty peaceful_mode = ServerProperty("peaceful-mode", "false", "Peaceful Mode");
-        const ServerProperty world_name = ServerProperty("world-name", "world", "World To Select");
-        const ServerProperty max_players = ServerProperty("max-players", "4", "Maximum Player Count");
-        const ServerProperty enable_whitelist = ServerProperty("whitelist", "false", "Enable Whitelist");
-        const ServerProperty death_messages = ServerProperty("death-messages", "true", "Enable Death Messages");
-        const ServerProperty generate_caves = ServerProperty("generate-caves", "true", "Generate Caves");
-        const ServerProperty player_data = ServerProperty("track-player-data", "false", "Save/Load Player Data");
-        const ServerProperty is_vanilla_compatible = ServerProperty("is-vanilla-compatible", "false", "Whether The Server Is Compatible With Vanilla Clients");
-    } types;
-    return types;
+    return RebornServerProperties::get();
 }
 
 // Create/Start World
 static int forced_game_mode;
 static void start_world(Minecraft *minecraft) {
     // Get World Name
-    std::string world_name = get_server_properties().get_string(get_property_types().world_name);
+    std::string world_name = RebornServerProperties::get().world_name.get();
     INFO("Loading World: %s", world_name.c_str());
     world_name = to_cp437(world_name);
 
     // Peaceful Mode
     Options *options = &minecraft->options;
-    options->game_difficulty = get_server_properties().get_bool(get_property_types().peaceful_mode) ? difficulty_peaceful : difficulty_normal;
+    options->game_difficulty = RebornServerProperties::get().peaceful_mode.get() ? difficulty_peaceful : difficulty_normal;
 
     // Specify Level Settings
-    LevelSettings settings;
-    settings.game_type = forced_game_mode = get_server_properties().get_int(get_property_types().game_mode);
-    const std::string seed_str = get_server_properties().get_string(get_property_types().seed);
+    LevelSettings settings = {};
+    settings.game_type = forced_game_mode = RebornServerProperties::get().game_mode.get();
+    const std::string seed_str = RebornServerProperties::get().seed.get();
     const int32_t seed = get_seed_from_string(seed_str);
     settings.seed = seed;
 
@@ -75,7 +76,7 @@ static void start_world(Minecraft *minecraft) {
     // Don't Open Port When Using --only-generate
     if (!only_generate) {
         // Open Port
-        const int port = get_server_properties().get_int(get_property_types().port);
+        const int port = RebornServerProperties::get().port.get();
         INFO("Listening On: %i", port);
         minecraft->hostMultiplayer(port);
     }
@@ -150,6 +151,9 @@ static bool RakNet_RakPeer_IsBanned_injection(MCPI_UNUSED RakNet_RakPeer_IsBanne
 }
 
 // Handle New Player
+static bool should_save_player_data() {
+    return RebornServerProperties::get().player_data.get();
+}
 static Player *ServerSideNetworkHandler_onReady_ClientGeneration_ServerSideNetworkHandler_popPendingPlayer_injection(ServerSideNetworkHandler *server_side_network_handler, const RakNet_RakNetGUID &guid) {
     // Call Original Method
     Player *player = server_side_network_handler->popPendingPlayer(guid);
@@ -159,13 +163,13 @@ static Player *ServerSideNetworkHandler_onReady_ClientGeneration_ServerSideNetwo
         // Get Data
         const std::string username = misc_get_player_username_utf(player);
         const Minecraft *minecraft = server_side_network_handler->minecraft;
-        RakNet_RakPeer *rak_peer = minecraft->rak_net_instance->peer;
+        const RakNet_RakPeer *rak_peer = minecraft->rak_net_instance->peer;
         const std::string ip = get_rak_net_guid_ip(rak_peer, guid);
         // Log IP
         INFO("%s Has Joined (IP: %s)", username.c_str(), ip.c_str());
 
         // Player Data
-        if (get_server_properties().get_bool(get_property_types().player_data)) {
+        if (should_save_player_data()) {
             _load_playerdata((ServerPlayer *) player);
         }
     }
@@ -202,19 +206,15 @@ static bool ExternalFileLevelStorage_readLevelData_injection(ExternalFileLevelSt
 
 // Get MOTD
 static std::string get_motd() {
-    std::string motd(get_server_properties().get_string(get_property_types().message_of_the_day));
-    return motd;
+    return RebornServerProperties::get().message_of_the_day.get();
 }
 
 // Get Max Players
 static unsigned char get_max_players() {
-    int val = get_server_properties().get_int(get_property_types().max_players);
-    if (val < 0) {
-        val = 0;
-    }
-    if (val > 255) {
-        val = 255;
-    }
+    int val = RebornServerProperties::get().max_players.get();
+    typedef std::numeric_limits<unsigned char> limits;
+    val = std::max<int>(val, limits::min());
+    val = std::min<int>(val, limits::max());
     return (unsigned char) val;
 }
 
@@ -228,16 +228,15 @@ void init_server_flags() {
     if (!properties_file) {
         // Write Defaults
         std::ofstream properties_file_output(file, std::ios::out);
-        get_property_types();
+        RebornServerProperties::get();
         bool is_first = true;
-        for (const ServerProperty *property : ServerProperty::get_all()) {
+        for (const ServerPropertyBase *property : ServerPropertyBase::get_all()) {
             if (is_first) {
                 is_first = false;
             } else {
-                properties_file_output << std::endl;
+                properties_file_output << '\n';
             }
-            properties_file_output << "# " << property->comment << std::endl;
-            properties_file_output << property->key << '=' << property->def << std::endl;
+            properties_file_output << property->to_string();
         }
         properties_file_output.close();
         // Re-Open File
@@ -254,7 +253,7 @@ void init_server_flags() {
     properties_file.close();
 
     // Apply Flags
-#define FLAG(name) server_##name = get_server_properties().get_bool(get_property_types().name)
+#define FLAG(name) server_##name = RebornServerProperties::get().name.get()
 #include <mods/feature/server.h>
 #undef FLAG
     feature_server_flags_set = true;
@@ -265,7 +264,7 @@ void init_server_flags() {
 // Init Server
 void init_server() {
     // Setup Blacklist
-    blacklist.is_white = get_server_properties().get_bool(get_property_types().enable_whitelist);
+    blacklist.is_white = RebornServerProperties::get().enable_whitelist.get();
     blacklist.load();
 
     // Prevent The Main Player From Loading
@@ -282,7 +281,7 @@ void init_server() {
     overwrite_calls(RakNet_RakPeer_IsBanned, RakNet_RakPeer_IsBanned_injection);
 
     // Show The MineCon Icon Next To MOTD In Server List
-    if (get_server_properties().get_bool(get_property_types().show_minecon_badge)) {
+    if (RebornServerProperties::get().show_minecon_badge.get()) {
         unsigned char minecon_badge_patch[4] = {0x04, 0x1a, 0x9f, 0xe5}; // "ldr r1, [0x741f0]"
         patch((void *) 0x737e4, minecon_badge_patch);
     }
@@ -297,7 +296,7 @@ void init_server() {
     overwrite_call_manual((void *) 0xb8c7c, (void *) ExternalFileLevelStorage_readLevelData_fread_injection);
 
     // Player Data
-    if (get_server_properties().get_bool(get_property_types().player_data)) {
+    if (should_save_player_data()) {
         _init_server_playerdata();
     }
 

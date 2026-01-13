@@ -1,0 +1,3 @@
+extends Feature;
+
+vtable 0x110450;

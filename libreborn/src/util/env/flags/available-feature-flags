@@ -138,12 +138,14 @@ CATEGORY Multiplayer
     TRUE Send Inventory To Server
     TRUE Only Send Messages To Fully Connected Players
 CATEGORY Gameplay
+    CATEGORY World Generation
+        TRUE Generate Caves
+        FALSE Generate Tall Grass
     TRUE Implement Death Messages
     TRUE Implement Game-Mode Switching
     FALSE Force Mob Spawning
     TRUE Implement Crafting Remainders
     TRUE Implement Sound Engine
-    TRUE Generate Caves
 CATEGORY Bug Fixes
     CATEGORY Visual
         TRUE Fix Held Item Caching
