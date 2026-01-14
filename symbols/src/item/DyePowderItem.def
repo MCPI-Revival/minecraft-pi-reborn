@@ -1,0 +1,4 @@
+extends Item;
+
+vtable-size 0x98;
+vtable 0x10e5b0;

@@ -140,15 +140,11 @@ void init_creative() {
     if (feature_has("Expand Creative Mode Inventory", server_enabled)) {
         misc_run_on_creative_inventory_setup(Inventory_setupDefault_FillingContainer_addItem_injection);
 
-        // Use AuxDataTileItem by default instead of TileItem, so tiles in the Creative
-        // Inventory can have arbitrary auxiliary values.
-        {
-            // Fix Size
-            unsigned char size_patch[4] = {sizeof(AuxDataTileItem), 0x00, 0xa0, 0xe3}; // "mov r0, #AUX_DATA_TILE_ITEM_SIZE"
-            patch((void *) 0xc6f64, size_patch);
-            // Hook Constructor
-            overwrite_call((void *) 0xc6f74, TileItem_constructor, Tile_initTiles_TileItem_injection);
-        }
+        // Use AuxDataTileItem by default instead of TileItem, so tiles in the
+        // Creative Inventory can have arbitrary auxiliary values.
+        unsigned char size_patch[4] = {sizeof(AuxDataTileItem), 0x00, 0xa0, 0xe3}; // "mov r0, #AUX_DATA_TILE_ITEM_SIZE"
+        patch((void *) 0xc6f64, size_patch);
+        overwrite_call((void *) 0xc6f74, TileItem_constructor, Tile_initTiles_TileItem_injection);
     }
 
     // Remove Creative Mode Restrictions (Opening Chests, Crafting, Etc)

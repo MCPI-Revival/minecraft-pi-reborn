@@ -39,6 +39,9 @@ property bool is_stacked_by_data = 0x19;
 property Item *craftingRemainingItem = 0x1c;
 property std::string description_id = 0x20;
 
+// RNG
+static-property Random random = 0x17a87c;
+
 // Globals
 static-property Item *items[512] = 0x17b250;
 

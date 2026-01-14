@@ -163,7 +163,7 @@ static void RandomLevelSource_buildSurface_injection(RandomLevelSource_buildSurf
     cave_feature->apply((ChunkSource *) random_level_source, level, chunk_x, chunk_y, chunk_data, 0);
 }
 
-// Tall Grass
+// Generate Tall Grass
 static Biome *tall_grass_biome = nullptr;
 static Biome *RandomLevelSource_postProcess_BiomeSource_getBiome_injection(BiomeSource *self, const int x, const int z) {
     tall_grass_biome = self->getBiome(x, z);
@@ -185,6 +185,25 @@ static bool RandomLevelSource_postProcess_ReedsFeature_place_injection(ReedsFeat
 
     // Call Original Method
     return self->place(level, random, x, y, z);
+}
+
+// Add Tall Gras To Bone-Meal
+static int DyePowderItem_useOn_Level_getTile_injection(Level *self, const int x, const int y, const int z) {
+    // Call Original Method
+    const int tile = self->getTile(x, y, z);
+
+    // Try Spawning Tall Grass
+    if (tile == 0) {
+        const int rng = Item::random.nextInt(10);
+        if (rng != 0) {
+            const int new_tile = Tile::tallgrass->id;
+            self->setTileAndData(x, y, z, new_tile, 1);
+            return new_tile;
+        }
+    }
+
+    // Return
+    return tile;
 }
 
 // Disable Hostile AI In Creative Mode
@@ -555,6 +574,8 @@ void init_misc() {
         // Generate
         overwrite_call((void *) 0xb229c, BiomeSource_getBiome, RandomLevelSource_postProcess_BiomeSource_getBiome_injection);
         overwrite_call((void *) 0xb2e54, ReedsFeature_place, RandomLevelSource_postProcess_ReedsFeature_place_injection);
+        // Bone-Meal
+        overwrite_call((void *) 0x93f6c, Level_getTile, DyePowderItem_useOn_Level_getTile_injection);
     }
 
     // Disable Hostile AI In Creative Mode

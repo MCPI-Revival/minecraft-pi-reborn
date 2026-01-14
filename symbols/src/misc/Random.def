@@ -4,6 +4,7 @@ constructor () = 0xb7490;
 
 method float nextFloat() = 0x42cf8;
 method uint genrand_int32() = 0x50e14;
+method int nextInt(int param_1) = 0x7dbc4;
 method void init_genrand(uint seed) = 0x27d38;
 method void setSeed(int seed) = 0xaf884;
 
