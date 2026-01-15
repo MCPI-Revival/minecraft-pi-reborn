@@ -188,6 +188,7 @@ CATEGORY Bug Fixes
         TRUE Fix Dropping Armor On Death
         TRUE Fix Dropping Items In Creative Mode On Death
         TRUE Stop Doors And Trapdoors Closing When Updated
+        TRUE Fix Placing Blocks With Different Auxiliary Values
     CATEGORY Crashes
         TRUE Fix Crash When Generating Certain Seeds
         TRUE Close Editor When Sign Is Destroyed

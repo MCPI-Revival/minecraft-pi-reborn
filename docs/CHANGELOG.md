@@ -141,6 +141,7 @@ include_toc: true
     * `Update Default Options`
     * `Fix options.txt Loading/Saving`
     * `Extend Supported Keycodes`
+    * `Fix Placing Blocks With Different Auxiliary Values`
 * Split Up `Remove Creative Mode Restrictions` Feature Flag
   * The Following Are All Disabled By Default
   * `Remove Creative Mode Restrictions`
@@ -165,6 +166,7 @@ include_toc: true
 * Removed `Property Scale Animated Textures` Feature Flag
 * Removed `Remove Invalid Item Background` Feature Flag
 * Removed `Close Current Screen On Death` Feature Flag
+  * Replaced with a proper fix.
 * Improve Death Messages
 * Massive Build System Improvements
 * Fix Item Dropping When Killing Players From The Server Console
