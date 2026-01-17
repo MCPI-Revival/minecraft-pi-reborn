@@ -1,6 +1,5 @@
 #include <vector>
 #include <cassert>
-#include <cstdint>
 
 #include <GLES/gl.h>
 
@@ -18,7 +17,6 @@
 #include <mods/misc/misc.h>
 #include <mods/feature/feature.h>
 #include <mods/textures/textures.h>
-#include <mods/atlas/atlas.h>
 #include <mods/init/init.h>
 #include "internal.h"
 
@@ -38,9 +36,6 @@ static void tick_textures(Textures *textures) {
                 const int y_offset = atlas_tile_size * ((texture->texture_index / atlas_size) + y);
                 media_glTexSubImage2D_with_scaling(data, x_offset, y_offset, atlas_tile_size, atlas_tile_size, atlas_size * atlas_tile_size, atlas_size * atlas_tile_size, texture->pixels);
             }
-        }
-        if (textures->current_texture == textures->loadTexture("terrain.png", true)) {
-            atlas_update_tile(textures, texture->texture_index, texture->pixels);
         }
     }
 }

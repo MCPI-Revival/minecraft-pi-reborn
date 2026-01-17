@@ -22,7 +22,12 @@ struct gl_state_t {
         gl_array_details_t media_glNormalPointer;
         void set_all_dirty(bool x);
     } array_details;
-    bool in_display_list = false;
+
+    // Track When To Send Bound Buffer/Texture Objects
+    struct {
+        bool state = false;
+        bool should_include_texture = false;
+    } in_display_list;
 
     // Get Array Details
     gl_array_details_t &get_array_details(GLenum array);

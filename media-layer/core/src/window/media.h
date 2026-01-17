@@ -29,3 +29,6 @@ MCPI_INTERNAL void _media_glfw_motion(GLFWwindow *window, double xpos, double yp
 
 // Texture Download
 MCPI_INTERNAL void _media_cancel_download(unsigned int texture_id);
+
+// Clean Up Offscreen Rendering
+MCPI_INTERNAL void _media_cleanup_offscreen_render();

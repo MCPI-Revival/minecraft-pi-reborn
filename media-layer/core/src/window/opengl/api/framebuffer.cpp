@@ -3,6 +3,7 @@
 // GL_EXT_framebuffer_object
 GL_FUNC(glGenFramebuffersEXT, void, (GLsizei n, GLuint *buffers))
 void media_glGenFramebuffersEXT(const GLsizei n, GLuint *buffers) {
+    NOT_ALLOWED_IN_DISPLAY_LIST();
     real_glGenFramebuffersEXT()(n, buffers);
 }
 GL_FUNC(glFramebufferTexture2DEXT, void, (GLenum target, GLenum attachment, GLenum textarget, GLuint texture, GLint level))
@@ -15,6 +16,7 @@ GLenum media_glCheckFramebufferStatusEXT(const GLenum target) {
 }
 GL_FUNC(glBindFramebufferEXT, void, (GLenum target, GLuint framebuffer))
 void media_glBindFramebufferEXT(const GLenum target, const GLuint framebuffer) {
+    NOT_ALLOWED_IN_DISPLAY_LIST();
     real_glBindFramebufferEXT()(target, framebuffer);
 }
 GL_FUNC(glDeleteFramebuffersEXT, void, (GLsizei n, const GLuint *buffers))

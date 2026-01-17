@@ -40,7 +40,7 @@ const gl_array_details_t &gl_state_t::get_array_details_const(const GLenum array
 #ifndef MEDIA_LAYER_TRAMPOLINE_GUEST
 void gl_state_t::send_array_to_driver(const GLenum array) const {
     const gl_array_details_t &state = get_array_details_const(array);
-    if (!in_display_list && !state.dirty) {
+    if (!in_display_list.state && !state.dirty) {
         return;
     }
     if (state.enabled) {
@@ -57,10 +57,10 @@ void gl_state_t::send_array_to_driver(const GLenum array) const {
     }
 }
 void gl_state_t::send_to_driver() const {
-    if (!in_display_list) {
-        media_glBindBuffer(GL_ARRAY_BUFFER, bound_array_buffer);
+    if (!in_display_list.state || in_display_list.should_include_texture) {
         media_glBindTexture(GL_TEXTURE_2D, bound_texture);
     }
+    media_glBindBuffer(GL_ARRAY_BUFFER, bound_array_buffer);
     send_array_to_driver(GL_VERTEX_ARRAY);
     send_array_to_driver(GL_COLOR_ARRAY);
     send_array_to_driver(GL_TEXTURE_COORD_ARRAY);

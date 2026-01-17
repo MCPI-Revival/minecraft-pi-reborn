@@ -18,28 +18,71 @@
 
 #include <mods/feature/feature.h>
 #include <mods/misc/misc.h>
-#include <mods/textures/textures.h>
-#include <mods/atlas/atlas.h>
 #include <mods/screenshot/screenshot.h>
 #include <mods/init/init.h>
 
 // Texture Name
 static constexpr const char *atlas_texture_name = "gui/gui_blocks.png";
 
-// Atlas Information (Keys And Positions)
-int _atlas_get_key(Item *item, const int data) {
-    _atlas_active = true;
-    const int id = item->id;
-    const int icon = item->getIcon(data);
-    const int key = (id << 16) | icon;
-    _atlas_active = false;
-    return key;
+// Prepare To Render Atlas
+static void reset_bound_texture(const Minecraft *minecraft) {
+    Textures *textures = minecraft->textures;
+    textures->current_texture = 0;
+    media_glBindTexture(GL_TEXTURE_2D, textures->current_texture);
 }
-std::unordered_map<int, std::pair<int, int>> _atlas_key_to_pos;
-std::unordered_map<int, std::vector<std::pair<int, int>>> _tile_texture_to_atlas_pos;
+static void actually_generate_atlas(Minecraft *minecraft) {
+    // Render
+    reset_bound_texture(minecraft);
+    Textures *textures = minecraft->textures;
+    _atlas_render(textures);
+
+    // Copy Open Inventory Button
+    _atlas_copy_inventory_button(textures, &minecraft->gui);
+    reset_bound_texture(minecraft);
+}
 
 // Render Atlas
-static void generate_atlas(Minecraft *minecraft) {
+static GLuint texture_id;
+static GLuint list;
+static void generate_atlas(Minecraft *minecraft, const bool dump) {
+    // Setup Offscreen Rendering
+    reset_bound_texture(minecraft);
+    media_begin_offscreen_render(texture_id);
+
+    // Setup OpenGL
+    ((NinecraftApp *) minecraft)->initGLStates();
+    media_glViewport(0, 0, atlas_texture_size, atlas_texture_size);
+    media_glClearColor(0, 0, 0, 0);
+    media_glClear(GL_COLOR_BUFFER_BIT);
+    const std::vector<GLenum> matrix_modes = {GL_MODELVIEW, GL_PROJECTION};
+    for (const GLenum mode : matrix_modes) {
+        media_glMatrixMode(mode);
+        media_glPushMatrix();
+        media_glLoadIdentity();
+    }
+    media_glOrthof(0, atlas_texture_size, atlas_texture_size, 0, -1000, 1000);
+    media_glDisable(GL_DEPTH_TEST);
+
+    // Render
+    media_glCallLists(1, GL_UNSIGNED_INT, &list);
+
+    // Dump
+    if (dump) {
+        screenshot_take(nullptr, "atlas-dumps");
+    }
+
+    // Restore Old OpenGL State
+    media_end_offscreen_render();
+    for (const GLenum mode : matrix_modes) {
+        media_glMatrixMode(mode);
+        media_glPopMatrix();
+    }
+    media_glEnable(GL_DEPTH_TEST);
+    media_glViewport(0, 0, minecraft->screen_width, minecraft->screen_height);
+}
+
+// Create Atlas Texture & Display List
+static void prepare_atlas(Minecraft *minecraft) {
     // Get Line Size
     int line_size = atlas_texture_size * 4;
     int alignment;
@@ -57,45 +100,40 @@ static void generate_atlas(Minecraft *minecraft) {
     texture.field7_0x18 = -1;
     texture.data = nullptr;
     Textures *textures = minecraft->textures;
-    const GLuint texture_id = textures->assignTexture(atlas_texture_name, texture);
-    media_glBindTexture(GL_TEXTURE_2D, 0);
+    texture_id = minecraft->textures->assignTexture(atlas_texture_name, texture);
 
-    // Setup Offscreen Rendering
-    media_begin_offscreen_render(texture_id);
-
-    // Setup OpenGL
-    ((NinecraftApp *) minecraft)->initGLStates();
-    media_glViewport(0, 0, atlas_texture_size, atlas_texture_size);
-    media_glClear(GL_COLOR_BUFFER_BIT);
-    media_glMatrixMode(GL_PROJECTION);
-    media_glLoadIdentity();
-    media_glOrthof(0, atlas_texture_size, atlas_texture_size, 0, 2000, 3000);
-    media_glMatrixMode(GL_MODELVIEW);
-    media_glLoadIdentity();
-    media_glTranslatef(0, 0, -2000);
-    media_glDisable(GL_DEPTH_TEST);
-
-    // Render
-    _atlas_render(textures);
-
-    // Copy Open Inventory Button
-    _atlas_copy_inventory_button(textures, &minecraft->gui);
-
-    // Dump
-    if (is_env_set(MCPI_DUMP_ATLAS_ENV)) {
-        screenshot_take(nullptr, "atlas-dumps");
+    // Load Textures
+    const std::vector<std::string> needed_textures = {
+        "terrain.png",
+        "gui/items.png"
+    };
+    for (const std::string &needed_texture : needed_textures) {
+        textures->loadTexture(needed_texture, true);
     }
 
-    // Restore Old Context
-    media_end_offscreen_render();
-    media_glViewport(0, 0, minecraft->screen_width, minecraft->screen_height);
-    DEBUG("Generated gui_blocks Atlas");
+    // Create Display List
+    list = media_glGenLists(1);
+    media_glNewList(list, GL_COMPILE);
+    actually_generate_atlas(minecraft);
+    media_glEndList();
+}
+
+// Handle Events
+static void handle_event(Minecraft *minecraft, const bool should_prepare, const bool can_dump) {
+    if (should_prepare) {
+        prepare_atlas(minecraft);
+    }
+    generate_atlas(minecraft, can_dump && is_env_set(MCPI_DUMP_ATLAS_ENV));
+}
+static void on_init(Minecraft *minecraft) {
+    handle_event(minecraft, true, true);
+}
+static void on_tick(Minecraft *minecraft) {
+    handle_event(minecraft, false, false);
 }
 static void Minecraft_onGraphicsReset_injection(Minecraft_onGraphicsReset_t original, Minecraft *self) {
-    // Call Original Method
     original(self);
-    // Regenerate Atlas
-    generate_atlas(self);
+    handle_event(self, true, false);
 }
 
 // Use New Atlas
@@ -139,27 +177,13 @@ static void ItemRenderer_renderGuiItem_two_injection(MCPI_UNUSED ItemRenderer_re
     t.draw();
 }
 
-// Update Dynamic Textures In Atlas
-void atlas_update_tile(Textures *textures, const int texture, const unsigned char *pixels) {
-    // Update Texture
-    if (!_tile_texture_to_atlas_pos.contains(texture)) {
-        return;
-    }
-    for (const std::pair<int, int> &pos : _tile_texture_to_atlas_pos.at(texture)) {
-        const uint32_t atlas_id = textures->loadAndBindTexture(atlas_texture_name);
-        const Texture *atlas_data = textures->getTemporaryTextureData(atlas_id);
-        constexpr int texture_size = 16;
-        constexpr float fake_atlas_size = atlas_texture_size * (float(texture_size) / atlas_entry_size);
-        media_glTexSubImage2D_with_scaling(atlas_data, pos.first * texture_size, pos.second * texture_size, texture_size, texture_size, fake_atlas_size, fake_atlas_size, pixels);
-    }
-}
-
 // Init
 void init_atlas() {
     // Generate Atlas
     if (feature_has("Regenerate \"gui_blocks\" Atlas", server_disabled)) {
-        misc_run_on_init(generate_atlas);
+        misc_run_on_init(on_init);
         overwrite_calls(Minecraft_onGraphicsReset, Minecraft_onGraphicsReset_injection);
+        misc_run_on_tick(on_tick);
         overwrite_calls(ItemRenderer_renderGuiItem_two, ItemRenderer_renderGuiItem_two_injection);
         _atlas_init_special_cases();
     }

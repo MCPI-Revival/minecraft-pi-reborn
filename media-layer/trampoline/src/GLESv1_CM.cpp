@@ -473,6 +473,7 @@ CALL(48, media_glGetFloatv, void, (const GLenum pname, GLfloat *params))
 void media_glBindTexture(const GLenum target, const GLuint texture) {
     if (target == GL_TEXTURE_2D) {
         gl_state.bound_texture = texture;
+        gl_state.in_display_list.should_include_texture = true;
     } else {
         ERR("Unsupported Texture Binding: %u", target);
     }
@@ -722,7 +723,10 @@ CALL(82, media_glDeleteLists, void, (const GLuint list, const GLsizei range))
 
 CALL(83, media_glNewList, void, (const GLuint list, const GLenum mode))
 #ifdef MEDIA_LAYER_TRAMPOLINE_GUEST
-    gl_state.in_display_list = true;
+    gl_state.in_display_list = {
+        .state = true,
+        .should_include_texture = false
+    };
     trampoline(true, list, mode);
 #else
     const GLuint list = args.next<GLuint>();
@@ -734,7 +738,7 @@ CALL(83, media_glNewList, void, (const GLuint list, const GLenum mode))
 
 CALL(84, media_glEndList, void, ())
 #ifdef MEDIA_LAYER_TRAMPOLINE_GUEST
-    gl_state.in_display_list = false;
+    gl_state.in_display_list.state = false;
     trampoline(true);
 #else
     func();

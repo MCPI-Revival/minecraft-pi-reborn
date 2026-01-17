@@ -15,7 +15,6 @@ static constexpr int atlas_size_entries = atlas_texture_size / atlas_entry_size;
 struct Item;
 MCPI_INTERNAL int _atlas_get_key(Item *item, int data);
 MCPI_INTERNAL extern std::unordered_map<int, std::pair<int, int>> _atlas_key_to_pos;
-MCPI_INTERNAL extern std::unordered_map<int, std::vector<std::pair<int, int>>> _tile_texture_to_atlas_pos;
 
 // Render The Atlas Itself
 struct Textures;

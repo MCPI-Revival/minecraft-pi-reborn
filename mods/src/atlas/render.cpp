@@ -1,26 +1,25 @@
 #include <libreborn/log.h>
 #include <GLES/gl.h>
 
-#include <symbols/Tile.h>
-#include <symbols/TileRenderer.h>
 #include <symbols/Item.h>
 #include <symbols/ItemRenderer.h>
 
 #include "internal.h"
 
-// Check If An Item Is A Tile And Renders Without A Model ("Flat" Rendering)
-static bool is_flat_tile(const int id) {
-    if (id < 256) {
-        Tile *tile = Tile::tiles[id];
-        if (tile && !TileRenderer::canRender(tile->getRenderShape())) {
-            return true;
-        }
-    }
-    return false;
+// Atlas Information (Keys And Positions)
+int _atlas_get_key(Item *item, const int data) {
+    _atlas_active = true;
+    const int id = item->id;
+    const int icon = item->getIcon(data);
+    const int key = (id << 16) | icon;
+    _atlas_active = false;
+    return key;
 }
+std::unordered_map<int, std::pair<int, int>> _atlas_key_to_pos;
 
 // Render The Atlas Itself
 void _atlas_render(Textures *textures) {
+    _atlas_key_to_pos.clear();
     int x = 0;
     int y = 0;
     // Loop Over All Possible IDs
@@ -59,21 +58,19 @@ void _atlas_render(Textures *textures) {
             media_glScalef(scale, scale, 1);
 
             // Render
+            media_glColor4f(1, 1, 1, 1);
             ItemInstance obj = {
                 .count = 1,
                 .id = id,
                 .auxiliary = data
             };
             ItemRenderer::renderGuiItemCorrect(nullptr, textures, &obj, 0, 0);
+            media_glColor4f(1, 1, 1, 1);
             media_glPopMatrix();
 
             // Store
             const std::pair atlas_pos = {x, y};
             _atlas_key_to_pos.insert({key, atlas_pos});
-            if (is_flat_tile(id)) {
-                int icon = item->getIcon(data);
-                _tile_texture_to_atlas_pos[icon].push_back(atlas_pos);
-            }
 
             // Advance To Next Slot
             x++;

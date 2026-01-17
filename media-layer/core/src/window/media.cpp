@@ -64,6 +64,7 @@ void media_SDL_WM_SetCaption(const char *title, MCPI_UNUSED const char *icon) {
 void media_cleanup() {
     if (glfw_window) {
         // Terminate GLFW
+        _media_cleanup_offscreen_render();
         cleanup_glfw(glfw_window);
 
         // Cleanup OpenAL

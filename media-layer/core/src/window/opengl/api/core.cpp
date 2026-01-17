@@ -59,10 +59,12 @@ void media_glScissor(const GLint x, const GLint y, const GLsizei width, const GL
 }
 GL_FUNC(glTexParameteri, void, (GLenum target, GLenum pname, GLint param))
 void media_glTexParameteri(const GLenum target, const GLenum pname, const GLint param) {
+    NOT_ALLOWED_IN_DISPLAY_LIST();
     real_glTexParameteri()(target, pname, param);
 }
 GL_FUNC(glTexImage2D, void, (GLenum target, GLint level, GLint internalformat, GLsizei width, GLsizei height, GLint border, GLenum format, GLenum type, const void *pixels))
 void media_glTexImage2D(const GLenum target, const GLint level, const GLint internalformat, const GLsizei width, const GLsizei height, const GLint border, const GLenum format, const GLenum type, const void *pixels) {
+    NOT_ALLOWED_IN_DISPLAY_LIST();
     real_glTexImage2D()(target, level, internalformat, width, height, border, format, type, pixels);
 }
 GL_FUNC(glEnable, void, (GLenum cap))
@@ -139,10 +141,12 @@ void media_glColorMask(const GLboolean red, const GLboolean green, const GLboole
 }
 GL_FUNC(glTexSubImage2D, void, (GLenum target, GLint level, GLint xoffset, GLint yoffset, GLsizei width, GLsizei height, GLenum format, GLenum type, const void *pixels))
 void media_glTexSubImage2D(const GLenum target, const GLint level, const GLint xoffset, const GLint yoffset, const GLsizei width, const GLsizei height, const GLenum format, const GLenum type, const void *pixels) {
+    NOT_ALLOWED_IN_DISPLAY_LIST();
     real_glTexSubImage2D()(target, level, xoffset, yoffset, width, height, format, type, pixels);
 }
 GL_FUNC(glGenTextures, void, (GLsizei n, GLuint *textures))
 void media_glGenTextures(const GLsizei n, GLuint *textures) {
+    NOT_ALLOWED_IN_DISPLAY_LIST();
     real_glGenTextures()(n, textures);
 }
 GL_FUNC(glDeleteTextures, void, (GLsizei n, const GLuint *textures))
@@ -210,6 +214,7 @@ void media_glReadPixels(const GLint x, const GLint y, const GLsizei width, const
 }
 GL_FUNC(glGenBuffers, void, (GLsizei n, GLuint *buffers))
 void media_glGenBuffers(const GLsizei n, GLuint *buffers) {
+    NOT_ALLOWED_IN_DISPLAY_LIST();
     real_glGenBuffers()(n, buffers);
 }
 GL_FUNC(glNormalPointer, void, (GLenum type, GLsizei stride, const void *pointer))
@@ -236,13 +241,16 @@ GL_FUNC(glDeleteLists, void, (GLuint list, GLsizei range))
 void media_glDeleteLists(const GLuint list, const GLsizei range) {
     real_glDeleteLists()(list, range);
 }
+bool _media_in_display_list = false;
 GL_FUNC(glNewList, void, (GLuint list, GLenum mode))
 void media_glNewList(const GLuint list, const GLenum mode) {
     real_glNewList()(list, mode);
+    _media_in_display_list = true;
 }
 GL_FUNC(glEndList, void, ())
 void media_glEndList() {
     real_glEndList()();
+    _media_in_display_list = false;
 }
 GL_FUNC(glCallLists, void, (GLsizei n, GLenum type,  const GLvoid *lists))
 void media_glCallLists(const GLsizei n, const GLenum type,  const GLvoid *lists) {
