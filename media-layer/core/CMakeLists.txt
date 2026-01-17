@@ -8,7 +8,8 @@ add_library(media-layer-core SHARED
     src/window/util.cpp
     src/window/events.cpp
     src/window/offscreen.cpp
-    src/window/opengl/api/passthrough.cpp
+    src/window/opengl/api/core.cpp
+    src/window/opengl/api/framebuffer.cpp
     src/window/opengl/texture.cpp
     src/audio/api.cpp
     src/audio/engine.cpp

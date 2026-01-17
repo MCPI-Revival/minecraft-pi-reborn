@@ -1,7 +1,11 @@
 project(media-layer-trampoline)
 
 # Common Sources
-set(MEDIA_LAYER_TRAMPOLINE_SRC src/media-layer-core.cpp src/GLESv1_CM.cpp)
+set(MEDIA_LAYER_TRAMPOLINE_SRC
+    src/media-layer-core.cpp
+    src/GLESv1_CM.cpp
+    src/opengl/state.cpp
+)
 
 # Build
 if(BUILD_NATIVE_COMPONENTS)

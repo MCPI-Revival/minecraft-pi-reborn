@@ -10,9 +10,7 @@
     typedef return_type (*real_##name##_t)args; \
     static real_##name##_t real_##name() { \
         static real_##name##_t func = nullptr; \
-        static unsigned int old_context = 0; \
-        if (!func || old_context != media_context_id) { \
-            old_context = media_context_id; \
+        if (!func) { \
             if (glfw_window == nullptr) { \
                 IMPOSSIBLE(); \
             } \

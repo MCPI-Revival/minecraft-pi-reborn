@@ -36,8 +36,8 @@ static void Gui_renderToolBar_GuiComponent_blit_injection(GuiComponent *self, co
     constexpr float size_scale = 2.0f / atlas_texture_size;
     constexpr float u1 = 1.0f;
     const float u0 = u1 - (float(width_src) * size_scale);
-    constexpr float v1 = 1.0f;
-    const float v0 = v1 - (float(height_src) * size_scale);
+    constexpr float v1 = 0.0f;
+    const float v0 = v1 + (float(height_src) * size_scale);
     Tesselator &t = Tesselator::instance;
     t.begin(GL_QUADS);
     t.vertexUV(float(x_dest), float(y_dest + height_dest), self->z, u0, v1);

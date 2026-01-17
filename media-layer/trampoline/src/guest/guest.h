@@ -43,7 +43,3 @@ __attribute__((hot, always_inline)) static inline unsigned int _trampoline(const
 #define CALL(unique_id, name, return_type, args) \
     return_type name args { \
         static unsigned char _id = unique_id;
-
-// Handle Cached GL State When Switching To Offscreen Context
-MCPI_INTERNAL void _media_backup_gl_state();
-MCPI_INTERNAL void _media_restore_gl_state();

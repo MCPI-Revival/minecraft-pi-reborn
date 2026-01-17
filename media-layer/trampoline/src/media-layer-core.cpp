@@ -6,6 +6,7 @@
 #include <media-layer/audio.h>
 
 #include "common/common.h"
+#include "opengl/state.h"
 
 // SDL Functions
 
@@ -163,14 +164,13 @@ CALL(64, media_set_raw_mouse_motion_enabled, void, (const bool enabled))
 #endif
 }
 
-CALL(76, media_begin_offscreen_render, void, (const int width, const int height))
+CALL(76, media_begin_offscreen_render, void, (const unsigned int texture))
 #ifdef MEDIA_LAYER_TRAMPOLINE_GUEST
-    trampoline(true, width, height);
-    _media_backup_gl_state();
+    trampoline(true, gl_state.bound_texture, texture);
 #else
-    const int width = args.next<int32_t>();
-    const int height = args.next<int32_t>();
-    func(width, height);
+    media_glBindTexture(GL_TEXTURE_2D, args.next<GLuint>());
+    const unsigned int texture = args.next<uint32_t>();
+    func(texture);
     return 0;
 #endif
 }
@@ -178,7 +178,6 @@ CALL(76, media_begin_offscreen_render, void, (const int width, const int height)
 CALL(77, media_end_offscreen_render, void, ())
 #ifdef MEDIA_LAYER_TRAMPOLINE_GUEST
     trampoline(true);
-    _media_restore_gl_state();
 #else
     func();
     return 0;

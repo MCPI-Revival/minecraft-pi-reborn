@@ -40,13 +40,33 @@ std::unordered_map<int, std::vector<std::pair<int, int>>> _tile_texture_to_atlas
 
 // Render Atlas
 static void generate_atlas(Minecraft *minecraft) {
+    // Get Line Size
+    int line_size = atlas_texture_size * 4;
+    int alignment;
+    media_glGetIntegerv(GL_PACK_ALIGNMENT, &alignment);
+    line_size = align_up(line_size, alignment);
+
+    // Create Texture
+    Texture texture = {};
+    texture.width = atlas_texture_size;
+    texture.height = atlas_texture_size;
+    texture.data_size = atlas_texture_size * line_size;
+    texture.has_alpha = true;
+    texture.prevent_freeing_data = false;
+    texture.field6_0x14 = 0;
+    texture.field7_0x18 = -1;
+    texture.data = nullptr;
+    Textures *textures = minecraft->textures;
+    const GLuint texture_id = textures->assignTexture(atlas_texture_name, texture);
+    media_glBindTexture(GL_TEXTURE_2D, 0);
+
     // Setup Offscreen Rendering
-    media_begin_offscreen_render(atlas_texture_size, atlas_texture_size);
+    media_begin_offscreen_render(texture_id);
 
     // Setup OpenGL
     ((NinecraftApp *) minecraft)->initGLStates();
     media_glViewport(0, 0, atlas_texture_size, atlas_texture_size);
-    media_glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    media_glClear(GL_COLOR_BUFFER_BIT);
     media_glMatrixMode(GL_PROJECTION);
     media_glLoadIdentity();
     media_glOrthof(0, atlas_texture_size, atlas_texture_size, 0, 2000, 3000);
@@ -56,7 +76,6 @@ static void generate_atlas(Minecraft *minecraft) {
     media_glDisable(GL_DEPTH_TEST);
 
     // Render
-    Textures *textures = minecraft->textures;
     _atlas_render(textures);
 
     // Copy Open Inventory Button
@@ -67,35 +86,9 @@ static void generate_atlas(Minecraft *minecraft) {
         screenshot_take(nullptr, "atlas-dumps");
     }
 
-    // Get Line Size
-    int line_size = atlas_texture_size * 4;
-    int alignment;
-    media_glGetIntegerv(GL_PACK_ALIGNMENT, &alignment);
-    line_size = align_up(line_size, alignment);
-    // Read Texture
-    Texture texture = {};
-    texture.width = atlas_texture_size;
-    texture.height = atlas_texture_size;
-    texture.data_size = atlas_texture_size * line_size;
-    texture.has_alpha = true;
-    texture.prevent_freeing_data = false;
-    texture.field6_0x14 = 0;
-    texture.field7_0x18 = -1;
-    texture.data = new unsigned char[texture.data_size];
-    media_glReadPixels(0, 0, atlas_texture_size, atlas_texture_size, GL_RGBA, GL_UNSIGNED_BYTE, texture.data);
-    for (int y = 0; y < (texture.height / 2); y++) {
-        for (int x = 0; x < (texture.width * 4); x++) {
-            unsigned char &a = texture.data[(y * line_size) + x];
-            unsigned char &b = texture.data[((texture.height - y - 1) * line_size) + x];
-            std::swap(a, b);
-        }
-    }
-
     // Restore Old Context
     media_end_offscreen_render();
-
-    // Upload Texture
-    textures->assignTexture(atlas_texture_name, texture);
+    media_glViewport(0, 0, minecraft->screen_width, minecraft->screen_height);
     DEBUG("Generated gui_blocks Atlas");
 }
 static void Minecraft_onGraphicsReset_injection(Minecraft_onGraphicsReset_t original, Minecraft *self) {
@@ -131,8 +124,8 @@ static void ItemRenderer_renderGuiItem_two_injection(MCPI_UNUSED ItemRenderer_re
     constexpr float scale = float(atlas_texture_size) / atlas_entry_size;
     const float u0 = float(pos.first) / scale;
     const float u1 = float(pos.first + 1) / scale;
-    const float v0 = float(pos.second) / scale;
-    const float v1 = float(pos.second + 1) / scale;
+    const float v0 = 1.0f - (float(pos.second) / scale);
+    const float v1 = 1.0f - (float(pos.second + 1) / scale);
 
     // Render
     textures->loadAndBindTexture(atlas_texture_name);

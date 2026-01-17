@@ -5,6 +5,7 @@
 #include <libreborn/util/util.h>
 
 #include "common/common.h"
+#include "opengl/state.h"
 
 #ifdef MEDIA_LAYER_TRAMPOLINE_GUEST
 static int get_glFogfv_params_length(const GLenum pname) {
@@ -21,106 +22,6 @@ CALL(11, media_glFogfv, void, (const GLenum pname, const GLfloat *params))
     return 0;
 #endif
 }
-
-// Track GL State
-struct gl_array_details_t {
-    bool dirty = false;
-    bool enabled = false;
-    GLint size = 0;
-    GLenum type = 0;
-    GLsizei stride = 0;
-    uint32_t pointer = 0;
-    void update(const bool enabled_, const GLint size_, const GLenum type_, const GLsizei stride_, const uint32_t pointer_) {
-        if (enabled != enabled_ || size != size_ || type != type_ || stride != stride_ || pointer != pointer_) {
-            // Array Details Have Changed!
-            enabled = enabled_;
-            size = size_;
-            type = type_;
-            stride = stride_;
-            pointer = pointer_;
-            dirty = true;
-        }
-    }
-};
-struct gl_state_t {
-    GLuint bound_array_buffer = 0;
-    GLuint bound_texture = 0;
-    struct {
-        gl_array_details_t media_glVertexPointer;
-        gl_array_details_t media_glColorPointer;
-        gl_array_details_t media_glTexCoordPointer;
-        gl_array_details_t media_glNormalPointer;
-        void set_all_dirty(const bool x) {
-            media_glVertexPointer.dirty = x;
-            media_glColorPointer.dirty = x;
-            media_glTexCoordPointer.dirty = x;
-            media_glNormalPointer.dirty = x;
-        }
-    } array_details;
-    bool in_display_list = false;
-
-    // Get Array Details
-    gl_array_details_t &get_array_details(const GLenum array) {
-        switch (array) {
-            case GL_VERTEX_ARRAY: return array_details.media_glVertexPointer;
-            case GL_COLOR_ARRAY: return array_details.media_glColorPointer;
-            case GL_TEXTURE_COORD_ARRAY: return array_details.media_glTexCoordPointer;
-            case GL_NORMAL_ARRAY: return array_details.media_glNormalPointer;
-            default: ERR("Unsupported Array Type: %i", array);
-        }
-    }
-    [[nodiscard]] const gl_array_details_t &get_array_details_const(const GLenum array) const {
-        return const_cast<gl_state_t *>(this)->get_array_details(array);
-    }
-
-#ifndef MEDIA_LAYER_TRAMPOLINE_GUEST
-    // Send Array State To Driver
-    void send_array_to_driver(const GLenum array) const {
-        const gl_array_details_t &state = get_array_details_const(array);
-        if (!in_display_list && !state.dirty) {
-            return;
-        }
-        if (state.enabled) {
-            media_glEnableClientState(array);
-            switch (array) {
-                case GL_VERTEX_ARRAY: media_glVertexPointer(state.size, state.type, state.stride, (void *) (uintptr_t) state.pointer); break;
-                case GL_COLOR_ARRAY: media_glColorPointer(state.size, state.type, state.stride, (void *) (uintptr_t) state.pointer); break;
-                case GL_TEXTURE_COORD_ARRAY: media_glTexCoordPointer(state.size, state.type, state.stride, (void *) (uintptr_t) state.pointer); break;
-                case GL_NORMAL_ARRAY: media_glNormalPointer(state.type, state.stride, (void *) (uintptr_t) state.pointer); break;
-                default: IMPOSSIBLE();
-            }
-        } else {
-            media_glDisableClientState(array);
-        }
-    }
-    // Send State To Driver
-    void send_to_driver() const {
-        if (!in_display_list) {
-            media_glBindBuffer(GL_ARRAY_BUFFER, bound_array_buffer);
-            media_glBindTexture(GL_TEXTURE_2D, bound_texture);
-        }
-        send_array_to_driver(GL_VERTEX_ARRAY);
-        send_array_to_driver(GL_COLOR_ARRAY);
-        send_array_to_driver(GL_TEXTURE_COORD_ARRAY);
-        send_array_to_driver(GL_NORMAL_ARRAY);
-    }
-#endif
-};
-#ifdef MEDIA_LAYER_TRAMPOLINE_GUEST
-static gl_state_t gl_state;
-#endif
-
-// Backup/Restore State (For Offscreen Rendering)
-#ifdef MEDIA_LAYER_TRAMPOLINE_GUEST
-static gl_state_t gl_state_backup;
-void _media_backup_gl_state() {
-    gl_state_backup = gl_state;
-    gl_state = gl_state_t();
-}
-void _media_restore_gl_state() {
-    gl_state = gl_state_backup;
-}
-#endif
 
 // 'pointer' Is Only Supported As An Integer, Not As An Actual Pointer
 #ifdef MEDIA_LAYER_TRAMPOLINE_GUEST

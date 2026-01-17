@@ -1,8 +1,5 @@
 #include "internal.h"
 
-// Track Current Context
-unsigned int media_context_id = 0;
-
 // Passthrough Functions
 GL_FUNC(glFogfv, void, (GLenum pname, const GLfloat *params))
 void media_glFogfv(const GLenum pname, const GLfloat *params) {

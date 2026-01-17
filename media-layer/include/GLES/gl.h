@@ -98,6 +98,9 @@
 #define GL_STREAM_DRAW 0x88e0
 #define GL_UNSIGNED_INT 0x1405
 #define GL_COMPILE 0x1300
+#define GL_FRAMEBUFFER_EXT 0x8d40
+#define GL_COLOR_ATTACHMENT0_EXT 0x8ce0
+#define GL_FRAMEBUFFER_COMPLETE_EXT 0x8cd5
 
 typedef float GLfloat;
 typedef float GLclampf;
@@ -179,6 +182,9 @@ void media_glDeleteLists(GLuint list, GLsizei range);
 void media_glNewList(GLuint list, GLenum mode);
 void media_glEndList();
 void media_glCallLists(GLsizei n, GLenum type, const GLvoid *lists);
+void media_glGenFramebuffersEXT(GLsizei n, GLuint *buffers);
+void media_glFramebufferTexture2DEXT(GLenum target, GLenum attachment, GLenum textarget, GLuint texture, GLint level);
+GLenum media_glCheckFramebufferStatusEXT(GLenum target);
+void media_glBindFramebufferEXT(GLenum target, GLuint framebuffer);
+void media_glDeleteFramebuffersEXT(GLsizei n, const GLuint *buffers);
 }
-
-extern unsigned int media_context_id;
