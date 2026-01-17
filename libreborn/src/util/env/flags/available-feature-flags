@@ -112,6 +112,7 @@ CATEGORY Textures
         FALSE Add Biome Colors To Grass
             COMMENT This may negatively impact performance.
         FALSE Disable Block Tinting
+        TRUE Tint Tall Grass/Fern Items
     CATEGORY Animation
         TRUE Animated Water
         TRUE Animated Lava

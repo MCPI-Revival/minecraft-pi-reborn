@@ -25,6 +25,7 @@ __attribute__((constructor)) static void init() {
     }
     init_input();
     init_camera();
+    init_textures();
     if (!reborn_is_headless()) {
         init_atlas();
     }
@@ -34,7 +35,6 @@ __attribute__((constructor)) static void init() {
     }
     init_fps();
     init_touch();
-    init_textures();
     init_creative();
     init_game_mode();
     init_misc();

@@ -1,3 +1,6 @@
 extends Tile;
 
 vtable 0x112138;
+
+method int getColor_one() = 0xc2990;
+method int getColor_two(int auxiliary) = 0xc299c;

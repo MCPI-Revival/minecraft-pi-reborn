@@ -215,8 +215,11 @@ void init_textures() {
     // Block Tinting
     _init_textures_tinting();
 
-    // Ice
+    // Texture Patching
     if (feature_has("Translucent Ice", server_disabled)) {
         _patch_ice_texture();
+    }
+    if (feature_has("Tint Tall Grass/Fern Items", server_disabled)) {
+        _patch_tall_grass_textures();
     }
 }

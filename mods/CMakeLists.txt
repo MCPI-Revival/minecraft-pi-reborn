@@ -80,7 +80,9 @@ add_library(mods SHARED
     src/textures/lava.cpp
     src/textures/headless.cpp
     src/textures/tinting.cpp
-    src/textures/ice.cpp
+    src/textures/patching/patcher.cpp
+    src/textures/patching/ice.cpp
+    src/textures/patching/tall-grass.cpp
     # fps
     src/fps/fps.cpp
     # server

@@ -87,6 +87,7 @@ include_toc: true
     * `Outline Entity Hitboxes` (Disabled By Default)
     * `Outline Level Chunks` (Disabled By Default)
     * `Outline Render Chunks` (Disabled By Default)
+    * `Tint Tall Grass/Fern Items` (Enabled By Default)
   * New Bug Fixes (All Enabled By Default)
     * `Fix Held Item Caching`
     * `Fix Pigmen Burning In The Sun`
