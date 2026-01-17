@@ -67,6 +67,9 @@ struct CustomTesselator {
     std::optional<uint> color;
     std::optional<uint32_t> normal;
 
+    // Draw
+    int draw(bool should_actually_draw, std::optional<GLuint> custom_buffer);
+
     // Buffers
     bool has_buffer;
     GLuint buffer;

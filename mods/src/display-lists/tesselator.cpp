@@ -20,9 +20,9 @@ static std::unordered_map<GLuint, GLuint> buffer_to_display_list;
 unsigned int _display_lists_get_for_buffer(const unsigned int buffer) {
     return buffer_to_display_list.at(buffer);
 }
-__attribute__((hot)) static RenderChunk Tesselator_end_injection(Tesselator *self, const bool use_given_buffer, const int buffer) {
+__attribute__((hot)) static RenderChunk Tesselator_end_injection(MCPI_UNUSED Tesselator *self, const bool use_given_buffer, const int buffer) {
     // Check
-    const CustomTesselator &t = advanced_tesselator_get();
+    CustomTesselator &t = advanced_tesselator_get();
     RenderChunk out = {};
     out.constructor();
     if (t.void_begin_end) {
@@ -40,8 +40,13 @@ __attribute__((hot)) static RenderChunk Tesselator_end_injection(Tesselator *sel
 
     // Render
     media_glNewList(list, GL_COMPILE);
-    self->draw();
+    out.vertices = t.draw(true, buffer);
     media_glEndList();
+
+    // Clear Buffer
+    // The contents were stored in the Display List.
+    media_glBindBuffer(GL_ARRAY_BUFFER, buffer);
+    media_glBufferData(GL_ARRAY_BUFFER, 0, nullptr, GL_STATIC_DRAW);
 
     // Finish
     out.buffer = buffer;
@@ -49,7 +54,11 @@ __attribute__((hot)) static RenderChunk Tesselator_end_injection(Tesselator *sel
 }
 
 // Draw Buffer
-__attribute__((hot)) static void Common_drawArrayVT_injection(const int buffer, MCPI_UNUSED const int vertices, MCPI_UNUSED int vertex_size, MCPI_UNUSED uint mode) {
+__attribute__((hot)) static void Common_drawArrayVT_injection(const int buffer, const int vertices, MCPI_UNUSED int vertex_size, MCPI_UNUSED uint mode) {
+    // Check
+    if (vertices <= 0) {
+        return;
+    }
     // These Are Really Display Lists
     const GLuint list = _display_lists_get_for_buffer(buffer);
     media_glCallLists(1, GL_UNSIGNED_INT, &list);

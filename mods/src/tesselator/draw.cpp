@@ -4,43 +4,16 @@
 #include "internal.h"
 
 // Draw To Buffer
-#define NOT_TESSELLATING() ERR("Not Tessellating")
-TEMPLATE
-__attribute__((hot, always_inline)) static inline RenderChunk Tesselator_end_injection_impl(CustomTesselator &t, const bool use_given_buffer, const int buffer) {
-    // Check
-    if (!t.active) {
-        NOT_TESSELLATING();
+__attribute__((hot)) static RenderChunk Tesselator_end_injection(MCPI_UNUSED Tesselator *self, const bool use_given_buffer, const int buffer) {
+    if (!use_given_buffer) {
+        WARN("You Should Not Do This");
     }
     RenderChunk out = {};
     out.constructor();
-    if (t.void_begin_end) {
-        return out;
-    }
-
-    // Render
-    const VertexArray<Vertex> &vertices = t.*VertexPtr;
-    out.vertices = vertices.size;
-    if (out.vertices > 0) {
-        if (!use_given_buffer) {
-            WARN("You Should Not Do This");
-        }
-        out.buffer = use_given_buffer ? buffer : t.buffer;
-        media_glBindBuffer(GL_ARRAY_BUFFER, out.buffer);
-        const uint vertex_size = sizeof(Vertex);
-        media_glBufferData(GL_ARRAY_BUFFER, out.vertices * vertex_size, vertices.data, GL_STATIC_DRAW);
-    }
-
-    // Finish
-    t.clear(true);
-    return out;
-}
-__attribute__((hot)) static RenderChunk Tesselator_end_injection(MCPI_UNUSED Tesselator *self, const bool use_given_buffer, const int buffer) {
     CustomTesselator &t = advanced_tesselator_get();
-    if (t.are_vertices_flat) {
-        return Tesselator_end_injection_impl<CustomVertexFlat, &CustomTesselator::vertices_flat>(t, use_given_buffer, buffer);
-    } else {
-        return Tesselator_end_injection_impl<CustomVertexShaded, &CustomTesselator::vertices>(t, use_given_buffer, buffer);
-    }
+    out.vertices = t.draw(false, use_given_buffer ? std::optional(buffer) : std::nullopt);
+    out.buffer = use_given_buffer ? buffer : t.buffer;
+    return out;
 }
 
 // Setup/Cleanup State For Drawing
@@ -69,13 +42,13 @@ __attribute__((hot, always_inline)) static inline void begin_draw(const GLsizei 
 
 // Draw To Screen
 TEMPLATE
-__attribute__((hot, always_inline)) static inline void Tesselator_draw_injection_impl(CustomTesselator &t) {
+__attribute__((hot, always_inline)) static inline int Tesselator_draw_injection_impl(CustomTesselator &t, const bool should_actually_draw, const std::optional<GLuint> custom_buffer) {
     // Check
     if (!t.active) {
-        NOT_TESSELLATING();
+        ERR("Not Tessellating");
     }
     if (t.void_begin_end) {
-        return;
+        return 0;
     }
 
     // Render
@@ -84,32 +57,45 @@ __attribute__((hot, always_inline)) static inline void Tesselator_draw_injection
     if (vertex_count > 0) {
         // Upload
         constexpr uint vertex_size = sizeof(Vertex);
-        const GLuint buffer = t.buffer;
-        media_glBindBuffer(GL_ARRAY_BUFFER, buffer);
-        GLsizeiptr &buffer_size = t.buffer_size;
         const GLsizeiptr data_size = vertex_count * vertex_size;
-        if (data_size > buffer_size) {
-            media_glBufferData(GL_ARRAY_BUFFER, data_size, vertices.data, GL_STREAM_DRAW);
-            buffer_size = data_size;
+        if (!custom_buffer.has_value()) {
+            // Use Built-In Buffer
+            const GLuint buffer = t.buffer;
+            media_glBindBuffer(GL_ARRAY_BUFFER, buffer);
+            GLsizeiptr &buffer_size = t.buffer_size;
+            if (data_size > buffer_size) {
+                media_glBufferData(GL_ARRAY_BUFFER, data_size, vertices.data, GL_STREAM_DRAW);
+                buffer_size = data_size;
+            } else {
+                media_glBufferSubData(GL_ARRAY_BUFFER, 0, data_size, vertices.data);
+            }
         } else {
-            media_glBufferSubData(GL_ARRAY_BUFFER, 0, data_size, vertices.data);
+            // Use Custom Buffer
+            const GLuint buffer = custom_buffer.value();
+            media_glBindBuffer(GL_ARRAY_BUFFER, buffer);
+            media_glBufferData(GL_ARRAY_BUFFER, data_size, vertices.data, GL_STATIC_DRAW);
         }
 
         // Draw
-        begin_draw(vertex_size, t.uv.has_value(), t.color.has_value(), t.normal.has_value());
-        media_glDrawArrays(t.mode, 0, vertex_count);
+        if (should_actually_draw) {
+            begin_draw(vertex_size, t.uv.has_value(), t.color.has_value(), t.normal.has_value());
+            media_glDrawArrays(t.mode, 0, vertex_count);
+        }
     }
 
     // Finish
     t.clear(true);
+    return vertex_count;
+}
+int CustomTesselator::draw(const bool should_actually_draw, const std::optional<GLuint> custom_buffer) {
+    if (are_vertices_flat) {
+        return Tesselator_draw_injection_impl<CustomVertexFlat, &CustomTesselator::vertices_flat>(*this, should_actually_draw, custom_buffer);
+    } else {
+        return Tesselator_draw_injection_impl<CustomVertexShaded, &CustomTesselator::vertices>(*this, should_actually_draw, custom_buffer);
+    }
 }
 __attribute__((hot)) static void Tesselator_draw_injection(MCPI_UNUSED Tesselator *self) {
-    CustomTesselator &t = advanced_tesselator_get();
-    if (t.are_vertices_flat) {
-        Tesselator_draw_injection_impl<CustomVertexFlat, &CustomTesselator::vertices_flat>(t);
-    } else {
-        Tesselator_draw_injection_impl<CustomVertexShaded, &CustomTesselator::vertices>(t);
-    }
+    advanced_tesselator_get().draw(true, std::nullopt);
 }
 
 // Draw Buffer
@@ -117,6 +103,8 @@ __attribute__((hot)) static void Common_drawArrayVT_injection(const int buffer, 
     // Check
     if (advanced_tesselator_get().are_vertices_flat) {
         IMPOSSIBLE();
+    } else if (vertices <= 0) {
+        return;
     }
 
     // "Triangles" Are Really Quads

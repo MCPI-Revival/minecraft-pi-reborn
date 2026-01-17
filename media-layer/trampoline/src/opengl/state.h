@@ -23,7 +23,7 @@ struct gl_state_t {
         void set_all_dirty(bool x);
     } array_details;
 
-    // Track When To Send Bound Buffer/Texture Objects
+    // Track Display List State
     struct {
         bool state = false;
         bool should_include_texture = false;
