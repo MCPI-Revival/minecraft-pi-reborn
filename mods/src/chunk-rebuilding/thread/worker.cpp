@@ -55,17 +55,14 @@ void _receive_rebuilt_chunks(std::vector<void *> &data) {
 
 // Recommended Worker Count
 static int get_worker_count() {
-    // Get Core Count
-    long nproc = sysconf(_SC_NPROCESSORS_ONLN);
-    // Do Not Use All Cores
-    nproc /= 4;
-    // At Least One Worker
-    constexpr long min = 1;
-    if (nproc < min) {
-        return min;
-    }
-    // Return
-    return int(nproc);
+    // Get Core/Thread Count
+    const int nproc = sysconf(_SC_NPROCESSORS_ONLN);
+    // Determine Best Amount
+    const int recommended = nproc / 4;
+    constexpr int min = 2;
+    const int best = std::max(recommended, min);
+    // Do Not Spawn More Workers Than Available Threads
+    return std::min(nproc, best);
 }
 
 // Start All Workers

@@ -30,11 +30,12 @@ add_library(mods SHARED
     src/misc/misc.cpp
     src/misc/logging.cpp
     src/misc/api.cpp
-    src/misc/graphics.cpp
+    src/misc/graphics/graphics.cpp
+    src/misc/graphics/item-rendering.cpp
+    src/misc/graphics/entity-rendering.cpp
     src/misc/ui.cpp
     src/misc/home.cpp
     src/misc/base64.cpp
-    src/misc/item-rendering.cpp
     # options
     src/options/options.cpp
     src/options/ui.cpp

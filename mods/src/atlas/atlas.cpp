@@ -127,6 +127,7 @@ static void handle_event(Minecraft *minecraft, const bool should_prepare, const 
 }
 static void on_init(Minecraft *minecraft) {
     handle_event(minecraft, true, true);
+    DEBUG("Generated %s Atlas", atlas_texture_name);
 }
 static void on_tick(Minecraft *minecraft) {
     handle_event(minecraft, false, false);
@@ -153,7 +154,7 @@ static void ItemRenderer_renderGuiItem_two_injection(MCPI_UNUSED ItemRenderer_re
     }
     const int key = _atlas_get_key(item, item_instance.auxiliary);
     if (!_atlas_key_to_pos.contains(key)) {
-        WARN("Skipping Item Not In gui_blocks Atlas: %i:%i", item_instance.id, item_instance.auxiliary);
+        WARN("Skipping Item Not In %s Atlas: %i:%i", atlas_texture_name, item_instance.id, item_instance.auxiliary);
         return;
     }
     const std::pair<int, int> &pos = _atlas_key_to_pos.at(key);

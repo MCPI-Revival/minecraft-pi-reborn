@@ -22,7 +22,7 @@
 #include <mods/shading/shading.h>
 #include <mods/common.h>
 
-#include "internal.h"
+#include "../internal.h"
 
 // Common Functions
 static int get_icon(ItemInstance *item, Mob *mob) {
