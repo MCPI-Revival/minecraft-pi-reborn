@@ -112,7 +112,7 @@ jobs:
             run: ./scripts/install-dependencies.mjs lint host
           # Run
           - name: Lint
-            run: ./scripts/verification/lint.sh
+            run: ./scripts/verification/lint/run.sh
 
     # Example Mods
     example-mods:

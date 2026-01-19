@@ -24,7 +24,7 @@ export function installMsys2() {
     fs.rmSync(dir, {recursive: true, force: true});
     run(['git', 'clone', 'https://github.com/HolyBlackCat/quasi-msys2.git', dir]);
     // Patch CMake Flags
-    patchFile(path.join(dir, 'env', 'vars.src'), data => {
+    patchFile(path.join(dir, 'env', 'vars.src'), (data) => {
         return data.replace(' -DCMAKE_INSTALL_PREFIX=$MSYSTEM_PREFIX', '');
     });
 }

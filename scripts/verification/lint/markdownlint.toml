@@ -1,0 +1,31 @@
+# Use Default Settings
+default = true
+
+# Allow No Blank Lines *Below* Headings
+blanks-around-headings.lines_below = 0
+
+# Disable Line Length Limitations
+line-length = false
+
+# Allow Some Inline HTML Elements
+no-inline-html.allowed_elements = [
+    'b',
+    'ins',
+    'code',
+    'kbd',
+    'details',
+    'summary',
+    'p',
+    'img',
+    'a'
+]
+
+# Disable Blank Line Requirments For Tables And Code Blocks
+blanks-around-tables = false
+blanks-around-fences = false
+
+# Allow Duplicate Headers Under Certain Cirumstances
+no-duplicate-heading.siblings_only = true
+
+# Loosen Link Text Restrictions
+descriptive-link-text = false

@@ -19,3 +19,4 @@
 /quasi-msys2
 /*.trace
 /scripts/release/lib/.tea-*
+/node_modules

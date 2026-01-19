@@ -4,7 +4,7 @@ import * as fs from 'node:fs';
 import * as os from 'node:os';
 import { info, err, run, createDir, getScriptsDir, getBuildToolsBin } from './lib/util.mjs';
 import { parseOptions, createEnum, Architectures, Flag, PositionalArg } from './lib/options.mjs';
-import { enableMsys2 } from "./lib/msys2.mjs";
+import { enableMsys2 } from './lib/msys2.mjs';
 
 // CMake Options
 const cmakeArgPrefix = '-D';
@@ -120,7 +120,7 @@ function handleCPackFiles(callback) {
         }
     }
 }
-handleCPackFiles(file => {
+handleCPackFiles((file) => {
     file = path.join(build, file);
     fs.unlinkSync(file);
 });
@@ -173,7 +173,7 @@ if (!useCPack) {
 } else {
     run(['cmake', '--build', build, '--target', 'package', ...configArg]);
     // Copy Generated Files
-    handleCPackFiles(file => {
+    handleCPackFiles((file) => {
         info('Copying: ' + file);
         const src = path.join(build, file);
         const dst = path.join(rootOut, file);

@@ -1,6 +1,7 @@
 method std::string parse(ConnectedClient &client, const std::string &command) = 0x6aa8c;
 method void dispatchPacket(Packet &packet) = 0x6a548;
 static-method bool setSocketBlocking(int fd, bool param_1) = 0x6a2d4;
+method void _updateClients() = 0x6bc7c;
 method bool _updateClient(ConnectedClient &client) = 0x6ba6c;
 method void _close() = 0x6a314;
 method void *destructor(int unknown) = 0x6a6a0;

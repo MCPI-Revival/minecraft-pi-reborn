@@ -1,8 +1,8 @@
 import * as path from 'node:path';
 import * as url from 'node:url';
 import * as fs from 'node:fs';
-import * as child_process from "node:child_process";
-import { err, info } from "../../lib/util.mjs";
+import * as child_process from 'node:child_process';
+import { err, info } from '../../lib/util.mjs';
 
 // Tea Information
 const TEA_VERSION = '0.11.1';

@@ -69,6 +69,9 @@ void env_value_to_obj(std::string &out, const char *value) {
 void env_value_to_obj(float &out, const char *value) {
     out = strtof(value, nullptr);
 }
+void env_value_to_obj(unsigned short &out, const char *value) {
+    out = (unsigned short) strtoul(value, nullptr, 10);
+}
 void env_value_to_obj(Flags &out, const char *value) {
     out.from_string(value);
 }

@@ -1,5 +1,4 @@
 #include <cmath>
-#include <ranges>
 
 #include <libreborn/patch.h>
 #include <libreborn/env/env.h>
@@ -472,8 +471,9 @@ void _init_misc_ui() {
 
     // Custom GUI Scale
     bool patch_gui_scaling = false;
-    const char *gui_scale_str = getenv(MCPI_GUI_SCALE_ENV);
-    if (gui_scale_str != nullptr) {
+    const char *env = MCPI_GUI_SCALE_ENV;
+    if (is_env_set(env)) {
+        const char *gui_scale_str = require_env(env);
         float gui_scale;
         env_value_to_obj(gui_scale, gui_scale_str);
         if (gui_scale > 0) {

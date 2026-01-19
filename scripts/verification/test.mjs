@@ -1,9 +1,8 @@
 #!/usr/bin/env node
 import * as path from 'node:path';
 import * as fs from 'node:fs';
-import { parseOptions, createEnum, PositionalArg } from '../lib/options.mjs';
+import { ArchitecturesMinusHost, createEnum, parseOptions, PositionalArg } from '../lib/options.mjs';
 import { err, getScriptsDir, getVersion, run } from '../lib/util.mjs';
-import { ArchitecturesMinusHost } from '../lib/options.mjs';
 
 // Options
 const Modes = {

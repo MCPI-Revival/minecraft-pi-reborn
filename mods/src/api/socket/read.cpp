@@ -111,9 +111,12 @@ static void handle_lines(CommandServer *self, ConnectedClient &client) {
 }
 
 // Read & Handle Data
+void api_reset_read_and_handle_budget() {
+    // Reset Time Budget
+    budget.reset();
+}
 bool api_read_and_handle_data(CommandServer *self, ConnectedClient &client) {
     // Read & Handle Lines
-    budget.reset();
     bool closed = false;
     bool more_data_to_read = true;
     while (true) {

@@ -18,7 +18,7 @@ async function deletePackage(distribution, packageName, version, arch) {
     await safeFetch(url, {
         method: 'DELETE',
         headers: {
-            Authorization: `token ${getToken()}`,
+            Authorization: `token ${getToken()}`
         }
     });
 }

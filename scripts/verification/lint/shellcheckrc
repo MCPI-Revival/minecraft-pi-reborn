@@ -1,0 +1,9 @@
+# Load Extra Files
+source-path=SCRIPTDIR
+external-sources=true
+
+# Enable All Rules
+enable=all
+
+# Use POSIX Shell
+shell=sh

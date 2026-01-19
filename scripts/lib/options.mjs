@@ -18,7 +18,7 @@ export function createEnum(obj) {
     }
 
     // Add Parsing Function
-    obj.get = name => {
+    obj.get = (name) => {
         if (name) {
             name = name.toLowerCase();
             for (const value of obj.values) {

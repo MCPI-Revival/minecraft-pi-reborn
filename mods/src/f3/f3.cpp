@@ -51,9 +51,10 @@ static std::vector<std::string> get_debug_info_left(const Minecraft *minecraft) 
     // FPS
     info.push_back("FPS: " + to_string_with_precision(fps, debug_precision));
     // Level Information
-    if (minecraft->level) {
+    const Level *level = minecraft->level;
+    if (level) {
         info.push_back("");
-        info.push_back("Seed: " + safe_to_string(minecraft->level->data.seed));
+        info.push_back("Seed: " + safe_to_string(level->data.seed));
         const ClientSideNetworkHandler *handler = (ClientSideNetworkHandler *) minecraft->network_handler;
         if (handler && handler->vtable == ClientSideNetworkHandler::VTable::base) {
             int total_chunks = 0;
@@ -66,26 +67,28 @@ static std::vector<std::string> get_debug_info_left(const Minecraft *minecraft) 
             }
             info.push_back("Chunks Loaded: " + safe_to_string(loaded_chunks) + '/' + safe_to_string(total_chunks));
         }
-        info.push_back("Time: " + safe_to_string(minecraft->level->data.time));
-        info.push_back("Entities: " + safe_to_string(minecraft->level->entities.size()));
-        info.push_back("Players: " + safe_to_string(minecraft->level->players.size()));
+        info.push_back("Time: " + safe_to_string(level->data.time));
+        info.push_back("Entities: " + safe_to_string(level->entities.size()));
+        info.push_back("Players: " + safe_to_string(level->players.size()));
+        info.push_back("API Clients: " + safe_to_string(minecraft->command_server->clients.size()));
     }
     // Player Information
-    if (minecraft->player) {
+    const Mob *player = minecraft->camera;
+    if (player) {
         // X/Y/Z
         info.push_back("");
-        float x = minecraft->player->x;
-        float y = minecraft->player->y - minecraft->player->height_offset;
-        float z = minecraft->player->z;
+        float x = player->x;
+        float y = player->y - player->height_offset;
+        float z = player->z;
         minecraft->command_server->pos_translator.to_float(x, y, z);
         info.push_back("X: " + to_string_with_precision(x, debug_precision));
         info.push_back("Y: " + to_string_with_precision(y, debug_precision));
         info.push_back("Z: " + to_string_with_precision(z, debug_precision));
         // Rotation
         info.push_back("");
-        const float yaw = wrap_degrees(minecraft->player->yaw);
+        const float yaw = wrap_degrees(player->yaw);
         info.push_back("Yaw: " + to_string_with_precision(yaw, debug_precision));
-        const float pitch = wrap_degrees(minecraft->player->pitch);
+        const float pitch = wrap_degrees(player->pitch);
         info.push_back("Pitch: " + to_string_with_precision(pitch, debug_precision));
         // Facing
         char axis[3] = {};

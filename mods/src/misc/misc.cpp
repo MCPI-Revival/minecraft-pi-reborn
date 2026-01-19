@@ -1,7 +1,5 @@
 #include <cstdlib>
 #include <unistd.h>
-#include <sys/socket.h>
-#include <netinet/in.h>
 #include <cmath>
 #include <string>
 #include <fstream>
@@ -12,7 +10,6 @@
 #include <libreborn/patch.h>
 #include <libreborn/util/string.h>
 #include <libreborn/util/util.h>
-#include <libreborn/env/env.h>
 
 #include <symbols/LoginPacket.h>
 #include <symbols/RakNet_RakString_SharedString.h>
@@ -132,24 +129,6 @@ int32_t misc_get_real_selected_slot(const Player *player) {
 
     // Return
     return selected_slot;
-}
-
-// Custom API Port
-HOOK(bind, int, (int sockfd, const struct sockaddr *addr, socklen_t addrlen)) {
-    const sockaddr *new_addr = addr;
-    sockaddr_in in_addr = {};
-    if (addr->sa_family == AF_INET) {
-        in_addr = *(const sockaddr_in *) new_addr;
-        if (in_addr.sin_port == ntohs(4711)) {
-            const char *new_port_str = getenv(MCPI_API_PORT_ENV);
-            long int new_port;
-            if (new_port_str != nullptr && (new_port = strtol(new_port_str, nullptr, 0)) != 0L) {
-                in_addr.sin_port = htons(new_port);
-            }
-        }
-        new_addr = (const sockaddr *) &in_addr;
-    }
-    return real_bind()(sockfd, new_addr, addrlen);
 }
 
 // Generate Caves

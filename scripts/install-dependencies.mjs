@@ -107,7 +107,7 @@ handlers.set(Modes.Build, function () {
     addPackageForBuild(
         'python3',
         'python3-venv',
-        `python3-tomli`
+        'python3-tomli'
     );
     addPackageForHost('libglib2.0-dev');
 
@@ -184,7 +184,14 @@ handlers.set(Modes.Lint, function () {
         'npm'
     );
     installPackages();
-    run(['npm', 'install', '-g', 'markdownlint-cli@0.44.0']);
+    run([
+        'npm', 'install', '-g',
+        // Pinned Versions To Maintain NodeJS 18 Support
+        'markdownlint-cli@0.44.0',
+        'eslint@9.39.2',
+        'globals@17.0.0',
+        '@stylistic/eslint-plugin@5.6.1'
+    ]);
 });
 
 // Run

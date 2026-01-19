@@ -27,6 +27,7 @@ struct ServerList;
     void env_value_to_obj(type &out, const char *value)
 overload(std::string);
 overload(float);
+overload(unsigned short);
 overload(Flags);
 overload(ServerList);
 #undef overload
