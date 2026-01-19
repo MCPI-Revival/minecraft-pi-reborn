@@ -4,6 +4,8 @@
 #include <map>
 #include <string>
 
+#include <mods/common.h>
+
 struct Player;
 struct Minecraft;
 struct Mob;
@@ -73,4 +75,4 @@ std::string misc_base64_encode(const std::string &data);
 std::string misc_base64_decode(const std::string &input);
 
 static constexpr int line_height = 8;
-static constexpr int world_size = 16; // In Chunks
+static constexpr int world_size = LevelSize::CHUNK_COUNT; // In Chunks

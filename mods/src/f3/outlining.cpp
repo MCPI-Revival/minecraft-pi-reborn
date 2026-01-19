@@ -11,6 +11,7 @@
 
 #include <mods/misc/misc.h>
 #include <mods/feature/feature.h>
+#include <mods/common.h>
 
 #include "internal.h"
 
@@ -148,8 +149,8 @@ static int LevelRenderer_renderChunks_injection(LevelRenderer_renderChunks_t ori
     // Level Chunk
     if (outline_level_chunks) {
         // Constants
-        constexpr int level_chunk_size = 16;
-        constexpr int level_chunk_height = 128;
+        constexpr int level_chunk_size = LevelSize::CHUNK_SIZE;
+        constexpr int level_chunk_height = LevelSize::HEIGHT;
         // Get Chunk Containing The Player
         const int chunk_x = int(camera->x) / level_chunk_size;
         const int chunk_z = int(camera->z) / level_chunk_size;

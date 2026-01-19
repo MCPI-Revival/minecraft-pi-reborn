@@ -6,15 +6,17 @@
 #include <symbols/Textures.h>
 #include <symbols/Texture.h>
 
+#include <mods/common.h>
+
 // Constructor
 AtlasPatcher::AtlasPatcher(const std::string &atlas_, Textures *textures_):
     atlas(atlas_),
     textures(textures_) {}
 
 // Atlas Information
-static constexpr int atlas_size_in_tiles = 16;
-static constexpr int tile_size = 16;
-static constexpr int atlas_size_in_pixels = atlas_size_in_tiles * tile_size;
+static constexpr int atlas_size_in_tiles = AtlasSize::TILE_COUNT;
+static constexpr int tile_size = AtlasSize::TILE_SIZE;
+static constexpr int atlas_size_in_pixels = AtlasSize::SIZE;
 static void get_position(const int texture, int &out_x, int &out_y) {
     out_x = texture % atlas_size_in_tiles;
     out_y = texture / atlas_size_in_tiles;

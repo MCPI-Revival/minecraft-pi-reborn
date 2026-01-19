@@ -26,6 +26,7 @@
 #include <symbols/CThread.h>
 
 #include <mods/misc/misc.h>
+#include <mods/common.h>
 
 #include "../internal.h"
 
@@ -57,9 +58,9 @@ MCPI_INTERNAL void _multiplayer_set_tile(int x, int y, int z, int tile_id, int d
 // Chunk Data Structure
 struct ChunkData {
     // Constants
-    static constexpr int SIZE = 16;
+    static constexpr int SIZE = LevelSize::CHUNK_SIZE;
     static constexpr int COLUMNS = SIZE * SIZE;
-    static constexpr int HEIGHT = 128;
+    static constexpr int HEIGHT = LevelSize::HEIGHT;
     static constexpr int TOTAL_SIZE = COLUMNS * HEIGHT;
     static constexpr int TOTAL_SIZE_HALF = TOTAL_SIZE / 2;
     static constexpr int WORLD_SIZE = world_size; // In Chunks

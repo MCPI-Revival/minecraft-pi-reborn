@@ -20,6 +20,7 @@
 
 #include <mods/feature/feature.h>
 #include <mods/shading/shading.h>
+#include <mods/common.h>
 
 #include "internal.h"
 
@@ -32,9 +33,9 @@ static int get_icon(ItemInstance *item, Mob *mob) {
     }
 }
 static bool is_tile(const ItemInstance *item) {
-    return item->id < 256;
+    return item->id < TILE_ITEM_BARRIER;
 }
-static constexpr int atlas_size = 16;
+static constexpr int atlas_size = AtlasSize::TILE_COUNT;
 
 // Fix Invalid ItemInHandRenderer Cache
 static std::unordered_map<int, ItemInHandRenderer_RenderCall> held_item_cache;
@@ -164,7 +165,7 @@ static void ItemInHandRenderer_renderItem_injection_2(ItemInHandRenderer_renderI
     item_icon_to_render = get_icon(item, mob);
 
     // Get Atlas Tile Size
-    constexpr int default_atlas_tile_size = 16;
+    constexpr int default_atlas_tile_size = AtlasSize::TILE_SIZE;
     Textures *textures = self->minecraft->textures;
     const char *texture_name = is_tile(item) ? "terrain.png" : "gui/items.png";
     const uint texture_id = textures->loadTexture(texture_name, true);

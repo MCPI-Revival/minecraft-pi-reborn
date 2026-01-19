@@ -40,6 +40,7 @@
 #include <mods/feature/feature.h>
 #include <mods/display-lists/display-lists.h>
 #include <mods/misc/misc.h>
+#include <mods/common.h>
 
 #include "internal.h"
 
@@ -137,8 +138,8 @@ static void render_fire(EntityRenderer *self, Entity *entity, const float x, flo
     // Here Be Decompiled Code
     y -= entity->height_offset;
     const int texture = Tile::fire->texture;
-    const int xt = (texture & 0xf) << 4;
-    const int yt = texture & 0xf0;
+    const int xt = texture % AtlasSize::TILE_COUNT;
+    const int yt = texture / AtlasSize::TILE_COUNT;
     media_glPushMatrix();
     media_glTranslatef(x, y, z);
     const float s = entity->hitbox_width * 1.4f;
@@ -166,15 +167,15 @@ static void render_fire(EntityRenderer *self, Entity *entity, const float x, flo
         float v0;
         float v1;
         if (ss % 2 == 0) {
-            u0 = float(xt) / 256.0f;
-            u1 = (float(xt) + 15.99f) / 256.0f;
-            v0 = float(yt) / 256.0f;
-            v1 = (float(yt) + 15.99f) / 256.0f;
+            u0 = float(xt) / AtlasSize::TILE_COUNT;
+            u1 = (float(xt) + 1) / AtlasSize::TILE_COUNT;
+            v0 = float(yt) / AtlasSize::TILE_COUNT;
+            v1 = (float(yt) + 1) / AtlasSize::TILE_COUNT;
         } else {
-            u0 = float(xt) / 256.0f;
-            u1 = (float(xt) + 15.99f) / 256.0f;
-            v0 = (float(yt) + 16) / 256.0f;
-            v1 = (float(yt) + 16 + 15.99f) / 256.0f;
+            u0 = float(xt) / AtlasSize::TILE_COUNT;
+            u1 = (float(xt) + 1) / AtlasSize::TILE_COUNT;
+            v0 = (float(yt) + 1) / AtlasSize::TILE_COUNT;
+            v1 = (float(yt) + 2) / AtlasSize::TILE_COUNT;
         }
         if (ss / 2 % 2 == 0) {
             std::swap(u1, u0);
@@ -285,21 +286,25 @@ static void EntityRenderDispatcher_assign_injection(EntityRenderDispatcher_assig
     // Modify Shadow Size
     float new_radius;
     switch (entity_id) {
+        // Humanoid/Player
         case 16:
         case 3: {
             new_radius = 0.5f;
             break;
         }
+        // Sheep/Cow/Pig
         case 9:
         case 7:
         case 8: {
             new_radius = 0.7f;
             break;
         }
+        // Chicken
         case 6: {
             new_radius = 0.3f;
             break;
         }
+        // Default
         default: {
             new_radius = renderer->shadow_radius;
         }
@@ -622,15 +627,15 @@ void _init_misc_graphics() {
 
     // Increase Render Chunk Size
     if (feature_has("Increase Render Chunk Size", server_disabled)) {
-        constexpr int chunk_size = 16;
+        constexpr int chunk_size = LevelSize::CHUNK_SIZE;
         // LevelRenderer::LevelRenderer
-        int a = 512 / chunk_size + 1;
-        a = a * a * (128 / chunk_size) * 3;
+        int a = (2 * LevelSize::SIZE) / chunk_size + 1;
+        a = a * a * (LevelSize::HEIGHT / chunk_size) * 3;
         patch_address((void *) 0x4e748, (void *) a);
         a *= sizeof(int);
         patch_address((void *) 0x4e74c, (void *) a);
         // LevelRenderer::allChanged
-        constexpr int b = 128 / chunk_size;
+        constexpr int b = LevelSize::HEIGHT / chunk_size;
         unsigned char render_chunk_patch_one[] = {(unsigned char) b, 0x20, 0xa0, 0xe3}; // "mov r2, #b"
         patch((void *) 0x4fbec, render_chunk_patch_one);
         adjust_mov_shift((void *) 0x4fbfc, safe_log2(b));

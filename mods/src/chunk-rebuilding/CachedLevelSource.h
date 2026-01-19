@@ -1,16 +1,17 @@
 #pragma once
 
 #include <symbols/LevelSource.h>
+#include <mods/common.h>
 
 // Cache Chunk Information
 struct CachedLevelSource final : CustomLevelSource {
     // Constants
     static constexpr int BORDER = 1;
-    static constexpr int MAX_SIZE = 16 + (BORDER * 2);
+    static constexpr int MAX_SIZE = LevelSize::CHUNK_SIZE + (BORDER * 2);
     static constexpr int MIN_Y = 0;
-    static constexpr int MAX_Y = 127;
+    static constexpr int MAX_Y = LevelSize::HEIGHT - 1;
     static constexpr int MAX_BRIGHTNESS = 15;
-    static constexpr unsigned int LEVEL_CHUNK_SIZE = 16;
+    static constexpr unsigned int LEVEL_CHUNK_SIZE = LevelSize::CHUNK_SIZE;
     static constexpr int MAX_LEVEL_CHUNKS = (MAX_SIZE + (2 * (LEVEL_CHUNK_SIZE - 1))) / LEVEL_CHUNK_SIZE;
 
     // Properties

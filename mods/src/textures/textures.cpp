@@ -18,14 +18,16 @@
 #include <mods/feature/feature.h>
 #include <mods/textures/textures.h>
 #include <mods/init/init.h>
+#include <mods/common.h>
+
 #include "internal.h"
 
 #include "stb_image.h"
 
 // Animated Water
 static void tick_textures(Textures *textures) {
-    constexpr int atlas_size = 16;
-    constexpr int atlas_tile_size = 16;
+    constexpr int atlas_size = AtlasSize::TILE_COUNT;
+    constexpr int atlas_tile_size = AtlasSize::TILE_SIZE;
     for (DynamicTexture *texture : textures->dynamic_textures) {
         texture->tick();
         texture->bindTexture(textures);
@@ -89,7 +91,7 @@ static unsigned char *scale_texture(const unsigned char *src, const GLsizei old_
             const int new_position = (new_y * new_line_size) + (new_x * PIXEL_SIZE);
             const int old_position = (old_y * old_line_size) + (old_x * PIXEL_SIZE);
             // Copy
-            static_assert(sizeof (int32_t) == PIXEL_SIZE, "Pixel Size Doesn't Match 32-Bit Integer Size");
+            static_assert(sizeof(int32_t) == PIXEL_SIZE, "Pixel Size Doesn't Match 32-Bit Integer Size");
             *(int32_t *) &dst[new_position] = *(int32_t *) &src[old_position];
         }
     }
