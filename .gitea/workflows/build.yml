@@ -102,6 +102,7 @@ jobs:
     lint:
         name: Lint
         runs-on: ubuntu-latest
+        container: node:lts-trixie # Needed For Updated ShellCheck And Node.js
         steps:
           - name: Checkout Repository
             uses: actions/checkout@v4

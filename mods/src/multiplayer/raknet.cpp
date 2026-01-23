@@ -37,7 +37,7 @@ static const char *RAKNET_ERROR_NAMES[] = {
     "Invalid Socket Descriptors",
     "Invalid Max Connections",
     "Socket Family Not Supported",
-    "Part Already In Use",
+    "Port Already In Use",
     "Failed To Bind Port",
     "Failed Test Send",
     "Port Cannot Be 0",

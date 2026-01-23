@@ -185,12 +185,12 @@ handlers.set(Modes.Lint, function () {
     );
     installPackages();
     run([
-        'npm', 'install', '-g',
-        // Pinned Versions To Maintain NodeJS 18 Support
-        'markdownlint-cli@0.44.0',
+        'npm', 'install', '--global',
+        // Pinned Versions For Deterministic Behavior
+        'markdownlint-cli@0.47.0',
         'eslint@9.39.2',
-        'globals@17.0.0',
-        '@stylistic/eslint-plugin@5.6.1'
+        'globals@17.1.0',
+        '@stylistic/eslint-plugin@5.7.1'
     ]);
 });
 
