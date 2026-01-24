@@ -12,6 +12,10 @@ if (!fs.existsSync('/etc/debian_version')) {
 }
 
 // Check If Package Exists
+/**
+ * @param {string} name
+ * @returns {boolean}
+ */
 export function doesPackageExist(name) {
     try {
         info('Checking If Package Exists: ' + name);
@@ -43,15 +47,25 @@ export function setupApt(architecture) {
 
 // Install Packages
 const packages = [];
+/**
+ * @param {string[]} arr
+ */
 export function addPackageForBuild(...arr) {
     // This will install packages that match
     // the build machine's architecture.
     // This is usually used for build tools.
     packages.push(...arr);
 }
+/**
+ * @param {string} name
+ * @returns {string}
+ */
 export function getPackageForHost(name) {
     return name + archSuffix;
 }
+/**
+ * @param {string[]} arr
+ */
 export function addPackageForHost(...arr) {
     // This will install packages that match
     // the host machine's architecture.

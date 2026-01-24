@@ -5,6 +5,10 @@ import { getFiles, getOutputDir, getToken, SERVER, SLUG, VERSION } from './commo
 import { err, getScriptsDir, info } from '../../lib/util.mjs';
 
 // Login
+/**
+ * @param {boolean} dryRun
+ * @returns {Promise<void>}
+ */
 async function login(dryRun) {
     const name = 'ci';
     await tea(dryRun, true, ['logins', 'delete', name]);
@@ -18,6 +22,10 @@ async function login(dryRun) {
 }
 
 // Get Changelog
+/**
+ * @param {string} tag
+ * @returns {string}
+ */
 function getChangelog(tag) {
     process.env.URL = `${SERVER}/${SLUG}/src/tag/${tag}`;
     const script = path.join(getScriptsDir(), 'misc', 'get-changelog.mjs');
@@ -32,6 +40,11 @@ function getChangelog(tag) {
 }
 
 // Create Release
+/**
+ * @param {boolean} dryRun
+ * @param {string} tag
+ * @returns {Promise<void>}
+ */
 export async function createRelease(dryRun, tag) {
     // Get Changelog
     const changelog = getChangelog(tag);

@@ -14,6 +14,13 @@ import {
 import { err, info } from '../../lib/util.mjs';
 
 // Delete Package
+/**
+ * @param {string} distribution
+ * @param {string} packageName
+ * @param {string} version
+ * @param {string} arch
+ * @returns {Promise<void>}
+ */
 async function deletePackage(distribution, packageName, version, arch) {
     const url = `${SERVER}/api/packages/${ORGANIZATION}/debian/pool/${distribution}/${DEBIAN_COMPONENT}/${packageName}/${version}/${arch}`;
     await safeFetch(url, {
@@ -25,6 +32,11 @@ async function deletePackage(distribution, packageName, version, arch) {
 }
 
 // Upload A Package
+/**
+ * @param {string} file
+ * @param {string} field
+ * @returns {string}
+ */
 function getDebianPackageField(file, field) {
     const command = ['dpkg-deb', '--field', file, field];
     try {
@@ -36,6 +48,11 @@ function getDebianPackageField(file, field) {
         err('Unable To Parse Debian Package');
     }
 }
+/**
+ * @param {string} file
+ * @param {string} distribution
+ * @returns {Promise<void>}
+ */
 async function uploadPackage(file, distribution) {
     // Parse Package
     const packageName = getDebianPackageField(file, 'Package');
@@ -47,7 +64,7 @@ async function uploadPackage(file, distribution) {
 
     // Read File
     const data = fs.readFileSync(file);
-    const buffer = new Uint8Array(data).buffer;
+    const buffer = new Blob([data]);
 
     // Upload
     const url = `${SERVER}/api/packages/${ORGANIZATION}/debian/pool/${distribution}/${DEBIAN_COMPONENT}/upload`;
@@ -65,6 +82,10 @@ async function uploadPackage(file, distribution) {
 }
 
 // Upload All Packages
+/**
+ * @param {string} distribution
+ * @returns {Promise<void>}
+ */
 export async function uploadPackages(distribution) {
     info('Uploading Packages To: ' + distribution);
     const files = getFiles(getOutputDir());

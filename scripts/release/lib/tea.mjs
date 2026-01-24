@@ -9,6 +9,9 @@ const TEA_VERSION = '0.11.1';
 const TEA_URL = `https://dl.gitea.com/tea/${TEA_VERSION}/tea-${TEA_VERSION}-linux-amd64`;
 
 // Download Tea (If Needed)
+/**
+ * @returns {Promise<string>}
+ */
 async function getTea() {
     const __filename = url.fileURLToPath(import.meta.url);
     const dir = path.dirname(__filename);
@@ -24,6 +27,12 @@ async function getTea() {
 }
 
 // Run Tea
+/**
+ * @param {boolean} dryRun
+ * @param {boolean} canFail Whether The Command Is Allowed To Fail
+ * @param {string[]} command
+ * @returns {Promise<void>}
+ */
 export async function tea(dryRun, canFail, command) {
     const bin = await getTea();
     command.unshift(bin);

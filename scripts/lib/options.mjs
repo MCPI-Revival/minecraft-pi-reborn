@@ -1,27 +1,55 @@
 import * as path from 'node:path';
 import { fail } from './util.mjs';
 
+// Type Definitions
+/**
+ * @typedef {object} EnumValue
+ * @property {string} prettyName
+ * @property {string} name
+ */
+/**
+ * @typedef {object} EnumBase
+ * @property {EnumValue[]} values
+ * @property {function(string | undefined): EnumValue | null} get
+ */
+/**
+ * @template {Readonly<{[key: string]: null}>} T
+ * @typedef {Readonly<{[K in keyof T]: EnumValue} & {raw: T} & EnumBase>} Enum
+ */
+
 // Enums
+/**
+ * @template T
+ * @param {T} obj
+ * @returns {Enum<T>}
+ */
 export function createEnum(obj) {
     // Setup Values
-    const keys = Object.keys(obj);
-    obj.values = [];
-    for (const key of keys) {
+    /** @type {{[K in keyof T]?: EnumValue}} */
+    const map = {};
+    /** @type {EnumValue[]} */
+    const values = [];
+    for (const key of Object.keys(obj)) {
         // Create Object
+        /** @type {EnumValue} */
         const value = {
             prettyName: key,
             name: key.toLowerCase()
         };
         // Attach To Enum
-        obj[key] = value;
-        obj.values.push(value);
+        map[key] = value;
+        values.push(value);
     }
 
     // Add Parsing Function
-    obj.get = (name) => {
+    /**
+     * @param {string | undefined} name
+     * @returns {EnumValue | null}
+     */
+    const get = (name) => {
         if (name) {
             name = name.toLowerCase();
-            for (const value of obj.values) {
+            for (const value of values) {
                 if (value.name === name) {
                     return value;
                 }
@@ -29,21 +57,31 @@ export function createEnum(obj) {
         }
         return null;
     };
+
+    // Return
+    return {
+        ...map,
+        values,
+        raw: obj,
+        get
+    };
 }
 
 // Supported Architectures
-export const ArchitecturesMinusHost = {
+export const ArchitecturesMinusHost = createEnum({
     AMD64: null,
     ARM64: null,
     ARMHF: null
-};
-export const Architectures = {
-    ...ArchitecturesMinusHost,
+});
+export const Architectures = createEnum({
+    ...ArchitecturesMinusHost.raw,
     Host: null,
     Windows: null
-};
-createEnum(ArchitecturesMinusHost);
-createEnum(Architectures);
+});
+/**
+ * @param {EnumValue} architecture
+ * @returns {EnumValue}
+ */
 export function convertArchitectureToLinux(architecture) {
     if (architecture === Architectures.Windows) {
         return Architectures.AMD64;
@@ -52,38 +90,86 @@ export function convertArchitectureToLinux(architecture) {
 }
 
 // Options Types
-export const Flag = {};
-function getFlags(options) {
-    return Object.keys(options)
-        .filter(key => options[key] === Flag)
-        .sort();
+/**
+ * @class
+ */
+export function Flag() {
 }
+/**
+ * @class
+ * @property {number} i
+ * @property {EnumBase} obj
+ */
 export function PositionalArg(i, obj) {
-    return {i, obj};
+    this.i = i;
+    this.obj = obj;
 }
-function getPositionalArguments(options) {
-    const flags = getFlags(options);
-    return Object.keys(options)
-        .filter(key => !flags.includes(key))
-        .map(key => ({ key, ...options[key] }))
-        .sort((a, b) => a.i - b.i);
+/**
+ * @typedef {Flag | PositionalArg} OptionsTemplateEntry
+ */
+/**
+ * @typedef {Record<string, OptionsTemplateEntry>} OptionsTemplate
+ */
+/**
+ * @param {OptionsTemplate} options
+ * @returns {{flags: string[], positionalArgs: {key: string, arg: PositionalArg}[]}}
+ */
+function splitOptionsTemplate(options) {
+    // Get Entries
+    /** @type {{key: string, arg: OptionsTemplateEntry}[]} */
+    const entries = Object.keys(options)
+        .map(key => ({key, arg: options[key]}));
+    // Split
+    const out = {
+        /** @type {string[]} */
+        flags: [],
+        /** @type {{key: string, arg: PositionalArg}[]} */
+        positionalArgs: []
+    };
+    for (const entry of entries) {
+        const arg = entry.arg;
+        if (arg instanceof Flag) {
+            out.flags.push(entry.key);
+        } else {
+            out.positionalArgs.push({key: entry.key, arg});
+        }
+    }
+    return out;
 }
 
 // Usage Text
+/**
+ * @param {string} name
+ * @returns {string}
+ */
 function formatFlag(name) {
     return `--${name}`;
 }
+/**
+ * @param {string} arg
+ * @returns {string}
+ */
 function formatOptionalArg(arg) {
     return `[${arg}]`;
 }
+/**
+ * @param {OptionsTemplate} options
+ * @param {function(null): string} customHandler
+ * @returns {string}
+ */
 function getUsageText(options, customHandler) {
     // Usage Text
     const exe = path.basename(process.argv[1]);
     const separator = '\n    ';
     let usage = `USAGE: ${exe}${separator}`;
 
+    // Get All Possible Options
+    const args = splitOptionsTemplate(options);
+
     // Positional Arguments
-    const positionalArgs = getPositionalArguments(options);
+    const positionalArgs = args.positionalArgs
+        .map(obj => ({key: obj.key, ...obj.arg}))
+        .sort((a, b) => a.i - b.i);
     for (const arg of positionalArgs) {
         const arr = [];
         for (const value of arg.obj.values) {
@@ -93,7 +179,8 @@ function getUsageText(options, customHandler) {
     }
 
     // Flags
-    const flags = getFlags(options);
+    const flags = args.flags
+        .sort();
     for (const flag of flags) {
         usage += formatOptionalArg(formatFlag(flag)) + separator;
     }
@@ -108,35 +195,59 @@ function getUsageText(options, customHandler) {
 }
 
 // Parse
+/**
+ * @template {OptionsTemplateEntry} T
+ * @typedef {T extends PositionalArg ? EnumValue : boolean} OptionsEntry
+ */
+/**
+ * @template {Readonly<OptionsTemplate>} T
+ * @typedef {Readonly<{[K in keyof T]: OptionsEntry<T[K]>}>} Options
+ */
+/**
+ * @template {Readonly<OptionsTemplate>} T
+ * @param {T} options
+ * @param {function(string | null): boolean | string} customHandler
+ * @returns {Options<T>}
+ */
 export function parseOptions(options, customHandler) {
     // Prepare
     const usage = getUsageText(options, customHandler);
-    const positionalArgs = getPositionalArguments(options);
-    const flags = getFlags(options);
-
-    // Copy Arguments
     const args = process.argv.slice(2); // Skip First Two Arguments
+    /** @type {Record<string, boolean | EnumValue>} */
+    const out = {};
 
     // Read Positional Arguments
-    for (const arg of positionalArgs) {
-        // Parse
-        let value = args.shift();
-        value = arg.obj.get(value);
-        // Set
-        if (value === null) {
-            fail(usage);
+    let amountOfPositionalArgs = 0;
+    for (const key in options) {
+        const arg = options[key];
+        if (arg instanceof PositionalArg) {
+            // Parse
+            const str = args[arg.i];
+            const value = arg.obj.get(str);
+            // Set
+            if (value === null) {
+                fail(usage);
+            }
+            out[key] = value;
+            amountOfPositionalArgs++;
         }
-        options[arg.key] = value;
     }
+    args.splice(0, amountOfPositionalArgs);
 
     // Read Flags
-    for (const flag of flags) {
-        const name = formatFlag(flag);
-        const isSet = args.includes(name);
-        if (isSet) {
-            args.splice(args.indexOf(name), 1);
+    for (const key in options) {
+        const arg = options[key];
+        if (arg instanceof Flag) {
+            // Determine If Present
+            const name = formatFlag(key);
+            const index = args.indexOf(name);
+            // Set
+            const isSet = index !== -1;
+            if (isSet) {
+                args.splice(index, 1);
+            }
+            out[key] = isSet;
         }
-        options[flag] = isSet;
     }
 
     // Unknown Arguments
@@ -145,4 +256,7 @@ export function parseOptions(options, customHandler) {
             fail(usage);
         }
     }
+
+    // Return
+    return /** @type {Options<T>} */ (out);
 }

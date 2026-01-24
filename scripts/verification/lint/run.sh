@@ -4,15 +4,23 @@ set -e
 
 # Get Root Directory
 ROOT="$(realpath "$(dirname "$0")")"
+CONFIGS="${ROOT}/configs"
 SCRIPTS_ROOT="${ROOT}/../../"
 REPO_ROOT="${SCRIPTS_ROOT}/../"
+
+# Setup NPM
+npm ci --prefix "${ROOT}"
+NODE_MODULES="${ROOT}/node_modules"
+PATH="${NODE_MODULES}/.bin:${PATH}"
 
 # Utility Function
 find_and_run() {
     EXT="$1"
     shift
+    DIR="$(pwd)"
     # shellcheck disable=SC2150
-    find . \
+    find "${DIR}" \
+        -path "${NODE_MODULES}" -prune -o \
         -type f \
         -name "*.${EXT}" \
         -exec "$@" {} +
@@ -20,22 +28,28 @@ find_and_run() {
 find_sh() {
     find_and_run sh "$@"
 }
+find_js() {
+    find_and_run mjs "$@"
+}
 
 # Scripts
 cd "${SCRIPTS_ROOT}"
 find_sh shellcheck \
     --check-sourced \
-    --rcfile "${ROOT}/shellcheckrc"
+    --rcfile "${CONFIGS}/shellcheckrc"
 find_sh checkbashisms \
     --force \
     --extra \
     --posix
-NODE_ROOT="$(npm root --quiet --global)"
-NODE_MODULES="${REPO_ROOT}/node_modules"
-ln --symbolic --force --no-dereference "${NODE_ROOT}" "${NODE_MODULES}"
-find_and_run mjs eslint \
-    --config "${ROOT}/eslint.config.mjs"
-rm -f "${NODE_MODULES}"
+find_js eslint \
+    --config "${CONFIGS}/eslint.config.mjs"
+find_js tsc \
+    --allowJs --checkJs \
+    --noEmit \
+    --module nodenext \
+    --target ES2022 \
+    --typeRoots "${NODE_MODULES}/@types" \
+    --types node
 
 # Markdown
 cd "${REPO_ROOT}"
@@ -43,5 +57,5 @@ find docs mods/src README.md \
     -type f \
     -name '*.md' \
     -exec markdownlint \
-        --config "${ROOT}/markdownlint.toml" \
+        --config "${CONFIGS}/markdownlint.toml" \
         {} +

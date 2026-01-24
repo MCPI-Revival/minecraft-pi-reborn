@@ -191,14 +191,6 @@ handlers.set(Modes.Lint, function () {
         'npm'
     );
     installPackages();
-    run([
-        'npm', 'install', '--global',
-        // Pinned Versions For Deterministic Behavior
-        'markdownlint-cli@0.47.0',
-        'eslint@9.39.2',
-        'globals@17.1.0',
-        '@stylistic/eslint-plugin@5.7.1'
-    ]);
 });
 
 // Run

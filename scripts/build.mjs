@@ -10,6 +10,10 @@ import { enableMsys2 } from './lib/msys2.mjs';
 const cmakeArgPrefix = '-D';
 const cmakeArgSeparator = '=';
 const cmakeOptions = new Map();
+/**
+ * @param {string | null} arg
+ * @returns {boolean | string}
+ */
 function parseCMakeOption(arg) {
     if (arg === null) {
         // Usage Text
@@ -35,25 +39,23 @@ function parseCMakeOption(arg) {
 }
 
 // Options
-const PackageTypes = {
+const PackageTypes = createEnum({
     None: null,
     Zip: null,
     AppImage: null,
     Flatpak: null,
     Debian: null
-};
-createEnum(PackageTypes);
-const options = {
+});
+const options = parseOptions({
     // Positional Arguments
-    packageType: PositionalArg(0, PackageTypes),
-    architecture: PositionalArg(1, Architectures),
+    packageType: new PositionalArg(0, PackageTypes),
+    architecture: new PositionalArg(1, Architectures),
     // Flags
     clean: Flag,
     install: Flag,
     debug: Flag,
     verbose: Flag
-};
-parseOptions(options, parseCMakeOption);
+}, parseCMakeOption);
 
 // CPack
 const useCPack = [PackageTypes.Zip, PackageTypes.AppImage, PackageTypes.Debian].includes(options.packageType);
