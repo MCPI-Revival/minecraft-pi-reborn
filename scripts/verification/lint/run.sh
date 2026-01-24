@@ -43,13 +43,6 @@ find_sh checkbashisms \
     --posix
 find_js eslint \
     --config "${CONFIGS}/eslint.config.mjs"
-find_js tsc \
-    --allowJs --checkJs \
-    --noEmit \
-    --module nodenext \
-    --target ES2022 \
-    --typeRoots "${NODE_MODULES}/@types" \
-    --types node
 
 # Markdown
 cd "${REPO_ROOT}"

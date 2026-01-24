@@ -4,9 +4,6 @@ import * as child_process from 'node:child_process';
 import { err, getScriptsDir, info, run } from './util.mjs';
 
 // Root Directory
-/**
- * @returns {string}
- */
 export function getMsys2Root() {
     const __dirname = getScriptsDir();
     const root = path.join(__dirname, '..');
@@ -14,10 +11,6 @@ export function getMsys2Root() {
 }
 
 // Install
-/**
- * @param {string} file
- * @param {function(string): string} callback
- */
 function patchFile(file, callback) {
     const oldData = fs.readFileSync(file, 'utf8');
     const newData = callback(oldData);
@@ -35,9 +28,6 @@ export function installMsys2() {
         return data.replace(' -DCMAKE_INSTALL_PREFIX=$MSYSTEM_PREFIX', '');
     });
 }
-/**
- * @param {string[]} packages
- */
 export function installMsys2Packages(packages) {
     const cmd = ['make', '-C', getMsys2Root(), 'install'];
     for (const pkg of packages) {

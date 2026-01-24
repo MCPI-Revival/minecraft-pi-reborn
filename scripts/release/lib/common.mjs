@@ -20,9 +20,6 @@ export const DEBIAN_EXTENSION = '.deb';
 process.env.DISCORD_URL = 'https://discord.gg/HAErXkUkpR';
 
 // Get Release Token
-/**
- * @returns {string}
- */
 export function getToken() {
     const token = process.env.RELEASE_TOKEN;
     if (!token && !getToken.ignoreMissing) {
@@ -33,9 +30,6 @@ export function getToken() {
 getToken.ignoreMissing = false;
 
 // Get Output Directory
-/**
- * @returns {string}
- */
 export function getOutputDir() {
     const scripts = getScriptsDir();
     const root = path.join(scripts, '..');
@@ -47,26 +41,16 @@ export function getOutputDir() {
 }
 
 // Safe fetch()
-/**
- * @param {string} url
- * @param {RequestInit} options
- * @returns {Promise<Response>}
- */
 export async function safeFetch(url, options) {
     if (safeFetch.dryRun) {
         info(`Would Send ${options.method} Request To: ${url}`);
-        return new Response();
+        return {ok: true};
     }
     return fetch(url, options);
 }
 safeFetch.dryRun = false;
 
 // Get Files Recursively
-/**
- * @param {string} dir
- * @param {number} level The Recursion Limit
- * @returns {string[]}
- */
 export function getFiles(dir, level = 1) {
     const out = [];
     const files = fs.readdirSync(dir);
