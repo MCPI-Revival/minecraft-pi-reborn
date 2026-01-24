@@ -1,8 +1,7 @@
 import * as path from 'node:path';
-import * as fs from 'node:fs';
 import * as child_process from 'node:child_process';
 import { tea } from './tea.mjs';
-import { getOutputDir, getToken, SERVER, SLUG, VERSION } from './common.mjs';
+import { getFiles, getOutputDir, getToken, SERVER, SLUG, VERSION } from './common.mjs';
 import { err, getScriptsDir, info } from '../../lib/util.mjs';
 
 // Login
@@ -32,23 +31,6 @@ function getChangelog(tag) {
     }
 }
 
-// Get Files Recursively
-function getFiles(dir, level) {
-    const out = [];
-    const files = fs.readdirSync(dir);
-    for (const file of files) {
-        const full = path.join(dir, file);
-        if (fs.statSync(full).isDirectory()) {
-            if (level > 0) {
-                out.push(...getFiles(full, level - 1));
-            }
-        } else {
-            out.push(full);
-        }
-    }
-    return out;
-}
-
 // Create Release
 export async function createRelease(dryRun, tag) {
     // Get Changelog
@@ -71,7 +53,7 @@ export async function createRelease(dryRun, tag) {
     ]);
 
     // Attach Files
-    const files = getFiles(getOutputDir(), 1);
+    const files = getFiles(getOutputDir());
     for (const file of files) {
         if (file.endsWith('.so')) {
             // Skip Example Mods

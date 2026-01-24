@@ -4,6 +4,7 @@ import * as path from 'node:path';
 import {
     DEBIAN_COMPONENT,
     DEBIAN_EXTENSION,
+    getFiles,
     getOutputDir,
     getToken,
     ORGANIZATION,
@@ -66,13 +67,11 @@ async function uploadPackage(file, distribution) {
 // Upload All Packages
 export async function uploadPackages(distribution) {
     info('Uploading Packages To: ' + distribution);
-    const out = getOutputDir();
-    const files = fs.readdirSync(out);
+    const files = getFiles(getOutputDir());
     for (const file of files) {
         if (file.endsWith(DEBIAN_EXTENSION)) {
-            const fullPath = path.join(out, file);
-            info('Uploading Package: ' + fullPath);
-            await uploadPackage(fullPath, distribution);
+            info('Uploading Package: ' + path.basename(file));
+            await uploadPackage(file, distribution);
         }
     }
 }

@@ -49,3 +49,20 @@ export async function safeFetch(url, options) {
     return fetch(url, options);
 }
 safeFetch.dryRun = false;
+
+// Get Files Recursively
+export function getFiles(dir, level = 1) {
+    const out = [];
+    const files = fs.readdirSync(dir);
+    for (const file of files) {
+        const full = path.join(dir, file);
+        if (fs.statSync(full).isDirectory()) {
+            if (level > 0) {
+                out.push(...getFiles(full, level - 1));
+            }
+        } else {
+            out.push(full);
+        }
+    }
+    return out;
+}

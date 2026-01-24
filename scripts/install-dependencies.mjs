@@ -176,7 +176,14 @@ handlers.set(Modes.SDK, function () {
 
 // Linting Dependencies
 handlers.set(Modes.Lint, function () {
+    // Check System
     blockWindows();
+    const nodeVersion = process.versions.node.split('.').map(Number);
+    const requiredNodeVersion = 20;
+    if (nodeVersion[0] < requiredNodeVersion) {
+        err(`Node.js ${requiredNodeVersion}+ Required`);
+    }
+    // Install Packages
     addPackageForBuild(
         'shellcheck',
         'devscripts',
