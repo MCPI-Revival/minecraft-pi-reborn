@@ -15,9 +15,10 @@ void start_runtime(const int argc, const char *argv[]) {
 
     // Run
 #ifdef MCPI_BUILD_RUNTIME
+    log_command(argv, DEFAULT_LOG_COMMAND_VERB " (Using Runtime)");
     runtime_main(trampoline, argc, argv);
 #else
     (void) argc;
-    safe_execvpe(argv);
+    safe_exec(argv);
 #endif
 }

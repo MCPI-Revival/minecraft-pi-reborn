@@ -52,5 +52,5 @@ std::optional<Updater::Downloader> Updater::get_downloader(MCPI_UNUSED const boo
 void Updater::restart() {
     const std::string path = get_appimage_path();
     const char *const command[] = {path.c_str(), nullptr};
-    safe_execvpe(command);
+    safe_exec(command);
 }

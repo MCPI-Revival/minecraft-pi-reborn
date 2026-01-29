@@ -2,14 +2,11 @@
 
 #ifndef _WIN32
 #include <sys/wait.h>
-#include <sys/prctl.h>
 #endif
 
 #include <libreborn/log.h>
 #include <libreborn/util/exec.h>
 #include <libreborn/util/string.h>
-
-#include "exec.h"
 
 // Safe execvpe()
 #ifdef _WIN32
@@ -57,14 +54,14 @@ void log_command(const char *const argv[], const char *verb) {
         DEBUG("    %s", argv[i]);
     }
 }
-void safe_execvpe(const char *const argv[]) {
+void safe_exec(const char *const argv[]) {
     // Log
     log_command(argv);
 
     // Run
 #ifndef _WIN32
     const char *exe = argv[0];
-    const bool success = exe ? execvpe(exe, (char *const *) argv, environ) != -1 : false;
+    const bool success = exe ? execvp(exe, (char *const *) argv) != -1 : false;
     const std::string error = strerror(exe ? errno : ENOENT);
 #else
     SetConsoleCtrlHandler(nullptr, TRUE);

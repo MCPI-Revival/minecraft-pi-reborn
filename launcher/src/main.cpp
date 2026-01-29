@@ -106,7 +106,7 @@ static void start_game(const options_t &options) {
     if (!options.disable_logger) {
         new_argv.insert(new_argv.begin(), logger_exe.c_str());
     }
-    safe_execvpe(new_argv.data());
+    safe_exec(new_argv.data());
 }
 
 // Main

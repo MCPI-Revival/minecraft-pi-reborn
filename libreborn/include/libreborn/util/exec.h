@@ -9,12 +9,16 @@
 
 #include "io.h"
 
+// Log A Command
+#define DEFAULT_LOG_COMMAND_VERB "Running"
+void log_command(const char *const argv[], const char *verb = DEFAULT_LOG_COMMAND_VERB);
+
 // Safe execvpe()
 // On Windows, this spawns a child process.
 #ifdef _WIN32
 std::string make_cmd(const char *const argv[]);
 #endif
-__attribute__((noreturn)) void safe_execvpe(const char *const argv[]);
+__attribute__((noreturn)) void safe_exec(const char *const argv[]);
 
 // fork() With I/O
 #ifdef _WIN32

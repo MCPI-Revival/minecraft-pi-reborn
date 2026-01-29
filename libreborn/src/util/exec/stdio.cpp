@@ -9,8 +9,6 @@
 #include <libreborn/util/logger.h>
 #include <libreborn/log.h>
 
-#include "exec.h"
-
 // Process Object
 Process::Process(const process_t &pid_, const std::array<HANDLE, fd_count> &fds_):
     open(true),
@@ -100,7 +98,7 @@ Process spawn_with_stdio(const char *const argv[]) {
         // Child Process
         reborn_debug_tag = DEBUG_TAG("Child Process");
         // Run
-        safe_execvpe(argv);
+        safe_exec(argv);
     }
     return child.value();
 }
