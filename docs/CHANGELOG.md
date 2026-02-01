@@ -122,6 +122,7 @@ include_toc: true
     * `Fix 3D Item Rendering With High-Resolution Textures`
     * `Fix Armor/Furnace Screen From Crashing On Death`
     * `Fix Armor Screen Rendering When Player Is Dead/Hurt`
+    * `Fix Blocks Not Breaking Instantly In Creative Mode`
   * Existing Functionality (All Enabled By Default)
     * `Fix Screen Rendering When Hiding HUD`
     * `Sanitize Usernames`
@@ -167,6 +168,8 @@ include_toc: true
 * Removed `Property Scale Animated Textures` Feature Flag
 * Removed `Remove Invalid Item Background` Feature Flag
 * Removed `Close Current Screen On Death` Feature Flag
+  * Replaced with a proper fix.
+* Removed `Disable Creative Mode Mining Delay` Feature Flag
   * Replaced with a proper fix.
 * Improve Death Messages
 * Massive Build System Improvements

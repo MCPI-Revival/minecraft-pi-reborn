@@ -1,3 +1,5 @@
+size 0x18;
+
 vtable 0x102e58;
 vtable-size 0x60;
 
@@ -5,3 +7,6 @@ virtual-method void attack(Player *player, Entity *target) = 0x44;
 virtual-method void releaseUsingItem(Player *player) = 0x5c;
 virtual-method bool useItemOn(Player *player, Level *level, ItemInstance *item, int x, int y, int z, int param_1, const Vec3 &param_2) = 0x2c;
 virtual-method void initAbilities(Abilities &abilities) = 0x58;
+virtual-method void stopDestroyBlock() = 0x18;
+
+property int destroy_delay = 0x14;

@@ -126,7 +126,6 @@ CATEGORY Input
     TRUE Bind Common Toggleable Options To Function Keys
     FALSE Disable Raw Mouse Motion (Not Recommended)
     FALSE Disable Speed Bridging
-    FALSE Disable Creative Mode Mining Delay
     TRUE Enable Text Input
     TRUE Extend Supported Keycodes
 CATEGORY Multiplayer
@@ -177,6 +176,7 @@ CATEGORY Bug Fixes
         TRUE Fix Attacking
         TRUE Fix Escape Key Handling
         TRUE Stop Locked Mouse From Interacting With HUD
+        TRUE Fix Blocks Not Breaking Instantly In Creative Mode
     CATEGORY Gameplay
         TRUE Fix Furnace Not Checking Item Auxiliary
         TRUE Fix Pigmen Burning In The Sun
