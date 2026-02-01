@@ -61,7 +61,7 @@ struct Bucket final : CustomItem {
             item_instance->auxiliary = new_auxiliary;
             success = true;
         } else {
-            ItemInstance new_item;
+            ItemInstance new_item = {};
             new_item.id = self->id;
             new_item.count = 1;
             new_item.auxiliary = new_auxiliary;
@@ -314,7 +314,7 @@ static void Recipes_injection(Recipes *recipes) {
 
 // Custom Furnace Fuel
 static int32_t FurnaceTileEntity_getBurnDuration_injection(FurnaceTileEntity_getBurnDuration_t original, const ItemInstance &item_instance) {
-    if (item_instance.count > 0 && item_instance.id == bucket->id && item_instance.auxiliary == Tile::lava->id) {
+    if (item_instance.id == bucket->id && item_instance.auxiliary == Tile::lava->id) {
         return 20000;
     } else {
         // Call Original Method
@@ -324,6 +324,7 @@ static int32_t FurnaceTileEntity_getBurnDuration_injection(FurnaceTileEntity_get
 static void FurnaceTileEntity_tick_ItemInstance_setNull_injection(ItemInstance *item_instance) {
     // Replace Lava Bucket With Empty Bucket When It Burns Out
     if (item_instance->id == bucket->id) {
+        item_instance->count = 1;
         item_instance->auxiliary = 0;
     } else {
         // Original Behavior
