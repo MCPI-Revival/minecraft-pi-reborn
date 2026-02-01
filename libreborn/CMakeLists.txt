@@ -12,7 +12,9 @@ add_library(reborn-util SHARED
     src/util/exec/util.cpp
     src/util/string.cpp
     src/util/util.cpp
-    src/util/log.cpp
+    src/util/log/setup.cpp
+    src/util/log/open.cpp
+    src/util/log/log.cpp
     src/util/cp437.cpp
     src/util/env/env.cpp
     "${CONFIG_FILE}"

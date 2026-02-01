@@ -122,8 +122,10 @@ static int setup_logger_parent(Process &child) {
     });
 
     // Close Debug Log
-    reborn_init_log(std::nullopt); // This also closes log_pipe->write.
-    CloseHandle(log_pipe->read);
+    reborn_init_log(std::nullopt);
+    for (const HANDLE handle : {log_pipe->write, log_pipe->read}) {
+        CloseHandle(handle);
+    }
     delete log_pipe;
 
     // Get Exit Status
