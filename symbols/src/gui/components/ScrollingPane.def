@@ -6,6 +6,12 @@ method void setContentOffset(float x, float y) = 0x220a0;
 method void render(float param_1, float param_2, float alpha) = 0x22ee4;
 method void adjustContentSize() = 0x21aa4;
 method bool queryHoldTime(int *item_id, int *pressed_time) = 0x22ab4;
+method void touchesBegan(float x, float y, int time) = 0x21fb4;
+method void touchesMoved(float x, float y, int time) = 0x22384;
+method void touchesEnded(float x, float y, int time) = 0x22654;
+method void stopDecelerationAnimation() = 0x21a94;
+method void startDecelerationAnimation(bool force) = 0x2187c;
+method void snapContentOffsetToBounds(bool param_1) = 0x21e04;
 
 property float scale = 0x2c;
 property RectangleArea area = 0x60;
@@ -13,4 +19,4 @@ property Vec3 content_offset = 0xe4;
 property float max_y = 0x130;
 property float size_y = 0x170;
 property float adjust_content_size_y = 0x1ec;
-
+property Vec3 deceleration_velocity = 0x100;

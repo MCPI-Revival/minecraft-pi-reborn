@@ -129,6 +129,8 @@ CATEGORY Input
     TRUE Enable Text Input
     TRUE Extend Supported Keycodes
     TRUE Block Tile Interaction When Sneaking
+    TRUE Implement Inventory Mouse Scrolling
+        COMMENT This only works for a subset of screens.
 CATEGORY Multiplayer
     TRUE Allow Joining Survival Mode Servers
     TRUE External Server Support

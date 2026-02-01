@@ -55,9 +55,13 @@ HOOK(media_SDL_PollEvent, int, (SDL_Event *event)) {
             }
             case SDL_MOUSEBUTTONDOWN:
             case SDL_MOUSEBUTTONUP: {
-                // Track Right-Click State
+                // Track Mouse Button State
                 if (event->button.button == SDL_BUTTON_RIGHT) {
                     input_set_is_right_click(event->button.state != SDL_RELEASED);
+                } else if (event->button.button == SDL_BUTTON_WHEELUP) {
+                    input_set_scroll(1);
+                } else if (event->button.button == SDL_BUTTON_WHEELDOWN) {
+                    input_set_scroll(-1);
                 }
                 break;
             }

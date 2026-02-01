@@ -89,6 +89,7 @@ include_toc: true
     * `Outline Render Chunks` (Disabled By Default)
     * `Tint Tall Grass/Fern Items` (Enabled By Default)
     * `Block Tile Interaction When Sneaking` (Enabled By Default)
+    * `Implement Inventory Mouse Scrolling` (Enabled By Default)
   * New Bug Fixes (All Enabled By Default)
     * `Fix Held Item Caching`
     * `Fix Pigmen Burning In The Sun`

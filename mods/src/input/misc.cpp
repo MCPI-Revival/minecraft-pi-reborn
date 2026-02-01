@@ -7,6 +7,9 @@
 #include <symbols/Touch_IngameBlockSelectionScreen.h>
 #include <symbols/LocalPlayer.h>
 #include <symbols/Tile.h>
+#include <symbols/ScrollingPane.h>
+#include <symbols/Mouse.h>
+#include <symbols/Common.h>
 
 #include <SDL/SDL.h>
 
@@ -78,6 +81,52 @@ static bool GameMode_useItemOn_Tile_use_injection(Tile *tile, Level *level, int 
     return tile->use(level, x, y, z, player);
 }
 
+// Inventory Scrolling
+static constexpr float scroll_scale = 32; // Amount Of Scaled-Pixels To Move Per Scroll Event
+static int scroll = 0;
+void input_set_scroll(const int direction) {
+    scroll = direction;
+}
+static void ScrollingPane_render_injection(ScrollingPane_render_t original, ScrollingPane *self, const int mouse_x, const int mouse_y, const float alpha) {
+    // Handle Scroll
+    if (scroll != 0) {
+        const float scale = self->scale;
+        const float x = float(Mouse::getX()) * scale;
+        const float y = float(Mouse::getY()) * scale;
+        if (self->area.isInside(x, y)) {
+            // Prepare
+            const int time = Common::getTimeMs();
+            constexpr float touch_x = -999;
+            float touch_y = touch_x;
+            // Cancel Old Event
+            self->touchesEnded(touch_x, touch_y, time);
+            // Trigger Drag Tracking
+            self->touchesBegan(touch_x, touch_y, time);
+            touch_y *= 2;
+            self->touchesMoved(touch_x, touch_y, time);
+            // Actually Scroll
+            const float diff = scroll_scale * float(scroll) * scale;
+            touch_y += diff;
+            self->touchesMoved(touch_x, touch_y, time);
+            self->touchesEnded(touch_x, touch_y, time);
+            // Prevent Ludicrous Velocity
+            self->snapContentOffsetToBounds(false);
+            self->deceleration_velocity = {
+                .x = 0,
+                .y = 0,
+                .z = 0
+            };
+        }
+    }
+
+    // Call Original Method
+    original(self, mouse_x, mouse_y, alpha);
+}
+static void reset_scroll(MCPI_UNUSED Minecraft *minecraft) {
+    // Reset Scroll After Frame
+    scroll = 0;
+}
+
 // Init
 void _init_misc() {
     // Proper Back Button Handling
@@ -110,5 +159,11 @@ void _init_misc() {
         overwrite_call((void *) 0x1a870, Tile_use, GameMode_useItemOn_Tile_use_injection);
         // ServerSideNetworkHandler::handle_UseItemPacket
         overwrite_call((void *) 0x748ec, Tile_use, GameMode_useItemOn_Tile_use_injection);
+    }
+
+    // Inventory Scrolling
+    if (feature_has("Implement Inventory Mouse Scrolling", server_disabled)) {
+        overwrite_calls(ScrollingPane_render, ScrollingPane_render_injection);
+        misc_run_on_update(reset_scroll);
     }
 }
