@@ -6,10 +6,12 @@
 #include <symbols/InBedScreen.h>
 #include <symbols/Touch_IngameBlockSelectionScreen.h>
 #include <symbols/LocalPlayer.h>
+#include <symbols/Tile.h>
 
 #include <SDL/SDL.h>
 
 #include "internal.h"
+
 #include <mods/input/input.h>
 #include <mods/feature/feature.h>
 #include <mods/misc/misc.h>
@@ -68,10 +70,11 @@ static void Gui_handleClick_injection(Gui_handleClick_t original, Gui *gui, cons
 }
 
 // Block Tile Interaction When Sneaking
-static int GameMode_useItemOn_Tile_use_injection(Tile *tile, Level *level, int x, int y, int z, Player *player) {
+static bool GameMode_useItemOn_Tile_use_injection(Tile *tile, Level *level, int x, int y, int z, Player *player) {
     if (player->isSneaking()) {
-        return 0;
+        return false;
     }
+    // Call Original Method
     return tile->use(level, x, y, z, player);
 }
 
@@ -92,6 +95,7 @@ void _init_misc() {
         // Fix "Sleeping Beauty" Bug (https://discord.com/channels/740287937727561779/761048906242981948/1164426402318270474)
         patch_vtable(InBedScreen_handleBackEvent, InBedScreen_handleBackEvent_injection);
     }
+
     // Fix UI When Mouse Is Locked
     if (feature_has("Stop Locked Mouse From Interacting With HUD", server_disabled)) {
         // Disable Opening Inventory Using The Cursor When Cursor Is Hidden
@@ -99,8 +103,12 @@ void _init_misc() {
         // Disable Item Dropping Using The Cursor When Cursor Is Hidden
         overwrite_calls(Gui_tickItemDrop, Gui_tickItemDrop_injection);
     }
-    if (feature_has("Block Tile Interaction When Sneaking", server_enabled)) {
-        overwrite_call_manual((void *) 0x1a870, (void *) GameMode_useItemOn_Tile_use_injection);
-        overwrite_call_manual((void *) 0x748ec, (void *) GameMode_useItemOn_Tile_use_injection);
+
+    // Sneaking
+    if (feature_has("Block Tile Interaction When Sneaking", server_is_not_vanilla_compatible)) {
+        // GameMode::useItemOn
+        overwrite_call((void *) 0x1a870, Tile_use, GameMode_useItemOn_Tile_use_injection);
+        // ServerSideNetworkHandler::handle_UseItemPacket
+        overwrite_call((void *) 0x748ec, Tile_use, GameMode_useItemOn_Tile_use_injection);
     }
 }
