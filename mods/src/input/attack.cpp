@@ -9,9 +9,21 @@
 #include <mods/feature/feature.h>
 #include "internal.h"
 
+// Constants
+namespace BuildActionIntention {
+    enum {
+        NONE = 0,
+        BUILD = 1 << 0,
+        REMOVE_CONTINUE = 1 << 1,
+        REMOVE_START = 1 << 2,
+        ATTACK = 1 << 3,
+        INTERACT = 1 << 4
+    };
+}
+
 // Add Attacking To MouseBuildInput
-#define REMOVE_ATTACK_BAI 0xa
-#define ATTACK_BAI 0x8
+static constexpr uint32_t ATTACK_BAI = BuildActionIntention::ATTACK;
+static constexpr uint32_t REMOVE_ATTACK_BAI = ATTACK_BAI | BuildActionIntention::REMOVE_CONTINUE;
 static bool MouseBuildInput_tickBuild_injection(MouseBuildInput_tickBuild_t original, MouseBuildInput *mouse_build_input, Player *local_player, uint32_t *build_action_intention_return) {
     // Call Original Method
     const bool ret = original(mouse_build_input, local_player, build_action_intention_return);
