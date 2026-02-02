@@ -1,0 +1,7 @@
+size 0x4;
+
+vtable 0x110878;
+vtable-size 0x24;
+
+virtual-method LevelData *prepareLevel(Level *level) = 0x8;
+virtual-method void loadEntities(Level *level, LevelChunk *level_chunk) = 0x20;

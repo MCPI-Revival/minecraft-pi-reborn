@@ -98,29 +98,29 @@ add_symbol_library(symbols
     src/level/container/Container.def
     src/level/container/ContainerMenu.def
     src/level/container/Inventory.def
-    src/level/feature/Feature.def
-    src/level/feature/ReedsFeature.def
-    src/level/feature/LargeFeature.def
-    src/level/feature/LargeCaveFeature.def
+    src/level/generation/feature/Feature.def
+    src/level/generation/feature/ReedsFeature.def
+    src/level/generation/feature/LargeFeature.def
+    src/level/generation/feature/LargeCaveFeature.def
     src/level/Material.def
     src/level/LevelSource.def
-    src/level/ExternalFileLevelStorageSource.def
-    src/level/ExternalFileLevelStorage.def
+    src/level/storage/ExternalFileLevelStorageSource.def
+    src/level/storage/ExternalFileLevelStorage.def
     src/level/biome/Biome.def
     src/level/biome/BiomeSource.def
     src/level/LevelChunk.def
     src/level/EmptyLevelChunk.def
     src/level/ChunkSource.def
     src/level/ChunkCache.def
-    src/level/ChunkStorage.def
+    src/level/storage/ChunkStorage.def
     src/level/LightLayer.def
     src/level/Level.def
     src/level/LevelListener.def
     src/level/renderer/LevelRenderer.def
-    src/level/LevelStorageSource.def
+    src/level/storage/LevelStorageSource.def
     src/level/renderer/ParticleEngine.def
-    src/level/RandomLevelSource.def
-    src/level/PerformanceTestChunkSource.def
+    src/level/generation/RandomLevelSource.def
+    src/level/generation/PerformanceTestChunkSource.def
     src/level/LevelData.def
     src/level/LevelSettings.def
     src/level/ServerLevel.def
@@ -130,9 +130,9 @@ add_symbol_library(symbols
     src/level/LevelSummary.def
     src/level/DistanceChunkSorter.def
     src/level/renderer/Chunk.def
-    src/level/LevelStorage.def
+    src/level/storage/LevelStorage.def
     src/level/Region.def
-    src/level/RegionFile.def
+    src/level/storage/RegionFile.def
     src/level/DataLayer.def
     src/level/renderer/culling/Culler.def
     src/level/renderer/culling/FrustumCuller.def

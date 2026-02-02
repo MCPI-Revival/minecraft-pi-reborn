@@ -1,7 +1,6 @@
 #include "CachedLevelSource.h"
 
 #include <bit>
-#include <new>
 
 #include <symbols/LevelChunk.h>
 #include <symbols/EmptyLevelChunk.h>

@@ -29,6 +29,7 @@
 #include <symbols/FrustumCuller.h>
 #include <symbols/GameRenderer.h>
 #include <symbols/NinecraftApp.h>
+#include <symbols/LevelChunk.h>
 
 #include <GLES/gl.h>
 #include <media-layer/core.h>
@@ -94,12 +95,12 @@ static void Dimension_updateLightRamp_injection(MCPI_UNUSED Dimension_updateLigh
 }
 
 // Sort Chunks
-struct chunk_data {
+struct chunk_data_t {
     Chunk *chunk;
     float distance;
 };
 #define MAX_CHUNKS_SIZE 24336
-static chunk_data data[MAX_CHUNKS_SIZE];
+static chunk_data_t chunk_data[MAX_CHUNKS_SIZE];
 static void sort_chunks(Chunk **chunks_begin, Chunk **chunks_end, const DistanceChunkSorter sorter) {
     // Calculate Distances
     const int chunks_size = chunks_end - chunks_begin;
@@ -112,16 +113,16 @@ static void sort_chunks(Chunk **chunks_begin, Chunk **chunks_end, const Distance
         if (distance > 1024 && chunk->y < 64) {
             distance *= 10;
         }
-        data[i].chunk = chunk;
-        data[i].distance = distance;
+        chunk_data[i].chunk = chunk;
+        chunk_data[i].distance = distance;
     }
 
     // Sort
-    std::sort(data, data + chunks_size, [](const chunk_data &a, const chunk_data &b) {
+    std::sort(chunk_data, chunk_data + chunks_size, [](const chunk_data_t &a, const chunk_data_t &b) {
         return a.distance < b.distance;
     });
     for (int i = 0; i < chunks_size; i++) {
-        chunks_begin[i] = data[i].chunk;
+        chunks_begin[i] = chunk_data[i].chunk;
     }
 }
 
@@ -164,7 +165,7 @@ static void PlayerRenderer_render_injection(PlayerRenderer *model_renderer, Enti
     model->is_sneaking = false;
 }
 
-// 3D Chests
+// 3D Chest Rendering
 static int32_t TileRenderer_tesselateInWorld_Tile_getRenderShape_injection(Tile *tile) {
     if (tile->id == Tile::chest->id) {
         // Don't Render "Simple" Chest Model
@@ -186,12 +187,10 @@ static ChestTileEntity *ChestTileEntity_injection(ChestTileEntity_constructor_t 
 }
 static bool is_rendering_chest = false;
 static void ChestRenderer_render_ModelPart_render_injection(ModelPart *model_part, float scale) {
-    // Start
+    // Start Fixing Texture
     is_rendering_chest = true;
-
     // Call Original Method
     model_part->render(scale);
-
     // Stop
     is_rendering_chest = false;
 }
@@ -203,8 +202,36 @@ static void PolygonQuad_render_Tesselator_vertexUV_injection(Tesselator *self, c
     // Call Original Method
     self->vertexUV(x, y, z, u, v);
 }
-static bool ChestTileEntity_shouldSave_injection(MCPI_UNUSED ChestTileEntity_shouldSave_t original, MCPI_UNUSED ChestTileEntity *tile_entity) {
-    return true;
+
+// Fix Invisible Chests
+static void fix_chest_tile(LevelChunk *chunk, const int x, const int y, const int z, const int tile) {
+    // Ensure Tile Entity Exists
+    const int chest = Tile::chest->id;
+    if (tile == chest) {
+        chunk->getTileEntity(x, y, z);
+    }
+}
+static void fix_chests_in_chunk(LevelChunk *chunk) {
+    // Loop Through All Tiles In Chunk
+    for (int x = 0; x < LevelSize::CHUNK_SIZE; x++) {
+        for (int z = 0; z < LevelSize::CHUNK_SIZE; z++) {
+            for (int y = 0; y < LevelSize::HEIGHT; y++) {
+                const int tile = chunk->getTile(x, y, z);
+                fix_chest_tile(chunk, x, y, z, tile);
+            }
+        }
+    }
+}
+static void Level_loadEntities_injection(Level_loadEntities_t original, Level *self) {
+    // Call Original Method
+    original(self);
+    // Fix Chests
+    for (int chunk_x = 0; chunk_x < LevelSize::CHUNK_COUNT; chunk_x++) {
+        for (int chunk_z = 0; chunk_z < LevelSize::CHUNK_COUNT; chunk_z++) {
+            LevelChunk *chunk = self->getChunk(chunk_x, chunk_z);
+            fix_chests_in_chunk(chunk);
+        }
+    }
 }
 
 // Animated 3D Chest
@@ -359,7 +386,10 @@ void _init_misc_graphics() {
 
     // 3D Chests
     if (feature_has("3D Chest Model", server_enabled)) {
+        // Hide Old Model
         overwrite_call((void *) 0x5e830, Tile_getRenderShape, TileRenderer_tesselateInWorld_Tile_getRenderShape_injection);
+
+        // Enable New Model
         overwrite_calls(ChestTileEntity_constructor, ChestTileEntity_injection);
         overwrite_call((void *) 0x6655c, ModelPart_render, ChestRenderer_render_ModelPart_render_injection);
         overwrite_call((void *) 0x66568, ModelPart_render, ChestRenderer_render_ModelPart_render_injection);
@@ -370,13 +400,13 @@ void _init_misc_graphics() {
         unsigned char chest_color_patch[4] = {0x00, 0xf0, 0x20, 0xe3}; // "nop"
         patch((void *) 0x66404, chest_color_patch);
 
+        // Fix Invisible Chests
+        overwrite_calls(Level_loadEntities, Level_loadEntities_injection);
+
         // Animation
         overwrite_calls(ContainerMenu_constructor, ContainerMenu_injection);
         overwrite_calls(Level_destructor_complete, Level_destructor_injection);
         overwrite_calls(ContainerMenu_destructor_complete, ContainerMenu_destructor_injection);
-    }
-    if (feature_has("Always Save Chest Tile Entities", server_enabled)) {
-        overwrite_calls(ChestTileEntity_shouldSave, ChestTileEntity_shouldSave_injection);
     }
 
     // Vignette

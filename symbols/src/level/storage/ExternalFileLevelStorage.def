@@ -1,0 +1,15 @@
+extends LevelStorage;
+
+size 0x34;
+
+vtable 0x110900;
+vtable-size 0x3c;
+
+virtual-method LevelChunk *load(Level *level, int chunk_x, int chunk_z) = 0x24;
+
+static-method bool readLevelData(const std::string &directory, LevelData &data) = 0xb8bc4;
+
+property std::string path = 0xc;
+property RegionFile *region_file = 0x14;
+property ChunkStorage chunk_storage = 0x4;
+property Level *level = 0x1c;

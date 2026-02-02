@@ -1,3 +1,8 @@
+size 0x4;
+
+vtable 0x1108a8;
+vtable-size 0x20;
+
 virtual-method LevelChunk *load(Level *level, int chunk_x, int chunk_z) = 0x8;
 virtual-method void save(Level *level, LevelChunk *level_chunk) = 0xc;
 virtual-method void saveEntities(Level *level, LevelChunk *level_chunk) = 0x10;

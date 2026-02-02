@@ -214,8 +214,6 @@ CATEGORY Logging
     TRUE Log RakNet Startup Errors
 CATEGORY Miscellaneous
     TRUE Fullscreen Support
-    TRUE Always Save Chest Tile Entities
-        COMMENT This is necessary for the 3D chest model to work correctly.
     TRUE Screenshot Support
     TRUE Add Camera Functionality
     TRUE Update Default Options

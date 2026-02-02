@@ -1,4 +1,7 @@
+size 0x8;
+
 vtable 0x10fb88;
+vtable-size 0x2c;
 
 virtual-method bool hasChunk(int chunk_x, int chunk_z) = 0x8;
 virtual-method LevelChunk *getChunk(int chunk_x, int chunk_z) = 0xc;

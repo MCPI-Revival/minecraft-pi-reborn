@@ -1,5 +1,6 @@
 #include <queue>
 #include <pthread.h>
+#include <limits>
 
 #include <libreborn/patch.h>
 
@@ -48,7 +49,7 @@ static void create_chunks(Minecraft *minecraft, const Level *level) {
             chunk->should_save = true;
             chunk->loaded_from_disk = true;
             for (uchar &mask : chunk->dirty_columns) {
-                mask = 0xff;
+                mask = std::numeric_limits<typeof(mask)>::max();
             }
 
             // Update Progress
@@ -122,8 +123,8 @@ static void *process_thread(void *thread_data) {
 
         // Construct Tile Entities
         for (int x = 0; x < ChunkData::SIZE; x++) {
-            for (int y = 0; y < ChunkData::HEIGHT; y++) {
-                for (int z = 0; z < ChunkData::SIZE; z++) {
+            for (int z = 0; z < ChunkData::SIZE; z++) {
+                for (int y = 0; y < ChunkData::HEIGHT; y++) {
                     const int tile_id = level_chunk->getTile(x, y, z);
                     if (tile_id != 0 && Tile::isEntityTile[tile_id]) {
                         level_chunk->getTileEntity(x, y, z);

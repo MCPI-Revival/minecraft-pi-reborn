@@ -1,0 +1,6 @@
+extends LevelStorageSource;
+
+size 0x10;
+
+vtable 0x110a50;
+vtable-size 0x34;

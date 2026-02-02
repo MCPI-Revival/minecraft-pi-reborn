@@ -68,6 +68,7 @@ method bool mayPlace(int tile_id, int x, int y, int z, bool param_1, uchar param
 method void prepare() = 0xa5bac;
 method LevelChunk *getChunk(int x, int z) = 0xa330c;
 method int getSeed() = 0xa5ff8;
+method void loadEntities() = 0xa6438;
 
 virtual-method void tick() = 0x28;
 virtual-method void updateSleepingPlayerList() = 0x2c;

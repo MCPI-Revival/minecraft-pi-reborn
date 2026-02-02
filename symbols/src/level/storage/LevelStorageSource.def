@@ -1,3 +1,8 @@
+size 0x4;
+
+vtable 0x1109f0;
+vtable-size 0x34;
+
 virtual-method void getLevelList(std::vector<LevelSummary> &level_list) = 0xc;
 virtual-method void deleteLevel(const std::string &level_name) = 0x20;
 virtual-method void renameLevel(const std::string &level_name, const std::string &new_level_name) = 0x24;

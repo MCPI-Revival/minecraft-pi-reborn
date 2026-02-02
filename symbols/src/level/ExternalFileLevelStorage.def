@@ -1,6 +1,0 @@
-extends LevelStorage;
-
-static-method bool readLevelData(const std::string &directory, LevelData &data) = 0xb8bc4;
-
-property std::string path = 0xc;
-property RegionFile *region_file = 0x14;

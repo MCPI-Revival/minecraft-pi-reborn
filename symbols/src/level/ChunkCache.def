@@ -1,6 +1,9 @@
 extends ChunkSource;
 
+size 0x424;
+
 vtable 0x10fbc0;
+vtable-size 0x2c;
 
 property int cachedX = 0x8;
 property int cachedZ = 0xc;

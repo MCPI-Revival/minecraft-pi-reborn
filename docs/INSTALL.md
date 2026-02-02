@@ -89,6 +89,7 @@ Installation is relatively simple:
    ```
    This will ask you to set a username and password for the container.
    These values do not matter and can be anything.
+   Additonally, any `<3>WSL` errors can be safely ignored.
 3. Download the [latest ZIP archive](https://gitea.thebrokenrail.com/minecraft-pi-reborn/minecraft-pi-reborn/releases/latest) for Windows.
 4. Extract it.
 5. Run `launcher.exe`.

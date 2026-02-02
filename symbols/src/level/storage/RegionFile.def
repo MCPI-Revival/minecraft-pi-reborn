@@ -1,4 +1,7 @@
+size 0x2c;
+
 vtable 0x110b98;
+vtable-size 0x8;
 
 method bool writeChunk(int x, int z, RakNet_BitStream &data) = 0xbb800;
 
