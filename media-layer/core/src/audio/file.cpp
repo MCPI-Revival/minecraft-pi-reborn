@@ -12,15 +12,17 @@
 
 // Load Symbol From ELF File
 static void load_symbol(const char *source, const char *name, const std::function<void(const unsigned char *, uint32_t)> &callback) {
+    // Load Source
     static std::unordered_map<std::string, std::unique_ptr<LIEF::ELF::Binary>> sources = {};
     const std::string cpp_source = source;
     if (!sources.contains(cpp_source)) {
-        sources[cpp_source] = LIEF::ELF::Parser::parse(source);
+        sources.insert({cpp_source, LIEF::ELF::Parser::parse(source)});
     }
-    const std::unique_ptr<LIEF::ELF::Binary> &binary = sources[cpp_source];
+    // Read Symbol
+    const std::unique_ptr<LIEF::ELF::Binary> &binary = sources.at(cpp_source);
     const LIEF::ELF::Symbol *symbol = binary->get_dynamic_symbol(name);
     if (symbol != nullptr) {
-        LIEF::span<const uint8_t> data = binary->get_content_from_virtual_address(symbol->value(), symbol->size(), LIEF::Binary::VA_TYPES::VA);
+        const LIEF::span<const uint8_t> data = binary->get_content_from_virtual_address(symbol->value(), symbol->size(), LIEF::Binary::VA_TYPES::VA);
         callback(data.data(), data.size());
     } else {
         WARN("Unable To Find Symbol: %s", name);
