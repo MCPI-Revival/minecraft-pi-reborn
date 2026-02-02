@@ -7,6 +7,7 @@ MCPI_INTERNAL void _init_misc_ui();
 MCPI_INTERNAL void _init_misc_home();
 MCPI_INTERNAL void _init_misc_item_rendering();
 MCPI_INTERNAL void _init_misc_entity_rendering();
+MCPI_INTERNAL void _init_misc_chest_rendering();
 
 template <typename... Args>
 static void nop(MCPI_UNUSED Args... args) {

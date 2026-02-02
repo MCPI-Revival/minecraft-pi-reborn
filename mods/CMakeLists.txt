@@ -33,6 +33,7 @@ add_library(mods SHARED
     src/misc/graphics/graphics.cpp
     src/misc/graphics/item-rendering.cpp
     src/misc/graphics/entity-rendering.cpp
+    src/misc/graphics/chest-rendering.cpp
     src/misc/ui.cpp
     src/misc/home.cpp
     src/misc/base64.cpp
