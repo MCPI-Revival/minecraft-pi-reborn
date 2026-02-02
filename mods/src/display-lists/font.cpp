@@ -33,7 +33,7 @@ static void Font_init_injection(Font_init_t original, Font *self, Options *optio
 }
 
 // Custom Rendering
-static void Font_drawSlow_injection(Font_drawSlow_t original, Font *self, const char *text, const float x, const float y, uint color, const bool param_1) {
+static void Font_drawSlow_injection(Font_drawSlow_t original, Font *self, const char *text, const float x, float y, uint color, const bool param_1) {
     // If this is part of a batched render, do the old/slow method.
     const Tesselator &t = Tesselator::instance;
     if (t.void_begin_end) {
@@ -66,19 +66,42 @@ static void Font_drawSlow_injection(Font_drawSlow_t original, Font *self, const 
     const float b = float((color) & 0xff) / 255.0f;
     media_glColor4f(r, g, b, a);
 
-    // Build Text
-    static constexpr int max_text_size = 512;
-    static GLuint list[max_text_size];
-    int text_size;
-    for (text_size = 0; text_size < max_text_size && text[text_size] != '\0'; text_size++) {
-        list[text_size] = self->display_lists + uchar(text[text_size]);
-    }
+    // Render Lines
+    size_t position = 0;
+    bool has_another_line = true;
+    while (has_another_line) {
+        // Handle Newline
+        if (position > 0) {
+            y += float(self->line_height);
+        }
+        has_another_line = false;
 
-    // Render
-    media_glPushMatrix();
-    media_glTranslatef(x, y, 0);
-    media_glCallLists(text_size, GL_UNSIGNED_INT, list);
-    media_glPopMatrix();
+        // Read Line
+        static constexpr int max_line_size = 512;
+        static GLuint line[max_line_size];
+        int line_size = 0;
+        while (text[position] != '\0') {
+            // Read Character
+            const char c = text[position];
+            position++;
+            // Handle Character
+            if (c == '\n') {
+                // Found Newline
+                has_another_line = true;
+                break;
+            } else if (line_size < max_line_size) {
+                // Add To Render Command
+                line[line_size] = self->display_lists + uchar(c);
+                line_size++;
+            }
+        }
+
+        // Render
+        media_glPushMatrix();
+        media_glTranslatef(x, y, 0);
+        media_glCallLists(line_size, GL_UNSIGNED_INT, line);
+        media_glPopMatrix();
+    }
 
     // Reset Color
     media_glColor4f(1, 1, 1, 1);

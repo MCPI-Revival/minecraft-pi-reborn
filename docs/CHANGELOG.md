@@ -125,6 +125,7 @@ include_toc: true
     * `Fix Armor/Furnace Screen From Crashing On Death`
     * `Fix Armor Screen Rendering When Player Is Dead/Hurt`
     * `Fix Blocks Not Breaking Instantly In Creative Mode`
+    * `Fix Rendering Newlines In Chat Messages`
   * Existing Functionality (All Enabled By Default)
     * `Fix Screen Rendering When Hiding HUD`
     * `Sanitize Usernames`

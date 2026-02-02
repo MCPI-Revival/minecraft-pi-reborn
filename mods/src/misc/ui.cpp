@@ -403,6 +403,22 @@ static void PauseScreen_init_injection_2(PauseScreen_init_t original, PauseScree
     }
 }
 
+// Fix Newlines In UI Messages
+static void Gui_addMessage_injection(Gui_addMessage_t original, Gui *self, const std::string &message) {
+    const std::string::size_type i = message.find('\n');
+    if (i != std::string::npos) {
+        // Call Original Method
+        const std::string before = message.substr(0, i);
+        original(self, before);
+        // Process Remaining Lines
+        const std::string remaining = message.substr(i + 1);
+        Gui_addMessage_injection(original, self, remaining);
+    } else {
+        // Call Original Method
+        original(self, message);
+    }
+}
+
 // Init
 bool food_overlay = false;
 void _init_misc_ui() {
@@ -531,5 +547,10 @@ void _init_misc_ui() {
         overwrite_calls(Minecraft_leaveGame, Minecraft_leaveGame_injection);
         overwrite_calls(RenameMPLevelScreen_render, RenameMPLevelScreen_render_injection);
         overwrite_calls(PauseScreen_init, PauseScreen_init_injection_2);
+    }
+
+    // Fix Newlines In UI Messages
+    if (feature_has("Fix Rendering Newlines In Chat Messages", server_enabled)) {
+        overwrite_calls(Gui_addMessage, Gui_addMessage_injection);
     }
 }

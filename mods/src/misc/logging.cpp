@@ -97,7 +97,4 @@ void _init_misc_logging() {
         // Print Log On Game Save
         overwrite_calls(Level_saveLevelData, Level_saveLevelData_injection);
     }
-
-    // Disable stdout Buffering
-    setvbuf(stdout, nullptr, _IONBF, 0);
 }

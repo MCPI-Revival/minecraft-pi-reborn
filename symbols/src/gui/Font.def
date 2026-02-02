@@ -11,3 +11,4 @@ property int character_widths[256] = 0x8;
 property uint display_lists = 0x808;
 property Textures *textures = 0x1818;
 property std::string texture_name = 0x1814;
+property int line_height = 0x4;

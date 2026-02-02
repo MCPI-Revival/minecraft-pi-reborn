@@ -726,8 +726,8 @@ void init_misc() {
     });
 
     // Init Other Components
-    _init_misc_ui();
     _init_misc_logging();
+    _init_misc_ui();
     _init_misc_api();
     _init_misc_graphics();
     _init_misc_home();
