@@ -1,5 +1,10 @@
+size 0x64;
+
 vtable 0x110370;
+vtable-size 0x30;
 
 virtual-method void updateLightRamp() = 0x28;
+
+static-method Dimension *getNew(int id) = 0xb1a28;
 
 property float light_ramp[16] = 0x10;

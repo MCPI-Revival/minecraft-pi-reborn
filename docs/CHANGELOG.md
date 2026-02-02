@@ -90,6 +90,7 @@ include_toc: true
     * `Tint Tall Grass/Fern Items` (Enabled By Default)
     * `Block Tile Interaction When Sneaking` (Enabled By Default)
     * `Implement Inventory Mouse Scrolling` (Enabled By Default)
+    * `Force Day/Night Cycle` (Disabled By Default)
   * New Bug Fixes (All Enabled By Default)
     * `Fix Held Item Caching`
     * `Fix Pigmen Burning In The Sun`

@@ -125,7 +125,9 @@ add_symbol_library(symbols
     src/level/LevelSettings.def
     src/level/ServerLevel.def
     src/level/CreatorLevel.def
-    src/level/Dimension.def
+    src/level/dimension/Dimension.def
+    src/level/dimension/NormalDayCycleDimension.def
+    src/level/dimension/DimensionFactory.def
     src/level/MultiPlayerLevel.def
     src/level/LevelSummary.def
     src/level/DistanceChunkSorter.def

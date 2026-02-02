@@ -36,6 +36,7 @@ add_library(mods SHARED
     src/misc/graphics/chest-rendering.cpp
     src/misc/ui.cpp
     src/misc/home.cpp
+    src/misc/daynight-cycle.cpp
     src/misc/base64.cpp
     # options
     src/options/options.cpp

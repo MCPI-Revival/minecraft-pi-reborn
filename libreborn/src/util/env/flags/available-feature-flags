@@ -147,6 +147,7 @@ CATEGORY Gameplay
     TRUE Implement Death Messages
     TRUE Implement Game-Mode Switching
     FALSE Force Mob Spawning
+    FALSE Force Day/Night Cycle
     TRUE Implement Crafting Remainders
     TRUE Implement Sound Engine
 CATEGORY Bug Fixes

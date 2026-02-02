@@ -732,4 +732,5 @@ void init_misc() {
     _init_misc_graphics();
     _init_misc_home();
     _init_misc_item_rendering();
+    _init_misc_daynight_cycle();
 }

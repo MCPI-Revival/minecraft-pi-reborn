@@ -1,0 +1,6 @@
+extends Dimension;
+
+size 0x64;
+
+vtable 0x110310;
+vtable-size 0x30;

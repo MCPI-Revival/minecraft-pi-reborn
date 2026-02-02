@@ -32,6 +32,7 @@ struct RebornServerProperties : ServerProperties {
     const ServerProperty<int> port = ServerProperty(*this, "port", DEFAULT_MULTIPLAYER_PORT, "Port");
     const ServerProperty<std::string> seed = ServerProperty<std::string>(*this, "seed", "", "World Seed (Blank = Random Seed)");
     const ServerProperty<bool> force_mob_spawning = ServerProperty(*this, "force-mob-spawning", false, "Force Mob Spawning");
+    const ServerProperty<bool> force_daynight_cycle = ServerProperty(*this, "force-daynight-cycle", false, "Force Enable The Day/Night Cycle");
     const ServerProperty<bool> peaceful_mode = ServerProperty(*this, "peaceful-mode", false, "Peaceful Mode");
     const ServerProperty<std::string> world_name = ServerProperty<std::string>(*this, "world-name", "world", "World To Select");
     const ServerProperty<int> max_players = ServerProperty(*this, "max-players", 4, "Maximum Player Count");
