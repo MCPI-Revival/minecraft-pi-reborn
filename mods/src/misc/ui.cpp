@@ -301,24 +301,18 @@ static void LocalPlayer_openTextEdit_injection(MCPI_UNUSED LocalPlayer_openTextE
 
 // Better GUI Scaling
 static void set_gui_scale(const float new_scale) {
-    union {
-        float a;
-        void *b;
-    } pun = {};
-    pun.a = new_scale;
+    void *bits;
+    memcpy(&bits, &new_scale, sizeof(float));
     // Patch Scale, This Will Be Applied Multiple Times
     ignore_patch_conflict = true;
-    patch_address((void *) 0x17520, pun.b);
+    patch_address((void *) 0x17520, bits);
     ignore_patch_conflict = false;
 }
 static float calculate_scale(const float value, const float default_value) {
-    // y = mx + b
-    const std::pair point_one = {default_value, 2.25f};
-    const std::pair point_two = {default_value * 2, 4.5f};
-    const float slope = (point_one.second - point_two.second) / (point_one.first - point_two.first);
-    const float intercept = point_one.second - (slope * point_one.first);
     // Calculate
-    float scale = (slope * value) + intercept;
+    constexpr float magic = 2.25f;
+    float scale = (value * magic) / default_value;
+    // Round
     scale = std::round(scale);
     scale = std::max(scale, 1.0f);
     return scale;
