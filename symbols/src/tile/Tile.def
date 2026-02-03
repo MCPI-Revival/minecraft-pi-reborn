@@ -82,6 +82,7 @@ static-method int transformToValidBlockId(int tile_id, int x, int y, int z) = 0x
 static-property Tile *tiles[256] = 0x180e08;
 static-property int lightEmission[256] = 0x181214;
 static-property bool isEntityTile[256] = 0x181f20;
+static-property bool translucent[256] = 0x135dd4;
 
 // Tiles
 static-property Tile *grass = 0x181b14;

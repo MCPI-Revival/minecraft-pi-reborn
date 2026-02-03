@@ -1,5 +1,4 @@
 size 0xb8;
-
 constructor (LevelSource *level) = 0x53e58;
 
 static-method bool canRender(int shape) = 0x5accc;
@@ -17,7 +16,64 @@ method void renderEast(Tile *tile, float x, float y, float z, int texture) = 0x5
 method void renderWest(Tile *tile, float x, float y, float z, int texture) = 0x56680;
 method void renderFaceUp(Tile *tile, float x, float y, float z, int texture) = 0x55f64;
 method void renderFaceDown(Tile *tile, float x, float y, float z, int texture) = 0x5549c;
+method float getWaterHeight(int x, int y, int z, Material *material) = 0x55338;
 
 property LevelSource *level = 0x0;
 property bool disable_culling = 0x9;
 property bool mirror_texture_horizontally = 0x8;
+property uint texture_override = 0x4;
+property bool use_ambient_occlusion = 0xa;
+
+// AO data
+// format: x*y*z*, n is -1, p is +1
+property float light_x0y0z0 = 0xc;
+property float light_xny0z0 = 0x10;
+property float light_x0ynz0 = 0x14;
+property float light_x0y0zn = 0x18;
+property float light_xpy0z0 = 0x1c;
+property float light_x0ypz0 = 0x20;
+property float light_x0y0zp = 0x24;
+property float light_xnynz0 = 0x2c;
+property float light_x0ynzn = 0x34;
+property float light_x0ynzp = 0x38;
+property float light_xpynz0 = 0x40;
+property float light_xnypz0 = 0x4c;
+property float light_xpypz0 = 0x5c;
+property float light_x0ypzp = 0x60;
+property float light_xny0zn = 0x68;
+property float light_x0ypzn = 0x54;
+property float light_xpy0zn = 0x6c;
+property float light_xny0zp = 0x70;
+property float light_xpy0zp = 0x74;
+property bool translucent_x0ypzn = 0xac;
+property bool translucent_xpypz0 = 0xad;
+property bool translucent_xnypz0 = 0xae;
+property bool translucent_x0ypzp = 0xaf;
+property bool translucent_xny0zn = 0xb0;
+property bool translucent_xpy0zp = 0xb1;
+property bool translucent_xny0zp = 0xb2;
+property bool translucent_xpy0zn = 0xb3;
+property bool translucent_x0ynzn = 0xb4;
+property bool translucent_xpynz0 = 0xb5;
+property bool translucent_xnynz0 = 0xb6;
+property bool translucent_x0ynzp = 0xb7;
+property float edge_light_xnynzn0 = 0x28;
+property float edge_light_xnynz0p = 0x30;
+property float edge_light_xpynzn0 = 0x3c;
+property float edge_light_xpynz0p = 0x44;
+property float edge_light_xny0pzn = 0x48;
+property float edge_light_xnypz0p = 0x50;
+property float edge_light_xpy0pzn = 0x58;
+property float edge_light_xpypz0p = 0x64;
+property float vert_a_r = 0x7c;
+property float vert_a_g = 0x8c;
+property float vert_a_b = 0x9c;
+property float vert_b_r = 0x80;
+property float vert_b_g = 0x90;
+property float vert_b_b = 0xa0;
+property float vert_c_r = 0x84;
+property float vert_c_g = 0x94;
+property float vert_c_b = 0xa4;
+property float vert_d_r = 0x88;
+property float vert_d_g = 0x98;
+property float vert_d_b = 0xa8;

@@ -9,3 +9,5 @@ static-property const Material *metal = 0x180aa0;
 static-property const Material *plant = 0x180ab0;
 static-property const Material *glass = 0x180acc;
 static-property const Material *sand = 0x180ac4;
+static-property const Material *water = 0x180aa4;
+static-property const Material *lava = 0x180aa8;
