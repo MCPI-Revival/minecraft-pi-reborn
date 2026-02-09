@@ -1,4 +1,5 @@
 size 0x18;
+constructor (Minecraft *minecraft) = 0x1ad00;
 
 vtable 0x102e58;
 vtable-size 0x60;

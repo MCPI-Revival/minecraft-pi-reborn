@@ -9,6 +9,7 @@ add_symbol_library(symbols
     src/game/Minecraft.def
     src/game/mode/GameMode.def
     src/game/mode/CreatorMode.def
+    src/game/mode/CreativeMode.def
     src/game/mode/SurvivalMode.def
     src/game/mode/creator/Creator.def
     src/game/mode/creator/EventList_Item.def
