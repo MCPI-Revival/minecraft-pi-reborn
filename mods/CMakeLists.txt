@@ -107,6 +107,7 @@ add_library(mods SHARED
     src/multiplayer/loading/thread.cpp
     src/multiplayer/loading/misc.cpp
     src/multiplayer/loading/terrain.cpp
+    src/multiplayer/start-game-flags.cpp
     # benchmark
     src/benchmark/benchmark.cpp
     # init

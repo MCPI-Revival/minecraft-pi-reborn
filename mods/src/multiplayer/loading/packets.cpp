@@ -1,3 +1,5 @@
+#include "internal.h"
+
 #include <libreborn/patch.h>
 
 #include "stb_image.h"
@@ -5,24 +7,16 @@
 STBIWDEF unsigned char *stbi_zlib_compress(unsigned char *data, int data_len, int *out_len, int quality);
 
 #include <mods/multiplayer/packets.h>
-#include "internal.h"
 
 // Track Whether The Connected Server Is Enhanced
-static void StartGamePacket_write_injection(StartGamePacket_write_t original, StartGamePacket *self, RakNet_BitStream *bit_stream) {
-    // Call Original Method
-    original(self, bit_stream);
-    // Add Extra Data
-    uchar x = 1;
-    bit_stream->Write_uchar(&x);
-}
+static constexpr int flag = StartGameFlags::USE_IMPROVED_LOADING;
 bool _server_using_improved_loading;
-static void StartGamePacket_read_injection(StartGamePacket_read_t original, StartGamePacket *self, RakNet_BitStream *bit_stream) {
-    // Call Original Method
-    original(self, bit_stream);
+static void StartGamePacket_handle_injection(StartGamePacket_handle_t original, StartGamePacket *self, const RakNet_RakNetGUID &guid, NetEventCallback *callback) {
     // Check If The Packet Contains Extra Data
-    uchar x;
-    _server_using_improved_loading = bit_stream->Read_uchar(&x);
+    _server_using_improved_loading = StartGameFlags::has_received_from_server(flag);
     _multiplayer_clear_updates();
+    // Call Original Method
+    original(self, guid, callback);
 }
 
 // "Special" Version Of RequestChunkPacket That Sends Light Data
@@ -152,8 +146,8 @@ static void ClientSideNetworkHandler_handle_UpdateBlockPacket_injection(ClientSi
 // Init
 void _init_multiplayer_loading_packets() {
     // Detect Modded Servers
-    overwrite_calls(StartGamePacket_write, StartGamePacket_write_injection);
-    overwrite_calls(StartGamePacket_read, StartGamePacket_read_injection);
+    StartGameFlags::send_to_clients(flag);
+    overwrite_calls(StartGamePacket_handle, StartGamePacket_handle_injection);
 
     // Send Entire Chunk Data
     overwrite_call((void *) 0x6d72c, RakNetInstance_send, ClientSideNetworkHandler_requestNextChunk_RakNetInstance_send_injection);

@@ -76,7 +76,7 @@ static void send_inventory(LocalPlayer *self) {
     packet->entity_id = self->id;
     multiplayer_negate(packet->entity_id);
     // Inventory
-    ItemInstance empty;
+    ItemInstance empty = {};
     empty.setNull();
     packet->inventory_size = 0;
     for (int i = inventory->linked_slots_length; i < inventory->getContainerSize(); i++) {

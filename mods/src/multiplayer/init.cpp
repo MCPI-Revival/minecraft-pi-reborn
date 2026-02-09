@@ -16,6 +16,9 @@ void init_multiplayer() {
     _init_multiplayer_syncing();
     _init_multiplayer_inventory();
 
+    // Allow Adding Extra Flags To StartGamePacket
+    _init_multiplayer_start_game_flags();
+
     // Improved Chunk Loading
     if (feature_has("Improve Multiplayer Chunk Loading", server_enabled)) {
         _init_multiplayer_loading();
