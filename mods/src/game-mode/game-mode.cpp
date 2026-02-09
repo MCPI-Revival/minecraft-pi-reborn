@@ -53,7 +53,7 @@ static ICreator *Minecraft_getCreator_injection(Minecraft_getCreator_t original,
 }
 
 // Replace CreatorLevel With ServerLevel
-static CreatorLevel *Minecraft_selectLevel_CreatorMode_injection(CreatorLevel *self, LevelStorage *storage, const std::string &name, const LevelSettings &settings, int param_4, Dimension *dimension) {
+static CreatorLevel *Minecraft_selectLevel_CreatorLevel_injection(CreatorLevel *self, LevelStorage *storage, const std::string &name, const LevelSettings &settings, const int param_4, Dimension *dimension) {
     ((ServerLevel *) self)->constructor(storage, name, settings, param_4, dimension);
     return self;
 }
@@ -65,7 +65,7 @@ void init_game_mode() {
         overwrite_calls(Minecraft_setIsCreativeMode, Minecraft_setIsCreativeMode_injection);
 
         // Replace CreatorLevel With ServerLevel (This Fixes Beds And Mob Spawning)
-        overwrite_call((void *) 0x16f84, CreatorLevel_constructor, Minecraft_selectLevel_CreatorMode_injection);
+        overwrite_call((void *) 0x16f84, CreatorLevel_constructor, Minecraft_selectLevel_CreatorLevel_injection);
         // Allocate The Correct Size For ServerLevel
         constexpr uint level_size = sizeof(ServerLevel);
         patch_address((void *) 0x17004, (void *) level_size);

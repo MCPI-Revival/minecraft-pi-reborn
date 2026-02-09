@@ -244,7 +244,7 @@ static void Recipes_injection(Recipes *recipes) {
 static void mirror_horizontally(TileRenderer *self) {
     self->mirror_texture_horizontally = !self->mirror_texture_horizontally;
 }
-static void TileRenderer_renderEast_injection(MCPI_UNUSED TileRenderer_renderEast_t original, TileRenderer *self, Tile *tile, const int x, const int y, const int z, const int texture) {
+static void TileRenderer_renderEast_injection(MCPI_UNUSED TileRenderer_renderEast_t original, TileRenderer *self, Tile *tile, const float x, const float y, const float z, const int texture) {
     // Mirror If Needed
     const bool should_mirror = tile->id == cake->id;
     if (should_mirror) {

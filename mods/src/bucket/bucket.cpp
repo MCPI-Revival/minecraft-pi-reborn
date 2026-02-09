@@ -1,3 +1,5 @@
+#include <cstdint>
+
 #include <libreborn/patch.h>
 
 #include <symbols/Item.h>
@@ -351,7 +353,9 @@ void init_bucket() {
         overwrite_calls(ItemInstance_getMaxStackSize, ItemInstance_getMaxStackSize_injection);
         // Enable Milking
         overwrite_calls(Cow_interact, Cow_interact_injection);
-        overwrite_call((void *) 0x19f1c, ItemInstance_setAuxValue, CreatorMode_releaseUsingItem_ItemInstance_setAuxValue_injection);
+        for (const uint32_t addr : {0x19f1c, 0x1b244}) {
+            overwrite_call((void *) addr, ItemInstance_setAuxValue, CreatorMode_releaseUsingItem_ItemInstance_setAuxValue_injection);
+        }
         // Creative Inventory
         misc_run_on_creative_inventory_setup(Inventory_setupDefault_FillingContainer_addItem_injection);
         // Make Liquids Selectable
