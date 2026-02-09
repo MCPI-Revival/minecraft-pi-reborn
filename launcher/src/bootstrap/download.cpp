@@ -7,7 +7,6 @@
 #include <libreborn/util/exec.h>
 #include <libreborn/config.h>
 #include <libreborn/log.h>
-#include <sys/stat.h>
 
 #include "bootstrap.h"
 #include "../util/util.h"
@@ -34,26 +33,39 @@ static bool download_archive(const std::string &url, const std::string &dest) {
     if (dest.ends_with(".zip")) {
         // Extract
         const char *const command[] = {
+#ifdef _WIN32
+            // Windows Has BSDTar
+            // Which Supports .zip Files
+            "tar",
+            "-xf", dest.c_str(),
+            "-O",
+#else
+            // Just Use Standard unzip
             "unzip",
             "-p",
             dest.c_str(),
+#endif
             nullptr
         };
         exit_status_t status;
         output = run_command(command, &status);
-        if (!output || !is_exit_status_success(status)) {
-            return false;
-        }
+
         // Write To File
-        std::ofstream file(dest, std::ios::binary);
-        if (!file) {
+        bool success = false;
+        if (output && is_exit_status_success(status)) {
+            std::ofstream file(dest, std::ios::binary);
+            if (file) {
+                file.write((const char *) output->data(), std::streamsize(output->size()));
+                if (file) {
+                    success = true;
+                }
+                file.close();
+            }
+        }
+        delete output;
+        if (!success) {
             return false;
         }
-        file.write((const char *) output->data(), std::streamsize(output->size()));
-        if (!file) {
-            return false;
-        }
-        file.close();
     }
 
     // Success
@@ -92,7 +104,7 @@ static std::string download_game_archive() {
             break;
         } else {
             // Failed To Download
-            // Cleanup The Mess
+            // Clean Up The Mess
             unlink(dest_possible.c_str());
         }
     }
