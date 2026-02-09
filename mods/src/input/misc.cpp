@@ -10,6 +10,8 @@
 #include <symbols/ScrollingPane.h>
 #include <symbols/Mouse.h>
 #include <symbols/Common.h>
+#include <symbols/CreatorMode.h>
+#include <symbols/CreativeMode.h>
 
 #include <SDL/SDL.h>
 
@@ -127,6 +129,23 @@ static void reset_scroll(MCPI_UNUSED Minecraft *minecraft) {
     scroll = 0;
 }
 
+// Fix Creative Mode Mining Delay
+static bool should_clear_mining_delay;
+static void Minecraft_handleMouseDown_injection(Minecraft_handleMouseDown_t original, Minecraft *self, const int param_1, const bool can_destroy) {
+    should_clear_mining_delay = !can_destroy;
+    // Call Original Method
+    original(self, param_1, can_destroy);
+}
+template <typename CreatorMode>
+static void CreatorMode_stopDestroyBlock_injection(const std::function<void(CreatorMode *)> &original, CreatorMode *self) {
+    // Call Original Method
+    original(self);
+    // Reset Delay
+    if (should_clear_mining_delay) {
+        self->destroy_delay = 0;
+    }
+}
+
 // Init
 void _init_misc() {
     // Proper Back Button Handling
@@ -165,5 +184,12 @@ void _init_misc() {
     if (feature_has("Implement Inventory Mouse Scrolling", server_disabled)) {
         overwrite_calls(ScrollingPane_render, ScrollingPane_render_injection);
         misc_run_on_update(reset_scroll);
+    }
+
+    // Disable Creative Mode Mining Delay
+    if (feature_has("Fix Blocks Not Breaking Instantly In Creative Mode", server_enabled)) {
+        overwrite_calls(Minecraft_handleMouseDown, Minecraft_handleMouseDown_injection);
+        overwrite_calls(CreatorMode_stopDestroyBlock, CreatorMode_stopDestroyBlock_injection<CreatorMode>);
+        overwrite_calls(CreativeMode_stopDestroyBlock, CreatorMode_stopDestroyBlock_injection<CreativeMode>);
     }
 }

@@ -49,7 +49,6 @@
 #include <symbols/ReedsFeature.h>
 #include <symbols/Feature.h>
 #include <symbols/Biome.h>
-#include <symbols/CreatorMode.h>
 
 #include <mods/init/init.h>
 #include <mods/feature/feature.h>
@@ -113,14 +112,6 @@ static bool FurnaceScreen_handleAddItem_injection(FurnaceScreen_handleAddItem_t 
 }
 static bool FurnaceScreen_moveOver_FillingContainer_removeResource_two_injection(FillingContainer *self, const ItemInstance &item) {
     return self->removeResource_one(item, true) == 0;
-}
-
-// Fix Creative Mode Mining Delay
-static void CreatorMode_stopDestroyBlock_injection(CreatorMode_stopDestroyBlock_t original, CreatorMode *self) {
-    // Call Original Method
-    original(self);
-    // Reset Delay
-    self->destroy_delay = 0;
 }
 
 // Get Real Selected Slot
@@ -539,11 +530,6 @@ void init_misc() {
     if (feature_has("Disable Speed Bridging", server_disabled)) {
         unsigned char disable_speed_bridging_patch[4] = {0x03, 0x00, 0x53, 0xe1}; // "cmp r3, r3"
         patch((void *) 0x494b4, disable_speed_bridging_patch);
-    }
-
-    // Disable Creative Mode Mining Delay
-    if (feature_has("Fix Blocks Not Breaking Instantly In Creative Mode", server_enabled)) {
-        overwrite_calls(CreatorMode_stopDestroyBlock, CreatorMode_stopDestroyBlock_injection);
     }
 
     // Generate Caves
