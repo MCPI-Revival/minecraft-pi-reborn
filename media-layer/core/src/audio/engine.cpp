@@ -52,34 +52,37 @@ void _media_audio_init() {
 
 // De-Init
 void _media_audio_cleanup() {
-    if (_media_audio_is_loaded()) {
-        // Delete Audio Sources
-        _media_audio_delete_sources();
-
-        // Delete Audio Buffers
-        _media_audio_delete_buffers();
-
-        // Deselect Context
-        alcMakeContextCurrent(nullptr);
-        ALCenum err = alcGetError(device);
-        if (err != ALC_NO_ERROR) {
-            ERR("Unable To Deselect Audio Context: %s", alcGetString(device, err));
-        }
-
-        // Destroy Context
-        alcDestroyContext(context);
-        err = alcGetError(device);
-        if (err != ALC_NO_ERROR) {
-            ERR("Unable To Destroy Audio Context: %s", alcGetString(device, err));
-        }
-
-        // Close Device
-        const ALCboolean ret = alcCloseDevice(device);
-        if (!ret) {
-            ERR("Unable To Close Audio Device");
-        }
-
-        // Log
-        DEBUG("Unloaded Audio Engine");
+    // Check If Loaded
+    if (!_media_audio_is_loaded()) {
+        return;
     }
+
+    // Delete Audio Sources
+    _media_audio_delete_sources();
+
+    // Delete Audio Buffers
+    _media_audio_delete_buffers();
+
+    // Deselect Context
+    alcMakeContextCurrent(nullptr);
+    ALCenum err = alcGetError(device);
+    if (err != ALC_NO_ERROR) {
+        ERR("Unable To Deselect Audio Context: %s", alcGetString(device, err));
+    }
+
+    // Destroy Context
+    alcDestroyContext(context);
+    err = alcGetError(device);
+    if (err != ALC_NO_ERROR) {
+        ERR("Unable To Destroy Audio Context: %s", alcGetString(device, err));
+    }
+
+    // Close Device
+    const ALCboolean ret = alcCloseDevice(device);
+    if (!ret) {
+        ERR("Unable To Close Audio Device");
+    }
+
+    // Log
+    DEBUG("Unloaded Audio Engine");
 }
