@@ -93,30 +93,30 @@ struct chunk_data_t {
     Chunk *chunk;
     float distance;
 };
-#define MAX_CHUNKS_SIZE 24336
-static chunk_data_t chunk_data[MAX_CHUNKS_SIZE];
 static void sort_chunks(Chunk **chunks_begin, Chunk **chunks_end, const DistanceChunkSorter sorter) {
-    // Calculate Distances
+    // Resize Array
     const int chunks_size = chunks_end - chunks_begin;
-    if (chunks_size > MAX_CHUNKS_SIZE) {
-        IMPOSSIBLE();
-    }
+    static std::vector<chunk_data_t> chunk_data;
+    chunk_data.resize(chunks_size);
+    chunk_data_t *raw = chunk_data.data();
+
+    // Calculate Distances
     for (int i = 0; i < chunks_size; i++) {
         Chunk *chunk = chunks_begin[i];
         float distance = chunk->distanceToSqr((Entity *) sorter.mob);
         if (distance > 1024 && chunk->y < 64) {
             distance *= 10;
         }
-        chunk_data[i].chunk = chunk;
-        chunk_data[i].distance = distance;
+        raw[i].chunk = chunk;
+        raw[i].distance = distance;
     }
 
     // Sort
-    std::sort(chunk_data, chunk_data + chunks_size, [](const chunk_data_t &a, const chunk_data_t &b) {
+    std::sort(raw, raw + chunks_size, [](const chunk_data_t &a, const chunk_data_t &b) {
         return a.distance < b.distance;
     });
     for (int i = 0; i < chunks_size; i++) {
-        chunks_begin[i] = chunk_data[i].chunk;
+        chunks_begin[i] = raw[i].chunk;
     }
 }
 
