@@ -40,7 +40,7 @@ static constexpr int content_y_offset_bottom = button_height + (bottom_padding *
 // Structure
 static void create_world(Minecraft *, const std::string &, bool, const std::string &);
 static std::string get_folder_name(Minecraft *, std::string);
-struct CreateWorldScreen final : TextInputScreen {
+struct MCPI_INTERNAL CreateWorldScreen final : TextInputScreen {
     // UI
     TextInputBox *name = nullptr;
     TextInputBox *seed = nullptr;

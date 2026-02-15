@@ -3,9 +3,9 @@
 #include <symbols/LevelSource.h>
 
 // Render Falling Sand
-struct FallingSandRenderer {
+struct MCPI_INTERNAL FallingSandRenderer {
     // Custom Level Source
-    struct SandLevelSource final : CustomLevelSource {
+    struct MCPI_INTERNAL SandLevelSource final : CustomLevelSource {
         // Properties
         Level *level = nullptr;
         int real_x = 0;

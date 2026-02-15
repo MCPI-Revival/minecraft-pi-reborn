@@ -6,7 +6,7 @@
 
 // Messages Sent To Rebuild Thread
 struct Chunk;
-struct chunk_rebuild_data {
+struct MCPI_INTERNAL chunk_rebuild_data {
     int seed = 0;
     Chunk *chunk = nullptr;
     CachedLevelSource source;
@@ -20,9 +20,9 @@ struct chunk_rebuild_data {
 
 // Messages Received From Rebuild Thread
 static constexpr int num_layers = 3;
-struct rebuilt_chunk_data {
+struct MCPI_INTERNAL rebuilt_chunk_data {
     Chunk *chunk = nullptr;
-    struct empty {
+    struct MCPI_INTERNAL empty {
         empty();
         bool value = true;
         bool layers[num_layers] = {};

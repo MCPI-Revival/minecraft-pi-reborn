@@ -29,7 +29,7 @@ MCPI_INTERNAL void _init_server_playerdata();
 MCPI_INTERNAL void _load_playerdata(ServerPlayer *player);
 
 // Blacklist/Whitelist
-struct Blacklist {
+struct MCPI_INTERNAL Blacklist {
     bool is_white;
     // General
     void load();

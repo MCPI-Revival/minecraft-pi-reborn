@@ -5,7 +5,7 @@
 
 // Patch A Texture Atlas
 struct Textures;
-class AtlasPatcher {
+class MCPI_INTERNAL AtlasPatcher {
     // Properties
     typedef std::function<bool(unsigned char &, unsigned char &, unsigned char &, unsigned char &)> Callback;
     const std::string atlas;

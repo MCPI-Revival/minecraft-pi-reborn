@@ -5,7 +5,7 @@
 #include "ThreadVector.h"
 
 // A Single Worker
-struct RebuildWorker {
+struct MCPI_INTERNAL RebuildWorker {
     // The Thread
     pthread_t thread;
 

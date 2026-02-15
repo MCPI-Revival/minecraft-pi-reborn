@@ -34,7 +34,7 @@
 
 // Callbacks
 template <typename... Args>
-struct Callbacks {
+struct MCPI_INTERNAL Callbacks {
     std::vector<std::function<void(Args...)>> functions = {};
     void run(Args... args) {
         for (const std::function<void(Args...)> &func : functions) {

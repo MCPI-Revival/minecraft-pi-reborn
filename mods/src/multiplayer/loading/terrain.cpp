@@ -5,7 +5,7 @@
 // Prevent Terrain Generation When Accessing Chunks
 bool _inhibit_terrain_generation = false;
 template <typename Self, typename... Args>
-struct block_terrain_generation {
+struct MCPI_INTERNAL block_terrain_generation {
     template <void (Self::*func)(Args...)>
     static void injection(Self *self, Args... args) {
         if (_inhibit_terrain_generation) {

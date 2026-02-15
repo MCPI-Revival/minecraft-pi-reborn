@@ -5,7 +5,7 @@
 #include "../internal.h"
 
 // Temporal Budgeting
-struct TimeLimiter {
+struct MCPI_INTERNAL TimeLimiter {
     TimeLimiter();
     void reset();
     [[nodiscard]] bool check() const;

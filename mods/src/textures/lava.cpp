@@ -15,7 +15,7 @@
 // See: https://github.com/ReMinecraftPE/mcpe
 
 // LavaTexture
-struct LavaTexture final : CustomDynamicTexture {
+struct MCPI_INTERNAL LavaTexture final : CustomDynamicTexture {
     int field_14;
     int field_18;
     float m_data1[256];
@@ -77,7 +77,7 @@ static DynamicTexture *create_lava_texture() {
 }
 
 // LavaSideTexture
-struct LavaSideTexture final : CustomDynamicTexture {
+struct MCPI_INTERNAL LavaSideTexture final : CustomDynamicTexture {
     int field_14;
     int field_18;
     int field_1C;
@@ -143,7 +143,7 @@ static DynamicTexture *create_lava_side_texture() {
 }
 
 // FireTexture
-struct FireTexture final : CustomDynamicTexture {
+struct MCPI_INTERNAL FireTexture final : CustomDynamicTexture {
     float m_data1[320];
     float m_data2[320];
     Random *m_random;
