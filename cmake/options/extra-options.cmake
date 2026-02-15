@@ -52,6 +52,7 @@ mcpi_option(GAME_DOWNLOAD_URL "Game Download URL" STRING
     "https://www.minecraft.net/content/dam/minecraftnet/games/minecraft/software/minecraft-pi-${MCPI_GAME_VERSION}.tar.gz.zip"
     "https://archive.org/download/MinecraftPi/minecraft-pi-${MCPI_GAME_VERSION}.tar.gz"
     "https://archive.org/download/minecraft-pi-${MCPI_GAME_VERSION}/minecraft-pi-${MCPI_GAME_VERSION}.tar.gz"
+    "https://web.archive.org/web/20201101155430if_/https://s3.amazonaws.com/assets.minecraft.net/pi/minecraft-pi-${MCPI_GAME_VERSION}.tar.gz"
 )
 mcpi_option(GAME_DOWNLOAD_USER_AGENT "Game Download User Agent (Needed For minecraft.net)" STRING "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36")
 

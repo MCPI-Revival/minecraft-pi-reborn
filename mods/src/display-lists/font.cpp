@@ -56,6 +56,10 @@ static void Font_drawSlow_injection(Font_drawSlow_t original, Font *self, const 
     // Bind Texture
     self->textures->loadAndBindTexture(self->texture_name);
 
+    // Get Old Global Color
+    float old_color[4];
+    media_glGetFloatv(GL_CURRENT_COLOR, old_color);
+
     // Set Color
     float a = float((color >> 24) & 0xff) / 255.0f;
     if (a == 0) {
@@ -104,7 +108,7 @@ static void Font_drawSlow_injection(Font_drawSlow_t original, Font *self, const 
     }
 
     // Reset Color
-    media_glColor4f(1, 1, 1, 1);
+    media_glColor4f(old_color[0], old_color[1], old_color[2], old_color[3]);
 }
 
 // Init

@@ -71,8 +71,20 @@ CALL(15, media_glDrawArrays, void, (const GLenum mode, const GLint first, const 
 #endif
 }
 
+#ifdef MEDIA_LAYER_TRAMPOLINE_GUEST
+static float current_color[4] = {
+    1,
+    1,
+    1,
+    1
+};
+#endif
 CALL(16, media_glColor4f, void, (const GLfloat red, const GLfloat green, const GLfloat blue, const GLfloat alpha))
 #ifdef MEDIA_LAYER_TRAMPOLINE_GUEST
+    current_color[0] = red;
+    current_color[1] = green;
+    current_color[2] = blue;
+    current_color[3] = alpha;
     trampoline(true, red, green, blue, alpha);
 #else
     const GLfloat red = args.next<float>();
@@ -457,6 +469,10 @@ CALL(47, media_glAlphaFunc, void, (GLenum func, const GLclampf ref))
 
 CALL(48, media_glGetFloatv, void, (const GLenum pname, GLfloat *params))
 #ifdef MEDIA_LAYER_TRAMPOLINE_GUEST
+    if (pname == GL_CURRENT_COLOR) {
+        memcpy(params, current_color, sizeof(current_color));
+        return;
+    }
     trampoline(false, pname, uint32_t(params));
 #else
     const GLenum pname = args.next<GLenum>();

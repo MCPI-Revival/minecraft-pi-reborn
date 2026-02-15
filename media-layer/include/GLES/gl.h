@@ -101,6 +101,7 @@
 #define GL_FRAMEBUFFER_EXT 0x8d40
 #define GL_COLOR_ATTACHMENT0_EXT 0x8ce0
 #define GL_FRAMEBUFFER_COMPLETE_EXT 0x8cd5
+#define GL_CURRENT_COLOR 0xb00
 
 typedef float GLfloat;
 typedef float GLclampf;
