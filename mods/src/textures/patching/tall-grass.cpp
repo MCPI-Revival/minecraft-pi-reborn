@@ -16,7 +16,7 @@
 #include <mods/misc/misc.h>
 
 // Output Location In Atlas
-static std::unordered_map<int, int> aux_to_texture = {
+static const std::unordered_map<int, int> aux_to_texture = {
     {1, 202},
     {3, 203}
 };

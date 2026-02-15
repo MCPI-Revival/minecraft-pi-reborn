@@ -183,7 +183,7 @@ std::pair<std::string, std::string> misc_get_entity_type_name(Entity *entity) {
                 return names.at(type);
             } else if (type == EntityType::UNKNOWN) {
                 // Special Entity
-                static std::unordered_map<const void *, std::string> vtable_to_name = {
+                static const std::unordered_map<const void *, std::string> vtable_to_name = {
                     {(const void *) Particle::VTable::base, "Particle"},
                     {(const void *) TripodCamera::VTable::base, "Tripod Camera"},
                     {(const void *) CameraEntity::VTable::base, "API Camera"}

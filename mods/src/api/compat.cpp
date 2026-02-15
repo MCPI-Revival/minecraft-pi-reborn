@@ -64,7 +64,7 @@ std::string api_join_outputs(const std::vector<std::string> &pieces, const char 
 }
 
 // Entity Types
-static std::unordered_map<int, EntityType> modern_entity_id_mapping = {
+static const std::unordered_map<int, EntityType> modern_entity_id_mapping = {
     {93, EntityType::CHICKEN},
     {92, EntityType::COW},
     {90, EntityType::PIG},
@@ -102,7 +102,7 @@ void api_convert_to_mcpi_entity_type(int &type) {
     }
     // Convert To Native Entity Type
     if (modern_entity_id_mapping.contains(type)) {
-        type = static_cast<int>(modern_entity_id_mapping[type]);
+        type = static_cast<int>(modern_entity_id_mapping.at(type));
     } else {
         type = unknown_entity_type_id;;
     }

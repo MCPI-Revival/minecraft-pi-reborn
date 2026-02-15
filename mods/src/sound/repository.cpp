@@ -9,7 +9,7 @@
 #include <mods/sound/sound.h>
 
 // Sound Repository Extracted From MCPE 0.6.1 APK
-std::unordered_map<std::string, std::vector<std::string>> sound_repository = {
+const std::unordered_map<std::string, std::vector<std::string>> sound_repository = {
     {
         {
             "step.cloth",
@@ -356,8 +356,8 @@ __attribute__((constructor)) static void init_rand_seed() {
 std::string _sound_pick(const std::string &sound) {
     if (sound_repository.contains(sound)) {
         // The Sound Exists
-        std::vector<std::string> &options = sound_repository[sound];
-        return options[rand() % options.size()];
+        const std::vector<std::string> &options = sound_repository.at(sound);
+        return options.at(rand() % options.size());
     } else {
         // Invalid Sound
         WARN("Invalid Sound Event: %s", sound.c_str());

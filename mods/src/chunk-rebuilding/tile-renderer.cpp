@@ -44,7 +44,7 @@ static Tile *copy_tile(Tile *tile) {
 
 // Special Case: Some tiles render incorrectly when copied.
 // Thankfully, they do not need to be copied as they have a fixed shape.
-static std::unordered_set do_not_copy_tiles = {
+static const std::unordered_set do_not_copy_tiles = {
     // TileRenderer explicitly checks for these.
     &Tile::grass,
     &Tile::tallgrass,
