@@ -1,6 +1,7 @@
-#include <sys/socket.h>
-
 #include "internal.h"
+
+#include <sys/socket.h>
+#include <unordered_map>
 
 // Queue Data For Writing
 static std::unordered_map<int, std::string> to_write;

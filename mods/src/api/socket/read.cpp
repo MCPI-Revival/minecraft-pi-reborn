@@ -1,9 +1,12 @@
+#include "internal.h"
+
 #include <sys/socket.h>
+
 #include <libreborn/log.h>
 
-#include <mods/misc/misc.h>
+#include <symbols/CommandServer.h>
 
-#include "internal.h"
+#include <mods/misc/misc.h>
 
 // Handle Command
 static void handle_line(CommandServer *self, ConnectedClient &client, const std::string &line) {

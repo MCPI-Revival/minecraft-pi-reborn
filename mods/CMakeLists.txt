@@ -132,8 +132,12 @@ add_library(mods SHARED
     # classic-ui
     src/classic-ui/classic-ui.cpp
     # api
-    src/api/api.cpp
-    src/api/events.cpp
+    src/api/init.cpp
+    src/api/commands/commands.cpp
+    src/api/commands/root.cpp
+    src/api/commands/world.cpp
+    src/api/commands/entity.cpp
+    src/api/commands/events.cpp
     src/api/compat.cpp
     src/api/misc.cpp
     src/api/socket/time-limiter.cpp

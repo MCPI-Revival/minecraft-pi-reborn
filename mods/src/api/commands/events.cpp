@@ -1,13 +1,25 @@
+#include "internal.h"
+
 #include <ranges>
 
 #include <libreborn/patch.h>
 #include <libreborn/util/string.h>
 
+#include <symbols/Minecraft.h>
+#include <symbols/CommandServer.h>
+#include <symbols/Level.h>
+#include <symbols/TileEvent.h>
+#include <symbols/Entity.h>
+#include <symbols/Arrow.h>
+#include <symbols/Throwable.h>
+#include <symbols/Player.h>
+#include <symbols/GameMode.h>
+#include <symbols/Item.h>
+#include <symbols/CreatorMode.h>
+
 #include <mods/misc/misc.h>
 #include <mods/chat/chat.h>
 #include <mods/api/api.h>
-
-#include "internal.h"
 
 // Projectile Event
 struct ProjectileHitEvent {
@@ -286,26 +298,32 @@ void _init_api_events() {
 }
 
 // Handle Commands
-std::string api_handle_event_command(CommandServer *server, const ConnectedClient &client, const std::string_view &cmd, const std::optional<int> id) {
-    if (cmd == "clear") {
-        // Clear Events
+std::string api_handle_event_command(CommandServer *server, const ConnectedClient &client, std::string_view &cmd, const std::optional<int> &id) {
+    // Clear Events
+    command(clear) {
         if (id.has_value()) {
             clear_events(client, id.value());
         } else {
             clear_all_events(client);
         }
         return CommandServer::NullString;
-    } else if (cmd == "chat.posts") {
-        // Chat Events
-        return get_chat_events(server, client, id);
-    } else if (cmd == "block.hits") {
-        // Block Hit Events
-        return get_block_hit_events(server, client, id);
-    } else if (cmd == "projectile.hits") {
-        // Projectile Events
-        return get_projectile_events(server, client, id);
-    } else {
-        // Invalid Command
-        return CommandServer::Fail;
     }
+
+    // Chat Events
+    command(chat.posts) {
+        return get_chat_events(server, client, id);
+    }
+
+    // Block Hit Events
+    command(block.hits) {
+        return get_block_hit_events(server, client, id);
+    }
+
+    // Projectile Events
+    command(projectile.hits) {
+        return get_projectile_events(server, client, id);
+    }
+
+    // Invalid Command
+    return CommandServer::Fail;
 }

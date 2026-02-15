@@ -1,8 +1,8 @@
 #pragma once
 
-#include <cstdint>
-
 #include "../internal.h"
+
+#include <cstdint>
 
 // Temporal Budgeting
 struct MCPI_INTERNAL TimeLimiter {
@@ -21,4 +21,6 @@ MCPI_INTERNAL void api_queue_data_to_write(int sock, const std::string &data);
 
 // Reading
 MCPI_INTERNAL void api_reset_read_and_handle_budget();
+struct CommandServer;
+struct ConnectedClient;
 MCPI_INTERNAL bool api_read_and_handle_data(CommandServer *self, ConnectedClient &client);

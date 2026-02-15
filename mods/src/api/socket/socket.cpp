@@ -1,13 +1,16 @@
+#include "internal.h"
+
 #include <sys/socket.h>
 #include <unistd.h>
 #include <netinet/in.h>
+
+#include <symbols/CommandServer.h>
+#include <symbols/Minecraft.h>
 
 #include <libreborn/patch.h>
 #include <libreborn/env/env.h>
 
 #include <mods/feature/feature.h>
-
-#include "internal.h"
 
 // Remove Speed Limit
 static void CommandServer__updateClients_injection(CommandServer__updateClients_t original, CommandServer *self) {

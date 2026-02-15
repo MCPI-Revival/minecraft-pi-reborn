@@ -1,10 +1,25 @@
+#include "internal.h"
+
 #include <libreborn/patch.h>
 #include <libreborn/util/string.h>
 
+#include <symbols/ItemInHandRenderer.h>
+#include <symbols/Minecraft.h>
+#include <symbols/Mob.h>
+#include <symbols/LevelListener.h>
+#include <symbols/LevelRenderer.h>
+#include <symbols/MovePlayerPacket.h>
+#include <symbols/Packet.h>
+#include <symbols/Entity.h>
+#include <symbols/Level.h>
+#include <symbols/RakNetInstance.h>
+#include <symbols/ClientSideNetworkHandler.h>
+#include <symbols/ChatPacket.h>
+#include <symbols/CommandServer.h>
+#include <symbols/ServerSideNetworkHandler.h>
+
 #include <mods/feature/feature.h>
 #include <mods/api/api.h>
-
-#include "internal.h"
 
 // Fix HUD Spectating Other Players
 template <typename... Args>

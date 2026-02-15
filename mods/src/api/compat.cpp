@@ -1,11 +1,11 @@
+#include "internal.h"
+
 #include <algorithm>
 
 #include <libreborn/util/string.h>
 #include <libreborn/log.h>
 
 #include <mods/misc/misc.h>
-
-#include "internal.h"
 
 // Compatibility Mode
 bool api_compat_mode = true;

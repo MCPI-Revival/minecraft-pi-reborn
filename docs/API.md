@@ -166,6 +166,13 @@ This makes it completely compatible with RaspberryJuice but limits functionality
   * Output: `reborn_version`
 * `reborn.enableCompatMode()`
   * Description: Re-enable the compatibility mode.
+* `reborn.sendNullResponses()`
+  * Description: Configure the API to send the string `[Null]` when there is no output.
+    * This means all commands will always return a response.
+    * This makes it easier to handle commands that normally only send a response when they fail.
+* `reborn.hideNullResponses()`
+  * Description: Configure the API to send no response when there is no output.
+    * This is the default behavior.
 * `world.getSign(x,y,z)`
   * Description: Retrieve the text of the given sign.
   * Output: List of `{line}`

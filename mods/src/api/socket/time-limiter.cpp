@@ -1,6 +1,6 @@
-#include <ctime>
-
 #include "internal.h"
+
+#include <ctime>
 
 // Temporal Budget For API Handling
 static constexpr uint64_t BUDGET = 10; // In Milliseconds
