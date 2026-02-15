@@ -179,11 +179,12 @@ static const ItemInstance *get_selected_item(Entity *entity) {
     force_semicolon()
 #define next_int(out) next_number(out, int, std::stoi)
 #define next_float(out) next_number(out, float, std::stof)
-// Parse API Commands
+
+// Macros For Parsing API Commands
 #define package_str(name) (#name ".")
 static bool _package(std::string_view &cmd, const std::string &package) {
     if (cmd.starts_with(package)) {
-        cmd = cmd.substr(package.size());
+        cmd.remove_prefix(package.size());
         return true;
     } else {
         return false;
@@ -199,6 +200,8 @@ static bool _package(std::string_view &cmd, const std::string &package) {
         return ret; \
     } \
     force_semicolon()
+
+// Parse Commands
 static std::string CommandServer_parse_injection(CommandServer_parse_t original, CommandServer *server, ConnectedClient &client, const std::string &command) {
     // Parse Command
     std::string_view command_view = command;
@@ -243,8 +246,10 @@ static std::string CommandServer_parse_injection(CommandServer_parse_t original,
         passthrough(setBlocks);
         passthrough(getHeight);
         passthrough(getPlayerIds);
-        passthrough(checkpoint.save);
-        passthrough(checkpoint.restore);
+        package(checkpoint) {
+            passthrough(save);
+            passthrough(restore);
+        }
         passthrough(setting);
 
         // Get Region Of Tiles
@@ -399,17 +404,12 @@ static std::string CommandServer_parse_injection(CommandServer_parse_t original,
             // Set Sign Data
             SignTileEntity *sign = get_sign(server, x, y, z);
             if (sign != nullptr) {
-#define next_sign_line(i) \
-    next_string(line_##i, false); \
-    if (!api_compat_mode || !line_##i##_missing) { \
-        sign->lines[i] = api_get_input(line_##i); \
-    } \
-    force_semicolon()
-                next_sign_line(0);
-                next_sign_line(1);
-                next_sign_line(2);
-                next_sign_line(3);
-#undef next_sign_line
+                for (std::string &line : sign->lines) {
+                    next_string(new_line, false);
+                    if (!api_compat_mode || !new_line_missing) {
+                        line = api_get_input(new_line); \
+                    }
+                }
                 // Send Update Packet
                 sign->setChanged();
                 Packet *packet = sign->getUpdatePacket();
@@ -442,6 +442,19 @@ static std::string CommandServer_parse_injection(CommandServer_parse_t original,
         }
         command(getGameMode) {
             return safe_to_string(server->minecraft->level->data.game_type) + '\n';
+        }
+
+        // Level Time
+        command(setTime) {
+            next_int(time);
+            if (time < 0) {
+                return CommandServer::Fail;
+            }
+            server->minecraft->level->data.time = time;
+            return CommandServer::NullString;
+        }
+        command(getTime) {
+            return safe_to_string(server->minecraft->level->data.time) + '\n';
         }
     }
 
@@ -656,14 +669,13 @@ static std::string CommandServer_parse_injection(CommandServer_parse_t original,
         return api_handle_event_command(server, client, cmd, std::nullopt);
     }
 
-    // Compatibility Mode
+    // Extra Reborn Extensions
     package(reborn) {
-        // Disable Compatibility Mode
+        // Enable/Disable Compatibility Mode
         command(disableCompatMode) {
             api_compat_mode = false;
             return std::string(reborn_config.general.version) + '\n';
         }
-        // Re-Enable Compatibility Mode
         command(enableCompatMode) {
             api_compat_mode = true;
             return CommandServer::NullString;

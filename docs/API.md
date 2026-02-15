@@ -178,6 +178,11 @@ This makes it completely compatible with RaspberryJuice but limits functionality
 * `world.spawnItem(:x:,:y:,:z:,item_id,count,data)`
   * Description: Spawn the specified [Dropped Item](https://minecraft.wiki/w/Item_(entity)) at the given position.
   * Output: `entity_id`
+* `world.setTime(time)`
+  * Description: Set the time of the loaded world.
+* `world.getTime()`
+  * Description: Retrieve the time of the loaded world.
+  * Output: `time`
 * `entity.getType(entity_id)`
   * Description: Check the type of the given entity. For special entities like players, this will be `0`.
   * Output: `entity_type_id`
