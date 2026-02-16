@@ -17,13 +17,13 @@ This makes it completely compatible with RaspberryJuice but limits functionality
 * <b>Bold</b> text only applies to the compatibility mode.
 * <ins>Underlined</ins> text only applies when it is disabled.
 * Text enclosed in curly braces (for instance `{text}`) is meant to be [Base64-URL](https://base64.guru/standards/base64url)-encoded when the compatibility mode is disabled.
-  * When outputted, the encoded text will be prefixed with `@` to prevent ambiguity.
+  * When outputted, the text will be prefixed with `@` after encoding to prevent ambiguity.
 * In the compatibility mode, entity type IDs are automatically translated to/from their [MC Java equivalents](https://mcreator.net/wiki/entity-ids#toc-index-2).
 
 ## Commands
 
 * Commands are formatted like `<command>(<args>)` and may return a response. The response `Fail` indicates an error.
-* All commands are responses end with a newline.
+* All commands and responses end with a newline.
 * Arguments surrounded by square brackets (for instance `[abc]`) are optional.
 * Numbers surrounded by colons (for instance `:a:`) are floating-point, all other numbers are integers.
 * Pipes (`|`) delimit lists. For instance: `A|B|C`.
@@ -194,11 +194,11 @@ This makes it completely compatible with RaspberryJuice but limits functionality
 * `entity.getType(entity_id)`
   * Description: Check the type of the given entity. For special entities like players, this will be `0`.
   * Output: `entity_type_id`
-* `entity.setVelocity(entity_id,:veclocity_x:,:veclocity_y:,:veclocity_z:)`
+* `entity.setVelocity(entity_id,:velocity_x:,:velocity_y:,:velocity_z:)`
   * Description: Set the specified entity's velocity.
 * `entity.getVelocity(entity_id)`
   * Description: Retrieve the specified entity's velocity.
-  * Output: `:veclocity_x:,:veclocity_y:,:veclocity_z:`
+  * Output: `:velocity_x:,:velocity_y:,:velocity_z:`
 * `entity.getId(entity_id)`
   * Description: Retrieve the specified entity's ID.
   * Note: Only the `player.getId()` version of this command is useful.
