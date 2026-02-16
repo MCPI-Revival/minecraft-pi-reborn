@@ -17,6 +17,7 @@ This makes it completely compatible with RaspberryJuice but limits functionality
 * <b>Bold</b> text only applies to the compatibility mode.
 * <ins>Underlined</ins> text only applies when it is disabled.
 * Text enclosed in curly braces (for instance `{text}`) is meant to be [Base64-URL](https://base64.guru/standards/base64url)-encoded when the compatibility mode is disabled.
+  * When outputted, the encoded text will be prefixed with `@` to prevent ambiguity.
 * In the compatibility mode, entity type IDs are automatically translated to/from their [MC Java equivalents](https://mcreator.net/wiki/entity-ids#toc-index-2).
 
 ## Commands
@@ -167,7 +168,7 @@ This makes it completely compatible with RaspberryJuice but limits functionality
 * `reborn.enableCompatMode()`
   * Description: Re-enable the compatibility mode.
 * `reborn.sendNullResponses()`
-  * Description: Configure the API to send the string `[Null]` when there is no output.
+  * Description: Configure the API to send the string `Null` when there is no output.
     * This means all commands will always return a response.
     * This makes it easier to handle commands that normally only send a response when they fail.
 * `reborn.hideNullResponses()`

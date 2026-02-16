@@ -11,6 +11,8 @@
 bool api_compat_mode = true;
 
 // Read String Input
+// Assumed To Be UTF-8
+// Outputs CP-437
 std::string api_get_input(std::string message) {
     // Decode
     if (!api_compat_mode) {
@@ -20,6 +22,8 @@ std::string api_get_input(std::string message) {
     return to_cp437(message);
 }
 // Output String
+// Assumed To Be CP-437
+// Outputs UTF-8
 std::string api_get_output(std::string message, const bool replace_comma) {
     // Convert To Unicode
     message = from_cp437(message);
@@ -33,6 +37,8 @@ std::string api_get_output(std::string message, const bool replace_comma) {
     } else {
         // Encode
         message = misc_base64_encode(message);
+        // Prevent Confusion With Fail/OK Responses
+        message.insert(0, 1, '@');
     }
     // Return
     return message;
@@ -53,14 +59,16 @@ std::string api_join_outputs(const std::vector<std::string> &pieces, const char 
             piece.pop_back();
         }
         // Add
-        out += piece + separator;
+        out += piece;
+        out += separator;
     }
     // Remove Hanging Comma
     if (!out.empty()) {
         out.pop_back();
     }
     // Return
-    return out + '\n';
+    out += '\n';
+    return out;
 }
 
 // Entity Types
