@@ -2,7 +2,14 @@
 install(EXPORT sdk DESTINATION "${MCPI_SDK_DIR}" FILE "sdk-targets.cmake")
 
 # Write SDK Script
+set(SDK_LOADED_VAR "MCPI_SDK_LOADED")
 file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/sdk.cmake"
+    # Check If Already Loaded
+    "if(DEFINED ${SDK_LOADED_VAR})\n"
+    "    return()\n"
+    "endif()\n"
+    "set(${SDK_LOADED_VAR} TRUE)\n"
+    # Utility Functions
     "${FORCE_SET_FUNCTION}"
     # Sanity Check
     "${ARM_SANITY_CHECK}"

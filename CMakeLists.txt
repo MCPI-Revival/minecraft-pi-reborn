@@ -25,17 +25,19 @@ include(cmake/util/util.cmake)
 include(cmake/sdk/util.cmake)
 
 # Build Mode
+set(BUILD_TYPE_VAR "FORCE_BUILD_TYPE")
 set(RELEASE_MODE "Release")
 string(CONCAT BUILD_MODE_SETUP
+    "unset(${BUILD_TYPE_VAR})\n"
     "get_property(IS_MULTI_CONFIG GLOBAL PROPERTY GENERATOR_IS_MULTI_CONFIG)\n"
     "if(IS_MULTI_CONFIG)\n"
     "    force_set(CMAKE_CONFIGURATION_TYPES \"${RELEASE_MODE};Debug\" STRING)\n"
-    "    set(FORCE_BUILD_TYPE \"\")\n"
+    "    set(${BUILD_TYPE_VAR} \"\")\n"
     "elseif(NOT CMAKE_BUILD_TYPE)\n"
-    "    set(FORCE_BUILD_TYPE \"${RELEASE_MODE}\")\n"
+    "    set(${BUILD_TYPE_VAR} \"${RELEASE_MODE}\")\n"
     "endif()\n"
-    "if(DEFINED FORCE_BUILD_TYPE)\n"
-    "    force_set(CMAKE_BUILD_TYPE \"\${FORCE_BUILD_TYPE}\" STRING)\n"
+    "if(DEFINED ${BUILD_TYPE_VAR})\n"
+    "    force_set(CMAKE_BUILD_TYPE \"\${${BUILD_TYPE_VAR}}\" STRING)\n"
     "endif()\n"
 )
 cmake_language(EVAL CODE "${BUILD_MODE_SETUP}")
@@ -61,8 +63,8 @@ string(CONCAT COMPILE_FLAGS_SETUP
 
     # Default C Standard
     "add_compile_definitions(_GNU_SOURCE _FILE_OFFSET_BITS=64)\n"
-    "set(CMAKE_C_STANDARD 99)\n"
-    "set(CMAKE_CXX_STANDARD 20)\n"
+    "force_set(CMAKE_C_STANDARD 99 STRING)\n"
+    "force_set(CMAKE_CXX_STANDARD 20 STRING)\n"
 
     # Build Option
     "force_set(CMAKE_POSITION_INDEPENDENT_CODE TRUE BOOL)\n"
