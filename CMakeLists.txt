@@ -9,7 +9,9 @@ project(minecraft-pi-reborn)
 # Sanity Checks
 string(CONCAT ARM_SANITY_CHECK
     "include(CheckSymbolExists)\n"
+    "set(CMAKE_REQUIRED_QUIET TRUE)\n"
     "check_symbol_exists(\"__arm__\" \"\" IS_ARM_TARGETING)\n"
+    "unset(CMAKE_REQUIRED_QUIET)\n"
 )
 if(BUILD_ARM_COMPONENTS)
     string(APPEND ARM_SANITY_CHECK
@@ -25,19 +27,26 @@ include(cmake/util/util.cmake)
 include(cmake/sdk/util.cmake)
 
 # Build Mode
-set(BUILD_TYPE_VAR "FORCE_BUILD_TYPE")
+set(REAL_BUILD_TYPE_VAR "CMAKE_BUILD_TYPE")
+set(FORCED_BUILD_TYPE_VAR "FORCE_BUILD_TYPE")
+set(ALL_BUILD_TYPES_VAR "CMAKE_CONFIGURATION_TYPES")
 set(RELEASE_MODE "Release")
 string(CONCAT BUILD_MODE_SETUP
-    "unset(${BUILD_TYPE_VAR})\n"
+    # All Valid Configurations
+    "force_set(${ALL_BUILD_TYPES_VAR} \"${RELEASE_MODE};Debug\" STRING)\n"
+
+    # Select Correct Build Type
+    "unset(${FORCED_BUILD_TYPE_VAR})\n"
     "get_property(IS_MULTI_CONFIG GLOBAL PROPERTY GENERATOR_IS_MULTI_CONFIG)\n"
     "if(IS_MULTI_CONFIG)\n"
-    "    force_set(CMAKE_CONFIGURATION_TYPES \"${RELEASE_MODE};Debug\" STRING)\n"
-    "    set(${BUILD_TYPE_VAR} \"\")\n"
-    "elseif(NOT CMAKE_BUILD_TYPE)\n"
-    "    set(${BUILD_TYPE_VAR} \"${RELEASE_MODE}\")\n"
+    "    set(${FORCED_BUILD_TYPE_VAR} \"\")\n"
+    "elseif(NOT ${REAL_BUILD_TYPE_VAR} IN_LIST ${ALL_BUILD_TYPES_VAR})\n"
+    "    set(${FORCED_BUILD_TYPE_VAR} \"${RELEASE_MODE}\")\n"
     "endif()\n"
-    "if(DEFINED ${BUILD_TYPE_VAR})\n"
-    "    force_set(CMAKE_BUILD_TYPE \"\${${BUILD_TYPE_VAR}}\" STRING)\n"
+
+    # Force Build Type
+    "if(DEFINED ${FORCED_BUILD_TYPE_VAR})\n"
+    "    force_set(${REAL_BUILD_TYPE_VAR} \"\${${FORCED_BUILD_TYPE_VAR}}\" STRING)\n"
     "endif()\n"
 )
 cmake_language(EVAL CODE "${BUILD_MODE_SETUP}")
