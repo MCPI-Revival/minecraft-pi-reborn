@@ -9,7 +9,7 @@ SCRIPTS_ROOT="${ROOT}/../../"
 REPO_ROOT="${SCRIPTS_ROOT}/../"
 
 # Setup NPM
-npm ci --prefix "${ROOT}"
+npm ci --prefix "${ROOT}" --no-audit
 NODE_MODULES="${ROOT}/node_modules"
 PATH="${NODE_MODULES}/.bin:${PATH}"
 

@@ -7,7 +7,7 @@ find_program(SYMBOL_PROCESSOR_NPM
     REQUIRED
 )
 execute_process(
-    COMMAND "${SYMBOL_PROCESSOR_NPM}" ci --silent
+    COMMAND "${SYMBOL_PROCESSOR_NPM}" ci --silent --no-audit
     WORKING_DIRECTORY "${SYMBOL_PROCESSOR_SRC}"
     COMMAND_ERROR_IS_FATAL ANY
 )

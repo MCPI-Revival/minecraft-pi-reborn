@@ -5,7 +5,6 @@
 
 #include <LIEF/ELF.hpp>
 
-#include <libreborn/util/util.h>
 #include <libreborn/util/io.h>
 #include <libreborn/util/string.h>
 #include <libreborn/env/env.h>
@@ -111,11 +110,12 @@ void patch_mcpi_elf_dependencies(const std::string &original_path, const std::st
 
 // Linker
 std::string get_new_linker(const std::string &binary_directory_linux) {
-    std::string linker = linux_path_separator + std::string("lib") + linux_path_separator + "ld-linux-armhf.so.3";
-    if (reborn_config.internal.use_prebuilt_armhf_toolchain) {
-        linker = binary_directory_linux + linux_path_separator + "sysroot" + linker;
+    const std::string linker_name = "ld-linux-armhf.so.3";
+    if (!reborn_config.internal.use_prebuilt_armhf_toolchain) {
+        return linux_path_separator + std::string("lib") + linux_path_separator + linker_name;
+    } else {
+        return binary_directory_linux + linux_path_separator + "sysroot" + linux_path_separator + linker_name;
     }
-    return linker;
 }
 std::vector<std::string> get_ld_path(const std::string &binary_directory_linux) {
     // Libraries
@@ -124,13 +124,7 @@ std::vector<std::string> get_ld_path(const std::string &binary_directory_linux) 
     };
     // ARM Sysroot
     if (reborn_config.internal.use_prebuilt_armhf_toolchain) {
-        std::vector sysroot_paths = {
-            std::string("sysroot") + linux_path_separator + "lib",
-            std::string("sysroot") + linux_path_separator + "lib" + linux_path_separator + "arm-linux-gnueabihf",
-            std::string("sysroot") + linux_path_separator + "usr" + linux_path_separator + "lib",
-            std::string("sysroot") + linux_path_separator + "usr" + linux_path_separator + "lib" + linux_path_separator + "arm-linux-gnueabihf"
-        };
-        mcpi_ld_path.insert(mcpi_ld_path.end(), sysroot_paths.begin(), sysroot_paths.end());
+        mcpi_ld_path.emplace_back("sysroot");
     }
     // Fix Paths
     for (std::string &path : mcpi_ld_path) {
