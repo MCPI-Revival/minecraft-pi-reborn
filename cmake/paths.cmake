@@ -7,8 +7,9 @@ set(MCPI_SDK_INCLUDE_DIR "${MCPI_SDK_DIR}/include")
 
 # Library Directory
 set(MCPI_LIB_DIR "${MCPI_INSTALL_DIR}/lib")
+set(MCPI_LIB_DIR_ARM "${MCPI_LIB_DIR}/arm")
 if(BUILD_ARM_COMPONENTS)
-    string(APPEND MCPI_LIB_DIR "/arm")
+    set(MCPI_LIB_DIR "${MCPI_LIB_DIR_ARM}")
 elseif(BUILD_NATIVE_COMPONENTS)
     if(MCPI_WIN32)
         # Windows Requires DLLs To Be

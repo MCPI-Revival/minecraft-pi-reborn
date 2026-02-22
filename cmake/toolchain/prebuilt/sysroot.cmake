@@ -1,5 +1,5 @@
 # Directories
-set(sysroot_dir "${CMAKE_CURRENT_BINARY_DIR}/bundled-armhf-sysroot")
+set(sysroot_dir "${toolchain_dir}/bundled-sysroot")
 set(sysroot_dir_debug "${sysroot_dir}/debug")
 set(sysroot_dir_release "${sysroot_dir}/release")
 
@@ -18,8 +18,10 @@ endfunction()
 
 # Build Sysroot
 function(build_sysroot)
-    # Remove Old Directory
-    file(REMOVE_RECURSE "${sysroot_dir}")
+    # Check If Already Exists
+    if(IS_DIRECTORY "${sysroot_dir}")
+        return()
+    endif()
 
     # Copy Files From Toolchain
     file(MAKE_DIRECTORY "${sysroot_dir_debug}")
@@ -76,7 +78,7 @@ function(_install_arm_sysroot_config config)
         # Install Library
         install(
             FILES "${file}"
-            DESTINATION "${MCPI_INSTALL_DIR}/sysroot"
+            DESTINATION "${MCPI_LIB_DIR_ARM}"
             RENAME "${name}"
             CONFIGURATIONS "${config}"
         )

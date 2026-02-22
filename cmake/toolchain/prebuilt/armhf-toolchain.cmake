@@ -8,9 +8,6 @@ set(toolchain_file "${CMAKE_CURRENT_LIST_DIR}/../../../archives/${toolchain_name
 file(SHA256 "${toolchain_file}" toolchain_hash)
 set(toolchain_dir "${CMAKE_CURRENT_BINARY_DIR}/${toolchain_name}@${toolchain_hash}")
 
-# Sysroot
-include("${CMAKE_CURRENT_LIST_DIR}/sysroot.cmake")
-
 # Extract If Needed
 force_set(MCPI_CMAKE_TOOLCHAIN_FILE "${toolchain_dir}/toolchain.cmake" FILEPATH)
 if(NOT EXISTS "${MCPI_CMAKE_TOOLCHAIN_FILE}")
@@ -31,7 +28,8 @@ if(NOT EXISTS "${MCPI_CMAKE_TOOLCHAIN_FILE}")
         "set(CMAKE_FIND_ROOT_PATH_MODE_PROGRAM NEVER)\n"
     )
     set(MCPI_FORCE_ARM_REBUILD TRUE)
-
-    # Sysroot
-    build_sysroot()
 endif()
+
+# Build Sysroot
+include("${CMAKE_CURRENT_LIST_DIR}/sysroot.cmake")
+build_sysroot()

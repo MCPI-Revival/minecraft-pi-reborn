@@ -109,28 +109,28 @@ void patch_mcpi_elf_dependencies(const std::string &original_path, const std::st
 }
 
 // Linker
+static std::string get_lib_dir(const std::string &binary_directory_linux) {
+    std::string out = binary_directory_linux;
+    out += linux_path_separator;
+    out += "lib";
+    out += linux_path_separator;
+    out += "arm";
+    return out;
+}
 std::string get_new_linker(const std::string &binary_directory_linux) {
     const std::string linker_name = "ld-linux-armhf.so.3";
     if (!reborn_config.internal.use_prebuilt_armhf_toolchain) {
         return linux_path_separator + std::string("lib") + linux_path_separator + linker_name;
     } else {
-        return binary_directory_linux + linux_path_separator + "sysroot" + linux_path_separator + linker_name;
+        const std::string lib_dir = get_lib_dir(binary_directory_linux);
+        return lib_dir + linux_path_separator + linker_name;
     }
 }
 std::vector<std::string> get_ld_path(const std::string &binary_directory_linux) {
     // Libraries
     std::vector mcpi_ld_path = {
-        std::string("lib") + linux_path_separator + "arm"
+        get_lib_dir(binary_directory_linux)
     };
-    // ARM Sysroot
-    if (reborn_config.internal.use_prebuilt_armhf_toolchain) {
-        mcpi_ld_path.emplace_back("sysroot");
-    }
-    // Fix Paths
-    for (std::string &path : mcpi_ld_path) {
-        path.insert(0, 1, linux_path_separator);
-        path.insert(0, binary_directory_linux);
-    }
     // Return
     return mcpi_ld_path;
 }
