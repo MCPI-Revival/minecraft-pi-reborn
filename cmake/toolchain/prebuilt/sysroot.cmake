@@ -34,7 +34,10 @@ function(build_sysroot)
     # Strip Files
     file(MAKE_DIRECTORY "${sysroot_dir_release}")
     file(COPY "${sysroot_dir_debug}/." DESTINATION "${sysroot_dir_release}")
-    file(GLOB files "${sysroot_dir_release}/*")
+    file(GLOB files
+        LIST_DIRECTORIES FALSE
+        "${sysroot_dir_release}/*"
+    )
     foreach(file IN LISTS files)
         _strip("${file}")
     endforeach()
@@ -64,7 +67,10 @@ endfunction()
 function(_install_arm_sysroot_config config)
     # Get List Of Libraries
     set(dir "${sysroot_dir_${config}}")
-    file(GLOB files "${dir}/*")
+    file(GLOB files
+        LIST_DIRECTORIES FALSE
+        "${dir}/*"
+    )
 
     # Install Libraries
     foreach(file IN LISTS files)

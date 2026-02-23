@@ -123,6 +123,7 @@ if(MCPI_WIN32)
         __MINGW_MSVC_COMPAT_WARNINGS
         _CRT_SECURE_NO_WARNINGS
         _CRT_NONSTDC_NO_DEPRECATE
+        _CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES=1
     )
 endif()
 
@@ -149,7 +150,7 @@ if(BUILD_NATIVE_COMPONENTS)
 
     # Copy Windows Dependencies
     if(MCPI_WIN32)
-        include(cmake/msys2.cmake)
+        include(cmake/mingw-w64.cmake)
     endif()
 elseif(BUILD_ARM_COMPONENTS)
     # Build

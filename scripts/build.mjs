@@ -4,7 +4,6 @@ import * as fs from 'node:fs';
 import * as os from 'node:os';
 import { info, err, run, createDir, getScriptsDir, getBuildToolsBin } from './lib/util.mjs';
 import { parseOptions, createEnum, Architectures, Flag, PositionalArg } from './lib/options.mjs';
-import { enableMsys2 } from './lib/msys2.mjs';
 
 // CMake Options
 const cmakeArgPrefix = '-D';
@@ -96,7 +95,7 @@ printDir('Output', out);
 // Configure CMake Options
 cmakeOptions.set('MCPI_PACKAGING_TYPE', options.packageType.name);
 const toolchainOption = 'CMAKE_TOOLCHAIN_FILE';
-if (options.architecture !== Architectures.Host && !isWindows) {
+if (options.architecture !== Architectures.Host) {
     cmakeOptions.set(toolchainOption, path.join(root, 'cmake', 'toolchain', options.architecture.name + '-toolchain.cmake'));
 } else {
     cmakeOptions.delete(toolchainOption);
@@ -138,11 +137,6 @@ if (supportsJobserver) {
         process.env[env] = value;
     }
     prependEnv('PATH', getBuildToolsBin());
-}
-
-// Enable MSYS2
-if (isWindows) {
-    enableMsys2();
 }
 
 // Run CMake

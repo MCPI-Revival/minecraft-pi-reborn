@@ -43,7 +43,12 @@ cmake_language(EVAL CODE "${FORCE_SET_FUNCTION}")
 
 # Get Build Computer Architecture
 function(get_arch var)
-    execute_process(COMMAND uname -m OUTPUT_VARIABLE arch OUTPUT_STRIP_TRAILING_WHITESPACE)
+    execute_process(
+        COMMAND uname -m
+        OUTPUT_VARIABLE arch
+        OUTPUT_STRIP_TRAILING_WHITESPACE
+        COMMAND_ERROR_IS_FATAL ANY
+    )
     if(arch STREQUAL "armv8b" OR arch STREQUAL "armv8l")
         set(arch "aarch64")
     endif()

@@ -10,7 +10,6 @@ import {
     installPackages,
     setupApt
 } from './lib/apt.mjs';
-import { installMsys2, installMsys2Packages } from './lib/msys2.mjs';
 
 // Options
 const Modes = {
@@ -81,23 +80,15 @@ handlers.set(Modes.Build, function () {
     } else {
         // Windows Target
 
-        // MSYS2 Dependencies
+        // Compilers
         addPackageForBuild(
-            // https://github.com/HolyBlackCat/quasi-msys2?tab=readme-ov-file#usage
-            'make',
-            'wget',
-            'tar',
-            'zstd',
-            'gawk',
-            'gpg',
-            'gpgv',
-            // Compiler
-            'clang',
-            'lld',
-            'llvm',
-            // Compiler (For QEMU)
-            'gcc',
-            'g++',
+            'g++-mingw-w64-x86-64-win32',
+            // Needed For QEMU
+            'crossbuild-essential-amd64'
+        );
+
+        // Extra Dependencies
+        addPackageForBuild(
             // For Generating The ICO File
             'imagemagick'
         );
@@ -128,12 +119,6 @@ handlers.set(Modes.Build, function () {
     ]);
     run(['cmake', '--build', buildDir]);
     run(['cmake', '--install', buildDir]);
-
-    // Setup MSYS2
-    if (options.architecture === Architectures.Windows) {
-        installMsys2();
-        installMsys2Packages(['gcc']);
-    }
 });
 
 // Testing Dependencies

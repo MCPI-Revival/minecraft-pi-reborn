@@ -43,6 +43,7 @@ add_library(openal SHARED
     src/core/mastering.cpp
     src/core/mixer.cpp
     src/core/storage_formats.cpp
+    src/core/tsmefilter.cpp
     src/core/uhjfilter.cpp
     src/core/uiddefs.cpp
     src/core/voice.cpp
