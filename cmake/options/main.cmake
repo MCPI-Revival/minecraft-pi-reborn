@@ -56,22 +56,8 @@ mcpi_option(GAME_DOWNLOAD_URL "Game Download URL" STRING
 )
 mcpi_option(GAME_DOWNLOAD_USER_AGENT "Game Download User Agent (Needed For minecraft.net)" STRING "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36")
 
-# Author
-mcpi_option(AUTHOR "Author" STRING "TheBrokenRail")
-mcpi_option(AUTHOR_LONG "Author (Long Version)" STRING "${MCPI_AUTHOR} & Mojang AB")
-mcpi_option(AUTHOR_ID "Author ID" STRING "com.thebrokenrail")
-
-# App Information
-mcpi_option(APP_NAME "App Name" STRING "minecraft-pi-reborn")
-mcpi_option(APP_ID "App ID" STRING "${MCPI_AUTHOR_ID}.MCPIReborn")
-mcpi_option(APP_TITLE "App Title" STRING "Minecraft: Pi Edition: Reborn")
-mcpi_option(APP_DESCRIPTION "Package Description" STRING "Fun with Blocks")
-
-# Skin Server
-mcpi_option(SKIN_SERVER "Skin Server" STRING "https://raw.githubusercontent.com/MCPI-Revival/Skins/data")
-
-# Discord Invite URL
-mcpi_option(DISCORD_INVITE "Discord Invite URL" STRING "https://discord.gg/mcpi-revival-740287937727561779")
+# Branding
+include("${CMAKE_CURRENT_LIST_DIR}/branding.cmake")
 
 # Version
 set(version_file "${CMAKE_CURRENT_SOURCE_DIR}/VERSION")
@@ -80,15 +66,6 @@ set_property(
     CMAKE_CONFIGURE_DEPENDS "${version_file}"
 )
 file(STRINGS "${version_file}" MCPI_VERSION)
-
-# Homepage
-mcpi_option(REPO_HOST "Repository Host" STRING "https://gitea.thebrokenrail.com")
-mcpi_option(REPO_PATH "Repository Path" STRING "minecraft-pi-reborn/minecraft-pi-reborn")
-mcpi_option(REPO "Repository URL" STRING "${MCPI_REPO_HOST}/${MCPI_REPO_PATH}")
-
-# Documentation URL
-mcpi_option(DOCS "Documentation URL" STRING "${MCPI_REPO}/src/tag/${MCPI_VERSION}/docs/")
-mcpi_option(CHANGELOG "Changelog URL" STRING "${MCPI_REPO}/releases/tag/${MCPI_VERSION}")
 
 # Packaging
 include(CheckSymbolExists)

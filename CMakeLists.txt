@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.25.0)
 
 # Core Options
-include(cmake/options/core-options.cmake)
+include(cmake/options/core.cmake)
 
 # Start Project
 project(minecraft-pi-reborn)
@@ -52,7 +52,7 @@ string(CONCAT BUILD_MODE_SETUP
 cmake_language(EVAL CODE "${BUILD_MODE_SETUP}")
 
 # Extra Options
-include(cmake/options/extra-options.cmake)
+include(cmake/options/main.cmake)
 
 # Paths
 include(cmake/install/paths.cmake)
