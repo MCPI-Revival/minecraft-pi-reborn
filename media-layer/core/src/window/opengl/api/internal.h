@@ -23,6 +23,6 @@
     }
 
 // Some Functions Are Unsafe In Display Lists
-MCPI_INTERNAL extern bool _media_in_display_list;
+extern bool _media_in_display_list;
 #define NOT_ALLOWED_IN_DISPLAY_LIST() \
     if (_media_in_display_list) [[unlikely]] ERR("Not Allowed In Display List: %s", __func__)

@@ -132,7 +132,7 @@ static void position_info(Font *font, const int width, const int height) {
 }
 
 // Create VTable
-struct MCPI_INTERNAL InfoScreen final : CustomScreen {
+struct InfoScreen final : CustomScreen {
     // Buttons
     Button *discord;
     Button *back;

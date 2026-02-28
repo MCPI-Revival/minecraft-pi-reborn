@@ -9,16 +9,16 @@
 #define USER_EVENT_REAL_KEY 1 // data1 = SDL_RELEASED/PRESSED, data2 = GLFW Key Code
 
 extern "C" {
-void media_toggle_fullscreen();
-void media_swap_buffers();
-void media_cleanup();
-void media_get_framebuffer_size(int *width, int *height);
-void media_set_interactable(bool toggle);
-void media_disable_vsync();
-void media_set_raw_mouse_motion_enabled(bool enabled);
-void media_begin_offscreen_render(unsigned int texture);
-void media_end_offscreen_render();
-void media_download_into_texture(unsigned int texture, const char *url);
-void media_apply_downloaded_textures();
-void media_open(const char *path, bool is_url);
+MCPI_MEDIA_LAYER_CORE_PUBLIC void media_toggle_fullscreen();
+MCPI_MEDIA_LAYER_CORE_PUBLIC void media_swap_buffers();
+MCPI_MEDIA_LAYER_CORE_PUBLIC void media_cleanup();
+MCPI_MEDIA_LAYER_CORE_PUBLIC void media_get_framebuffer_size(int *width, int *height);
+MCPI_MEDIA_LAYER_CORE_PUBLIC void media_set_interactable(bool toggle);
+MCPI_MEDIA_LAYER_CORE_PUBLIC void media_disable_vsync();
+MCPI_MEDIA_LAYER_CORE_PUBLIC void media_set_raw_mouse_motion_enabled(bool enabled);
+MCPI_MEDIA_LAYER_CORE_PUBLIC void media_begin_offscreen_render(unsigned int texture);
+MCPI_MEDIA_LAYER_CORE_PUBLIC void media_end_offscreen_render();
+MCPI_MEDIA_LAYER_CORE_PUBLIC void media_download_into_texture(unsigned int texture, const char *url);
+MCPI_MEDIA_LAYER_CORE_PUBLIC void media_apply_downloaded_textures();
+MCPI_MEDIA_LAYER_CORE_PUBLIC void media_open(const char *path, bool is_url);
 }

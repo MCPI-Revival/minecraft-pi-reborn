@@ -25,7 +25,7 @@ static void init_only_generate() {
 }
 
 // Server Properties
-struct MCPI_INTERNAL RebornServerProperties : ServerProperties {
+struct RebornServerProperties : ServerProperties {
     const ServerProperty<std::string> message_of_the_day = ServerProperty<std::string>(*this, "motd", "Minecraft Server", "Message Of The Day");
     const ServerProperty<bool> show_minecon_badge = ServerProperty(*this, "show-minecon-badge", false, "Show The MineCon Badge Next To MOTD In Server List");
     const ServerProperty<int> game_mode = ServerProperty(*this, "game-mode", 0, "Game Mode (0 = Survival, 1 = Creative)");

@@ -18,7 +18,7 @@ void _chat_clear_history() {
 }
 
 // Structure
-struct MCPI_INTERNAL ChatScreen final : TextInputScreen {
+struct ChatScreen final : TextInputScreen {
     TextInputBox *chat = nullptr;
     Button *send = nullptr;
     int history_pos = 0;

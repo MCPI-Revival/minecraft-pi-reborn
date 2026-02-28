@@ -20,7 +20,7 @@ static long long int get_time() {
 }
 
 // Tracker
-struct MCPI_INTERNAL Tracker {
+struct Tracker {
     // State
     long long int counter;
     long long int last_time;

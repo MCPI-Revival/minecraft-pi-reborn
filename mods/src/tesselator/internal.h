@@ -10,6 +10,6 @@
 // Patching
 #define replace(name) \
     overwrite_call((void *) (name)->backup, name, name##_injection, true)
-MCPI_INTERNAL void _tesselator_init_state();
-MCPI_INTERNAL void _tesselator_init_vertex();
-MCPI_INTERNAL void _tesselator_init_draw();
+void _tesselator_init_state();
+void _tesselator_init_vertex();
+void _tesselator_init_draw();

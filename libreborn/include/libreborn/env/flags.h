@@ -10,7 +10,7 @@
 #define FLAG_SEPERATOR_CHAR '|'
 
 // Flag
-class FlagNode {
+class MCPI_REBORN_UTIL_PUBLIC FlagNode {
     // Constructors
     explicit FlagNode(const std::string &name_);
 public:
@@ -38,7 +38,7 @@ public:
 };
 
 // All Flags
-struct Flags {
+struct MCPI_REBORN_UTIL_PUBLIC Flags {
     // Constructor
     explicit Flags(const std::string &data);
     static Flags get();

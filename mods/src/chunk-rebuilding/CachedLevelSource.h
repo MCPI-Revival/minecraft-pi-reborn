@@ -4,7 +4,7 @@
 #include <mods/common.h>
 
 // Cache Chunk Information
-struct MCPI_INTERNAL CachedLevelSource final : CustomLevelSource {
+struct CachedLevelSource final : CustomLevelSource {
     // Constants
     static constexpr int BORDER = 1;
     static constexpr int MAX_SIZE = LevelSize::CHUNK_SIZE + (BORDER * 2);

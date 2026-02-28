@@ -5,7 +5,7 @@
 struct GuiComponent;
 struct Font;
 
-struct TextInputBox {
+struct MCPI_MODS_PUBLIC TextInputBox {
     explicit TextInputBox(const std::string &placeholder = "", const std::string &text = "");
     ~TextInputBox();
 

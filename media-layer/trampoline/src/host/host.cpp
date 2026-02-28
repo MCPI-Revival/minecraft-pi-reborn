@@ -13,7 +13,7 @@ void _add_handler(const unsigned char id, handler_t *handler) {
 
 // Trampoline
 extern "C" {
-    std::remove_pointer_t<trampoline_t> trampoline;
+    MCPI_MEDIA_LAYER_TRAMPOLINE_PUBLIC std::remove_pointer_t<trampoline_t> trampoline;
     uint32_t trampoline(const trampoline_writer_t writer, const uint32_t id, const unsigned char *args) {
         return handlers[id](writer, args);
     }

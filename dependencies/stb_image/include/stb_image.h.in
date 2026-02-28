@@ -1,0 +1,6 @@
+#pragma once
+
+#define STBI_ONLY_PNG
+#define STBIDEF extern "C" MCPI_STB_IMAGE_PUBLIC
+
+@data@

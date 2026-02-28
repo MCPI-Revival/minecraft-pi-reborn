@@ -50,16 +50,16 @@ MCPI_UNUSED static bool _package(std::string_view &cmd, const std::string &packa
 // Packages
 struct CommandServer;
 struct ConnectedClient;
-MCPI_INTERNAL std::string api_handle_command(const std::function<std::string()> &super, CommandServer *server, const ConnectedClient &client, std::string_view &cmd, std::istringstream &args);
-MCPI_INTERNAL std::string api_handle_world_command(const std::function<std::string()> &super, CommandServer *server, std::string_view &cmd, std::istringstream &args);
-MCPI_INTERNAL std::string api_handle_entity_command(const std::function<std::string()> &super, CommandServer *server, const ConnectedClient &client, std::string_view &cmd, std::istringstream &args);
-MCPI_INTERNAL std::string api_handle_event_command(CommandServer *server, const ConnectedClient &client, std::string_view &cmd, const std::optional<int> &id);
-MCPI_INTERNAL void _init_api_events();
+std::string api_handle_command(const std::function<std::string()> &super, CommandServer *server, const ConnectedClient &client, std::string_view &cmd, std::istringstream &args);
+std::string api_handle_world_command(const std::function<std::string()> &super, CommandServer *server, std::string_view &cmd, std::istringstream &args);
+std::string api_handle_entity_command(const std::function<std::string()> &super, CommandServer *server, const ConnectedClient &client, std::string_view &cmd, std::istringstream &args);
+std::string api_handle_event_command(CommandServer *server, const ConnectedClient &client, std::string_view &cmd, const std::optional<int> &id);
+void _init_api_events();
 
 // Utility Functions
 struct Entity;
-MCPI_INTERNAL std::string api_get_entity_message(CommandServer *server, Entity *entity);
-MCPI_INTERNAL bool api_is_entity_selected(const Entity *entity, int target_type);
+std::string api_get_entity_message(CommandServer *server, Entity *entity);
+bool api_is_entity_selected(const Entity *entity, int target_type);
 
 // Control "Null Responses"
-MCPI_INTERNAL extern bool api_replace_null_responses;
+extern bool api_replace_null_responses;

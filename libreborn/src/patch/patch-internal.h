@@ -14,23 +14,23 @@ struct segment_data {
     bool is_executable;
     bool is_writable;
 };
-MCPI_INTERNAL segment_data &get_data_for_addr(void *addr);
-MCPI_INTERNAL void add_segment(segment_data data);
+segment_data &get_data_for_addr(void *addr);
+void add_segment(segment_data data);
 
 // Code Block
-MCPI_INTERNAL void *update_code_block(void *target);
-MCPI_INTERNAL void increment_code_block();
+void *update_code_block(void *target);
+void increment_code_block();
 
 // BL Instruction Magic Number
 #define BL_INSTRUCTION 0xeb
 #define B_INSTRUCTION 0xea
-MCPI_INTERNAL bool is_branch_instruction(unsigned char opcode);
-MCPI_INTERNAL unsigned char get_opcode(void *addr);
-MCPI_INTERNAL uint32_t generate_bl_instruction(void *from, void *to, unsigned char opcode = BL_INSTRUCTION);
+bool is_branch_instruction(unsigned char opcode);
+unsigned char get_opcode(void *addr);
+uint32_t generate_bl_instruction(void *from, void *to, unsigned char opcode = BL_INSTRUCTION);
 
 // Cache
-MCPI_INTERNAL void add_callsite(void *addr);
-MCPI_INTERNAL void remove_callsite(void *addr);
-MCPI_INTERNAL std::unordered_set<void *> get_normal_callsites(void *addr);
-MCPI_INTERNAL std::unordered_set<void *> get_virtual_callsites(void *addr);
-MCPI_INTERNAL void init_cache();
+void add_callsite(void *addr);
+void remove_callsite(void *addr);
+std::unordered_set<void *> get_normal_callsites(void *addr);
+std::unordered_set<void *> get_virtual_callsites(void *addr);
+void init_cache();

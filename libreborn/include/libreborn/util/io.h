@@ -17,20 +17,20 @@ static constexpr char path_separator = linux_path_separator;
 #endif
 
 // Safe Version Of pipe()
-struct Pipe {
+struct MCPI_REBORN_UTIL_PUBLIC Pipe {
     explicit Pipe();
     const HANDLE read;
     const HANDLE write;
 };
 
 // Lock File
-HANDLE lock_file(const char *file);
-void unlock_file(HANDLE fd);
+MCPI_REBORN_UTIL_PUBLIC HANDLE lock_file(const char *file);
+MCPI_REBORN_UTIL_PUBLIC void unlock_file(HANDLE fd);
 
 // Safe write()
-void safe_write(int fd, const void *buf, size_t size);
+MCPI_REBORN_UTIL_PUBLIC void safe_write(int fd, const void *buf, size_t size);
 
 // Initialize COM
 #ifdef _WIN32
-bool init_com();
+MCPI_REBORN_UTIL_PUBLIC bool init_com();
 #endif

@@ -11,7 +11,7 @@
 // Copy an object without calling any constructors or destructors.
 // THIS IS UNSAFE, use it with care.
 template <typename T>
-struct MCPI_INTERNAL UnsafeCopy {
+struct UnsafeCopy {
     static constexpr size_t max_size = 8192;
     uchar raw[max_size];
     T *const ptr;

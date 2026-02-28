@@ -21,15 +21,15 @@
 #include <symbols/ChunkSource.h>
 #include <symbols/CompoundTag.h>
 
-MCPI_INTERNAL std::string get_rak_net_guid_ip(const RakNet_RakPeer *rak_peer, const RakNet_RakNetGUID &guid);
+std::string get_rak_net_guid_ip(const RakNet_RakPeer *rak_peer, const RakNet_RakNetGUID &guid);
 
-MCPI_INTERNAL void handle_commands(Minecraft *minecraft);
+void handle_commands(Minecraft *minecraft);
 
-MCPI_INTERNAL void _init_server_playerdata();
-MCPI_INTERNAL void _load_playerdata(ServerPlayer *player);
+void _init_server_playerdata();
+void _load_playerdata(ServerPlayer *player);
 
 // Blacklist/Whitelist
-struct MCPI_INTERNAL Blacklist {
+struct Blacklist {
     bool is_white;
     // General
     void load();
@@ -46,4 +46,4 @@ private:
     // Data
     std::unordered_set<std::string> ips;
 };
-MCPI_INTERNAL extern Blacklist blacklist;
+extern Blacklist blacklist;

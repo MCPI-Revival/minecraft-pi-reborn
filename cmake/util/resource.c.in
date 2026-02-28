@@ -1,6 +1,6 @@
 #include <stddef.h>
 
-const unsigned char ${name}[] = {
-    ${data}
+@public@ const unsigned char @name@[] = {
+    @data@
 };
-const size_t ${name}_len = sizeof(${name});
+@public@ const size_t @name@_len = sizeof(@name@);

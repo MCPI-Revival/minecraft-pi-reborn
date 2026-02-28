@@ -43,5 +43,5 @@ struct gl_state_t {
 
 // Global State
 #ifdef MEDIA_LAYER_TRAMPOLINE_GUEST
-MCPI_INTERNAL extern gl_state_t gl_state;
+extern gl_state_t gl_state;
 #endif

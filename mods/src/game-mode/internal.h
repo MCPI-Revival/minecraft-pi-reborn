@@ -1,3 +1,3 @@
 #pragma once
 
-MCPI_INTERNAL void _init_game_mode_ui();
+void _init_game_mode_ui();

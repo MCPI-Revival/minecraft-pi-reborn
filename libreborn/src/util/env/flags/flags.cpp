@@ -139,7 +139,7 @@ void Flags::print() const {
 }
 
 // Instance
-EMBEDDED_RESOURCE(available_feature_flags);
+EMBEDDED_RESOURCE(available_feature_flags, MCPI_REBORN_UTIL_PUBLIC);
 Flags Flags::get() {
     return Flags(std::string(available_feature_flags, available_feature_flags + available_feature_flags_len));
 }

@@ -1,5 +1,5 @@
 #pragma once
 
-extern double fps;
-extern double tps;
-extern double chunk_updates;
+MCPI_MODS_PUBLIC extern double fps;
+MCPI_MODS_PUBLIC extern double tps;
+MCPI_MODS_PUBLIC extern double chunk_updates;

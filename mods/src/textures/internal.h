@@ -1,7 +1,7 @@
 #pragma once
 
-MCPI_INTERNAL void _init_textures_headless();
-MCPI_INTERNAL void _init_textures_lava(bool animated_water, bool animated_lava, bool animated_fire);
-MCPI_INTERNAL void _init_textures_tinting();
-MCPI_INTERNAL void _patch_ice_texture();
-MCPI_INTERNAL void _patch_tall_grass_textures();
+void _init_textures_headless();
+void _init_textures_lava(bool animated_water, bool animated_lava, bool animated_fire);
+void _init_textures_tinting();
+void _patch_ice_texture();
+void _patch_tall_grass_textures();

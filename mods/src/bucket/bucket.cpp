@@ -23,7 +23,7 @@
 
 // Custom Item
 #define MILK_AUX 1
-struct MCPI_INTERNAL Bucket final : CustomItem {
+struct Bucket final : CustomItem {
     // Constructor
     explicit Bucket(const int id):
         CustomItem(id) {}

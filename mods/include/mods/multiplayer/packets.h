@@ -1,7 +1,7 @@
 #pragma once
 
 // Used To Designate Special Behavior
-void multiplayer_negate(int &x);
+MCPI_MODS_PUBLIC void multiplayer_negate(int &x);
 
 // Armor Inventory Size
 static constexpr int multiplayer_armor_size = 4;
@@ -14,7 +14,7 @@ static constexpr unsigned char multiplayer_inventory_container_id = 0; // This I
 static constexpr unsigned char multiplayer_armor_container_id = 200;
 
 // Extra StartGamePacket Flags
-namespace StartGameFlags {
+namespace MCPI_MODS_PUBLIC StartGameFlags {
     enum {
         USE_IMPROVED_LOADING = 0,
         FORCE_DAYNIGHT_CYCLE,

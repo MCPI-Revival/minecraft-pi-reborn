@@ -4,9 +4,8 @@
 [submodule "dependencies/LIEF/src"]
 	path = dependencies/LIEF/src
 	url = https://github.com/lief-project/LIEF.git
-	ignore = dirty
-[submodule "dependencies/stb_image/include"]
-	path = dependencies/stb_image/include
+[submodule "dependencies/stb_image/include/original"]
+	path = dependencies/stb_image/include/original
 	url = https://github.com/nothings/stb.git
 [submodule "dependencies/utf8cpp/src"]
 	path = dependencies/utf8cpp/src

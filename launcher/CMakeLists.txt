@@ -117,8 +117,14 @@ endif()
 add_subdirectory(data)
 
 # Install
-setup_library(launcher-ui TRUE FALSE)
-setup_library(launcher-util TRUE FALSE)
+setup_library(launcher-ui
+    INSTALL
+    DEFINE_EXPORT_MACRO
+)
+setup_library(launcher-util
+    INSTALL
+    DEFINE_EXPORT_MACRO
+)
 function(install_bin target)
     target_link_libraries("${target}"
         launcher-meta

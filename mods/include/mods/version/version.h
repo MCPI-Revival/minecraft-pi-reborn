@@ -1,5 +1,5 @@
 #pragma once
 
 extern "C" {
-const char *version_get();
+MCPI_MODS_PUBLIC const char *version_get();
 }

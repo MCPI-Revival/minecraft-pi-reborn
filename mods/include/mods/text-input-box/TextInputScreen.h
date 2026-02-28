@@ -4,7 +4,7 @@
 
 #include <mods/text-input-box/TextInputBox.h>
 
-struct TextInputScreen : CustomScreen {
+struct MCPI_MODS_PUBLIC TextInputScreen : CustomScreen {
     std::vector<TextInputBox *> *m_textInputs = nullptr;
 
     void keyPressed(int key) override;

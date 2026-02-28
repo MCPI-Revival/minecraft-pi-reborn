@@ -2,6 +2,4 @@
 
 #include <string>
 
-extern "C" {
-std::string override_get_path(std::string filename);
-}
+MCPI_MODS_PUBLIC std::string override_get_path(std::string filename);

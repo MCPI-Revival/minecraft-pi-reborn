@@ -121,7 +121,7 @@ static int32_t TallGrass_getColor_injection(TallGrass_getColor_t original, TallG
 }
 
 // Grass Side Tinting
-struct MCPI_INTERNAL GrassSideTile final : CustomTile {
+struct GrassSideTile final : CustomTile {
     GrassSideTile(const int id, const int texture, const Material *material):
         CustomTile(id, texture, material) {}
     bool shouldRenderFace(LevelSource *level_source, const int x, const int y, const int z, const int face) override {

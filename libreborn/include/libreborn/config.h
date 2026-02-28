@@ -65,14 +65,14 @@ struct RebornConfig {
         const char *appimage_download_url;
     } updater;
 };
-extern const RebornConfig reborn_config;
+MCPI_REBORN_UTIL_PUBLIC extern const RebornConfig reborn_config;
 
 // Fancy Version Name
-std::string reborn_get_fancy_version();
+MCPI_REBORN_UTIL_PUBLIC std::string reborn_get_fancy_version();
 
 // Check If A Package Manager Is Being Used
-bool reborn_is_using_package_manager();
+MCPI_REBORN_UTIL_PUBLIC bool reborn_is_using_package_manager();
 
 // Runtime Configuration
-bool reborn_is_headless();
-bool reborn_is_server();
+MCPI_REBORN_UTIL_PUBLIC bool reborn_is_headless();
+MCPI_REBORN_UTIL_PUBLIC bool reborn_is_server();

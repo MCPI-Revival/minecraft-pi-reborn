@@ -24,7 +24,7 @@ cmake_language(EVAL CODE "${ARM_SANITY_CHECK}")
 
 # Utility Functions
 include(cmake/util/util.cmake)
-include(cmake/sdk/util.cmake)
+include(cmake/install/libraries.cmake)
 
 # Build Mode
 set(REAL_BUILD_TYPE_VAR "CMAKE_BUILD_TYPE")
@@ -55,7 +55,7 @@ cmake_language(EVAL CODE "${BUILD_MODE_SETUP}")
 include(cmake/options/extra-options.cmake)
 
 # Paths
-include(cmake/paths.cmake)
+include(cmake/install/paths.cmake)
 
 # License
 install(FILES LICENSE DESTINATION "${MCPI_LEGAL_DIR}")
@@ -158,5 +158,5 @@ elseif(BUILD_ARM_COMPONENTS)
     add_subdirectory(mods)
 
     # SDK
-    include(cmake/sdk/install.cmake)
+    include(cmake/install/sdk/install.cmake)
 endif()

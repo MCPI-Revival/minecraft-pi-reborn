@@ -1,7 +1,7 @@
 #pragma once
 
 // Logging
-#define ATTR __attribute__((format(printf, 1, 2)))
+#define ATTR MCPI_REBORN_UTIL_PUBLIC __attribute__((format(printf, 1, 2)))
 ATTR void INFO(const char *format, ...);
 ATTR void WARN(const char *format, ...);
 ATTR void _DEBUG(const char *format, ...);
@@ -21,4 +21,4 @@ ATTR __attribute__((noreturn)) void _ERR(const char *format, ...);
 
 // Debug Logging
 #define DEBUG_TAG(x) "(" x ") "
-extern const char *reborn_debug_tag;
+MCPI_REBORN_UTIL_PUBLIC extern const char *reborn_debug_tag;

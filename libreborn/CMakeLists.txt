@@ -44,13 +44,15 @@ if(TARGET glfw)
 endif()
 target_compile_definitions(reborn-util PUBLIC
     "MCPI_UNUSED=__attribute__((unused))"
-    "MCPI_INTERNAL=__attribute__((visibility(\"internal\")))"
 )
 setup_header_dirs(reborn-util
     "${CMAKE_CURRENT_SOURCE_DIR}/include"
-    "${CMAKE_CURRENT_BINARY_DIR}/include"
 )
-setup_library(reborn-util TRUE TRUE)
+setup_library(reborn-util
+    INSTALL
+    IN_SDK
+    DEFINE_EXPORT_MACRO
+)
 
 # Patch
 if(BUILD_ARM_COMPONENTS)
@@ -64,7 +66,11 @@ if(BUILD_ARM_COMPONENTS)
     target_link_libraries(reborn-patch dl pthread reborn-util)
     target_compile_definitions(reborn-patch PUBLIC REBORN_HAS_PATCH_CODE)
     # Install
-    setup_library(reborn-patch TRUE TRUE)
+    setup_library(reborn-patch
+        INSTALL
+        IN_SDK
+        DEFINE_EXPORT_MACRO
+    )
 endif()
 
 # Fake LibPNG To Satisfy Symbol Versioning Requirement
@@ -76,5 +82,7 @@ if(BUILD_ARM_COMPONENTS)
     )
     target_link_options(fake-libpng PRIVATE "LINKER:--version-script=${CMAKE_CURRENT_SOURCE_DIR}/src/fake-libpng/empty.vers")
     # Install
-    setup_library(fake-libpng TRUE FALSE)
+    setup_library(fake-libpng
+        INSTALL
+    )
 endif()

@@ -3,7 +3,7 @@
 
 #ifdef MCPI_BUILD_RUNTIME
 #include <trampoline/host.h>
-extern "C" std::remove_pointer_t<trampoline_t> trampoline;
+extern "C" MCPI_MEDIA_LAYER_TRAMPOLINE_PUBLIC std::remove_pointer_t<trampoline_t> trampoline;
 #endif
 
 #include "bootstrap.h"

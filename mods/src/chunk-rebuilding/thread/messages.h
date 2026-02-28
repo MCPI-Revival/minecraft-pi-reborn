@@ -6,7 +6,7 @@
 
 // Messages Sent To Rebuild Thread
 struct Chunk;
-struct MCPI_INTERNAL chunk_rebuild_data {
+struct chunk_rebuild_data {
     int seed = 0;
     Chunk *chunk = nullptr;
     CachedLevelSource source;
@@ -20,9 +20,9 @@ struct MCPI_INTERNAL chunk_rebuild_data {
 
 // Messages Received From Rebuild Thread
 static constexpr int num_layers = 3;
-struct MCPI_INTERNAL rebuilt_chunk_data {
+struct rebuilt_chunk_data {
     Chunk *chunk = nullptr;
-    struct MCPI_INTERNAL empty {
+    struct empty {
         empty();
         bool value = true;
         bool layers[num_layers] = {};
@@ -33,4 +33,4 @@ struct MCPI_INTERNAL rebuilt_chunk_data {
     int old_sky_darken = 0;
     const VertexArray<CustomVertexFlat> *vertices[num_layers] = {};
 };
-MCPI_INTERNAL void _free_rebuilt_chunk_data(const rebuilt_chunk_data *chunk);
+void _free_rebuilt_chunk_data(const rebuilt_chunk_data *chunk);

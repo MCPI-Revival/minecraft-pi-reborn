@@ -17,12 +17,15 @@ add_library(media-layer-core SHARED
 )
 
 # Install
-setup_library(media-layer-core TRUE TRUE)
+setup_library(media-layer-core
+    INSTALL
+    IN_SDK
+    DEFINE_EXPORT_MACRO
+)
 
 # Link
 target_link_libraries(media-layer-core
     PUBLIC
-        media-layer-headers
         reborn-util
     PRIVATE
         openal

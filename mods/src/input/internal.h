@@ -1,8 +1,8 @@
 #pragma once
 
-MCPI_INTERNAL void _init_attack();
-MCPI_INTERNAL void _init_bow();
-MCPI_INTERNAL void _init_misc();
-MCPI_INTERNAL void _init_toggle();
-MCPI_INTERNAL void _init_drop();
-MCPI_INTERNAL void _init_keys();
+void _init_attack();
+void _init_bow();
+void _init_misc();
+void _init_toggle();
+void _init_drop();
+void _init_keys();

@@ -35,10 +35,14 @@ target_compile_definitions(imgui PUBLIC
     IMGUI_DISABLE_DEBUG_TOOLS
     IMGUI_DISABLE_DEFAULT_FONT
     IMGUI_DISABLE_OBSOLETE_FUNCTIONS
+    "IMGUI_API=MCPI_IMGUI_PUBLIC"
 )
 
 # Install
-setup_library(imgui TRUE FALSE)
+setup_library(imgui
+    INSTALL
+    DEFINE_EXPORT_MACRO
+)
 
 # License
 install(FILES src/LICENSE.txt src/docs/FONTS.md DESTINATION "${MCPI_LEGAL_DIR}/ImGui")

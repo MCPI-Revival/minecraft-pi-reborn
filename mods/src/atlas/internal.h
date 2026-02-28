@@ -13,15 +13,15 @@ static constexpr int atlas_size_entries = atlas_texture_size / atlas_entry_size;
 
 // Atlas Information (Keys And Positions)
 struct Item;
-MCPI_INTERNAL int _atlas_get_key(Item *item, int data);
-MCPI_INTERNAL extern std::unordered_map<int, std::pair<int, int>> _atlas_key_to_pos;
+int _atlas_get_key(Item *item, int data);
+extern std::unordered_map<int, std::pair<int, int>> _atlas_key_to_pos;
 
 // Render The Atlas Itself
 struct Textures;
-MCPI_INTERNAL void _atlas_render(Textures *textures);
-MCPI_INTERNAL extern thread_local bool _atlas_active;
+void _atlas_render(Textures *textures);
+extern thread_local bool _atlas_active;
 
 // Special/Edges Cases
-MCPI_INTERNAL void _atlas_init_special_cases();
+void _atlas_init_special_cases();
 struct Gui;
-MCPI_INTERNAL void _atlas_copy_inventory_button(Textures *textures, Gui *gui);
+void _atlas_copy_inventory_button(Textures *textures, Gui *gui);

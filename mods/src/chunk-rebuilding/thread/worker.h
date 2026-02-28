@@ -5,7 +5,7 @@
 #include "ThreadVector.h"
 
 // A Single Worker
-struct MCPI_INTERNAL RebuildWorker {
+struct RebuildWorker {
     // The Thread
     pthread_t thread;
 
@@ -26,12 +26,12 @@ private:
 };
 
 // Start/Stop
-MCPI_INTERNAL void _stop_chunk_rebuild_thread();
+void _stop_chunk_rebuild_thread();
 struct Level;
-MCPI_INTERNAL void _start_chunk_rebuild_thread(Level *level);
+void _start_chunk_rebuild_thread(Level *level);
 
 // Receive Messages From All Workers
-MCPI_INTERNAL void _receive_rebuilt_chunks(std::vector<void *> &data);
+void _receive_rebuilt_chunks(std::vector<void *> &data);
 
 // Send A Message To A Worker
-MCPI_INTERNAL void _start_chunk_rebuild(void *key, void *value);
+void _start_chunk_rebuild(void *key, void *value);

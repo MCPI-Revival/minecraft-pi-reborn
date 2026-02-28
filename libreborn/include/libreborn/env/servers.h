@@ -5,7 +5,7 @@
 #include <vector>
 
 // Parse servers.txt
-struct ServerList {
+struct MCPI_REBORN_UTIL_PUBLIC ServerList {
     ServerList();
     // Type
     typedef unsigned short port_t;

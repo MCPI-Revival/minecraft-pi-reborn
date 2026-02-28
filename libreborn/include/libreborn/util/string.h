@@ -3,27 +3,27 @@
 #include <string>
 
 // Sanitize String
-void sanitize_string(std::string &str, int max_length, bool allow_newlines);
+MCPI_REBORN_UTIL_PUBLIC void sanitize_string(std::string &str, int max_length, bool allow_newlines);
 
 // CP437
-unsigned char utf32_to_cp437(char32_t codepoint);
-std::string to_cp437(const std::string &input);
-std::string from_cp437(const std::string &input);
+MCPI_REBORN_UTIL_PUBLIC unsigned char utf32_to_cp437(char32_t codepoint);
+MCPI_REBORN_UTIL_PUBLIC std::string to_cp437(const std::string &input);
+MCPI_REBORN_UTIL_PUBLIC std::string from_cp437(const std::string &input);
 
 // Format Time
-std::string format_time(const char *fmt);
-std::string format_time(const char *fmt, int time);
+MCPI_REBORN_UTIL_PUBLIC std::string format_time(const char *fmt);
+MCPI_REBORN_UTIL_PUBLIC std::string format_time(const char *fmt, int time);
 
 // Trimming
-void trim(std::string &str);
+MCPI_REBORN_UTIL_PUBLIC void trim(std::string &str);
 
 // Convert To Windows String
 #ifdef _WIN32
-std::wstring convert_utf8_to_wstring(const std::string &str);
+MCPI_REBORN_UTIL_PUBLIC std::wstring convert_utf8_to_wstring(const std::string &str);
 #endif
 
 // Safe std::to_string
-#define def(type) std::string safe_to_string(type x)
+#define def(type) MCPI_REBORN_UTIL_PUBLIC std::string safe_to_string(type x)
 def(float);
 def(int);
 def(size_t);

@@ -169,7 +169,11 @@ setup_header_dirs(mods "${CMAKE_CURRENT_SOURCE_DIR}/include")
 # Install
 set(old_lib_dir "${MCPI_LIB_DIR}")
 set(MCPI_LIB_DIR "${MCPI_INSTALL_DIR}/mods")
-setup_library(mods TRUE TRUE)
+setup_library(mods
+    INSTALL
+    IN_SDK
+    DEFINE_EXPORT_MACRO
+)
 set(MCPI_LIB_DIR "${old_lib_dir}")
 
 # Dependencies

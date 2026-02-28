@@ -6,7 +6,7 @@
 #include <GLFW/glfw3.h>
 
 // UI Frame
-struct Frame {
+struct MCPI_LAUNCHER_UI_PUBLIC Frame {
     Frame(const char *title, int width, int height);
     virtual ~Frame();
 

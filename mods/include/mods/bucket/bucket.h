@@ -1,3 +1,3 @@
 #pragma once
 
-extern bool buckets_enabled;
+MCPI_MODS_PUBLIC extern bool buckets_enabled;

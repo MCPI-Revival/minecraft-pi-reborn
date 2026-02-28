@@ -6,7 +6,7 @@
 #include <optional>
 
 // Loaded Properties
-struct ServerProperties {
+struct MCPI_MODS_PUBLIC ServerProperties {
     void load(std::istream &stream);
     [[nodiscard]] std::optional<std::string> get(const std::string &key) const;
 private:
@@ -14,7 +14,7 @@ private:
 };
 
 // A Single Property Definition
-struct ServerPropertyBase {
+struct MCPI_MODS_PUBLIC ServerPropertyBase {
     // Constructor
     static std::vector<const ServerPropertyBase *> &get_all();
     ServerPropertyBase();
@@ -23,7 +23,7 @@ struct ServerPropertyBase {
     [[nodiscard]] virtual std::string to_string() const = 0;
 };
 template <typename T>
-struct ServerProperty : ServerPropertyBase {
+struct MCPI_MODS_PUBLIC ServerProperty : ServerPropertyBase {
     // Constructor
     ServerProperty(const ServerProperties &properties_, const std::string &key_, const T &def_, const std::string &comment_);
     // Properties

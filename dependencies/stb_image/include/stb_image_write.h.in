@@ -1,0 +1,7 @@
+#pragma once
+
+#define STBIWDEF extern "C" MCPI_STB_IMAGE_PUBLIC
+
+@data@
+
+STBIWDEF unsigned char *stbi_zlib_compress(unsigned char *data, int data_len, int *out_len, int quality);

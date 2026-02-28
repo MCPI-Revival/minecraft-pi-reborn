@@ -48,4 +48,4 @@ setup_header_dirs(glad
 )
 
 # Install
-setup_library(glad TRUE FALSE)
+setup_library(glad INSTALL)

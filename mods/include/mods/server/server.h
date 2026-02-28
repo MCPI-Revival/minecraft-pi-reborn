@@ -4,7 +4,7 @@
 
 #include "properties.h"
 
-struct ServerCommand {
+struct MCPI_MODS_PUBLIC ServerCommand {
     const std::string name;
     const std::string comment;
     const std::function<void(const std::string &)> callback;
@@ -17,8 +17,8 @@ struct Minecraft;
 struct ServerSideNetworkHandler;
 struct ServerPlayer;
 
-ServerProperties &get_server_properties();
+MCPI_MODS_PUBLIC ServerProperties &get_server_properties();
 extern "C" {
-std::vector<ServerCommand> *server_get_commands(Minecraft *minecraft, ServerSideNetworkHandler *server_side_network_handler);
-void server_kick(const ServerPlayer *player);
+MCPI_MODS_PUBLIC std::vector<ServerCommand> *server_get_commands(Minecraft *minecraft, ServerSideNetworkHandler *server_side_network_handler);
+MCPI_MODS_PUBLIC void server_kick(const ServerPlayer *player);
 }

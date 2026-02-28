@@ -6,10 +6,10 @@
 #endif
 
 // Initialize GLFW
-void init_glfw();
+MCPI_REBORN_UTIL_PUBLIC void init_glfw();
 
 // Create Window
-GLFWwindow *create_glfw_window(const char *title, int width, int height);
+MCPI_REBORN_UTIL_PUBLIC GLFWwindow *create_glfw_window(const char *title, int width, int height);
 
 // Close Window And Uninitialized GLFW
-void cleanup_glfw(GLFWwindow *window);
+MCPI_REBORN_UTIL_PUBLIC void cleanup_glfw(GLFWwindow *window);

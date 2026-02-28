@@ -17,8 +17,8 @@ void Frame::setup_style(const float scale) {
 }
 
 // Fonts
-EMBEDDED_RESOURCE(Roboto_Medium_ttf);
-EMBEDDED_RESOURCE(Cousine_Regular_ttf);
+EMBEDDED_RESOURCE(Roboto_Medium_ttf, MCPI_IMGUI_PUBLIC);
+EMBEDDED_RESOURCE(Cousine_Regular_ttf, MCPI_IMGUI_PUBLIC);
 void Frame::setup_fonts() {
     const ImGuiIO &io = ImGui::GetIO();
     io.Fonts->Clear();

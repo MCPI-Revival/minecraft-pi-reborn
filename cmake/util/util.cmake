@@ -10,6 +10,7 @@ function(embed_resource target file)
         DIRECTORY APPEND PROPERTY
         CMAKE_CONFIGURE_DEPENDS "${in}"
     )
+
     # Output
     cmake_path(GET file FILENAME name)
     string(MAKE_C_IDENTIFIER "${name}" name)
@@ -18,11 +19,15 @@ function(embed_resource target file)
 
     # Read File
     file(READ "${in}" data HEX)
-    # Convert Hex Data For C Compatibility
     string(REGEX REPLACE "([0-9a-f][0-9a-f])" "0x\\1," data "${data}")
 
+    # Get Export Macro
+    set(public "MCPI_${target}_PUBLIC")
+    string(TOUPPER "${public}" public)
+    string(REPLACE "-" "_" public "${public}")
+
     # Write Data
-    configure_file("${util_list_dir}/resource.c.in" "${out}")
+    configure_file("${util_list_dir}/resource.c.in" "${out}" @ONLY)
 endfunction()
 
 # Nicer Output

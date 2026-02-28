@@ -56,7 +56,10 @@ add_subdirectory(src EXCLUDE_FROM_ALL SYSTEM)
 unset(MESSAGE_QUIET)
 
 # Install
-setup_library(LIB_LIEF TRUE TRUE)
+setup_library(LIB_LIEF
+    INSTALL
+    IN_SDK
+)
 
 # License
 install(FILES src/LICENSE DESTINATION "${MCPI_LEGAL_DIR}/LIEF")

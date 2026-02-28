@@ -9,7 +9,7 @@
 
 // Macro
 typedef uint32_t handler_t(trampoline_writer_t writer, const unsigned char *args);
-MCPI_INTERNAL void _add_handler(unsigned char id, handler_t *handler);
+void _add_handler(unsigned char id, handler_t *handler);
 #define CALL(unique_id, name, ignored1, ignored2) \
     static handler_t _run_##name; \
     __attribute__((constructor)) static void _init_##name() { \

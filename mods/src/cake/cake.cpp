@@ -21,7 +21,7 @@
 #define CAKE_SLICE_COUNT 7
 
 // Custom Tile
-struct MCPI_INTERNAL Cake final : CustomTile {
+struct Cake final : CustomTile {
     // Constructor
     Cake(const int id, const int texture, const Material *material):
         CustomTile(id, texture, material) {}

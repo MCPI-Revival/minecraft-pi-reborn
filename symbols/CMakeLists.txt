@@ -255,7 +255,10 @@ add_symbol_library(symbols
 )
 
 # Install
-setup_library(symbols TRUE TRUE)
+setup_library(symbols
+    INSTALL
+    IN_SDK
+)
 
 # Build Doxygen
 find_package(Doxygen REQUIRED)

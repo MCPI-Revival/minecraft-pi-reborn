@@ -24,7 +24,7 @@ struct CustomVertexShaded {
 
 // Vertex Array
 template <typename T>
-struct VertexArray {
+struct MCPI_MODS_PUBLIC VertexArray {
     explicit VertexArray(int max_size);
     VertexArray();
     ~VertexArray();
@@ -40,7 +40,7 @@ extern template struct VertexArray<CustomVertexFlat>;
 extern template struct VertexArray<CustomVertexShaded>;
 
 // Advanced Tesselator
-struct CustomTesselator {
+struct MCPI_MODS_PUBLIC CustomTesselator {
     // Constructor
     explicit CustomTesselator(bool create_buffers);
     ~CustomTesselator();
@@ -77,5 +77,5 @@ struct CustomTesselator {
 };
 
 // Method
-void advanced_tesselator_enable();
-CustomTesselator &advanced_tesselator_get();
+MCPI_MODS_PUBLIC void advanced_tesselator_enable();
+MCPI_MODS_PUBLIC CustomTesselator &advanced_tesselator_get();

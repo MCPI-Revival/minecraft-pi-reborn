@@ -1,4 +1,4 @@
 #pragma once
 
 struct LevelRenderer;
-extern "C" void LevelRenderer_renderSameAsLast(LevelRenderer *self, float delta);
+extern "C" MCPI_MODS_PUBLIC void LevelRenderer_renderSameAsLast(LevelRenderer *self, float delta);

@@ -4,7 +4,6 @@
 
 #include "stb_image.h"
 #include "stb_image_write.h"
-STBIWDEF unsigned char *stbi_zlib_compress(unsigned char *data, int data_len, int *out_len, int quality);
 
 #include <mods/multiplayer/packets.h>
 
