@@ -1,7 +1,9 @@
+extends ICreator;
+
 size 0x20;
 
-extends ICreator;
-vtable 0x1a0dc;
+vtable 0x102cc0;
+vtable-size 0xc;
 
 property EventList_TileEvent tileEvents = 0x4;
 property int tick = 0x1c;

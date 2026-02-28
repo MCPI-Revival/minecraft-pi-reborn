@@ -1,3 +1,6 @@
+size 0x4;
+
 vtable 0x102ca8;
+vtable-size 0xc;
 
 virtual-method EventList_TileEvent &getTileEvents() = 0x8;
