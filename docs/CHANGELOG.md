@@ -169,6 +169,7 @@ include_toc: true
   * `Remove Forced GUI Lag (Can Break Joining Servers)` To `Remove Forced UI Lag`
   * `Hide Block Outline When GUI Is Hidden` To `Hide Block Outline When UI Is Hidden`
   * `Fix Camera Rendering` To `Enable Camera Rendering`
+  * `Disable Raw Mouse Motion (Not Recommended)` To `Disable Raw Mouse Motion`
 * Removed `Property Scale Animated Textures` Feature Flag
 * Removed `Remove Invalid Item Background` Feature Flag
 * Removed `Close Current Screen On Death` Feature Flag

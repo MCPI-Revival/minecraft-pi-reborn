@@ -56,8 +56,10 @@ void ConfigurationUI::draw_category(FlagNode &category) {
             }
         } else {
             // Flag
+            ImGui::BeginDisabled(child.is_advanced && !ImGui::GetIO().KeyShift);
             ImGui::Checkbox(label.c_str(), &child.value.value());
             add_flag_tooltip(child);
+            ImGui::EndDisabled();
         }
     }
 }
@@ -75,12 +77,21 @@ bool ConfigurationUI::should_draw_category(const FlagNode &category) {
 
 // Tooltips
 void ConfigurationUI::add_flag_tooltip(const FlagNode &flag) {
-    if (!flag.comment.empty() && ImGui::BeginItemTooltip()) {
+    // Handle 'Advanced" Flags
+    std::string comment = flag.comment;
+    if (!flag.is_category() && flag.is_advanced) {
+        if (!comment.empty()) {
+            comment += ' ';
+        }
+        comment += "Changing this setting is not recommended. Hold the Shift key to edit it.";
+    }
+    // Add
+    if (!comment.empty() && ImGui::BeginItemTooltip()) {
         const float max_width = get_max_tooltip_width();
         const float padding = ImGui::GetCursorPosX();
         const float wrap_pos = max_width - padding;
         ImGui::PushTextWrapPos(wrap_pos);
-        ImGui::TextUnformatted(flag.comment.c_str());
+        ImGui::TextUnformatted(comment.c_str());
         ImGui::PopTextWrapPos();
         ImGui::EndTooltip();
     }

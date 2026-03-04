@@ -48,6 +48,9 @@ Flags::Flags(const std::string &data) {
                     ERR("Cannot Set Tooltip Outside Category: %s", line.c_str());
                 }
                 parent.comment = line;
+            } else if (line == "ADVANCED") {
+                // Mark As Advanced
+                parent.is_advanced = true;
             } else {
                 // Add Flag
                 if (!parent.is_category()) {

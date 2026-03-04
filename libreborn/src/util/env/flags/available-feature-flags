@@ -41,6 +41,7 @@ CATEGORY User Interface
             TRUE Use Updated Title
         CATEGORY Options
             TRUE Fix Options Screen
+                ADVANCED
             TRUE Add Reborn Info To Options
         TRUE Force Touch UI Inventory
             COMMENT The non-touch inventory UI is extremely limited.
@@ -58,6 +59,7 @@ CATEGORY User Interface
         TRUE F3 Debug Information
         TRUE Hide Crosshair In Third-Person
     CATEGORY Text
+        ADVANCED
         TRUE Load Language Files
         TRUE Add Missing Language Strings
     FALSE Full Touch UI
@@ -112,6 +114,7 @@ CATEGORY Textures
         FALSE Add Biome Colors To Grass
             COMMENT This may negatively impact performance.
         FALSE Disable Block Tinting
+            ADVANCED
         TRUE Tint Tall Grass/Fern Items
     CATEGORY Animation
         TRUE Animated Water
@@ -124,14 +127,18 @@ CATEGORY Input
     TRUE Disable Autojump By Default
     TRUE Bind 'Q' Key To Item Dropping
     TRUE Bind Common Toggleable Options To Function Keys
-    FALSE Disable Raw Mouse Motion (Not Recommended)
+    FALSE Disable Raw Mouse Motion
+        ADVANCED
     FALSE Disable Speed Bridging
     TRUE Enable Text Input
+        ADVANCED
     TRUE Extend Supported Keycodes
+        ADVANCED
     TRUE Block Tile Interaction When Sneaking
     TRUE Implement Inventory Mouse Scrolling
         COMMENT This only works for a subset of screens.
 CATEGORY Multiplayer
+    ADVANCED
     TRUE Allow Joining Survival Mode Servers
     TRUE External Server Support
         COMMENT This allows connecting to servers outside the local network.
@@ -146,11 +153,14 @@ CATEGORY Gameplay
         FALSE Generate Tall Grass
     TRUE Implement Death Messages
     TRUE Implement Game-Mode Switching
+        ADVANCED
     FALSE Force Mob Spawning
     FALSE Force Day/Night Cycle
     TRUE Implement Crafting Remainders
+        ADVANCED
     TRUE Implement Sound Engine
 CATEGORY Bug Fixes
+    ADVANCED
     CATEGORY Visual
         TRUE Fix Held Item Caching
         TRUE Fix Cobweb Lighting
@@ -209,6 +219,7 @@ CATEGORY Bug Fixes
     TRUE Fix Hanging When No Valid Spawn Point Exists
     TRUE Force Saving Level Data On World Exit
 CATEGORY Logging
+    ADVANCED
     FALSE Log FPS
     TRUE Log Chat Messages
     TRUE Log Game Status
@@ -220,3 +231,4 @@ CATEGORY Miscellaneous
     TRUE Update Default Options
     TRUE Remove Chest Placement Restrictions
     TRUE Sync Chunks To Disk After Saving
+        ADVANCED

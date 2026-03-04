@@ -11,6 +11,7 @@ void FlagNode::reset_id_counter() {
 FlagNode::FlagNode(const std::string &name_) {
     name = name_;
     id = next_id++;
+    is_advanced = false;
 }
 FlagNode::FlagNode():
     FlagNode("Root") {}
@@ -83,11 +84,13 @@ FlagNode &FlagNode::add_flag(std::string line) {
     // Create
     FlagNode out(line);
     out.value = new_value;
+    out.is_advanced = is_advanced;
     children.push_back(out);
     return children.back();
 }
 FlagNode &FlagNode::add_category(const std::string &new_name) {
-    const FlagNode out(new_name);
+    FlagNode out(new_name);
+    out.is_advanced = is_advanced;
     children.push_back(out);
     return children.back();
 }

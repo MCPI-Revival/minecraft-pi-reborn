@@ -28,6 +28,7 @@ public:
     std::string name;
     std::string comment;
     std::optional<bool> value;
+    bool is_advanced;
     std::deque<FlagNode> children; // Used Instead Of std::vector To Keep References Stable
     int id;
 
