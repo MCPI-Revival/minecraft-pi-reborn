@@ -5,7 +5,6 @@
 #include <libreborn/log.h>
 #include <libreborn/env/env.h>
 #include <libreborn/config.h>
-#include <libreborn/util/exec.h>
 
 #include "../util/util.h"
 #include "bootstrap.h"
@@ -17,6 +16,11 @@ int main(MCPI_UNUSED const int argc, MCPI_UNUSED char *argv[]) {
 
     // Make Sure Launcher Was Run
     require_env(_MCPI_HOME_ENV);
+
+    // Check WSL
+#ifdef _WIN32
+    check_wsl();
+#endif
 
     // Debug Information
     print_debug_information();

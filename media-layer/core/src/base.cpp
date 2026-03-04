@@ -42,14 +42,12 @@ void _media_translate_linux_path_to_native(std::string &path) {
         "--exec", "wslpath", "-w", path.c_str(),
         nullptr
     };
-    exit_status_t exit_code;
-    const std::vector<unsigned char> *output = run_command(command, &exit_code);
-    if (!is_exit_status_success(exit_code)) {
+    const CommandResult result = run_command(command);
+    if (result.output.empty() || !is_exit_status_success(result.status)) {
         path.clear();
         return;
     }
-    path = (const char *) output->data();
-    delete output;
+    path = result.str<std::string>();
     trim(path);
 #else
     (void) path;

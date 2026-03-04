@@ -53,7 +53,19 @@ MCPI_REBORN_UTIL_PUBLIC void poll_fds(
 );
 
 // Run Command And Get Output
-MCPI_REBORN_UTIL_PUBLIC std::vector<unsigned char> *run_command(const char *const command[], exit_status_t *exit_status);
+struct MCPI_REBORN_UTIL_PUBLIC CommandResult {
+    std::vector<unsigned char> output;
+    exit_status_t status;
+    // Get Output As String
+    template <typename T>
+    [[nodiscard]] T str() const {
+        typedef typename T::value_type char_t;
+        const char_t *start = (const char_t *) output.data();
+        const size_t size = output.size() / sizeof(char_t);
+        return T(start, size);
+    }
+};
+MCPI_REBORN_UTIL_PUBLIC CommandResult run_command(const char *const command[]);
 MCPI_REBORN_UTIL_PUBLIC bool is_exit_status_success(exit_status_t status, bool allow_ctrl_c = false);
 
 // Get Exit Status String
@@ -63,9 +75,10 @@ MCPI_REBORN_UTIL_PUBLIC std::string get_exit_status_string(exit_status_t status)
 MCPI_REBORN_UTIL_PUBLIC void open_url(const std::string &url);
 
 // Download From Internet
-MCPI_REBORN_UTIL_PUBLIC const std::vector<unsigned char> *download_from_internet(const std::string &dest, const std::string &url, const std::optional<std::string> &user_agent = std::nullopt);
+MCPI_REBORN_UTIL_PUBLIC std::optional<CommandResult> download_from_internet(const std::string &dest, const std::string &url, const std::optional<std::string> &user_agent = std::nullopt);
 
 // WSL Command-Line Options
 #ifdef _WIN32
-#define WSL_FLAGS "--distribution", "MCPI-Reborn"
+#define WSL_CONTAINER_NAME "MCPI-Reborn"
+#define WSL_FLAGS "--distribution", WSL_CONTAINER_NAME
 #endif

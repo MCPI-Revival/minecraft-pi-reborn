@@ -60,8 +60,7 @@ static void show_report(const std::string &filename) {
     const std::string exe = get_binary_directory() + path_separator + "crash-report";
     const std::string dir = get_logs_folder();
     const char *argv[] = {exe.c_str(), filename.c_str(), dir.c_str(), nullptr};
-    const std::vector<unsigned char> *output = run_command(argv, nullptr);
-    delete output;
+    run_command(argv);
 }
 
 // Utility Functions

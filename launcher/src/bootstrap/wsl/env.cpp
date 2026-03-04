@@ -1,9 +1,10 @@
+#include "../bootstrap.h"
+#include "../../util/util.h"
+
 #include <libreborn/env/env.h>
 #include <libreborn/util/exec.h>
 
 #include <trampoline/host.h>
-
-#include "bootstrap.h"
 
 // Set WSLENV
 static void set_wslenv() {

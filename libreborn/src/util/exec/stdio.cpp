@@ -157,17 +157,20 @@ Process spawn_with_stdio(const char *const argv[]) {
 #endif
 
 // Run Command And Get Output
-std::vector<unsigned char> *run_command(const char *const command[], exit_status_t *exit_status) {
+CommandResult run_command(const char *const command[]) {
     // Run
     Process child = spawn_with_stdio(command);
 
+    // Create Result Object
+    CommandResult ret;
+    ret.status = 0;
+
     // Read stdout
-    std::vector<unsigned char> *output = new std::vector<unsigned char>;
     if (child.open) {
-        poll_fds({child.fds.at(0), child.fds.at(1)}, {}, [&output](const int i, const size_t size, const unsigned char *buf) {
+        poll_fds({child.fds.at(0), child.fds.at(1)}, {}, [&ret](const int i, const size_t size, const unsigned char *buf) {
             if (i == 0) {
                 // stdout
-                output->insert(output->end(), buf, buf + size);
+                ret.output.insert(ret.output.end(), buf, buf + size);
             } else {
                 // stderr
                 FILE *file = reborn_get_debug_file();
@@ -179,15 +182,7 @@ std::vector<unsigned char> *run_command(const char *const command[], exit_status
         });
     }
 
-    // Get Exit Status
-    const exit_status_t status = child.close();
-    if (exit_status != nullptr) {
-        *exit_status = status;
-    }
-
-    // Add NULL-Terminator To Output
-    output->push_back(0);
-
     // Return
-    return output;
+    ret.status = child.close();
+    return ret;
 }

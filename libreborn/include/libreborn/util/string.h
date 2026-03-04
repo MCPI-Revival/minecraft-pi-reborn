@@ -20,6 +20,7 @@ MCPI_REBORN_UTIL_PUBLIC void trim(std::string &str);
 // Convert To Windows String
 #ifdef _WIN32
 MCPI_REBORN_UTIL_PUBLIC std::wstring convert_utf8_to_wstring(const std::string &str);
+MCPI_REBORN_UTIL_PUBLIC std::string convert_wstring_to_utf8(const std::wstring &str);
 #endif
 
 // Safe std::to_string

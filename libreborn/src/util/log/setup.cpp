@@ -13,12 +13,12 @@ void reborn_init_log(const std::optional<HANDLE> &fd) {
     // Close Old Log File
     close_log_file();
     // Mark Process As The Logger
-    if (log_file.has_value()) {
+    if (fd.has_value()) {
         logger_process = getpid();
     } else {
         logger_process.reset();
     }
-    // Set Variable
+    // Set Environmental Variable
     // Future calls of reborn_get_log_file() will retrieve this.
     const std::string env_value = fd.has_value() ? safe_to_string(fd.value()) : "";
     setenv_safe(_MCPI_LOG_FD_ENV, !env_value.empty() ? env_value.c_str() : nullptr);

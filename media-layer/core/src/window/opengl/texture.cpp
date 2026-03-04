@@ -13,7 +13,7 @@ struct pending_texture {
     GLuint texture_id = 0;
     std::string url;
     // Texture Data
-    const std::vector<unsigned char> *data = nullptr;
+    std::vector<unsigned char> data;
     // State
     bool done = false;
     bool success = false;
@@ -39,8 +39,10 @@ void media_apply_downloaded_textures() {
             // PNG Was Loaded Successfully
 
             // Read PNG Information
-            int width = 0, height = 0, channels = 0;
-            stbi_uc *img = stbi_load_from_memory(texture->data->data(), int(texture->data->size()), &width, &height, &channels, STBI_rgb_alpha);
+            int width = 0;
+            int height = 0;
+            int channels = 0;
+            stbi_uc *img = stbi_load_from_memory(texture->data.data(), int(texture->data.size()), &width, &height, &channels, STBI_rgb_alpha);
 
             // Load Texture
             GLint last_texture;
@@ -60,7 +62,6 @@ void media_apply_downloaded_textures() {
     // Clear
     for (const pending_texture *texture : done) {
         pthread_join(texture->thread, nullptr);
-        delete texture->data;
         delete texture;
         std::erase(pending_textures, texture);
     }
@@ -76,10 +77,10 @@ static void *loader_thread(void *user_data) {
     const std::string &url = data->url;
 
     // Download
-    const std::vector<unsigned char> *output = download_from_internet("-", url);
+    const std::optional<CommandResult> output = download_from_internet("-", url);
 
     // Check Success
-    const bool success = output != nullptr;
+    const bool success = output.has_value();
     if (success) {
         DEBUG("Downloaded Texture: %s", url.c_str());
     } else {
@@ -90,7 +91,7 @@ static void *loader_thread(void *user_data) {
     pthread_mutex_lock(&pending_textures_lock);
     data->done = true;
     data->success = success;
-    data->data = output;
+    data->data = output.value().output;
     pthread_mutex_unlock(&pending_textures_lock);
     return nullptr;
 }

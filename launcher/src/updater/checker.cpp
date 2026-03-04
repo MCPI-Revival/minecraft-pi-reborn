@@ -6,11 +6,9 @@
 
 // Download A File
 std::optional<std::string> run_wget(const std::string &dest, const std::string &url) {
-    const std::vector<unsigned char> *output = download_from_internet(dest, url);
-    if (output) {
-        std::string output_str = (const char *) output->data();
-        delete output;
-        return output_str;
+    const std::optional<CommandResult> output = download_from_internet(dest, url);
+    if (output.has_value()) {
+        return output.value().str<std::string>();
     } else {
         return std::nullopt;
     }

@@ -66,15 +66,21 @@ void trim(std::string &str) {
 
 // Convert String
 #ifdef _WIN32
-std::wstring convert_utf8_to_wstring(const std::string &str) {
-    std::wstring out;
-    const int size = MultiByteToWideChar(CP_UTF8, 0, str.c_str(), -1, nullptr, 0);
-    if (size > 0) {
-        out.resize(size + 10);
-        MultiByteToWideChar(CP_UTF8, 0, str.c_str(), -1, out.data(), int(out.size()));
+static constexpr UINT code_page = CP_UTF8;
+#define def(func, in_type, out_type, operation, ...) \
+    out_type func(const in_type &str) { \
+        out_type out; \
+        const int in_size = int(str.length()); \
+        const int out_size = operation(code_page, 0, str.data(), in_size, nullptr, 0, ##__VA_ARGS__); \
+        if (out_size > 0) { \
+            out.resize(out_size); \
+            operation(code_page, 0, str.c_str(), in_size, out.data(), out_size, ##__VA_ARGS__); \
+        } \
+        return out; \
     }
-    return out;
-}
+def(convert_utf8_to_wstring, std::string, std::wstring, MultiByteToWideChar)
+def(convert_wstring_to_utf8, std::wstring, std::string, WideCharToMultiByte, nullptr, nullptr)
+#undef def
 #endif
 
 // Safe std::to_string

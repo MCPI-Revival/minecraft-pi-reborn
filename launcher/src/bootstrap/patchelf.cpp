@@ -31,7 +31,7 @@ static int create_file() {
     // Generate New File
     unlink(patched_exe_path.c_str());
     const int fd = open(patched_exe_path.c_str(), O_WRONLY | O_CREAT | O_BINARY, S_IRWXU);
-    if (fd <= 0) {
+    if (fd < 0) {
         ERR("Unable To Open Patched Executable: %s", strerror(errno));
     }
     // Return
@@ -106,6 +106,9 @@ void patch_mcpi_elf_dependencies(const std::string &original_path, const std::st
     std::ostream stream(&buf);
     builder.write(stream);
     stream.flush();
+    if (!stream) {
+        ERR("Unable To Write Patched Executable");
+    }
 }
 
 // Linker

@@ -14,11 +14,9 @@
 // Open URL
 void open_url(const std::string &url) {
 #ifndef _WIN32
-    int return_code;
     const char *command[] = {"xdg-open", url.c_str(), nullptr};
-    const std::vector<unsigned char> *output = run_command(command, &return_code);
-    delete output;
-    if (!is_exit_status_success(return_code)) {
+    const CommandResult result = run_command(command);
+    if (!is_exit_status_success(result.status)) {
         WARN("Unable To Open URL: %s", url.c_str());
     }
 #else
@@ -56,7 +54,7 @@ __attribute__((constructor)) static void init_timeout() {
 }
 
 // Download From Internet
-const std::vector<unsigned char> *download_from_internet(const std::string &dest, const std::string &url, const std::optional<std::string> &user_agent) {
+std::optional<CommandResult> download_from_internet(const std::string &dest, const std::string &url, const std::optional<std::string> &user_agent) {
     // Select Tool
 #ifndef _WIN32
     // All Linux Distributions Have Wget
@@ -105,12 +103,10 @@ const std::vector<unsigned char> *download_from_internet(const std::string &dest
     command.push_back(nullptr);
 
     // Run Command
-    exit_status_t status = 0;
-    const std::vector<unsigned char> *output = run_command(command.data(), &status);
-    if (!is_exit_status_success(status)) {
-        delete output;
-        return nullptr;
+    CommandResult result = run_command(command.data());
+    if (!is_exit_status_success(result.status)) {
+        return std::nullopt;
     } else {
-        return output;
+        return result;
     }
 }

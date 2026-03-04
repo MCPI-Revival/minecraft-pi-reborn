@@ -6,33 +6,23 @@
 
 // Run Command And Trim The Output
 std::string run_command_and_trim(const char *const command[], const char *action) {
-    exit_status_t status = 0;
-    const std::vector<unsigned char> *output = run_command(command, &status);
-    if (!is_exit_status_success(status)) {
+    const CommandResult result = run_command(command);
+    if (!is_exit_status_success(result.status)) {
         ERR("Unable To %s", action);
     }
-    std::string output_str = (const char *) output->data();
-    delete output;
+    std::string output_str = result.str<std::string>();
     // Trim
     trim(output_str);
     // Return
     return output_str;
 }
 
-// Translate Windows Path To WSL Path
+// No Path Translation Needed On Linux
+#ifndef _WIN32
 std::string translate_native_path_to_linux(const std::string &path) {
-#ifdef _WIN32
-    const char *const command[] = {
-        "wsl",
-        WSL_FLAGS,
-        "--exec", "wslpath", "-u", path.c_str(),
-        nullptr
-    };
-    return run_command_and_trim(command, "Translate Native Path To Linux");
-#else
     return path;
-#endif
 }
+#endif
 
 // Get Temporary Directory
 std::string get_temp_dir() {

@@ -4,18 +4,20 @@
 
 #include <dirent.h>
 
-// Minecraft: Pi Edition Was Not Compiled With 64-Bit Filesystem Support, So This Shims readdir() To Read Directories Properly
-
-#define FILENAME_SIZE 256
-
-dirent *readdir(DIR *dirp) {
+// Minecraft: Pi Edition was not compiled with 64-bit filesystem support.
+// This fixes readdir() to read directories properly.
+MCPI_MODS_PUBLIC dirent *readdir(DIR *dirp) {
+    // Call 64-Bit Function
     const dirent64 *original = readdir64(dirp);
     if (original == nullptr) {
         return nullptr;
     }
+    // Copy Result Into 32-Bit Structure
     static dirent new_dirent;
-    for (int i = 0; i < FILENAME_SIZE; i++) {
-        new_dirent.d_name[i] = original->d_name[i];
+    const char *ptr = original->d_name;
+    for (char &c : new_dirent.d_name) {
+        c = *ptr;
+        ptr++;
     }
     new_dirent.d_type = original->d_type;
     return &new_dirent;

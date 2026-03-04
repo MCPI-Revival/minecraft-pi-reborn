@@ -24,6 +24,7 @@ std::vector<std::string> get_ld_path(const std::string &binary_directory_linux);
 void patch_mcpi_elf_dependencies(const std::string &original_path, const std::string &interpreter, const std::vector<std::string> &rpath, const std::vector<std::string> &mods);
 // Configure WSL
 #ifdef _WIN32
+void check_wsl();
 void configure_wsl();
 #endif
 // Start Runtime

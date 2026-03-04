@@ -33,7 +33,7 @@ static std::string get_output_path(const std::string &path) {
     return get_data_dir() + path.substr(i);
 }
 
-// Comment Out Line In File
+// Disable Line In File By Making It A Comment
 static void comment_line(const int fd, const std::string &target, const off_t offset) {
     // Go To Start
     lseek(fd, 0, SEEK_SET);
@@ -100,10 +100,8 @@ static std::string get_exec() {
 static void update_desktop_database(std::string desktop_file) {
     chop_last_component(desktop_file);
     const char *const command[] = {"update-desktop-database", desktop_file.c_str(), nullptr};
-    exit_status_t status = 0;
-    const std::vector<unsigned char> *output = run_command(command, &status);
-    delete output;
-    if (is_exit_status_success(status)) {
+    const CommandResult result = run_command(command);
+    if (is_exit_status_success(result.status)) {
         INFO("Updated Desktop Database");
     } else {
         WARN("Unable To Update Desktop Database");

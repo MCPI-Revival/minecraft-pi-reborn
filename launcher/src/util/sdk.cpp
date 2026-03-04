@@ -1,80 +1,12 @@
+#include "util.h"
+
 #include <optional>
 #include <fstream>
-#include <sstream>
-#include <sys/stat.h>
-#include <dirent.h>
-#include <cstring>
-
-#ifndef _WIN32
-#include <unistd.h>
-#endif
 
 #include <libreborn/log.h>
 #include <libreborn/util/util.h>
 #include <libreborn/util/io.h>
 #include <libreborn/config.h>
-
-#include "util.h"
-
-// Utility Functions
-void make_directory(std::string path /* Must Be Absolute */) {
-    if (!path.ends_with(path_separator)) {
-        path += path_separator;
-    }
-    std::stringstream stream(path);
-    path = "";
-    std::string path_segment;
-    while (std::getline(stream, path_segment, path_separator)) {
-        path += path_segment;
-        ensure_directory(path.c_str());
-        path += path_separator;
-    }
-}
-void delete_recursively(const std::string &path, const bool allow_nonexistent_dir) {
-    // Loop Through Children
-    const bool success = read_directory(path, [&path](const dirent *entry, const bool is_dir) {
-        // Handle
-        const std::string child = path + path_separator + entry->d_name;
-        if (is_dir) {
-            delete_recursively(child, false);
-        } else if (unlink(child.c_str()) != 0) {
-            ERR("Unable To Delete File: %s: %s", child.c_str(), strerror(errno));
-        }
-    }, allow_nonexistent_dir);
-    // Delete
-    if (success && rmdir(path.c_str()) != 0) {
-        ERR("Unable To Delete Directory: %s: %s", path.c_str(), strerror(errno));
-    }
-}
-void copy_file(const std::string &src, const std::string &dst, const bool log) {
-    std::ifstream in(src, std::ios::binary);
-    if (!in) {
-        ERR("Unable To Open Source File: %s", src.c_str());
-    }
-    std::ofstream out(dst, std::ios::binary);
-    if (!out) {
-        ERR("Unable To Create Destination File: %s", dst.c_str());
-    }
-    out << in.rdbuf();
-    out.close();
-    in.close();
-    if (log) {
-        INFO("Installed: %s", dst.c_str());
-    }
-}
-static void copy_directory(const std::string &src, const std::string &dst) {
-    read_directory(src, [&src, &dst](const dirent *entry, const bool is_dir) {
-        const std::string name = path_separator + std::string(entry->d_name);
-        const std::string in = src + name;
-        const std::string out = dst + name;
-        if (is_dir) {
-            ensure_directory(out.c_str());
-            copy_directory(in, out);
-        } else {
-            copy_file(in, out);
-        }
-    });
-}
 
 // Path
 static std::string get_sdk_root(const std::string &home) {

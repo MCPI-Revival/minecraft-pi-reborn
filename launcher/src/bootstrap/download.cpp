@@ -23,11 +23,10 @@ std::string get_game_binary_path() {
 static bool download_archive(const std::string &url, const std::string &dest) {
     // Download
     unlink(dest.c_str());
-    const std::vector<unsigned char> *output = download_from_internet(dest, url, reborn_config.game.download_user_agent);
-    if (!output) {
+    const std::optional<CommandResult> download_result = download_from_internet(dest, url, reborn_config.game.download_user_agent);
+    if (!download_result.has_value()) {
         return false;
     }
-    delete output;
 
     // Convert .tar.gz.zip Into .zip
     if (dest.ends_with(".zip")) {
@@ -47,22 +46,22 @@ static bool download_archive(const std::string &url, const std::string &dest) {
 #endif
             nullptr
         };
-        exit_status_t status;
-        output = run_command(command, &status);
+        const CommandResult extract_result = run_command(command);
+        if (extract_result.output.empty() || !is_exit_status_success(extract_result.status)) {
+            return false;
+        }
 
         // Write To File
         bool success = false;
-        if (output && is_exit_status_success(status)) {
-            std::ofstream file(dest, std::ios::binary);
+        std::ofstream file(dest, std::ios::binary);
+        if (file) {
+            const std::vector<unsigned char> &data = extract_result.output;
+            file.write((const char *) data.data(), std::streamsize(data.size()));
             if (file) {
-                file.write((const char *) output->data(), std::streamsize(output->size()));
-                if (file) {
-                    success = true;
-                }
-                file.close();
+                success = true;
             }
+            file.close();
         }
-        delete output;
         if (!success) {
             return false;
         }
@@ -111,7 +110,7 @@ static std::string download_game_archive() {
 
     // Return
     if (dest.empty()) {
-        ERR("Unable To Download Game");
+        user_error("Unable to download the game! Check your internet connection and try again.");
     }
     return dest;
 }
@@ -125,11 +124,9 @@ static void extract_game_archive(const std::string &game_dir, const std::string 
         "--strip-components", "1",
         nullptr
     };
-    exit_status_t status;
-    const std::vector<unsigned char> *output = run_command(command, &status);
-    delete output;
+    const CommandResult result = run_command(command);
     unlink(archive.c_str());
-    if (!is_exit_status_success(status)) {
+    if (!is_exit_status_success(result.status)) {
         ERR("Unable To Extract Game");
     }
 }

@@ -15,12 +15,22 @@ target_link_libraries(launcher-ui
 
 # Utility Functions
 add_library(launcher-util SHARED
-    src/util/util.cpp
+    src/util/paths.cpp
+    src/util/binary.cpp
     src/util/sdk.cpp
     src/util/env.cpp
+    src/util/error/exec.cpp
 )
 target_link_libraries(launcher-util
     reborn-util
+)
+
+# User Error Dialog
+add_executable(error
+    src/util/error/dialog.cpp
+)
+target_link_libraries(error
+    launcher-ui
 )
 
 # Launcher
@@ -98,7 +108,9 @@ add_executable(bootstrap
 )
 if(MCPI_WIN32)
     target_sources(bootstrap PRIVATE
-        src/bootstrap/wsl.cpp
+        src/bootstrap/wsl/check.cpp
+        src/bootstrap/wsl/paths.cpp
+        src/bootstrap/wsl/env.cpp
     )
 endif()
 target_link_libraries(bootstrap
@@ -151,6 +163,7 @@ endfunction()
 install_bin(launcher)
 install_bin(logger)
 install_bin(crash-report)
+install_bin(error)
 install_bin(bootstrap)
 if(NOT MCPI_WIN32)
     set(bin "bin/${MCPI_APP_NAME}")
