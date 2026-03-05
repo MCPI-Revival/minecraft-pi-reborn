@@ -112,6 +112,7 @@ static bool is_wsl_working() {
     }
 
     // Test Container
+    DEBUG("Testing WSL Container...");
     const std::string magic = "Hello World!";
     const std::vector<const char *> args = {
         "wsl",

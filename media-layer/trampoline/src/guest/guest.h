@@ -33,7 +33,7 @@ __attribute__((hot, always_inline)) static inline unsigned int _trampoline(const
     uint32_t ret = 0;
     const uint32_t err = raw_trampoline(id, allow_early_return ? nullptr : &ret, length, out);
     if (err != 0) [[unlikely]] {
-        ERR("Trampoline Error: %u", err);
+        ERR("Trampoline Error: %u: %u", id, err);
     }
     return ret;
 }

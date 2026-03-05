@@ -121,6 +121,7 @@ CATEGORY Textures
         TRUE Animated Lava
         TRUE Animated Fire
     TRUE Regenerate "gui_blocks" Atlas
+        ADVANCED
     FALSE Translucent Ice
 CATEGORY Input
     COMMENT These customize how the game is controlled.

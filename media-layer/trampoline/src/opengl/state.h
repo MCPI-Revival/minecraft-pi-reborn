@@ -4,7 +4,6 @@
 
 // Track GL State
 struct gl_array_details_t {
-    bool dirty = false;
     bool enabled = false;
     GLint size = 0;
     GLenum type = 0;
@@ -20,7 +19,6 @@ struct gl_state_t {
         gl_array_details_t media_glColorPointer;
         gl_array_details_t media_glTexCoordPointer;
         gl_array_details_t media_glNormalPointer;
-        void set_all_dirty(bool x);
     } array_details;
 
     // Track Display List State

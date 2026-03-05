@@ -3,23 +3,12 @@
 #include <libreborn/log.h>
 
 // Track GL State
-void gl_array_details_t::update(const bool enabled_, const GLint size_, const GLenum type_, const GLsizei stride_,
-    const uint32_t pointer_) {
-    if (enabled != enabled_ || size != size_ || type != type_ || stride != stride_ || pointer != pointer_) {
-        // Array Details Have Changed!
-        enabled = enabled_;
-        size = size_;
-        type = type_;
-        stride = stride_;
-        pointer = pointer_;
-        dirty = true;
-    }
-}
-void gl_state_t::array_details_t::set_all_dirty(const bool x) {
-    media_glVertexPointer.dirty = x;
-    media_glColorPointer.dirty = x;
-    media_glTexCoordPointer.dirty = x;
-    media_glNormalPointer.dirty = x;
+void gl_array_details_t::update(const bool enabled_, const GLint size_, const GLenum type_, const GLsizei stride_, const uint32_t pointer_) {
+    enabled = enabled_;
+    size = size_;
+    type = type_;
+    stride = stride_;
+    pointer = pointer_;
 }
 
 // Get OpenGL Array Details
@@ -40,9 +29,6 @@ const gl_array_details_t &gl_state_t::get_array_details_const(const GLenum array
 #ifndef MEDIA_LAYER_TRAMPOLINE_GUEST
 void gl_state_t::send_array_to_driver(const GLenum array) const {
     const gl_array_details_t &state = get_array_details_const(array);
-    if (!in_display_list.state && !state.dirty) {
-        return;
-    }
     if (state.enabled) {
         media_glEnableClientState(array);
         switch (array) {

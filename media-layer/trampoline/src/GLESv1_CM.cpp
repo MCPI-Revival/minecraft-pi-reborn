@@ -59,7 +59,6 @@ CALL(14, media_glBlendFunc, void, (const GLenum sfactor, const GLenum dfactor))
 CALL(15, media_glDrawArrays, void, (const GLenum mode, const GLint first, const GLsizei count))
 #ifdef MEDIA_LAYER_TRAMPOLINE_GUEST
     trampoline(true, gl_state, mode, first, count);
-    gl_state.array_details.set_all_dirty(false);
 #else
     const gl_state_t &gl_state = args.next<gl_state_t>();
     gl_state.send_to_driver();
@@ -292,11 +291,7 @@ CALL(31, media_glDepthFunc, void, (const GLenum func))
 #ifdef MEDIA_LAYER_TRAMPOLINE_GUEST
 void media_glBindBuffer(const GLenum target, const GLuint buffer) {
     if (target == GL_ARRAY_BUFFER) {
-        GLuint &bound_buffer = gl_state.bound_array_buffer;
-        if (buffer != bound_buffer) {
-            bound_buffer = buffer;
-            gl_state.array_details.set_all_dirty(true);
-        }
+        gl_state.bound_array_buffer = buffer;
     } else {
         ERR("Unsupported Buffer Binding: %u", target);
     }
@@ -769,7 +764,6 @@ CALL(85, media_glCallLists, void, (const GLsizei n, const GLenum type, const GLv
     }
     const GLuint *int_lists = (const GLuint *) lists;
     trampoline(true, gl_state, type, copy_array(n, int_lists));
-    gl_state.array_details.set_all_dirty(false);
 #else
     const gl_state_t &gl_state = args.next<gl_state_t>();
     gl_state.send_to_driver();
