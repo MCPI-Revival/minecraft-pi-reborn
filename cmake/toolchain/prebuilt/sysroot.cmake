@@ -81,9 +81,15 @@ function(_install_arm_sysroot_config config)
             file(REAL_PATH "${file}" file)
         endif()
 
+        # Select Installation Mode
+        set(mode "FILES")
+        if("${name}" STREQUAL "ld-linux-armhf.so.3")
+            set(mode "PROGRAMS")
+        endif()
+
         # Install Library
         install(
-            FILES "${file}"
+            "${mode}" "${file}"
             DESTINATION "${MCPI_LIB_DIR_ARM}"
             RENAME "${name}"
             CONFIGURATIONS "${config}"
