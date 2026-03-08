@@ -71,7 +71,7 @@ screenshot() {
 screenshot launcher 0.5 launcher
 
 # Start Screen
-export MCPI_PROMOTIONAL=
+export MCPI_PROMOTIONAL=1
 screenshot start 3 launcher --default
 
 # Crash Report
