@@ -25,8 +25,8 @@ bool feature_has(const char *name, const bool enabled_in_server_mode) {
     static Flags flags = Flags::get();
     static bool loaded = false;
     if (!loaded) {
-        const char *env = require_env(MCPI_FEATURE_FLAGS_ENV);
-        env_value_to_obj(flags, env);
+        const std::string env = require_env(MCPI_FEATURE_FLAGS_ENV);
+        env_value_to_obj(flags, env.c_str());
         loaded = true;
     }
 

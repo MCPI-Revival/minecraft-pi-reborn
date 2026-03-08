@@ -182,6 +182,7 @@ include_toc: true
 * Unify Server/Client Builds
 * Controller Support Removed
 * Based On Debian Bookworm
+* Windows Support
 
 ## 2.5.4
 

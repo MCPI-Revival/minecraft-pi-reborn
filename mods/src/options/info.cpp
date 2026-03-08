@@ -65,7 +65,7 @@ static info_line info[] = {
         .is_url = true
     },
 };
-#define info_size int(sizeof(info) / sizeof(info_line))
+#define info_size int(countof(info))
 
 // Positioned Information
 struct info_pos {

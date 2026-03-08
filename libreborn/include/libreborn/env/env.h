@@ -1,6 +1,7 @@
 #pragma once
 
 #include <string>
+#include <optional>
 
 // Define Variables
 #define ENV(name, ...) constexpr const char *name##_ENV = #name;
@@ -16,8 +17,8 @@ MCPI_REBORN_UTIL_PUBLIC void setenv_safe(const char *name, const char *value);
 MCPI_REBORN_UTIL_PUBLIC void set_and_print_env(const char *name, const char *value);
 
 // Get Value
-MCPI_REBORN_UTIL_PUBLIC const char *require_env(const char *name);
-MCPI_REBORN_UTIL_PUBLIC bool is_env_set(const char *name);
+MCPI_REBORN_UTIL_PUBLIC std::optional<std::string> getenv_safe(const char *name);
+MCPI_REBORN_UTIL_PUBLIC std::string require_env(const char *name);
 
 // Convert Variable To Value And Vice-Versa
 struct Flags;

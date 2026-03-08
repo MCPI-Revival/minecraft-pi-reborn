@@ -45,11 +45,11 @@ static void anGenBuffers_injection(MCPI_UNUSED Common_anGenBuffers_t original, c
 // Custom Outline Color
 void misc_set_nice_line_width() {
     // Find Line Width
-    const char *custom_line_width = getenv(MCPI_BLOCK_OUTLINE_WIDTH_ENV);
+    const std::optional<std::string> custom_line_width = getenv_safe(MCPI_BLOCK_OUTLINE_WIDTH_ENV);
     float line_width;
-    if (custom_line_width != nullptr) {
+    if (custom_line_width.has_value()) {
         // Custom
-        line_width = strtof(custom_line_width, nullptr);
+        env_value_to_obj(line_width, custom_line_width.value().c_str());
     } else {
         // Guess
         line_width = 1.5f / Gui::InvGuiScale;

@@ -219,7 +219,7 @@ void init_title_screen() {
     }
 
     // Init Welcome Screen
-    if (feature_has("Add Welcome Screen", server_disabled) && !is_env_set(MCPI_PROMOTIONAL_ENV)) {
+    if (feature_has("Add Welcome Screen", server_disabled) && !getenv_safe(MCPI_PROMOTIONAL_ENV).has_value()) {
         _init_welcome();
     }
 }

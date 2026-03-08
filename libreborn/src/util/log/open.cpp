@@ -81,14 +81,13 @@ FILE *reborn_get_log_file() {
     }
     // Open Log File
     std::optional<HANDLE> handle;
-    const char *env = _MCPI_LOG_FD_ENV;
-    if (is_env_set(env)) {
-        const char *fd_str = require_env(env);
+    const std::optional<std::string> fd_str = getenv_safe(_MCPI_LOG_FD_ENV);
+    if (fd_str.has_value()) {
         handle =
 #ifdef _WIN32
-            HANDLE(std::stoull(fd_str))
+            HANDLE(std::stoull(fd_str.value()))
 #else
-            std::stoi(fd_str)
+            std::stoi(fd_str.value())
 #endif
             ;
     }

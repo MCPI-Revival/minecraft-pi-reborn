@@ -16,12 +16,8 @@ static void load_pending_skins(MCPI_UNUSED const Minecraft *minecraft) {
 
 // Skin Server
 static std::string get_skin_server() {
-    const char *custom_server = getenv(MCPI_SKIN_SERVER_ENV);
-    if (custom_server != nullptr) {
-        return custom_server;
-    } else {
-        return reborn_config.extra.skin_server;
-    }
+    const std::optional<std::string> custom_server = getenv_safe(MCPI_SKIN_SERVER_ENV);
+    return custom_server.value_or(reborn_config.extra.skin_server);
 }
 
 // Intercept Texture Creation

@@ -28,17 +28,17 @@ static bool LevelData_getSpawnMobs_injection(MCPI_UNUSED LevelData_getSpawnMobs_
 
 // Get Custom Render Distance
 static int get_render_distance() {
-    const char *distance_str = require_env(MCPI_RENDER_DISTANCE_ENV);
-    if (strcmp("Far", distance_str) == 0) {
+    const std::string distance_str = require_env(MCPI_RENDER_DISTANCE_ENV);
+    if ("Far" == distance_str) {
         return 0;
-    } else if (strcmp("Normal", distance_str) == 0) {
+    } else if ("Normal" == distance_str) {
         return 1;
-    } else if (strcmp("Short", distance_str) == 0) {
+    } else if ("Short" == distance_str) {
         return 2;
-    } else if (strcmp("Tiny", distance_str) == 0) {
+    } else if ("Tiny" == distance_str) {
         return 3;
     } else {
-        ERR("Invalid Render Distance: %s", distance_str);
+        ERR("Invalid Render Distance: %s", distance_str.c_str());
     }
 }
 static int render_distance;
@@ -195,8 +195,8 @@ void init_options() {
     overwrite_calls(Minecraft_init, Minecraft_init_injection);
 
     // Change Username
-    const char *username = require_env(MCPI_USERNAME_ENV);
-    DEBUG("Setting Username: %s", username);
+    const std::string username = getenv_safe(MCPI_USERNAME_ENV).value_or("");
+    DEBUG("Setting Username: %s", username.c_str());
     static std::string safe_username = to_cp437(username);
     patch_address((void *) &Strings::default_username, (void *) safe_username.c_str());
 

@@ -123,9 +123,10 @@ static void handle_event(Minecraft *minecraft, const bool should_prepare, const 
     if (should_prepare) {
         prepare_atlas(minecraft);
     }
-    generate_atlas(minecraft, can_dump && is_env_set(MCPI_DUMP_ATLAS_ENV));
+    generate_atlas(minecraft, can_dump && getenv_safe(MCPI_DUMP_ATLAS_ENV).has_value());
 }
 static void on_init(Minecraft *minecraft) {
+    _atlas_build();
     handle_event(minecraft, true, true);
     DEBUG("Generated %s Atlas", atlas_texture_name);
 }

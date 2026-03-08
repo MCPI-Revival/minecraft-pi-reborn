@@ -41,8 +41,8 @@ int main(MCPI_UNUSED const int argc, MCPI_UNUSED char *argv[]) {
     } else {
         DEBUG("Game Already Downloaded");
     }
-    const char *custom_binary = getenv(MCPI_BINARY_ENV);
-    const std::string game_binary = custom_binary ? safe_realpath(custom_binary) : original_game_binary;
+    const std::optional<std::string> custom_binary = getenv_safe(MCPI_BINARY_ENV);
+    const std::string game_binary = custom_binary.has_value() ? safe_realpath(custom_binary.value()) : original_game_binary;
 
     // Configure Preloaded Objects
     DEBUG("Locating Mods...");

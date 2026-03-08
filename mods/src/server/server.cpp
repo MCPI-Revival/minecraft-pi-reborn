@@ -21,7 +21,7 @@
 // --only-generate: Only Generate World And Then Exit
 static bool only_generate = false;
 static void init_only_generate() {
-    only_generate = is_env_set(_MCPI_ONLY_GENERATE_ENV);
+    only_generate = getenv_safe(_MCPI_ONLY_GENERATE_ENV).has_value();
 }
 
 // Server Properties

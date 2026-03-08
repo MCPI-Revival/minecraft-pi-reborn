@@ -17,9 +17,9 @@ static void exit_handler(MCPI_UNUSED int data) {
 }
 void init_compat() {
     // Unlock Lock File
-    const char *lock_fd_str = getenv(_MCPI_LOCK_FD_ENV);
+    const std::optional<std::string> lock_fd_str = getenv_safe(_MCPI_LOCK_FD_ENV);
     if (lock_fd_str) {
-        const int lock_fd = std::stoi(lock_fd_str);
+        const int lock_fd = std::stoi(lock_fd_str.value());
         unlock_file(lock_fd);
     }
 

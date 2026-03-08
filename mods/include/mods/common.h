@@ -17,3 +17,6 @@ namespace AtlasSize {
 
 // The division between TileItems and real Items.
 static constexpr int TILE_ITEM_BARRIER = 256;
+
+// Array Size
+#define countof(arr) (sizeof(arr) / sizeof(*(arr)))

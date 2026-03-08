@@ -8,11 +8,11 @@
 
 // Profile Directory
 void setup_home() {
-    const char *custom_profile_directory = getenv(MCPI_PROFILE_DIRECTORY_ENV);
+    const std::optional<std::string> custom_profile_directory = getenv_safe(MCPI_PROFILE_DIRECTORY_ENV);
     std::string home;
-    if (custom_profile_directory != nullptr) {
+    if (custom_profile_directory.has_value()) {
         // Custom Directory
-        home = custom_profile_directory;
+        home = custom_profile_directory.value();
     } else if (!reborn_is_server()) {
         // Ensure $HOME
         const char *env =

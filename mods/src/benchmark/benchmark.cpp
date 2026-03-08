@@ -171,7 +171,7 @@ static bool LevelData_getSpawnMobs_injection(MCPI_UNUSED LevelData_getSpawnMobs_
 // Init Benchmark
 void init_benchmark() {
     // --benchmark: Activate Benchmark
-    const bool active = is_env_set(_MCPI_BENCHMARK_ENV);
+    const bool active = getenv_safe(_MCPI_BENCHMARK_ENV).has_value();
     if (active) {
         misc_run_on_update(Minecraft_update_injection);
         // Track Frames

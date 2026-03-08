@@ -60,8 +60,8 @@ static void *resolve_thread(MCPI_UNUSED void *data) {
 static void start_resolution() {
     // Load Server List
     ServerList server_list;
-    const char *str = require_env(MCPI_SERVER_LIST_ENV);
-    env_value_to_obj(server_list, str);
+    const std::string str = getenv_safe(MCPI_SERVER_LIST_ENV).value_or("");
+    env_value_to_obj(server_list, str.c_str());
     for (const ServerList::Entry &entry : server_list.entries) {
         queue.push(entry);
     }

@@ -20,9 +20,9 @@ static void update_from_env(const char *env, T &value, const bool save) {
     if (save) {
         set_and_print_env(env, obj_to_env_value(value).c_str());
     } else {
-        const char *env_value = getenv(env);
-        if (env_value != nullptr) {
-            env_value_to_obj(value, env_value);
+        const std::optional<std::string> env_value = getenv_safe(env);
+        if (env_value.has_value()) {
+            env_value_to_obj(value, env_value.value().c_str());
         }
     }
 }

@@ -16,22 +16,18 @@
 
 // LavaTexture
 struct LavaTexture final : CustomDynamicTexture {
-    int field_14;
-    int field_18;
-    float m_data1[256];
-    float m_data2[256];
-    float m_data3[256];
-    float m_data4[256];
-    LavaTexture(): CustomDynamicTexture(Tile::lava->texture) {
-        field_14 = 0;
-        field_18 = 0;
-        for (int i = 0; i < 256; i++) {
-            m_data1[i] = 0.0f;
-            m_data2[i] = 0.0f;
-            m_data3[i] = 0.0f;
-            m_data4[i] = 0.0f;
-        }
-    }
+    // Properties
+    int field_14 = 0;
+    int field_18 = 0;
+    constexpr static int size = 256;
+    float data1[size] = {};
+    float data2[size] = {};
+    float data3[size] = {};
+    float data4[size] = {};
+    // Constructor
+    LavaTexture():
+        CustomDynamicTexture(Tile::lava->texture) {}
+    // Tick
     void tick() override {
         for (int x = 0; x < 16; x++) {
             for (int y = 0; y < 16; y++) {
@@ -42,23 +38,23 @@ struct LavaTexture final : CustomDynamicTexture {
                     for (int by = y - 1; by <= y + 1; by++) {
                         const int k2 = (bx + ay) & 0xf;
                         const int i3 = (by + ax) & 0xf;
-                        f += m_data1[k2 + i3 * 16];
+                        f += data1[k2 + i3 * 16];
                     }
                 }
-                m_data2[x + y * 16] = f / 10.0f + ((m_data3[(x & 0xf) + ((y + 0) & 0xf) * 16] + m_data3[((x + 1) & 0xf) + (y & 0xf) * 16] + m_data3[((x + 1) & 0xf) + ((y + 1) & 0xf) * 16] + m_data3[(x & 0xf) + ((y + 1) & 0xf) * 16]) * 0.25f) * 0.8f;
-                m_data3[x + y * 16] += m_data4[x + y * 16] * 0.01f;
-                if (m_data3[x + y * 16] < 0.0f) {
-                    m_data3[x + y * 16] = 0.0f;
+                data2[x + y * 16] = f / 10.0f + ((data3[(x & 0xf) + ((y + 0) & 0xf) * 16] + data3[((x + 1) & 0xf) + (y & 0xf) * 16] + data3[((x + 1) & 0xf) + ((y + 1) & 0xf) * 16] + data3[(x & 0xf) + ((y + 1) & 0xf) * 16]) * 0.25f) * 0.8f;
+                data3[x + y * 16] += data4[x + y * 16] * 0.01f;
+                if (data3[x + y * 16] < 0.0f) {
+                    data3[x + y * 16] = 0.0f;
                 }
-                m_data4[x + y * 16] -= 0.06f;
+                data4[x + y * 16] -= 0.06f;
                 if (Mth::random() < 0.005f) {
-                    m_data4[x + y * 16] = 1.5f;
+                    data4[x + y * 16] = 1.5f;
                 }
             }
         }
-        std::swap(m_data1, m_data2);
-        for (int i = 0; i < 256; i++) {
-            float x1 = m_data1[i] * 2.0f;
+        std::swap(data1, data2);
+        for (int i = 0; i < size; i++) {
+            float x1 = data1[i] * 2.0f;
             if (x1 > 1.0f) {
                 x1 = 1.0f;
             }
@@ -78,25 +74,20 @@ static DynamicTexture *create_lava_texture() {
 
 // LavaSideTexture
 struct LavaSideTexture final : CustomDynamicTexture {
-    int field_14;
-    int field_18;
-    int field_1C;
-    float m_data1[256];
-    float m_data2[256];
-    float m_data3[256];
-    float m_data4[256];
+    // Properties
+    int field_14 = 0;
+    int field_18 = 0;
+    int field_1C = 0;
+    constexpr static int size = 256;
+    float data1[size] = {};
+    float data2[size] = {};
+    float data3[size] = {};
+    float data4[size] = {};
+    // Constructor
     LavaSideTexture(): CustomDynamicTexture(Tile::lava->texture + 1) {
-        field_14 = 0;
-        field_18 = 0;
-        field_1C = 0;
         self->texture_size = 2;
-        for (int i = 0; i < 256; i++) {
-            m_data1[i] = 0.0f;
-            m_data2[i] = 0.0f;
-            m_data3[i] = 0.0f;
-            m_data4[i] = 0.0f;
-        }
     }
+    // Tick
     void tick() override {
         field_1C++;
         for (int x = 0; x < 16; x++) {
@@ -108,23 +99,23 @@ struct LavaSideTexture final : CustomDynamicTexture {
                     for (int by = y - 1; by <= y + 1; by++) {
                         const int k2 = (bx + ay) & 0xf;
                         const int i3 = (by + ax) & 0xf;
-                        f += m_data1[k2 + i3 * 16];
+                        f += data1[k2 + i3 * 16];
                     }
                 }
-                m_data2[x + y * 16] = f / 10.0f + ((m_data3[(x & 0xf) + ((y + 0) & 0xf) * 16] + m_data3[((x + 1) & 0xf) + (y & 0xf) * 16] + m_data3[((x + 1) & 0xf) + ((y + 1) & 0xf) * 16] + m_data3[(x & 0xf) + ((y + 1) & 0xf) * 16]) * 0.25f) * 0.8f;
-                m_data3[x + y * 16] += m_data4[x + y * 16] * 0.01f;
-                if (m_data3[x + y * 16] < 0.0f) {
-                    m_data3[x + y * 16] = 0.0f;
+                data2[x + y * 16] = f / 10.0f + ((data3[(x & 0xf) + ((y + 0) & 0xf) * 16] + data3[((x + 1) & 0xf) + (y & 0xf) * 16] + data3[((x + 1) & 0xf) + ((y + 1) & 0xf) * 16] + data3[(x & 0xf) + ((y + 1) & 0xf) * 16]) * 0.25f) * 0.8f;
+                data3[x + y * 16] += data4[x + y * 16] * 0.01f;
+                if (data3[x + y * 16] < 0.0f) {
+                    data3[x + y * 16] = 0.0f;
                 }
-                m_data4[x + y * 16] -= 0.06f;
+                data4[x + y * 16] -= 0.06f;
                 if (Mth::random() < 0.005f) {
-                    m_data4[x + y * 16] = 1.5f;
+                    data4[x + y * 16] = 1.5f;
                 }
             }
         }
-        std::swap(m_data1, m_data2);
-        for (int i = 0; i < 256; i++) {
-            float x1 = m_data1[(i - 16 * (field_1C / 3)) & 0xFF] * 2.0f;
+        std::swap(data1, data2);
+        for (int i = 0; i < size; i++) {
+            float x1 = data1[(i - 16 * (field_1C / 3)) & 0xFF] * 2.0f;
             if (x1 > 1.0f) {
                 x1 = 1.0f;
             }
@@ -144,47 +135,46 @@ static DynamicTexture *create_lava_side_texture() {
 
 // FireTexture
 struct FireTexture final : CustomDynamicTexture {
-    float m_data1[320];
-    float m_data2[320];
-    Random *m_random;
+    // Properties
+    static constexpr int size = 320;
+    float data1[size] = {};
+    float data2[size] = {};
+    Random *m_random = nullptr;
+    // Constructor
     explicit FireTexture(const int a2): CustomDynamicTexture(Tile::fire->texture + (16 * a2)) {
         m_random = Random::allocate();
         m_random->constructor();
-        for (int i = 0; i < 320; i++) {
-            m_data1[i] = 0.0f;
-            m_data2[i] = 0.0f;
-        }
     }
+    // Tick
     void tick() override {
         for (int i = 0; i < 16; i++) {
             for (int j = 0; j < 20; j++) {
                 int l = 18;
-                float f1 = m_data1[i + ((j + 1) % 20) * 16] * float(l);
+                float f1 = data1[i + ((j + 1) % 20) * 16] * float(l);
                 for (int i1 = i - 1; i1 <= i + 1; i1++) {
                     for (int k1 = j; k1 <= j + 1; k1++) {
                         const int i2 = i1;
                         const int k2 = k1;
-                        if (i2 >= 0 && k2 >= 0 && i2 < 16 && k2 < 20)
-                        {
-                            f1 += m_data1[i2 + k2 * 16];
+                        if (i2 >= 0 && k2 >= 0 && i2 < 16 && k2 < 20) {
+                            f1 += data1[i2 + k2 * 16];
                         }
                         l++;
                     }
                 }
-                m_data2[i + j * 16] = f1 / 25.2f;
+                data2[i + j * 16] = f1 / 25.2f;
                 if (j >= 19) {
                     union {
                         uint32_t x;
                         uint8_t b[4];
                     } a = {};
                     a.x = m_random->genrand_int32();
-                    m_data2[i + j * 16] = 0.2f + (((float(a.b[3]) / 256.0f) * 0.1f) + ((((float(a.b[0]) / 256.0f) * (float(a.b[1]) / 256.0f)) * (float(a.b[2]) / 256.0f)) * 4.0f));
+                    data2[i + j * 16] = 0.2f + (((float(a.b[3]) / 256.0f) * 0.1f) + ((((float(a.b[0]) / 256.0f) * (float(a.b[1]) / 256.0f)) * (float(a.b[2]) / 256.0f)) * 4.0f));
                 }
             }
         }
-        std::swap(m_data1, m_data2);
+        std::swap(data1, data2);
         for (int i = 0; i < 256; i++) {
-            float x = m_data1[i] * 1.8f;
+            float x = data1[i] * 1.8f;
             if (x > 1.0f) {
                 x = 1.0f;
             }

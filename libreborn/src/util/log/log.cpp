@@ -12,11 +12,11 @@ const char *reborn_debug_tag = "";
 
 // Control Log Levels
 static FILE *reborn_get_info_file() {
-    const bool should_print_info_to_stdout = !is_env_set(MCPI_QUIET_ENV);
+    const bool should_print_info_to_stdout = !getenv_safe(MCPI_QUIET_ENV).has_value();
     return should_print_info_to_stdout ? stdout : reborn_get_log_file();
 }
 FILE *reborn_get_debug_file() {
-    const bool should_print_debug_to_stderr = is_env_set(MCPI_DEBUG_ENV);
+    const bool should_print_debug_to_stderr = getenv_safe(MCPI_DEBUG_ENV).has_value();
     return should_print_debug_to_stderr ? stderr : reborn_get_log_file();
 }
 

@@ -73,11 +73,11 @@ static bool CommandServer__updateClient_injection_3(CommandServer__updateClient_
 // Custom API Port
 static int CommandServer_init_bind_injection(const int sockfd, const sockaddr *addr, const socklen_t addrlen) {
     // Adjust
-    const char *env = MCPI_API_PORT_ENV;
-    if (is_env_set(env)) {
+    const std::optional<std::string> env = getenv_safe(MCPI_API_PORT_ENV);
+    if (env.has_value()) {
         // Read Value
         ushort port;
-        env_value_to_obj(port, require_env(env));
+        env_value_to_obj(port, env.value().c_str());
         // Set Value
         sockaddr_in *addr_in = (sockaddr_in *) addr;
         addr_in->sin_port = htons(port);

@@ -1,5 +1,6 @@
 #ifndef _WIN32
 #include <cstring>
+#include <libreborn/env/env.h>
 #endif
 
 #include <libreborn/log.h>
@@ -39,8 +40,8 @@ std::string get_temp_dir() {
     }
     std::string out = path;
 #else
-    const char *env = getenv("TMPDIR");
-    std::string out = env && strlen(env) > 0 ? env : P_tmpdir;
+    const std::optional<std::string> env = getenv_safe("TMPDIR");
+    std::string out = env.value_or(P_tmpdir);
 #endif
     // Add Trailing Path Seperator
     if (!out.ends_with(path_separator)) {

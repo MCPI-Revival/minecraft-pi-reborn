@@ -126,7 +126,7 @@ static bool draw_splash(const StartMenuScreen *screen, const float y_factor, con
     media_glRotatef(SplashLine::angle, 0.0f, 0.0f, 1.0f);
 
     // Oscillate
-    const bool enable_oscillation = !is_env_set(MCPI_PROMOTIONAL_ENV);
+    const bool enable_oscillation = !getenv_safe(MCPI_PROMOTIONAL_ENV).has_value();
     if (enable_oscillation) {
         const float timeMS = float(Common::getTimeMs() % 1000) / 1000.0f;
         const float time = 4.0f * float(M_PI) * timeMS;
@@ -170,7 +170,7 @@ static void StartMenuScreen_render_injection(StartMenuScreen_render_t original, 
         // Pick Splash
         if (current_splash.empty()) {
             int id = 0;
-            if (!is_env_set(MCPI_PROMOTIONAL_ENV)) {
+            if (!getenv_safe(MCPI_PROMOTIONAL_ENV).has_value()) {
                 id = rand() % splashes.size();
             }
             current_splash = splashes[id];

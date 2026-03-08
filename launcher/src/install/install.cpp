@@ -14,9 +14,9 @@
 
 // Paths
 static std::string get_data_dir() {
-    const char *xdg = getenv("XDG_DATA_HOME");
-    if (xdg) {
-        return xdg;
+    std::optional<std::string> xdg = getenv_safe("XDG_DATA_HOME");
+    if (xdg.has_value()) {
+        return xdg.value();
     } else {
         // Fallback
         const std::string home = require_env("HOME");

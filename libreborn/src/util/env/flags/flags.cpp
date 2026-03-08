@@ -90,6 +90,9 @@ std::string Flags::to_string() const {
             out += flag.name;
         }
     });
+    if (out.empty()) {
+        out += FLAG_SEPERATOR_CHAR;
+    }
     return out;
 }
 void Flags::from_string(const std::string &str) {

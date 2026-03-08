@@ -71,14 +71,14 @@ void _reborn_set_app_id_and_relaunch_behavior(GLFWwindow *window, const std::str
         check(SHGetPropertyStoreForWindow(native_window, IID_PPV_ARGS(&property_store)));
         if (success) {
             // Read Environment
-            const char *relaunch_command = getenv(_MCPI_RELAUNCH_COMMAND_ENV);
-            const char *relaunch_display_name_resource = getenv(_MCPI_RELAUNCH_DISPLAY_NAME_RESOURCE_ENV);
-            const bool can_relaunch = relaunch_command && relaunch_display_name_resource;
+            const std::optional<std::string> relaunch_command = getenv_safe(_MCPI_RELAUNCH_COMMAND_ENV);
+            const std::optional<std::string> relaunch_display_name_resource = getenv_safe(_MCPI_RELAUNCH_DISPLAY_NAME_RESOURCE_ENV);
+            const bool can_relaunch = relaunch_command.has_value() && relaunch_display_name_resource.has_value();
             // Set Relaunch Command
             check(set_property_bool(property_store, PKEY_AppUserModel_PreventPinning, !can_relaunch));
             if (can_relaunch) {
-                check(set_property_str(property_store, PKEY_AppUserModel_RelaunchCommand, relaunch_command));
-                check(set_property_str(property_store, PKEY_AppUserModel_RelaunchDisplayNameResource, relaunch_display_name_resource));
+                check(set_property_str(property_store, PKEY_AppUserModel_RelaunchCommand, relaunch_command.value()));
+                check(set_property_str(property_store, PKEY_AppUserModel_RelaunchDisplayNameResource, relaunch_display_name_resource.value()));
             }
             // Set App ID
             check(set_property_str(property_store, PKEY_AppUserModel_ID, id));

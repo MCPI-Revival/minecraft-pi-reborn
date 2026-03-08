@@ -1,5 +1,3 @@
-#include <cstring>
-
 #ifdef _WIN32
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
@@ -25,26 +23,26 @@ void open_url(const std::string &url) {
 }
 
 // Download Timeout
-static const char *get_timeout() {
+static std::optional<std::string> get_timeout() {
     static bool loaded = false;
-    static const char *out;
+    static std::optional<std::string> out;
     if (!loaded) {
         loaded = true;
         // Get Value
-        out = getenv(MCPI_DOWNLOAD_TIMEOUT_ENV);
-        if (!out || strlen(out) == 0) {
-            out = reborn_config.extra.download_timeout;
-        }
+        const std::string value = getenv_safe(MCPI_DOWNLOAD_TIMEOUT_ENV)
+            .value_or(reborn_config.extra.download_timeout);
         // Validate
-        if (strcmp(out, "0") == 0 || out[0] == '-') {
+        if (value == "0" || (!value.empty() && value.front() == '-')) {
             // Timeout Disabled
-            out = nullptr;
+            out = std::nullopt;
         } else {
-            for (const char *c = out; *c; c++) {
-                if (!isdigit(*c)) {
-                    ERR("Invalid Download Timeout: %s", out);
+            for (const char c : value) {
+                if (!isdigit(c)) {
+                    ERR("Invalid Download Timeout: %s", value.c_str());
                 }
             }
+            // Valid
+            out = value;
         }
     }
     return out;
@@ -85,10 +83,10 @@ std::optional<CommandResult> download_from_internet(const std::string &dest, con
     command.push_back(output_opt);
     command.push_back(dest.c_str());
     // Timeout
-    const char *timeout = get_timeout();
-    if (timeout) {
+    const std::optional<std::string> timeout = get_timeout();
+    if (timeout.has_value()) {
         command.push_back(timeout_opt);
-        command.push_back(timeout);
+        command.push_back(timeout.value().c_str());
     }
     // User Agent
     if (user_agent.has_value()) {

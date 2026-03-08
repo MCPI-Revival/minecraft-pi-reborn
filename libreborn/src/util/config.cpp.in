@@ -126,9 +126,9 @@ bool reborn_is_headless() {
     static bool is_set = false;
     if (!is_set) {
         ret = reborn_is_server();
-        if (is_env_set(_MCPI_FORCE_HEADLESS_ENV)) {
+        if (getenv_safe(_MCPI_FORCE_HEADLESS_ENV).has_value()) {
             ret = true;
-        } else if (is_env_set(_MCPI_FORCE_NON_HEADLESS_ENV)) {
+        } else if (getenv_safe(_MCPI_FORCE_NON_HEADLESS_ENV).has_value()) {
             ret = false;
         }
         is_set = true;
@@ -139,7 +139,7 @@ bool reborn_is_server() {
     static bool ret;
     static bool is_set = false;
     if (!is_set) {
-        ret = is_env_set(_MCPI_SERVER_MODE_ENV);
+        ret = getenv_safe(_MCPI_SERVER_MODE_ENV).has_value();
         is_set = true;
     }
     return ret;

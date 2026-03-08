@@ -39,15 +39,19 @@ void set_and_print_env(const char *name, const char *value) {
 }
 
 // Get Environmental Variable
-const char *require_env(const char *name) {
+std::optional<std::string> getenv_safe(const char *name) {
     const char *value = getenv(name);
-    if (!value) {
+    if (!value || *value == '\0') {
+        return std::nullopt;
+    }
+    return std::string(value);
+}
+std::string require_env(const char *name) {
+    std::optional<std::string> value = getenv_safe(name);
+    if (!value.has_value()) {
         ERR("Missing Variable: %s", name);
     }
-    return value;
-}
-bool is_env_set(const char *name) {
-    return getenv(name) != nullptr;
+    return value.value();
 }
 
 // Conversion

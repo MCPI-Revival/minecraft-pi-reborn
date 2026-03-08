@@ -112,7 +112,7 @@ void unlock_file(const HANDLE fd) {
 // Check $DISPLAY
 void reborn_check_display() {
 #ifndef _WIN32
-    if (!is_env_set("DISPLAY") && !is_env_set("WAYLAND_DISPLAY")) {
+    if (!getenv_safe("DISPLAY").has_value() && !getenv_safe("WAYLAND_DISPLAY").has_value()) {
         ERR("No display attached! Make sure $DISPLAY or $WAYLAND_DISPLAY is set.");
     }
 #endif
@@ -120,7 +120,7 @@ void reborn_check_display() {
 
 // Home Subdirectory
 const char *get_home_subdirectory_for_game_data() {
-    if (is_env_set(MCPI_PROFILE_DIRECTORY_ENV)) {
+    if (getenv_safe(MCPI_PROFILE_DIRECTORY_ENV).has_value()) {
         // No Subdirectory When Using Custom Profile Directory
         return "";
     } else if (!reborn_is_server()) {
@@ -182,8 +182,8 @@ void safe_write(const int fd, const void *buf, const size_t size) {
 
 // Get MCPI Home Directory
 std::string home_get() {
-    const char *home = require_env(_MCPI_HOME_ENV);
-    return std::string(home) + std::string(get_home_subdirectory_for_game_data());
+    const std::string home = require_env(_MCPI_HOME_ENV);
+    return home + get_home_subdirectory_for_game_data();
 }
 
 // Initialize COM

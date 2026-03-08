@@ -127,6 +127,6 @@ static bool is_wsl_working() {
 void check_wsl() {
     const bool ret = is_wsl_working();
     if (!ret) {
-        user_error("Unable to connect to WSL container. Have you followed the getting started guide?");
+        user_error("Unable to connect to the WSL container. Have you followed the getting started guide?");
     }
 }

@@ -481,9 +481,9 @@ void _init_misc_ui() {
 
     // Custom GUI Scale
     bool patch_gui_scaling = false;
-    const char *env = MCPI_GUI_SCALE_ENV;
-    if (is_env_set(env)) {
-        const char *gui_scale_str = require_env(env);
+    const std::optional<std::string> env = getenv_safe(MCPI_GUI_SCALE_ENV);
+    if (env.has_value()) {
+        const char *gui_scale_str = env.value().c_str();
         float gui_scale;
         env_value_to_obj(gui_scale, gui_scale_str);
         if (gui_scale > 0) {
@@ -532,7 +532,7 @@ void _init_misc_ui() {
     }
 
     // Hide Cursor In Promotional Mode
-    if (is_env_set(MCPI_PROMOTIONAL_ENV)) {
+    if (getenv_safe(MCPI_PROMOTIONAL_ENV).has_value()) {
         overwrite_calls(Common_renderCursor, nop<Common_renderCursor_t, float, float, Minecraft *>);
     }
 

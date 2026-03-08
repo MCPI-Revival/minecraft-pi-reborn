@@ -46,7 +46,7 @@ static void Minecraft_tick_injection(const Minecraft *minecraft) {
     Textures *textures = minecraft->textures;
     if (textures != nullptr) {
         int count = 1;
-        if (is_env_set(MCPI_PROMOTIONAL_ENV)) {
+        if (getenv_safe(MCPI_PROMOTIONAL_ENV).has_value()) {
             // Freeze Animated Textures In Promotional Mode
             static bool has_run = false;
             if (!has_run) {

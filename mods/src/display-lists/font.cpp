@@ -7,6 +7,7 @@
 #include <GLES/gl.h>
 
 #include <mods/tesselator/tesselator.h>
+#include <mods/common.h>
 
 #include "internal.h"
 
@@ -16,7 +17,7 @@ static void Font_init_injection(Font_init_t original, Font *self, Options *optio
     original(self, options);
 
     // Generate Lists
-    constexpr int character_count = sizeof(self->character_widths) / sizeof(int);
+    constexpr int character_count = countof(self->character_widths);
     self->display_lists = media_glGenLists(character_count);
     CustomTesselator &advanced_t = advanced_tesselator_get();
     advanced_t.are_vertices_flat = true;

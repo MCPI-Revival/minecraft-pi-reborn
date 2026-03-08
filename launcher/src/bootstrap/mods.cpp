@@ -72,7 +72,7 @@ std::vector<std::string> bootstrap_mods(const std::string &binary_directory) {
 
     // Load
     std::vector<std::string> folders;
-    if (!is_env_set(_MCPI_BENCHMARK_ENV)) {
+    if (!getenv_safe(_MCPI_BENCHMARK_ENV).has_value()) {
         folders.push_back(home_get());
     }
     folders.push_back(binary_directory);

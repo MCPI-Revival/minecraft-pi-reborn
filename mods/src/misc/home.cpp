@@ -8,7 +8,8 @@
 
 // Use MCPI_HOME
 static const char *getenv_HOME(MCPI_UNUSED const char *env) {
-    return require_env(_MCPI_HOME_ENV);
+    static std::string ret = require_env(_MCPI_HOME_ENV);
+    return ret.c_str();
 }
 
 // Init

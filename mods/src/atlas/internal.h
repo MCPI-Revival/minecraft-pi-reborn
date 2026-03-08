@@ -18,6 +18,7 @@ extern std::unordered_map<int, std::pair<int, int>> _atlas_key_to_pos;
 
 // Render The Atlas Itself
 struct Textures;
+void _atlas_build();
 void _atlas_render(Textures *textures);
 extern thread_local bool _atlas_active;
 
