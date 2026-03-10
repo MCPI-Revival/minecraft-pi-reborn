@@ -481,15 +481,12 @@ void _init_misc_ui() {
 
     // Custom GUI Scale
     bool patch_gui_scaling = false;
-    const std::optional<std::string> env = getenv_safe(MCPI_GUI_SCALE_ENV);
-    if (env.has_value()) {
-        const char *gui_scale_str = env.value().c_str();
-        float gui_scale;
-        env_value_to_obj(gui_scale, gui_scale_str);
-        if (gui_scale > 0) {
-            patch_gui_scaling = true;
-            set_gui_scale(gui_scale);
-        }
+    const std::string env = require_env(MCPI_GUI_SCALE_ENV);
+    float gui_scale;
+    env_value_to_obj(gui_scale, env.c_str());
+    if (gui_scale > 0) {
+        patch_gui_scaling = true;
+        set_gui_scale(gui_scale);
     }
     if (feature_has("Improved UI Scaling", server_disabled) && !patch_gui_scaling) {
         overwrite_calls(Minecraft_setSize, Minecraft_setSize_injection);

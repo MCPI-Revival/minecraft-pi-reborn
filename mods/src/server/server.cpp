@@ -260,6 +260,7 @@ void init_server_flags() {
     feature_server_flags_set = true;
     set_and_print_env(MCPI_RENDER_DISTANCE_ENV, "Tiny");
     set_and_print_env(MCPI_USERNAME_ENV, get_motd().c_str());
+    set_and_print_env(MCPI_GUI_SCALE_ENV, "0");
 }
 
 // Init Server

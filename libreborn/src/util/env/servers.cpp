@@ -60,5 +60,9 @@ std::string ServerList::to_string() const {
     for (const Entry &entry : entries) {
         out << entry.first << PORT_SEPERATOR_CHAR << safe_to_string(entry.second) << FLAG_SEPERATOR_CHAR;
     }
-    return out.str();
+    std::string str = out.str();
+    if (str.empty()) {
+        str += FLAG_SEPERATOR_CHAR;
+    }
+    return str;
 }
