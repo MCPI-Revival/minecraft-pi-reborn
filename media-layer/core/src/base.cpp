@@ -37,9 +37,8 @@ int media_SDL_PushEvent(const SDL_Event *event) {
 void _media_translate_linux_path_to_native(std::string &path) {
 #ifdef _WIN32
     const char *const command[] = {
-        "wsl",
-        WSL_FLAGS,
-        "--exec", "wslpath", "-w", path.c_str(),
+        "wsl", WSL_FLAGS, "--exec",
+        "wslpath", "-w", path.c_str(),
         nullptr
     };
     const CommandResult result = run_command(command);

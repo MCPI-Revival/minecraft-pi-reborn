@@ -1,22 +1,30 @@
+#include "../glfw.h"
+
 #include <vector>
 
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 
-#include "glfw.h"
+#include <libreborn/log.h>
+#include <libreborn/util/util.h>
 
 // Set Window Icon
 void _reborn_set_window_icon(GLFWwindow *window) {
     // Get The Process Handle
-    const HINSTANCE instance = GetModuleHandleA(nullptr);
+    const std::wstring exe = get_launcher_executable();
+    const HMODULE instance = LoadLibraryExW(
+        exe.c_str(),
+        nullptr,
+        LOAD_LIBRARY_AS_DATAFILE | LOAD_LIBRARY_AS_IMAGE_RESOURCE
+    );
     if (!instance) {
-        return;
+        ERR("Unable To Load Main Excutable As Data File");
     }
 
     // Get Icon
-    const HICON icon = (HICON) LoadImageW(instance, L"IDI_ICON1", IMAGE_ICON, 0, 0, LR_DEFAULTSIZE);
+    const HICON icon = HICON(LoadImageW(instance, MAKEINTRESOURCEW(1), IMAGE_ICON, 0, 0, LR_DEFAULTSIZE));
     if (!icon) {
-        return;
+        ERR("Unable To Load Icon Resource");
     }
 
     // Get Size
@@ -60,4 +68,5 @@ void _reborn_set_window_icon(GLFWwindow *window) {
     DeleteObject(icon_info.hbmColor);
     DeleteObject(icon_info.hbmMask);
     DestroyIcon(icon);
+    FreeLibrary(instance);
 }

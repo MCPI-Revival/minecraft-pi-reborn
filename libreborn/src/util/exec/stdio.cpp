@@ -122,17 +122,25 @@ Process spawn_with_stdio(const char *const argv[]) {
     STARTUPINFOA si = {};
     si.hStdOutput = pipes.at(0).write;
     si.hStdError = pipes.at(1).write;
-    si.hStdInput = GetStdHandle(STD_INPUT_HANDLE);
     si.dwFlags |= STARTF_USESTDHANDLES;
     si.cb = sizeof(si);
+    const bool has_console_attached = GetConsoleCP() != 0;
+    DWORD flags = CREATE_UNICODE_ENVIRONMENT;
+    if (has_console_attached) {
+        // A console is attached, so inherit the input handle.
+        si.hStdInput = GetStdHandle(STD_INPUT_HANDLE);
+    } else {
+        // A console is not attached, prevent creating an additional window.
+        flags |= CREATE_NO_WINDOW;
+    }
     PROCESS_INFORMATION pi = {};
     const bool success = CreateProcessA(
         nullptr,
-        (LPSTR) cmd.c_str(),
+        LPSTR(cmd.c_str()),
         nullptr,
         nullptr,
         TRUE,
-        CREATE_NO_WINDOW,
+        flags,
         nullptr,
         nullptr,
         &si,

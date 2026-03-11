@@ -35,9 +35,8 @@ void print_debug_information() {
     // WSL Kernel Version
 #ifdef _WIN32
     constexpr const char *const wsl_command[] = {
-        "wsl",
-        WSL_FLAGS,
-        "--exec", "uname", "-a",
+        "wsl", WSL_FLAGS, "--exec",
+        "uname", "-a",
         nullptr
     };
     run_debug_command(wsl_command, "WSL System Information");

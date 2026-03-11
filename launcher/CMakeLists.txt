@@ -25,16 +25,20 @@ target_link_libraries(launcher-util
     reborn-util
 )
 
-# User Error Dialog
-add_executable(error
-    src/util/error/dialog.cpp
-)
-target_link_libraries(error
-    launcher-ui
-)
+# Dialogs
+function(add_dialog name source)
+    add_executable("${name}" WIN32
+        "${source}"
+    )
+    target_link_libraries("${name}"
+        launcher-ui
+    )
+endfunction()
+add_dialog(error src/util/error/dialog.cpp)
+add_dialog(crash-report src/logger/crash-report.cpp)
 
 # Launcher
-add_executable(launcher
+add_executable(launcher WIN32
     src/main.cpp
     src/client/configuration.cpp
     src/client/cache.cpp
@@ -54,6 +58,9 @@ if(MCPI_WIN32)
     )
     target_link_libraries(launcher
         shlwapi
+    )
+    target_compile_definitions(launcher PRIVATE
+        "$<$<COMPILE_LANGUAGE:RC>:VER_IS_LAUNCHER>"
     )
 else()
     target_sources(launcher PRIVATE
@@ -85,14 +92,6 @@ add_executable(logger
 target_link_libraries(logger
     reborn-util
     launcher-util
-)
-
-# Crash Report Dialog
-add_executable(crash-report
-    src/logger/crash-report.cpp
-)
-target_link_libraries(crash-report
-    launcher-ui
 )
 
 # Bootstrapper
@@ -138,10 +137,12 @@ setup_library(launcher-util
     DEFINE_EXPORT_MACRO
 )
 function(install_bin target)
+    # Install
+    install(TARGETS "${target}" DESTINATION "${MCPI_INSTALL_DIR}")
+    # Add Extra Properties
     target_link_libraries("${target}"
         launcher-meta
     )
-    install(TARGETS "${target}" DESTINATION "${MCPI_INSTALL_DIR}")
     if(NOT MCPI_WIN32)
         # RPath
         set_target_properties("${target}" PROPERTIES
@@ -149,11 +150,7 @@ function(install_bin target)
         )
         target_link_options("${target}" PRIVATE "LINKER:--disable-new-dtags")
     else()
-        # Set Subsystem
-        set_target_properties("${target}" PROPERTIES
-            WIN32_EXECUTABLE TRUE
-        )
-        # Original Filename
+        # Specify Original Filename
         target_compile_definitions("${target}" PRIVATE
             # Windres Has Strange Quoting Rules
             "$<$<COMPILE_LANGUAGE:RC>:VER_FILENAME=\\\"$<TARGET_FILE_NAME:${target}>\\\">"

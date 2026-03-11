@@ -54,12 +54,13 @@ void log_command(const char *const argv[], const char *verb) {
         DEBUG("    %s", argv[i]);
     }
 }
-void safe_exec(const char *const argv[]) {
+void safe_exec(const char *const argv[], const bool requires_console_on_windows) {
     // Log
     log_command(argv);
 
     // Run
 #ifndef _WIN32
+    (void) requires_console_on_windows;
     const char *exe = argv[0];
     const bool success = exe ? execvp(exe, (char *const *) argv) != -1 : false;
     const std::string error = strerror(exe ? errno : ENOENT);
@@ -68,14 +69,36 @@ void safe_exec(const char *const argv[]) {
     const std::string cmd = make_cmd(argv);
     STARTUPINFOA si = {};
     si.cb = sizeof(si);
+    DWORD flags = CREATE_UNICODE_ENVIRONMENT;
+    const bool has_console_attached = GetConsoleCP() != 0;
+    if (!has_console_attached) {
+        // A console is not attached to the current process.
+        if (requires_console_on_windows) {
+            // Create New Console For Subprocess
+            // This requires the target process to use the console subsystem.
+            flags |= CREATE_NEW_CONSOLE;
+        } else {
+            // Force Subprocess To Inherit Handles
+            si.hStdOutput = GetStdHandle(STD_OUTPUT_HANDLE);
+            si.hStdError = GetStdHandle(STD_ERROR_HANDLE);
+            si.hStdInput = GetStdHandle(STD_INPUT_HANDLE);
+            si.dwFlags |= STARTF_USESTDHANDLES;
+            // Prevent Creating Additional Console Window
+            flags |= CREATE_NO_WINDOW;
+        }
+    } else {
+        // The current process is already attached to a console.
+        // A console subprocess will automatically indent it.
+        // A GUI subprocess will ignore it.
+    }
     PROCESS_INFORMATION pi = {};
     const bool success = CreateProcessA(
         nullptr,
-        (LPSTR) cmd.c_str(),
+        LPSTR(cmd.c_str()),
         nullptr,
         nullptr,
         TRUE,
-        0,
+        flags,
         nullptr,
         nullptr,
         &si,

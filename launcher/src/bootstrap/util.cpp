@@ -1,5 +1,7 @@
 #ifndef _WIN32
 #include <cstring>
+#include <unistd.h>
+
 #include <libreborn/env/env.h>
 #endif
 
@@ -22,10 +24,13 @@ std::string run_command_and_trim(const char *const command[], const char *action
     return output_str;
 }
 
-// No Path Translation Needed On Linux
+// Unnecessary Functions On Plain Linux
 #ifndef _WIN32
 std::string translate_native_path_to_linux(const std::string &path) {
     return path;
+}
+void firm_delete(const std::string &path) {
+    unlink(path.c_str());
 }
 #endif
 

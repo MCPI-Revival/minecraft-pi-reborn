@@ -1,7 +1,6 @@
 #include <fcntl.h>
 #include <sys/stat.h>
 #include <cstring>
-#include <unistd.h>
 
 #ifdef _WIN32
 #define WIN32_LEAN_AND_MEAN
@@ -10,6 +9,7 @@
 #include <shlobj.h>
 #else
 #include <sys/file.h>
+#include <unistd.h>
 #endif
 
 #include <libreborn/util/util.h>
@@ -195,5 +195,27 @@ bool init_com() {
         WARN("Unable To Initialize COM: %ld", ret);
     }
     return success;
+}
+#endif
+
+// "Main" Executable Utility Functions
+#ifdef _WIN32
+std::wstring get_launcher_executable() {
+    constexpr int max_length = MAX_PATH;
+    wchar_t raw[max_length] = {};
+    const bool ret = GetModuleFileNameW(nullptr, raw, max_length);
+    if (ret) {
+        std::wstring dir = raw;
+        const std::wstring::size_type pos = dir.rfind(path_separator);
+        if (pos != std::wstring::npos) {
+            dir = dir.substr(0, pos + 1);
+            return dir + L"launcher.exe";
+        }
+    }
+    ERR("Unable To Locate Main Executable");
+}
+std::pair<std::wstring, int> get_display_name_resource() {
+    const std::wstring binary = get_launcher_executable();
+    return {binary, 1};
 }
 #endif

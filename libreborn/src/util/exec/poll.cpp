@@ -15,36 +15,38 @@
 static bool get_bytes_available(const HANDLE fd, int &bytes_available_out) {
 #ifdef _WIN32
     DWORD bytes_available = 0;
-    const BOOL ret = PeekNamedPipe(fd, nullptr, 0, nullptr, &bytes_available, nullptr);
-    if (!ret) {
-        return false;
+    const BOOL peek_ret = PeekNamedPipe(fd, nullptr, 0, nullptr, &bytes_available, nullptr);
+    if (peek_ret) {
+        bytes_available_out = int(bytes_available);
+        return true;
     }
-    bytes_available_out = int(bytes_available);
 #else
     int available_bytes = 0;
     const int ret = ioctl(fd, FIONREAD, &available_bytes);
-    if (ret != 0) {
-        return false;
+    if (ret == 0) {
+        bytes_available_out = available_bytes;
+        return true;
     }
-    bytes_available_out = available_bytes;
 #endif
-    return true;
+    return false;
 }
 static bool read_fd(const HANDLE fd, unsigned char *buf, const size_t size, size_t &bytes_read_out) {
+    bool ret = true;
 #ifdef _WIN32
-    DWORD bytes_read = 0;
-    const bool ret = ReadFile(fd, buf, size, &bytes_read, nullptr);
-    if (!ret) {
-        return false;
+    DWORD bytes_read;
+    const bool read_ret = ReadFile(fd, buf, size, &bytes_read, nullptr);
+    if (!read_ret) {
+        ret = false;
     }
 #else
-    const ssize_t bytes_read = read(fd, buf, size);
-    if (bytes_read < 0) {
-        return false;
+    ssize_t bytes_read = read(fd, buf, size);
+    if (bytes_read <= 0) {
+        bytes_read = 0;
+        ret = false;
     }
 #endif
     bytes_read_out = size_t(bytes_read);
-    return true;
+    return ret;
 }
 
 // Poll Single FD
@@ -64,16 +66,27 @@ static bool poll_fd(const int i, const HANDLE fd, unsigned char buf[BUFFER_SIZE]
 
         // Read Data
         const size_t bytes_to_read = std::min<size_t>(BUFFER_SIZE, bytes_available);
-        size_t bytes_read = 0;
-        ret = read_fd(fd, buf, bytes_to_read, bytes_read);
-        if (!ret) {
-            // Read Failure
-            // Mark As Closed
-            return false;
+        size_t total_bytes_read = 0;
+        bool failure = false;
+        while (total_bytes_read < bytes_to_read) {
+            // Read Chunk
+            size_t bytes_read;
+            ret = read_fd(fd, buf + total_bytes_read, bytes_to_read - total_bytes_read, bytes_read);
+            total_bytes_read += bytes_read;
+            if (!ret) {
+                // Read Failure
+                // Mark As Closed
+                failure = true;
+                break;
+            }
         }
-        if (bytes_read > 0) {
+        if (total_bytes_read > 0) {
             // Successfully Read Data
-            on_data(i, bytes_read, buf);
+            on_data(i, total_bytes_read, buf);
+        }
+        if (failure) {
+            // Assume FD Is Closed
+            return false;
         }
     }
 }
@@ -97,9 +110,9 @@ static bool poll_fd(const int i, const pollfd &fd, unsigned char buf[BUFFER_SIZE
 void poll_fds(std::vector<HANDLE> fds, const std::unordered_set<HANDLE> &do_not_expect_to_close, const std::function<void(int, size_t, const unsigned char *)> &on_data) {
 #ifdef _WIN32
     // Track Indices
-    std::unordered_map<HANDLE, int> handle_to_index;
+    std::unordered_map<HANDLE, int> handle_to_original_index;
     for (std::vector<HANDLE>::size_type i = 0; i < fds.size(); i++) {
-        handle_to_index[fds.at(i)] = int(i);
+        handle_to_original_index.insert({fds.at(i), int(i)});
     }
 
     // Poll
@@ -112,7 +125,7 @@ void poll_fds(std::vector<HANDLE> fds, const std::unordered_set<HANDLE> &do_not_
         std::vector<HANDLE> to_remove;
         for (const HANDLE fd : fds) {
             // Get Index
-            const int i = handle_to_index.at(fd);
+            const int i = handle_to_original_index.at(fd);
 
             // Read Data (If Available)
             const bool ret = poll_fd(i, fd, buf, on_data);
@@ -165,7 +178,7 @@ void poll_fds(std::vector<HANDLE> fds, const std::unordered_set<HANDLE> &do_not_
         }
 
         // Handle Data
-        for (std::vector<int>::size_type i = 0; i < fds.size(); i++) {
+        for (std::vector<HANDLE>::size_type i = 0; i < fds.size(); i++) {
             pollfd &fd = poll_fds.at(i);
             const bool ret = poll_fd(int(i), fd, buf, on_data);
             if (!ret) {

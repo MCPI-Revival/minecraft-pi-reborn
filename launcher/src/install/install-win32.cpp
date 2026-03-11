@@ -9,8 +9,7 @@
 
 #include <libreborn/util/string.h>
 #include <libreborn/util/io.h>
-#include <libreborn/util/exec.h>
-#include <libreborn/env/env.h>
+#include <libreborn/util/util.h>
 #include <libreborn/log.h>
 #include <libreborn/config.h>
 
@@ -57,20 +56,6 @@ bool is_desktop_file_installed() {
     return _waccess(path.c_str(), F_OK) == 0;
 }
 
-// Configure Relaunch Behavior
-static std::pair<std::string, int> get_display_name_resource() {
-    const std::string binary = get_binary();
-    return {binary, 1};
-}
-void set_relaunch_env() {
-    const std::pair<std::string, int> resource = get_display_name_resource();
-    const std::string display_name_resource = '@' + resource.first + ",-" + safe_to_string(resource.second);
-    set_and_print_env(_MCPI_RELAUNCH_DISPLAY_NAME_RESOURCE_ENV, display_name_resource.c_str());
-    const char *cmd[] = {resource.first.c_str(), nullptr};
-    const std::string cmd_str = make_cmd(cmd);
-    set_and_print_env(_MCPI_RELAUNCH_COMMAND_ENV, cmd_str.c_str());
-}
-
 // Create Shortcut File
 #define check(...) success = success && SUCCEEDED(__VA_ARGS__)
 static bool create_link(const std::wstring &path) {
@@ -82,7 +67,7 @@ static bool create_link(const std::wstring &path) {
     // Get Strings
     const std::wstring description = convert_utf8_to_wstring(reborn_config.app.description);
     const std::wstring app_id = convert_utf8_to_wstring(reborn_config.app.id);
-    const std::wstring binary = convert_utf8_to_wstring(get_binary());
+    const std::wstring binary = get_launcher_executable();
 
     // Set Path & Description
     bool success = true;
@@ -115,9 +100,8 @@ static bool create_link(const std::wstring &path) {
     }
 
     // Add Display Name
-    const std::pair<std::string, int> resource = get_display_name_resource();
-    const std::wstring resource_binary = convert_utf8_to_wstring(resource.first);
-    check(SHSetLocalizedName(path.c_str(), resource_binary.c_str(), resource.second));
+    const std::pair<std::wstring, int> resource = get_display_name_resource();
+    check(SHSetLocalizedName(path.c_str(), resource.first.c_str(), resource.second));
 
     // Return
     link->Release();

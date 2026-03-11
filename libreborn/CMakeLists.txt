@@ -28,17 +28,21 @@ target_link_libraries(reborn-util PRIVATE utf8cpp)
 if(TARGET glfw)
     target_sources(reborn-util PRIVATE
         src/util/glfw/glfw.cpp
-        src/util/glfw/app-id.cpp
     )
     target_link_libraries(reborn-util PRIVATE
         glfw
     )
     if(MCPI_WIN32)
         target_sources(reborn-util PRIVATE
-            src/util/glfw/icon-win32.cpp
+            src/util/glfw/win32/icon.cpp
+            src/util/glfw/win32/app-id.cpp
         )
         target_link_libraries(reborn-util PRIVATE
             shlwapi
+        )
+    else()
+        target_sources(reborn-util PRIVATE
+            src/util/glfw/linux/app-id.cpp
         )
     endif()
 endif()

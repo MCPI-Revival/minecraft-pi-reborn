@@ -1,12 +1,13 @@
+#include "glfw.h"
+
 #ifdef _WIN32
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 #endif
 
 #include <libreborn/util/util.h>
+#include <libreborn/log.h>
 #include <libreborn/config.h>
-
-#include "glfw.h"
 
 // Handle GLFW Error
 static void glfw_error(const int error, const char *description) {

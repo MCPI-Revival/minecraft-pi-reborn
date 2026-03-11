@@ -49,3 +49,10 @@ MCPI_REBORN_UTIL_PUBLIC std::string home_get();
 // Default MCPI Port
 // This Macro DOES NOT Control MCPI
 #define DEFAULT_MULTIPLAYER_PORT 19132
+
+// Locate The "Main" Executable
+// Used For Locating Resources And Relaunching
+#ifdef _WIN32
+MCPI_REBORN_UTIL_PUBLIC std::wstring get_launcher_executable();
+MCPI_REBORN_UTIL_PUBLIC std::pair<std::wstring, int> get_display_name_resource();
+#endif

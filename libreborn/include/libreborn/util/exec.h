@@ -18,7 +18,7 @@ MCPI_REBORN_UTIL_PUBLIC void log_command(const char *const argv[], const char *v
 #ifdef _WIN32
 MCPI_REBORN_UTIL_PUBLIC std::string make_cmd(const char *const argv[]);
 #endif
-MCPI_REBORN_UTIL_PUBLIC __attribute__((noreturn)) void safe_exec(const char *const argv[]);
+MCPI_REBORN_UTIL_PUBLIC __attribute__((noreturn)) void safe_exec(const char *const argv[], bool requires_console_on_windows = false);
 
 // fork() With I/O
 #ifdef _WIN32

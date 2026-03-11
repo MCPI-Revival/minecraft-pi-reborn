@@ -29,7 +29,7 @@ static int create_file() {
     set_and_print_env(_MCPI_LOCK_FD_ENV, safe_to_string(lock_fd).c_str());
 #endif
     // Generate New File
-    unlink(patched_exe_path.c_str());
+    firm_delete(patched_exe_path);
     const int fd = open(patched_exe_path.c_str(), O_WRONLY | O_CREAT | O_BINARY, S_IRWXU);
     if (fd < 0) {
         ERR("Unable To Open Patched Executable: %s", strerror(errno));

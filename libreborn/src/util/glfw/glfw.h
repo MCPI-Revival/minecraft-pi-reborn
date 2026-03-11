@@ -5,7 +5,6 @@
 #define GLFW_INCLUDE_NONE
 #include <GLFW/glfw3.h>
 
-#include <libreborn/log.h>
 #include <libreborn/util/glfw.h>
 
 // Set Window Icon

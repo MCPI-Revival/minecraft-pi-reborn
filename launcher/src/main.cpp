@@ -31,27 +31,6 @@ static void setup_environment(const options_t &options) {
     bind_to_env(_MCPI_FORCE_HEADLESS_ENV, options.force_headless);
     bind_to_env(_MCPI_FORCE_NON_HEADLESS_ENV, options.force_non_headless);
 
-    // Configure Taskbar Behavior
-#ifdef _WIN32
-    set_relaunch_env();
-#endif
-
-    // Configure Console Window
-#ifdef _WIN32
-    if (reborn_is_headless()) {
-        const HANDLE old_out = GetStdHandle(STD_OUTPUT_HANDLE);
-        const bool missing_out = !old_out || old_out == INVALID_HANDLE_VALUE;
-        if (missing_out && AllocConsole()) {
-            const wchar_t *out_name = L"CONOUT$";
-            const wchar_t *in_name = L"CONIN$";
-            FILE *file;
-            _wfreopen_s(&file, out_name, L"w", stdout);
-            _wfreopen_s(&file, out_name, L"w", stderr);
-            _wfreopen_s(&file, in_name, L"r", stdin);
-        }
-    }
-#endif
-
     // Setup MCPI_HOME
     setup_home();
     // Create If Needed
@@ -106,7 +85,8 @@ static void start_game(const options_t &options) {
     if (!options.disable_logger) {
         new_argv.insert(new_argv.begin(), logger_exe.c_str());
     }
-    safe_exec(new_argv.data());
+    const bool should_have_console = reborn_is_headless();
+    safe_exec(new_argv.data(), should_have_console);
 }
 
 // Main

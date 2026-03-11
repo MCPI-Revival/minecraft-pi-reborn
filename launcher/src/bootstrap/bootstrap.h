@@ -6,6 +6,7 @@
 // Utility Functions
 std::string run_command_and_trim(const char *const command[], const char *action);
 std::string translate_native_path_to_linux(const std::string &path);
+void firm_delete(const std::string &path);
 std::string get_temp_dir();
 
 // Debugging
