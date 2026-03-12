@@ -91,7 +91,9 @@ static void *loader_thread(void *user_data) {
     pthread_mutex_lock(&pending_textures_lock);
     data->done = true;
     data->success = success;
-    data->data = output.value().output;
+    if (success) {
+        data->data = output.value().output;
+    }
     pthread_mutex_unlock(&pending_textures_lock);
     return nullptr;
 }
