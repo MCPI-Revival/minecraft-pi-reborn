@@ -56,9 +56,6 @@ mcpi_option(GAME_DOWNLOAD_URL "Game Download URL" STRING
 )
 mcpi_option(GAME_DOWNLOAD_USER_AGENT "Game Download User Agent (Needed For minecraft.net)" STRING "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36")
 
-# Branding
-include("${CMAKE_CURRENT_LIST_DIR}/branding.cmake")
-
 # Version
 set(version_file "${CMAKE_CURRENT_SOURCE_DIR}/VERSION")
 set_property(
@@ -66,6 +63,9 @@ set_property(
     CMAKE_CONFIGURE_DEPENDS "${version_file}"
 )
 file(STRINGS "${version_file}" MCPI_VERSION)
+
+# Branding
+include("${CMAKE_CURRENT_LIST_DIR}/branding.cmake")
 
 # Packaging
 include(CheckSymbolExists)
