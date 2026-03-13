@@ -32,6 +32,11 @@ static int get_icon(ItemInstance *item, Mob *mob) {
         return item->getIcon();
     }
 }
+static int get_hash(ItemInstance *item, Mob *mob) {
+    const int icon = get_icon(item, mob);
+    const int id = item->id;
+    return (id << 16) | icon;
+}
 static bool is_tile(const ItemInstance *item) {
     return item->id < TILE_ITEM_BARRIER;
 }
@@ -41,11 +46,7 @@ static constexpr int atlas_size = AtlasSize::TILE_COUNT;
 static std::unordered_map<int, ItemInHandRenderer_RenderCall> held_item_cache;
 static void ItemInHandRenderer_renderItem_injection_1(ItemInHandRenderer_renderItem_t original, ItemInHandRenderer *self, Mob *mob, ItemInstance *item) {
     // Create Hash
-    int hash = get_icon(item, mob);
-    if (!is_tile(item)) {
-        constexpr int atlas_end = atlas_size * atlas_size;
-        hash += atlas_end;
-    }
+    const int hash = get_hash(item, mob);
 
     // Create Buffer If Needed
     if (!held_item_cache.contains(hash)) {
