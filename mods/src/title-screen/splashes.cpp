@@ -1,5 +1,6 @@
 #include <fstream>
 #include <cmath>
+#include <ctime>
 
 #include <libreborn/patch.h>
 #include <libreborn/env/env.h>
@@ -169,11 +170,23 @@ static void StartMenuScreen_render_injection(StartMenuScreen_render_t original, 
     if (!splashes.empty()) {
         // Pick Splash
         if (current_splash.empty()) {
-            int id = 0;
-            if (!getenv_safe(MCPI_PROMOTIONAL_ENV).has_value()) {
-                id = rand() % splashes.size();
+            if (getenv_safe(MCPI_PROMOTIONAL_ENV).has_value()) {
+                // Promotional Mode
+                current_splash = splashes.front();
+            } else {
+                // Get Current Day
+                const time_t now = time(nullptr);
+                const tm *local_now = localtime(&now);
+                const bool is_pi_day = local_now->tm_mon == 2 && local_now->tm_mday == 14;
+                if (is_pi_day) {
+                    // Pi Day!
+                    current_splash = "Happy Pi Day!";
+                } else {
+                    // Pick Random Splash
+                    const int id = rand() % splashes.size();
+                    current_splash = splashes.at(id);
+                }
             }
-            current_splash = splashes[id];
         }
         // Draw
         float y_factor = 2.0f;
