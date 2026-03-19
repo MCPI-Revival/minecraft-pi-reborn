@@ -168,6 +168,7 @@ static void Item_initTiles_injection() {
     cake_item->tile_id = cake->id;
     cake_item->setIcon(13, 1);
     cake_item->max_stack_size = 1;
+    cake_item->category = 4;
     cake_item->setDescriptionId(cake_description);
 }
 

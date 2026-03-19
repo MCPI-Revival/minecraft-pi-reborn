@@ -5,6 +5,10 @@ include_toc: true
 
 # Changelog
 
+## 3.0.1
+
+* Fix Crafting Cake
+
 ## 3.0.0
 
 * Modding API Revamped
