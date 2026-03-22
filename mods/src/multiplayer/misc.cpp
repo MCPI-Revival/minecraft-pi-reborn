@@ -9,6 +9,8 @@
 #include <symbols/Minecraft.h>
 #include <symbols/LocalPlayer.h>
 #include <symbols/RemovePlayerPacket.h>
+#include <symbols/RemoveBlockPacket.h>
+#include <symbols/GameMode.h>
 
 #include <libreborn/patch.h>
 #include <mods/feature/feature.h>
@@ -70,6 +72,14 @@ static void ServerSideNetworkHandler_handle_UpdateBlockPacket_injection(ServerSi
     if (!player) {
         return;
     }
+    // Prevent Repacing Indescribable Blocks
+    if (self->minecraft->game_mode->isSurvivalType()) {
+        const int old_tile_id = level->getTile(packet->x, packet->y, packet->z);
+        const Tile *old_tile = Tile::tiles[old_tile_id];
+        if (old_tile && old_tile->destroyTime < 0) {
+            return;
+        }
+    }
     // Place
     const int x = packet->x;
     const int y = packet->y;
@@ -93,6 +103,23 @@ static void ClientSideNetworkHandler_handle_RemovePlayerPacket_injection(ClientS
     original(self, guid, packet);
 }
 
+// Fix Breaking Bedrock
+static void ServerSideNetworkHandler_handle_RemoveBlockPacket_injection(ServerSideNetworkHandler_handle_RemoveBlockPacket_t original, ServerSideNetworkHandler *self, const RakNet_RakNetGUID &guid, RemoveBlockPacket *packet) {
+    // Check If Action Is Impossible
+    Level *level = self->level;
+    if (level && self->minecraft->game_mode->isSurvivalType()) {
+        const int tile_id = level->getTile(packet->x, packet->y, packet->z);
+        const Tile *tile = Tile::tiles[tile_id];
+        if (tile && tile->destroyTime < 0) {
+            // Indescribable Block!
+            return;
+        }
+    }
+
+    // Call Original Method
+    original(self, guid, packet);
+}
+
 // Init
 void _init_multiplayer_misc() {
     // Free Pending Players
@@ -109,7 +136,12 @@ void _init_multiplayer_misc() {
     }
 
     // Prevent Removing Local Player
-    if (feature_has("Prevent Removing Local Player", server_disabled)) {
+    if (feature_has("Prevent Removing Local Player", server_enabled)) {
         overwrite_calls(ClientSideNetworkHandler_handle_RemovePlayerPacket, ClientSideNetworkHandler_handle_RemovePlayerPacket_injection);
+    }
+
+    // Fix Breaking Bedrock
+    if (feature_has("Prevent Breaking Bedrock In Multiplayer", server_enabled)) {
+        overwrite_calls(ServerSideNetworkHandler_handle_RemoveBlockPacket, ServerSideNetworkHandler_handle_RemoveBlockPacket_injection);
     }
 }

@@ -187,6 +187,7 @@ CATEGORY Bug Fixes
         TRUE Reliable Block Placement On Servers
         TRUE Prevent Removing Local Player
         TRUE Correctly Handle Empty Slots When Receiving Inventory Data
+        TRUE Prevent Breaking Bedrock In Multiplayer
     CATEGORY Input
         TRUE Fix Bow & Arrow
         TRUE Fix Attacking

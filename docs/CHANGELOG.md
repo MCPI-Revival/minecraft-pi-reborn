@@ -8,6 +8,7 @@ include_toc: true
 ## 3.0.1
 
 * Fix Crafting Cake
+* Fix Bug That Can Be Used To Break Bedrock In Multiplayer
 
 ## 3.0.0
 
