@@ -66,9 +66,6 @@ struct CrashReport final : Frame {
         int ret = 0;
         const int clicked_button = draw_aligned_buttons({"Copy", quit_text}, {});
         if (clicked_button == 0) {
-            // Disable V-Sync
-            // (On Wayland, This Fixes Issues With The Clipboard)
-            glfwSwapInterval(0);
             // Copy Log
             ImGui::SetClipboardText(log.c_str());
         } else if (clicked_button == 1) {
