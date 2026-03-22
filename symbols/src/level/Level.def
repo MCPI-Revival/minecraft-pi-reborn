@@ -69,6 +69,8 @@ method void prepare() = 0xa5bac;
 method LevelChunk *getChunk(int x, int z) = 0xa330c;
 method int getSeed() = 0xa5ff8;
 method void loadEntities() = 0xa6438;
+method void playSound_entity(Entity *entity, const std::string &name, float volume, float pitch) = 0xa42a8;
+method void playSound_position(float x, float y, float z, const std::string &name, float volume, float pitch) = 0xa431c;
 
 virtual-method void tick() = 0x28;
 virtual-method void updateSleepingPlayerList() = 0x2c;
@@ -86,3 +88,4 @@ property LevelData data = 0xa64;
 property RakNetInstance *rak_net_instance = 0x78;
 property LevelStorage *storage = 0xa60;
 property int sky_darken = 0x6c;
+property std::vector<LevelListener *> listeners = 0xa50;

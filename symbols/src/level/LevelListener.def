@@ -3,3 +3,4 @@ vtable-size 0x48;
 
 virtual-method void entityRemoved(Entity *entity) = 0x38;
 virtual-method void skyColorChanged() = 0x14;
+virtual-method void playSound(const std::string &name, float x, float y, float z, float volume, float pitch) = 0x28;
