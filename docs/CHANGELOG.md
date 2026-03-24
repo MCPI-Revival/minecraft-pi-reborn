@@ -5,6 +5,10 @@ include_toc: true
 
 # Changelog
 
+## 3.0.2
+
+* Update Default Multiplayer Server URL
+
 ## 3.0.1
 
 * Fix Crafting Cake

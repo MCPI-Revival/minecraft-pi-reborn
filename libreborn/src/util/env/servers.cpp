@@ -10,10 +10,14 @@
 // Seperator
 #define PORT_SEPERATOR_CHAR ':'
 
+// Default Server
+static const std::string default_server_old = "thebrokenrail.com";
+static const std::string default_server_new = "mcpi." + default_server_old;
+
 // Constructor
 ServerList::ServerList() {
     // Official Server
-    entries.emplace_back("thebrokenrail.com", DEFAULT_MULTIPLAYER_PORT);
+    entries.emplace_back(default_server_new, DEFAULT_MULTIPLAYER_PORT);
 }
 
 // Load
@@ -47,6 +51,10 @@ void ServerList::load(const std::string &str) {
             } else {
                 address = line.substr(0, separator_pos);
                 port_str = line.substr(separator_pos + 1);
+            }
+            // Upgrade Server URL
+            if (address == default_server_old) {
+                address = default_server_new;
             }
             // Done
             entries.emplace_back(address, parse_port(port_str));
