@@ -10,7 +10,6 @@
 #include <symbols/LocalPlayer.h>
 #include <symbols/RemovePlayerPacket.h>
 #include <symbols/RemoveBlockPacket.h>
-#include <symbols/GameMode.h>
 
 #include <libreborn/patch.h>
 #include <mods/feature/feature.h>
@@ -41,7 +40,24 @@ static void ServerSideNetworkHandler_handle_LoginPacket_injection(ServerSideNetw
 }
 
 // More Reliable Block Placement On Servers
+static bool can_place_or_break(const Level *level, const int tile_id) {
+    // Check Game-Mode
+    if (level->data.game_type == 0) {
+        // Check Tile
+        const Tile *tile = Tile::tiles[tile_id];
+        if (tile && tile->destroyTime < 0) {
+            // Indescribable Block!
+            return false;
+        }
+    }
+    // Creative Mode Or Normal Block
+    return true;
+}
 static bool TileItem_useOn_Level_setTileAndData_injection(Level *self, const int x, const int y, const int z, const int tile_id, const int data) {
+    // Check Tile
+    if (!can_place_or_break(self, tile_id)) {
+        return false;
+    }
     // Call Original Method
     const bool ret = self->setTileAndData(x, y, z, tile_id, data);
     // Send Packet
@@ -72,21 +88,21 @@ static void ServerSideNetworkHandler_handle_UpdateBlockPacket_injection(ServerSi
     if (!player) {
         return;
     }
-    // Prevent Repacing Indescribable Blocks
-    if (self->minecraft->game_mode->isSurvivalType()) {
-        const int old_tile_id = level->getTile(packet->x, packet->y, packet->z);
-        const Tile *old_tile = Tile::tiles[old_tile_id];
-        if (old_tile && old_tile->destroyTime < 0) {
+    // Get New Tile
+    const int x = packet->x;
+    const int y = packet->y;
+    const int z = packet->z;
+    const int new_tile_id = Tile::transformToValidBlockId(packet->tile_id, x, y, z);
+    // Prevent Placing/Breaking Indescribable Blocks
+    const int old_tile_id = level->getTile(packet->x, packet->y, packet->z);
+    for (const int id : {old_tile_id, new_tile_id}) {
+        if (!can_place_or_break(level, id)) {
             return;
         }
     }
     // Place
-    const int x = packet->x;
-    const int y = packet->y;
-    const int z = packet->z;
-    const int tile_id = Tile::transformToValidBlockId(packet->tile_id, x, y, z);
-    level->setTileAndData(x, y, z, tile_id, packet->data);
-    Tile::tiles[tile_id]->setPlacedBy(level, x, y, z, (Mob *) player);
+    level->setTileAndData(x, y, z, new_tile_id, packet->data);
+    Tile::tiles[new_tile_id]->setPlacedBy(level, x, y, z, (Mob *) player);
 }
 
 // Prevent Removing Local Player
@@ -107,11 +123,9 @@ static void ClientSideNetworkHandler_handle_RemovePlayerPacket_injection(ClientS
 static void ServerSideNetworkHandler_handle_RemoveBlockPacket_injection(ServerSideNetworkHandler_handle_RemoveBlockPacket_t original, ServerSideNetworkHandler *self, const RakNet_RakNetGUID &guid, RemoveBlockPacket *packet) {
     // Check If Action Is Impossible
     Level *level = self->level;
-    if (level && self->minecraft->game_mode->isSurvivalType()) {
+    if (level) {
         const int tile_id = level->getTile(packet->x, packet->y, packet->z);
-        const Tile *tile = Tile::tiles[tile_id];
-        if (tile && tile->destroyTime < 0) {
-            // Indescribable Block!
+        if (!can_place_or_break(level, tile_id)) {
             return;
         }
     }

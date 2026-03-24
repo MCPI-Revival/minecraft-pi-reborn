@@ -8,6 +8,7 @@ include_toc: true
 ## 3.0.2
 
 * Update Default Multiplayer Server URL
+* Fix Bug That Can Be Used To Place Bedrock In Multiplayer
 
 ## 3.0.1
 
