@@ -165,19 +165,22 @@ static void Screen_render_injection(Screen_render_t original, Screen *screen, co
 }
 
 // Fix Armor/Furnace Screen From Crashing On Death
-template <typename Self>
-static void ArmorScreen_render_injection(const std::function<void(Self *, int, int, float)> &original, Self *self, const int x, const int y, const float param_1) {
-    // Update Items
-    const size_t old_size = self->items.size();
-    self->updateItems();
-    const size_t new_size = self->items.size();
-    if (new_size != old_size) {
-        self->setupInventoryPane();
+#define def(type, func) \
+    static void type##_render_injection(type##_render_t original, type *self, const int x, const int y, const float param_1) { \
+        /* Update Items */ \
+        const size_t old_size = self->items.size(); \
+        self->func(); \
+        const size_t new_size = self->items.size(); \
+        if (new_size != old_size) { \
+            self->setupInventoryPane(); \
+        } \
+        \
+        /* Call Original Method */ \
+        original(self, x, y, param_1); \
     }
-
-    // Call Original Method
-    original(self, x, y, param_1);
-}
+def(ArmorScreen, updateItems)
+def(FurnaceScreen, recheckRecipes)
+#undef def
 
 // Prevent Dead/Hurt Player Rendering From Contaminating Armor Screen
 static void ArmorScreen_renderPlayer_injection(ArmorScreen_renderPlayer_t original, ArmorScreen *self, const float param_1, const float param_2) {
@@ -444,8 +447,8 @@ void _init_misc_ui() {
 
     // Fix Crash On Player Death
     if (feature_has("Fix Armor/Furnace Screen From Crashing On Death", server_disabled)) {
-        overwrite_calls(ArmorScreen_render, ArmorScreen_render_injection<ArmorScreen>);
-        overwrite_calls(FurnaceScreen_render, ArmorScreen_render_injection<FurnaceScreen>);
+        overwrite_calls(ArmorScreen_render, ArmorScreen_render_injection);
+        overwrite_calls(FurnaceScreen_render, FurnaceScreen_render_injection);
     }
 
     // Fix Armor Screen Rendering With Dead/Hurt Player

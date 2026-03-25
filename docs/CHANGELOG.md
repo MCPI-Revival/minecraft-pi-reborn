@@ -9,6 +9,7 @@ include_toc: true
 
 * Update Default Multiplayer Server URL
 * Fix Bug That Can Be Used To Place Bedrock In Multiplayer
+* Fix Placing Items In Furnace
 
 ## 3.0.1
 
