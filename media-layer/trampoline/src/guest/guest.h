@@ -22,10 +22,11 @@ __attribute__((hot, always_inline)) static inline void _handle_trampoline_arg(un
 #include "array.h"
 
 // Main Trampoline Function
+extern unsigned char _trampoline_arguments_buffer[MAX_TRAMPOLINE_ARGS_SIZE];
 template <typename... Args>
 __attribute__((hot, always_inline)) static inline unsigned int _trampoline(const unsigned int id, const bool allow_early_return, const Args&... args) {
     // Create Arguments
-    static unsigned char out[MAX_TRAMPOLINE_ARGS_SIZE];
+    unsigned char *out = _trampoline_arguments_buffer;
     unsigned char *end = out;
     (_handle_trampoline_arg(end, args), ...); // https://stackoverflow.com/a/25683817
     const uint32_t length = end - out;

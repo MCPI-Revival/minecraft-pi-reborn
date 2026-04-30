@@ -29,6 +29,7 @@ if(BUILD_NATIVE_COMPONENTS)
 elseif(BUILD_ARM_COMPONENTS)
     # Guest Component
     add_library(media-layer-core SHARED
+        src/guest/guest.cpp
         ${MEDIA_LAYER_TRAMPOLINE_SRC}
     )
     target_link_libraries(media-layer-core PRIVATE
