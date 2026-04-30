@@ -152,6 +152,7 @@ add_symbol_library(symbols
     src/item/TileItem.def
     src/item/TilePlanterItem.def
     src/item/FoodItem.def
+    src/item/BowlFoodItem.def
     src/item/DiggerItem.def
     src/item/DyePowderItem.def
     src/api/OffsetPosTranslator.def

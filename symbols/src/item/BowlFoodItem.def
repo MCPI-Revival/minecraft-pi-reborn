@@ -1,0 +1,5 @@
+extends FoodItem;
+
+size 0x30;
+vtable 0x10e990;
+vtable-size 0x98;

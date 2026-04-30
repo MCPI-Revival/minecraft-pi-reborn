@@ -9,6 +9,7 @@
 #include <symbols/Inventory.h>
 #include <symbols/Item.h>
 #include <symbols/FoodItem.h>
+#include <symbols/BowlFoodItem.h>
 #include <symbols/Screen.h>
 #include <symbols/GameRenderer.h>
 #include <symbols/Mouse.h>
@@ -49,14 +50,18 @@ static int heal_amount = 0, heal_amount_drawing = 0;
 static void Gui_renderHearts_injection(Gui_renderHearts_t original, Gui *gui) {
     // Calculate heal_amount
     heal_amount = heal_amount_drawing = 0;
-    Inventory *inventory = gui->minecraft->player->inventory;
-    const ItemInstance *held_ii = inventory->getSelected();
+    LocalPlayer *player = gui->minecraft->player;
+    Inventory *inventory = player->inventory;
+    ItemInstance *held_ii = inventory->getSelected();
     if (held_ii) {
         Item *held = Item::items[held_ii->id];
-        if (held->isFood() && held_ii->id) {
-            const int nutrition = ((FoodItem *) held)->nutrition;
-            const int cur_health = gui->minecraft->player->health;
-            const int heal_num = std::min(cur_health + nutrition, 20) - cur_health;
+        if (held && held->isFood() && held->getUseDuration(held_ii) > 0) {
+            const bool is_food_item = held->vtable == (const Item::VTable *) FoodItem::VTable::base || held->vtable == (const Item::VTable *) BowlFoodItem::VTable::base;
+            const FoodItem *food_item = is_food_item ? (FoodItem *) held : nullptr;
+            const int nutrition = food_item ? food_item->nutrition : 0;
+            const int cur_health = player->health;
+            const int max_health = player->getMaxHealth();
+            const int heal_num = std::min(cur_health + nutrition, max_health) - cur_health;
             heal_amount = heal_amount_drawing = heal_num;
         }
     }
