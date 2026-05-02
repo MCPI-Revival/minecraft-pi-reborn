@@ -1,3 +1,9 @@
+size 0x58;
+constructor (Model *model, int xTextureOffset, int yTextureOffset) = 0x41260;
+
+method void addBox(float x, float y, float z, int w, int h, int d) = 0x41e30;
+method void addBox2(float x, float y, float z, int w, int h, int d, float g) = 0x41dac;
+method void setPos(float x, float y, float z) = 0x413ac;
 method void compile(float scale) = 0x413bc;
 method void render(float scale) = 0x416dc;
 
@@ -7,6 +13,15 @@ property float z = 0x8;
 property float xRot = 0xc;
 property float yRot = 0x10;
 property float zRot = 0x14;
-property bool compiled = 0x49;
+property bool mirror = 0x18;
+property bool visible = 0x19;
 property std::vector<Cube *> cubes = 0x1c;
+property std::vector<ModelPart *> nodes = 0x28;
+property std::string id = 0x34;
+property float xTextureSize = 0x38;
+property float yTextureSize = 0x3c;
+property float xTextureOffset = 0x40;
+property float yTextureOffset = 0x44;
+property bool compiled = 0x49;
 property uint buffer = 0x50;
+property Model *model = 0x54;

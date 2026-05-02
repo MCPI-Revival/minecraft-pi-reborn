@@ -1,6 +1,13 @@
 vtable 0x1075a8;
+vtable-size 0x10;
 
-virtual-method void render(Entity *entity, float param_2, float param_3, float param_4, float param_5, float param_6) = 0x8;
+size 0xc;
+constructor () = 0x62520;
+generate-custom-wrapper;
+
+// Pure virtual
+virtual-method void render(Entity *entity, float x, float y, float z, float rot, float a) = 0x8;
+virtual-method void onGraphicsReset() = 0xc;
 
 // Can be called without an EntityRenderer, just do EntityRenderer_bindTexture->get(false)(NULL, &file);
 method void bindTexture(const std::string &file) = 0x62540;

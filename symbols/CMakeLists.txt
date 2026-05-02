@@ -220,6 +220,7 @@ add_symbol_library(symbols
     src/misc/Strings.def
     src/misc/I18n.def
     src/misc/SimpleFoodData.def
+    src/entity/model/Model.def
     src/entity/model/ModelPart.def
     src/entity/model/Cube.def
     src/entity/model/PolygonQuad.def

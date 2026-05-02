@@ -1,0 +1,20 @@
+vtable 0x105968;
+vtable-size 0x1c;
+
+size 0x24;
+generate-custom-wrapper;
+// Subclasses are responsible for all properties.
+allow-unsafe-custom-wrapper-constructor;
+
+virtual-method void onGraphicsReset() = 0x8;
+virtual-method void render(Entity *entity, float time, float r, float bob, float yaw, float pitch, float scale) = 0xc;
+virtual-method void renderHorrible(float time, float r, float bob, float yaw, float pitch, float scale) = 0x10;
+virtual-method void setupAnim(float time, float r, float bob, float yaw, float pitch, float scale) = 0x14;
+virtual-method void prepareMobModel(Mob *mob, float time, float r, float a) = 0x18;
+
+property float attackTime = 0x4;
+property bool riding = 0x8;
+property int textureWidth = 0xc;
+property int textureHeight = 0x10;
+property std::vector<ModelPart *> cubes = 0x14;
+property bool baby = 0x20;

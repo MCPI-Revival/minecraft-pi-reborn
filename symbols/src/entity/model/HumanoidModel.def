@@ -1,7 +1,17 @@
+extends Model;
+
+vtable 0x105a20;
+vtable-size 0x1c;
+
+size 0x238;
+constructor (float param_1, float param_2) = 0x3fbb4;
+
 property ModelPart head = 0x24;
 property ModelPart torso = 0x7c;
 property ModelPart rightArm = 0xd4;
 property ModelPart leftArm = 0x12c;
+property ModelPart rightLeg = 0x184;
+property ModelPart leftLeg = 0x1dc;
 property bool angleLeftArm = 0x234;
 property bool angleRightArm = 0x235;
 property bool is_sneaking = 0x236;

@@ -2,4 +2,4 @@ extends MobRenderer;
 
 vtable 0x107908;
 
-property HumanoidModel *model = 0x14;
+property HumanoidModel *humanoid_model = 0x14;

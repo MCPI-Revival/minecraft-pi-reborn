@@ -1,8 +1,11 @@
 extends Entity;
 
 vtable 0x10ad60;
+vtable-size 0x1f8;
 
+size 0xbe0;
 constructor (Level *level) = 0x81b80;
+generate-custom-wrapper;
 
 virtual-method void actuallyHurt(int damage) = 0x16c;
 virtual-method void die(Entity *cause) = 0x130;
@@ -18,5 +21,10 @@ method bool getSharedFlag(int flag) = 0x81fd8;
 method void setSharedFlag(int flag, bool value) = 0x81ef8;
 
 property int health = 0xec;
+property int old_health = 0xf0;
+property int hurt_time = 0xf4;
 property std::string texture = 0xb54;
 property Random random = 0x138;
+property float old_walking_animation = 0x118;
+property float walking_animation = 0x11c;
+property float walking_animation_frame = 0x120;
