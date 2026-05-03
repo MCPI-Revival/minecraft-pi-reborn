@@ -12,6 +12,7 @@
 #include <symbols/LevelChunk.h>
 #include <symbols/ModelPart.h>
 #include <symbols/Level.h>
+#include <symbols/ChestRenderer.h>
 
 // 3D Chest Rendering
 static int32_t TileRenderer_tesselateInWorld_Tile_getRenderShape_injection(Tile *tile) {
@@ -49,6 +50,10 @@ static void PolygonQuad_render_Tesselator_vertexUV_injection(Tesselator *self, c
     }
     // Call Original Method
     self->vertexUV(x, y, z, u, v);
+}
+static void ChestRenderer_onGraphicsReset_injection(ChestRenderer *self) {
+    // Reset Model
+    self->chest_model.onGraphicsReset();
 }
 
 // Fix Invisible Chests
@@ -133,6 +138,7 @@ void _init_misc_chest_rendering() {
     patch((void *) 0x66fc8, chest_model_patch);
     unsigned char chest_color_patch[4] = {0x00, 0xf0, 0x20, 0xe3}; // "nop"
     patch((void *) 0x66404, chest_color_patch);
+    patch_vtable(ChestRenderer_onGraphicsReset, ChestRenderer_onGraphicsReset_injection);
 
     // Fix Invisible Chests
     overwrite_calls(Level_loadEntities, Level_loadEntities_injection);

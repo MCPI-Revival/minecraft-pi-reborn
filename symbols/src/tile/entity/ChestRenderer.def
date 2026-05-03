@@ -1,0 +1,8 @@
+extends TileEntityRenderer;
+
+size 0x134;
+
+vtable 0x108240;
+vtable-size 0x14;
+
+property ChestModel chest_model = 0x8;

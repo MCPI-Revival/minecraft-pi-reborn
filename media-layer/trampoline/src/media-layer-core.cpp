@@ -164,13 +164,14 @@ CALL(64, media_set_raw_mouse_motion_enabled, void, (const bool enabled))
 #endif
 }
 
-CALL(76, media_begin_offscreen_render, void, (const unsigned int texture))
+CALL(76, media_begin_offscreen_render, void, (const unsigned int texture, const bool force_rebuild_fbo))
 #ifdef MEDIA_LAYER_TRAMPOLINE_GUEST
-    trampoline(true, gl_state.bound_texture, texture);
+    trampoline(true, gl_state.bound_texture, texture, force_rebuild_fbo);
 #else
     media_glBindTexture(GL_TEXTURE_2D, args.next<GLuint>());
     const unsigned int texture = args.next<uint32_t>();
-    func(texture);
+    const bool force_rebuild_fbo = args.next<bool>();
+    func(texture, force_rebuild_fbo);
     return 0;
 #endif
 }

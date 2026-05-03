@@ -36,8 +36,8 @@ static void setup_fbo(const GLuint texture) {
 }
 
 // Offscreen Rendering
-void media_begin_offscreen_render(const unsigned int texture) {
-    if (!fbo.has_value() || fbo_texture != texture) {
+void media_begin_offscreen_render(const unsigned int texture, const bool force_rebuild_fbo) {
+    if (!fbo.has_value() || fbo_texture != texture || force_rebuild_fbo) {
         setup_fbo(texture);
     }
     media_glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, fbo.value());

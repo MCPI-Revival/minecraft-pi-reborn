@@ -43,18 +43,20 @@ static void actually_generate_atlas(Minecraft *minecraft) {
 
 // Render Atlas
 static GLuint texture_id;
+static bool rebuild_fbo = false;
 static GLuint list;
 static void generate_atlas(Minecraft *minecraft, const bool dump) {
     // Setup Offscreen Rendering
     reset_bound_texture(minecraft);
-    media_begin_offscreen_render(texture_id);
+    media_begin_offscreen_render(texture_id, rebuild_fbo);
+    rebuild_fbo = false;
 
     // Setup OpenGL
     ((NinecraftApp *) minecraft)->initGLStates();
     media_glViewport(0, 0, atlas_texture_size, atlas_texture_size);
     media_glClearColor(0, 0, 0, 0);
     media_glClear(GL_COLOR_BUFFER_BIT);
-    const std::vector<GLenum> matrix_modes = {GL_MODELVIEW, GL_PROJECTION};
+    constexpr std::array matrix_modes = {GL_MODELVIEW, GL_PROJECTION};
     for (const GLenum mode : matrix_modes) {
         media_glMatrixMode(mode);
         media_glPushMatrix();
@@ -101,6 +103,7 @@ static void prepare_atlas(Minecraft *minecraft) {
     texture.data = nullptr;
     Textures *textures = minecraft->textures;
     texture_id = minecraft->textures->assignTexture(atlas_texture_name, texture);
+    rebuild_fbo = true;
 
     // Load Textures
     const std::vector<std::string> needed_textures = {

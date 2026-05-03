@@ -211,6 +211,8 @@ add_symbol_library(symbols
     src/tile/entity/TileEntityFactory.def
     src/tile/entity/TileEntityRenderer.def
     src/tile/entity/TileEntityRenderDispatcher.def
+    src/tile/entity/ChestRenderer.def
+    src/tile/entity/model/ChestModel.def
     src/tile/StemTile.def
     src/tile/Tile_SoundType.def
     src/tile/TileRenderer.def

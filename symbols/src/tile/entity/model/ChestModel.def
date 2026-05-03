@@ -1,0 +1,10 @@
+extends Model;
+
+size 0x12c;
+
+vtable 0x1081e0;
+vtable-size 0x1c;
+
+property ModelPart top = 0x24;
+property ModelPart bottom = 0x7c;
+property ModelPart latch = 0xd4;
