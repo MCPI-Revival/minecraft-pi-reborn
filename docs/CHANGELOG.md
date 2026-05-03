@@ -5,6 +5,12 @@ include_toc: true
 
 # Changelog
 
+## 3.0.3
+
+* Fix Food Overlay With Milk Buckets
+* Fix High RAM Usage On Startup
+* Fix High Fall Damage In Multiplayer
+
 ## 3.0.2
 
 * Update Default Multiplayer Server URL

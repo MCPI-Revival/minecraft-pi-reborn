@@ -188,6 +188,7 @@ CATEGORY Bug Fixes
         TRUE Prevent Removing Local Player
         TRUE Correctly Handle Empty Slots When Receiving Inventory Data
         TRUE Prevent Breaking Bedrock In Multiplayer
+        TRUE Fix High Fall Damage In Multiplayer
     CATEGORY Input
         TRUE Fix Bow & Arrow
         TRUE Fix Attacking

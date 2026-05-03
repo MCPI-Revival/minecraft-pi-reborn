@@ -158,4 +158,10 @@ void _init_multiplayer_misc() {
     if (feature_has("Prevent Breaking Bedrock In Multiplayer", server_enabled)) {
         overwrite_calls(ServerSideNetworkHandler_handle_RemoveBlockPacket, ServerSideNetworkHandler_handle_RemoveBlockPacket_injection);
     }
+
+    // Fall Damage
+    if (feature_has("Fix High Fall Damage In Multiplayer", server_enabled)) {
+        unsigned char nop_patch[4] = {0x00, 0xf0, 0x20, 0xe3}; // "nop"
+        patch((void *) 0x74424, nop_patch);
+    }
 }
