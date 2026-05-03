@@ -1,8 +1,13 @@
-# Where To Store Headers For Target
-macro(_get_sdk_header_dir target)
+# Mark Function As Requiring The SDK
+macro(_require_sdk)
     if(NOT BUILD_ARM_COMPONENTS)
         return()
     endif()
+endmacro()
+
+# Where To Store Headers For Target
+macro(_get_sdk_header_dir target)
+    _require_sdk()
     set(sdk_dir "${MCPI_SDK_INCLUDE_DIR}/${target}")
 endmacro()
 
@@ -25,5 +30,6 @@ endfunction()
 
 # Setup & Install Target
 function(setup_library_sdk target)
+    _require_sdk()
     install(TARGETS "${target}" EXPORT sdk DESTINATION "${MCPI_SDK_LIB_DIR}")
 endfunction()
