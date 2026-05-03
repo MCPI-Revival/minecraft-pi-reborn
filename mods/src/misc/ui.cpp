@@ -32,6 +32,13 @@
 #include <symbols/Strings.h>
 #include <symbols/ArmorScreen.h>
 #include <symbols/FurnaceScreen.h>
+#include <symbols/SelectWorldScreen.h>
+#include <symbols/Touch_SelectWorldScreen.h>
+#include <symbols/JoinGameScreen.h>
+#include <symbols/Touch_JoinGameScreen.h>
+#include <symbols/IngameBlockSelectionScreen.h>
+#include <symbols/Touch_IngameBlockSelectionScreen.h>
+#include <symbols/DisconnectionScreen.h>
 
 #include <media-layer/core.h>
 
@@ -421,6 +428,61 @@ static void Gui_addMessage_injection(Gui_addMessage_t original, Gui *self, const
     }
 }
 
+// Better Screen Resizing
+template <typename T>
+static void create_matching_screen(Screen *&old_screen, const std::function<void(const T *, T *)> &constructor) {
+    // Check Properties
+    if (!old_screen) {
+        return;
+    }
+    Minecraft *minecraft = old_screen->minecraft;
+    if (!minecraft) {
+        return;
+    }
+    // Test If Potential Screen Matches Current/Old Screen
+    const Screen::VTable *old_vtable = old_screen->vtable;
+    const Screen::VTable *new_vtable = (const Screen::VTable *) T::VTable::base;
+    if (old_vtable == new_vtable) {
+        // Construct
+        T *new_screen = T::allocate();
+        constructor((const T *) old_screen, new_screen);
+        // Set Screen
+        minecraft->setScreen((Screen *) new_screen);
+        old_screen = nullptr;
+    }
+}
+template <typename T>
+static void create_matching_screen(Screen *&old_screen) {
+    create_matching_screen<T>(old_screen, [](const T *, T *new_screen) {
+        new_screen->constructor();
+    });
+}
+static void Screen_setSize_injection(Screen_setSize_t original, Screen *self, const int width, const int height) {
+    // Call Original Method
+    original(self, width, height);
+
+    // Select World Screen
+    create_matching_screen<SelectWorldScreen>(self);
+    create_matching_screen<Touch_SelectWorldScreen>(self);
+    // Join World Screen
+    create_matching_screen<JoinGameScreen>(self);
+    create_matching_screen<Touch_JoinGameScreen>(self);
+    // Inventory Screen
+    create_matching_screen<IngameBlockSelectionScreen>(self);
+    create_matching_screen<Touch_IngameBlockSelectionScreen>(self);
+    // Disconnection Screen
+    create_matching_screen<DisconnectionScreen>(self, [](const DisconnectionScreen *old_screen, DisconnectionScreen *new_screen) {
+        new_screen->constructor(old_screen->str);
+    });
+}
+static void GameRenderer_render_GameRenderer_setupGuiScreen_injection(GameRenderer *self, const bool param_1) {
+    // Fix Screen
+    const Minecraft *minecraft = self->minecraft;
+    media_glViewport(0, 0, minecraft->screen_width, minecraft->screen_height);
+    // Call Original Method
+    self->setupGuiScreen(param_1);
+}
+
 // Init
 bool food_overlay = false;
 void _init_misc_ui() {
@@ -551,5 +613,11 @@ void _init_misc_ui() {
     // Fix Newlines In UI Messages
     if (feature_has("Fix Rendering Newlines In Chat Messages", server_enabled)) {
         overwrite_calls(Gui_addMessage, Gui_addMessage_injection);
+    }
+
+    // Better Screen Resizing
+    if (feature_has("Fix Some Screens Resizing Incorrectly", server_disabled)) {
+        overwrite_calls(Screen_setSize, Screen_setSize_injection);
+        overwrite_call((void *) 0x4a608, GameRenderer_setupGuiScreen, GameRenderer_render_GameRenderer_setupGuiScreen_injection);
     }
 }

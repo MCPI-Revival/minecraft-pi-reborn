@@ -10,6 +10,7 @@ include_toc: true
 * Fix Food Overlay With Milk Buckets
 * Fix High RAM Usage On Startup
 * Fix High Fall Damage In Multiplayer
+* Fix Some Screens Resizing Incorrectly
 
 ## 3.0.2
 
