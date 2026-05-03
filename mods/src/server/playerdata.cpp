@@ -120,7 +120,7 @@ void _load_playerdata(ServerPlayer *player) {
         // Send Inventory
         packet->container_id = multiplayer_inventory_container_id;
         for (int i = 0; i < data.inventory_size; i++) {
-            ItemInstance item;
+            ItemInstance item = {};
             safe_read(file, item);
             packet->items.push_back(item);
             inv_data.inv.push_back(item);
@@ -132,7 +132,7 @@ void _load_playerdata(ServerPlayer *player) {
         packet->container_id = multiplayer_armor_container_id;
         packet->items.clear();
         for (int i = 0; i < multiplayer_armor_size; i++) {
-            ItemInstance item;
+            ItemInstance item = {};
             item.setNull();
             safe_read(file, item, false);
             packet->items.push_back(item);

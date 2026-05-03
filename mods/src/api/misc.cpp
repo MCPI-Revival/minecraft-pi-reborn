@@ -78,6 +78,7 @@ static void ClientSideNetworkHandler_handle_MovePlayerPacket_injection(ClientSid
             if (entity == (Entity *) self->minecraft->player) {
                 // Just Teleport
                 entity->moveTo(packet->x, packet->y, packet->z, packet->yaw, packet->pitch);
+                entity->fall_distance = 0;
             } else {
                 // Call Original Method
                 original(self, rak_net_guid, packet);
