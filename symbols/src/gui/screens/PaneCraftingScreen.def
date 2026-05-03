@@ -1,6 +1,12 @@
 extends Screen;
 
+vtable 0x103fb8;
+
+size 0x180;
+constructor (int crafting_mode) = 0x2da30;
+
 method void craftSelectedItem() = 0x2e0e4;
 method void recheckRecipes() = 0x2dc98;
 
 property CItem *item = 0x74;
+property int crafting_mode = 0x13c;

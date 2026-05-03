@@ -1,4 +1,4 @@
-extends Screen;
+extends BaseContainerScreen;
 
 size 0x1d4;
 constructor (Player *player, FurnaceTileEntity *tile_entity) = 0x31770;
@@ -11,5 +11,6 @@ method void updateItems() = 0x32a74;
 method void recheckRecipes() = 0x32c20;
 method void setupInventoryPane() = 0x31f4c;
 
+property Player *player = 0x1cc;
 property FurnaceTileEntity *tile_entity = 0x1d0;
 property std::vector<const ItemInstance *> items = 0x1a0;

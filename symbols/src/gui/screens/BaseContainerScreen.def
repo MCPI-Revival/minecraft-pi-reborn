@@ -1,0 +1,4 @@
+extends Screen;
+
+vtable 0x103d00;
+size 0x4c;

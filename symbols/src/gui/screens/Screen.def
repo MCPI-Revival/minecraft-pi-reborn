@@ -21,6 +21,8 @@ virtual-method void mouseReleased(int x, int y, int param_1) = 0x68;
 virtual-method void keyPressed(int key) = 0x6c;
 virtual-method void keyboardNewChar(char key) = 0x70;
 
+method void setSize(int width, int height) = 0x29090;
+
 property int width = 0x8;
 property int height = 0xc;
 property bool passthrough_input = 0x10;

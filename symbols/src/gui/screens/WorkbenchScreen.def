@@ -1,5 +1,6 @@
-extends Screen;
+extends PaneCraftingScreen;
+
+vtable 0x1041a8;
 
 size 0x180;
-
-constructor (int param_1) = 0x301cc;
+constructor (int crafting_mode) = 0x301cc;

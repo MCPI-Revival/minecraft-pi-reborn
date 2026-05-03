@@ -1,0 +1,9 @@
+extends BaseContainerScreen;
+
+size 0x154;
+constructor (Player *player, ChestTileEntity *tile_entity) = 0x2ae4c;
+
+vtable 0x103de8;
+
+property Player *player = 0x14c;
+property ChestTileEntity *tile_entity = 0x150;

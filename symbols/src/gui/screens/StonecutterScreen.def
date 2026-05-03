@@ -1,0 +1,6 @@
+extends PaneCraftingScreen;
+
+vtable 0x1040e0;
+
+size 0x180;
+constructor () = 0x300f8;

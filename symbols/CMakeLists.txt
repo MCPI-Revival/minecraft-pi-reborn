@@ -161,10 +161,16 @@ add_symbol_library(symbols
     src/gui/screens/InBedScreen.def
     src/gui/screens/SimpleChooseLevelScreen.def
     src/gui/screens/PauseScreen.def
+    src/gui/screens/BaseContainerScreen.def
     src/gui/screens/FurnaceScreen.def
     src/gui/screens/WorkbenchScreen.def
+    src/gui/screens/StonecutterScreen.def
+    src/gui/screens/ChestScreen.def
     src/gui/screens/SelectWorldScreen.def
+    src/gui/screens/IngameBlockSelectionScreen.def
     src/gui/screens/Touch_IngameBlockSelectionScreen.def
+    src/gui/screens/JoinGameScreen.def
+    src/gui/screens/Touch_JoinGameScreen.def
     src/gui/screens/Screen.def
     src/gui/screens/OptionsScreen.def
     src/gui/screens/TextEditScreen.def

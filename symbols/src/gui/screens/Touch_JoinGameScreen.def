@@ -1,0 +1,6 @@
+extends Screen;
+
+size 0xc8;
+constructor () = 0x3ba64;
+
+vtable 0x1054f8;
