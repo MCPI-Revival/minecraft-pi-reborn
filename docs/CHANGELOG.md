@@ -5,6 +5,11 @@ include_toc: true
 
 # Changelog
 
+## 3.0.4
+
+* Disable Animated `gui_blocks` Atlas By Default
+* Add License URL To Flatpak Metadata
+
 ## 3.0.3
 
 * Fix Food Overlay With Milk Buckets

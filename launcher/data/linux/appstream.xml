@@ -23,7 +23,7 @@
     </keywords>
 
     <metadata_license>CC0-1.0</metadata_license>
-    <project_license>LicenseRef-proprietary</project_license>
+    <project_license>LicenseRef-proprietary=https://github.com/martinohanlon/mcpi/raw/91769a2782e5e278e494e17b13db3f975714751c/minecraft-pi-edition-LICENSE.txt</project_license>
 
     <developer id="${MCPI_AUTHOR_ID}">
         <name>${MCPI_AUTHOR_LONG_SAFE}</name>

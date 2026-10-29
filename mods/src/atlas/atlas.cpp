@@ -185,11 +185,17 @@ static void ItemRenderer_renderGuiItem_two_injection(MCPI_UNUSED ItemRenderer_re
 // Init
 void init_atlas() {
     // Generate Atlas
-    if (feature_has("Regenerate \"gui_blocks\" Atlas", server_disabled)) {
+    const std::string name = " \"gui_blocks\" Atlas";
+    const bool animate = feature_has(("Animate" + name).c_str(), server_disabled);
+    if (feature_has(("Regenerate" + name).c_str(), server_disabled)) {
         misc_run_on_init(on_init);
         overwrite_calls(Minecraft_onGraphicsReset, Minecraft_onGraphicsReset_injection);
-        misc_run_on_tick(on_tick);
+        if (animate) {
+            misc_run_on_tick(on_tick);
+        }
         overwrite_calls(ItemRenderer_renderGuiItem_two, ItemRenderer_renderGuiItem_two_injection);
         _atlas_init_special_cases();
+    } else if (animate) {
+        ERR("Animating The%s Requires Regenerating It", name.c_str());
     }
 }
